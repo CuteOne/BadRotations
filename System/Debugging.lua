@@ -92,8 +92,8 @@ end
 -- Times include everything a function calls (profile time includes the getEnemies calls it makes).
 local PROFILE_TARGETS = {
     -- label, table getter, function name
-    { "Object scan (updateOM)",        function() return br.engines.enemiesEngineFunctions end, "updateOM" },
-    { "Enemy unit updates",            function() return br.engines.enemiesEngine end,          "Update" },
+    { "Enemies engine pulse",          function() return br.engines.enemiesEngine end,          "Update" },
+    { "  object scan",                 function() return br.engines.enemiesEngine end,          "scan" },
     { "getEnemies",                    function() return br.engines.enemiesEngineFunctions end, "getEnemies" },
     { "Enemies in cone",               function() return br.engines.enemiesEngineFunctions end, "getEnemiesInCone" },
     { "Enemies in rect",               function() return br.engines.enemiesEngineFunctions end, "getEnemiesInRect" },
@@ -146,9 +146,9 @@ function br.debug.cpu:profile(seconds)
         profiling = false
         local function count(t) local n = 0 for _ in pairs(t or {}) do n = n + 1 end return n end
         local engine = br.engines.enemiesEngine
-        br._G.print(("|cffFFDD11[BadRotations]|r CPU over %d s | FPS avg %.0f | objects %d | scanned units %d | candidates %d | enemies %d"):format(
+        br._G.print(("|cffFFDD11[BadRotations]|r CPU over %d s | FPS avg %.0f | objects %d | tracked units %d | candidates %d | enemies %d"):format(
             seconds, fpsSamples > 0 and fpsTotal / fpsSamples or 0, br._G.GetObjectCount and br._G.GetObjectCount() or 0,
-            #(engine.om or {}), count(engine.units), count(engine.enemy)))
+            #(engine.recordList or {}), count(engine.units), count(engine.enemy)))
         for _, stats in ipairs(results) do
             if stats.calls > 0 then
                 br._G.print(("  %-30s %7.2f ms/s  %6.0f calls/s  %6.3f ms/call"):format(

@@ -462,8 +462,9 @@ function combat:hasThreat(unit, playerUnit)
 			end
 		end
 	end
-	-- Player Threat Validation (no one has threat on an enemy we can't see)
-	local enemyVisible = br._G.UnitIsVisible(unit)
+	-- Player Threat Validation. No one has threat on an enemy we can't see, or on one that isn't in
+	-- combat (it has no threat table), so those skip the per-player threat reads.
+	local enemyVisible = unitInCombat and br._G.UnitIsVisible(unit)
 	if enemyVisible and not br.functions.unit:GetUnitIsDeadOrGhost(unit) and threatSituation(playerUnit, unit) then
 		if br.functions.misc:isChecked("Threat Debug") then --and not br.functions.unit:GetObjectExists("target") then
 			br._G.print("[Player Threat] " .. br._G.UnitName(playerUnit) .. " has threat with " .. br._G.UnitName(unit))

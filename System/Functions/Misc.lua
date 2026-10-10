@@ -532,16 +532,15 @@ function misc:isValidTarget(Unit)
 end
 
 function misc:isTargeting(Unit, MatchUnit)
-	if br.functions.unit:GetUnit(Unit) == nil then
+	local thisUnit = br.functions.unit:GetUnit(Unit)
+	if thisUnit == nil then
 		return false
 	end
-	if br._G.UnitTarget(br.functions.unit:GetUnit(Unit)) == nil then
+	local unitTarget = br._G.UnitTarget(thisUnit)
+	if unitTarget == nil then
 		return false
 	end
-	if MatchUnit == nil then
-		MatchUnit = "player"
-	end
-	return br._G.UnitTarget(br.functions.unit:GetUnit(Unit)) == br._G.ObjectPointer(MatchUnit)
+	return unitTarget == br._G.ObjectPointer(MatchUnit or "player")
 end
 
 function misc:hasTank()
@@ -557,7 +556,8 @@ function misc:hasTank()
 	return false
 end
 
-function misc:enemyListCheck(Unit)
+-- distance: the unit's distance from the player if the caller has just measured it
+function misc:enemyListCheck(Unit, distance)
 	-- local targetBuff = 0
 	-- local playerBuff = 0
 	-- if br.functions.aura:UnitDebuffID(Unit, 310499) then
@@ -573,7 +573,7 @@ function misc:enemyListCheck(Unit)
 	-- 	return false
 	-- end
 	local phaseReason = br._G.UnitInPhase(Unit)--br._G.UnitPhaseReason(Unit)
-	local distance = br.functions.range:getDistance(Unit, "player")
+	distance = distance or br.functions.range:getDistance(Unit, "player")
 	local mcCheck = (br.functions.misc:isChecked("Attack MC Targets") and (not br.functions.unit:GetUnitIsFriend(Unit, "player") or br._G.UnitIsCharmed(Unit))) or
 		not br.functions.unit:GetUnitIsFriend(Unit, "player")
 	local inPhase = phaseReason--not phaseReason or phaseReason == 2 or phaseReason == 3

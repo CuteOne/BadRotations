@@ -1,16 +1,9 @@
 local _, br     = ...
 local LibDraw   = br._G.LibStub("LibDraw-BR")
 br.engines.enemiesEngineFunctions = br.engines.enemiesEngineFunctions or {}
-br.engines.enemiesEngine.enemy        = {}
-br.engines.enemiesEngine.lootable     = {}
-br.engines.enemiesEngine.units        = {}
-br.engines.enemiesEngine.storedTables = {}
 local enemiesEngineFunctions = br.engines.enemiesEngineFunctions
-local refreshStored
-local lastOMUpdate = 0
--- More reactive update intervals (favor accuracy over FPS)
-local OM_UPDATE_INTERVAL = 0.25 -- Update every 0.25 seconds
-local scanOffset = 1 -- Used for batched scanning when object count is high
+-- getEnemies results for anchors other than the player: [checkNoCombat][unit][radius][facing] = list
+local storedTables = {}
 local addedSet = {} -- Reusable set for getEnemies duplicate tracking (avoid per-call allocation)
 
 -- Partition cache for getEnemies: dedupes the multi-radius-scan pattern that
@@ -160,190 +153,9 @@ function enemiesEngineFunctions:isTotem(unit)
 	return false
 end
 
-local function unitExistsInOM(unit)
-	local omIndex = br.engines.enemiesEngine.omIndex
-	return omIndex ~= nil and omIndex[unit] ~= nil
-end
-
-
-
---Update OM
-function enemiesEngineFunctions:updateOM()
-	local now = br._G.GetTime()
-	local startTime = br._G.debugprofilestop()
-	local omUpdateInterval = br._G.IsInRaid() and 0.50 or OM_UPDATE_INTERVAL
-	local shouldUpdateOM = (now - lastOMUpdate) >= omUpdateInterval
-
-	local om = br.engines.enemiesEngine.om
-	br.engines.enemiesEngine.omIndex = br.engines.enemiesEngine.omIndex or {}
-	local omIndex = br.engines.enemiesEngine.omIndex
-	-- OM is built via index scanning for maximum compatibility across supported unlockers.
-	local totalObjects = br._G.GetObjectCount() or 0
-	local total = math.min(totalObjects, 500)
-
-	-- Localize hot global functions to reduce table lookups in tight loops
-	local GetObjectWithIndex = br._G.GetObjectWithIndex
-	local ObjectExists = br._G.ObjectExists
-	local ObjectIsUnit = br._G.ObjectIsUnit
-	local UnitIsVisible = br._G.UnitIsVisible
-	local UnitIsPlayer = br._G.UnitIsPlayer
-	local UnitIsUnit = br._G.UnitIsUnit
-	local ObjectPosition = br._G.ObjectPosition
-	local UnitName = br._G.UnitName
-	local ObjectName = br._G.ObjectName
-	local ObjectID = br._G.ObjectID
-	local UnitGUID = br._G.UnitGUID
-	local UnitCanAttack = br._G.UnitCanAttack
-	local tinsert = br._G.tinsert
-
-	--[[
-		Performance Optimization System:
-
-		1. Object Count Batching:
-		   - When > 300 objects exist, limits objects scanned per update cycle
-		   - Spreads the load across multiple frames to prevent frame drops
-
-		2. Distance-based Skipping:
-		   - Skips very distant objects for OM updates when FPS is struggling
-	]]--
-	-- Performance optimization: Dynamically adjust scanning based on object count and FPS
-	-- Cache FPS to avoid expensive GetFramerate() calls multiple times per update
-	local fps = br.engines.enemiesEngine.cachedFPS or br._G.GetFramerate() or 60
-	br.engines.enemiesEngine.cachedFPS = fps -- Cache for use by UpdateUnit
-
-	local objectsPerScan = total
-	local skipDistance = nil
-
-	-- Gradually reduce the OM scan radius as FPS drops
-	if fps < 25 then
-		skipDistance = 40
-	elseif fps < 35 then
-		skipDistance = 60
-	elseif fps < 45 then
-		skipDistance = 80
-	elseif fps < 55 then
-		skipDistance = 100
-	else
-		-- Good FPS (55+): still cap OM distance at 100y
-		skipDistance = 100 -- Always cap at 100y - nothing beyond this matters for gameplay
-	end
-
-	-- High object count optimization
-	if totalObjects > 150 then
-		-- Limit objects scanned per update based on object density
-		if totalObjects > 450 then
-			objectsPerScan = 150 -- Very high density: scan 1/3 per update
-		elseif totalObjects > 350 then
-			objectsPerScan = 200 -- High density: scan ~half per update
-		elseif totalObjects > 250 then
-			objectsPerScan = 250 -- Moderate-high: scan most per update
-		else
-			objectsPerScan = math.floor(total * 0.65) -- ~65% per cycle for 150-250 object range
-		end
-		-- In raids, cap further to spread load across additional frames
-		if br._G.IsInRaid() then
-			objectsPerScan = math.min(objectsPerScan, 180)
-		end
-
-		-- Additionally skip distant objects if performance is struggling
-		-- Override with more aggressive limits at very low FPS
-		if fps < 30 then
-			skipDistance = math.min(skipDistance or 999, 50) -- Extremely aggressive
-		elseif fps < 40 then
-			skipDistance = math.min(skipDistance or 999, 60) -- Only scan within 60 yards
-		elseif fps < 50 then
-			skipDistance = math.min(skipDistance or 999, 80) -- Only scan within 80 yards
-		end
-	end
-
-	-- Always scan for units to add to OM, but only when we should update
-	if shouldUpdateOM then
-		lastOMUpdate = now
-
-		-- Refresh object count each OM update tick (keeps batching accurate).
-		totalObjects = br._G.GetObjectCount() or 0
-		total = math.min(totalObjects, 500)
-
-		-- Calculate scan range for this update
-		local scanStart = scanOffset
-		local scanEnd = math.min(scanOffset + objectsPerScan - 1, total)
-
-		-- Cache player position for distance checks
-		local playerX, playerY, playerZ = ObjectPosition("player")
-
-		for i = scanStart, scanEnd do
-			local thisUnit = GetObjectWithIndex(i)
-			local shouldProcess = false
-
-			if ObjectExists(thisUnit) and ObjectIsUnit(thisUnit) then
-				-- Fast fail checks before expensive operations
-				if not UnitIsPlayer(thisUnit) and not UnitIsUnit("player", thisUnit) then
-					-- OPTIMIZATION: Check visibility FIRST before any other processing
-					-- This is cheap and filters out many units immediately
-					if not UnitIsVisible(thisUnit) then
-						shouldProcess = false
-					else
-						shouldProcess = true
-
-						-- Distance check if we're throttling (with cached position)
-						if skipDistance ~= nil and playerX ~= nil then
-							local unitX, unitY, unitZ = ObjectPosition(thisUnit)
-							if unitX ~= nil then
-								local distance = math.sqrt(((unitX - playerX) ^ 2) + ((unitY - playerY) ^ 2) + ((unitZ - playerZ) ^ 2))
-								if distance > skipDistance then
-									shouldProcess = false -- Skip distant units when performance is low
-								end
-							else
-								shouldProcess = false -- No position = skip
-							end
-						end
-					end
-
-					-- Final validation checks (critter check, etc)
-					-- NOTE: We always allow batched inserts. `skipOMInsert` only reduces scan budget.
-					if shouldProcess and omIndex[thisUnit] == nil and not br.functions.unit:isCritter(thisUnit)
-						and (UnitCanAttack("player", thisUnit) or (UnitGUID(thisUnit) and string.match(UnitGUID(thisUnit), "Pet")))
-					then
-						local enemyUnit = br.engines.enemiesEngine.unitSetup:new(thisUnit)
-						if enemyUnit then
-							local maxOMSize = br._G.IsInRaid() and 120 or (br._G.GetNumGroupMembers() > 0 and 200 or 300)
-							if #om < maxOMSize then
-								tinsert(om, enemyUnit)
-								omIndex[enemyUnit.unit] = #om
-							end
-						end
-					end
-				end
-			end
-		end
-
-		-- Update scan offset for next cycle (batched scanning)
-		scanOffset = scanEnd + 1
-		if scanOffset > total then
-			scanOffset = 1 -- Reset to beginning
-			refreshStored = true
-		end
-	end
-
-	-- Debugging
-	br.debug.cpu:updateDebug(startTime, "enemiesEngine.objects")
-end
-
-function enemiesEngineFunctions:omDist(thisUnit)
-	local x1, y1, z1 = br._G.ObjectPosition("player")
-	local x2, y2, z2 = br._G.ObjectPosition(thisUnit)
-	if x1 == nil or x2 == nil or y1 == nil or y2 == nil or z1 == nil or z2 == nil then
-		return 99
-	else
-		return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
-			((br._G.UnitCombatReach("player") or 0) + (br._G.UnitCombatReach(thisUnit) or 0))
-	end
-end
-
-function enemiesEngineFunctions:isInOM(thisUnit)
-	-- Use omIndex for O(1) lookup (previous impl passed .guid to ObjectPosition which is a native crash risk)
-	local omIndex = br.engines.enemiesEngine.omIndex
-	return omIndex ~= nil and omIndex[thisUnit] ~= nil
+-- Start getEnemies' per-unit caches over (the engine calls this after each full object scan)
+function enemiesEngineFunctions:clearStoredTables()
+	for k in pairs(storedTables) do storedTables[k] = nil end
 end
 
 -- /dump enemiesEngineFunctions:getEnemies("target",10)
@@ -356,27 +168,11 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	local thisEnemy, distance
 	if checkNoCombat == nil then checkNoCombat = false end
 	if facing == nil then facing = false end
-	if refreshStored == true then
-		for k, _ in pairs(br.engines.enemiesEngine.storedTables) do br.engines.enemiesEngine.storedTables[k] = nil end
-		refreshStored = false
-	end
-	-- if br.engines.enemiesEngine.storedTables[checkNoCombat] ~= nil then
-	-- 	if checkNoCombat == false then
-	-- 		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] ~= nil then
-	-- 			if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
-	-- 				if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
-	-- 					--print("Found Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
-	-- 					return br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing]
-	-- 				end
-	-- 			end
-	-- 		end
-	-- 	end
-	-- end
-	if br.engines.enemiesEngine.storedTables[checkNoCombat] ~= nil then
-		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] ~= nil then
-			if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
-				if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
-					local cachedTable = br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing]
+	if storedTables[checkNoCombat] ~= nil then
+		if storedTables[checkNoCombat][thisUnit] ~= nil then
+			if storedTables[checkNoCombat][thisUnit][radius] ~= nil then
+				if storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
+					local cachedTable = storedTables[checkNoCombat][thisUnit][radius][facing]
 					-- Combat-reactive cache duration: much shorter in combat for higher reactivity
 					local cacheExpiration = br._G.UnitAffectingCombat("player") and 0.1 or 0.15
 					-- Slightly longer TTL when checkNoCombat is true (out-of-combat queries are less time-sensitive)
@@ -510,16 +306,16 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	---
 	-- Empty results are cached too: an empty query otherwise reruns the threat fallback scan on every call
 	if thisUnit ~= nil then
-		if br.engines.enemiesEngine.storedTables[checkNoCombat] == nil then br.engines.enemiesEngine.storedTables[checkNoCombat] = {} end
-		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] == nil then br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] = {} end
-		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] == nil then br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] = {} end
+		if storedTables[checkNoCombat] == nil then storedTables[checkNoCombat] = {} end
+		if storedTables[checkNoCombat][thisUnit] == nil then storedTables[checkNoCombat][thisUnit] = {} end
+		if storedTables[checkNoCombat][thisUnit][radius] == nil then storedTables[checkNoCombat][thisUnit][radius] = {} end
 		-- FIXED: Add timestamp to cached table so cache expiration check works properly
 		enemiesTable._timestamp = br._G.GetTime()
 		-- store player position at cache time to detect movement-based invalidation (flat fields, no sub-table alloc)
 		enemiesTable._playerPosX = br.engines.enemiesEngine.playerPosX
 		enemiesTable._playerPosY = br.engines.enemiesEngine.playerPosY
 		enemiesTable._playerPosZ = br.engines.enemiesEngine.playerPosZ
-		br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] = enemiesTable
+		storedTables[checkNoCombat][thisUnit][radius][facing] = enemiesTable
 		--print("Made Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 	end
 	-- Debugging

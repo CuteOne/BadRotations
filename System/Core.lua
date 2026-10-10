@@ -45,7 +45,6 @@ local function ObjectManagerUpdate(self, elapsed)
     self.omElapsed = (self.omElapsed or 0) + (elapsed or 0)
     if self.omElapsed < math.max(0.05, engines:getUpdateRate()) then return end
     self.omElapsed = 0
-    engines.enemiesEngineFunctions:updateOM()
     engines.enemiesEngine:Update()
 end
 

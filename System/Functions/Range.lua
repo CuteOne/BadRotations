@@ -124,8 +124,8 @@ function range:getDistanceCalc(Unit1, Unit2, option)
         --Unit1 Position
         local unit1GUID = select(2, br.functions.unit:getGUID(Unit1))
         local _p1ok = pcall(function()
-            if br.engines.enemiesEngine ~= nil and br.engines.enemiesEngine.unitSetup.cache[Unit1] ~= nil and br.engines.enemiesEngine.unitSetup.cache[Unit1].posX ~= nil then
-                X1, Y1, Z1 = br.engines.enemiesEngine.unitSetup.cache[Unit1].posX, br.engines.enemiesEngine.unitSetup.cache[Unit1].posY, br.engines.enemiesEngine.unitSetup.cache[Unit1].posZ
+            if br.engines.enemiesEngine ~= nil and br.engines.enemiesEngine.records[Unit1] ~= nil and br.engines.enemiesEngine.records[Unit1].posX ~= nil then
+                X1, Y1, Z1 = br.engines.enemiesEngine.records[Unit1].posX, br.engines.enemiesEngine.records[Unit1].posY, br.engines.enemiesEngine.records[Unit1].posZ
             elseif br.functions.unit:GetUnitIsUnit(Unit1, "player") and br.player ~= nil and br.player.state.posX ~= nil then
                 X1, Y1, Z1 = br.player.state.posX, br.player.state.posY, br.player.state.posZ
             elseif br.functions.misc:isChecked("HE Active") and br.engines.healingEngine.memberSetup ~= nil and br.engines.healingEngine.memberSetup.cache[unit1GUID] ~= nil and br.engines.healingEngine.memberSetup.cache[unit1GUID].x ~= nil then
@@ -140,8 +140,8 @@ function range:getDistanceCalc(Unit1, Unit2, option)
         --Unit2 Position
         local unit2GUID = select(2, br.functions.unit:getGUID(Unit2))
         local _p2ok = pcall(function()
-            if br.engines.enemiesEngine ~= nil and br.engines.enemiesEngine.unitSetup.cache[Unit2] ~= nil and br.engines.enemiesEngine.unitSetup.cache[Unit2].posX ~= nil then
-                X2, Y2, Z2 = br.engines.enemiesEngine.unitSetup.cache[Unit2].posX, br.engines.enemiesEngine.unitSetup.cache[Unit2].posY, br.engines.enemiesEngine.unitSetup.cache[Unit2].posZ
+            if br.engines.enemiesEngine ~= nil and br.engines.enemiesEngine.records[Unit2] ~= nil and br.engines.enemiesEngine.records[Unit2].posX ~= nil then
+                X2, Y2, Z2 = br.engines.enemiesEngine.records[Unit2].posX, br.engines.enemiesEngine.records[Unit2].posY, br.engines.enemiesEngine.records[Unit2].posZ
             elseif br.functions.unit:GetUnitIsUnit(Unit2, "player") and br.player ~= nil and br.player.state.posX ~= nil then
                 X2, Y2, Z2 = br.player.state.posX, br.player.state.posY, br.player.state.posZ
             elseif br.functions.misc:isChecked("HE Active") and br.engines.healingEngine.memberSetup ~= nil and br.engines.healingEngine.memberSetup.cache[unit2GUID] ~= nil and br.engines.healingEngine.memberSetup.cache[unit2GUID].x ~= nil then
@@ -259,8 +259,8 @@ function range:getDistanceCalc2(Unit1, Unit2, option)
         local X1, Y1, Z1 = 0, 0, 0
         local unit1GUID = select(2, br.functions.unit:getGUID(Unit1))
         local _p1ok2 = pcall(function()
-            if br.engines.enemiesEngine ~= nil and br.engines.enemiesEngine.unitSetup.cache[Unit1] ~= nil and br.engines.enemiesEngine.unitSetup.cache[Unit1].posX ~= nil then
-                X1, Y1, Z1 = br.engines.enemiesEngine.unitSetup.cache[Unit1].posX, br.engines.enemiesEngine.unitSetup.cache[Unit1].posY, br.engines.enemiesEngine.unitSetup.cache[Unit1].posZ
+            if br.engines.enemiesEngine ~= nil and br.engines.enemiesEngine.records[Unit1] ~= nil and br.engines.enemiesEngine.records[Unit1].posX ~= nil then
+                X1, Y1, Z1 = br.engines.enemiesEngine.records[Unit1].posX, br.engines.enemiesEngine.records[Unit1].posY, br.engines.enemiesEngine.records[Unit1].posZ
             elseif br.functions.unit:GetUnitIsUnit(Unit1, "player") and br.player ~= nil and br.player.state.posX ~= nil then
                 X1, Y1, Z1 = br.player.state.posX, br.player.state.posY, br.player.state.posZ
             elseif br.functions.misc:isChecked("HE Active") and br.engines.healingEngine.memberSetup ~= nil and br.engines.healingEngine.memberSetup.cache[unit1GUID] ~= nil and br.engines.healingEngine.memberSetup.cache[unit1GUID].x ~= nil then
@@ -276,8 +276,8 @@ function range:getDistanceCalc2(Unit1, Unit2, option)
         local X2, Y2, Z2 = 0, 0, 0
         local unit2GUID = select(2, br.functions.unit:getGUID(Unit2))
         local _p2ok2 = pcall(function()
-            if br.engines.enemiesEngine ~= nil and br.engines.enemiesEngine.unitSetup.cache[Unit2] ~= nil and br.engines.enemiesEngine.unitSetup.cache[Unit2].posX ~= nil then
-                X2, Y2, Z2 = br.engines.enemiesEngine.unitSetup.cache[Unit2].posX, br.engines.enemiesEngine.unitSetup.cache[Unit2].posY, br.engines.enemiesEngine.unitSetup.cache[Unit2].posZ
+            if br.engines.enemiesEngine ~= nil and br.engines.enemiesEngine.records[Unit2] ~= nil and br.engines.enemiesEngine.records[Unit2].posX ~= nil then
+                X2, Y2, Z2 = br.engines.enemiesEngine.records[Unit2].posX, br.engines.enemiesEngine.records[Unit2].posY, br.engines.enemiesEngine.records[Unit2].posZ
             elseif br.functions.unit:GetUnitIsUnit(Unit2, "player") and br.player ~= nil and br.player.state.posX ~= nil then
                 X2, Y2, Z2 = br.player.state.posX, br.player.state.posY, br.player.state.posZ
             elseif br.functions.misc:isChecked("HE Active") and br.engines.healingEngine.memberSetup ~= nil and br.engines.healingEngine.memberSetup.cache[unit2GUID] ~= nil and br.engines.healingEngine.memberSetup.cache[unit2GUID].x ~= nil then

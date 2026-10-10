@@ -80,12 +80,13 @@ end
 function br.engines.ttdTable:getTTD(unit, hp)
 	if br.functions.misc:getOptionCheck("Enhanced Time to Die") then
 		if unit == "target" and br.functions.unit:GetObjectExists("target") then unit = br._G.UnitTarget("player") end
-		if br.engines.enemiesEngine.unitSetup.cache[unit] ~= nil then
-			br.engines.enemiesEngine.unitSetup.cache[unit]:unitTtd(hp)
+		local record = br.engines.enemiesEngine.records[unit]
+		if record ~= nil then
+			record:unitTtd(hp)
 			-- Un-computed .ttd (nil) means "unknown", not "dying now" — return
 			-- TTD_NEVER so `ttd < N` checks don't misfire. unitTtd no longer
 			-- returns negatives (0 = dead/now, positive = estimate, 999 = unknown).
-			return br.engines.enemiesEngine.unitSetup.cache[unit].ttd or TTD_NEVER
+			return record.ttd or TTD_NEVER
 		end
 		return TTD_NEVER -- not yet in the enemies cache: unknown, treat as not-soon-dying
 	end

@@ -133,16 +133,7 @@ function combatLog:common(...)
         -- never acts on it, but skip the expensive full-scan.
         local deadUnit = br._G.GetObjectWithGUID(destination)
         if deadUnit ~= nil then
-            br.engines.enemiesEngine.unitSetup.cache[deadUnit] = nil
-            if br.engines.enemiesEngine.units[deadUnit] ~= nil then
-                br.engines.enemiesEngine.units[deadUnit] = nil
-            end
-            if br.engines.enemiesEngine.enemy[deadUnit] ~= nil then
-                br.engines.enemiesEngine.enemy[deadUnit] = nil
-            end
-            if br.engines.enemiesEngine.damaged ~= nil and br.engines.enemiesEngine.damaged[deadUnit] ~= nil then
-                br.engines.enemiesEngine.damaged[deadUnit] = nil
-            end
+            br.engines.enemiesEngine:forget(deadUnit)
         end
     end
     --[[Combat Validation]]
@@ -192,12 +183,8 @@ function combatLog:common(...)
             local damageTarget = br._G.GetObjectWithGUID(destination)
             if damageTarget ~= nil and groupSet[sourcePtr] then
                 if br._G.UnitCanAttack("player", damageTarget) then
-                    -- Use unified unitSetup structure for damaged table
-                    -- Check cache first - if unit already exists, use cached version
-                    local damagedUnit = br.engines.enemiesEngine.unitSetup.cache[damageTarget]
-                    if not damagedUnit then
-                        damagedUnit = br.engines.enemiesEngine.unitSetup:new(damageTarget)
-                    end
+                    -- The engine's record for the unit (created if the scan hasn't found it yet)
+                    local damagedUnit = br.engines.enemiesEngine:track(damageTarget)
                     if damagedUnit then
                         damagedUnit.damageReason = "damaged_by_group"
                         damagedUnit.damageTimestamp = currentTime
@@ -210,11 +197,8 @@ function combatLog:common(...)
             local destPtr = br._G.GetObjectWithGUID(destination)
             local attackSource = sourcePtr
             if attackSource ~= nil and groupSet[destPtr] then
-                -- Use unified unitSetup structure for damaged table
-                local attackingUnit = br.engines.enemiesEngine.unitSetup.cache[attackSource]
-                if not attackingUnit then
-                    attackingUnit = br.engines.enemiesEngine.unitSetup:new(attackSource)
-                end
+                -- The engine's record for the unit (created if the scan hasn't found it yet)
+                local attackingUnit = br.engines.enemiesEngine:track(attackSource)
                 if attackingUnit then
                     attackingUnit.damageReason = "attacking_group"
                     attackingUnit.damageTimestamp = currentTime
@@ -230,7 +214,7 @@ function combatLog:common(...)
             -- Only remove units that are truly invalid, not just because they haven't been validated yet
             for k, v in pairs(br.engines.enemiesEngine.damaged) do
                 local shouldRemove = false
-                -- v is now a unitSetup object, access .unit directly
+                -- v is the engine's record for the unit
                 local unit = v.unit
 
                 -- Remove if unit is dead or ghost
@@ -255,12 +239,8 @@ function combatLog:common(...)
 
                 if shouldRemove then
                     br.engines.enemiesEngine.damaged[k] = nil
-                    -- Only clear cache if unit is not in other tables (prevents premature cleanup)
-                    -- OM cleanup will handle cache removal for units still in use elsewhere
-                    if br.engines.enemiesEngine.enemy[unit] == nil
-                        and br.engines.enemiesEngine.units[unit] == nil then
-                        br.engines.enemiesEngine.unitSetup.cache[unit] = nil
-                    end
+                    -- A record the scan never picked up existed only for this table: let it go
+                    br.engines.enemiesEngine:release(unit)
                 end
             end
         end
