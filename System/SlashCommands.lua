@@ -137,6 +137,7 @@ function slashCommands:slashHelpList()
 	slashCommands:SlashCommandHelp("br ui", "Shows a list of toggleable UI elements, IE: /br ui main")
 	slashCommands:SlashCommandHelp("br updaterate", "Displays Current Update Rate")
 	slashCommands:SlashCommandHelp("br why spell", "Shows why BR last refused a spell, IE: /br why maul")
+	slashCommands:SlashCommandHelp("br cpu seconds", "Measures how much time BR's engines and profile take, IE: /br cpu 30")
 	if select(2, br._G.UnitClass("player")) == "HUNTER" then
 		slashCommands:SlashCommandHelp("br disengage", "Assign to macro to Forward Disengage.")
 	end
@@ -462,6 +463,8 @@ local function handler(message, editbox)
 				"|cFFFF0000 icon |r - Shows/Hides minimap button\n"
 			)
 		end
+	elseif msg1 == "cpu" then
+		br.debug.cpu:profile(msg2)
 	elseif msg1 == "why" then
 		-- Why did BR last refuse this spell? Covers cast.able checks, which never print.
 		local spellText = message:match("^%s*%S+%s+(.-)%s*$")
