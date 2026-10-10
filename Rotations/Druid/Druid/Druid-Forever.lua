@@ -240,8 +240,9 @@ end
 local function safeCancelForm(outOfFormSpellRef, reason, treatOutSpellAsFree, emergency)
     if unit.exists("target") and unit.friend("target") then return false end
     local returnForm = (not emergency) and lastForm or nil
-    if unit.cancelFormFor(outOfFormSpellRef, returnForm, treatOutSpellAsFree) then
-        ui.debug("Cancel Form [" .. tostring(reason) .. "]")
+    local leaving, sentNow = unit.cancelFormFor(outOfFormSpellRef, returnForm, treatOutSpellAsFree)
+    if leaving then
+        if sentNow then ui.debug("Cancel Form [" .. tostring(reason) .. "]") end
         return true
     end
     return false

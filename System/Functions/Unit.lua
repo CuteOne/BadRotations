@@ -753,3 +753,27 @@ function unit:getPrimaryStat()
 	end
 	return highestStat
 end
+
+-- When BR last cancelled the player's shapeshift form. The form's buff only goes once the server
+-- replies, so for a round trip the form still looks active and a rotation would cancel it again.
+local formCancelSentAt = -math.huge
+
+-- A server round trip plus a margin (the same hold the cast system uses for unconfirmed casts)
+local function roundTripHold()
+	local latency = (select(3, br._G.GetNetStats()) or 0) / 1000
+	return math.max(0.20, latency * 2 + 0.10)
+end
+
+--- True while a form cancel BR sent is still on its way (sent within a round trip, form still on).
+function unit:isFormCancelPending()
+	return br._G.GetTime() - formCancelSentAt < roundTripHold() and (br._G.GetShapeshiftForm() or 0) ~= 0
+end
+
+--- Cancels the player's shapeshift form, unless the player isn't in one or a cancel is already on
+-- its way. Returns true when a cancel was sent now.
+function unit:cancelShapeshiftForm()
+	if (br._G.GetShapeshiftForm() or 0) == 0 or unit:isFormCancelPending() then return false end
+	br._G.CancelShapeshiftForm()
+	formCancelSentAt = br._G.GetTime()
+	return true
+end

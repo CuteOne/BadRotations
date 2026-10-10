@@ -100,12 +100,12 @@ br.api.unit = function(self)
         return currentMana >= requiredMana
     end
 
-    --- Cancel current shapeshift form
+    --- Cancel current shapeshift form. Does nothing if the player isn't in a form, or if a cancel was
+    -- just sent and the server hasn't replied yet (the form still shows for a round trip).
     -- @function unit.cancelForm
-    -- @return nil
+    -- @treturn boolean True when a cancel was sent now.
     unit.cancelForm = function()
-        local CancelShapeshiftForm = br._G["CancelShapeshiftForm"]
-        return CancelShapeshiftForm() --or RunMacroText("/CancelForm")
+        return br.functions.unit:cancelShapeshiftForm()
     end
 
     --- Cancel form only if safe to do so.
@@ -113,13 +113,16 @@ br.api.unit = function(self)
     -- @param outOfFormSpell Spell reference (id/name/spell table) you intend to cast after breaking form.
     -- @param returnFormSpell Spell reference (id/name/spell table) to shift back into.
     -- @param treatOutSpellAsFree If true, treat out-of-form spell cost as 0 (e.g., Clearcasting).
-    -- @treturn boolean True if the form was cancelled.
+    -- @treturn boolean True if the form is being left: cancelled now, or a cancel is still on its way
+    --   (keep waiting rather than acting as if still in form).
+    -- @treturn boolean True only when the cancel was sent by this call.
     unit.cancelFormFor = function(outOfFormSpell, returnFormSpell, treatOutSpellAsFree)
+        if br.functions.unit:isFormCancelPending() then return true, false end
         if not unit.canCancelFormFor(outOfFormSpell, returnFormSpell, treatOutSpellAsFree) then
-            return false
+            return false, false
         end
-        unit.cancelForm()
-        return true
+        local sent = unit.cancelForm()
+        return sent, sent
     end
 
     --- Check if player can fly
