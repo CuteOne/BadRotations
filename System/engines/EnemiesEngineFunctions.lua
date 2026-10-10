@@ -498,25 +498,6 @@ local function getUnitCoeficient(unit)
 			if br.functions.misc:getOptionCheck("Avoid Shields") then
 				coef = coef + isShieldedTarget(unit)
 			end
-			-- Outlaw - Blind Shot 10% dmg increase all sources
-			if select(2, br._G.UnitClass('player')) == "ROGUE" and br.loader.selectedSpecID == 260 then
-				-- Between the eyes
-				if br.functions.aura:getDebuffRemain(unit, 315341) > 0 then
-					coef = coef + 75
-				end
-				-- Blood of the enemy
-				if br.functions.aura:getDebuffRemain(unit, 297108) > 0 then
-					coef = coef + 50
-				end
-				-- Marked for death
-				if br.functions.aura:getDebuffRemain(unit, 137619) > 0 then
-					coef = coef + 75
-				end
-				-- Prey on the weak
-				if br.functions.aura:getDebuffRemain(unit, 131511) > 0 then
-					coef = coef + 50
-				end
-			end
 			-- local displayCoef = math.floor(coef*10)/10
 			-- local displayName = UnitName(unit) or "invalid"
 			-- Print("Unit "..displayName.." - "..displayCoef)
