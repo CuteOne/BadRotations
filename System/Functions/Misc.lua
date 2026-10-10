@@ -722,9 +722,10 @@ function misc:isValidUnit(Unit)
 	-- Check if unit actually passed enemyListCheck or is in units table
 	-- If it's the player target but not in units table, verify it at least passes basic enemyListCheck
 	-- Also allow units that have threat on the group (targeting tank/party) even if not in units table yet
+	-- (the threat check is the costly one: it's only asked where the cheaper conditions haven't decided)
 	local inUnitsTable = br.engines.enemiesEngine.units[Unit] ~= nil
-	local hasThreat = br.functions.combat:hasThreat(Unit)
-	local passedEnemyCheck = inUnitsTable or (playerTarget and br.functions.misc:enemyListCheck(Unit)) or burnUnit or dummyEligible or hasThreat
+	local passedEnemyCheck = inUnitsTable or (playerTarget and br.functions.misc:enemyListCheck(Unit)) or burnUnit or dummyEligible
+		or br.functions.combat:hasThreat(Unit)
 
 	-- Fast path for special units (dummy/burn) - skip most checks
 	if passedEnemyCheck and mcCheck and not isCC and (dummyEligible or burnUnit) then
@@ -739,7 +740,7 @@ function misc:isValidUnit(Unit)
 	then
 		-- Valid if any threat condition is met:
 		-- Player target, unit targeting us, burn target, proving grounds, or has group threat
-		local result = playerTarget or targeting or burnUnit or br.functions.misc:isInProvingGround() or hasThreat
+		local result = playerTarget or targeting or burnUnit or br.functions.misc:isInProvingGround() or br.functions.combat:hasThreat(Unit)
 		if guid then isValidUnitCache[guid] = { value = result, time = now } end
 		return result
 	end

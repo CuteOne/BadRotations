@@ -385,18 +385,18 @@ function combat:hasThreat(unit, playerUnit)
 	if playerUnit == nil then
 		playerUnit = "player"
 	end
+	-- Who the unit is targeting, read once (its existence, death and target were each read several times)
+	local isDead = br.functions.unit:GetUnitIsDeadOrGhost(unit)
 	local targetUnit, targetFriend
-	if br.functions.unit:GetUnit(unit) == nil or br.functions.unit:GetUnitIsDeadOrGhost(unit) or br._G.UnitIsTapDenied(unit) then
+	if br.functions.unit:GetUnit(unit) == nil or isDead or br._G.UnitIsTapDenied(unit) then
 		targetUnit = "None"
-	elseif br._G.UnitTarget(br.functions.unit:GetUnit(unit)) ~= nil then
-		targetUnit = br._G.UnitTarget(br.functions.unit:GetUnit(unit))
 	else
-		targetUnit = "None"
+		targetUnit = br._G.UnitTarget(unit) or "None"
 	end
-	if not targetUnit or targetUnit == "None" then
+	if targetUnit == "None" then
 		targetFriend = false
 	else
-		targetFriend = (br.functions.misc:isTargeting(unit) or br._G.UnitName(targetUnit) == br._G.UnitName("player")
+		targetFriend = (targetUnit == br._G.ObjectPointer("player") or br._G.UnitName(targetUnit) == br._G.UnitName("player")
 			or (br.functions.unit:GetUnitExists("pet") and br._G.UnitName(targetUnit) == br._G.UnitName("pet"))
 			or br._G.UnitInParty(targetUnit) or br._G.UnitInRaid(targetUnit))
 	end
@@ -427,7 +427,7 @@ function combat:hasThreat(unit, playerUnit)
 		return true
 	end
 	-- Boss Adds Validation
-	if br.functions.unit:isBoss(unit) and unitInCombat and (instance == "party" or instance == "raid") then
+	if unitInCombat and (instance == "party" or instance == "raid") and br.functions.unit:isBoss(unit) then -- cheap checks first
 		if br.functions.misc:isChecked("Threat Debug") then
 			br._G.print("[Boss Threat] " .. br._G.UnitName(unit) ..
 				" has threat with you.")
@@ -465,7 +465,7 @@ function combat:hasThreat(unit, playerUnit)
 	-- Player Threat Validation. No one has threat on an enemy we can't see, or on one that isn't in
 	-- combat (it has no threat table), so those skip the per-player threat reads.
 	local enemyVisible = unitInCombat and br._G.UnitIsVisible(unit)
-	if enemyVisible and not br.functions.unit:GetUnitIsDeadOrGhost(unit) and threatSituation(playerUnit, unit) then
+	if enemyVisible and not isDead and threatSituation(playerUnit, unit) then
 		if br.functions.misc:isChecked("Threat Debug") then --and not br.functions.unit:GetObjectExists("target") then
 			br._G.print("[Player Threat] " .. br._G.UnitName(playerUnit) .. " has threat with " .. br._G.UnitName(unit))
 		end
@@ -473,7 +473,7 @@ function combat:hasThreat(unit, playerUnit)
 		return true
 	end
 	-- Party/Raid Threat Validation
-	if enemyVisible and not br.functions.unit:GetUnitIsDeadOrGhost(unit) and #br.engines.healingEngine.friend >= 1 then
+	if enemyVisible and not isDead and #br.engines.healingEngine.friend >= 1 then
 		for i = 1, #br.engines.healingEngine.friend do
 			if br.engines.healingEngine.friend[i] then
 				local thisUnit = br.engines.healingEngine.friend[i].unit

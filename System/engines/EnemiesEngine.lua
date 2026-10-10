@@ -36,6 +36,7 @@ engine.ttd        = {} -- pointer -> samples used by record:unitTtd (Enhanced Ti
 local GetTime = br._G.GetTime
 local tinsert = br._G.tinsert
 local pX, pY, pZ, pCR, autoLoot -- player position / combat reach / Auto Loot, set once per pulse
+local playerPointer, targetPointer -- the player's and their target's pointers, set once per pulse
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Records
@@ -257,7 +258,10 @@ function Record:update(now, inCombat, hasGroup, fps)
 
 	local isDamaged = engine.damaged[unit] ~= nil
 	local isDead = br.functions.unit:GetUnitIsDeadOrGhost(unit)
-	local isTargeting = br.functions.misc:isTargeting(unit)
+	-- The unit is visible here, so pointer comparisons answer "targeting the player?" and "is the
+	-- player's target?" as misc:isTargeting and unit:GetUnitIsUnit would
+	local isTargeting = playerPointer ~= nil and br._G.UnitTarget(unit) == playerPointer
+	local isPlayerTarget = targetPointer ~= nil and unit == targetPointer
 
 	-- Candidate: close, alive, not a critter, and passes misc:enemyListCheck (damaged units always do)
 	if self.distance <= 50 and not isDead and not self.isCritter then
@@ -312,7 +316,7 @@ function Record:update(now, inCombat, hasGroup, fps)
 			self.valid = true
 		else
 			local ttl
-			if isTargeting or br.functions.unit:GetUnitIsUnit(unit, "target") or (hasGroup and br.functions.combat:hasThreat(unit)) then
+			if isTargeting or isPlayerTarget or (hasGroup and br.functions.combat:hasThreat(unit)) then
 				ttl = 0.05
 			elseif enemy[unit] ~= nil then
 				ttl = inCombat and 0.15 or 0.25
@@ -331,7 +335,7 @@ function Record:update(now, inCombat, hasGroup, fps)
 				self.los = br.functions.misc:getLineOfSight("player", unit)
 				self.losAt = now
 			end
-			if inCombat and self.los ~= false and (self.distance < 40 or br.functions.unit:GetUnitIsUnit(unit, "target")) then
+			if inCombat and self.los ~= false and (self.distance < 40 or isPlayerTarget) then
 				self:UpdateDebuffs()
 			end
 			enemy[unit] = self
@@ -441,6 +445,8 @@ function engine:Update()
 	-- Published for getEnemies' caches (position the enemy lists were built at)
 	engine.playerPosX, engine.playerPosY, engine.playerPosZ = pX, pY, pZ
 	pCR = br._G.UnitCombatReach("player")
+	playerPointer = br._G.ObjectPointer("player")
+	targetPointer = br._G.UnitExists("target") and br._G.ObjectPointer("target") or nil
 	autoLoot = br.functions.misc:isChecked("Auto Loot")
 	if br.player ~= nil then
 		br.player.pet = br.player.pet or {}
