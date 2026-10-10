@@ -1,4 +1,4 @@
-﻿local _, br = ...
+local _, br = ...
 br.engines.healingEngineFunctions = br.engines.healingEngineFunctions or {}
 local healingEngineFunctions = br.engines.healingEngineFunctions
 
@@ -43,31 +43,6 @@ function healingEngineFunctions:getTanksTable()
 		return x.hp < y.hp
 	end)
 	return tanksTable
-end
--- we want to define an iteration that will compare allies to heal in range of enemies or allies
-function healingEngineFunctions:castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,facingCheck,movementCheck)
-	if movementCheck ~= true or not br.functions.misc:isMoving("player") then
-		local bestCandidate = nil
-		-- find best candidate with list of units
-		for i = 1, #unitTable do
-			-- added a visible check as its not in healing engine.
-			if (br.functions.unit:GetUnitIsVisible(unitTable[i].unit) and (facingCheck ~= true or br.functions.unit:getFacing("player",unitTable[i].unit)) or br.functions.unit:GetUnitIsUnit(unitTable[i].unit,"player")) then
-				local candidate = br.engines.healingEngineFunctions:getUnitsToHealAround(unitTable[i].unit,radius,health,maxCount)
-				if bestCandidate == nil or bestCandidate[0].coef > candidate[0].coef then
-					bestCandidate = candidate
-				end
-			end
-		end
-		-- if we meet count minimum then we cast
-		if bestCandidate ~= nil and #bestCandidate >= minCount and br.functions.misc:getLineOfSight("player",bestCandidate[0].unit) and br.functions.range:getDistance("player",bestCandidate[0].unit) <= 40 then
-			-- here we would like instead to cast on unit
-			if br.functions.cast:castSpell(bestCandidate[0].unit,spell,facingCheck,movementCheck) then
-				if br._G.IsAoEPending() then br._G.SpellStopTargeting() br.functions.misc:addonDebug("Canceling Spell", true) end
-				return true
-			end
-		end
-	end
-	return false
 end
 -- function to define range between players in tables.
 function healingEngineFunctions:getNovaDistance(Unit1,Unit2)
@@ -138,54 +113,6 @@ function healingEngineFunctions:getUnitsToHealAround(UnitID,radius,health,count)
 	end
 	lowHealthCandidates[0] = { unit = UnitID, coef = br.engines.healingEngineFunctions:getLowHealthCoeficient(lowHealthCandidates) }
 	return lowHealthCandidates
-end
-
-local totalUnits = {}
-local startUnit
-local currentJump
-local jumpFound = true
-local function chainJumps(unit,hp,range)
-	for i = 1, #br.engines.healingEngine.friend do
-		local newUnit = br.engines.healingEngine.friend[i]
-		local unitFound = false
-		if newUnit.hp <= hp and newUnit.guid ~= unit.guid and br.engines.healingEngineFunctions:getNovaDistance(unit,newUnit) <= range then
-			for j = 1, #totalUnits do
-				if totalUnits[j].guid == newUnit.guid then
-					unitFound = true
-				end
-			end
-			if unitFound == false then
-				currentJump = newUnit
-				br._G.tinsert(totalUnits, #totalUnits+1, {guid = newUnit.guid})
-				return
-			end
-		end
-	end
-	jumpFound = false
-end
-
-
-function healingEngineFunctions:chainHealUnits(spell,range,hp,count)
-	jumpFound = true
-	for i = 1, #br.engines.healingEngine.friend do
-		local thisUnit = br.engines.healingEngine.friend[i]
-		if thisUnit.hp <= hp then
-			startUnit = thisUnit.unit
-			currentJump = thisUnit
-			br._G.tinsert(totalUnits, #totalUnits+1, {guid = thisUnit.guid})
-			while #totalUnits < count and jumpFound do
-				chainJumps(currentJump,hp,range)
-			end
-			if #totalUnits < count then
-				totalUnits = {}
-			elseif #totalUnits >= count then
-				totalUnits= {}
-				if br.functions.cast:castSpell(startUnit,spell,false,true) then
-					return true
-				end
-			end
-		end
-	end
 end
 
 -- returns coefficient of low health units around another unit

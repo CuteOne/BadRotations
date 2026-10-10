@@ -21,12 +21,7 @@ br.lists._loadedSpecs = br.lists._loadedSpecs or {}
 -- ---------------------------------------------------------------------------
 
 local function getFilesLocation()
-    local sep = br._G.IsMacClient() and "/" or "\\"
-    local wowDir = br._G.GetWoWDirectory() or ""
-    if wowDir:match('_retail_') then
-        return wowDir .. sep .. 'Interface' .. sep .. 'AddOns' .. sep .. br.loader.addonName, sep
-    end
-    return wowDir .. sep .. br.loader.addonName, sep
+    return br.functions.misc:getAddonPath()
 end
 
 local function loadFile(path, label)

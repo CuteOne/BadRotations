@@ -3,7 +3,6 @@ br.readers.common = br.readers.common or {}
 local common = br.readers.common
 
 -- Pre-register all event frames at module load time to avoid ADDON_ACTION_FORBIDDEN in NnLua runtime context
-local _bagUpdateFrame   = br._G.CreateFrame("Frame"); _bagUpdateFrame:RegisterEvent("BAG_UPDATE")
 local _locFrame         = br._G.CreateFrame("Frame"); _locFrame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
 local _lfgFrame         = br._G.CreateFrame("Frame"); _lfgFrame:RegisterEvent("LFG_PROPOSAL_SHOW")
 local _merchantFrame    = br._G.CreateFrame("Frame"); _merchantFrame:RegisterEvent("MERCHANT_SHOW")
@@ -46,15 +45,6 @@ function common:commonReaders()
 	--[[ Readers ]]
 	---------------
 	-----------------------
-	--[[ Bag Update ]]
-	local Frame = _bagUpdateFrame  -- pre-registered at module load time
-	local function BagUpdate(_, event, _)
-		if event == "BAG_UPDATE" and br.player then
-			br.player.bagsUpdated = true
-		end
-	end
-	Frame:SetScript("OnEvent", BagUpdate)
-	-----------------------
 	--[[ Loss of control ]]
 	local frame = _locFrame  -- pre-registered at module load time
 	local function lostControl(_, _, ...)
@@ -63,7 +53,7 @@ function common:commonReaders()
 	frame:SetScript("OnEvent", lostControl)
 	----------------
 	--[[ Auto Join]]
-	Frame = _lfgFrame  -- pre-registered at module load time
+	local Frame = _lfgFrame  -- pre-registered at module load time
 	local function MerchantShow_AutoJoin(_, event, _)
 		if br.functions.misc:getOptionCheck("Accept Queues") == true then
 			if event == "LFG_PROPOSAL_SHOW" then
@@ -86,26 +76,6 @@ function common:commonReaders()
 	-- 	end
 	-- end
 	-- Frame:SetScript("OnEvent", Eclipse)
-	--------------------------
-	--[[ isStanding Frame --]]
-	common.DontMoveStartTime = 0
-	common.isMovingStartTime = 0
-	br._G.CreateFrame("Frame"):SetScript(
-		"OnUpdate",
-		function()
-			if br._G.GetUnitSpeed("Player") == 0 then
-				if not common.DontMoveStartTime then
-					common.DontMoveStartTime = br._G.GetTime()
-				end
-				common.isMovingStartTime = 0
-			else
-				if common.isMovingStartTime == 0 then
-					common.isMovingStartTime = br._G.GetTime()
-				end
-				common.DontMoveStartTime = 0
-			end
-		end
-	)
 	----------------------
 	--[[ timer Frame --]]
 	br._G.CreateFrame("Frame"):SetScript(
@@ -182,7 +152,10 @@ function common:commonReaders()
 	---------------------------
 	--[[ UI Error Messages --]]
 	Frame = _uiErrFrame  -- pre-registered at module load time
-	local function UiErrorMessages(_, _, errorType, _)
+	local function UiErrorMessages(_, _, errorType, message)
+		-- Remember casts the game refused (stronger aura, line of sight, facing, range)
+		-- so they aren't retried endlessly against the same unit.
+		br.functions.cast:handleCastError(message)
 		br.lastError = br._G.GetGameMessageInfo(errorType)
 		br.lastErrorTime = br._G.GetTime()
 		local param = br.lastError
@@ -324,9 +297,6 @@ function common:commonReaders()
 		-- Azerite Essence
 		if event == "AZERITE_ESSENCE_ACTIVATED" and br.player then
 			br.player.updatePlayer = true
-		end
-		if event == "PLAYER_EQUIPMENT_CHANGED" and br.player then
-			br.player.equipHasChanged = true
 		end
 		-- Player moving
 		if event == "PLAYER_STARTED_MOVING" then

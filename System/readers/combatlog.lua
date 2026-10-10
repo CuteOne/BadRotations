@@ -170,9 +170,11 @@ function combatLog:common(...)
             if (currentTime - combatLog._groupPointerSetTime) >= 1.0 then
                 combatLog._groupPointerSetTime = currentTime
                 local set = {}
-                set[br._G.ObjectPointer("player")] = true
+                local playerPtr = br._G.ObjectPointer("player")
+                if playerPtr then set[playerPtr] = true end
                 if br.functions.unit:GetUnitExists("pet") then
-                    set[br._G.ObjectPointer("pet")] = true
+                    local petPtr = br._G.ObjectPointer("pet")
+                    if petPtr then set[petPtr] = true end
                 end
                 for i = 1, #br.engines.healingEngine.friend do
                     local friendUnit = br.engines.healingEngine.friend[i].unit
@@ -391,7 +393,7 @@ function combatLog:common(...)
                 then
                     local notOnCD = true
                     if br ~= nil and br.player ~= nil then
-                        notOnCD = br.functions.spell:getSpellCD(spell) <= br.player.gcdMax
+                        notOnCD = br.functions.spell:getSpellCD(spell) <= br.player.state.gcdMax
                     end
                     -- set destination
                     if destination == "" then

@@ -7,6 +7,20 @@ local function findDebuffOnUnit(buffName, unit)
 	return br.api.wow.FindAuraByName(br.api.wow.GetSpellInfo(buffName), unit, "HARMFUL|PLAYER")
 end
 
+-- Module-scoped to avoid allocating a new closure per UpdateDebuffs call.
+-- Captures (debuffList, unit) threaded as explicit parameters — L21 template
+-- (dummyAllowed at EnemiesEngineFunctions.lua:32) applied verbatim. See
+-- AUDIT.md L29 for shape-family-as-template framing.
+local function cacheDebuff(debuffList, unit, buffUnit, buffName, buffCaster)
+	if buffCaster ~= nil and buffCaster == "player" then
+		if debuffList[buffCaster] == nil then debuffList[buffCaster] = {} end
+		if debuffList[buffCaster][buffName] == nil then
+				debuffList[buffCaster][buffName] = findDebuffOnUnit
+			if debuffList[buffCaster][buffName] ~= nil then br.readers.combatLog.debuffTracker[unit][buffName] = nil end
+		end
+	end
+end
+
 -----------------------------------------Bubba's Healing Engine--------------------------------------
 --Modified to enemies engine by fisker
 if not enemiesEngine.metaTable2 then
@@ -45,7 +59,7 @@ if not enemiesEngine.metaTable2 then
 		local startTime = br._G.debugprofilestop()
 		if targetPercentage == nil then targetPercentage = 0 end
 		local value
-		if self.hp == 0 then return -1 end
+		if self.hp == 0 then return 0 end -- dead: no time left (0, not a misleading negative)
 		if self.hp == 100 or br.functions.unit:isDummy(self.unit) then return 999 end
 		local timeNow = GetTime()
 		-- Reset unit if HP is higher
@@ -105,7 +119,13 @@ if not enemiesEngine.metaTable2 then
 					if ttdSec > 0 then
 						return ttdSec
 					end
-					return -1 -- TTD under 0
+					-- Regression projects the unit as already past death while it is
+					-- still alive (stale/bursty slope, common during damage gaps like
+					-- powershifting). This is an unreliable estimate, not a real
+					-- execute window — report "not soon dying" (999) so `ttd < N`
+					-- finisher/execute checks don't fire on a healthy target.
+					-- Real low-HP executes are handled by HP-based logic in profiles.
+					return 999
 				end
 			end
 		end
@@ -128,24 +148,31 @@ if not enemiesEngine.metaTable2 then
 
 	-- Add unit to table
 	function unitIndex:AddUnit(table)
-		local thisUnit
+		local existing = table[self.unit]
 		if br._G.UnitIsOtherPlayersPet(self.unit) then
-			thisUnit = {
-				unit = self.unit,
-			}
+			if existing == nil then
+				rawset(table, self.unit, { unit = self.unit })
+			end
+			-- pet-of-other-player branch: only `unit` field, which IS identity
+			-- (the unit pointer itself). Nothing to refresh on subsequent calls.
 		else
-			thisUnit = {
-				unit = self.unit,
-				name = self.name,
-				guid = self.guid,
-				id = self.objectID,
-				range = self.range,
-				debuffs = self.debuffs,
-				timestamp = GetTime(),
-			}
+			if existing == nil then
+				rawset(table, self.unit, {
+					unit = self.unit,
+					name = self.name,
+					guid = self.guid,
+					id = self.objectID,
+					range = self.range,
+					debuffs = self.debuffs,
+					timestamp = GetTime(),
+				})
+			else
+				-- Identity fields (name/guid/id) intentionally not refreshed; see AUDIT.md L28.
+				existing.range = self.range
+				existing.debuffs = self.debuffs
+				existing.timestamp = GetTime()
+			end
 		end
-		-- br._G.print("Adding "..thisUnit.unit.." to table")
-		rawset(table, self.unit, thisUnit)
 	end
 
 	-- Debuffs
@@ -159,17 +186,7 @@ if not enemiesEngine.metaTable2 then
 		local buffCaster
 		local buffName
 		local buffUnit
-		-- Add Debuffs
-		local function cacheDebuff(buffUnit, buffName, buffCaster)
-			-- Cache it to the OM
-			if buffCaster ~= nil and buffCaster == "player" then
-				if debuffList[buffCaster] == nil then debuffList[buffCaster] = {} end
-				if debuffList[buffCaster][buffName] == nil then
-						debuffList[buffCaster][buffName] = findDebuffOnUnit
-					if debuffList[buffCaster][buffName] ~= nil then br.readers.combatLog.debuffTracker[unit][buffName] = nil end
-				end
-			end
-		end
+		-- Add Debuffs (cacheDebuff lifted to module scope; see AUDIT.md L29)
 		-- Get the Info from Combat Log
 		for k, _ in pairs(br.readers.combatLog.debuffTracker) do
 			tracker = br.readers.combatLog.debuffTracker[k]
@@ -178,7 +195,7 @@ if not enemiesEngine.metaTable2 then
 				buffName = tracker[j][2]
 				buffUnit = tracker[j][3]
 				if buffUnit == unit and (debuffList[buffCaster] == nil or debuffList[buffCaster][buffName] == nil) then
-					cacheDebuff(buffUnit, buffName, buffCaster)
+					cacheDebuff(debuffList, unit, buffUnit, buffName, buffCaster)
 				end
 			end
 		end
@@ -214,6 +231,27 @@ if not enemiesEngine.metaTable2 then
 		local UnitAffectingCombat = br._G.UnitAffectingCombat
 		local GetTime = br._G.GetTime
 
+		-- Per-call constant hoists (AUDIT.md L27). The semantic trace verified
+		-- each of the 8 GetTime() sites writes to a field consumed only at its
+		-- adjacent comparison site within UpdateUnit; no external readers per
+		-- grep. ~5ms intra-function drift is 0.5-10% of the relevant TTLs
+		-- (0.05-1s) — acceptable.
+		--
+		-- Hoisting also produces an INTERNAL-CONSISTENCY IMPROVEMENT (not just
+		-- a perf win): pre-fix, 6 UnitAffectingCombat sites and 3
+		-- GetUnitIsDeadOrGhost sites within one UpdateUnit pass could see
+		-- different values if state flipped between them. Sub-tick state flips
+		-- happen during PvP and encounter mechanics (Vanish, Feign Death,
+		-- mind-control transitions). Not known to cause observable bugs today,
+		-- but the hoist eliminates an internal-inconsistency class. Recorded
+		-- explicitly here rather than as a risk-footnote because
+		-- "consistency improvement disguised as perf" is the kind of thing that
+		-- gets forgotten if it's not made explicit.
+		local now           = GetTime()
+		local inCombat      = UnitAffectingCombat("player")
+		local hasGroup      = br._G.GetNumGroupMembers() > 0
+		local isTargeting   = br.functions.misc:isTargeting(self.unit)
+
 		-- Cache position first (used multiple times below)
 		self.posX, self.posY, self.posZ = ObjectPosition(self.unit)
 
@@ -235,13 +273,18 @@ if not enemiesEngine.metaTable2 then
 		-- Check if this unit is in damaged table (bypass normal validation)
 		local unitPointer = ObjectPointer(self.unit)
 		local isDamagedUnit = br.engines.enemiesEngine.damaged and br.engines.enemiesEngine.damaged[unitPointer] ~= nil
+		-- Hoisted (AUDIT.md L27): read once per UpdateUnit call rather than 3 separate
+		-- calls (L239 gate, L319 fast-invalidation cheap guard, L421 auto-loot check).
+		-- Internal-consistency improvement: pre-hoist, the 3 sites could see different
+		-- values if the unit died mid-function.
+		local isDeadOrGhost = br.functions.unit:GetUnitIsDeadOrGhost(self.unit)
 
-		if self.distance <= 50 and not br.functions.unit:GetUnitIsDeadOrGhost(self.unit) and not br.functions.unit:isCritter(self.unit) then
+		if self.distance <= 50 and not isDeadOrGhost and not br.functions.unit:isCritter(self.unit) then
 			-- EnemyListCheck
 			-- FPS-adaptive refresh rate for optimal responsiveness without sacrificing performance
 			local fps = br.engines.enemiesEngine.cachedFPS or 60
 			local refreshInterval = 1 -- Default: solo content
-			if br._G.GetNumGroupMembers() > 0 then
+			if hasGroup then
 				if fps >= 60 then
 					refreshInterval = 0.25 -- Excellent FPS: maximum responsiveness
 				elseif fps >= 45 then
@@ -257,13 +300,13 @@ if not enemiesEngine.metaTable2 then
 			local isAlreadyValid = br.engines.enemiesEngine.units[self.unit] ~= nil
 			local actualRefreshInterval
 
-			if UnitAffectingCombat("player") then
+			if inCombat then
 				local needsFastValidation = false
 				if isDamagedUnit then
 					needsFastValidation = true
-				elseif br.functions.misc:isTargeting(self.unit) then
+				elseif isTargeting then
 					needsFastValidation = true
-				elseif not isAlreadyValid and br._G.GetNumGroupMembers() > 0 then
+				elseif not isAlreadyValid and hasGroup then
 					needsFastValidation = br.functions.combat:hasThreat(self.unit)
 				end
 
@@ -280,13 +323,13 @@ if not enemiesEngine.metaTable2 then
 				actualRefreshInterval = refreshInterval
 			end
 
-			if self.enemyRefresh == nil or self.enemyRefresh < GetTime() - actualRefreshInterval then
+			if self.enemyRefresh == nil or self.enemyRefresh < now - actualRefreshInterval then
 				if isDamagedUnit then
 					self.enemyListCheck = true
 				else
 					self.enemyListCheck = br.functions.misc:enemyListCheck(self.unit)
 				end
-				self.enemyRefresh = GetTime()
+				self.enemyRefresh = now
 				if self.enemyListCheck == true then
 					self.range = br.functions.range:getDistanceCalc(self.unit)
 					if br.engines.enemiesEngine.units[self.unit] == nil then
@@ -311,12 +354,12 @@ if not enemiesEngine.metaTable2 then
 		-- This only runs for units currently in the enemy table and uses a very short TTL to cap aura scan cost.
 		local isAlreadyEnemy = br.engines.enemiesEngine.enemy[self.unit] ~= nil
 		if isAlreadyEnemy and self.enemyListCheck == true and not isDamagedUnit then
-			local now = GetTime()
-			local fastTTL = UnitAffectingCombat("player") and 0.05 or 0.10
+			-- now is hoisted to function-top (AUDIT.md L27); block-local removed
+			local fastTTL = inCombat and 0.05 or 0.10
 			if self.fastInvalidationRefresh == nil or self.fastInvalidationRefresh < (now - fastTTL) then
 				local ok = true
 				-- Basic cheap guards (avoid waiting for enemyListCheck refresh)
-				if self.hpabs <= 0 or br.functions.unit:GetUnitIsDeadOrGhost(self.unit) then
+				if self.hpabs <= 0 or isDeadOrGhost then
 					ok = false
 				elseif not UnitCanAttack("player", self.unit) then
 					ok = false
@@ -350,22 +393,22 @@ if not enemiesEngine.metaTable2 then
 			else
 				-- Short TTL caching for expensive validation.
 				-- We keep responsiveness for important units and reduce CPU load for stable packs.
-				local now = GetTime()
+				-- now is hoisted to function-top (AUDIT.md L27); block-local removed
 				local needsFastValidation = false
-				if br.functions.misc:isTargeting(self.unit) then
+				if isTargeting then
 					needsFastValidation = true
 				elseif br.functions.unit:GetUnitIsUnit(self.unit, "target") then
 					needsFastValidation = true
-				elseif br._G.GetNumGroupMembers() > 0 and br.functions.combat:hasThreat(self.unit) then
+				elseif hasGroup and br.functions.combat:hasThreat(self.unit) then
 					needsFastValidation = true
 				end
 				local validTTL
 				if needsFastValidation then
 					validTTL = 0.05
 				elseif br.engines.enemiesEngine.enemy[self.unit] ~= nil then
-					validTTL = UnitAffectingCombat("player") and 0.15 or 0.25
+					validTTL = inCombat and 0.15 or 0.25
 				else
-					validTTL = UnitAffectingCombat("player") and 0.10 or 0.20
+					validTTL = inCombat and 0.10 or 0.20
 				end
 
 				if self.validRefresh == nil or self.validRefresh < (now - validTTL) then
@@ -377,12 +420,12 @@ if not enemiesEngine.metaTable2 then
 			if self.isValidUnit == true then
 				-- Cached LoS: TraceLine is expensive; gate behind a per-unit TTL rather than calling every pulse.
 				-- Unit stays in enemiesEngine.enemy when out of LoS — rotation can still count it and reposition.
-				local losTTL = UnitAffectingCombat("player") and 0.5 or 1.0
-				if self.losRefresh == nil or GetTime() > (self.losRefresh + losTTL) then
+				local losTTL = inCombat and 0.5 or 1.0
+				if self.losRefresh == nil or now > (self.losRefresh + losTTL) then
 					self.los = br.functions.misc:getLineOfSight("player", self.unit)
-					self.losRefresh = GetTime()
+					self.losRefresh = now
 				end
-				local shouldUpdateDebuffs = UnitAffectingCombat("player") and
+				local shouldUpdateDebuffs = inCombat and
 					(self.distance < 40 or br.functions.unit:GetUnitIsUnit(self.unit, "target")) and
 					(self.los ~= false)
 				if shouldUpdateDebuffs then
@@ -418,7 +461,7 @@ if not enemiesEngine.metaTable2 then
 		end
 
 		-- Check for loots
-		if autoLoot and br.engines.enemiesEngine.lootable[self.unit] == nil and br.functions.unit:GetUnitIsDeadOrGhost(self.unit) then
+		if autoLoot and br.engines.enemiesEngine.lootable[self.unit] == nil and isDeadOrGhost then
 			local hasLoot = br._G.CanLootUnit(self.guid)
 			if hasLoot then
 				self:AddUnit(br.engines.enemiesEngine.lootable)
@@ -470,7 +513,6 @@ if not enemiesEngine.metaTable2 then
 	end
 
 	function enemiesEngine:Update()
-			enemiesEngine.omTableTimer = GetTime()
 			--Set variables we don't need to update for each unit
 			pX, pY, pZ = br._G.ObjectPosition("player")
 			-- Publish cached player position so getEnemies() can reuse it without a second ObjectPosition call
@@ -491,24 +533,46 @@ if not enemiesEngine.metaTable2 then
 			end
 		--Cycle and clean tables
 		local i = 1
+		-- Hoist per-pulse constants out of the iteration. Each was called per-entry
+		-- (GetTime: 300+ per pulse via the gate condition) or per-due-unit (updateRate,
+		-- IsInRaid, math.random arguments). Verification 2 (AUDIT.md L26) confirmed
+		-- none mutate mid-pulse: updateRate reads settings + cached FPS; IsInRaid
+		-- reflects group state which only changes via events. omRef/unitsRef are
+		-- TABLE REFERENCES (the tables themselves are mutated by the iteration —
+		-- the refs are stable; reads through them see live mutations).
+		local now            = GetTime()
+		local updateRate     = br.engines:getUpdateRate()
+		local raidMultiplier = br._G.IsInRaid() and 2.00 or 1.00
+		local omRef          = enemiesEngine.om
+		local unitsRef       = br.engines.enemiesEngine.units
 		while i <= #enemiesEngine.om do
-			if enemiesEngine.om[i] ~= nil and (enemiesEngine.om[i].pulseTime == nil or GetTime() >= enemiesEngine.om[i].pulseTime) then
+			-- `entry` alias is valid ONLY through the thisUnit capture below. The
+			-- eviction branch may swap-with-last (enemiesEngine.om[i] = om[last])
+			-- which would invalidate this alias — eviction code MUST continue using
+			-- fresh enemiesEngine.om[i] reads, not `entry`. See Verification 1 in
+			-- AUDIT.md L26.
+			local entry = omRef[i]
+			if entry ~= nil and (entry.pulseTime == nil or now >= entry.pulseTime) then
 				-- this delay is extremely important as the unit updates are a major source of FPS loss for BR
 				-- for non-raids, this code will spread out unit updates so that everything gets updated every update
 				-- for raids, only half of units will be updated per BR update
-				local delay = ((math.random() * 0.25) + 0.75) * br.engines:getUpdateRate()
-				if br._G.IsInRaid() then
-					delay = delay * 2.00
-				end
+				local delay = ((math.random() * 0.25) + 0.75) * updateRate * raidMultiplier
 
 				-- Reduce delay for unvalidated units (not yet in units table) for faster responsiveness
 				-- Once validated and in combat rotation, full throttle applies for FPS optimization
-				if enemiesEngine.om[i].enemyListCheck == nil or br.engines.enemiesEngine.units[enemiesEngine.om[i].unit] == nil then
+				if entry.enemyListCheck == nil or unitsRef[entry.unit] == nil then
 					delay = delay * 0.25 -- New/unvalidated units check 4x faster to minimize perceived lag
 				end
 
-				enemiesEngine.om[i].pulseTime = GetTime() + delay
-					local thisUnit = enemiesEngine.om[i].unit
+				-- pulseTime mutation uses hoisted `now` (gate-check timestamp), not a
+				-- fresh GetTime() call. The ~1μs gap between gate-check time and
+				-- mutation time becomes zero — well below the 25-600ms per-unit
+				-- throttle interval and ~100ms pulse interval. pulseTime is read only
+				-- by the gate above on the next pulse, which uses that pulse's fresh
+				-- `now` (advanced by ~100ms, dwarfing the ~1μs collapse). No consumer
+				-- observes the difference. See Verification 3 in AUDIT.md L26.
+				entry.pulseTime = now + delay
+					local thisUnit = entry.unit
 					-- setfenv(1, C_Timer.Nn)
 					-- br._G.print(tostring(br._G.UnitName(thisUnit)).." is Visible: "..tostring(br.functions.unit:GetUnitIsVisible(thisUnit)))
 					-- br._G.print(tostring(br._G.UnitName(thisUnit)).." = "..tostring(UnitName(thisUnit)))
@@ -551,7 +615,7 @@ if not enemiesEngine.metaTable2 then
 						-- Do not increment i here; we need to process the swapped-in entry at index i.
 					else
 						--Update unit and move to next
-						enemiesEngine.om[i]:UpdateUnit()
+						entry:UpdateUnit()
 						i = i + 1
 					end
 				else
@@ -575,10 +639,13 @@ if not enemiesEngine.metaTable2 then
 
 		-- Periodic cleanup of unitSetup.cache to avoid stale units inflating enemy counts
 		if enemiesEngine.cacheCleanupTimer == nil then enemiesEngine.cacheCleanupTimer = 0 end
-		local now = GetTime()
+		-- Fresh GetTime() (not the iteration-start `now` hoisted above) because the
+		-- cleanup runs AFTER the main iteration, potentially milliseconds later.
+		-- Renamed from `now` to disambiguate from the hoisted iteration-start `now`.
+		local cleanupTime = GetTime()
 		-- Run cleanup every 2 seconds (was 5s; tighter eviction reduces stale unit inflation in fast-turnover content)
-		if (now - enemiesEngine.cacheCleanupTimer) >= 2 then
-			enemiesEngine.cacheCleanupTimer = now
+		if (cleanupTime - enemiesEngine.cacheCleanupTimer) >= 2 then
+			enemiesEngine.cacheCleanupTimer = cleanupTime
 			for u, entry in pairs(enemiesEngine.unitSetup.cache) do
 				local shouldRemove = false
 				-- If unit no longer exists, dead/ghost or not visible and not referenced elsewhere, remove it

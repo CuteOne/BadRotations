@@ -3,6 +3,15 @@ br.engines.ttdTable = br.engines.ttdTable or {}
 local ttdTable = br.engines.ttdTable
 local enemyTable
 
+-- Sentinel returned when a unit is not on track to die: warm-up (just sighted),
+-- no net damage observed yet, no measurable DPS, or untracked. A large positive
+-- value so `ttd < N` "dying soon" execute/finisher checks correctly evaluate
+-- false while it is unknown. Mirrors the Enhanced TTD path (EnemiesEngine.lua),
+-- which already returns 999 for the same states. The old -1/0 sentinels were
+-- less than every threshold, so e.g. Druid biteAtEnd (`ttd < 6`) misread an
+-- unknown TTD as "target dies in <6s" and fired the wrong finisher.
+local TTD_NEVER = 999
+
 function br.engines.ttdTable:TTDRefresh(hpLimit)
 	if not enemyTable then
 		enemyTable = {
@@ -29,7 +38,7 @@ function br.engines.ttdTable:TTDRefresh(hpLimit)
 			health[object] = br._G.UnitHealth(object)
 			dps[object] = 0
 			if ttd[object] == nil then
-				ttd[object] = -1
+				ttd[object] = TTD_NEVER
 			end
 			enemyTable.totalUnits = enemyTable.totalUnits + 1
 		else
@@ -38,20 +47,19 @@ function br.engines.ttdTable:TTDRefresh(hpLimit)
 				local maxHP = health[object]
 				local diff = maxHP - currentHP
 				local dura = br._G.GetTime() - units[object]
-				local _dps = diff / dura
-				local death
-				local adjustment = maxHP * (hpLimit / 100)
-				if _dps ~= 0 then death = math.max(0, currentHP - adjustment) / _dps else death = 0 end
+				local _dps = (dura > 0) and (diff / dura) or 0
 				dps[object] = math.floor(_dps)
-				if death == math.huge then
-					ttd[object] = -1
-				elseif death < 0 then
-					ttd[object] = 0
+				local adjustment = maxHP * (hpLimit / 100)
+				-- No net damage observed (diff <= 0, e.g. healed back to baseline)
+				-- or no measurable DPS yet: the unit is not on track to die, so
+				-- report TTD_NEVER rather than the old -1/0 sentinels that
+				-- `ttd < N` checks misread as "dying now".
+				if diff <= 0 or _dps <= 0 then
+					ttd[object] = TTD_NEVER
 				else
-					ttd[object] = death
-				end
-				if maxHP - currentHP == 0 then
-					ttd[object] = -1
+					-- max(0, ...) over a positive dps is always >= 0; 0 means the
+					-- unit is at/below the requested HP threshold (dying now).
+					ttd[object] = math.max(0, currentHP - adjustment) / _dps
 				end
 			end
 		end
@@ -73,9 +81,12 @@ function br.engines.ttdTable:getTTD(unit, hp)
 		if unit == "target" and br.functions.unit:GetObjectExists("target") then unit = br._G.UnitTarget("player") end
 		if br.engines.enemiesEngine.unitSetup.cache[unit] ~= nil then
 			br.engines.enemiesEngine.unitSetup.cache[unit]:unitTtd(hp)
-			return br.engines.enemiesEngine.unitSetup.cache[unit].ttd or -2
+			-- Un-computed .ttd (nil) means "unknown", not "dying now" — return
+			-- TTD_NEVER so `ttd < N` checks don't misfire. unitTtd no longer
+			-- returns negatives (0 = dead/now, positive = estimate, 999 = unknown).
+			return br.engines.enemiesEngine.unitSetup.cache[unit].ttd or TTD_NEVER
 		end
-		return -2
+		return TTD_NEVER -- not yet in the enemies cache: unknown, treat as not-soon-dying
 	end
 	if br.functions.unit:isDummy() then return 99 end
 	ttdTable:TTDRefresh(hp)
@@ -95,5 +106,5 @@ function br.engines.ttdTable:getTTD(unit, hp)
 			return enemyTable.ttd[thisUnit]
 		end
 	end
-	return -1
+	return TTD_NEVER
 end

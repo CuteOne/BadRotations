@@ -12,18 +12,23 @@ if not lootEngine.metaTable then
 	local ClearTarget = br._G.ClearTarget
 	-- Note: InteractUnit is accessed via br._G dynamically to support late-loading unlockers
 
-	local MAX_LOOT_RETRIES = 3 -- Max real loot attempts per GUID before treating it as a unique/unavailable item
+	local MAX_LOOT_OPENS = 3    -- Times we may OPEN a corpse's loot window while loot still
+	                           -- remains (with bag space) before treating the leftover as a
+	                           -- unique/quest/already-owned item we can't take, and skipping it.
+	local WINDOW_TIMEOUT = 1.0 -- Seconds to wait for LOOT_OPENED after an interact before
+	                           -- releasing the in-flight state and retrying (was an implicit 3s stall).
 
 	-- Note: lootable table is managed by EnemiesEngine (br.engines.enemiesEngine.lootable)
 	lootEngine.lootUnit = nil         -- Current unit to loot
+	lootEngine.lootGUID = nil         -- GUID of the unit we last fired an interact on
 	lootEngine.oldMessage = nil       -- For debug message tracking
 	lootEngine.lastBagWarning = 0     -- Throttle bag full warnings
-	lootEngine.lootAttempts = {}      -- Track loot attempts to avoid spam
-	lootEngine.lootRetryCount = {}    -- Track per-GUID actual attempt counts
-	lootEngine.lootSkipList = {}      -- GUIDs to permanently skip this session (unique/unavailable items)
-	lootEngine.isLooting = false      -- Global looting state flag
+	lootEngine.lootAttempts = {}      -- Last interact time per GUID (paces re-interacts)
+	lootEngine.lootOpenCount = {}     -- Times the loot window opened per GUID (unique-item detection)
+	lootEngine.lootSkipList = {}      -- GUIDs to skip this session (loot that can't be taken)
+	lootEngine.isLooting = false      -- Interact fired, awaiting loot window
 	lootEngine.lootWindowOpen = false -- Track if loot window is currently open
-	lootEngine.lootStartTime = 0      -- Track when looting started for timeout
+	lootEngine.lootStartTime = 0      -- GetTime() the current interact was fired (timeout ref)
 	lootEngine.metaTable = {}         -- MetaTable for the engine
 	lootEngine.metaTable.__index = {
 		name = "Loot Engine",
@@ -74,12 +79,16 @@ if not lootEngine.metaTable then
 				if br.functions.unit:GetObjectExists(thisUnit) then
 					local hasLoot = CanLootUnit(thisGUID)
 					if hasLoot then
-						lootCount = lootCount + 1
-						-- Find the closest lootable unit instead of just the first
-						local distance = br.functions.range:getDistance(thisUnit)
-						if distance < closestDistance then
-							closestDistance = distance
-							closestUnit = thisUnit
+						-- Ignore (but keep) GUIDs we've skip-listed this session so a blocked
+						-- unique item never starves looting of other nearby corpses.
+						if not self.lootSkipList[thisGUID] then
+							lootCount = lootCount + 1
+							-- Find the closest lootable unit instead of just the first
+							local distance = br.functions.range:getDistance(thisUnit)
+							if distance < closestDistance then
+								closestDistance = distance
+								closestUnit = thisUnit
+							end
 						end
 					else
 						-- No longer has loot, remove from table
@@ -114,21 +123,20 @@ if not lootEngine.metaTable then
 			return
 		end
 
-		-- Don't loot while in combat
-		if br.functions.misc:isInCombat("player") then
-			return
-		end
+		local now = GetTime()
 
-		-- Reset isLooting flag if it's been stuck for more than 3 seconds
-		if self.isLooting and (GetTime() - self.lootStartTime) > 3 then
-			self:debug("Looting timeout - resetting looting state")
-			self.isLooting = false
-			self.lootStartTime = 0
-		end
-
-		-- Don't attempt to loot if we're already in the process of looting
-		if self.isLooting or self.lootWindowOpen then
-			return
+		-- Resolve any in-flight interact. If we fired an interact and the loot window
+		-- never opened within WINDOW_TIMEOUT, release the state so we can retry — a
+		-- window that fails to open is a range/LoS/timing miss, NOT a blocked item, so
+		-- it must never count toward the skip logic. While still waiting on (or showing)
+		-- a window, do nothing.
+		if self.isLooting then
+			if not self.lootWindowOpen and (now - self.lootStartTime) > WINDOW_TIMEOUT then
+				self:debug("Interact produced no loot window in time - will retry")
+				self.isLooting = false
+			else
+				return
+			end
 		end
 
 		local unitGUID = br._G.UnitGUID(lootUnit)
@@ -137,26 +145,33 @@ if not lootEngine.metaTable then
 			return
 		end
 
-		-- Verify unit still has loot
+		-- Verify unit still has loot; if it's been fully looted, clear its tracking.
 		if not CanLootUnit(unitGUID) then
 			self:debug("Unit no longer has loot available")
-			-- Remove from lootable table
 			if br.engines.enemiesEngine.lootable[lootUnit] then
 				br.engines.enemiesEngine.lootable[lootUnit] = nil
 			end
+			self.lootOpenCount[unitGUID] = nil
 			self.lootUnit = nil
 			return
 		end
 
-		-- Throttle loot attempts on same unit
-		local now = GetTime()
-		if self.lootAttempts[unitGUID] and (now - self.lootAttempts[unitGUID]) < 2 then
-			return
-		end
-
-		-- Skip units that have hit the retry limit with bag space (likely unique/already-owned items)
+		-- Already skip-listed: drop the selection and move on.
 		if self.lootSkipList[unitGUID] then
-			self:debug("Skipping " .. (br._G.UnitName(lootUnit) or "unknown") .. " - on skip list (unique item?)")
+			self.lootUnit = nil
+			return
+		end
+
+		-- Unique/blocked-item detection. We only reach here when the corpse STILL has
+		-- loot. If we've already OPENED its loot window MAX_LOOT_OPENS times and have bag
+		-- space, the leftover can't be taken (unique / quest / already owned) — skip it
+		-- so it doesn't loop forever. This counts *successful window opens*, never failed
+		-- interacts, so a corpse that is merely out of range is retried indefinitely
+		-- rather than being wrongly blacklisted (the old attempt-count bug).
+		if (self.lootOpenCount[unitGUID] or 0) >= MAX_LOOT_OPENS and self:emptySlots() > 0 then
+			self:debug("Skipping " .. (br._G.UnitName(lootUnit) or "unknown") .. " - loot remained after "
+				.. MAX_LOOT_OPENS .. " window opens (likely a unique/quest item)")
+			self.lootSkipList[unitGUID] = true
 			if br.engines.enemiesEngine.lootable[lootUnit] then
 				br.engines.enemiesEngine.lootable[lootUnit] = nil
 			end
@@ -164,131 +179,103 @@ if not lootEngine.metaTable then
 			return
 		end
 
-		-- If we have a unit to loot, check if it's time to loot
-		if br.debug.timer:useTimer("getLoot", br.functions.misc:getOptionValue("Auto Loot")) then
-			local distance = br.functions.range:getDistance(lootUnit)
-
-			-- Check distance and line of sight
-			if distance < 7 and br.functions.misc:getLineOfSight("player", lootUnit) then
-				self.lootAttempts[unitGUID] = now
-				self.lootRetryCount[unitGUID] = (self.lootRetryCount[unitGUID] or 0) + 1
-
-				-- If we've exhausted retries and bags have space, the item is likely unique or otherwise blocked
-				if self.lootRetryCount[unitGUID] > MAX_LOOT_RETRIES and self:emptySlots() > 0 then
-					self:debug("Retry limit reached for " .. (br._G.UnitName(lootUnit) or "unknown") .. " with bag space available - likely a unique item, skipping")
-					self.lootSkipList[unitGUID] = true
-					if br.engines.enemiesEngine.lootable[lootUnit] then
-						br.engines.enemiesEngine.lootable[lootUnit] = nil
-					end
-					self.lootUnit = nil
-					return
-				end
-
-				self:debug("Looting " .. br._G.UnitName(lootUnit) .. " at " .. math.floor(distance) .. " yards (attempt " .. self.lootRetryCount[unitGUID] .. "/" .. MAX_LOOT_RETRIES .. ")")
-
-				-- Use InteractUnit or ObjectInteract depending on what the unlocker provides
-				local interactFunc = br._G.InteractUnit or br._G.ObjectInteract
-				if interactFunc then
-					if br.functions.misc:pause(true) then return end
-					self.isLooting = true
-					self.lootStartTime = now
-					interactFunc(lootUnit)
-				else
-					self:debug("ERROR: No interact function available (InteractUnit or ObjectInteract)")
-					-- Try direct TargetUnit + Interact as fallback
-					if br._G.TargetUnit then
-						br._G.TargetUnit(lootUnit)
-						br._G.C_Timer.After(0.1, function()
-							if br._G.InteractTarget then
-								if br.functions.misc:pause(true) then return end
-								self.isLooting = true
-								self.lootStartTime = now
-								br._G.InteractTarget()
-							end
-						end)
-					end
-				end
-
-				-- Note: Manual looting is handled by LOOT_OPENED event
-				-- This ensures the loot frame is fully loaded before attempting to loot items
-			else
-				if distance >= 7 then
-					self:debug("Unit too far for looting: " .. math.floor(distance) .. " yards")
-				else
-					self:debug("No line of sight to loot unit")
-				end
-			end
-
-			-- Clean up after looting
-			if not br.functions.misc:isInCombat("player") and self.isLooting then
-				br._G.ClearTarget()
-			end
-
+		-- Range + line of sight. Use the game's own interact-distance test (index 3 =
+		-- interact range), mirroring the Tracker engine — far more reliable than a guessed
+		-- yard threshold. A failed interact from here is transient (retried next pass) and
+		-- never feeds the skip logic.
+		if br._G.CheckInteractDistance and not br._G.CheckInteractDistance(lootUnit, 3) then
+			self:debug("Loot unit not yet in interact range: "
+				.. math.floor(br.functions.range:getDistance(lootUnit) or 99) .. " yards")
 			return
 		end
+		if not br.functions.misc:getLineOfSight("player", lootUnit) then
+			self:debug("No line of sight to loot unit")
+			return
+		end
+
+		-- Respect rotation pause states (dead/eating/drinking/pause-mode/etc.).
+		if br.functions.misc:pause(true) then return end
+
+		-- Fire the interact. InteractUnit/ObjectInteract take the unit directly, so we
+		-- never change the player's target to loot (no ClearTarget cleanup needed).
+		local interactFunc = br._G.InteractUnit or br._G.ObjectInteract
+		if not interactFunc then
+			self:debug("ERROR: No interact function available (InteractUnit or ObjectInteract)")
+			return
+		end
+
+		self:debug("Looting " .. (br._G.UnitName(lootUnit) or "unknown")
+			.. " at " .. math.floor(br.functions.range:getDistance(lootUnit) or 0) .. " yards")
+		self.lootGUID = unitGUID
+		self.lootAttempts[unitGUID] = now
+		self.isLooting = true
+		self.lootStartTime = now
+		interactFunc(lootUnit)
+		-- Manual looting (when the game's auto-loot cvar is off) is handled by LOOT_OPENED.
 	end
 
 	-- Auto-loot functionality (called from rotation loop)
 	function lootEngine:autoLoot()
 		if not br.functions.misc:getOptionCheck("Auto Loot") then return end
 
-		-- Only loot when out of combat or no enemies nearby
+		-- Combat policy: loot out of combat, or in combat only when no enemies are within
+		-- 10y (e.g. AoE farming where the mobs we're looting are already dead). getLoot no
+		-- longer hard-blocks on combat, so this single gate now actually governs the policy.
 		if br.functions.misc:isInCombat("player") then
-			if br.player and br.player.enemies and br.player.enemies.get then
-				local nearbyEnemies = br.player.enemies.get(10)
-				if nearbyEnemies and nearbyEnemies[1] ~= nil then
-					return
-				end
-			else
-				return -- Can't check enemies, don't loot in combat
+			if not (br.player and br.player.enemies and br.player.enemies.get) then
+				return -- can't verify it's safe, don't loot in combat
+			end
+			local nearbyEnemies = br.player.enemies.get(10)
+			if nearbyEnemies and nearbyEnemies[1] ~= nil then
+				return
 			end
 		end
 
-		-- Check if there are units to loot
-		local lootableCount = self:lootCount()
-		if lootableCount == 0 then
-			return
+		-- Player-state gates (cheapest first).
+		if UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil then return end -- don't interrupt casting
+		if IsMounted("player") then return end                                                  -- don't loot while mounted
+		if GetUnitSpeed("player") > 0 then return end                                            -- don't loot while moving
+		if UnitIsDeadOrGhost("player") then return end                                           -- don't loot while dead
+
+		-- Looting interacts with the corpse, which breaks Stealth/Prowl. Don't auto-loot
+		-- while stealthed at all — respect the player's intent to stay hidden (whether for
+		-- a nearby hostile, an opener, or any other reason); breaking it to grab loot would
+		-- drop stealth and can get us detected and aggro'd.
+		--
+		-- Detected via the rotation buff API. Only the active spec's spell list is loaded,
+		-- so each buff object is nil-guarded (buff.prowl is nil on a Rogue, buff.stealth is
+		-- nil on a Druid). The buff API resolves ranks, so ranked Prowl is covered too.
+		local pbuff = br.player and br.player.buff
+		if pbuff and (
+			(pbuff.prowl and pbuff.prowl.exists())
+			or (pbuff.stealth and pbuff.stealth.exists())
+			or (pbuff.shadowmeld and pbuff.shadowmeld.exists())
+			or (pbuff.vanish and pbuff.vanish.exists())
+		) then
+			return -- stealthed: don't break it to loot
 		end
 
-		-- Check for bag space
-		local freeSlots = self:emptySlots()
-		if freeSlots == 0 then
+		-- Bag space.
+		if self:emptySlots() == 0 then
 			local now = GetTime()
-			-- Only show warning once every 30 seconds
-			if (now - self.lastBagWarning) > 30 then
+			if (now - self.lastBagWarning) > 30 then -- warn at most once per 30s
 				br.ui.chatOverlay:Show("Bags are full, nothing will be looted!")
 				self.lastBagWarning = now
 			end
 			return
 		end
 
-		-- Check various conditions before looting
-		if UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil then
-			return -- Don't interrupt casting
-		end
+		-- Single pacing throttle, driven by the "Auto Loot" spinner (delay in seconds).
+		-- Replaces the old overlapping lootTimer(1s) + getLoot(value) + per-GUID(2s) gates;
+		-- the in-flight isLooting/window state machine in getLoot prevents interact spam.
+		local delay = br.functions.misc:getOptionValue("Auto Loot")
+		if not delay or delay <= 0 then delay = 0.5 end
+		if not br.debug.timer:useTimer("autoLoot", delay) then return end
 
-		if IsMounted("player") then
-			return -- Don't loot while mounted
-		end
-
-		if GetUnitSpeed("player") > 0 then
-			return -- Don't loot while moving
-		end
-
-		if UnitIsDeadOrGhost("player") then
-			return -- Don't loot while dead
-		end
-
-		-- Use timer to throttle loot attempts
-		if not br.debug.timer:useTimer("lootTimer", 1) then
-			return
-		end
-
-		-- All checks passed, attempt to loot
+		-- Pick the closest lootable corpse (skip-listed GUIDs are ignored) and loot it.
+		if self:lootCount() == 0 then return end
 		if self.lootUnit then
 			self:getLoot(self.lootUnit)
-		else
-			self:debug("No valid loot unit found despite " .. lootableCount .. " lootable units")
 		end
 	end
 
@@ -300,7 +287,7 @@ if not lootEngine.metaTable then
 			-- (allows re-attempting a GUID encountered again after a long absence)
 			if (now - timestamp) > 30 then
 				self.lootAttempts[guid] = nil
-				self.lootRetryCount[guid] = nil
+				self.lootOpenCount[guid] = nil
 				-- Note: lootSkipList entries are intentionally kept for the session
 			end
 		end
@@ -394,6 +381,13 @@ if not lootEngine.metaTable then
 		eventFrame:SetScript("OnEvent", function(self, event, ...)
 			if event == "LOOT_OPENED" then
 				lootEngine.lootWindowOpen = true
+				lootEngine.isLooting = false -- the interact succeeded; the window is up
+				-- Count this successful open against the GUID we interacted with. Repeated
+				-- opens with loot still remaining are how getLoot detects unlootable
+				-- (unique/quest/already-owned) items — see MAX_LOOT_OPENS.
+				if lootEngine.lootGUID then
+					lootEngine.lootOpenCount[lootEngine.lootGUID] = (lootEngine.lootOpenCount[lootEngine.lootGUID] or 0) + 1
+				end
 				lootEngine:debug("Loot window opened")
 
 				-- Remove the unit from lootable table now that loot window opened successfully
@@ -417,6 +411,13 @@ if not lootEngine.metaTable then
 				lootEngine.lootWindowOpen = false
 				lootEngine.isLooting = false
 				lootEngine.lootStartTime = 0
+				-- If the corpse we just looted is now empty, clear its open-count so the
+				-- tracking starts fresh next time. If loot remains (a blocked unique item),
+				-- keep the count so getLoot can skip it after MAX_LOOT_OPENS.
+				if lootEngine.lootGUID and not CanLootUnit(lootEngine.lootGUID) then
+					lootEngine.lootOpenCount[lootEngine.lootGUID] = nil
+				end
+				lootEngine.lootGUID = nil
 				lootEngine.lootUnit = nil
 				lootEngine:debug("Loot window closed")
 

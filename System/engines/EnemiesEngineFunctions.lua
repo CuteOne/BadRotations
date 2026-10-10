@@ -8,17 +8,139 @@ br.engines.enemiesEngine.storedTables = {}
 local enemiesEngineFunctions = br.engines.enemiesEngineFunctions
 local refreshStored
 local lastOMUpdate = 0
-local lastTrackerUpdate = 0
 -- More reactive update intervals (favor accuracy over FPS)
 local OM_UPDATE_INTERVAL = 0.25 -- Update every 0.25 seconds
-local TRACKER_UPDATE_INTERVAL = 0.05
 local scanOffset = 1 -- Used for batched scanning when object count is high
 local addedSet = {} -- Reusable set for getEnemies duplicate tracking (avoid per-call allocation)
 
--- Tracker list reuse (avoid O(n^2) duplicate checks)
-br.engines.tracker = br.engines.tracker or {}
-br.engines.tracker.tracking = br.engines.tracker.tracking or {}
-br.engines.tracker.trackingIndex = br.engines.tracker.trackingIndex or {}
+-- Partition cache for getEnemies: dedupes the multi-radius-scan pattern that
+-- rotation runRotation()s exhibit (e.g. Druid-TBC asks for 5y / 8y / 10y / 20y /
+-- 40y in one tick). One annotated base scan per source table per within-tick
+-- window; subsequent same-source calls derive their result without re-iterating
+-- the source table. See AUDIT.md L18.
+local partitionCache = {
+	enemy = nil,  -- populated when checkNoCombat=false and thisUnit="player"
+	units = nil,  -- populated when checkNoCombat=true  and thisUnit="player"
+}
+
+-- Lifted from getEnemies (was a per-call closure). Module scope eliminates the
+-- per-call allocation that AUDIT.md L21 flagged. targetIsDummy is passed in
+-- because it's the only enclosing-scope value the original closure captured;
+-- unitFuncs / rangeFuncs are accessed via br.functions (cheap, no allocation).
+local function dummyAllowed(u, targetIsDummy)
+	if not u or not br.functions.unit:isDummy(u) then return true end
+	if br.functions.unit:GetUnitIsUnit(u, "target") then return true end
+	if targetIsDummy then
+		local d = br.functions.range:getDistance(u, "target")
+		if d and d <= 8 then return true end
+	end
+	return false
+end
+
+-- Partition cache validity check. Mirrors the existing storedTables cache
+-- invalidation (TTL + player-movement threshold) so the partition cache and
+-- storedTables stay in sync — a partition derivation is correctness-equivalent
+-- to a fresh full scan within this window.
+local function isPartitionCacheValid(pCache, radius)
+	if not pCache then return false end
+	local cacheExpiration = br._G.UnitAffectingCombat("player") and 0.1 or 0.15
+	if (br._G.GetTime() - pCache.timestamp) > cacheExpiration then return false end
+	local px = br.engines.enemiesEngine.playerPosX
+	local py = br.engines.enemiesEngine.playerPosY
+	local pz = br.engines.enemiesEngine.playerPosZ
+	if pCache.playerPosX and px and py and pz then
+		local dx = pCache.playerPosX - px
+		local dy = pCache.playerPosY - py
+		local dz = pCache.playerPosZ - pz
+		local moved = math.sqrt((dx * dx) + (dy * dy) + (dz * dz))
+		local moveThreshold = (br._G.IsInRaid() and radius and radius > 20) and 3.0 or 2.0
+		if moved > moveThreshold then return false end
+	end
+	return true
+end
+
+-- Iterate the source table once, annotate each in-range entry with (range,
+-- facing, dummyOk), and store the result. The annotations are computed once
+-- per entry per tick; subsequent partition derivations read them directly.
+-- Facing is computed during rebuild (Option B from the L18 plan) — cheaper
+-- per-tick when multiple partitions need facing variants. Revisit to Option A
+-- (compute facing only when a partition needs it) if benchmarking shows
+-- facing-required partitions are rare across the 49 rotation profiles.
+--
+-- Uses strict-less-than (d < targetRadius) to match the original getEnemies
+-- filter behavior at the old L441 / current L445; derivePartitionResult uses
+-- the same strict form. See AUDIT.md L18 for the preservation note.
+--
+-- Writes back v.range and v.timestamp on source entries (preserved from
+-- original behavior) — this is a load-bearing dependency for L26's due-queue
+-- work: the partition cache rebuild is one of the primary places .range gets
+-- refreshed. The partition cache is both a .range reader and writer, not just
+-- a reader; surface this when L26 is planned.
+local function rebuildPartitionCache(sourceKey, targetRadius, unitFuncs, rangeFuncs, targetIsDummy)
+	local sourceTable = (sourceKey == "units")
+		and br.engines.enemiesEngine.units
+		or  br.engines.enemiesEngine.enemy
+	local entries = {}
+	local now = br._G.GetTime()
+	for _, v in pairs(sourceTable) do
+		local vUnit = v and v.unit
+		if vUnit and not unitFuncs:GetUnitIsDeadOrGhost(vUnit) then
+			local d
+			if v.range ~= nil and v.timestamp ~= nil and (now - v.timestamp) <= 0.25 then
+				d = v.range
+			else
+				d = rangeFuncs:getDistance("player", vUnit)
+				v.range = d
+				v.timestamp = now
+			end
+			if d and d < targetRadius then
+				entries[#entries + 1] = {
+					unit    = vUnit,
+					range   = d,
+					facing  = unitFuncs:getFacing("player", vUnit),
+					dummyOk = dummyAllowed(vUnit, targetIsDummy),
+				}
+			end
+		end
+	end
+	partitionCache[sourceKey] = {
+		timestamp  = now,
+		playerPosX = br.engines.enemiesEngine.playerPosX,
+		playerPosY = br.engines.enemiesEngine.playerPosY,
+		playerPosZ = br.engines.enemiesEngine.playerPosZ,
+		maxRadius  = targetRadius,
+		entries    = entries,
+	}
+end
+
+-- Derive a result table from the partition cache. Iterates only the annotated
+-- entries (already filtered to maxRadius, dead/ghost-excluded, dummy-checked),
+-- applying the call's specific (radius, facing) filter. ipairs over a packed
+-- array is faster than the source-table pairs iteration.
+--
+-- Staleness contract: dead/ghost check happens during rebuild only. Derivations
+-- within the TTL window may return units that died mid-window. This matches
+-- the existing storedTables cache (which also caches result tables across the
+-- same window), so it's not a regression — but the dropped GetUnitIsDeadOrGhost
+-- check at the derivation layer is the kind of thing a future reader might flag
+-- as missing without realizing the architectural design. Window is bounded by
+-- isPartitionCacheValid's 0.02s combat / 0.05s OOC TTL + 2-3y movement.
+local function derivePartitionResult(pCache, radius, facing)
+	local result = {}
+	local tinsert = br._G.tinsert
+	table.wipe(addedSet)
+	for i = 1, #pCache.entries do
+		local entry = pCache.entries[i]
+		local vUnit = entry.unit
+		if vUnit and entry.dummyOk and not addedSet[vUnit] then
+			if entry.range < radius and (not facing or entry.facing) then
+				tinsert(result, vUnit)
+				addedSet[vUnit] = true
+			end
+		end
+	end
+	return result
+end
 
 --Check Totem
 function enemiesEngineFunctions:isTotem(unit)
@@ -44,40 +166,12 @@ end
 function enemiesEngineFunctions:updateOM()
 	local now = br._G.GetTime()
 	local startTime = br._G.debugprofilestop()
-
-	-- Separate tracker updates from OM updates
-	local misc = br.functions.misc
-	local shouldUpdateTracker = misc:isChecked("Enable Tracker") and (now - lastTrackerUpdate) >= TRACKER_UPDATE_INTERVAL
-    local omUpdateInterval = br._G.IsInRaid() and 0.50 or OM_UPDATE_INTERVAL
-    local shouldUpdateOM = (now - lastOMUpdate) >= omUpdateInterval
-
-	-- Skip building tracker list if no tracker mode is active
-	local trackerModeActive = false
-	if shouldUpdateTracker then
-		local showRare = misc:isChecked("Rare Tracker")
-		local showQuest = misc:isChecked("Quest Tracker")
-		local showCustom = misc:isChecked("Custom Tracker")
-		local customValue = tostring(misc:getOptionValue("Custom Tracker") or "")
-		trackerModeActive = showRare or showQuest or (showCustom and customValue ~= "" and string.len(customValue) >= 3)
-		if not trackerModeActive then
-			shouldUpdateTracker = false
-		end
-	end
-
-	-- Always update tracker list if needed
-	if shouldUpdateTracker then
-		table.wipe(br.engines.tracker.tracking)
-		table.wipe(br.engines.tracker.trackingIndex)
-		lastTrackerUpdate = now
-	end
+	local omUpdateInterval = br._G.IsInRaid() and 0.50 or OM_UPDATE_INTERVAL
+	local shouldUpdateOM = (now - lastOMUpdate) >= omUpdateInterval
 
 	local om = br.engines.enemiesEngine.om
 	br.engines.enemiesEngine.omIndex = br.engines.enemiesEngine.omIndex or {}
 	local omIndex = br.engines.enemiesEngine.omIndex
-	local objUnit
-	local name
-	local objectid
-	local objectguid
 	-- OM is built via index scanning for maximum compatibility across supported unlockers.
 	local totalObjects = br._G.GetObjectCount() or 0
 	local total = math.min(totalObjects, 500)
@@ -100,18 +194,12 @@ function enemiesEngineFunctions:updateOM()
 	--[[
 		Performance Optimization System:
 
-		1. FPS-based Range Gating for Tracker:
-		   - Dynamically reduces scan radius as FPS drops to maintain smooth performance
-		   - Graduated tiers: 30y (< 25 FPS), 50y (< 35 FPS), 70y (< 45 FPS), 100y (< 55 FPS), unlimited (55+ FPS)
-		   - Prevents scanning distant objects that won't be interacted with when performance is low
-
-		2. Object Count Batching:
+		1. Object Count Batching:
 		   - When > 300 objects exist, limits objects scanned per update cycle
 		   - Spreads the load across multiple frames to prevent frame drops
 
-		3. Distance-based Skipping:
+		2. Distance-based Skipping:
 		   - Skips very distant objects for OM updates when FPS is struggling
-		   - Works in conjunction with tracker range gating for maximum performance
 	]]--
 	-- Performance optimization: Dynamically adjust scanning based on object count and FPS
 	-- Cache FPS to avoid expensive GetFramerate() calls multiple times per update
@@ -120,25 +208,18 @@ function enemiesEngineFunctions:updateOM()
 
 	local objectsPerScan = total
 	local skipDistance = nil
-	local trackerScanRadius = nil -- Range limit for tracker objects
 
-	-- FPS-based range gating for tracker to maintain smooth performance
-	-- Gradually reduce scan radius as FPS drops
+	-- Gradually reduce the OM scan radius as FPS drops
 	if fps < 25 then
-		trackerScanRadius = 30 -- Critical FPS: very tight radius
 		skipDistance = 40
 	elseif fps < 35 then
-		trackerScanRadius = 50 -- Low FPS: tight radius
 		skipDistance = 60
 	elseif fps < 45 then
-		trackerScanRadius = 70 -- Medium-low FPS: moderate radius
 		skipDistance = 80
 	elseif fps < 55 then
-		trackerScanRadius = 100 -- Medium FPS: normal radius
 		skipDistance = 100
 	else
-		-- Good FPS (55+): no tracker range limit but still cap OM distance at 100y
-		trackerScanRadius = nil
+		-- Good FPS (55+): still cap OM distance at 100y
 		skipDistance = 100 -- Always cap at 100y - nothing beyond this matters for gameplay
 	end
 
@@ -229,36 +310,6 @@ function enemiesEngineFunctions:updateOM()
 					end
 				end
 			end
-
-			-- Update tracker during full OM scan
-			if shouldUpdateTracker
-				and thisUnit ~= nil and ObjectExists(thisUnit)
-				and ((ObjectIsUnit(thisUnit) and UnitIsVisible(thisUnit)) or not ObjectIsUnit(thisUnit))
-			then
-				-- Apply FPS-based range gating for tracker
-				local shouldAddToTracker = true
-				if trackerScanRadius ~= nil and playerX ~= nil then
-					local unitX, unitY, unitZ = ObjectPosition(thisUnit)
-					if unitX ~= nil then
-						local distance = math.sqrt(((unitX - playerX) ^ 2) + ((unitY - playerY) ^ 2) + ((unitZ - playerZ) ^ 2))
-						if distance > trackerScanRadius then
-							shouldAddToTracker = false -- Skip distant units for tracker when FPS is low
-						end
-					end
-				end
-
-				if shouldAddToTracker then
-					objUnit = ObjectIsUnit(thisUnit)
-					name = objUnit and UnitName(thisUnit) or ObjectName(thisUnit)
-					objectid = ObjectID(thisUnit)
-					objectguid = UnitGUID(thisUnit)
-					if thisUnit and name and objectid and objectguid and not br.engines.tracker.trackingIndex[thisUnit] then
-						br.engines.tracker.trackingIndex[thisUnit] = true
-						tinsert(br.engines.tracker.tracking,
-							{ object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid })
-					end
-				end
-			end
 		end
 
 		-- Update scan offset for next cycle (batched scanning)
@@ -266,43 +317,6 @@ function enemiesEngineFunctions:updateOM()
 		if scanOffset > total then
 			scanOffset = 1 -- Reset to beginning
 			refreshStored = true
-		end
-	else
-		-- When throttled, only update tracker if needed
-		if shouldUpdateTracker then
-			-- Cache player position for distance checks
-			local playerX, playerY, playerZ = ObjectPosition("player")
-
-			for i = 1, total do
-				local thisUnit = GetObjectWithIndex(i)
-				if ObjectExists(thisUnit)
-					and ((ObjectIsUnit(thisUnit) and UnitIsVisible(thisUnit)) or not ObjectIsUnit(thisUnit))
-				then
-					-- Apply FPS-based range gating for tracker
-					local shouldAddToTracker = true
-					if trackerScanRadius ~= nil and playerX ~= nil then
-						local unitX, unitY, unitZ = ObjectPosition(thisUnit)
-						if unitX ~= nil then
-							local distance = math.sqrt(((unitX - playerX) ^ 2) + ((unitY - playerY) ^ 2) + ((unitZ - playerZ) ^ 2))
-							if distance > trackerScanRadius then
-								shouldAddToTracker = false -- Skip distant units for tracker when FPS is low
-							end
-						end
-					end
-
-					if shouldAddToTracker then
-						objUnit = ObjectIsUnit(thisUnit)
-						name = objUnit and UnitName(thisUnit) or ObjectName(thisUnit)
-						objectid = ObjectID(thisUnit)
-						objectguid = UnitGUID(thisUnit)
-						if thisUnit and name and objectid and objectguid and not br.engines.tracker.trackingIndex[thisUnit] then
-							br.engines.tracker.trackingIndex[thisUnit] = true
-							tinsert(br.engines.tracker.tracking,
-								{ object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid })
-						end
-					end
-				end
-			end
 		end
 	end
 
@@ -331,7 +345,8 @@ end
 function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, facing)
 	local startTime = br._G.debugprofilestop()
 	radius = tonumber(radius) or 0
-	local enemyTable = checkNoCombat and br.engines.enemiesEngine.units or br.engines.enemiesEngine.enemy
+	-- enemyTable selection happens inside rebuildPartitionCache for player-relative
+	-- scans; fallback paths below reference br.engines.enemiesEngine.units directly.
 	local enemiesTable = {}
 	local thisEnemy, distance
 	if checkNoCombat == nil then checkNoCombat = false end
@@ -358,7 +373,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 				if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
 					local cachedTable = br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing]
 					-- Combat-reactive cache duration: much shorter in combat for higher reactivity
-					local cacheExpiration = br._G.UnitAffectingCombat("player") and 0.02 or 0.05
+					local cacheExpiration = br._G.UnitAffectingCombat("player") and 0.1 or 0.15
 					-- Slightly longer TTL when checkNoCombat is true (out-of-combat queries are less time-sensitive)
 					if checkNoCombat then cacheExpiration = 0.1 end
 					-- Invalidate cache if player moved since cache creation (prevents stale AoE/position info)
@@ -388,21 +403,13 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	-- Localize frequently used references for performance
 	local rangeFuncs = br.functions.range
 	local unitFuncs = br.functions.unit
-	local tinsert = br._G.tinsert
 
 	-- Dummies should not influence enemy counts/lists unless the player is explicitly
 	-- testing them: only include dummies if they are the player's current target OR
 	-- they are within 8 yards of a targeted dummy.
+	-- dummyAllowed is now module-scope (lifted to retire AUDIT.md L21); receives
+	-- targetIsDummy as a parameter rather than capturing via closure.
 	local targetIsDummy = unitFuncs:isDummy("target") and unitFuncs:GetUnitExists("target")
-	local function dummyAllowed(u)
-		if not u or not unitFuncs:isDummy(u) then return true end
-		if unitFuncs:GetUnitIsUnit(u, "target") then return true end
-		if targetIsDummy then
-			local d = rangeFuncs:getDistance(u, "target")
-			if d and d <= 8 then return true end
-		end
-		return false
-	end
 
 	-- Quick guard: when not requesting `checkNoCombat`, avoid returning enemies
 	-- while the player is not in combat and the requested unit (or player's target)
@@ -426,28 +433,29 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 		end
 	end
 
-	-- Fast-path when checking around the player: use precomputed .range where available
+	-- Partition-cache fast path for player-relative scans.
+	--
+	-- ARCHITECTURAL GATE — DO NOT EXTEND TO NON-PLAYER UNITS WITHOUT REDESIGN.
+	-- The partition cache stores entries annotated with `range` and `facing`
+	-- computed relative to the player. enemiesEngine:Update() publishes
+	-- enemiesEngine.playerPosX/Y/Z once per pulse so getDistance and getFacing
+	-- consume a single coherent position reference. Extending the partition
+	-- cache to target-relative scans (or any non-player anchor) would require
+	-- a separate cache per anchor unit AND a per-anchor position invalidation
+	-- mechanism — different correctness contract, not just a wider scope.
+	-- Non-player scans fall through to the existing fallback paths below.
 	if thisUnit == "player" then
-		local now = br._G.GetTime()
-		table.wipe(addedSet) -- O(1) hash set replaces O(n) GetUnitIsUnit duplicate scan
-		for _, v in pairs(enemyTable) do
-			local vUnit = v and v.unit
-			if vUnit and not unitFuncs:GetUnitIsDeadOrGhost(vUnit) and dummyAllowed(vUnit) and not addedSet[vUnit] then
-				local d
-				-- Ensure we have an up-to-date range on the enemy entry. Recalculate if missing.
-				if v.range ~= nil and v.timestamp ~= nil and (now - v.timestamp) <= 0.25 then
-					d = v.range
-				else
-					d = rangeFuncs:getDistance("player", vUnit)
-					v.range = d
-					v.timestamp = now
-				end
-				if d and d < radius and (not facing or unitFuncs:getFacing("player", vUnit)) then
-					tinsert(enemiesTable, vUnit)
-					addedSet[vUnit] = true
-				end
-			end
+		local sourceKey = checkNoCombat and "units" or "enemy"
+		local pCache = partitionCache[sourceKey]
+		if not (isPartitionCacheValid(pCache, radius) and pCache.maxRadius >= radius) then
+			-- Cache miss, expired, moved, or radius wider than cached: rebuild.
+			-- Widen to max(requested radius, prior cache max) so we don't shrink
+			-- the cache if a smaller-radius call follows a larger one.
+			local widened = math.max(radius, (pCache and pCache.maxRadius) or 0)
+			rebuildPartitionCache(sourceKey, widened, unitFuncs, rangeFuncs, targetIsDummy)
+			pCache = partitionCache[sourceKey]
 		end
+		enemiesTable = derivePartitionResult(pCache, radius, facing)
 	end
 
 	-- FIXED: Improved fallback to include enemies not yet in validated tables
@@ -462,10 +470,23 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	-- FIXED: If still empty and no target, check for enemies with threat on player/group (e.g., mobs attacking you)
 	-- This catches enemies that haven't been validated yet but are actively engaging the player
 	if #enemiesTable == 0 and not checkNoCombat and br._G.UnitAffectingCombat("player") then
-		-- Check all units in the broader units table (includes unvalidated units)
+		-- Check all units in the broader units table (includes unvalidated units).
+		-- Cap on accepted units (not loop iterations) — bounds the per-fire cost
+		-- to (fallbackCap × per-entry ops). See AUDIT.md L19 for cap-value
+		-- reasoning (asymmetric error cost: too-high is perf cost, too-low is
+		-- correctness/functional cost; 30 picked on that basis, NOT precedent).
+		-- Scoping note: fallbackCap is INTENTIONALLY block-local, not hoisted to
+		-- function-top. Unlike L18/L26/L27's per-pulse-stable constants, this
+		-- value is scoped to this particular fallback's invocation lifetime and
+		-- carries no semantic relationship to other call paths through this
+		-- function. Reflexive hoisting during a later cleanup pass would lose
+		-- the lexical association between cap and the fallback it bounds.
+		local fallbackCount = 0
+		local fallbackCap = 30
 		for _, v in pairs(br.engines.enemiesEngine.units) do
+			if fallbackCount >= fallbackCap then break end
 			local thisEnemy = v.unit
-			if dummyAllowed(thisEnemy)
+			if dummyAllowed(thisEnemy, targetIsDummy)
 				and br.functions.unit:GetUnitExists(thisEnemy)
 				and not br.functions.unit:GetUnitIsDeadOrGhost(thisEnemy) then
 				local distance = br.functions.range:getDistance(thisUnit, thisEnemy)
@@ -473,6 +494,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 					-- Check if this enemy has threat on us or is targeting us
 					if br.functions.combat:hasThreat(thisEnemy) or br.functions.misc:isTargeting(thisEnemy) then
 						br._G.tinsert(enemiesTable, thisEnemy)
+						fallbackCount = fallbackCount + 1
 					end
 				end
 			end
@@ -769,8 +791,8 @@ local function findBestUnit(range, facing)
 			if br.functions.unit:isDummy(cached.unit) then
 				bestUnitCache[cacheKey] = nil
 			else
-				local stillValid = true
-				if br.functions.misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack(cached.unit) then
+				local stillValid = br.functions.cast:isUnitVisible(cached.unit)
+				if stillValid and br.functions.misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack(cached.unit) then
 					stillValid = false
 				end
 				if stillValid then
@@ -781,7 +803,16 @@ local function findBestUnit(range, facing)
 		bestUnitCache[cacheKey] = nil
 	end
 
-	local enemyList = enemiesEngineFunctions:getEnemies("player", range, false, facing)
+	-- Only units we can see are candidates. The engine keeps out-of-LoS enemies in its
+	-- lists (rotations still count them), so filter here into a new table rather than
+	-- touching getEnemies' cached one. A unit that comes back into view is picked up
+	-- again on a later call.
+	local enemyList = {}
+	for _, u in ipairs(enemiesEngineFunctions:getEnemies("player", range, false, facing)) do
+		if br.functions.cast:isUnitVisible(u) then
+			enemyList[#enemyList + 1] = u
+		end
+	end
 
 	if #enemyList == 0 then
 		bestUnitCache[cacheKey] = { unit = nil, time = now }
@@ -874,6 +905,7 @@ end
 -- Sets Target by attempting to find the best unit else defaults to target
 function enemiesEngineFunctions:dynamicTarget(range, facing)
 	if range == nil or range > 100 then return nil end
+
 	local startTime = br._G.debugprofilestop()
 	facing = facing or false
 	local bestUnit = nil
@@ -886,10 +918,14 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 	local targetExists = br.functions.unit:GetUnitExists("target")
 	local targetFacingOK = (not facing) or br.functions.unit:getFacing("player", "target")
 	local targetInRange = targetExists and tarDist < range
+	-- A target we can't see can't be hit; treat it as invalid so dynamic targetting
+	-- moves on. It's reacquired normally once it's back in view and ranks highest.
+	local targetVisible = targetExists and br.functions.cast:isUnitVisible("target")
 	local targetValid = targetExists
 		and not br.functions.unit:GetUnitIsDeadOrGhost("target")
 		and targetInRange
 		and targetFacingOK
+		and targetVisible
 		and br.functions.misc:isValidUnit("target")
 	local notSafe = br.functions.misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack("target") or false
 	if targetValid and notSafe then
@@ -918,6 +954,7 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 					and not br.functions.unit:GetUnitIsDeadOrGhost("target")
 					and tarDist < range
 					and (not facing or br.functions.unit:getFacing("player", "target"))
+					and targetVisible
 					and br.functions.misc:isValidUnit("target")
 				then
 					bestUnit = "target"
@@ -960,7 +997,8 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 
 	-- Optional: keep the WoW target in sync with the dynamic target.
 	if inCombat then
-		local wantRetarget = autoTargetDynamic or not targetExists or (not br.functions.misc:isValidUnit(bestUnit)) or notSafe
+		local wantRetarget = autoTargetDynamic or not targetExists or not targetVisible
+			or (not br.functions.misc:isValidUnit(bestUnit)) or notSafe
 
 		if wantRetarget
 			and bestUnit ~= nil

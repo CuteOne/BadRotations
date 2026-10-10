@@ -1,43 +1,105 @@
 local _, br = ...
--- local LibDraw = br._G.LibStub("LibDraw-BR")
 br.engines.questTracker = br.engines.questTracker or {}
 local questTracker = br.engines.questTracker
-questTracker.cache = questTracker.cache or {}
-questTracker.objectCheckCache = questTracker.objectCheckCache or {} -- Cache for already-checked objects
-questTracker.unitResultCache = questTracker.unitResultCache or {} -- Cache for isQuestUnit results by GUID
-questTracker.objectResultCache = questTracker.objectResultCache or {} -- Cache for isQuestObject results by GUID
-questTracker.questObjectivesCache = questTracker.questObjectivesCache or {} -- Cache parsed quest objectives
-questTracker.lastCacheClean = questTracker.lastCacheClean or 0
-local CACHE_EXPIRATION_TIME = 5 -- Seconds before cached result expires
-local CACHE_CLEAN_INTERVAL = 30 -- Seconds between cache cleanups
+questTracker.cache = questTracker.cache or {}               -- quest titles/objective names (with variations), used by the tooltip scan
+questTracker.objectCheckCache = questTracker.objectCheckCache or {} -- isQuestObject verdict by object name, wiped on rebuild
+questTracker.objectives = questTracker.objectives or {}     -- [questId] = { { text = "...lowercase...", name = "...lowercase..." }, ... }
+questTracker.objectiveCount = 0
+questTracker.completedCount = 0
+questTracker.completed = questTracker.completed or {} -- titles of finished quests, so their tooltip lines read as "done"
+-- Bitmask of the game object dynamic-flag bit(s) the server sets on objects that are
+-- interactable for an active quest. nil until verified on a client (see QuestProbe.lua);
+-- when set, and the unlocker exposes ObjectDynamicFlags, it decides isQuestObject outright.
+questTracker.dynFlagMask = questTracker.dynFlagMask or nil
+
+local REBUILD_DELAY = 2 -- seconds; quest events arrive in bursts
 
 --Quest stuff
---local questPlateTooltip = CreateFrame('GameTooltip', 'QuestPlateTooltip', nil, 'GameTooltipTemplate')
 local questTooltipScanQuest = br._G.CreateFrame("GameTooltip", "QuestPlateTooltipScanQuest", nil, "GameTooltipTemplate")
 local ScannedQuestTextCache = {}
 
--- Clean expired cache entries to prevent memory bloat
-local function cleanExpiredCaches()
-	local currentTime = br._G.GetTime()
-	local cleanCount = 0
+local ignoreQuest = {
+	[56064] = true, -- Assault Black Empire (Vale)
+	[57157] = true, -- Assault Black Empire (Uldum)
+	[55350] = true, -- Assault Amathet Advance
+	[56308] = true, -- Assault Aqir Unearthed
+	[57008] = true, -- Assault The Warring Clans
+	[57728] = true, -- Assault: The Endless Swarm
+}
 
-	-- Clean unit result cache
-	for guid, data in pairs(questTracker.unitResultCache) do
-		if currentTime - data.timestamp > CACHE_EXPIRATION_TIME then
-			questTracker.unitResultCache[guid] = nil
-			cleanCount = cleanCount + 1
+local ignoreObjects = {
+	[327571] = true,
+}
+
+-- Exclude common non-quest interactables
+local nonQuestObjects = {
+	["Mailbox"] = true,
+	["Forge"] = true,
+	["Anvil"] = true,
+	["Cooking Fire"] = true,
+	["Campfire"] = true,
+	["Portal"] = true,
+	["Meeting Stone"] = true,
+	["Summoning Stone"] = true,
+	["Bank"] = true,
+	["Auction House"] = true,
+	["Auctioneer"] = true,
+}
+
+-- Objects known to be quest objects regardless of what the log says (specific expansions)
+local questObjectIDs = {}
+for _, id in ipairs({
+	325958, 325962, 325963, 325959, 335703, 152692, 163757, 290542, 113768, 113771, 113769, 113770, 153290,
+	322413, 326395, 326399, 326418, 326413, 327577, 327576, 327578, 325799,
+	326417, 326411, 326412, 326414, 326415, 326416, 326419, 326420, 326403, 326408, 326407, -- nasjatar chests
+	325662, 325659, 325660, 325661, 325663, 325664, 325665, 325666, 325667, 325668,
+	151166, -- mechagon chests / algan units
+}) do questObjectIDs[id] = true end
+
+-- Words objective text appends to a name ("Murlocs slain: 5/10")
+local actionWords = {
+	"slain", "destroyed", "collected", "gathered", "killed", "used", "defeated", "freed", "rescued",
+	"burned", "looted", "found", "retrieved", "recovered", "activated", "opened", "poisoned", "captured",
+}
+
+local function trim(text)
+	return (text:gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+-- Pulls the thing an objective is about out of its text.
+--   "Kill Murlocs: 5/10"      -> "kill murlocs"
+--   "Mantid slain: 0/200"     -> "mantid"
+--   "0/15 Dreadspore Bulbs"   -> "dreadspore bulbs"
+--   "Escort the farmer: 40%"  -> "escort the farmer"
+local function parseObjectiveName(text)
+	local name = text:match("^(.-)%s*:?%s*%d+/%d+") or text:match("^%d+/%d+%s+(.+)$") or text:match("^(.-)%s*:?%s*%d+%%")
+	if not name or name == "" then
+		name = text:match("^%d+/%d+%s+(.+)$")
+	end
+	if not name then return nil end
+	name = trim(name):gsub(":$", "")
+	name = trim(name):lower()
+	-- Lua patterns have no alternation, so strip one trailing action word at a time
+	local stripped = true
+	while stripped do
+		stripped = false
+		for i = 1, #actionWords do
+			local w = actionWords[i]
+			if name:sub(-#w - 1) == " " .. w then
+				name = trim(name:sub(1, -#w - 2))
+				stripped = true
+			end
 		end
 	end
-
-	-- Clean object result cache
-	for guid, data in pairs(questTracker.objectResultCache) do
-		if currentTime - data.timestamp > CACHE_EXPIRATION_TIME then
-			questTracker.objectResultCache[guid] = nil
-			cleanCount = cleanCount + 1
+	-- ...and leading verbs ("Kill Murlocs")
+	for _, verb in ipairs({ "kill ", "slay ", "defeat ", "collect ", "gather ", "destroy ", "rescue ", "free " }) do
+		if name:sub(1, #verb) == verb then
+			name = trim(name:sub(#verb + 1))
+			break
 		end
 	end
-
-	questTracker.lastCacheClean = currentTime
+	if #name < 3 then return nil end
+	return name
 end
 
 -- Helper function to add name variations to cache (called during cache build)
@@ -66,16 +128,16 @@ local function addNameVariations(name, cache)
 	-- Handle common word form variations
 	-- "Salvaged" <-> "Salvageable"
 	if name:match("Salvaged") then
-		cache[name:gsub("Salvaged", "Salvageable")] = true
+		cache[(name:gsub("Salvaged", "Salvageable"))] = true
 	elseif name:match("Salvageable") then
-		cache[name:gsub("Salvageable", "Salvaged")] = true
+		cache[(name:gsub("Salvageable", "Salvaged"))] = true
 	end
 
 	-- "Damaged" <-> "Damageable"
 	if name:match("Damaged") then
-		cache[name:gsub("Damaged", "Damageable")] = true
+		cache[(name:gsub("Damaged", "Damageable"))] = true
 	elseif name:match("Damageable") then
-		cache[name:gsub("Damageable", "Damaged")] = true
+		cache[(name:gsub("Damageable", "Damaged"))] = true
 	end
 
 	-- Handle past tense variations (ed/able endings)
@@ -93,236 +155,297 @@ local function addNameVariations(name, cache)
 	end
 end
 
-function questTracker:isQuestUnit(Pointer)
-	-- Get GUID for caching
-	local guid
-	if not br._G["lb"] then
-		guid = br._G.UnitGUID(Pointer)
-	else
-		guid = Pointer
-	end
+-- Units come in as GUIDs or object pointers, depending on the unlocker
+local function getGuid(pointer)
+	if type(pointer) == "string" and pointer:find("^%a+%-%d") then return pointer end
+	return br._G.UnitGUID(pointer)
+end
 
-	-- Check GUID-based result cache first
-	if guid and questTracker.unitResultCache[guid] then
-		local cached = questTracker.unitResultCache[guid]
-		if br._G.GetTime() - cached.timestamp < CACHE_EXPIRATION_TIME then
-			return cached.result
-		end
-	end
+local function isAliveOrFriend(unit)
+	return not br.functions.unit:GetUnitIsDeadOrGhost(unit) or br.functions.unit:GetUnitIsFriend("player", unit)
+end
 
-	-- Periodic cache cleanup
-	if br._G.GetTime() - questTracker.lastCacheClean > CACHE_CLEAN_INTERVAL then
-		cleanExpiredCaches()
-	end
-
-	-- First check: Use native API if available (most reliable)
-	if br._G.UnitIsQuestBoss then
-		local isQuestBoss = br._G.UnitIsQuestBoss(Pointer)
-		if isQuestBoss then
-			-- Double-check it's not dead (unless friendly, like rescuable NPCs)
-			if not br.functions.unit:GetUnitIsDeadOrGhost(Pointer) or br.functions.unit:GetUnitIsFriend("player", Pointer) then
-				if guid then
-					questTracker.unitResultCache[guid] = {result = true, timestamp = br._G.GetTime()}
-				end
+-- True when `name` (lowercase) is what one of the active objectives is about.
+-- Compares both directions so "Whitepetal Reed" (object) matches "Whitepetal Reeds" (objective).
+local function matchesObjective(name)
+	if #name < 3 then return false end
+	for _, objectives in pairs(questTracker.objectives) do
+		for i = 1, #objectives do
+			local o = objectives[i]
+			if o.text:find(name, 1, true) or (o.name and (name:find(o.name, 1, true) or o.name:find(name, 1, true))) then
 				return true
 			end
 		end
 	end
+	return false
+end
 
-	-- Second check: Name-based matching (similar to object checking)
-	-- Check if the unit's name appears in any active quest objective
-	local unitName = br._G.UnitName(Pointer)
-	if unitName and (not br.functions.unit:GetUnitIsDeadOrGhost(Pointer) or br.functions.unit:GetUnitIsFriend("player", Pointer)) then
-		local lowerUnitName = unitName:lower()
-		-- Use cached objectives instead of repeated API calls
-		for _, objectives in pairs(questTracker.questObjectivesCache) do
-			for _, objText in ipairs(objectives) do
-				if objText:find(lowerUnitName, 1, true) then
-					if guid then
-						questTracker.unitResultCache[guid] = {result = true, timestamp = br._G.GetTime()}
-					end
-					return true
-				end
-			end
+-- Containers are named for what they hold, not after the quest item itself: "Chest of the
+-- Raven Claw" holds the Raven Claw Talisman, "Chest of the Sky" the Sapphire of Sky. Drop
+-- the container and filler words from the object's name, then require every word left
+-- to appear in one open objective. Done objectives are not in the cache, so a looted
+-- chest stops matching.
+local containerWords = {
+	chest = true, box = true, crate = true, cache = true, coffer = true, strongbox = true,
+	footlocker = true, locker = true, trunk = true, sack = true, bag = true, barrel = true,
+	urn = true, satchel = true, stash = true, pouch = true, casket = true,
+}
+local fillerWords = { ["of"] = true, ["the"] = true, ["a"] = true, ["an"] = true }
+
+local function matchesContainer(name)
+	local isContainer, words = false, {}
+	for word in name:gmatch("[%a']+") do
+		if containerWords[word] then
+			isContainer = true
+		elseif not fillerWords[word] and #word >= 3 then
+			words[#words + 1] = word
 		end
 	end
-
-	-- Third check: Tooltip scanning for drop quests (expensive, use sparingly)
-	-- Some mobs drop quest items but aren't named in objectives (e.g., "Zan'thik Shackles" dropped by various Zan'thik mobs)
-	-- Their tooltips show quest info to indicate they can drop quest items
-	-- Only do this check if we haven't found a match yet and GUID exists
-	if not guid then
-		return false
+	if not isContainer or #words == 0 then return false end
+	for _, objectives in pairs(questTracker.objectives) do
+		for i = 1, #objectives do
+			-- Pad with spaces so each word must match whole ("sky" not in "skyline")
+			local text = " " .. objectives[i].text:gsub("[^%a']", " ") .. " "
+			local all = true
+			for _, word in ipairs(words) do
+				if not text:find(" " .. word .. " ", 1, true) then
+					all = false
+					break
+				end
+			end
+			if all then return true end
+		end
 	end
+	return false
+end
 
-	-- Perform tooltip scan (expensive operation)
+----------------------------------------------------------------------------------------------------
+-- Units
+----------------------------------------------------------------------------------------------------
+
+-- Legacy tooltip scan, for clients without C_TooltipInfo (Classic/TBC/MOP)
+local function scanTooltipFrame(guid)
 	questTooltipScanQuest:SetOwner(br._G["WorldFrame"], 'ANCHOR_NONE')
 	questTooltipScanQuest:SetHyperlink('unit:' .. guid)
 	local numLines = questTooltipScanQuest:NumLines()
+	if numLines == 0 then return false end
 
-	-- Early exit if no lines
-	if numLines == 0 then
-		questTracker.unitResultCache[guid] = {result = false, timestamp = br._G.GetTime()}
-		return false
-	end
-
-	-- Cache tooltip lines
+	br._G.wipe(ScannedQuestTextCache)
 	for i = 1, numLines do
 		ScannedQuestTextCache[i] = br._G["QuestPlateTooltipScanQuestTextLeft" .. i]
 	end
 
-	local isQuestUnit = false
-	local atLeastOneQuestUnfinished = false
-	for i = 1, #ScannedQuestTextCache do
+	for i = 1, numLines do
 		local text = ScannedQuestTextCache[i]:GetText()
-		if text then
-			-- Check if tooltip line matches cached quest text
-			if br.engines.questTracker.cache[text] then
-				isQuestUnit = true
-				-- Check the following lines for quest progress
-				local j = i
-				while ScannedQuestTextCache[j + 1] do
-					local nextLineText = ScannedQuestTextCache[j + 1]:GetText()
-					if nextLineText then
-						if not nextLineText:match(br._G["THREAT_TOOLTIP"]) then
-							local p1, p2 = nextLineText:match("(%d+)/(%d+)")
-							if not p1 then
-								-- Check for % based quests
-								p1 = nextLineText:match("(%d+%%)")
-								if p1 then
-									p1 = string.gsub(p1, "%%", '')
-								end
-							end
-							if (p1 and p2 and not (p1 == p2)) or (p1 and not p2 and not (p1 == "100")) then
-								-- Quest not completed
-								atLeastOneQuestUnfinished = true
-								break -- Early exit once we found unfinished quest
-							end
-						else
-							break -- Break here, saw threat% -> quest text is done
-						end
+		if text and questTracker.cache[text] then
+			-- Check the following lines for quest progress
+			local j = i
+			while ScannedQuestTextCache[j + 1] do
+				local nextLineText = ScannedQuestTextCache[j + 1]:GetText()
+				if nextLineText then
+					if nextLineText:match(br._G["THREAT_TOOLTIP"]) then
+						break -- saw threat% -> quest text is done
 					end
-					j = j + 1
+					local p1, p2 = nextLineText:match("(%d+)/(%d+)")
+					if not p1 then
+						p1 = nextLineText:match("(%d+)%%")
+					end
+					if (p1 and p2 and p1 ~= p2) or (p1 and not p2 and p1 ~= "100") then
+						return true -- unfinished objective
+					end
 				end
-				if atLeastOneQuestUnfinished then
-					break -- Early exit from outer loop
+				j = j + 1
+			end
+		end
+	end
+	return false
+end
+
+-- Structured tooltip: quest title lines followed by objective lines.
+-- true  = one of our open quests lists this unit with an unfinished objective
+-- false = it only lists finished quests / finished objectives
+-- nil   = no quest lines we recognise (or unreadable), so ask something else
+local function scanTooltipData(guid)
+	local data = br._G.C_TooltipInfo.GetHyperlink("unit:" .. guid)
+	if type(data) ~= "table" or type(data.lines) ~= "table" then return nil end
+	local lineTypes = br._G.Enum and br._G.Enum.TooltipDataLineType
+	if not lineTypes or not lineTypes.QuestTitle or not lineTypes.QuestObjective then return nil end
+	local issecret = br._G.issecretvalue
+	local inQuest, found, sawCompleted, unfinished = false, false, false, false
+	for _, line in ipairs(data.lines) do
+		local text = line.leftText
+		if text and not (issecret and issecret(text)) then
+			if line.type == lineTypes.QuestTitle then
+				inQuest = questTracker.cache[text] == true
+				if inQuest then
+					found = true
+				elseif questTracker.completed[text] then
+					sawCompleted = true
+				end
+			elseif inQuest and line.type == lineTypes.QuestObjective then
+				local p1, p2 = text:match("(%d+)/(%d+)")
+				if not p1 then p1 = text:match("(%d+)%%") end
+				if (p1 and p2 and p1 ~= p2) or (p1 and not p2 and p1 ~= "100") or not p1 then
+					unfinished = true
 				end
 			end
 		end
 	end
+	if found then return unfinished end
+	if sawCompleted then return false end
+	return nil
+end
 
-	local result = isQuestUnit and atLeastOneQuestUnfinished and
-		(not br.functions.unit:GetUnitIsDeadOrGhost(Pointer) or br.functions.unit:GetUnitIsFriend("player", Pointer))
+-- Is this unit something the player needs for an active quest?
+-- Cheapest and most reliable check first; the caller caches the verdict until the quest log changes.
+function questTracker:isQuestUnit(unit)
+	if not isAliveOrFriend(unit) then return false end
 
-	-- Cache the result
-	questTracker.unitResultCache[guid] = {result = result, timestamp = br._G.GetTime()}
+	local guid = getGuid(unit)
+	local hasTooltipData = br._G.C_TooltipInfo and br._G.C_TooltipInfo.GetHyperlink
+
+	-- The tooltip names the quest and its progress, so it is the only check that knows a quest is done
+	if guid and hasTooltipData then
+		local verdict = scanTooltipData(guid)
+		if verdict ~= nil then return verdict end
+	end
+
+	-- Native: the client's own quest check, which also covers the NPC you turn a finished quest in to.
+	-- It can't tell finished quests from open ones, so skip it when there are none of either.
+	local questLog = br._G.C_QuestLog
+	if (questTracker.objectiveCount > 0 or questTracker.completedCount > 0)
+		and questLog and questLog.UnitIsRelatedToActiveQuest and questLog.UnitIsRelatedToActiveQuest(unit)
+	then
+		return true
+	end
+
+	-- These two only know about open objectives
+	if questTracker.objectiveCount > 0 then
+		if br._G.UnitIsQuestBoss and br._G.UnitIsQuestBoss(unit) then
+			return true
+		end
+
+		-- Objective text names the unit ("Kill Murlocs")
+		local unitName = br._G.UnitName(unit)
+		if unitName and matchesObjective(unitName:lower()) then
+			return true
+		end
+	end
+
+	-- Clients without C_TooltipInfo: legacy tooltip frame scan
+	if guid and not hasTooltipData then
+		return scanTooltipFrame(guid)
+	end
+	return false
+end
+
+----------------------------------------------------------------------------------------------------
+-- Game objects
+----------------------------------------------------------------------------------------------------
+
+function questTracker:isQuestObject(object)
+	local objectID = br._G.ObjectID(object)
+	if ignoreObjects[objectID] then return false end
+
+	-- Server flag, when verified for this client
+	local mask = questTracker.dynFlagMask
+	if mask and br._G.ObjectDynamicFlags then
+		local flags = br._G.ObjectDynamicFlags(object)
+		if type(flags) == "number" then
+			return br._G.bit.band(flags, mask) ~= 0
+		end
+	end
+
+	if questObjectIDs[objectID] then return true end
+
+	local objectName = br._G.ObjectName(object)
+	if not objectName or nonQuestObjects[objectName] then return false end
+
+	-- Name-based cache (avoids repeated lookups for the same object name)
+	local cached = questTracker.objectCheckCache[objectName]
+	if cached ~= nil then return cached end
+
+	local lowerName = objectName:lower()
+	local result = matchesObjective(lowerName) or matchesContainer(lowerName)
+	questTracker.objectCheckCache[objectName] = result
 	return result
 end
 
-local QuestCacheUpdate = function()
-	local ignoreQuest = {
-		[56064] = true, -- Assault Black Empire (Vale)
-		[57157] = true, -- Assault Black Empire (Uldum)
-		[55350] = true, -- Assault Amathet Advance
-		[56308] = true, -- Assault Aqir Unearthed
-		[57008] = true, -- Assault The Warring Clans
-		[57728] = true, --- Assault: The Endless Swarm
-	}
-	--clear the quest cache and object check cache
-	br._G.wipe(br.engines.questTracker.cache)
-	br._G.wipe(br.engines.questTracker.objectCheckCache)
-	br._G.wipe(br.engines.questTracker.questObjectivesCache)
+----------------------------------------------------------------------------------------------------
+-- Quest log cache
+----------------------------------------------------------------------------------------------------
 
-	--do not update if is inside an instance
-	local isInInstance = br._G.IsInInstance()
-	if (isInInstance) then
-		return
+local function addObjective(questId, text)
+	if not text or text == "" then return end
+	local list = questTracker.objectives[questId]
+	if not list then
+		list = {}
+		questTracker.objectives[questId] = list
 	end
+	local name = parseObjectiveName(text)
+	list[#list + 1] = { text = text:lower(), name = name }
+	questTracker.objectiveCount = questTracker.objectiveCount + 1
+	if name then addNameVariations(name, questTracker.cache) end
+end
 
-	--update the quest cache
+function questTracker:rebuild()
+	br._G.wipe(questTracker.cache)
+	br._G.wipe(questTracker.objectCheckCache)
+	br._G.wipe(questTracker.objectives)
+	br._G.wipe(questTracker.completed)
+	questTracker.objectiveCount = 0
+	questTracker.completedCount = 0
+
+	local tracker = br.engines.tracker
+	-- Anything classified against the old log is stale
+	if tracker and tracker.invalidate then tracker:invalidate() end
+
+	-- do not update if inside an instance
+	if br._G.IsInInstance() then return end
+
+	local questLog = br._G.C_QuestLog
 	local numEntries = br._G.GetNumQuestLogEntries()
 	for questIdx = 1, numEntries do
-		-- local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questId, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle (questId)
-		-- local questInfo = br._G.C_QuestLog.GetInfo(questIdx)
-		local title, _, _, _, _, _, _, questId = br._G.GetQuestLogTitle(questIdx)
-		-- local title = questInfo["title"]
-		-- local questId = questInfo["questID"]
-		if (type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then -- and not isComplete
-			-- Cache the quest title with variations
-			addNameVariations(title, br.engines.questTracker.cache)
-
-			-- Also cache quest objectives (units/objects to kill/collect)
-			local numObjectives = br._G.GetNumQuestLeaderBoards(questIdx)
-			if numObjectives and numObjectives > 0 then
-				local questObjectives = {}
-				for objIdx = 1, numObjectives do
-					local objectiveText, objectiveType, finished = br._G.GetQuestLogLeaderBoard(objIdx, questIdx)
-					if objectiveText and not finished then
-						-- Extract the objective name - just get everything before the progress numbers
-						-- Examples: "Kill Murlocs: 5/10" -> "Kill Murlocs"
-						--           "Dreadspore Bulbs destroyed 0/15" -> "Dreadspore Bulbs"
-						--           "Mantid slain: 0/200" -> "Mantid"
-
-						-- Match everything before number/number or number% patterns
-						local objectiveName = objectiveText:match("^(.-)%s*%d+/%d+") or objectiveText:match("^(.-)%s*%d+%%")
-
-						if objectiveName then
-							-- Clean up any trailing colons, action words, and whitespace
-							objectiveName = br._G.strtrim(objectiveName)
-							-- Remove trailing colon if present
-							objectiveName = objectiveName:gsub(":$", "")
-							-- Remove common action words at the end
-							objectiveName = objectiveName:gsub("%s+(slain|destroyed|collected|gathered|killed|used)$", "")
-							objectiveName = br._G.strtrim(objectiveName)
-
-							-- Cache with variations (handles plural/singular automatically)
-							addNameVariations(objectiveName, br.engines.questTracker.cache)
-
-							-- Store in structured objectives cache (lowercase for fast matching)
-							table.insert(questObjectives, objectiveText:lower())
-						end
+		local title, _, _, isHeader, _, isComplete, _, questId = br._G.GetQuestLogTitle(questIdx)
+		if not isHeader and type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil then
+			-- Finished quests (ready to turn in) have nothing left to track
+			if isComplete == 1 or isComplete == true or (questLog and questLog.IsComplete and questLog.IsComplete(questId)) then
+				if title then questTracker.completed[title] = true end
+				questTracker.completedCount = questTracker.completedCount + 1
+			elseif questLog and questLog.GetQuestObjectives then
+				addNameVariations(title, questTracker.cache)
+				local objectives = questLog.GetQuestObjectives(questId)
+				if type(objectives) == "table" then
+					for _, objective in ipairs(objectives) do
+						if not objective.finished then addObjective(questId, objective.text) end
 					end
 				end
-				-- Store objectives for this quest
-				if #questObjectives > 0 then
-					br.engines.questTracker.questObjectivesCache[questId] = questObjectives
+			else
+				addNameVariations(title, questTracker.cache)
+				for objIdx = 1, (br._G.GetNumQuestLeaderBoards(questIdx) or 0) do
+					local objectiveText, _, finished = br._G.GetQuestLogLeaderBoard(objIdx, questIdx)
+					if objectiveText and not finished then addObjective(questId, objectiveText) end
 				end
 			end
 		end
 	end
 
-	local mapId = br._G.C_Map.GetBestMapForUnit("player")
-	if (mapId) then
-		-- Try new API first, fallback to old API for compatibility
+	-- World quests in the current zone
+	local mapId = br._G.C_Map and br._G.C_Map.GetBestMapForUnit("player")
+	if mapId and br._G.C_TaskQuest and questLog and questLog.GetQuestObjectives then
 		local worldQuests = br._G.C_TaskQuest.GetQuestsForPlayerOnMap and
 			br._G.C_TaskQuest.GetQuestsForPlayerOnMap(mapId) or
 			br._G.C_TaskQuest.GetQuestsOnMap(mapId)
-		if (type(worldQuests) == "table") then
+		if type(worldQuests) == "table" then
 			for _, questTable in ipairs(worldQuests) do
-				local questId = questTable.questId
-				if (type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then
+				local questId = questTable.questId or questTable.questID
+				if type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil then
 					local questName = br._G.C_TaskQuest.GetQuestInfoByQuestID(questId)
-					-- Remove debug print to avoid spam
-					-- br._G.print("Quest Name: " .. tostring(questName))
-					if (questName) then
-						addNameVariations(questName, br.engines.questTracker.cache)
-					end
-
-					-- Try to get world quest objectives
-					local questInfo = br._G.C_TaskQuest.GetQuestInfoByQuestID(questId)
-					if questInfo then
-						-- World quests might have objectives we can parse similarly
-						local objectives = br._G.C_QuestLog.GetQuestObjectives(questId)
-						if objectives then
-							for _, objective in ipairs(objectives) do
-								if objective.text and not objective.finished then
-									local objectiveName = objective.text:match("^(.-):%s*%d") or objective.text:match("^(.-)%s+slain:%s*%d")
-									if objectiveName then
-										objectiveName = br._G.strtrim(objectiveName)
-										br.engines.questTracker.cache[objectiveName] = true
-									end
-								end
-							end
+					if questName then addNameVariations(questName, questTracker.cache) end
+					local objectives = questLog.GetQuestObjectives(questId)
+					if type(objectives) == "table" then
+						for _, objective in ipairs(objectives) do
+							if not objective.finished then addObjective(questId, objective.text) end
 						end
 					end
 				end
@@ -331,194 +454,35 @@ local QuestCacheUpdate = function()
 	end
 end
 
-local function FunctionQuestLogUpdate() --private
-	if (br.engines.questTracker.cacheThrottle and not br.engines.questTracker.cacheThrottle["_cancelled"]) then
-		br.engines.questTracker.cacheThrottle:Cancel()
-	end
-	-- Increased from 2 to 3 seconds to reduce CPU usage during quest spam
-	br.engines.questTracker.cacheThrottle = br._G.C_Timer.NewTimer(3, QuestCacheUpdate)
+local function scheduleRebuild()
+	local timer = questTracker.rebuildTimer
+	if timer and not timer["_cancelled"] then timer:Cancel() end
+	questTracker.rebuildTimer = br._G.C_Timer.NewTimer(REBUILD_DELAY, function() questTracker:rebuild() end)
 end
 
 -- Debug function to print cache contents
 function questTracker:printCache()
 	br._G.print("=== Quest Tracker Cache Contents ===")
+	for questId, objectives in pairs(questTracker.objectives) do
+		for _, o in ipairs(objectives) do
+			br._G.print(questId .. ": " .. o.text .. "  ->  " .. tostring(o.name))
+		end
+	end
 	local count = 0
-	for name, _ in pairs(br.engines.questTracker.cache) do
-		count = count + 1
-		br._G.print(count .. ". " .. tostring(name))
-	end
-	br._G.print("=== Total cached items: " .. count .. " ===")
-end
-
-function questTracker:isQuestObject(object) --Ty Ssateneth
-	local objectID = br._G.ObjectID(object)
-	local ignoreObjects = {
-		[327571] = true,
-	}
-	if ignoreObjects[objectID] ~= nil then
-		return false
-	end
-
-	-- Get object GUID for caching
-	-- Object can be either a GUID string or an object pointer
-	local guid
-	if type(object) == "string" and object:match("^GameObject") then
-		guid = object
-	end
-
-	-- Check GUID-based result cache first
-	if guid and questTracker.objectResultCache[guid] then
-		local cached = questTracker.objectResultCache[guid]
-		if br._G.GetTime() - cached.timestamp < CACHE_EXPIRATION_TIME then
-			return cached.result
-		end
-	end
-
-	-- Get object name
-	local objectName = br._G.ObjectName(object)
-	if not objectName then
-		if guid then
-			questTracker.objectResultCache[guid] = {result = false, timestamp = br._G.GetTime()}
-		end
-		return false
-	end
-
-	-- Exclude common non-quest interactables
-	local nonQuestObjects = {
-		["Mailbox"] = true,
-		["Forge"] = true,
-		["Anvil"] = true,
-		["Cooking Fire"] = true,
-		["Campfire"] = true,
-		["Portal"] = true,
-		["Meeting Stone"] = true,
-		["Summoning Stone"] = true,
-		["Bank"] = true,
-		["Auction House"] = true,
-		["Auctioneer"] = true,
-	}
-
-	if nonQuestObjects[objectName] then
-		if guid then
-			questTracker.objectResultCache[guid] = {result = false, timestamp = br._G.GetTime()}
-		end
-		return false
-	end
-
-	-- Check name-based cache first (avoids repeated lookups for same object name)
-	if br.engines.questTracker.objectCheckCache[objectName] ~= nil then
-		local result = br.engines.questTracker.objectCheckCache[objectName]
-		if guid then
-			questTracker.objectResultCache[guid] = {result = result, timestamp = br._G.GetTime()}
-		end
-		return result
-	end
-
-	-- Check hardcoded quest object IDs (specific expansions)
-	if objectID == 325958 or objectID == 325962 or objectID == 325963 or objectID == 325959 or objectID == 335703 or
-		objectID == 152692 or objectID == 163757 or objectID == 290542 or objectID == 113768 or objectID == 113771 or
-		objectID == 113769 or objectID == 113770 or objectID == 153290 or
-		objectID == 322413 or objectID == 326395 or objectID == 326399 or objectID == 326418 or objectID == 326413 or
-		objectID == 327577 or objectID == 327576 or objectID == 327578 or objectID == 325799 or
-		objectID == 326417 or objectID == 326411 or objectID == 326412 or objectID == 326413 or objectID == 326414 or
-		objectID == 326415 or objectID == 326416 or objectID == 326417 or objectID == 326418 or objectID == 326419 or
-		objectID == 326420 or objectID == 326403 or objectID == 326408 or objectID == 326407 or -- nasjatar chests
-		objectID == 325662 or objectID == 325659 or objectID == 325660 or objectID == 325661 or objectID == 325663 or
-		objectID == 325664 or objectID == 325665 or objectID == 325666 or objectID == 325667 or objectID == 325668 or
-		-- mechagon chests
-		objectID == 151166 -- algan units
-	then
-		br.engines.questTracker.objectCheckCache[objectName] = true
-		if guid then
-			questTracker.objectResultCache[guid] = {result = true, timestamp = br._G.GetTime()}
-		end
-		return true
-	end
-
-	-- Main check: See if any quest objective text contains this object's name (or vice versa)
-	-- Check both directions to handle cases like "Whitepetal Reed" (quest) vs "Whitepetal Reeds" (object)
-	local lowerObjectName = objectName:lower()
-
-	-- Use cached objectives instead of repeated API calls
-	for _, objectives in pairs(questTracker.questObjectivesCache) do
-		for _, objText in ipairs(objectives) do
-			-- objText is already lowercase from cache building
-			-- Check if either string contains the other (handles singular/plural automatically)
-			if objText:find(lowerObjectName, 1, true) or lowerObjectName:find(objText, 1, true) then
-				br.engines.questTracker.objectCheckCache[objectName] = true
-				if guid then
-					questTracker.objectResultCache[guid] = {result = true, timestamp = br._G.GetTime()}
-				end
-				return true
-			end
-		end
-	end
-
-	-- Cache the negative result (object exists but isn't a quest object)
-	br.engines.questTracker.objectCheckCache[objectName] = false
-	if guid then
-		questTracker.objectResultCache[guid] = {result = false, timestamp = br._G.GetTime()}
-	end
-	return false
-end
-
-local eventFunctions = {
-	QUEST_REMOVED = function()
-		FunctionQuestLogUpdate()
-	end,
-	QUEST_ACCEPTED = function()
-		FunctionQuestLogUpdate()
-	end,
-	QUEST_ACCEPT_CONFIRM = function()
-		FunctionQuestLogUpdate()
-	end,
-	QUEST_COMPLETE = function()
-		FunctionQuestLogUpdate()
-	end,
-	QUEST_POI_UPDATE = function()
-		FunctionQuestLogUpdate()
-	end,
-	QUEST_QUERY_COMPLETE = function()
-		FunctionQuestLogUpdate()
-	end,
-	QUEST_DETAIL = function()
-		FunctionQuestLogUpdate()
-	end,
-	QUEST_FINISHED = function()
-		FunctionQuestLogUpdate()
-	end,
-	QUEST_GREETING = function()
-		FunctionQuestLogUpdate()
-	end,
-	QUEST_LOG_UPDATE = function()
-		FunctionQuestLogUpdate()
-	end,
-	UNIT_QUEST_LOG_CHANGED = function()
-		FunctionQuestLogUpdate()
-	end,
-}
-
-local function QuestEventHandler(_, event, ...)
-	if br._G.GetObjectWithGUID then
-		local func = eventFunctions[event]
-		if (func) then
-			---@diagnostic disable-next-line: redundant-parameter
-			func(event, ...)
-		else
-			br._G.print("no registered function for event " .. (event or "unknown event"))
-		end
-	end
+	for _ in pairs(questTracker.cache) do count = count + 1 end
+	br._G.print("=== " .. questTracker.objectiveCount .. " objectives, " .. count .. " cached names ===")
 end
 
 local f = br._G.CreateFrame("Frame", "QuestFrame", br._G.UIParent)
-f:RegisterEvent("QUEST_ACCEPTED")
-f:RegisterEvent("QUEST_REMOVED")
-f:RegisterEvent("QUEST_ACCEPT_CONFIRM")
-f:RegisterEvent("QUEST_COMPLETE")
-f:RegisterEvent("QUEST_POI_UPDATE")
-f:RegisterEvent("QUEST_DETAIL")
-f:RegisterEvent("QUEST_FINISHED")
-f:RegisterEvent("QUEST_GREETING")
-f:RegisterEvent("QUEST_LOG_UPDATE")
-f:RegisterEvent("UNIT_QUEST_LOG_CHANGED")
-f:SetScript("OnEvent", QuestEventHandler)
+for _, event in ipairs({
+	"QUEST_ACCEPTED", "QUEST_REMOVED", "QUEST_ACCEPT_CONFIRM", "QUEST_COMPLETE", "QUEST_POI_UPDATE",
+	"QUEST_DETAIL", "QUEST_FINISHED", "QUEST_GREETING", "QUEST_LOG_UPDATE", "UNIT_QUEST_LOG_CHANGED",
+	-- The log may already be loaded before BR is, and leaving an instance doesn't fire a quest event
+	"PLAYER_ENTERING_WORLD", "ZONE_CHANGED_NEW_AREA",
+}) do
+	f:RegisterEvent(event)
+end
+f:SetScript("OnEvent", scheduleRebuild)
+
+-- BR can load after the quest log events already fired
+br._G.C_Timer.After(1, function() questTracker:rebuild() end)
