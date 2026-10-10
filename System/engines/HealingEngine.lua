@@ -148,79 +148,50 @@ if not healingEngine.metaTable1 then
 		end
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
-			local toxicBrand = br.functions.misc:getOptionValue("Toxic Brand")
-			local necroRot = br.functions.misc:getOptionValue("Necrotic Rot")
-			if toxicBrand == 0 or toxicBrand == nil then
-				toxicBrand = 10
-			end
-			if necroRot == 0 or necroRot == nil then
-				necroRot = 40
-			end
 			-- Bandaid fix?
 			if o.unit == nil then return 0, 0, 0 end
-			-- Darkness phase of Kil'Jaeden. basically blacklists all friends if I have this debuff, since I can't heal.
-			-- but once I have Illidan's Sightless Gaze (241721), I can hea
-			if br.functions.misc:isChecked("Necrotic Rot") and br.functions.aura:getDebuffStacks(o.unit, 209858) > 0 and br.functions.aura:getDebuffStacks(o.unit, 209858) >= necroRot then
+			-- Raid mechanics where this member shouldn't be healed (HealingEngineCollections.doNotHeal)
+			local doNotHeal = br.engines.healingEngineCollections.doNotHeal
+			local aura = br.functions.aura
+			for i = 1, 40 do
+				local buff = br.api.wow.GetBuffDataByIndex(o.unit, i, "HELPFUL")
+				if not buff then break end
+				if doNotHeal.buffs[buff.spellId] then return 250, 250, 250 end
+			end
+			if br.functions.misc:isChecked("Necrotic Rot") then
+				local necroRot = br.functions.misc:getOptionValue("Necrotic Rot")
+				if necroRot == 0 or necroRot == nil then necroRot = 40 end
+				local stacks = aura:getDebuffStacks(o.unit, doNotHeal.necroticRot)
+				if stacks > 0 and stacks >= necroRot then return 250, 250, 250 end
+			end
+			local encounter = br.player.eID
+			if br.functions.misc:isChecked("Toxic Brand") and encounter and encounter == doNotHeal.toxicBrand.encounter then
+				local toxicBrand = br.functions.misc:getOptionValue("Toxic Brand")
+				if toxicBrand == 0 or toxicBrand == nil then toxicBrand = 10 end
+				local stacks = aura:getDebuffStacks(o.unit, doNotHeal.toxicBrand.debuff)
+				if stacks > 0 and stacks >= toxicBrand then return 250, 250, 250 end
+			end
+			local darkness = doNotHeal.darkness
+			if select(9, br._G.GetInstanceInfo()) == darkness.instance and UnitDebuffID("player", darkness.debuff)
+				and not UnitDebuffID("player", darkness.unlessDebuff)
+			then
 				return 250, 250, 250
 			end
-			if br.functions.aura:UnitBuffID(o.unit, 360618) then
-				return 250, 250, 250
-			end
-			if br.functions.aura:UnitBuffID(o.unit, 295271) then
-				return 250, 250, 250
-			end
-			if br.functions.aura:UnitBuffID(o.unit, 344916) then
-				return 250, 250, 250
-			end
-			if br.functions.aura:UnitBuffID(o.unit, 327140) or br.functions.aura:UnitBuffID(o.unit, 327676) then
-				return 250, 250, 250
-			end
-			if br.functions.misc:isChecked("Toxic Brand") and br.player.eID and br.player.eID == 2298 then
-				if br.functions.aura:getDebuffStacks(o.unit, 294715) > 0 and br.functions.aura:getDebuffStacks(o.unit, 294715) >= toxicBrand then
-					return 250, 250, 250
-				end
-			end
-			if select(9, br._G.GetInstanceInfo()) == 1676 and UnitDebuffID("player", 236555) and not UnitDebuffID("player", 241721) then
-				return 250, 250, 250
-			end
-			if br.player.eID == 2331 then
-				local time_remain = br.functions.DBM:getPulltimer(nil, 313213)
+			local decaying = doNotHeal.decayingStrike
+			if encounter == decaying.encounter then
+				local time_remain = br.functions.DBM:getPulltimer(nil, decaying.spell)
 				if time_remain < br.functions.misc:getOptionValue("Decaying Strike Timer") then
 					for i = 1, br._G.GetObjectCount() do
 						local thisUnit = br._G.GetObjectWithIndex(i)
-						if br.functions.unit:GetObjectID(thisUnit) == 156866 and br._G.UnitTarget(thisUnit) ~= nil then
-							if br._G.UnitTarget(thisUnit) == o.unit then
-								return 250, 250, 250
-							end
+						if br.functions.unit:GetObjectID(thisUnit) == decaying.caster and br._G.UnitTarget(thisUnit) == o.unit then
+							return 250, 250, 250
 						end
 					end
 				end
 			end
-			if br.player.eID == 2407 then
-				local targetBuff = 0
-				local playerBuff = 0
-				if UnitDebuffID(o.unit, 340687) then
-					targetBuff = 1
-				end
-				if UnitDebuffID("player", 340687) then
-					playerBuff = 1
-				end
-				if playerBuff ~= targetBuff then
-					return 250, 250, 250
-				end
-			end
-			if br.player.eID == 2343 then
-				local targetBuff = 0
-				local playerBuff = 0
-				if UnitDebuffID(o.unit, 310499) then
-					targetBuff = 1
-				end
-				if UnitDebuffID("player", 310499) then
-					playerBuff = 1
-				end
-				if playerBuff ~= targetBuff then
-					return 250, 250, 250
-				end
+			local matchDebuff = encounter and doNotHeal.matchPlayerDebuff[encounter]
+			if matchDebuff and (UnitDebuffID(o.unit, matchDebuff) ~= nil) ~= (UnitDebuffID("player", matchDebuff) ~= nil) then
+				return 250, 250, 250
 			end
 			-- Place out of range players at the end of the list -- replaced range to 40 as we should be using lib range
 			if not br._G.UnitInRange(o.unit) and getDistance(o.unit) > 40 and not GetUnitIsUnit("player", o.unit) then

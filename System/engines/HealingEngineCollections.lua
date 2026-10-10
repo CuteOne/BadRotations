@@ -171,6 +171,30 @@ healingEngineCollections.DoNotDispellList = {
 	{ id = 285000 }, -- https://www.wowhead.com/spell=285000/kelp-wrapped
 	--{ id = 284663}, --Bwonsamdi's Wrath
 }
+-- Raid mechanics where a member shouldn't be healed (CalcHP moves them to the back of the list)
+healingEngineCollections.doNotHeal = {
+	-- while the member has one of these buffs
+	buffs = {
+		[360618] = true,
+		[295271] = true,
+		[344916] = true,
+		[327140] = true,
+		[327676] = true,
+	},
+	-- Necrotic Rot: at or above the "Necrotic Rot" option's stacks (option on)
+	necroticRot = 209858,
+	-- Toxic Brand: in this encounter, at or above the "Toxic Brand" option's stacks (option on)
+	toxicBrand = { encounter = 2298, debuff = 294715 },
+	-- Kil'Jaeden's Darkness phase: nobody while the player has the debuff, until they also have Illidan's Sightless Gaze
+	darkness = { instance = 1676, debuff = 236555, unlessDebuff = 241721 },
+	-- Decaying Strike: in this encounter, the caster's target within the "Decaying Strike Timer" option's seconds of the cast
+	decayingStrike = { encounter = 2331, spell = 313213, caster = 156866 },
+	-- encounter -> debuff: only members whose debuff state matches the player's
+	matchPlayerDebuff = {
+		[2407] = 340687,
+		[2343] = 310499,
+	},
+}
 -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
 healingEngineCollections.BadDebuffList= {
 	[360618] = "Necrosis",
