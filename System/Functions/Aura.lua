@@ -121,15 +121,11 @@ end
 -- 	end
 -- end
 local _UnitDebuffID_lock = false
-function aura:UnitDebuffID(unit, spellID, filter)
-    -- guard invalid input quickly
-    if not unit or not spellID then return nil end
 
-    -- prevent re-entrancy / infinite recursion that can cause "script ran too long"
-    if _UnitDebuffID_lock then return nil end
-    _UnitDebuffID_lock = true
-
-    local ok, r1, r2, r3, r4, r5 = pcall(function()
+-- The debuff search behind aura:UnitDebuffID, run under pcall. A module function rather than a
+-- closure made on every call. Aura indexes have no gaps, so each scan stops at the first empty slot
+-- instead of reading all 40 (a unit without the debuff used to cost 40 reads).
+local function findDebuff(unit, spellID, filter)
         local thisUnit = br._G["ObjectPointer"](unit)
         local spellName = br.api.wow.GetSpellInfo(spellID)
         -- Check Cache
@@ -155,7 +151,8 @@ function aura:UnitDebuffID(unit, spellID, filter)
         if exactSearch then
             for i = 1, 40 do
                 local auraInfo = br.api.wow.GetDebuffDataByIndex(unit, i, "PLAYER")
-                if auraInfo and auraInfo.spellId == spellID then
+                if not auraInfo then return nil end
+                if auraInfo.spellId == spellID then
                     return auraInfo
                 end
             end
@@ -163,17 +160,29 @@ function aura:UnitDebuffID(unit, spellID, filter)
             if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
                 for i = 1, 40 do
                     local auraInfo = br.api.wow.GetDebuffDataByIndex(unit, i, "HARMFUL|PLAYER")
-                    if auraInfo and auraInfo.name == spellName then return auraInfo end
+                    if not auraInfo then return nil end
+                    if auraInfo.name == spellName then return auraInfo end
                 end
                 return nil
             end
             for i = 1, 40 do
                 local auraInfo = br.api.wow.GetDebuffDataByIndex(unit, i, "HARMFUL")
-                if auraInfo and auraInfo.name == spellName then return auraInfo end
+                if not auraInfo then return nil end
+                if auraInfo.name == spellName then return auraInfo end
             end
         end
         return nil
-    end)
+end
+
+function aura:UnitDebuffID(unit, spellID, filter)
+    -- guard invalid input quickly
+    if not unit or not spellID then return nil end
+
+    -- prevent re-entrancy / infinite recursion that can cause "script ran too long"
+    if _UnitDebuffID_lock then return nil end
+    _UnitDebuffID_lock = true
+
+    local ok, r1, r2, r3, r4, r5 = pcall(findDebuff, unit, spellID, filter)
 
     -- release lock and return results (if pcall failed, return nil)
     _UnitDebuffID_lock = false
