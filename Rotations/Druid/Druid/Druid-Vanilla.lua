@@ -277,40 +277,6 @@ local function updateLastForm()
         lastForm = spell.catForm
     end
 end
-local function safeCancelForm(outOfFormSpellRef, reason, treatOutSpellAsFree)
-    if unit.exists("target") and unit.friend("target") then
-        -- ui.debug("Skip Cancel Form [" .. tostring(reason) .. "] (friendly target)")
-        return false
-    end
-
-    if unit == nil or unit.canCancelFormFor == nil or unit.formBreakManaRequired == nil then
-        -- Fallback (shouldn't happen during normal profile execution)
-        if buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists() then
-            if unit and unit.cancelForm then
-                unit.cancelForm()
-            else
-                br._G.RunMacroText("/CancelForm")
-            end
-            ui.debug("Cancel Form [" .. tostring(reason) .. "]")
-            return true
-        end
-        return false
-    end
-
-    if not unit.canCancelFormFor(outOfFormSpellRef, lastForm, treatOutSpellAsFree) then
-        local requiredMana, currentMana = unit.formBreakManaRequired(outOfFormSpellRef, lastForm, treatOutSpellAsFree)
-        -- ui.debug("Skip Cancel Form [" .. tostring(reason) .. "] (mana " .. tostring(currentMana) .. " < need " .. tostring(requiredMana) .. ")")
-        return false
-    end
-
-    if unit and unit.cancelForm then
-        unit.cancelForm()
-    else
-        br._G.RunMacroText("/CancelForm")
-    end
-    ui.debug("Cancel Form [" .. tostring(reason) .. "]")
-    return true
-end
 
 -- Powershift for Energy
 local function powershift()
@@ -454,7 +420,7 @@ actionList.Extra = function()
         and not (buff.thorns.refresh() and ui.checked("Thorns"))
     then
         if buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() then
-            if safeCancelForm(spell.aquaticForm, "Swimming") then
+            if unit.cancelFormFor(spell.aquaticForm) then
                 return true
             end
         end
@@ -473,7 +439,7 @@ actionList.Extra = function()
         and not (buff.thorns.refresh() and ui.checked("Thorns"))
     then
         if buff.catForm.exists() or buff.bearForm.exists() then
-            if safeCancelForm(spell.travelForm, "Travel") then
+            if unit.cancelFormFor(spell.travelForm) then
                 return true
             end
         end
@@ -547,7 +513,7 @@ actionList.Extra = function()
             -- Cancel form if needed to buff
             local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
             if needsCancel then
-                if safeCancelForm(spell.markOfTheWild, "Mark of the Wild") then
+                if unit.cancelFormFor(spell.markOfTheWild) then
                     return true
                 end
             else
@@ -568,7 +534,7 @@ actionList.Extra = function()
             -- Cancel form if needed to buff
             local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
             if needsCancel then
-                if safeCancelForm(spell.thorns, "Thorns") then
+                if unit.cancelFormFor(spell.thorns) then
                     return true
                 end
             else
@@ -585,7 +551,7 @@ actionList.Extra = function()
             -- Cancel form if needed to buff
             local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
             if needsCancel then
-                if safeCancelForm(spell.omenOfClarity, "Omen of Clarity") then
+                if unit.cancelFormFor(spell.omenOfClarity) then
                     return true
                 end
             else
@@ -606,7 +572,7 @@ actionList.Defensive = function()
             and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player")
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.abolishPoison, "Abolish Poison") then
+                if unit.cancelFormFor(spell.abolishPoison) then
                     return true
                 end
             else
@@ -621,7 +587,7 @@ actionList.Defensive = function()
             and (not ui.checked("Abolish Poison") --[[or not spell.known.abolishPoison()]]) and cast.dispel.curePoison("player")
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.curePoison, "Cure Poison") then
+                if unit.cancelFormFor(spell.curePoison) then
                     return true
                 end
             else
@@ -636,7 +602,7 @@ actionList.Defensive = function()
             and not unit.inCombat() and cast.dispel.removeCurse("player")
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.removeCurse, "Remove Curse") then
+                if unit.cancelFormFor(spell.removeCurse) then
                     return true
                 end
             else
@@ -662,7 +628,7 @@ actionList.Defensive = function()
             and unit.distance("target") > 8 and unit.inCombat()
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.entanglingRoots, "Entangling Roots", freeDPS) then
+                if unit.cancelFormFor(spell.entanglingRoots, freeDPS) then
                     return true
                 end
             else
@@ -689,7 +655,7 @@ actionList.Defensive = function()
             and #enemies.yards10 > 0
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.naturesGrasp, "Nature's Grasp", freeDPS) then
+                if unit.cancelFormFor(spell.naturesGrasp, freeDPS) then
                     return true
                 end
             else
@@ -706,7 +672,7 @@ actionList.Defensive = function()
             and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.regrowth, "Regrowth", freeHeal) then
+                if unit.cancelFormFor(spell.regrowth, freeHeal) then
                     return true
                 end
             else
@@ -722,7 +688,7 @@ actionList.Defensive = function()
                 and unit.player("target") and buff.rejuvenation.refresh("target")
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if safeCancelForm(spell.rejuvenation, "Rejuvenation", freeHeal) then
+                    if unit.cancelFormFor(spell.rejuvenation, freeHeal) then
                         return true
                     end
                 else
@@ -737,7 +703,7 @@ actionList.Defensive = function()
                 and (unit.solo() or ui.checked("Self Heal In Group"))
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if safeCancelForm(spell.rejuvenation, "Rejuvenation", freeHeal) then
+                    if unit.cancelFormFor(spell.rejuvenation, freeHeal) then
                         return true
                     end
                 else
@@ -754,7 +720,7 @@ actionList.Defensive = function()
         then
             if cast.able.healingTouch("target") and unit.friend("target") and unit.hp("target") <= ui.value("Healing Touch") and unit.player("target") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if safeCancelForm(spell.healingTouch, "Healing Touch", freeHeal) then
+                    if unit.cancelFormFor(spell.healingTouch, freeHeal) then
                         return true
                     end
                 else
@@ -768,7 +734,7 @@ actionList.Defensive = function()
                 and (not unit.inGroup() or ui.checked("Self Heal In Group"))
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if safeCancelForm(spell.healingTouch, "Healing Touch", freeHeal) then
+                    if unit.cancelFormFor(spell.healingTouch, freeHeal) then
                         return true
                     end
                 else
