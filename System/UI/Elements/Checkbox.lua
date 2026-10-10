@@ -2,7 +2,9 @@ local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local DiesalTools = _G.LibStub("DiesalTools-1.0")
 local DiesalStyle = _G.LibStub("DiesalStyle-1.0")
 local _, br = ...
-function br.ui:createCheckbox(parent, text, tooltip, checked)
+-- checked (optional): default state for new settings. layoutOnly (optional): build the checkbox and
+-- its label for spacing only, without saving or registering an option (br.ui:createText uses this).
+function br.ui:createCheckbox(parent, text, tooltip, checked, layoutOnly)
     -- Class Specific Color for UI Elements
     local classColor = {
         color = br.ui.colors:getColor("player").hex
@@ -44,6 +46,11 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
             name = text .. " Check",
         }
     )
+    if layoutOnly then
+        checkBox:ApplySettings()
+        parent:AddChild(checkBox)
+        return checkBox
+    end
     --------------
     ---BR Stuff---
     --------------

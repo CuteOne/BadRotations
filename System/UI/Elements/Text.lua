@@ -19,7 +19,16 @@ function br.ui:createText(parent, text, isCheckbox)
     --------Create Hidden CheckBox for Spacing--------
     --------------------------------------------------
     if not isCheckbox then -- Bypass for Checkbox element that calls this createText
-        local checkBox = br.ui:createCheckbox(parent, text, "")
+        -- Older versions saved this spacer as an unticked "<text> Check" setting; remove that leftover
+        -- unless a real checkbox with the same name has registered on this page
+        local page = parent.settings.storageName or parent.settings.sectionName
+        local pageSettings = page and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][page]
+        local key = text .. " Check"
+        local defaults = br.functions.misc:getOptionDefaults()[page]
+        if pageSettings and pageSettings[key] == false and not (defaults and defaults[key] ~= nil) then
+            pageSettings[key] = nil
+        end
+        local checkBox = br.ui:createCheckbox(parent, text, "", nil, true)
         checkBox:Disable()
         checkBox:ReleaseTextures()
     end
