@@ -115,6 +115,7 @@ System\Lists\Range.lua
 System\Lists\Tier.lua
 System\Lists\ThreatBypass.lua
 System\Lists\TankBusters.lua
+System\Lists\UnitRules.lua
 
 ## Readers
 

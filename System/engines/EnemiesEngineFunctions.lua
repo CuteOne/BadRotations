@@ -382,8 +382,8 @@ function enemiesEngineFunctions:isSafeToAttack(unit)
 					-- Not Safe with Buff/Debuff
 					if br.functions.aura:UnitBuffID(unit, noTouch.buff) or br.functions.aura:UnitDebuffID(unit, noTouch.buff)
 						-- Bursting M+ Affix (stacks first: time to die is only needed when they're high)
-						or (br.functions.aura:getDebuffStacks("player", 240443) >= br.functions.misc:getOptionValue("Bursting Stack Limit")
-							and (br.engines.ttdTable:getTTD(unit) or 0) <= br.functions.aura:getDebuffRemain("player", 240443) + (br.functions.spell:getGlobalCD(true) * 2))
+						or (br.functions.aura:getDebuffStacks("player", br.lists.unitRules.bursting) >= br.functions.misc:getOptionValue("Bursting Stack Limit")
+							and (br.engines.ttdTable:getTTD(unit) or 0) <= br.functions.aura:getDebuffRemain("player", br.lists.unitRules.bursting) + (br.functions.spell:getGlobalCD(true) * 2))
 					then
 						return false
 					end
@@ -634,11 +634,7 @@ local function findBestUnit(range, facing)
 	local currHP
 	for i = 1, #enemyList do
 		local thisUnit = enemyList[i]
-		local unitID = br.functions.unit:GetObjectExists(thisUnit) and br.functions.unit:GetObjectID(thisUnit) or 0
-
-		if ((unitID == 135360 or unitID == 135358 or unitID == 135359) and br.functions.aura:UnitBuffID(thisUnit, 260805))
-			or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359)
-		then
+		if not br.functions.unit:isHeldBack(thisUnit) then
 			if not br.functions.unit:isDummy(thisUnit) then
 				local isCC = dontBreakCC and #enemyList > 1 and br.functions.misc:isLongTimeCCed(thisUnit) or false
 				local isSafe = (safeDamageCheck and enemiesEngineFunctions:isSafeToAttack(thisUnit)) or not safeDamageCheck or false

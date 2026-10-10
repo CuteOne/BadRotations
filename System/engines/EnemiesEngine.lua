@@ -31,11 +31,7 @@ engine.pet        = {}
 engine.lootable   = {}
 engine.damaged    = engine.damaged or {}
 engine.ttd        = {} -- pointer -> samples used by record:unitTtd (Enhanced Time to Die)
-engine.unitBlacklist = {   -- units never tracked
-	[129359] = true,   -- Sawtooth Shark
-	[129448] = true,   -- Hammer Shark
-	[144942] = true,   -- Spark Bot
-}
+-- NPC / spell IDs this engine treats specially are in br.lists.unitRules (System/Lists/UnitRules.lua)
 
 local GetTime = br._G.GetTime
 local tinsert = br._G.tinsert
@@ -58,15 +54,17 @@ function engine:getRecord(unit)
 end
 
 --- The record for a unit pointer, created when the unit may be tracked. Returns nil for units the
--- engine never tracks (blacklisted NPCs, players while Spectral Sight is on).
+-- engine never tracks (unitRules.neverTrack NPCs; other players while the player has
+-- unitRules.ignorePlayersWhilePlayerHas).
 function engine:track(unit)
 	if unit == nil then return nil end
 	local record = engine.records[unit]
 	if record then return record end
 	if not isUnitReference(unit) then return nil end
-	if br._G.UnitIsPlayer(unit) and br.functions.aura:UnitDebuffID("player", 295249) then return nil end
+	local rules = br.lists.unitRules
+	if br._G.UnitIsPlayer(unit) and br.functions.aura:UnitDebuffID("player", rules.ignorePlayersWhilePlayerHas) then return nil end
 	local id = br.functions.unit:GetObjectID(unit)
-	if engine.unitBlacklist[id] then return nil end
+	if rules.neverTrack[id] then return nil end
 	record = setmetatable({
 		unit       = unit,
 		guid       = br._G.UnitGUID(unit),
@@ -74,7 +72,7 @@ function engine:track(unit)
 		id         = id,
 		isCritter  = br.functions.unit:isCritter(unit) and true or false,
 		isOtherPet = br._G.UnitIsOtherPlayersPet(unit) and true or false,
-		isOwnPet   = id == 11492 or br.functions.unit:GetUnitIsUnit(br._G.UnitCreator(unit), "player"),
+		isOwnPet   = rules.ownPets[id] ~= nil or br.functions.unit:GetUnitIsUnit(br._G.UnitCreator(unit), "player"),
 		debuffs    = {},
 		range      = 0,
 	}, Record)
@@ -347,13 +345,7 @@ function Record:update(now, inCombat, hasGroup, fps)
 
 	-- Enhanced Time to Die
 	if br.functions.misc:getOptionCheck("Enhanced Time to Die") then
-		if self.id == 140853 then
-			self.ttd = self:unitTtd(10)
-		elseif self.id == 149684 then
-			self.ttd = self:unitTtd(5)
-		else
-			self.ttd = self:unitTtd()
-		end
+		self.ttd = self:unitTtd(br.lists.unitRules.ttdPercent[self.id])
 	end
 
 	-- Loot

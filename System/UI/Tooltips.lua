@@ -270,10 +270,11 @@ function tooltips:targetValidationDebugHandler(tooltip)
 		return
 	end
 
-	-- Check if water elemental
+	-- The player's own pet NPCs (br.lists.unitRules.ownPets)
 	local objectID = br.functions.unit:GetObjectID(unit)
-	if objectID == 11492 then
-		tooltip:AddLine("Is Water Elemental (11492)", 1, 0, 0)
+	local ownPet = br.lists.unitRules.ownPets[objectID]
+	if ownPet then
+		tooltip:AddLine("Is " .. ownPet .. " (" .. objectID .. ")", 1, 0, 0)
 		return
 	end
 

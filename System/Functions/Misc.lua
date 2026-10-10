@@ -494,13 +494,7 @@ function misc:isPlayer(Unit)
 	if br._G.UnitIsPlayer(Unit) == true then
 		return true
 	elseif br._G.UnitIsPlayer(Unit) ~= true then
-		local playerNPC = {
-			[72218] = "Oto the Protector",
-			[72219] = "Ki the Asssassin",
-			[72220] = "Sooli the Survivalist",
-			[72221] = "Kavan the Arcanist"
-		}
-		if playerNPC[tonumber(string.match(br._G.UnitGUID(Unit), "-(%d+)-%x+$"))] ~= nil then
+		if br.lists.unitRules.provingGrounds[tonumber(string.match(br._G.UnitGUID(Unit), "-(%d+)-%x+$"))] ~= nil then
 			return true
 		end
 	else
@@ -557,6 +551,19 @@ function misc:hasTank()
 end
 
 -- distance: the unit's distance from the player if the caller has just measured it
+-- Other players count as enemies while the player, or they, have one of the unitRules debuffs
+local function isAttackablePlayer(Unit)
+	if not br._G.UnitIsPlayer(Unit) then return false end
+	local rules = br.lists.unitRules
+	for _, debuff in ipairs(rules.attackPlayersWhilePlayerHas) do
+		if br.functions.aura:UnitDebuffID("player", debuff) then return true end
+	end
+	for _, debuff in ipairs(rules.attackPlayersWithDebuff) do
+		if br.functions.aura:UnitDebuffID(Unit, debuff) then return true end
+	end
+	return false
+end
+
 function misc:enemyListCheck(Unit, distance)
 	-- local targetBuff = 0
 	-- local playerBuff = 0
@@ -577,7 +584,7 @@ function misc:enemyListCheck(Unit, distance)
 	local mcCheck = (br.functions.misc:isChecked("Attack MC Targets") and (not br.functions.unit:GetUnitIsFriend(Unit, "player") or br._G.UnitIsCharmed(Unit))) or
 		not br.functions.unit:GetUnitIsFriend(Unit, "player")
 	local inPhase = phaseReason--not phaseReason or phaseReason == 2 or phaseReason == 3
-	if br._G.UnitIsPlayer(Unit) and (br.functions.aura:UnitDebuffID("player", 320102) or br.functions.aura:UnitDebuffID(Unit, 424495)) then
+	if isAttackablePlayer(Unit) then
 		return true
 	end
 	-- Check if unit was created by player, but allow quest NPCs that turn hostile (like Peak of Serenity monks)
@@ -595,12 +602,12 @@ function misc:enemyListCheck(Unit, distance)
 	local checkNotCritter = not br.functions.unit:isCritter(Unit)
 	local checkNotPet    = not br.functions.unit:GetUnitIsUnit(Unit, "pet")
 	local checkCreator   = (not createdByPlayer or isHostileQuestNPC)
-	local checkNotWaterEle = br.functions.unit:GetObjectID(Unit) ~= 11492
+	local checkNotOwnPet = br.lists.unitRules.ownPets[br.functions.unit:GetObjectID(Unit)] == nil
 
 	-- Expensive LoS check only done if other checks pass (early exit optimization)
 	local basicChecks = checkExists and checkNotDead and checkCanAttack and checkHasHealth
 		and checkInRange and checkNotCritter and mcCheck and checkNotPet
-		and checkCreator and checkNotWaterEle
+		and checkCreator and checkNotOwnPet
 
 	if not basicChecks then
 		return false -- Early exit before expensive LoS check
@@ -631,11 +638,8 @@ function misc:enemyListCheck(Unit, distance)
 		end
 	end
 
-	local allPass = basicChecks and los
-		and ((Unit ~= 131824 and Unit ~= 131823 and Unit ~= 131825) or ((br.functions.aura:UnitBuffID(Unit, 260805)
-			or br.functions.unit:GetUnitIsUnit(Unit, "target")) and (Unit == 131824 or Unit == 131823 or Unit == 131825)))
-
-	return allPass
+	-- (isHeldBack compares NPC IDs; this used to compare the unit itself with them, so never applied)
+	return basicChecks and los and not br.functions.unit:isHeldBack(Unit)
 end
 
 function misc:isValidUnit(Unit)
@@ -706,7 +710,7 @@ function misc:isValidUnit(Unit)
 		or not br.functions.unit:GetUnitIsFriend(Unit, "player")
 
 	-- Early exit for PvP debuffs (special case)
-	if playerTarget and br._G.UnitIsPlayer(Unit) and (br.functions.aura:UnitDebuffID("player", 320102) or br.functions.aura:UnitDebuffID(Unit, 424495)) then
+	if playerTarget and isAttackablePlayer(Unit) then
 		if guid then isValidUnitCache[guid] = { value = true, time = now } end
 		return true
 	end

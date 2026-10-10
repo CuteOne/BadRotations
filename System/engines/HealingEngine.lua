@@ -257,7 +257,7 @@ if not healingEngine.metaTable1 then
 					PercentWithIncoming = PercentWithIncoming - br.functions.misc:getOptionValue("Prioritize Tank")
 				end
 				-- Tank in Proving Grounds
-				if o.guidsh == 72218 then
+				if br.lists.unitRules.provingGrounds[br.functions.unit:GetObjectID(o.unit)] == "TANK" then
 					PercentWithIncoming = PercentWithIncoming - br.functions.misc:getOptionValue("Prioritize Tank")
 				end
 				-- Using threat to remove %hp from all tanking units

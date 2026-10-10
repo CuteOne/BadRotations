@@ -460,6 +460,14 @@ function unit:isHumanoid(Unit)
 end
 
 -- Dummy Check
+--- True for an NPC that's only attacked while it has a certain buff (br.lists.unitRules.attackOnlyWithBuff)
+-- and doesn't have it now, unless it's the player's target.
+function unit:isHeldBack(Unit)
+	local requiredBuff = br.lists.unitRules.attackOnlyWithBuff[br.functions.unit:GetObjectID(Unit)]
+	if requiredBuff == nil then return false end
+	return not (br.functions.aura:UnitBuffID(Unit, requiredBuff) or br.functions.unit:GetUnitIsUnit(Unit, "target"))
+end
+
 function unit:isDummy(Unit)
 	if Unit == nil then
 		Unit = "target"
