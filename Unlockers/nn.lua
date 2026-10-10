@@ -340,7 +340,7 @@ function br.unlockers:NNUnlock()
 
 	for _, v in pairs(globalCacheList) do
 		if C_Timer.Nn[v] == nil then
-			print("Function: " .. tostring(v) .. ", was not provided.")
+			b.print("Function: " .. tostring(v) .. ", was not provided.")
 		else
 			local fn = C_Timer.Nn[v]
 			b[v] = function(...) return unwrap(fn(...)) end
@@ -606,7 +606,6 @@ function br.unlockers:NNUnlock()
 		return false
 	end
 
-	br.unlockers.selected = "NN"
 	b.print("NN Unlocker Loaded")
 	return true
 end

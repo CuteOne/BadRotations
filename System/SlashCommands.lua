@@ -136,6 +136,7 @@ function slashCommands:slashHelpList()
 	slashCommands:SlashCommandHelp("br queue remove spellId", "Removes the Spell from the Queue by Spell Id.")
 	slashCommands:SlashCommandHelp("br ui", "Shows a list of toggleable UI elements, IE: /br ui main")
 	slashCommands:SlashCommandHelp("br updaterate", "Displays Current Update Rate")
+	slashCommands:SlashCommandHelp("br why spell", "Shows why BR last refused a spell, IE: /br why maul")
 	if select(2, br._G.UnitClass("player")) == "HUNTER" then
 		slashCommands:SlashCommandHelp("br disengage", "Assign to macro to Forward Disengage.")
 	end
@@ -282,7 +283,7 @@ local function handler(message, editbox)
 				local spellName, _, _, _, _, _, spellId = br.api.wow.GetSpellInfo(msg3)
 				local notOnCD = true
 				if br ~= nil and br.player ~= nil and spellName ~= nil then
-					notOnCD = br.functions.spell:getSpellCD(spellName) <= br.player.gcdMax
+					notOnCD = br.functions.spell:getSpellCD(spellName) <= br.player.state.gcdMax
 				end
 				if msg4 ~= nil then
 					targetUnit = tostring(msg4)
@@ -461,6 +462,80 @@ local function handler(message, editbox)
 				"|cFFFF0000 icon |r - Shows/Hides minimap button\n"
 			)
 		end
+	elseif msg1 == "why" then
+		-- Why did BR last refuse this spell? Covers cast.able checks, which never print.
+		local spellText = message:match("^%s*%S+%s+(.-)%s*$")
+		if spellText == nil or spellText == "" then
+			br._G.print("|cffFFDD11[BadRotations]|r Usage: /br why <spell>, IE: /br why maul")
+			return
+		end
+		-- Slash handlers run outside BR's protected scripts, where Forever hides values
+		-- such as movement speed (which distance reads); timer callbacks run protected,
+		-- so report from one on the next frame.
+		br._G.C_Timer.After(0, function()
+			local entry = br.functions.cast:getRefusal(spellText)
+			if entry == nil then
+				br._G.print("|cffFFDD11[BadRotations]|r No cast checks recorded for |cFFFF0000" .. spellText ..
+					"|r yet. The profile hasn't asked about it, or the name doesn't match.")
+				return
+			end
+			local now = br._G.GetTime()
+			local label = tostring(entry.name) .. " (" .. tostring(entry.spellID) .. ")"
+			if entry.refusedAt then
+				local detail = entry.detail and (": " .. tostring(entry.detail)) or ""
+				br._G.print(string.format("|cffFFDD11[BadRotations]|r %s last refused %.1fs ago — |cFFFF0000%s|r%s",
+					label, now - entry.refusedAt, tostring(entry.reason), detail))
+			else
+				br._G.print("|cffFFDD11[BadRotations]|r " .. label .. " has not been refused.")
+			end
+			if entry.passedAt then
+				br._G.print(string.format("  Last passed every check %.1fs ago%s", now - entry.passedAt,
+					(entry.refusedAt == nil or entry.passedAt > entry.refusedAt)
+						and " (more recently than any refusal: if it still isn't cast, a profile condition or a higher line is stopping it)"
+						or ""))
+			else
+				br._G.print("  Has never passed every check.")
+			end
+			-- BR's view of the target and the profile's dynamic units, since profile
+			-- lines are often gated on these rather than on the cast checks.
+			local function describe(thisUnit)
+				if thisUnit == nil then return "none" end
+				if not br.functions.unit:GetUnitExists(thisUnit) then return tostring(thisUnit) .. " (gone)" end
+				return string.format("%s dist %.2f facing %s visible %s", tostring(br._G.UnitName(thisUnit)),
+					br.functions.range:getDistance(thisUnit) or -1,
+					tostring(br.functions.unit:getFacing("player", thisUnit)),
+					tostring(br.functions.cast:isUnitVisible(thisUnit)))
+			end
+			br._G.print("  target: " .. describe("target"))
+			-- The pieces of misc:isValidUnit, which dynamicTarget needs before it will
+			-- hand the target to units.dynN.
+			if br.functions.unit:GetUnitExists("target") then
+				local misc = br.functions.misc
+				local function try(fn)
+					local ok, value = pcall(fn)
+					return ok and tostring(value) or "error"
+				end
+				br._G.print("  target valid: " .. try(function() return misc:isValidUnit("target") end)
+					.. " | enemyList " .. try(function() return misc:enemyListCheck("target") end)
+					.. " | threat " .. try(function() return br.functions.combat:hasThreat("target") end)
+					.. " | safe " .. try(function() return br.engines.enemiesEngineFunctions:isSafeToAttack("target") end)
+					.. " | tapDenied " .. try(function() return br._G.UnitIsTapDenied("target") end)
+					.. " | CC'd " .. try(function() return misc:isLongTimeCCed("target") end)
+					.. " | reaction " .. try(function() return br.functions.unit:GetUnitReaction("target", "player") end))
+			end
+			-- Every dynamic unit the profile asked for (units.get(N) -> units.dynN), and
+			-- "none" when one came back empty on the last tick.
+			local units = br.player and br.player.units
+			local requested = br.player and br.player.dynRequested
+			if units and requested then
+				local dynKeys = {}
+				for key in pairs(requested) do dynKeys[#dynKeys + 1] = key end
+				table.sort(dynKeys)
+				for _, key in ipairs(dynKeys) do
+					br._G.print("  units." .. key .. ": " .. describe(units[key]))
+				end
+			end
+		end)
 	elseif msg1 == "update" then
 		br.updater:Update()
 	elseif msg1 == "clean" or msg1 == "cleansettings" then

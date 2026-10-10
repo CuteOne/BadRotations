@@ -51,6 +51,7 @@ Expansions\Retail\Functions.lua
 Expansions\MOP\Functions.lua
 Expansions\TBC\Functions.lua
 Expansions\Classic\Functions.lua
+Expansions\Forever\Functions.lua
 
 BadRotations.lua
 System\UI\UI.lua
@@ -138,6 +139,7 @@ System\UI\Colors.lua
 System\UI\DropOptions.lua
 System\UI\SettingsManagement.lua
 System\UI\ChatOverlay.lua
+System\UI\ElementOptions.lua
 #System\UI\MinimapButton.lua
 #System\UI\UI.lua
 System\UI\Toggles\ToggleFunctions.lua
@@ -184,8 +186,13 @@ System\API\Use.lua
 
 ## Loader
 
-System\Loader\cCharacter.lua
-System\Loader\cBuilder.lua
+System\Loader\Player.lua
+System\Loader\ProfileLoader.lua
+System\Loader\SpellCompiler.lua
+System\Loader\PlayerAPI.lua
+System\Loader\ProfileUI.lua
+System\Loader\Builder.lua
+System\Loader\Bootstrap.lua
 
 ## Misc
 

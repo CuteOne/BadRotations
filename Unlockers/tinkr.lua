@@ -478,7 +478,7 @@ function unlock.TinkrUnlock()
 	b.CastSpellByName = function(spell, unit)
 		-- return Eval("CastSpellByName(\"" .. spell .. "\", \"" .. Object(unit) .. "\")", "")
 		if Object(unit) then
-			print("CastSpellByName: Passed " .. tostring(unit) .. " with object ref " .. tostring(Object(unit)))
+			b.print("CastSpellByName: Passed " .. tostring(unit) .. " with object ref " .. tostring(Object(unit)))
 			return CastSpellByName(spell, Object(unit))
 		else
 			return nil
@@ -648,6 +648,5 @@ function unlock.TinkrUnlock()
 	-- 	return UnitIsTrivial(Object(...))
 	-- end
 
-	br.unlockers.selected = "Tinkr"
 	return true
 end

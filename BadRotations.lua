@@ -79,10 +79,8 @@ br.unlockers = {}
 -- Other Initialization
 br.data = {}
 br.data.settings = {}
-br.data.tracker = {}
 br.data.ui = {}
 br.loader.addonName = "BadRotations"
-br.loader.rotationChanged = true
 br.loader.rotations = {}
 br.loader.selectedSpec = "None"
 br.loader.selectedSpecID = 0
@@ -117,30 +115,13 @@ end
 function br.load()
 	if _br_loaded then return end
 	_br_loaded = true
-	-- Update Selected Spec
-	br.loader.selectedSpecID = (br.api and br.api.getEffectiveSpecID and br.api.getEffectiveSpecID())
-        or br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
-	br.loader.selectedSpec = select(2, br._G.GetSpecializationInfoForSpecID(br.loader.selectedSpecID)) or "Initial"
-	if br.loader.selectedSpec == "" then
-		br.loader.selectedSpec = "Initial"
-	end
-	br.loader.selectedSpec = br.ui.settingsManagement:normalizeSpecKey(br.loader.selectedSpec)
-	-- Pre-seed the cached spec values used by the dirty-flag path in Core.lua
-	-- so the first pulse tick has valid data before specDirty is evaluated.
-	br.loader._resolvedSpecID   = br.loader.selectedSpecID
-	br.loader._resolvedSpecName = br.loader.selectedSpec
-	if br.data.settings[br.loader.selectedSpec] == nil then
-		br.data.settings[br.loader.selectedSpec] = {}
-	end
-	if not br.unlocked then
-		br.ui.settingsManagement.initializeSettings = true
-		br._G.print("Initializing Please Wait...")
-	end
+	br._G.print("Initializing Please Wait...")
+	-- Spec, rotations, settings and the player are set up by the startup stages (System/Loader/Bootstrap.lua)
+	br.loader.bootstrap:start()
 	if not loadedIn then
 		if br.engines.enemiesEngine and br.engines.enemiesEngine.damaged == nil then
 			br.engines.enemiesEngine.damaged = {}
 		end
-		-- br.bagsUpdated = true
 		br:Run()
 	end
 end
@@ -171,7 +152,8 @@ local function OnEvent(self, event)
 		if br._G and br._G.RunMacroText and br.unlockers and br.unlockers.origQueueWindow then
 			br._G.RunMacroText("/console SpellQueueWindow " .. br.unlockers.origQueueWindow)
 		end
-		if br.ui and br.ui.settingsManagement then
+		-- Only save once this session's settings were actually loaded (never defaults over a real file)
+		if br.ui and br.ui.settingsManagement and br.loader.bootstrap and br.loader.bootstrap:canSave() then
 			br.ui:saveWindowPosition()
 			br.ui.settingsManagement:cleanSettings()
 			if br.data and br.data.settings and br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] then
@@ -179,12 +161,12 @@ local function OnEvent(self, event)
 			end
 			if br.functions and br.functions.misc and br.functions.misc:getOptionCheck("Reset Options") then
 				-- Reset Settings
-				br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName, true)
+				br.ui.settingsManagement:saveSettings(true)
 			else
 				-- Save Settings
-				br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
+				br.ui.settingsManagement:saveSettings()
 			end
-			br.ui.settingsManagement:saveLastProfileTracker()
+			br.ui.settingsManagement:saveSelection()
 			table.wipe(br.ui)
 		end
 	end
@@ -195,3 +177,9 @@ end
 
 -- Setting the OnEvent script handler
 frame:SetScript("OnEvent", OnEvent)
+
+-- When injected after login, PLAYER_ENTERING_WORLD has already fired. Load on
+-- the next frame instead, once the rest of the TOC's files have run.
+if br._G.IsLoggedIn and br._G.IsLoggedIn() then
+	br._G.C_Timer.After(0, br.load)
+end

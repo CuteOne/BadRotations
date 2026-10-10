@@ -1,38 +1,17 @@
 -- LubDraw by docbrown on fh-wow.com
-local Nn, br = ...
+local _, br = ...
 local LibDraw
 local sin, cos, atan, atan2, sqrt, rad = math.sin, math.cos, math.atan, math.atan2, math.sqrt, math.rad
 local tinsert, tremove = tinsert, tremove
 
-
 local function WorldToScreen (wX, wY, wZ)
 	if wZ == nil then wZ = select(3,br.functions.unit:GetObjectPosition("player")) end
-	-- for k,v in pairs(br._G) do
-	-- 	br._G.print("K: "..tostring(k)..", V: "..tostring(v))
-	-- end
 	local sX, sY = br._G.WorldToScreen(wX, wY, wZ)
 	if not sX or sX == 0 then
 		return false, false
 	end
-	-- if sX and sY and br.unlockers.selected ~= "WA" and br.unlockers.selected ~= "LuaBox" then
-	-- 	return sX, -(WorldFrame:GetTop() - sY);
-	-- else
-		return sX, sY;
-	-- end
+	return sX, sY;
 end
--- local UIParent = UIParent
--- local function WorldToScreen(sx, sy, sz)
---     local x, y = Nn.WorldToScreen(sx, sy, sz)
---     if x == 0 and y == 0 then
---         return
---     end
---     local scale = UIParent:GetScale()
---     local width = UIParent:GetWidth() * scale
---     local height = UIParent:GetHeight() * scale
---     x = x * width
---     y = -(height - (y * height))
---     return x, y
--- end
 
 if LibStub then
 	-- LibStub version control
@@ -90,7 +69,6 @@ end
 function LibDraw.Line(sx, sy, sz, ex, ey, ez)
 	local sx, sy = WorldToScreen(sx, sy, sz)
 	local ex, ey = WorldToScreen(ex, ey, ez)
-
 	LibDraw.Draw2DLine(sx, sy, ex, ey)
 end
 
@@ -134,7 +112,6 @@ function LibDraw.Array(vectors, x, y, z, rotationX, rotationY, rotationZ)
 	for _, vector in ipairs(vectors) do
 		local sx, sy, sz = x+vector[1], y+vector[2], z+vector[3]
 		local ex, ey, ez = x+vector[4], y+vector[5], z+vector[6]
-
 		if rotationX then
 			sx, sy, sz = LibDraw.rotateX(x, y, z, sx, sy, sz, rotationX)
 			ex, ey, ez = LibDraw.rotateX(x, y, z, ex, ey, ez, rotationX)
@@ -147,7 +124,6 @@ function LibDraw.Array(vectors, x, y, z, rotationX, rotationY, rotationZ)
 			sx, sy, sz = LibDraw.rotateZ(x, y, z, sx, sy, sz, rotationZ)
 			ex, ey, ez = LibDraw.rotateZ(x, y, z, ex, ey, ez, rotationZ)
 		end
-
 		sx, sy = WorldToScreen(sx, sy, sz)
 		ex, ey = WorldToScreen(ex, ey, ez)
 		LibDraw.Draw2DLine(sx, sy, ex, ey)
@@ -156,43 +132,18 @@ end
 
 function LibDraw.Draw2DLine(sx, sy, ex, ey)
 	if not sx or not sy or not ex or not ey then return end
-
 	local L = tremove(LibDraw.lines) or false
 	if L == false then
 		L = CreateFrame("Frame", LibDraw.canvas)
-    	L.line = L:CreateLine()
+		L.line = L:CreateLine()
 		L.line:SetDrawLayer(LibDraw.level)
 	end
 	tinsert(LibDraw.lines_used, L)
-
 	L:ClearAllPoints()
-
-	if sx > ex and sy > ey or  sx < ex and sy < ey  then
-		L:SetPoint("TOPRIGHT", LibDraw.canvas, "TOPLEFT", sx, sy)
-		L:SetPoint("BOTTOMLEFT", LibDraw.canvas, "TOPLEFT", ex, ey)
-		L.line:SetStartPoint('TOPRIGHT')
-		L.line:SetEndPoint('BOTTOMLEFT')
-	elseif sx < ex and sy > ey then
-		L:SetPoint("TOPLEFT", LibDraw.canvas, "TOPLEFT", sx, sy)
-		L:SetPoint("BOTTOMRIGHT", LibDraw.canvas, "TOPLEFT", ex, ey)
-		L.line:SetStartPoint('TOPLEFT')
-		L.line:SetEndPoint('BOTTOMRIGHT')
-	elseif sx > ex and sy < ey then
-		L:SetPoint("TOPRIGHT", LibDraw.canvas, "TOPLEFT", sx, sy)
-		L:SetPoint("BOTTOMLEFT", LibDraw.canvas, "TOPLEFT", ex, ey)
-		L.line:SetStartPoint('TOPLEFT')
-		L.line:SetEndPoint('BOTTOMRIGHT')
-	else
-		-- wat, I don't like this, not one bit
-		L:SetPoint("TOPLEFT", LibDraw.canvas, "TOPLEFT", sx, sy)
-		L:SetPoint("BOTTOMLEFT", LibDraw.canvas, "TOPLEFT", sx, ey)
-		L.line:SetStartPoint('TOPLEFT')
-		L.line:SetEndPoint('BOTTOMLEFT')
-	end
-
-  	L.line:SetThickness(LibDraw.line.w)
+	L.line:SetStartPoint("TOPLEFT", LibDraw.canvas, sx, sy)
+	L.line:SetEndPoint("TOPLEFT", LibDraw.canvas, ex, ey)
+	L.line:SetThickness(LibDraw.line.w)
 	L.line:SetColorTexture(LibDraw.line.r, LibDraw.line.g, LibDraw.line.b, LibDraw.line.a)
-
 	L:Show()
 end
 
@@ -273,11 +224,9 @@ function LibDraw.Arc(x, y, z, size, arc, rotation)
 end
 
 function LibDraw.Texture(config, x, y, z, alphaA)
-
 	local texture, width, height = config.texture, config.width, config.height
 	local left, right, top, bottom, scale =  config.left, config.right, config.top, config.bottom, config.scale
 	local alpha = config.alpha or alphaA
-
 	if not texture or not width or not height or not x or not y or not z then return end
 	if not left or not right or not top or not bottom then
 		left = 0
@@ -289,7 +238,6 @@ function LibDraw.Texture(config, x, y, z, alphaA)
 		local cx, cy, cz = br._G.GetCameraPosition()
 		scale = width / LibDraw.Distance(x, y, z, cx, cy, cz)
 	end
-
 	local sx, sy = WorldToScreen(x, y, z)
 	if not sx or not sy then return end
 	local w = width * scale
@@ -297,7 +245,6 @@ function LibDraw.Texture(config, x, y, z, alphaA)
 	sx = sx - w*0.5
 	sy = sy + h*0.5
 	local ex, ey = sx + w, sy - h
-
 	local T = tremove(LibDraw.textures) or false
 	if T == false then
 		T = LibDraw.canvas:CreateTexture(nil, "BACKGROUND")
@@ -315,51 +262,29 @@ function LibDraw.Texture(config, x, y, z, alphaA)
 	T:SetVertexColor(1, 1, 1, 1)
 	if alpha then T:SetAlpha(alpha) else T:SetAlpha(1) end
 	T:Show()
-
 end
 
 function LibDraw.Text(text, font, x, y, z)
-
 	local sx, sy = WorldToScreen(x, y, z)
-
 	if sx and sy then
-
 		local F = tremove(LibDraw.fontstrings) or LibDraw.canvas:CreateFontString(nil, "BACKGROUND")
-
 		F:SetFontObject(font)
 		F:SetText(text)
 		F:SetTextColor(LibDraw.line.r, LibDraw.line.g, LibDraw.line.b, LibDraw.line.a)
-
-		if p then
-			local width = F:GetStringWidth() - 4
-			local offsetX = width*0.5
-			local offsetY = F:GetStringHeight() + 3.5
-			local pwidth = width*p*0.01
-			FHAugment.drawLine(sx-offsetX, sy-offsetY, (sx+offsetX), sy-offsetY, 4, r, g, b, 0.25)
-			FHAugment.drawLine(sx-offsetX, sy-offsetY, (sx+offsetX)-(width-pwidth), sy-offsetY, 4, r, g, b, 1)
-		end
-
 		F:SetPoint("TOPLEFT", UIParent, "TOPLEFT", sx-(F:GetStringWidth()*0.5), sy)
 		F:Show()
-
 		tinsert(LibDraw.fontstrings_used, F)
-
 	end
-
 end
 
 local rad90 = math.rad(-90)
 
 function LibDraw.Box(x, y, z, width, height, rotation, offset_x, offset_y)
-
 	if not offset_x then offset_x = 0 end
 	if not offset_y then offset_y = 0 end
-
 	if rotation then rotation = rotation + rad90 end
-
 	local half_width = width * 0.5
 	local half_height = height * 0.5
-
 	local p1x, p1y = LibDraw.rotateZ(x, y, z, x - half_width + offset_x, y - half_width + offset_y, z, rotation)
 	local p2x, p2y = LibDraw.rotateZ(x, y, z, x + half_width + offset_x, y - half_width + offset_y, z, rotation)
 	local p3x, p3y = LibDraw.rotateZ(x, y, z, x - half_width + offset_x, y + half_width + offset_y, z, rotation)
@@ -368,12 +293,10 @@ function LibDraw.Box(x, y, z, width, height, rotation, offset_x, offset_y)
 	local p6x, p6y = LibDraw.rotateZ(x, y, z, x + half_width + offset_x, y - half_width + offset_y, z, rotation)
 	local p7x, p7y = LibDraw.rotateZ(x, y, z, x - half_width + offset_x, y + half_width + offset_y, z, rotation)
 	local p8x, p8y = LibDraw.rotateZ(x, y, z, x + half_width + offset_x, y + half_width + offset_y, z, rotation)
-
 	LibDraw.Line(p1x, p1y, z, p2x, p2y, z)
 	LibDraw.Line(p3x, p3y, z, p4x, p4y, z)
 	LibDraw.Line(p5x, p5y, z, p6x, p6y, z)
 	LibDraw.Line(p7x, p7y, z, p8x, p8y, z)
-
 end
 
 local deg45 = math.rad(45)
@@ -396,7 +319,6 @@ local arrowZ = {
 function LibDraw.DrawHelper()
 	local playerX, playerY, playerZ = br._G.ObjectPosition("player")
 	local old_red, old_green, old_blue, old_alpha, old_width = LibDraw.line.r, LibDraw.line.g, LibDraw.line.b, LibDraw.line.a, LibDraw.line.w
-
 	-- X
 	LibDraw.SetColor(255, 0, 0, 100)
 	LibDraw.SetWidth(1)
@@ -412,7 +334,6 @@ function LibDraw.DrawHelper()
 	LibDraw.SetWidth(1)
 	LibDraw.Array(arrowZ, playerX, playerY, playerZ, false, false, false)
 	LibDraw.Text('Z', "GameFontNormal", playerX, playerY, playerZ + 1.75)
-
 	LibDraw.line.r, LibDraw.line.g, LibDraw.line.b, LibDraw.line.a, LibDraw.line.w = old_red, old_green, old_blue, old_alpha, old_width
 end
 

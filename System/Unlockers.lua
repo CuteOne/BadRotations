@@ -4,17 +4,40 @@ br.unlockers = br.unlockers or {}
 local unlockers = br.unlockers
 
 br.unlockers.selected = "None"
-br.unlockers.unlock = {}
+
+-- Unlocker adapters, in priority order. Each adapter file (Unlockers/*.lua)
+-- defines br.unlockers:<fn>(): it sets up br._G and returns true only when its
+-- unlocker is present, and returns false quietly otherwise. Detection and the
+-- "no unlocker" case are handled here, not by any adapter.
+local adapters = {
+    { name = "NN",       fn = "NNUnlock" },
+    { name = "Tinkr",    fn = "TinkrUnlock" },
+    { name = "Daemonic", fn = "DaemonicUnlock" },
+}
+local reportedNoUnlocker = false
+
+-- Adapters that don't ship with BR (loaded alongside it by their unlocker)
+-- register here. They're tried before the built-in ones, since they are only
+-- present when their unlocker explicitly loaded them.
+function unlockers:registerAdapter(name, unlock)
+    table.insert(adapters, 1, { name = name, unlock = unlock })
+end
 
 function unlockers:loadUnlockerAPI()
     local unlocked = false
-    --local class = self.class
-    if unlockers["NNUnlock"] ~= nil and unlockers:NNUnlock() then
-        unlocked = true
-    elseif unlockers["TinkrUnlock"] ~= nil and unlockers:TinkrUnlock() then
-        unlocked = true
-    elseif br.unlock["DaemonicUnlock"] ~= nil and br.unlock:DaemonicUnlock() then
-        unlocked = true
+    for _, adapter in ipairs(adapters) do
+        local unlock = adapter.unlock or unlockers[adapter.fn]
+        if unlock ~= nil and unlock(unlockers) then
+            unlockers.selected = adapter.name
+            unlocked = true
+            break
+        end
+    end
+
+    -- Called every pulse until an unlocker is found, so report only once.
+    if not unlocked and not reportedNoUnlocker then
+        reportedNoUnlocker = true
+        br._G.print("No supported unlocker detected.")
     end
 
     if unlocked then
@@ -22,27 +45,12 @@ function unlockers:loadUnlockerAPI()
         -- Save the player's original value first so we can restore it on logout.
         br.unlockers.origQueueWindow = br._G.C_CVar and br._G.C_CVar.GetCVar("SpellQueueWindow")
         br._G.RunMacroText("/console SpellQueueWindow 400")
-        -- UPDATE MEDIA PATH: derive from the unlocker's reported directory so that
-        -- BadRotations is fully self-contained (no WoW AddOns folder required).
-        -- Each unlocker sets br._G.GetWoWDirectory to its script root:
-        --   Tinkr   -> "scripts"
-        --   NoName  -> "\\scripts"
-        --   Daemonic-> absolute path, e.g. "C:\WoW\_retail_\Interface\AddOns"
+        -- MEDIA PATH: the client only loads textures and fonts from its own Interface folder (paths
+        -- to BR's own folder fail with "file not found", measured on Forever). The "3rd Party Files/Media"
+        -- folder is copied to Interface\AddOns\Media; BR installed as a normal addon has its own copy.
         local DiesalStyle = LibStub("DiesalStyle-1.0")
         if DiesalStyle.SetMediaPath then
-            local newPath
-            local wowDir = br._G.GetWoWDirectory and br._G.GetWoWDirectory()
-            if wowDir then
-                -- Normalize: forward-slash -> backslash, strip leading/trailing backslashes
-                local dir = tostring(wowDir):gsub("/", "\\"):gsub("^\\+", ""):gsub("\\+$", "")
-                newPath = dir .. "\\BadRotations\\Libs\\DiesalStyle-1.0\\Media\\"
-            else
-                -- Fallback for a standard WoW addon installation
-                newPath = "Interface\\AddOns\\BadRotations\\Libs\\DiesalStyle-1.0\\Media\\"
-            end
-            -- br._G.print("Unlocker loaded, media path: " .. newPath)
-            local addonPath = "Interface\\AddOns\\BadRotations\\Libs\\DiesalStyle-1.0\\Media\\"
-            DiesalStyle:SetMediaPath(newPath, addonPath)
+            DiesalStyle:SetMediaPath("Interface\\AddOns\\Media\\", "Interface\\AddOns\\BadRotations\\Libs\\DiesalStyle-1.0\\Media\\")
             DiesalStyle:ReloadMedia()
         end
     end
