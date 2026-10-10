@@ -7,6 +7,8 @@ local _, br = ...
 
 if br.api == nil then br.api = {} end
 
+-- br.api.cast runs once per spell in the spell list. Per-spell functions (cast.<spell>, cast.able.<spell>,
+-- ...) are made every time; generic ones (cast.id, cast.name, cast.form, ...) only the first time.
 br.api.cast = function(self, spell, id)
     if self.cast == nil then self.cast = {} end
     local cast = self.cast
@@ -59,9 +61,11 @@ br.api.cast = function(self, spell, id)
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
-    cast.able.id = function(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
-            enemies, true)
+    if cast.able.id == nil then
+        cast.able.id = function(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, tostring(spellID), predict,
+                predictPad, enemies, true)
+        end
     end
 
     --- Checks if a spell can be cast by its Name based on various parameters.
@@ -75,10 +79,12 @@ br.api.cast = function(self, spell, id)
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
-    cast.able.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        local _, _, _, _, _, _, spellID = br.api.wow.GetSpellInfo(spellName)
-        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
-            enemies, true)
+    if cast.able.name == nil then
+        cast.able.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+            local _, _, _, _, _, _, spellID = br.api.wow.GetSpellInfo(spellName)
+            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spellName, predict,
+                predictPad, enemies, true)
+        end
     end
 
     --- Checks if a spell can be cast based on various parameters.
@@ -141,8 +147,10 @@ br.api.cast = function(self, spell, id)
     --- Gets the spell id of the current (or previously) cast spell by the API.
     -- @function cast.current.id
     -- @treturn number
-    cast.current.id = function()
-        return br.botSpell
+    if cast.current.id == nil then
+        cast.current.id = function()
+            return br.botSpell
+        end
     end
 
     --- Gets the currently cast spell for the target (Alternate to br.player.cast.active.spell()).
@@ -173,10 +181,11 @@ br.api.cast = function(self, spell, id)
     --- Casts the form corresponding to the provided formIndex number.
     -- @function cast.form
     -- @number formIndex Index of the form to be casted. If not provided, defaults to 0.
-    cast.form = function(formIndex)
-        local CastShapeshiftForm = br._G["CastShapeshiftForm"]
-        if formIndex == nil then formIndex = 0 end
-        return CastShapeshiftForm(formIndex)
+    if cast.form == nil then
+        cast.form = function(formIndex)
+            if formIndex == nil then formIndex = 0 end
+            return br._G.CastShapeshiftForm(formIndex)
+        end
     end
 
     --- Cast a spell by its ID based on various parameters.
@@ -190,10 +199,12 @@ br.api.cast = function(self, spell, id)
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
-    cast.id = function(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        if type(spellID) == "table" then spellID = (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(spellID)) or spellID[1] end
-        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
-            enemies)
+    if cast.id == nil then
+        cast.id = function(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+            if type(spellID) == "table" then spellID = (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(spellID)) or spellID[1] end
+            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, tostring(spellID), predict,
+                predictPad, enemies)
+        end
     end
 
     --- Checks if the spell is currently in flight to the target.
@@ -223,12 +234,11 @@ br.api.cast = function(self, spell, id)
         return tracker[index] and tracker[index] == resolvedID
     end
 
-    --- Gets the GetTime() value the last cast of this spell occurred.
+    --- Gets the GetTime() value the last cast of this spell occurred, or 0 if it hasn't been cast.
     -- @function cast.last.time.spell
     -- @treturn number
     cast.last.time[spell] = function()
-        if br.functions.lastCast.lastCastTable.castTime[resolvedID] == nil then br.functions.lastCast.lastCastTable.castTime[resolvedID] = br._G.GetTime() end
-        return br.functions.lastCast.lastCastTable.castTime[resolvedID]
+        return br.functions.lastCast.lastCastTable.castTime[resolvedID] or 0
     end
 
     --- Runs the macro text passed to it. Optionally integrates with the cast gate's
@@ -243,14 +253,16 @@ br.api.cast = function(self, spell, id)
     -- @number[opt=0.5] lockDuration Throttle window in seconds. Defaults to 0.5s
     --   (matches the createCastFunction success-path convention).
     -- @treturn boolean Always true.
-    cast.macro = function(macroText, associatedSpellID, lockDuration)
-        br._G.RunMacroText(macroText)
-        if associatedSpellID then
-            local duration = lockDuration or 0.5
-            br.functions.cast:setCastTimer(associatedSpellID, duration)
-            br.functions.cast:setCastIntentLock(associatedSpellID, duration)
+    if cast.macro == nil then
+        cast.macro = function(macroText, associatedSpellID, lockDuration)
+            br._G.RunMacroText(macroText)
+            if associatedSpellID then
+                local duration = lockDuration or 0.5
+                br.functions.cast:setCastTimer(associatedSpellID, duration)
+                br.functions.cast:setCastIntentLock(associatedSpellID, duration)
+            end
+            return true
         end
-        return true
     end
 
     cast.maxRank[spell] = function()
@@ -269,10 +281,12 @@ br.api.cast = function(self, spell, id)
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
-    cast.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        local _, _, _, _, _, _, spellID = br.api.wow.GetSpellInfo(spellName)
-        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
-            enemies)
+    if cast.name == nil then
+        cast.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+            local _, _, _, _, _, _, spellID = br.api.wow.GetSpellInfo(spellName)
+            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spellName, predict,
+                predictPad, enemies)
+        end
     end
 
     --- Checks if the spell can free you of a "no control" effect.
@@ -282,26 +296,29 @@ br.api.cast = function(self, spell, id)
         return br.functions.combat:hasNoControl(resolvedID)
     end
 
-    --- Casts special opener condition spell.
+    --- Casts a spell as a step of an opener and marks the step done.
     -- @function cast.opener
-    -- @number thisSpell The spell to be cast as the opener.
-    -- @string thisTracker The tracker for the opener.
-    -- @number thisCount The count for the opener.
+    -- @string thisSpell The spell's key in the spell list.
+    -- @string thisTracker The opener step's flag name (br.player.opener[thisTracker]).
+    -- @number thisCount The step number, shown in chat.
+    -- @bool[opt=true] checkDistance Only cast when the target is in the spell's range.
     -- @treturn boolean
-    cast.opener = function(thisSpell, thisTracker, thisCount)
-        local castOpener = br._G["castOpener"]
-        return castOpener(thisSpell, thisTracker, thisCount)
+    if cast.opener == nil then
+        cast.opener = function(thisSpell, thisTracker, thisCount, checkDistance)
+            return br.functions.cast:castOpener(thisSpell, thisTracker, thisCount, checkDistance)
+        end
     end
 
-    --- Resets cast special opener condition if failed to cast.
+    --- Marks an opener step done when its spell can't be cast.
     -- @function cast.openerFail
-    -- @number thisSpell The spell that failed to cast.
-    -- @string thisTracker The tracker for the opener.
-    -- @number thisCount The count for the opener.
+    -- @string thisSpell The spell's name, shown in chat.
+    -- @string thisTracker The opener step's flag name.
+    -- @number thisCount The step number, shown in chat.
     -- @treturn boolean
-    cast.openerFail = function(thisSpell, thisTracker, thisCount)
-        local castOpenerFail = br.castOpenerFail
-        return castOpenerFail(thisSpell, thisTracker, thisCount)
+    if cast.openerFail == nil then
+        cast.openerFail = function(thisSpell, thisTracker, thisCount)
+            return br.functions.cast:castOpenerFail(thisSpell, thisTracker, thisCount)
+        end
     end
 
     --- Checks if specified power requirements are not met.
@@ -408,28 +425,31 @@ br.api.cast = function(self, spell, id)
     -- @function cast.timeRemain
     -- @tparam string thisUnit The unit to check cast time remaining. Defaults to "player" if not provided.
     -- @treturn number
-    cast.timeRemain = function(thisUnit)
-        if thisUnit == nil then thisUnit = "player" end
-        return br.functions.cast:getCastTimeRemain(thisUnit)
+    if cast.timeRemain == nil then
+        cast.timeRemain = function(thisUnit)
+            if thisUnit == nil then thisUnit = "player" end
+            return br.functions.cast:getCastTimeRemain(thisUnit)
+        end
     end
 
-    --- Gets the time since the last cast of this spell occurred.
+    --- Gets the time since the last cast of this spell occurred (very large if it hasn't been cast).
     -- @function cast.timeSinceLast.spell
     -- @treturn number
     cast.timeSinceLast[spell] = function()
-        if br.functions.lastCast.lastCastTable.castTime[resolvedID] == nil then br.functions.lastCast.lastCastTable.castTime[resolvedID] = br._G.GetTime() end
-        return br._G.GetTime() - br.functions.lastCast.lastCastTable.castTime[resolvedID]
+        return br._G.GetTime() - (br.functions.lastCast.lastCastTable.castTime[resolvedID] or 0)
     end
 
     --- Checks if the provided condition is true else it waits for 0.1sec.
     -- @function cast.wait
     -- @param condition The condition to check.
     -- @treturn boolean
-    cast.wait = function(condition, callback)
-        if condition then
-            br._G.C_Timer.After(0.1, callback)
-        else
-            return true
+    if cast.wait == nil then
+        cast.wait = function(condition, callback)
+            if condition then
+                br._G.C_Timer.After(0.1, callback)
+            else
+                return true
+            end
         end
     end
 end

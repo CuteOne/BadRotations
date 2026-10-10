@@ -781,12 +781,9 @@ local function buildSpellContext(spellID, predict, predictPad, castType, effectR
 	local updateRate = br.engines:getUpdateRate()
 	local latency    = select(3, br._G.GetNetStats()) / 1000 -- ms -> seconds
 
-	-- lastCastTime lookup (seed it lazily; identical to original behaviour).
-	if br.functions.lastCast.lastCastTable.castTime[spellID] == nil then
-		br.functions.lastCast.lastCastTable.castTime[spellID] = br._G.GetTime() -
-			(br.functions.spell:getGlobalCD(true) + latency)
-	end
-	local lastCastTime = br.functions.lastCast.lastCastTable.castTime[spellID]
+	-- When this spell last went off (UNIT_SPELLCAST events), 0 if it hasn't. Read only: writing a
+	-- placeholder here made cast.timeSinceLast report a spell that was never cast as just cast.
+	local lastCastTime = br.functions.lastCast.lastCastTable.castTime[spellID] or 0
 
 	return {
 		spellID        = spellID,
@@ -1251,8 +1248,12 @@ local function castingSpell(ctx, thisUnit, castType, printReport, debug)
 	end
 
 	if details and details.inconclusive then
-		castTimers[ctx.spellID] = br._G.GetTime() + 0.10
-		setCastIntentLock(ctx.spellID, 0.20)
+		-- Sent, but nothing showed it starting yet (off-GCD spells, or the server's reply is still on
+		-- its way). Hold the spell for a server round trip so it isn't sent a second time before the
+		-- reply arrives.
+		local hold = math.max(0.20, ctx.latency * 2 + 0.10)
+		castTimers[ctx.spellID] = br._G.GetTime() + hold
+		setCastIntentLock(ctx.spellID, hold)
 		return true -- queued / not yet confirmed; do not spam CAST_FAILED
 	end
 
@@ -1627,9 +1628,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 
 	-- ── Step 11: Unit resolution ──────────────────────────────────────────────
 	if thisUnit == nil then
-		if castType == "groundCC" or castType == "groundLocation" then
-			return -- these types have no unit; handled below
-		end
+		-- groundCC/groundLocation need a unit or location from the caller; resolveUnit has none for them
 		thisUnit = resolveUnit(ctx, nil, castType)
 	end
 
@@ -1719,12 +1718,11 @@ function cast:castQueue()
 				end
 			end
 			for j = 1, #br.player.queue do
-				local thisUnit = br.player.queue[j].target
-				local debug = br.player.queue[j].debug
-				local minUnits = br.player.queue[j].minUnits
-				local effectRng = br.player.queue[j].effectRng
-				local spellID = br.player.queue[j].id
-				if br.functions.cast:createCastFunction(thisUnit, debug, minUnits, effectRng, spellID) then return end
+				local entry = br.player.queue[j]
+				-- Entries hold id, name, target and queuedAt (readers/combatlog.lua); castType and the
+				-- AoE settings are optional and default like a plain cast.<spell>(target).
+				if br.functions.cast:createCastFunction(entry.target, entry.castType, entry.minUnits, entry.effectRng,
+					entry.id, entry.name) then return end
 			end
 		end
 	end
