@@ -10,9 +10,14 @@ local healingEngine = br.engines.healingEngine
 -- local LGIST = br._G.LibStub("LibGroupInSpecT-1.1")
 if not healingEngine.metaTable1 then
 	-- localizing the commonly used functions while inside loops
-	local getDistance, tinsert, tremove, UnitClass, GetUnitIsUnit = br.functions.range.getDistance, br._G.tinsert, br._G.tremove, br._G.UnitClass, br.functions.unit.GetUnitIsUnit
+	local tinsert, tremove, UnitClass = br._G.tinsert, br._G.tremove, br._G.UnitClass
+	-- These two are methods: stored as plain locals and called without self, every argument
+	-- shifted by one (getDistance(unit) always measured 0, GetUnitIsUnit("player", unit) was always false)
+	local function getDistance(...) return br.functions.range:getDistance(...) end
+	local function GetUnitIsUnit(...) return br.functions.unit:GetUnitIsUnit(...) end
 	local UnitHealth, UnitHealthMax = br._G.UnitHealth, br._G.UnitHealthMax
-	local GetTime, UnitDebuffID = br._G.GetTime, br.UnitDebuffID
+	local GetTime = br._G.GetTime
+	local function UnitDebuffID(unit, spellID) return br.functions.aura:UnitDebuffID(unit, spellID) end
 	br.engines.healingEngine.friend = {} -- This is our main Table that the world will see
 	healingEngine.memberSetup = {} -- This is one of our MetaTables that will be the default user/contructor
 	healingEngine.memberSetup.cache = {} -- This is for the cache Table to check against
@@ -82,14 +87,13 @@ if not healingEngine.metaTable1 then
 	end
 	-- We are checking if the user has a Debuff we either can not or don't want to heal them
 	local function CheckBadDebuff(tar)
+		-- Debuff records have the same shape on every client; stop at the first empty slot
+		local badDebuffs = br.engines.healingEngineCollections.BadDebuffList
 		for i = 1, 40 do
-			local auraInfo = br._G.UnitAura(tar, i, "HELPFUL|HARMFUL")
-			if auraInfo then
-				if auraInfo.name then
-					if br.engines.healingEngineCollections.BadDebuffList[auraInfo.spellID] ~= nil then
-						return false
-					end
-				end
+			local auraInfo = br.api.wow.GetDebuffDataByIndex(tar, i, "HARMFUL")
+			if not auraInfo then break end
+			if badDebuffs[auraInfo.spellId] ~= nil then
+				return false
 			end
 		end
 		return true
@@ -134,7 +138,7 @@ if not healingEngine.metaTable1 then
 	end
 	function healingEngine.memberSetup:new(unit)
 		-- Seeing if we have already cached this unit before
-		if healingEngine.memberSetup.cache[br.functions.unit:getGUID(unit)] then
+		if healingEngine.memberSetup.cache[select(2, br.functions.unit:getGUID(unit))] then -- keyed by short GUID
 			return false
 		end
 		local o = {}
@@ -270,19 +274,22 @@ if not healingEngine.metaTable1 then
 			local ActualWithIncoming = (UnitHealthMax(o.unit) - (UnitHealth(o.unit) + incomingheals))
 			-- Debuffs HP compensation
 			local debugTimerStartTime = GetTime()
+			local hpDebuffs = br.engines.healingEngineCollections.SpecificHPDebuffs
 			for i = 1, 40 do
-				local _, _, count, _, _, _, _, _, _, SpellID = br._G.UnitAura(o.unit, i, "HELPFUL|HARMFUL")
-				local debuffID = br.engines.healingEngineCollections.SpecificHPDebuffs[SpellID]
+				local auraInfo = br.api.wow.GetDebuffDataByIndex(o.unit, i, "HARMFUL")
+				if not auraInfo then break end
+				local debuffID = hpDebuffs[auraInfo.spellId]
 				if debuffID ~= nil then
-				  for i = 1, #debuffID do
-					  local debuffData = debuffID[i]
-					  if debuffData ~= nil and (debuffData.stacks == nil or (count and count >= debuffData.stacks)) then
-						  PercentWithIncoming = PercentWithIncoming - debuffData.value
-						  break
-					  end
-				  end
-			  end
-      end
+					local count = auraInfo.applications
+					for j = 1, #debuffID do
+						local debuffData = debuffID[j]
+						if debuffData ~= nil and (debuffData.stacks == nil or (count and count >= debuffData.stacks)) then
+							PercentWithIncoming = PercentWithIncoming - debuffData.value
+							break
+						end
+					end
+				end
+			end
 			local elapsedDebugTime = GetTime() - debugTimerStartTime
 			if elapsedDebugTime > 0.5 then
 				br._G.print("WARNING: Debuff Scan took a long time: " .. elapsedDebugTime .. " Seconds")
@@ -562,41 +569,18 @@ if not healingEngine.metaTable1 then
 				end
 			)
 			if br.functions.misc:getOptionCheck("Prioritize Special Targets") == true then
-				if br.functions.unit:GetUnitExists("focus") and healingEngine.memberSetup.cache[select(2, br.functions.unit:getGUID("focus"))] then
-					table.sort(
-						br.engines.healingEngine.friend,
-						function(x)
-							if x.unit == "focus" then
-								return true
-							else
-								return false
+				-- Focus, then target, then mouseover each move to the front, so the order ends up
+				-- mouseover, target, focus, then everyone else by health
+				local friends = br.engines.healingEngine.friend
+				for _, special in ipairs({ "focus", "target", "mouseover" }) do
+					if br.functions.unit:GetUnitExists(special) and healingEngine.memberSetup.cache[select(2, br.functions.unit:getGUID(special))] then
+						for j = 1, #friends do
+							if friends[j].unit == special then
+								tinsert(friends, 1, tremove(friends, j))
+								break
 							end
 						end
-					)
-				end
-				if br.functions.unit:GetUnitExists("target") and healingEngine.memberSetup.cache[select(2, br.functions.unit:getGUID("target"))] then
-					table.sort(
-						br.engines.healingEngine.friend,
-						function(x)
-							if x.unit == "target" then
-								return true
-							else
-								return false
-							end
-						end
-					)
-				end
-				if br.functions.unit:GetUnitExists("mouseover") and healingEngine.memberSetup.cache[select(2, br.functions.unit:getGUID("mouseover"))] then
-					table.sort(
-						br.engines.healingEngine.friend,
-						function(x)
-							if x.unit == "mouseover" then
-								return true
-							else
-								return false
-							end
-						end
-					)
+					end
 				end
 			end
 			if br.engines.healingEngineFrame.pulseNovaDebugTimer == nil or br.engines.healingEngineFrame.pulseNovaDebugTimer <= GetTime() then

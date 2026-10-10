@@ -577,7 +577,7 @@ actionList.Defensive = function()
             if ui.checked("Wild Growth") and not unit.inCombat() and cast.able.wildGrowth() then
                 for i = 1, #br.engines.healingEngine.friend do
                     local wildGrowthUnit = br.engines.healingEngine.friend[i].unit
-                    local lowHealthCandidates = br.getUnitsToHealAround(wildGrowthUnit, 30, ui.value("Wild Growth"),
+                    local lowHealthCandidates = br.engines.healingEngineFunctions:getUnitsToHealAround(wildGrowthUnit, 30, ui.value("Wild Growth"),
                         #br.engines.healingEngine.friend)
                     if #lowHealthCandidates > 1 and not unit.moving() then
                         if unit.form() ~= 0 then
