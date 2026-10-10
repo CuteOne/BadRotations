@@ -237,15 +237,10 @@ local function resolveForm()
 end
 -- Break form for outOfFormSpellRef only if there is mana for it and for shifting back.
 -- emergency: survival heal - only require mana for the spell itself, not for shifting back.
-local function safeCancelForm(outOfFormSpellRef, reason, treatOutSpellAsFree, emergency)
+local function safeCancelForm(outOfFormSpellRef, treatOutSpellAsFree, emergency)
     if unit.exists("target") and unit.friend("target") then return false end
     local returnForm = (not emergency) and lastForm or nil
-    local leaving, sentNow = unit.cancelFormFor(outOfFormSpellRef, returnForm, treatOutSpellAsFree)
-    if leaving then
-        if sentNow then ui.debug("Cancel Form [" .. tostring(reason) .. "]") end
-        return true
-    end
-    return false
+    return unit.cancelFormFor(outOfFormSpellRef, returnForm, treatOutSpellAsFree)
 end
 
 -- Fleeing: running from any enemy within 10 yards that is chasing us
@@ -378,7 +373,7 @@ actionList.Extra = function()
         and not (buff.thorns.refresh() and ui.checked("Thorns"))
     then
         if buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() then
-            if safeCancelForm(spell.aquaticForm, "Swimming") then
+            if safeCancelForm(spell.aquaticForm) then
                 return true
             end
         end
@@ -397,7 +392,7 @@ actionList.Extra = function()
         and not (buff.thorns.refresh() and ui.checked("Thorns"))
     then
         if buff.catForm.exists() or buff.bearForm.exists() then
-            if safeCancelForm(spell.travelForm, "Travel") then
+            if safeCancelForm(spell.travelForm) then
                 return true
             end
         end
@@ -456,7 +451,7 @@ actionList.Extra = function()
             -- Cancel form if needed to buff
             local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
             if needsCancel then
-                if safeCancelForm(spell.markOfTheWild, "Mark of the Wild") then
+                if safeCancelForm(spell.markOfTheWild) then
                     return true
                 end
             else
@@ -477,7 +472,7 @@ actionList.Extra = function()
             -- Cancel form if needed to buff
             local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
             if needsCancel then
-                if safeCancelForm(spell.thorns, "Thorns") then
+                if safeCancelForm(spell.thorns) then
                     return true
                 end
             else
@@ -498,7 +493,7 @@ actionList.Defensive = function()
             and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player")
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.abolishPoison, "Abolish Poison") then
+                if safeCancelForm(spell.abolishPoison) then
                     return true
                 end
             else
@@ -512,7 +507,7 @@ actionList.Defensive = function()
             and cast.dispel.curePoison("player")
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.curePoison, "Cure Poison") then
+                if safeCancelForm(spell.curePoison) then
                     return true
                 end
             else
@@ -527,7 +522,7 @@ actionList.Defensive = function()
             and not unit.inCombat() and cast.dispel.removeCurse("player")
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.removeCurse, "Remove Curse") then
+                if safeCancelForm(spell.removeCurse) then
                     return true
                 end
             else
@@ -553,7 +548,7 @@ actionList.Defensive = function()
             and unit.distance("target") > 8 and unit.inCombat() and not unit.moving()
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.entanglingRoots, "Entangling Roots", freeDPS) then
+                if safeCancelForm(spell.entanglingRoots, freeDPS) then
                     return true
                 end
             else
@@ -582,7 +577,7 @@ actionList.Defensive = function()
             and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.regrowth, "Regrowth", freeHeal) then
+                if safeCancelForm(spell.regrowth, freeHeal) then
                     return true
                 end
             else
@@ -601,7 +596,7 @@ actionList.Defensive = function()
                 and unit.player("target") and buff.rejuvenation.refresh("target")
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if safeCancelForm(spell.rejuvenation, "Rejuvenation", freeHeal) then
+                    if safeCancelForm(spell.rejuvenation, freeHeal) then
                         return true
                     end
                 else
@@ -616,7 +611,7 @@ actionList.Defensive = function()
                 and (unit.solo() or ui.checked("Self Heal In Group"))
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if safeCancelForm(spell.rejuvenation, "Rejuvenation", freeHeal) then
+                    if safeCancelForm(spell.rejuvenation, freeHeal) then
                         return true
                     end
                 else
@@ -632,7 +627,7 @@ actionList.Defensive = function()
         if ui.checked("Healing Touch") and not cast.current.healingTouch() and not unit.moving() then
             if cast.able.healingTouch("target") and unit.friend("target") and unit.hp("target") <= ui.value("Healing Touch") and unit.player("target") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if safeCancelForm(spell.healingTouch, "Healing Touch", freeHeal, true) then
+                    if safeCancelForm(spell.healingTouch, freeHeal, true) then
                         return true
                     end
                 else
@@ -646,7 +641,7 @@ actionList.Defensive = function()
                 and (not unit.inGroup() or ui.checked("Self Heal In Group"))
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if safeCancelForm(spell.healingTouch, "Healing Touch", freeHeal, true) then
+                    if safeCancelForm(spell.healingTouch, freeHeal, true) then
                         return true
                     end
                 else

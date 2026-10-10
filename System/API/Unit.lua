@@ -113,16 +113,18 @@ br.api.unit = function(self)
     -- @param outOfFormSpell Spell reference (id/name/spell table) you intend to cast after breaking form.
     -- @param returnFormSpell Spell reference (id/name/spell table) to shift back into.
     -- @param treatOutSpellAsFree If true, treat out-of-form spell cost as 0 (e.g., Clearcasting).
-    -- @treturn boolean True if the form is being left: cancelled now, or a cancel is still on its way
-    --   (keep waiting rather than acting as if still in form).
-    -- @treturn boolean True only when the cancel was sent by this call.
+    -- @treturn boolean True while the form is being left: cancelled now, or a cancel still on its way
+    --   (keep waiting rather than acting as if still in form). Shows "Cancel Form [<spell>]" in
+    --   profile debug once, when the cancel is sent.
     unit.cancelFormFor = function(outOfFormSpell, returnFormSpell, treatOutSpellAsFree)
-        if br.functions.unit:isFormCancelPending() then return true, false end
+        if br.functions.unit:isFormCancelPending() then return true end
         if not unit.canCancelFormFor(outOfFormSpell, returnFormSpell, treatOutSpellAsFree) then
-            return false, false
+            return false
         end
-        local sent = unit.cancelForm()
-        return sent, sent
+        if not unit.cancelForm() then return false end
+        local spellRef = type(outOfFormSpell) == "table" and outOfFormSpell[1] or outOfFormSpell
+        br.functions.misc:addonDebug("Cancel Form [" .. tostring(br.api.wow.GetSpellInfo(spellRef) or spellRef) .. "]")
+        return true
     end
 
     --- Check if player can fly
