@@ -11,6 +11,7 @@ local enemyTable
 -- less than every threshold, so e.g. Druid biteAtEnd (`ttd < 6`) misread an
 -- unknown TTD as "target dies in <6s" and fired the wrong finisher.
 local TTD_NEVER = 999
+local lastRefreshAt, lastRefreshHP -- frame time and HP threshold of the last TTDRefresh
 
 function br.engines.ttdTable:TTDRefresh(hpLimit)
 	if not enemyTable then
@@ -89,7 +90,13 @@ function br.engines.ttdTable:getTTD(unit, hp)
 		return TTD_NEVER -- not yet in the enemies cache: unknown, treat as not-soon-dying
 	end
 	if br.functions.unit:isDummy() then return 99 end
-	ttdTable:TTDRefresh(hp)
+	-- TTDRefresh updates every enemy; values can't change within a frame, so do it once per frame.
+	-- It writes one shared table for its HP threshold, so a different threshold refreshes again.
+	local now = br._G.GetTime()
+	if now ~= lastRefreshAt or hp ~= lastRefreshHP then
+		lastRefreshAt, lastRefreshHP = now, hp
+		ttdTable:TTDRefresh(hp)
+	end
 	local thisUnit = unit
 	-- if thisUnit ~= nil then
 	-- 	if not string.find(thisUnit, "0x") or not type(thisUnit) == "number" then

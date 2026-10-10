@@ -577,7 +577,7 @@ function misc:enemyListCheck(Unit)
 	local mcCheck = (br.functions.misc:isChecked("Attack MC Targets") and (not br.functions.unit:GetUnitIsFriend(Unit, "player") or br._G.UnitIsCharmed(Unit))) or
 		not br.functions.unit:GetUnitIsFriend(Unit, "player")
 	local inPhase = phaseReason--not phaseReason or phaseReason == 2 or phaseReason == 3
-	if (br.functions.aura:UnitDebuffID("player", 320102) or br.functions.aura:UnitDebuffID(Unit, 424495)) and br._G.UnitIsPlayer(Unit) then
+	if br._G.UnitIsPlayer(Unit) and (br.functions.aura:UnitDebuffID("player", 320102) or br.functions.aura:UnitDebuffID(Unit, 424495)) then
 		return true
 	end
 	-- Check if unit was created by player, but allow quest NPCs that turn hostile (like Peak of Serenity monks)
@@ -706,7 +706,7 @@ function misc:isValidUnit(Unit)
 		or not br.functions.unit:GetUnitIsFriend(Unit, "player")
 
 	-- Early exit for PvP debuffs (special case)
-	if playerTarget and (br.functions.aura:UnitDebuffID("player", 320102) or br.functions.aura:UnitDebuffID(Unit, 424495)) and br._G.UnitIsPlayer(Unit) then
+	if playerTarget and br._G.UnitIsPlayer(Unit) and (br.functions.aura:UnitDebuffID("player", 320102) or br.functions.aura:UnitDebuffID(Unit, 424495)) then
 		if guid then isValidUnitCache[guid] = { value = true, time = now } end
 		return true
 	end

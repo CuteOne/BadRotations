@@ -331,6 +331,27 @@ end
 
 local threatCache = {}
 -- if br.functions.combat:hasThreat("target") then
+-- Whether a friendly unit has any threat on an enemy (caller has checked the enemy is visible)
+local function threatSituation(friendlyUnit, enemyUnit)
+	if not br._G.UnitIsVisible(friendlyUnit) then
+		return false
+	end
+	local status = br._G.UnitThreatSituation(friendlyUnit, enemyUnit)
+	-- Also check detailed threat situation as a fallback
+	if status == nil then
+		local _, _, _, _, threatPercent = br._G.UnitDetailedThreatSituation(friendlyUnit, enemyUnit)
+		-- If we have any threat percentage, consider it a valid threat situation
+		if threatPercent and threatPercent > 0 then
+			if br.functions.misc:isChecked("Threat Debug") then
+				br._G.print("[Detailed Threat] " .. br._G.UnitName(friendlyUnit) .. " has " ..
+					br.functions.misc:round2(threatPercent, 1) .. "% threat on " .. br._G.UnitName(enemyUnit))
+			end
+			return true
+		end
+	end
+	return status ~= nil
+end
+
 function combat:hasThreat(unit, playerUnit)
 	-- Early Exit
 	if unit == nil then return false end
@@ -378,26 +399,6 @@ function combat:hasThreat(unit, playerUnit)
 		targetFriend = (br.functions.misc:isTargeting(unit) or br._G.UnitName(targetUnit) == br._G.UnitName("player")
 			or (br.functions.unit:GetUnitExists("pet") and br._G.UnitName(targetUnit) == br._G.UnitName("pet"))
 			or br._G.UnitInParty(targetUnit) or br._G.UnitInRaid(targetUnit))
-	end
-
-	local function threatSituation(friendlyUnit, enemyUnit)
-		if not br._G.UnitIsVisible(friendlyUnit) or not br._G.UnitIsVisible(enemyUnit) then
-			return false
-		end
-		local status = br._G.UnitThreatSituation(friendlyUnit, enemyUnit)
-		-- Also check detailed threat situation as a fallback
-		if status == nil then
-			local _, _, _, _, threatPercent = br._G.UnitDetailedThreatSituation(friendlyUnit, enemyUnit)
-			-- If we have any threat percentage, consider it a valid threat situation
-			if threatPercent and threatPercent > 0 then
-				if br.functions.misc:isChecked("Threat Debug") then
-					br._G.print("[Detailed Threat] " .. br._G.UnitName(friendlyUnit) .. " has " ..
-						br.functions.misc:round2(threatPercent, 1) .. "% threat on " .. br._G.UnitName(enemyUnit))
-				end
-				return true
-			end
-		end
-		return status ~= nil
 	end
 
 	-- Validation Checks
@@ -461,8 +462,9 @@ function combat:hasThreat(unit, playerUnit)
 			end
 		end
 	end
-	-- Player Threat Validation
-	if not br.functions.unit:GetUnitIsDeadOrGhost(unit) and threatSituation(playerUnit, unit) then
+	-- Player Threat Validation (no one has threat on an enemy we can't see)
+	local enemyVisible = br._G.UnitIsVisible(unit)
+	if enemyVisible and not br.functions.unit:GetUnitIsDeadOrGhost(unit) and threatSituation(playerUnit, unit) then
 		if br.functions.misc:isChecked("Threat Debug") then --and not br.functions.unit:GetObjectExists("target") then
 			br._G.print("[Player Threat] " .. br._G.UnitName(playerUnit) .. " has threat with " .. br._G.UnitName(unit))
 		end
@@ -470,7 +472,7 @@ function combat:hasThreat(unit, playerUnit)
 		return true
 	end
 	-- Party/Raid Threat Validation
-	if not br.functions.unit:GetUnitIsDeadOrGhost(unit) and #br.engines.healingEngine.friend >= 1 then
+	if enemyVisible and not br.functions.unit:GetUnitIsDeadOrGhost(unit) and #br.engines.healingEngine.friend >= 1 then
 		for i = 1, #br.engines.healingEngine.friend do
 			if br.engines.healingEngine.friend[i] then
 				local thisUnit = br.engines.healingEngine.friend[i].unit

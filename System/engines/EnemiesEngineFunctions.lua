@@ -76,6 +76,18 @@ end
 -- work: the partition cache rebuild is one of the primary places .range gets
 -- refreshed. The partition cache is both a .range reader and writer, not just
 -- a reader; surface this when L26 is planned.
+-- Distance from the player to an engine entry: the stored range while it's under 0.25 s old,
+-- otherwise measured and stored back on the entry.
+local function entryDistanceFromPlayer(v, now, rangeFuncs)
+	if v.range ~= nil and v.timestamp ~= nil and (now - v.timestamp) <= 0.25 then
+		return v.range
+	end
+	local d = rangeFuncs:getDistance("player", v.unit)
+	v.range = d
+	v.timestamp = now
+	return d
+end
+
 local function rebuildPartitionCache(sourceKey, targetRadius, unitFuncs, rangeFuncs, targetIsDummy)
 	local sourceTable = (sourceKey == "units")
 		and br.engines.enemiesEngine.units
@@ -85,14 +97,7 @@ local function rebuildPartitionCache(sourceKey, targetRadius, unitFuncs, rangeFu
 	for _, v in pairs(sourceTable) do
 		local vUnit = v and v.unit
 		if vUnit and not unitFuncs:GetUnitIsDeadOrGhost(vUnit) then
-			local d
-			if v.range ~= nil and v.timestamp ~= nil and (now - v.timestamp) <= 0.25 then
-				d = v.range
-			else
-				d = rangeFuncs:getDistance("player", vUnit)
-				v.range = d
-				v.timestamp = now
-			end
+			local d = entryDistanceFromPlayer(v, now, rangeFuncs)
 			if d and d < targetRadius then
 				entries[#entries + 1] = {
 					unit    = vUnit,
@@ -483,13 +488,15 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 		-- the lexical association between cap and the fallback it bounds.
 		local fallbackCount = 0
 		local fallbackCap = 30
+		local now = br._G.GetTime()
 		for _, v in pairs(br.engines.enemiesEngine.units) do
 			if fallbackCount >= fallbackCap then break end
 			local thisEnemy = v.unit
 			if dummyAllowed(thisEnemy, targetIsDummy)
 				and br.functions.unit:GetUnitExists(thisEnemy)
 				and not br.functions.unit:GetUnitIsDeadOrGhost(thisEnemy) then
-				local distance = br.functions.range:getDistance(thisUnit, thisEnemy)
+				local distance = thisUnit == "player" and entryDistanceFromPlayer(v, now, br.functions.range)
+					or br.functions.range:getDistance(thisUnit, thisEnemy)
 				if distance < radius and (not facing or br.functions.unit:getFacing("player", thisEnemy)) then
 					-- Check if this enemy has threat on us or is targeting us
 					if br.functions.combat:hasThreat(thisEnemy) or br.functions.misc:isTargeting(thisEnemy) then
@@ -501,7 +508,8 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 		end
 	end
 	---
-	if #enemiesTable > 0 and thisUnit ~= nil then
+	-- Empty results are cached too: an empty query otherwise reruns the threat fallback scan on every call
+	if thisUnit ~= nil then
 		if br.engines.enemiesEngine.storedTables[checkNoCombat] == nil then br.engines.enemiesEngine.storedTables[checkNoCombat] = {} end
 		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] == nil then br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] = {} end
 		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] == nil then br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] = {} end
@@ -590,12 +598,11 @@ function enemiesEngineFunctions:isSafeToAttack(unit)
 			if noTouch.unitID == 1 or noTouch.unitID == unitID then
 				if noTouch.buff == nil then return false end --If a unit exist in the list without a buff it's just blacklisted
 				if noTouch.buff > 0 then
-					local unitTTD = br.engines.ttdTable:getTTD(unit) or 0
 					-- Not Safe with Buff/Debuff
 					if br.functions.aura:UnitBuffID(unit, noTouch.buff) or br.functions.aura:UnitDebuffID(unit, noTouch.buff)
-						-- Bursting M+ Affix
-						or (unitTTD <= br.functions.aura:getDebuffRemain("player", 240443) + (br.functions.spell:getGlobalCD(true) * 2)
-							and br.functions.aura:getDebuffStacks("player", 240443) >= br.functions.misc:getOptionValue("Bursting Stack Limit"))
+						-- Bursting M+ Affix (stacks first: time to die is only needed when they're high)
+						or (br.functions.aura:getDebuffStacks("player", 240443) >= br.functions.misc:getOptionValue("Bursting Stack Limit")
+							and (br.engines.ttdTable:getTTD(unit) or 0) <= br.functions.aura:getDebuffRemain("player", 240443) + (br.functions.spell:getGlobalCD(true) * 2))
 					then
 						return false
 					end
