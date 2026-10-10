@@ -323,21 +323,6 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	return enemiesTable
 end
 
--- function to see if our unit is a blacklisted unit
-function enemiesEngineFunctions:isBlackListed(Unit)
-	-- check if unit is valid
-	if br.functions.unit:GetObjectExists(Unit) then
-		for i = 1, #br.castersBlackList do
-			-- check if unit is valid
-			if br.functions.unit:GetObjectExists(br.castersBlackList[i].unit) then
-				if br.castersBlackList[i].unit == Unit then
-					return true
-				end
-			end
-		end
-	end
-end
-
 -- returns true if target should be burnt
 function enemiesEngineFunctions:isBurnTarget(unit)
 	local coef = 0
@@ -375,7 +360,7 @@ function enemiesEngineFunctions:isCrowdControlCandidates(Unit)
 		for i = 1, #crowdControlUnit do
 			local thisUnit = crowdControlUnit[i]
 			-- is in the list of candidates
-			if thisUnit.spell == nil or br.functions.cast:isCasting(thisUnit.spell, Unit) or br.functions.aura:UnitBuffID(thisUnit.buff) then -- doesnt have more requirements or requirements are met
+			if thisUnit.spell == nil or br.functions.cast:isCasting(thisUnit.spell, Unit) or br.functions.aura:UnitBuffID(Unit, thisUnit.buff) then -- doesnt have more requirements or requirements are met
 				return true
 			end
 		end
@@ -405,7 +390,7 @@ function enemiesEngineFunctions:isSafeToAttack(unit)
 				else
 					-- Not Safe without Buff/Debuff
 					local posBuff = -(noTouch.buff)
-					if not br.functions.aura:UnitBuffID(unit, posBuff) or not br.functions.aura:UnitDebuffID(unit, posBuff) then
+					if not (br.functions.aura:UnitBuffID(unit, posBuff) or br.functions.aura:UnitDebuffID(unit, posBuff)) then
 						return false
 					end
 				end
@@ -652,17 +637,18 @@ local function findBestUnit(range, facing)
 		_compareData[u] = { hp = br._G.UnitHealth(u), dist = br.functions.range:getDistance(u) or 999 }
 	end
 
-	-- Limit processing to prevent long loops in very large pulls
-	local maxProcess = math.min(#enemyList, 20)
-	if #enemyList > maxProcess then
+	-- Sort every candidate, then weigh only the first 20 (and the current target wherever it sorted):
+	-- in very large pulls the coefficients are the costly part. Cutting before sorting kept an
+	-- arbitrary 20 and could drop the best unit.
+	tsort(enemyList, compare)
+	if #enemyList > 20 then
 		local subset = {}
-		for i = 1, maxProcess do
-			subset[i] = enemyList[i]
+		for i = 1, #enemyList do
+			if i <= 20 or br.functions.unit:GetUnitIsUnit(enemyList[i], "target") then subset[#subset + 1] = enemyList[i] end
 		end
+		for i = 21, #enemyList do _compareData[enemyList[i]] = nil end
 		enemyList = subset
 	end
-
-	tsort(enemyList, compare)
 
 	local currHP
 	for i = 1, #enemyList do
@@ -827,31 +813,6 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 	return bestUnit
 end
 
-local function angleDifference(unit1, unit2)
-	local facing = br.functions.unit:GetObjectFacing(unit1)
-	local distance = br.functions.range:getDistance(unit1, unit2)
-	local unit1X, unit1Y, unit1Z = br.functions.unit:GetObjectPosition(unit1)
-	local unit2X, unit2Y, _ = br.functions.unit:GetObjectPosition(unit2)
-	local pX, pY, _ = br._G.GetPositionFromPosition(unit1X, unit1Y, unit1Z, distance, facing, 0)
-	local vectorAX, vectorAY = unit1X - pX, unit1Y - pY
-	local vectorBX, vectorBY = unit1X - unit2X, unit1Y - unit2Y
-	local dotProduct = function(ax, ay, bx, by)
-		return (ax * bx) + (ay * by)
-	end
-	local vectorProduct = dotProduct(vectorAX, vectorAY, vectorBX, vectorBX)
-	---@diagnostic disable-next-line: deprecated
-	local magnitudeA = math.pow(dotProduct(vectorAX, vectorAY, vectorAX, vectorAY), 0.5)
-	---@diagnostic disable-next-line: deprecated
-	local magnitudeB = math.pow(dotProduct(vectorBX, vectorBY, vectorBX, vectorBY), 0.5)
-	local angle = math.acos((vectorProduct / magnitudeB) / magnitudeA)
-	local finalAngle = (angle * 57.2958) % 360
-	if (finalAngle - 180) >= 0 then return 360 - finalAngle else return finalAngle end
-end
-local function isWithinAngleDifference(unit1, unit2, angle)
-	local angleDiff = angleDifference(unit1, unit2)
-	return angleDiff <= angle
-end
-
 -- Cone Logic for Enemies
 local coneUnits = {}
 function enemiesEngineFunctions:getEnemiesInCone(angle, length, checkNoCombat, showLines)
@@ -890,7 +851,6 @@ function enemiesEngineFunctions:getEnemiesInCone(angle, length, checkNoCombat, s
 				end
 			end
 			if inside then
-				-- if isWithinAngleDifference("player", thisUnit, angle) then
 				if showLines then
 					LibDraw.Circle(unitX, unitY, playerZ, br._G.UnitBoundingRadius(thisUnit))
 				end
@@ -908,7 +868,7 @@ end
 local rectUnits = {}
 function enemiesEngineFunctions:getEnemiesInRect(width, length, showLines, checkNoCombat)
 	local px, py, pz = br.functions.unit:GetObjectPosition("player")
-	if px == nil or py == nil or pz == nil then return {} end
+	if px == nil or py == nil or pz == nil then return 0, {} end
 	local function getRect(width, length)
 		local facing = br.functions.unit:GetObjectFacing("player") or 0
 		local halfWidth = width / 2
@@ -963,77 +923,4 @@ function enemiesEngineFunctions:getEnemiesInRect(width, length, showLines, check
 		end
 	end
 	return enemyCounter, rectUnits
-end
-
--- -- local function intersects(circle, rect)
--- local function intersects(tX,tY,tR,aX,aY,cX,cY)
--- 	-- if circle ~= nil then
--- 	local circleDistance_x = math.abs(tX + tR - aX - (aX - cX)/2)
--- 	local circleDistance_y = math.abs(tY + tR - aY - (aY - cY)/2)
-
--- 	if (circleDistance_x > ((aX - cX)/2 + tR)) then
--- 		return false
--- 	end
--- 	if (circleDistance_y > ((aY - cY)/2 + tR)) then
--- 		return false
--- 	end
-
--- 	if (circleDistance_x <= ((aX - cX)/2)) then
--- 		return true
--- 	end
-
--- 	if (circleDistance_y <= ((aY - cY)/2)) then
--- 		return true
--- 	end
-
--- 	local cornerDistance_sq = (circleDistance_x - (aX - cX)/2)^2 + (circleDistance_y - (aY - cY)/2)^2
-
--- 	return (cornerDistance_sq <= (tR^2));
--- 	-- else
--- 	--     return false
--- 	-- end
--- end
-
--- Percentage of enemies that are not in execute HP range
-function enemiesEngineFunctions:getNonExecuteEnemiesPercent(executeHP)
-	local executeCount = 0
-	local nonexecuteCount = 0
-	local nonexecutePercent = 0
-
-	for k, _ in pairs(br.engines.enemiesEngine.enemy) do
-		local thisUnit = br.engines.enemiesEngine.enemy[k]
-		if br.functions.unit:GetObjectExists(thisUnit.unit) then
-			if br.functions.unit:getHP(thisUnit) < executeHP then
-				executeCount = executeCount + 1
-			else
-				nonexecuteCount = nonexecuteCount + 1
-			end
-		end
-	end
-	local divisor = executeCount + nonexecuteCount
-	if divisor > 0 then
-		nonexecutePercent = nonexecuteCount / divisor
-	end
-	return nonexecutePercent
-end
-
--- Tracks AoE Damage
-function enemiesEngineFunctions:AoEDamageTracker()
-	for i = 1, #br.lists.AoEDamage do
-		if br.functions.DBM:getTimer(br.lists.AoEDamage[i]) ~= 999 then
-			br.curAoESpell = br.lists.AoEDamage[i]
-			if br.lastAoESpell == nil then
-				br.lastAoESpell = br.curAoESpell
-			end
-			if br.curAoESpell == br.lastAoeSpell then
-				if br.burstCount == nil then br.burstCount = 0 end
-				br.burstCount = br.burstCount + 1
-			else
-				br.lastAoESpell = br.curAoESpell
-				br.burstCount = 1
-			end
-			return br.functions.DBM:getTimer(br.lists.AoEDamage[i]), br.burstCount
-		end
-	end
-	return -1
 end
