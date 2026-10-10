@@ -214,22 +214,15 @@ end
 -- <param name="SpellID">ID of spell to ground cast</param>
 -- <returns>Returns if successfully tried to cast</returns>
 function healingEngineFunctions:castGroundAtLocation(loc, SpellID)
-    br._G.CastSpellByName(br.api.wow.GetSpellInfo(SpellID))
-    --local mouselookup = IsMouseButtonDown(2)
-	--MouselookStop()
-	local px,py,pz = br._G.ObjectPosition("player")
-	local hit1x,hit1y,hit1z = br._G.TraceLine(loc.x, loc.y, loc.z+5, loc.x, loc.y, loc.z-5, 0x110) -- Raytrace correct z, Terrain and WMO hit
-	if hit1z ~= nil and
-		br._G.TraceLine(px, py, pz+2, loc.x, loc.y, loc.z+1, 0x100010) == nil and
-		br._G.TraceLine(loc.x, loc.y, loc.z+4, loc.x, loc.y, loc.z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
-		if br._G.SpellIsTargeting() then
-			br._G.ClickPosition(loc.x,loc.y,hit1z)
-		end
-		--if mouselookup then MouselookStart() end
-		if br._G.SpellIsTargeting() then
-			br._G.SpellStopTargeting()
-			br.functions.misc:addonDebug("Canceling Spell", true)
-		end
-		return true
+	-- Check the spot first: the ground's height there, line of sight to it, and nothing standing on it.
+	-- (This used to start the targeting cursor before checking, and left it up when a check failed.)
+	local px, py, pz = br._G.ObjectPosition("player")
+	local _, _, groundZ = br._G.TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110) -- terrain and WMO
+	if groundZ == nil
+		or br._G.TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) ~= nil -- line of sight, ignoring M2s
+		or br._G.TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) ~= nil -- no M2 on the spot
+	then
+		return false
 	end
+	return br.functions.cast:castAtPosition(loc.x, loc.y, groundZ, SpellID)
 end

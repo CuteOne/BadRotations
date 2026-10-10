@@ -109,23 +109,10 @@ if not healingEngine.metaTable1 then
 		end
 		return false
 	end
-	local function CheckCreatureType(tar)
-		local CreatureTypeList = {"Critter", "Totem", "Non-combat Pet", "Wild Pet"}
-		for i = 1, #CreatureTypeList do
-			if br._G.UnitCreatureType(tar) == CreatureTypeList[i] then
-				return false
-			end
-		end
-		if not br._G.UnitIsBattlePet(tar) and not br._G.UnitIsWildBattlePet(tar) then
-			return true
-		else
-			return false
-		end
-	end
 	-- Verifying the target is a Valid Healing target
 	function healingEngine:HealCheck(tar)
 		if
-			(br.functions.unit:GetUnitIsVisible(tar) and br.functions.unit:GetUnitReaction("player", tar) > 4 and not br.functions.unit:GetUnitIsDeadOrGhost(tar) and br.functions.misc:getLineOfSight("player", tar) and CheckCreatureType(tar) and
+			(br.functions.unit:GetUnitIsVisible(tar) and br.functions.unit:GetUnitReaction("player", tar) > 4 and not br.functions.unit:GetUnitIsDeadOrGhost(tar) and br.functions.misc:getLineOfSight("player", tar) and br.functions.unit:getCreatureType(tar) and
 				br._G.UnitInPhase(tar)) and
 				((br.functions.misc:isPlayer(tar) and br._G.UnitIsConnected(tar) and CheckBadDebuff(tar) and not br._G.UnitIsCharmed(tar) and not br._G.UnitIsOtherPlayersPet(tar)) or
 					((GetUnitIsUnit(tar,"pet") or br._G.UnitIsOtherPlayersPet(tar)) and br.functions.misc:getOptionCheck("Heal Pets")) or
