@@ -190,6 +190,22 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 		E.queuedBehindCast = castBeforeKey
 	end
 
+	-- Sent: its costs are promised until the client charges them (see E.promiseCosts)
+	if (castSucceeded or (details and details.inconclusive))
+		and not (br.player and br.player.buff and br.player.buff.clearcasting and br.player.buff.clearcasting.exists())
+	then
+		local now = br._G.GetTime()
+		local hold = br.functions.misc:getRoundTripHold(ctx.latency)
+		local _, _, _, _, castEnd = br._G.UnitCastingInfo("player")
+		if castBeforeKey == nil and br._G.IsCurrentSpell and br._G.IsCurrentSpell(ctx.spellID) and castEnd == nil then
+			E.promiseCosts(ctx.spellID, now + 6, true)          -- on-next-swing: until the swing
+		elseif castEnd then
+			E.promiseCosts(ctx.spellID, castEnd / 1000 + hold)  -- cast-time, or pre-cast behind a cast
+		else
+			E.promiseCosts(ctx.spellID, now + hold)             -- instant: until the server's reply
+		end
+	end
+
 	if castSucceeded then
 		local sameSpellCastRemain = E.getSameSpellCastRemain(ctx.spellID)
 		if sameSpellCastRemain > 0 then

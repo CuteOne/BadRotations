@@ -354,6 +354,21 @@ function power:getSpellCost(spell)
 	end
 end
 
+-- Every resource a spell costs right now, as a list of { type = power type, amount = cost }
+-- (a spell can cost two, such as energy and combo points); costs of 0 are left out.
+function power:getSpellCosts(spellID)
+	local costs = {}
+	local list = br._G.C_Spell.GetSpellPowerCost(spellID)
+	if type(list) ~= "table" then return costs end
+	for _, entry in ipairs(list) do
+		local amount = entry.minCost or entry.cost or 0
+		if entry.type ~= nil and amount > 0 then
+			costs[#costs + 1] = { type = entry.type, amount = amount }
+		end
+	end
+	return costs
+end
+
 function power:hasResources(spell, offset)
 	local cost, _, costtype = br.functions.power:getSpellCost(spell)
 	offset = offset or 0

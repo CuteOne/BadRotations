@@ -230,6 +230,64 @@ function cast:isQueuedBehind(castID, endTime)
 	return key ~= nil and key == E.queuedBehindCast
 end
 
+-- ─────────────────────────────────────────────────────────────────────────────
+-- SECTION: Power already promised to casts the client hasn't charged yet
+--
+-- A spell's cost leaves the player's power only when the server confirms it (an instant: a round
+-- trip later), when its cast ends (cast-time spells, and spells pre-cast behind the current cast),
+-- or when the swing lands (Maul, Heroic Strike and other on-next-swing attacks). Until then the
+-- client still shows the power as available, so a second spell could be sent with power the first
+-- one will take: Demoralizing Roar sent, then Maul queued on the same rage, then Maul failing at the
+-- swing with "Not enough rage". Like a player keeping a tally, each send records its costs here
+-- and the usability gate requires current power minus what's promised to cover the next spell.
+-- ─────────────────────────────────────────────────────────────────────────────
+E.promised = {} -- { spellID, type, amount, untilTime, swing }
+
+-- Drop promises that have been charged (time passed, or the queued swing landed / dropped off)
+local function prunePromised(now)
+	local promised = E.promised
+	for i = #promised, 1, -1 do
+		local entry = promised[i]
+		local done = now > entry.untilTime
+			or (entry.swing and not (br._G.IsCurrentSpell and br._G.IsCurrentSpell(entry.spellID)))
+		if done then table.remove(promised, i) end
+	end
+end
+
+-- Record a sent spell's costs. kind: "swing" (on-next-swing attack, held until it lands), or a
+-- time the cost will have been charged by.
+function E.promiseCosts(spellID, untilTime, swing)
+	local costs = br.functions.power:getSpellCosts(spellID)
+	for i = 1, #costs do
+		E.promised[#E.promised + 1] = { spellID = spellID, type = costs[i].type, amount = costs[i].amount,
+			untilTime = untilTime, swing = swing }
+	end
+end
+
+-- Can the player pay for spellID after what earlier casts have been promised? Returns true, or
+-- false and a description. Free when nothing is promised (the usual case).
+function E.affordableAfterPromised(spellID)
+	if #E.promised == 0 then return true end
+	prunePromised(br._G.GetTime())
+	if #E.promised == 0 then return true end
+	local costs = br.functions.power:getSpellCosts(spellID)
+	for i = 1, #costs do
+		local cost = costs[i]
+		local promised = 0
+		for _, entry in ipairs(E.promised) do
+			if entry.type == cost.type and entry.spellID ~= spellID then promised = promised + entry.amount end
+		end
+		if promised > 0 then
+			local current = br._G.UnitPower("player", cost.type)
+			local secret = br._G.issecretvalue and br._G.issecretvalue(current)
+			if type(current) == "number" and not secret and current - promised < cost.amount then
+				return false, string.format("power %d, %d promised to earlier casts, cost %d", current, promised, cost.amount)
+			end
+		end
+	end
+	return true
+end
+
 function E.shouldPrintCastDebug()
 	return br.functions.misc and (br.functions.misc:isChecked("Cast Debug") or br.functions.misc:isChecked("Display Failcasts"))
 end

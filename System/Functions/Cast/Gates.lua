@@ -256,18 +256,25 @@ local function gateUsable(ctx, thisUnit, castType, allTalents, allSpells) -- lua
 		end
 		return true
 	end
+	-- Clearcasting / Omen of Clarity: the next cast is free, so promised power doesn't matter
+	local freeCast = br.player and br.player.buff and br.player.buff.clearcasting
+		and br.player.buff.clearcasting.exists()
 	-- IsSpellUsable returns false when the player lacks resources, wrong form, etc.
 	-- nil means "usable but no resource requirement" — treat as pass.
-	if ctx.isUsable ~= false then return true end
+	if ctx.isUsable ~= false then
+		if freeCast then return true end
+		-- Power earlier casts have taken but the client hasn't charged yet isn't available
+		local affordable, detail = E.affordableAfterPromised(ctx.spellID)
+		if affordable then return true end
+		return false, "NOT_USABLE", detail
+	end
 	-- Clearcasting / free-next-cast fix: IsSpellUsable reports a spell as unusable when we
 	-- can't afford its BASE cost, even though an Omen-of-Clarity-style proc makes the next
 	-- cast free (TBC's IsSpellUsable does not pre-account for the proc, so a low-energy Shred
 	-- during Clearcasting would otherwise be skipped). Bypass ONLY when the sole failure is
 	-- insufficient power (not a wrong-form/other failure) AND the active spec has a live
 	-- clearcasting buff. Nil-guarded so specs without a "clearcasting" buff are unaffected.
-	if ctx.insufficientPower and br.player and br.player.buff and br.player.buff.clearcasting
-		and br.player.buff.clearcasting.exists()
-	then
+	if ctx.insufficientPower and freeCast then
 		return true
 	end
 	return false, "NOT_USABLE",
