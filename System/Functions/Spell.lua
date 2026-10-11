@@ -461,7 +461,7 @@ function spell:getRacial(thisRace)
         race = flipRace()
     end
 
-    -- Read static racial IDs from the list; fall back to hardcoded values if the list isn't loaded yet.
+    -- Racial IDs from the list (br.lists.racials)
     local r = (br.lists and br.lists.racials) or {}
 
     -- Three racials have IDs that vary by rank/level and must be resolved dynamically.
@@ -471,15 +471,15 @@ function spell:getRacial(thisRace)
     -- retail has no spell ranks so baseID is already the canonical spell ID.
     local BloodElfRacial, DraeneiRacial, OrcRacial
     if race == "BloodElf" or race == thisRace then
-        local baseID = r._bloodElfBase or 69179
+        local baseID = r._bloodElfBase
         BloodElfRacial = select(7, br.api.wow.GetSpellInfo(baseID))
     end
     if race == "Draenei" or race == thisRace then
-        local baseID = r._draeneiBase or 28880
+        local baseID = r._draeneiBase
         DraeneiRacial = select(7, br.api.wow.GetSpellInfo(baseID))
     end
     if race == "Orc" or race == thisRace then
-        local baseID = r._orcBase or 33702
+        local baseID = r._orcBase
         OrcRacial = select(7, br.api.wow.GetSpellInfo(baseID))
     end
 
