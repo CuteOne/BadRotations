@@ -116,6 +116,9 @@ br.api.cast = function(self, spell, id)
     -- @function cast.auto.spell
     -- @treturn boolean
     cast.auto[spell] = function()
+        -- Auto attack: the game's own on/off events, since the Attack spell stops being "current"
+        -- while Maul / Heroic Strike is queued (profiles then restarted attacking mid-fight)
+        if spell == "autoAttack" and br.functions.unit:isAutoAttacking() then return true end
         return br._G.C_Spell.IsAutoRepeatSpell(br.api.wow.GetSpellInfo(resolvedID)) or br._G.C_Spell.IsCurrentSpell(resolvedID)
     end
 

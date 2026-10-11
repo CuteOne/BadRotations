@@ -762,6 +762,13 @@ end
 
 -- When BR last cancelled the player's shapeshift form. The form's buff only goes once the server
 -- replies, so for a round trip the form still looks active and a rotation would cancel it again.
+-- Whether the player is auto-attacking, from the game's PLAYER_ENTER_COMBAT / PLAYER_LEAVE_COMBAT
+-- (readers/common.lua). IsCurrentSpell on the Attack spell reads false while an on-next-swing
+-- attack (Maul, Heroic Strike) is queued, so it can't answer this on its own.
+local autoAttacking = false
+function unit:setAutoAttacking(on) autoAttacking = on and true or false end
+function unit:isAutoAttacking() return autoAttacking end
+
 -- Kept apart from the cast throttles (castTimers / intent locks): a cancel isn't a cast, and locking
 -- the form's spell would also block casting that form and be cleared by unrelated cast errors.
 local formCancelSentAt = -math.huge

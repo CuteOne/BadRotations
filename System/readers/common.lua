@@ -12,6 +12,9 @@ local _uiErrFrame       = br._G.CreateFrame("Frame"); _uiErrFrame:RegisterEvent(
 local _superFrame       = br._G.CreateFrame("Frame")
 _superFrame:RegisterEvent("CHAT_MSG_ADDON")
 _superFrame:RegisterEvent("PLAYER_STARTED_MOVING")
+-- Auto-attack starting and stopping (unit:isAutoAttacking)
+_superFrame:RegisterEvent("PLAYER_ENTER_COMBAT")
+_superFrame:RegisterEvent("PLAYER_LEAVE_COMBAT")
 _superFrame:RegisterEvent("PLAYER_STOPPED_MOVING")
 _superFrame:RegisterEvent("PLAYER_TOTEM_UPDATE")
 _superFrame:RegisterEvent("UNIT_AURA")
@@ -305,6 +308,11 @@ function common:commonReaders()
 		-- Azerite Essence
 		if event == "AZERITE_ESSENCE_ACTIVATED" and br.player then
 			br.player.updatePlayer = true
+		end
+		-- Auto-attack on / off
+		if event == "PLAYER_ENTER_COMBAT" or event == "PLAYER_LEAVE_COMBAT" then
+			br.functions.unit:setAutoAttacking(event == "PLAYER_ENTER_COMBAT")
+			return
 		end
 		-- Player moving
 		if event == "PLAYER_STARTED_MOVING" then
