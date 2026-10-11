@@ -109,19 +109,51 @@ function unit:getSpellUnit(spellCast, aoe, minRange, maxRange, spellType)
 	return "None"
 end
 
--- if getCreatureType(Unit) == true then
+-- Creature types, by the ID UnitCreatureType returns as its second value. Clients that return only the
+-- (localized) name are matched by these names instead.
+local creatureTypes = {
+	beast        = { id = 1,  names = { "Beast", "Wildtier", "Bestia", "Bête", "Fera", "Животное", "야수", "野兽", "野獸" } },
+	dragonkin    = { id = 2,  names = { "Dragonkin" } },
+	demon        = { id = 3,  names = { "Demon", "Dämon", "Demonio", "Démon", "Demone", "Demônio", "Демон", "악마", "恶魔", "惡魔" } },
+	elemental    = { id = 4,  names = { "Elemental", "Elementar", "Élémentaire", "Elementare", "Элементаль", "정령", "元素生物" } },
+	undead       = { id = 6,  names = { "Undead", "Untoter", "Mort-vivant", "언데드", "No-muerto", "Morto-vivo", "Non Morto", "Нежить", "亡灵", "不死族" } },
+	humanoid     = { id = 7,  names = { "Humanoid", "Humanoide", "Humanoïde", "Umanoide", "Гуманоид", "인간형", "人型生物" } },
+	critter      = { id = 8,  names = { "Critter", "Kleintier", "Alma", "Bestiole", "Animale", "Bicho", "Существо", "동물", "小动物", "小動物" } },
+	totem        = { id = 11, names = { "Totem", "Tótem", "Totém", "Тотем", "토템", "图腾", "圖騰" } },
+	nonCombatPet = { id = 12, names = { "Non-combat Pet" } },
+	wildPet      = { id = 14, names = { "Wild Pet", "Ungezähmtes Tier", "Mascotte sauvage" } },
+	aberration   = { id = 15, names = { "Aberration" } },
+}
+local creatureTypeByName = {}
+for _, creatureType in pairs(creatureTypes) do
+	for _, name in ipairs(creatureType.names) do creatureTypeByName[name] = creatureType.id end
+end
+
+-- The unit's creature type ID, or nil when it has none the game reports.
+-- if br.functions.unit:getCreatureTypeID("target") == 1 then
+function unit:getCreatureTypeID(Unit)
+	local name, id = br._G.UnitCreatureType(Unit)
+	if id ~= nil then return id end
+	return name and creatureTypeByName[name]
+end
+
+-- True when the unit is of that creature type: "beast", "dragonkin", "demon", "elemental", "undead",
+-- "humanoid", "critter", "totem", "nonCombatPet", "wildPet" or "aberration".
+-- if br.functions.unit:isCreatureType("target", "beast") then
+function unit:isCreatureType(Unit, typeName)
+	return unit:getCreatureTypeID(Unit or "target") == creatureTypes[typeName].id
+end
+
+-- False for critters, totems and pets (battle pets included); true for everything else.
+-- if br.functions.unit:getCreatureType(Unit) == true then
 function unit:getCreatureType(Unit)
-	local CreatureTypeList = { "Critter", "Totem", "Non-combat Pet", "Wild Pet" }
-	for i = 1, #CreatureTypeList do
-		if br._G.UnitCreatureType(Unit) == CreatureTypeList[i] then
-			return false
-		end
-	end
-	if not br._G.UnitIsBattlePet(Unit) and not br._G.UnitIsWildBattlePet(Unit) then
-		return true
-	else
+	local id = unit:getCreatureTypeID(Unit)
+	if id == creatureTypes.critter.id or id == creatureTypes.totem.id or id == creatureTypes.nonCombatPet.id
+		or id == creatureTypes.wildPet.id
+	then
 		return false
 	end
+	return not br._G.UnitIsBattlePet(Unit) and not br._G.UnitIsWildBattlePet(Unit)
 end
 
 -- if br.functions.unit:getFacing("target","player") == false then
@@ -232,8 +264,7 @@ function unit:getUnitID(Unit)
 end
 
 function unit:isAberration(Unit)
-	if Unit == nil then Unit = "target" end
-	return br._G.UnitCreatureType(Unit) == "Aberration"
+	return unit:isCreatureType(Unit, "aberration")
 end
 
 function unit:isInstanceBoss(unit)
@@ -294,46 +325,13 @@ function unit:isBoss(unit)
 				or (class == "elite" and ((healthMax > 4 * pHealthMax and instance ~= "raid") or instance == "scenario")) or (br._G.UnitLevel(unit) and br._G.UnitLevel(unit) < 0)))
 end
 
-local critterTypes = {
-	["Critter"] = true,
-	["Kleintier"] = true,
-	["Alma"] = true,
-	["Bestiole"] = true,
-	["Animale"] = true,
-	["Bicho"] = true,
-	["Существо"] = true,
-	["동물"] = true,
-	["小动物"] = true,
-	["小動物"] = true,
-	["Wild Pet"] = true,
-	["Ungezähmtes Tier"] = true,
-	["Mascotte sauvage"] = true
-}
+-- Critters and wild pets
 function unit:isCritter(Unit)
-	if Unit == nil then Unit = "target" end
-	return critterTypes[br._G.UnitCreatureType(Unit)] or false
+	return unit:isCreatureType(Unit, "critter") or unit:isCreatureType(Unit, "wildPet")
 end
 
 function unit:isDemon(Unit)
-	if Unit == nil then Unit = "target" end
-	local isDemon = false
-	local unitType = br._G.UnitCreatureType(Unit)
-	local types = {
-		"Demon",
-		"Dämon",
-		"Demonio",
-		"Démon",
-		"Demone",
-		"Demônio",
-		"Демон",
-		"악마",
-		"恶魔",
-		"惡魔"
-	}
-	for i = 1, #types do
-		if types[i] == unitType then isDemon = true end
-	end
-	return isDemon
+	return unit:isCreatureType(Unit, "demon")
 end
 
 function unit:isExplosive(Unit)
@@ -341,73 +339,19 @@ function unit:isExplosive(Unit)
 end
 
 function unit:isUndead(Unit)
-	if Unit == nil then Unit = "target" end
-	local isUndead = false
-	local unitType = br._G.UnitCreatureType(Unit)
-	local types = {
-		"Undead",
-		"Untoter",
-		"Mort-vivant",
-		"언데드",
-		"No-muerto",
-		"Morto-vivo",
-		"Non Morto",
-		"Нежить",
-		"亡灵",
-		"不死族",
-	}
-	for i = 1, #types do
-		if types[i] == unitType then isUndead = true end
-	end
-	return isUndead
+	return unit:isCreatureType(Unit, "undead")
 end
 
 function unit:isBeast(Unit)
-	if Unit == nil then Unit = "target" end
-	local isBeast = false
-	local unitType = br._G.UnitCreatureType(Unit)
-	local types = {
-		"Beast",
-		"Wildtier",
-		"Bestia",
-		"Bête",
-		"Fera",
-		"Животное",
-		"야수",
-		"野兽",
-		"野獸"
-	}
-	for i = 1, #types do
-		if types[i] == unitType then isBeast = true end
-	end
-	return isBeast
+	return unit:isCreatureType(Unit, "beast")
 end
 
--- Dragonkin (creature type 2). The type ID comes second from UnitCreatureType on current clients;
--- the English name covers clients that only return the name.
 function unit:isDragonkin(Unit)
-	if Unit == nil then Unit = "target" end
-	local typeName, typeID = br._G.UnitCreatureType(Unit)
-	return typeID == 2 or typeName == "Dragonkin"
+	return unit:isCreatureType(Unit, "dragonkin")
 end
 
 function unit:isHumanoid(Unit)
-	if Unit == nil then Unit = "target" end
-	local isHumanoid = false
-	local unitType = br._G.UnitCreatureType(Unit)
-	local types = {
-		"Humanoid",
-		"Humanoide",
-		"Humanoïde",
-		"Umanoide",
-		"Гуманоид",
-		"인간형",
-		"人型生物",
-	}
-	for i = 1, #types do
-		if types[i] == unitType then isHumanoid = true end
-	end
-	return isHumanoid
+	return unit:isCreatureType(Unit, "humanoid")
 end
 
 -- Dummy Check
@@ -496,24 +440,7 @@ function unit:isFleeing(thisUnit)
 end
 
 function unit:isElemental(Unit)
-	if Unit == nil then Unit = "target" end
-	local isElemental = false
-	local unitType = br._G.UnitCreatureType(Unit)
-	local types = {
-		"Elemental",
-		"Elementar",
-		"Elemental", -- ES/PT
-		"Élémentaire",
-		"Elementare",
-		"Элементаль",
-		"정령",
-		"元素生物",
-		"元素生物"
-	}
-	for i = 1, #types do
-		if types[i] == unitType then isElemental = true end
-	end
-	return isElemental
+	return unit:isCreatureType(Unit, "elemental")
 end
 
 -- if br.functions.unit:isEating([Unit]) == true then

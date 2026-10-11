@@ -142,15 +142,7 @@ end
 
 --Check Totem
 function enemiesEngineFunctions:isTotem(unit)
-	local creatureType = br._G.UnitCreatureType(unit)
-	if creatureType ~= nil then
-		if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém"
-			or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰"
-		then
-			return true
-		end
-	end
-	return false
+	return br.functions.unit:isCreatureType(unit, "totem")
 end
 
 -- Start getEnemies' per-unit caches over (the engine calls this after each full object scan)
