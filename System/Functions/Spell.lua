@@ -773,3 +773,22 @@ function spell:resolveRank(id)
 	if type(id) ~= "table" then return id end
 	return spell:getHighestKnownRank(id) or id[1]
 end
+
+-- The rank to use for a spell list entry right now: on ranked clients the highest known rank
+-- of a rank list, remembered until the spellbook changes (clearRankCache, called on
+-- SPELLS_CHANGED and talent/level/spec changes in readers/common.lua). So a rank bought at a
+-- trainer is picked up straight away, without a rebuild.
+local currentRanks = {}
+function spell:currentRank(ref)
+	if type(ref) ~= "table" then return ref end -- (resolveRank gives the first ID on unranked clients)
+	local id = currentRanks[ref]
+	if id == nil then
+		id = spell:resolveRank(ref)
+		currentRanks[ref] = id
+	end
+	return id
+end
+
+function spell:clearRankCache()
+	br._G.wipe(currentRanks)
+end

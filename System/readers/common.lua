@@ -559,11 +559,12 @@ function common:commonReaders()
 		if event == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED" then
 			br.loader.specDirty = true
 		end
-		-- Spells known, spell types and talents the cast system remembers
+		-- Spells known, spell types, talents and current ranks that are remembered
 		if event == "SPELLS_CHANGED" or event == "PLAYER_TALENT_UPDATE" or event == "TRAIT_CONFIG_UPDATED"
 			or event == "PLAYER_LEVEL_UP" or event == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED"
 		then
 			br.functions.cast:clearSpellFacts()
+			br.functions.spell:clearRankCache()
 		end
 	end
 	superReaderFrame:SetScript("OnEvent", SuperReader)

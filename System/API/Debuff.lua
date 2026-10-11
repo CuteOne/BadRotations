@@ -11,13 +11,18 @@ if br.api == nil then br.api = {} end
 
 br.api.debuffs = function(debuff, k, v)
     local spec = br.loader.selectedSpecID
-    if type(v) == "table" then v = br.functions.spell:getHighestKnownRank(v) end
+    -- The spell list entry (a rank list on ranked clients); v is set to its current rank at the
+    -- start of every function, so a newly learned rank counts straight away
+    local ref = v
+    local function currentRank() return br.functions.spell:currentRank(ref) end
+    v = currentRank()
 
     --- Gets the value of the debuff when it was applied.
     -- @function debuff.spell.applied
     -- @string[opt="target"] thisUnit The unit to check the debuff applied value on.
     -- @treturn number
     debuff.applied = function(thisUnit)
+        v = currentRank()
         local thisUnit = br._G.GetObjectWithGUID(thisUnit) or thisUnit or "target"
         return (spec == 103 or spec == 259) and debuff.bleed[thisUnit] or 0
     end
@@ -26,6 +31,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @function debuff.spell.calc
     -- @treturn number
     debuff.calc = function()
+        v = currentRank()
         return (spec == 103 or spec == 259) and br.functions.aura:getSnapshotValue(v) or 0
     end
 
@@ -33,6 +39,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @function debuff.spell.count
     -- @treturn number
     debuff.count = function()
+        v = currentRank()
         return tonumber(br.functions.aura:getDebuffCount(v))
     end
 
@@ -42,6 +49,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @string[opt="player"] sourceUnit The unit that applied the debuff.
     -- @treturn number
     debuff.duration = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
         return br.functions.aura:getDebuffDuration(thisUnit, v, sourceUnit) or 0
@@ -53,6 +61,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @string[opt="player"] sourceUnit The unit that applied the debuff.
     -- @treturn boolean
     debuff.exists = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
         return br.functions.aura:UnitDebuffID(thisUnit, v, sourceUnit) ~= nil
@@ -63,6 +72,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @string[opt="target"] thisUnit The unit to check the debuff on.
     -- @treturn boolean
     debuff.exsang = function(thisUnit)
+        v = currentRank()
         return spec == 259 and debuff.exsa[thisUnit] or false
     end
 
@@ -72,6 +82,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @string[opt="remain"] debuffType The type of debuff check to perform (e.g., "remain").
     -- @treturn string
     debuff.lowest = function(range, debuffType, source)
+        v = currentRank()
         if range == nil then range = 40 end
         if debuffType == nil then debuffType = "remain" end
         return br.functions.aura:getDebuffMinMax(k, range, debuffType, "min", source) or "target"
@@ -83,6 +94,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @string[opt="remain"] debuffType The type of debuff check to perform (e.g., "remain").
     -- @treturn string
     debuff.lowestPet = function(range, debuffType)
+        v = currentRank()
         if range == nil then range = 8 end
         if debuffType == nil then debuffType = "remain" end
         return br.functions.aura:getDebuffMinMaxButForPetsThisTime(k, range, debuffType, "min") or "target"
@@ -94,6 +106,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @string[opt="remain"] debuffType The type of debuff check to perform (e.g., "remain").
     -- @treturn string
     debuff.max = function(range, debuffType)
+        v = currentRank()
         if range == nil then range = 40 end
         if debuffType == nil then debuffType = "remain" end
         return br.functions.aura:getDebuffMinMax(k, range, debuffType, "max") or "target"
@@ -105,6 +118,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @string[opt="player"] sourceUnit The unit that applied the debuff.
     -- @treturn number
     debuff.pandemic = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if thisUnit == 'target' then thisUnit = br._G.UnitGUID("target") end
@@ -121,6 +135,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @string[opt="player"] sourceUnit The unit that applied the debuff.
     -- @treturn number
     debuff.pmultiplier = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if thisUnit == 'target' then thisUnit = br._G.UnitGUID("target") end
@@ -138,6 +153,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @string[opt="player"] sourceUnit The unit that applied the debuff.
     -- @treturn boolean
     debuff.refresh = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
         local remain = debuff.remain(thisUnit, sourceUnit)
@@ -149,6 +165,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @number[opt=40] range The range to check units within.
     -- @treturn number
     debuff.refreshCount = function(range)
+        v = currentRank()
         local counter = 0
         for l, _ in pairs(br.engines.enemiesEngine.enemy) do
             local thisUnit = br.engines.enemiesEngine.enemy[l].unit
@@ -171,6 +188,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @string[opt="player"] sourceUnit The unit that applied the debuff.
     -- @treturn number
     debuff.remain = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
         return math.abs(br.functions.aura:getDebuffRemain(thisUnit, v, sourceUnit))
@@ -181,6 +199,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @number remain The remaining time to check against.
     -- @treturn number
     debuff.remainCount = function(remain)
+        v = currentRank()
         return tonumber(br.functions.aura:getDebuffRemainCount(v, remain))
     end
 
@@ -190,6 +209,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @string[opt="player"] sourceUnit The unit that applied the debuff.
     -- @treturn number
     debuff.remains = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
         return math.abs(br.functions.aura:getDebuffRemain(thisUnit, v, sourceUnit))
@@ -201,6 +221,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @string[opt="player"] sourceUnit The unit that applied the debuff.
     -- @treturn number
     debuff.stack = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if br.functions.aura:getDebuffStacks(thisUnit, v, sourceUnit) == 0 and br.functions.aura:UnitDebuffID(thisUnit, v, sourceUnit) ~= nil then
@@ -215,6 +236,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @param thisUnit string|nil The unit to check the ticks gained by reapplying the debuff on (optional, default "target").
     -- @return number
     debuff.ticksGainedOnRefresh = function(thisUnit)
+        v = currentRank()
         local haste = br._G.UnitSpellHaste("player")
         local hasteMultiplier = 1 + (haste / 100)
         local baseTickTime = br.functions.aura:getBaseTickTime(v)
@@ -244,6 +266,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @param thisUnit string|nil The unit to check the remaining ticks on (optional, default "target").
     -- @return number
     debuff.ticksRemain = function(thisUnit)
+        v = currentRank()
         local haste = br._G.UnitSpellHaste("player")
         local hasteMultiplier = 1 + (haste / 100)
         local baseTickTime = br.functions.aura:getBaseTickTime(v)

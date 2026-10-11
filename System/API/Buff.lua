@@ -8,13 +8,18 @@ if br.api == nil then br.api = {} end
 
 br.api.buffs = function(buff, k, v)
     local buff = buff[k]
-    if type(v) == "table" then v = br.functions.spell:getHighestKnownRank(v) end
+    -- The spell list entry (a rank list on ranked clients); v is set to its current rank at the
+    -- start of every function, so a newly learned rank counts straight away
+    local ref = v
+    local function currentRank() return br.functions.spell:currentRank(ref) end
+    v = currentRank()
 
     --- Cancel a buff.
     -- @function buff.spell.cancel
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     buff.cancel = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then
@@ -30,6 +35,7 @@ br.api.buffs = function(buff, k, v)
     -- @function buff.spell.count
     -- @treturn number
     buff.count = function()
+        v = currentRank()
         if k == "bloodLust" then
             v = br.functions.aura:getLustID()
             if v == 0 then return 0 end
@@ -43,6 +49,7 @@ br.api.buffs = function(buff, k, v)
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn boolean
     buff.down = function(thisUnit, sourceUnit)
+        v = currentRank()
         if k == "bloodLust" then
             v = br.functions.aura:getLustID()
             if v == 0 then return true end
@@ -56,6 +63,7 @@ br.api.buffs = function(buff, k, v)
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
     buff.duration = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then
@@ -71,6 +79,7 @@ br.api.buffs = function(buff, k, v)
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn boolean
     buff.exists = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then
@@ -86,6 +95,7 @@ br.api.buffs = function(buff, k, v)
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn boolean
     buff.react = function(thisUnit, sourceUnit)
+        v = currentRank()
         thisUnit = thisUnit or "player"
         sourceUnit = sourceUnit or "player"
         if k == "bloodLust" then
@@ -101,6 +111,7 @@ br.api.buffs = function(buff, k, v)
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn boolean
     buff.refresh = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'player' end
         if k == "bloodLust" then
             v = br.functions.aura:getLustID()
@@ -135,6 +146,7 @@ br.api.buffs = function(buff, k, v)
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
     buff.remain = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then
@@ -150,6 +162,7 @@ br.api.buffs = function(buff, k, v)
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
     buff.remains = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then
@@ -165,6 +178,7 @@ br.api.buffs = function(buff, k, v)
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
     buff.stack = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then
@@ -180,6 +194,7 @@ br.api.buffs = function(buff, k, v)
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
     buff.stackMax = function(thisUnit, sourceUnit)
+        v = currentRank()
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then

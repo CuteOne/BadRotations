@@ -102,7 +102,7 @@ local function buildAuras(player)
                 player.spells.buffs[k] = resolvedID
                 player.spells[k] = resolvedID
             end
-            br.api.buffs(player.buff, k, resolvedID)
+            br.api.buffs(player.buff, k, v) -- the rank list: buff.X picks the current rank itself
         end
     end
     -- Make Debuff Functions from br.api.debuffs
@@ -115,7 +115,7 @@ local function buildAuras(player)
             player.spells.debuffs[k] = resolvedID
             player.spells[k] = resolvedID
         end
-        br.api.debuffs(player.debuff[k], k, resolvedID)
+        br.api.debuffs(player.debuff[k], k, v) -- the rank list: debuff.X picks the current rank itself
     end
 end
 
