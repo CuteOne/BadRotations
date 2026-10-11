@@ -242,19 +242,26 @@ end
 -- is only part of the subject doesn't ("Thistle Bear" is not a "Rabid Thistle Bear"). Failing that,
 -- the subject's words may appear in any order or as a word from the same stem ("Lunar Fungal Bloom"
 -- for "Lunar Fungus"; see subjectWordsInName).
-local function matchesObjective(name)
+-- Objectives about creatures or players ("Murkdeep slain") can't be about a game object
+local creatureObjective = { monster = true, player = true }
+
+-- forObject: the name is a game object's, so creature objectives don't count (a "WANTED: Murkdeep"
+-- board is not Murkdeep)
+local function matchesObjective(name, forObject)
 	if #name < 3 then return false end
 	local words = paddedWords(name)
 	for _, objectives in pairs(questTracker.objectives) do
 		for i = 1, #objectives do
-			local forms = objectives[i].forms
-			if forms then
-				for _, form in ipairs(forms) do
-					if words:find(" " .. form .. " ", 1, true) then return true end
+			if not (forObject and creatureObjective[objectives[i].kind]) then
+				local forms = objectives[i].forms
+				if forms then
+					for _, form in ipairs(forms) do
+						if words:find(" " .. form .. " ", 1, true) then return true end
+					end
 				end
+				local subjectWords = objectives[i].words
+				if subjectWords and subjectWordsInName(subjectWords, name) then return true end
 			end
-			local subjectWords = objectives[i].words
-			if subjectWords and subjectWordsInName(subjectWords, name) then return true end
 		end
 	end
 	return false
@@ -284,16 +291,18 @@ local function matchesContainer(name)
 	if not isContainer or #words == 0 then return false end
 	for _, objectives in pairs(questTracker.objectives) do
 		for i = 1, #objectives do
-			-- Pad with spaces so each word must match whole ("sky" not in "skyline")
-			local text = " " .. objectives[i].text:gsub("[^%a']", " ") .. " "
-			local all = true
-			for _, word in ipairs(words) do
-				if not text:find(" " .. word .. " ", 1, true) then
-					all = false
-					break
+			if not creatureObjective[objectives[i].kind] then
+				-- Pad with spaces so each word must match whole ("sky" not in "skyline")
+				local text = " " .. objectives[i].text:gsub("[^%a']", " ") .. " "
+				local all = true
+				for _, word in ipairs(words) do
+					if not text:find(" " .. word .. " ", 1, true) then
+						all = false
+						break
+					end
 				end
+				if all then return true end
 			end
-			if all then return true end
 		end
 	end
 	return false
@@ -448,7 +457,7 @@ function questTracker:isQuestObject(object)
 	if cached ~= nil then return cached end
 
 	local lowerName = objectName:lower()
-	local result = matchesObjective(lowerName) or matchesContainer(lowerName)
+	local result = matchesObjective(lowerName, true) or matchesContainer(lowerName)
 	questTracker.objectCheckCache[objectName] = result
 	return result
 end
@@ -457,7 +466,7 @@ end
 -- Quest log cache
 ----------------------------------------------------------------------------------------------------
 
-local function addObjective(questId, text)
+local function addObjective(questId, text, kind)
 	if not text or text == "" then return end
 	local list = questTracker.objectives[questId]
 	if not list then
@@ -465,7 +474,7 @@ local function addObjective(questId, text)
 		questTracker.objectives[questId] = list
 	end
 	local name = parseObjectiveName(text)
-	list[#list + 1] = { text = text:lower(), name = name, forms = name and subjectForms(paddedWords(name):sub(2, -2)),
+	list[#list + 1] = { text = text:lower(), kind = kind, name = name, forms = name and subjectForms(paddedWords(name):sub(2, -2)),
 		words = name and splitWords(name) }
 	questTracker.objectiveCount = questTracker.objectiveCount + 1
 	if name then addNameVariations(name, questTracker.cache) end
@@ -500,14 +509,14 @@ function questTracker:rebuild()
 				local objectives = questLog.GetQuestObjectives(questId)
 				if type(objectives) == "table" then
 					for _, objective in ipairs(objectives) do
-						if not objective.finished then addObjective(questId, objective.text) end
+						if not objective.finished then addObjective(questId, objective.text, objective.type) end
 					end
 				end
 			else
 				addNameVariations(title, questTracker.cache)
 				for objIdx = 1, (br._G.GetNumQuestLeaderBoards(questIdx) or 0) do
-					local objectiveText, _, finished = br._G.GetQuestLogLeaderBoard(objIdx, questIdx)
-					if objectiveText and not finished then addObjective(questId, objectiveText) end
+					local objectiveText, objectiveType, finished = br._G.GetQuestLogLeaderBoard(objIdx, questIdx)
+					if objectiveText and not finished then addObjective(questId, objectiveText, objectiveType) end
 				end
 			end
 		end
@@ -528,7 +537,7 @@ function questTracker:rebuild()
 					local objectives = questLog.GetQuestObjectives(questId)
 					if type(objectives) == "table" then
 						for _, objective in ipairs(objectives) do
-							if not objective.finished then addObjective(questId, objective.text) end
+							if not objective.finished then addObjective(questId, objective.text, objective.type) end
 						end
 					end
 				end
