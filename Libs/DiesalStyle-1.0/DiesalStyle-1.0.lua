@@ -90,6 +90,47 @@ local function getMediaPath(mediaType, name)
   return candidates  -- old format string
 end
 
+-- LibSharedMedia registration. Only a path that actually loads is registered: the first media path
+-- may not exist (the client only loads media from its own Interface folder), newer LibSharedMedia
+-- versions report fonts that don't load, and LibSharedMedia keeps the first path registered for a
+-- name, so registering a dead path early would also hide a working one registered later.
+local probeFont, probeTexture
+local function loads(mediaType, path)
+  if mediaType == 'font' then
+    probeFont = probeFont or CreateFont("DiesalStyleMediaProbe")
+    local ok, result = pcall(probeFont.SetFont, probeFont, path, 12, '') -- raises (Forever) or returns false
+    return ok and result ~= false
+  end
+  probeTexture = probeTexture or TextureFrame:CreateTexture()
+  probeTexture:SetTexture(nil)
+  probeTexture:SetTexture(path)
+  return probeTexture:GetTexture() ~= nil -- nil when the file isn't there
+end
+local SHARED_MEDIA = {
+  -- LibSharedMedia type, LibSharedMedia name, DiesalStyle media name
+  { 'font', 'Calibri Bold', 'calibrib' },
+  { 'font', 'Fira Sans', 'FiraSans' },
+  { 'font', 'Standard0755', 'Standard0755' },
+  { 'font', 'FFF Intelligent', 'FFF Intelligent Thin Condensed' },
+  { 'texture', 'DiesalGUIcons', 'DiesalGUIcons' },
+  { 'texture', 'DiesalGUIcons64', 'DiesalGUIcons64' },
+  { 'texture', 'DiesalGUIcons32', 'DiesalGUIcons32' },
+  { 'texture', 'DiesalButtonIcons32', 'DiesalButtonIcons32' },
+}
+local function registerSharedMedia()
+  for _, entry in ipairs(SHARED_MEDIA) do
+    local mediaType, sharedName, name = entry[1], entry[2], entry[3]
+    local candidates = Media[mediaType] and Media[mediaType][name]
+    if type(candidates) == 'string' then candidates = { candidates } end
+    for _, path in ipairs(candidates or {}) do
+      if loads(mediaType, path) then
+        LibSharedMedia:Register(mediaType, sharedName, path)
+        break
+      end
+    end
+  end
+end
+
 local function newTexture()
   local newTexture = next(ReleasedTextures)
   if not newTexture then
@@ -565,22 +606,7 @@ do -- | Set Media |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   addMedia('border', 'shadowNoDist', 'shadowNoDist.tga')
 end
 do -- | Add LibSharedMedia |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  LibSharedMedia:Register("font", "Calibri Bold", getMediaPath('font', 'calibrib'))
-  LibSharedMedia:Register("font", "Fira Sans", getMediaPath('font', 'FiraSans'))
-  -- monospaced
-  -- LibSharedMedia:Register("font","DejaVuSansMono",getMediaPath('font','DejaVuSansMono'))
-  -- LibSharedMedia:Register("font","Hack",getMediaPath('font','Hack'))
-  -- LibSharedMedia:Register("font","Inconsolata",getMediaPath('font','Inconsolata'))
-  -- LibSharedMedia:Register("font","Fira Sans",getMediaPath('font','FiraSans'))
-  -- LibSharedMedia:Register("font","Source Code Pro",getMediaPath('font','SourceCodePro'))
-  -- pixel fonts
-  LibSharedMedia:Register("font", "Standard0755", getMediaPath('font', 'Standard0755'))
-  LibSharedMedia:Register("font", "FFF Intelligent", getMediaPath('font', 'FFF Intelligent Thin Condensed'))
-  -- textures
-  LibSharedMedia:Register("texture", "DiesalGUIcons", getMediaPath('texture', 'DiesalGUIcons'))
-  LibSharedMedia:Register("texture", "DiesalGUIcons64", getMediaPath('texture', 'DiesalGUIcons64'))
-  LibSharedMedia:Register("texture", "DiesalGUIcons32", getMediaPath('texture', 'DiesalGUIcons32'))
-  LibSharedMedia:Register("texture", "DiesalButtonIcons32", getMediaPath('texture', 'DiesalButtonIcons32'))
+  registerSharedMedia()
 end
 do -- | Set Fonts |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -- Create font objects
@@ -1212,15 +1238,8 @@ function DiesalStyle:ReloadMedia()
   addMedia('border', 'shadow', 'shadow.tga')
   addMedia('border', 'shadowNoDist', 'shadowNoDist.tga')
 
-  -- Re-register with LibSharedMedia after path change
-  LibSharedMedia:Register("font", "Calibri Bold", getMediaPath('font', 'calibrib'))
-  LibSharedMedia:Register("font", "Fira Sans", getMediaPath('font', 'FiraSans'))
-  LibSharedMedia:Register("font", "Standard0755", getMediaPath('font', 'Standard0755'))
-  LibSharedMedia:Register("font", "FFF Intelligent", getMediaPath('font', 'FFF Intelligent Thin Condensed'))
-  LibSharedMedia:Register("texture", "DiesalGUIcons", getMediaPath('texture', 'DiesalGUIcons'))
-  LibSharedMedia:Register("texture", "DiesalGUIcons64", getMediaPath('texture', 'DiesalGUIcons64'))
-  LibSharedMedia:Register("texture", "DiesalGUIcons32", getMediaPath('texture', 'DiesalGUIcons32'))
-  LibSharedMedia:Register("texture", "DiesalButtonIcons32", getMediaPath('texture', 'DiesalButtonIcons32'))
+  -- Register with LibSharedMedia now that the path may have changed
+  registerSharedMedia()
 
   -- Reinitialize fonts after media is reloaded
   self:ReinitializeFonts()
