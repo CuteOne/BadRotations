@@ -220,12 +220,8 @@ function spell:getGlobalCD(max)
 			return math.max(math.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100)), 0.75)
 		end
 	end
-	-- Use expansion-defined GCD spell if available (Classic/TBC define GetGCDSpellID in their expansion file)
-	local gcdSpellID = br.functions.spell:getHighestSpellID("global")
-	if br.api.wow.GetGCDSpellID then
-		gcdSpellID = br.api.wow.GetGCDSpellID()
-	end
-	return br.functions.spell:getSpellCD(gcdSpellID)
+	-- The client's GCD spell (Expansions/shared.lua: 61304, or a class spell on clients without it)
+	return br.functions.spell:getSpellCD(br.api.wow.GetGCDSpellID())
 end
 
 function spell:getSpellType(spellName)

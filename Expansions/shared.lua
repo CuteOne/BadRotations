@@ -569,11 +569,12 @@ do
     end
 end
 
--- GCDSpells: class-specific fallback spells used to detect the GCD on Classic-era clients.
--- Spell 61304 (the canonical Retail GCD probe) does not exist before Wrath.
--- Retail has its own GCD detection and does not use this table.
+-- The spell whose cooldown is the global cooldown. Clients that have the GCD spell (61304, from Wrath of
+-- the Lich King on) use it; older ones use a spell every member of the class knows from level 1 and
+-- that shares the GCD in every form (a Druid's Wrath works in Cat and Bear Form too).
+local GCD_SPELL = 61304
 local GCDSpells = {
-    DRUID   = { NONE = 5176, CAT = 5221 },  -- Wrath / Shred
+    DRUID   = 5176,   -- Wrath
     HUNTER  = 1978,   -- Serpent Sting
     MAGE    = 133,    -- Fireball
     PALADIN = 635,    -- Holy Light
@@ -583,16 +584,16 @@ local GCDSpells = {
     WARLOCK = 686,    -- Shadow Bolt
     WARRIOR = 772,    -- Rend
 }
+local hasGCDSpell = nil -- whether this client has GCD_SPELL, checked once
 
 api.GetGCDSpellID = function()
-    local _, class = _G.UnitClass("player")
-    if not class then return 5176 end
-    local gcdSpell = GCDSpells[class]
-    if class == "DRUID" and type(gcdSpell) == "table" then
-        local form = _G.GetShapeshiftForm and _G.GetShapeshiftForm()
-        return form == 1 and gcdSpell.CAT or gcdSpell.NONE
+    if hasGCDSpell == nil then
+        hasGCDSpell = (_G.C_Spell and _G.C_Spell.GetSpellInfo and _G.C_Spell.GetSpellInfo(GCD_SPELL) ~= nil)
+            or (_G.GetSpellInfo and _G.GetSpellInfo(GCD_SPELL) ~= nil) or false
     end
-    return gcdSpell or 5176
+    if hasGCDSpell then return GCD_SPELL end
+    local _, class = _G.UnitClass("player")
+    return class and GCDSpells[class] or GCDSpells.DRUID
 end
 
 -- Print the standard compatibility-layer banner. Called at the end of each
