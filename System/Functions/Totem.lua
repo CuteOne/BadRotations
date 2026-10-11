@@ -3,8 +3,6 @@ local _, br = ...
 br.functions.totem = br.functions.totem or {}
 local totem = br.functions.totem
 
-local spellNameCache = {}
-
 local function resolveCandidateName(candidate)
     if not candidate then return nil end
 
@@ -21,14 +19,6 @@ local function resolveCandidateName(candidate)
     end
 
     return nil
-end
-
-function totem:spellName(spellId)
-    if not spellId then return nil end
-    if spellNameCache[spellId] == nil then
-        spellNameCache[spellId] = br.api.wow.GetSpellInfo(spellId)
-    end
-    return spellNameCache[spellId]
 end
 
 function totem:getSlotInfo(slot)

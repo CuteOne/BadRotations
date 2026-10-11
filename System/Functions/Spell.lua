@@ -767,6 +767,19 @@ function spell:getDamageRacialName(race)
 	return nil
 end
 
+-- A spell's name by ID. Names don't change, so each is asked for once (unknown IDs aren't kept).
+-- local name = br.functions.spell:getName(5176)
+local spellNames = {}
+function spell:getName(spellID)
+	if spellID == nil then return nil end
+	local name = spellNames[spellID]
+	if name == nil then
+		name = br.api.wow.GetSpellInfo(spellID)
+		spellNames[spellID] = name
+	end
+	return name
+end
+
 -- Highest known rank from a table of rank IDs (first rank if none known); non-tables pass through.
 -- local id = br.functions.spell:resolveRank({ 5176, 5177, 5178 })
 function spell:resolveRank(id)

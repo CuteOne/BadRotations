@@ -32,7 +32,7 @@ local rejections = {}
 local function rejectionKey(kind, spellID, guid)
 	if not guid then return nil end
 	if UNIT_WIDE_REJECT[kind] then return kind .. ":" .. guid end
-	local name = spellID and br.api.wow.GetSpellInfo(spellID)
+	local name = spellID and br.functions.spell:getName(spellID)
 	if not name then return nil end
 	return kind .. ":" .. name .. ":" .. guid
 end
@@ -49,7 +49,7 @@ end
 -- every 30 s. nil when it can't be found or doesn't expire.
 local function strongerAuraRemaining(spellID, guid)
 	local unit = br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(guid)
-	local name = br.api.wow.GetSpellInfo(spellID)
+	local name = br.functions.spell:getName(spellID)
 	if not unit or not name then return nil end
 	local filter = br.functions.spell:getSpellType(name) == "Harmful" and "HARMFUL" or "HELPFUL"
 	local aura = br.api.wow.FindAuraByName(name, unit, filter)
@@ -61,6 +61,7 @@ end
 
 -- True while a recent cast of spellID on thisUnit was refused for this reason.
 function cast:isRejected(kind, spellID, thisUnit)
+	if next(rejections) == nil then return false end -- the usual case: nothing refused lately
 	local key = rejectionKey(kind, spellID, thisUnit and br._G.UnitGUID(thisUnit))
 	if not key then return false end
 	local expires = rejections[key]
@@ -147,7 +148,7 @@ function cast:handleCastError(message)
 			end
 			local expected = E.expectedRefusal(message, lastCastGUID)
 			if not E.showRefusal(expected ~= nil) then return end
-			br.player.ui.debug("[CAST FAIL][SERVER] " .. tostring(br.api.wow.GetSpellInfo(spellID)) .. " — game said: " .. message
+			br.player.ui.debug("[CAST FAIL][SERVER] " .. tostring(br.functions.spell:getName(spellID)) .. " — game said: " .. message
 				.. (expected and (" (expected: " .. expected .. ")") or ""))
 		end)
 	end
@@ -331,26 +332,32 @@ function E.isCastIntentLocked(spellID)
 	return castIntentLocks[spellID] ~= nil and br._G.GetTime() < castIntentLocks[spellID]
 end
 
-function E.getSameSpellCastRemain(spellID)
-	local now = br._G.GetTime()
+-- Time left on the player's cast or channel of spellID (0 when it isn't being cast), and
+-- whether that's a channel.
+local function sameSpellCastRemain(spellID)
 	local _, _, _, _, castEndTime, _, _, _, castingSpellID = br._G.UnitCastingInfo("player")
 	if castingSpellID == spellID and castEndTime and castEndTime > 0 then
-		return math.max(0, (castEndTime / 1000) - now)
+		return math.max(0, (castEndTime / 1000) - br._G.GetTime()), false
 	end
 	local _, _, _, _, channelEndTime, _, _, channelingSpellID = br._G.UnitChannelInfo("player")
-	if channelingSpellID == spellID and channelEndTime and channelEndTime > 0 then
-		return math.max(0, (channelEndTime / 1000) - now)
+	if channelingSpellID ~= nil and channelingSpellID == spellID then
+		local remain = (channelEndTime and channelEndTime > 0) and math.max(0, (channelEndTime / 1000) - br._G.GetTime()) or 0
+		return remain, true
 	end
-	return 0
+	return 0, false
+end
+
+function E.getSameSpellCastRemain(spellID)
+	return (sameSpellCastRemain(spellID))
 end
 
 -- True while the player is casting spellID with more than the queue window left.
 -- Inside the window the same spell may be pre-cast behind itself (Wrath -> Wrath).
 -- Channels are excluded: they're never pre-cast behind themselves.
 function E.isCastingOutsideQueueWindow(spellID)
-	local _, _, _, _, _, _, _, channelSpellID = br._G.UnitChannelInfo("player")
-	if channelSpellID ~= nil and channelSpellID == spellID then return true end
-	return E.getSameSpellCastRemain(spellID) > cast:getQueueWindow()
+	local remain, isChannel = sameSpellCastRemain(spellID)
+	if isChannel then return true end
+	return remain > cast:getQueueWindow()
 end
 
 function E.takeCastStartSnapshot(spellID)
@@ -392,7 +399,7 @@ end
 -- 'inconclusive' is returned when no signal has arrived in either stage yet.
 -- The caller should throttle retries but not emit a CAST_FAILED message.
 function E.verifyCastStarted(spellID, snapshot, expectedSpellName)
-	expectedSpellName = expectedSpellName or br.api.wow.GetSpellInfo(spellID)
+	expectedSpellName = expectedSpellName or br.functions.spell:getName(spellID)
 	local gcdAfter = br.functions.spell:getGlobalCD()
 	local castNameAfter, _, _, _, _, _, _, _, castSpellIdAfter = br._G.UnitCastingInfo("player")
 	local channelNameAfter, _, _, _, _, _, _, _, channelSpellIdAfter = br._G.UnitChannelInfo("player")

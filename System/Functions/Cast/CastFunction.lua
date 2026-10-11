@@ -49,7 +49,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 	-- 0 is a deliberate "no such spell for this character" (e.g. cast.racial() for a race
 	-- without a damage racial): not castable, and not an error worth printing.
 	if spellID == 0 then return false end
-	if spellID == nil or br.api.wow.GetSpellInfo(spellID) == nil then
+	if spellID == nil or br.functions.spell:getName(spellID) == nil then
 		br._G.print("Invalid Spell ID: " .. tostring(spellID) .. " for key: " .. tostring(index))
 		return false
 	end
@@ -95,9 +95,14 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 		if E.rangeDelayTimers == nil then E.rangeDelayTimers = {} end
 
 		-- Most spells asked about during the GCD are on cooldown: refuse those before the context
-		if not isEmpoweredBypass and not E.cooldownPrecheck(spellID, castType, debug) then return false end
+		local spellCD
+		if not isEmpoweredBypass then
+			local mightPass
+			mightPass, spellCD = E.cooldownPrecheck(spellID, castType, debug)
+			if not mightPass then return false end
+		end
 
-		ctx = E.buildSpellContext(spellID, predict, predictPad, castType, effectRng)
+		ctx = E.buildSpellContext(spellID, predict, predictPad, castType, effectRng, spellCD)
 	end
 
 	-- ── Step 6: Quaking Helper (M+ affix) ────────────────────────────────────

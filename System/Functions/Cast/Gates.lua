@@ -31,7 +31,7 @@ local function refusalKey(name)
 end
 
 local function refusalEntry(spellID)
-	local name = br.api.wow.GetSpellInfo(spellID)
+	local name = br.functions.spell:getName(spellID)
 	local key = refusalKey(name)
 	if not key then return nil end
 	local entry = refusals[key]
@@ -110,76 +110,109 @@ local function getTalentKey(spellID, allTalents)
 	return talentKeyBySpell[spellID]
 end
 
--- buildSpellContext: collect all spell info and computed values that the gate
--- and dispatch phases need.  Called once per createCastFunction invocation so
--- every downstream check reads from the returned table instead of re-calling
--- the same WoW APIs multiple times.
-function E.buildSpellContext(spellID, predict, predictPad, castType, effectRng)
-	local spellName, _, icon, rawCastTime, minRange, maxRange = br.api.wow.GetSpellInfo(spellID)
-	local baseSpellID   = br.api.wow.FindBaseSpellByID(spellID)
-	local overrideSpellID = br._G.FindSpellOverrideByID(spellID)
-	local baseSpellName = br.api.wow.GetSpellInfo(baseSpellID)
-	local facts         = getSpellFacts(spellID, baseSpellName)
+-- buildSpellContext: the spell info and computed values the gates and the dispatch need.
+-- Built lazily: each group of values is read from the game the first time a gate or the
+-- dispatch asks for one of its fields, then kept on the context for the rest of this attempt.
+-- A refusal only pays for what the refusing gate looked at. (A group's fields can be nil, so
+-- "already read" is tracked per group, not by the field being present.)
+local contextGroups = {} -- field name -> loader(ctx) that rawsets every field of its group
 
-	-- Resolve range: some spells return 0 for maxRange on the override; fall back to base.
-	if (not maxRange or maxRange == 0) and baseSpellID and baseSpellID ~= spellID then
-		_, _, _, _, minRange, maxRange = br.api.wow.GetSpellInfo(baseSpellID)
+local function defineGroup(fields, loader)
+	for _, field in ipairs(fields) do contextGroups[field] = loader end
+end
+
+defineGroup({ "spellName", "icon", "rawCastTime", "castTime", "minRange", "maxRange" }, function(ctx)
+	local spellName, _, icon, rawCastTime, minRange, maxRange = br.api.wow.GetSpellInfo(ctx.spellID)
+	-- Some spells return 0 for maxRange on the override; fall back to the base spell.
+	if (not maxRange or maxRange == 0) and ctx.baseSpellID and ctx.baseSpellID ~= ctx.spellID then
+		_, _, _, _, minRange, maxRange = br.api.wow.GetSpellInfo(ctx.baseSpellID)
 	end
-
-	-- Cast-time handling: if prediction is requested include cast time (in seconds).
-	local castTime = rawCastTime or 0
-	if predict then
-		castTime = castTime / 1000
-	else
-		castTime = 0
-	end
-	if predictPad then castTime = castTime + predictPad end
-
-	-- Normalise ranges.
-	minRange = minRange or 0
+	-- Cast time in seconds, only when prediction was asked for, plus any padding.
+	local castTime = ctx.predict and (rawCastTime or 0) / 1000 or 0
+	if ctx.predictPad then castTime = castTime + ctx.predictPad end
+	-- maxRange 0 from the API: for castType "pet" that's the literal melee range (checkRange
+	-- uses distance <= 5); for every other cast type it means "unspecified", so effectRng.
 	if not maxRange or maxRange == 0 then
-		-- For castType "pet", maxRange=0 from the API is the literal melee range —
-		-- preserve it so checkRange uses `distance <= 5` (melee test).  For all
-		-- other cast types, 0 means "range unspecified" so we substitute effectRng.
-		maxRange = (castType == "pet") and 0 or tonumber(effectRng)
+		maxRange = (ctx.castType == "pet") and 0 or tonumber(ctx.requestedRng)
 	else
 		maxRange = tonumber(maxRange)
 	end
+	rawset(ctx, "spellName", spellName)
+	rawset(ctx, "icon", icon)
+	rawset(ctx, "rawCastTime", rawCastTime or 0)
+	rawset(ctx, "castTime", castTime)
+	rawset(ctx, "minRange", minRange or 0)
+	rawset(ctx, "maxRange", maxRange)
+end)
 
-	-- Snapshot values that are used in multiple gate checks.
-	local spellCD    = br.functions.spell:getSpellCD(spellID) or 0
-	local globalCD   = br.functions.spell:getGlobalCD()
-	-- IsSpellUsable returns (isUsable, insufficientPower); capture both so gateUsable can
-	-- tell a pure power shortfall apart from a wrong-form/other failure (clearcasting fix).
-	local isUsable, insufficientPower = br._G.C_Spell.IsSpellUsable(spellID)
-	local frame      = E.getFrameValues()
+defineGroup({ "baseSpellID", "overrideSpellID" }, function(ctx)
+	rawset(ctx, "baseSpellID", br.api.wow.FindBaseSpellByID(ctx.spellID))
+	rawset(ctx, "overrideSpellID", br._G.FindSpellOverrideByID(ctx.spellID))
+end)
 
-	-- When this spell last went off (UNIT_SPELLCAST events), 0 if it hasn't. Read only: writing a
-	-- placeholder here made cast.timeSinceLast report a spell that was never cast as just cast.
-	local lastCastTime = br.functions.lastCast.lastCastTable.castTime[spellID] or 0
+defineGroup({ "baseSpellName" }, function(ctx)
+	local baseSpellID = ctx.baseSpellID
+	rawset(ctx, "baseSpellName", baseSpellID == ctx.spellID and ctx.spellName or br.api.wow.GetSpellInfo(baseSpellID))
+end)
 
-	return {
-		spellID        = spellID,
-		baseSpellID    = baseSpellID,
-		overrideSpellID = overrideSpellID,
-		spellName      = spellName,
-		baseSpellName  = baseSpellName,
-		icon           = icon,
-		rawCastTime    = rawCastTime or 0,
-		castTime       = castTime,
-		minRange       = minRange,
-		maxRange       = maxRange,
-		spellType      = facts.spellType,
-		spellCD        = spellCD,
-		globalCD       = globalCD,
-		gcdMax         = frame.gcdMax,
-		baseCooldown   = facts.baseCooldown,
-		isUsable       = isUsable,
-		insufficientPower = insufficientPower,
-		updateRate     = frame.updateRate,
-		latency        = frame.latency,
-		lastCastTime   = lastCastTime,
-	}
+defineGroup({ "spellType", "baseCooldown" }, function(ctx)
+	local facts = getSpellFacts(ctx.spellID, ctx.baseSpellName)
+	rawset(ctx, "spellType", facts.spellType)
+	rawset(ctx, "baseCooldown", facts.baseCooldown)
+end)
+
+defineGroup({ "spellCD" }, function(ctx)
+	rawset(ctx, "spellCD", br.functions.spell:getSpellCD(ctx.spellID) or 0)
+end)
+
+defineGroup({ "globalCD" }, function(ctx)
+	rawset(ctx, "globalCD", br.functions.spell:getGlobalCD())
+end)
+
+-- IsSpellUsable returns (isUsable, insufficientPower); both are kept so gateUsable can tell a
+-- pure power shortfall apart from a wrong-form/other failure (clearcasting fix).
+defineGroup({ "isUsable", "insufficientPower" }, function(ctx)
+	local isUsable, insufficientPower = br._G.C_Spell.IsSpellUsable(ctx.spellID)
+	rawset(ctx, "isUsable", isUsable)
+	rawset(ctx, "insufficientPower", insufficientPower)
+end)
+
+defineGroup({ "gcdMax", "updateRate", "latency" }, function(ctx)
+	local frame = E.getFrameValues()
+	rawset(ctx, "gcdMax", frame.gcdMax)
+	rawset(ctx, "updateRate", frame.updateRate)
+	rawset(ctx, "latency", frame.latency)
+end)
+
+-- When this spell last went off (UNIT_SPELLCAST events), 0 if it hasn't. Read only: writing a
+-- placeholder here made cast.timeSinceLast report a spell that was never cast as just cast.
+defineGroup({ "lastCastTime" }, function(ctx)
+	rawset(ctx, "lastCastTime", br.functions.lastCast.lastCastTable.castTime[ctx.spellID] or 0)
+end)
+
+local contextMeta = {
+	__index = function(ctx, field)
+		local loader = contextGroups[field]
+		if loader == nil then return nil end
+		local loaded = rawget(ctx, "loadedGroups")
+		if loaded[loader] then return nil end -- read already; the value is nil
+		loaded[loader] = true
+		loader(ctx)
+		return rawget(ctx, field)
+	end,
+}
+
+-- spellCD: the cooldown the precheck already read, if it did.
+function E.buildSpellContext(spellID, predict, predictPad, castType, effectRng, spellCD)
+	return setmetatable({
+		spellID      = spellID,
+		predict      = predict,
+		predictPad   = predictPad,
+		castType     = castType,
+		requestedRng = effectRng,
+		spellCD      = spellCD,
+		loadedGroups = {},
+	}, contextMeta)
 end
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -325,16 +358,17 @@ end
 -- the context (about eight more game calls) is only built for spells that might pass. Same gate,
 -- same refusal record and debug line as the full gate run.
 local precheckCtx = {}
+-- Returns true (and the cooldown it read, for the context) when the spell might pass.
 function E.cooldownPrecheck(spellID, castType, isAbleCheck)
 	if castType == "pet" or E.castTimers == nil then return true end
 	precheckCtx.spellID = spellID
 	precheckCtx.spellCD = br.functions.spell:getSpellCD(spellID) or 0
 	precheckCtx.updateRate = E.getFrameValues().updateRate
 	local pass, reason, detail = gateCooldownTimer(precheckCtx, nil, castType)
-	if pass then return true end
+	if pass then return true, precheckCtx.spellCD end
 	E.recordRefusal(spellID, reason, detail)
 	if not isAbleCheck then
-		emitGateDebug(spellID, br.api.wow.GetSpellInfo(spellID), reason, detail)
+		emitGateDebug(spellID, br.functions.spell:getName(spellID), reason, detail)
 	end
 	return false
 end
