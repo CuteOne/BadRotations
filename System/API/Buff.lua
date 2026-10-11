@@ -110,11 +110,16 @@ br.api.buffs = function(buff, k, v)
         if br.functions.cast:isAuraBounced(v, thisUnit) then return false end
 
         -- Classic: when sourceUnit is omitted, treat refresh checks as "any source".
-        -- Also: don't attempt to refresh a buff that exists in a higher rank (same name, different spellId).
+        -- A higher rank already on the unit (same name, higher spellId) is left alone; a lower rank,
+        -- from anyone, is upgraded straight away. (If a rank ID ever misleads, the game refuses the
+        -- cast and the aura-bounce memory holds it until that aura ends.)
         if (br.api.hasSpellRanks and sourceUnit == nil) then
             local auraInfo = br.functions.aura:UnitBuffID(thisUnit, v)
             if auraInfo and auraInfo.spellId and auraInfo.spellId > v then
                 return false
+            end
+            if auraInfo and auraInfo.spellId and auraInfo.spellId < v then
+                return true
             end
             local remain = math.abs(br.functions.aura:getBuffRemain(thisUnit, v))
             local duration = br.functions.aura:getBuffDuration(thisUnit, v)
