@@ -260,8 +260,10 @@ actionList.Buffs = function()
     end
 end -- End Action List - Buffs
 
--- Action List - Extra
-actionList.Extra = function()
+-- Action List - Forms: Aquatic and Travel Form out of combat, then the form the Forms toggle picks.
+-- Runs after Buffs, Defensive and Utility, so a buff or heal that needs Caster Form goes first; the
+-- toggle's form waits out the GCD and any cast so it doesn't shift in just before one of those leaves again.
+actionList.Forms = function()
     -- Aquatic Form
     if ui.checked("Aquatic Form") and not unit.inCombat() and cast.able.aquaticForm()
         and unit.swimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
@@ -289,12 +291,7 @@ actionList.Extra = function()
             return true
         end
     end
-end -- End Action List - Extra
-
--- Action List - Forms: shift into the form the Forms toggle picks. Runs after Buffs, Defensive and
--- Utility, so a buff or heal that needs Caster Form goes first; waits out the GCD and any cast so
--- it doesn't shift in just before one of those leaves again.
-actionList.Forms = function()
+    -- Form from the Forms toggle
     local keepAquatic = ui.checked("Aquatic Form") and unit.swimming() and buff.aquaticForm.exists()
         and not unit.anyInAggroRange() and (not unit.exists("target") or unit.friend("target"))
     if keepAquatic or buff.travelForm.exists() or unit.gcd() > 0 or unit.isCasting("player") then return false end
@@ -1079,7 +1076,6 @@ local function runRotation()
         if actionList.Buffs() then return true end
         if actionList.Defensive() then return true end
         if actionList.Utility() then return true end
-        if actionList.Extra() then return true end
         if actionList.Forms() then return true end
         if actionList.PreCombat() then return true end
         if actionList.Combat() then return true end
