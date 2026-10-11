@@ -138,7 +138,8 @@ function SmartQueue:smartQueue()
 	if SmartQueue.queueSpell and br.functions.misc:isChecked("Smart Queue") and (((br._G.GetTime() - queueSpellTime) <= br.functions.misc:getOptionValue("Smart Queue") and not br._G.UnitChannelInfo("player")
 				and (br._G.UnitIsVisible(queueSpellTarget) or br.functions.misc:getOptionValue(br.api.wow.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") == 2) and br._G.UnitAffectingCombat("player"))
 			or (br._G.IsAoEPending() and br.functions.misc:isChecked("Smart Queue") and br.functions.misc:isChecked(br.api.wow.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") and br._G.UnitAffectingCombat("player")))
-		and (SmartQueue.queueSpell ~= 1776 or br.functions.unit:getFacing("target", "player"))
+		-- Gouge only lands from in front of the target
+		and (SmartQueue.queueSpell ~= br.functions.spell:getHighestSpellID("gouge") or br.functions.unit:getFacing("target", "player"))
 	then
 		if br._G.IsAoEPending() and br.functions.misc:getOptionValue(br.api.wow.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") ~= 3 then
 			local pendingSpell = SmartQueue.queueSpell

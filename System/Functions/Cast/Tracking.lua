@@ -439,7 +439,7 @@ function E.verifyCastStarted(spellID, snapshot, expectedSpellName)
 	local cooldownStarted = spellCdAfter > (snapshot.spellCdBefore or 0)
 	local buffGained = buffAfter and not (snapshot.buffBefore == true)
 	local currentSpellChangedOn = currentSpellAfter and not (snapshot.currentSpellBefore == true)
-	local currentSpellAlreadyOn = (spellID == 6603) and currentSpellAfter
+	local currentSpellAlreadyOn = (spellID == br.functions.spell:getHighestSpellID("autoAttack")) and currentSpellAfter
 	local startedOffGcdEffect = cooldownStarted or buffGained or currentSpellChangedOn or currentSpellAlreadyOn
 
 	local castSucceeded = (gcdAfter > snapshot.gcdBefore) or startedAnyNew or startedOffGcdEffect

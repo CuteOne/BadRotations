@@ -79,19 +79,12 @@ function cast:castGroundLocation(X, Y, SpellID, maxDistance, minDistance, radius
 	return false
 end
 
--- if getCastTime("Healing Touch")<3 then
+-- The spell's cast time in seconds, for what it currently is (spells that turn into another, like
+-- New Moon's cycle, report the spell they've become); 0 for an instant or unknown spell.
+-- if br.functions.cast:getCastTime(br.player.spells.healingTouch) < 3 then
 function cast:getCastTime(spellID)
-	if spellID == 202767 then
-		if select(3, br.api.wow.GetSpellInfo(202767)) == 1392545 then
-			spellID = 202767
-		elseif select(3, br.api.wow.GetSpellInfo(202767)) == 1392543 then
-			spellID = 202768
-		elseif select(3, br.api.wow.GetSpellInfo(202767)) == 1392542 then
-			spellID = 202771
-		end
-	end
-	local castTime = select(4, br.api.wow.GetSpellInfo(spellID)) / 1000
-	return castTime
+	if br._G.FindSpellOverrideByID then spellID = br._G.FindSpellOverrideByID(spellID) or spellID end
+	return (select(4, br.api.wow.GetSpellInfo(spellID)) or 0) / 1000
 end
 
 function cast:getCastTimeRemain(unit)

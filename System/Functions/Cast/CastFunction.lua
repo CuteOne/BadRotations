@@ -117,7 +117,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 		for _, costInfo in pairs(costTable) do
 			if costInfo.costPerSec > 0 then channeledSpell = true end
 		end
-		local quakeRemain = br.functions.aura:getDebuffRemain("player", 240448)
+		local quakeRemain = br.functions.aura:getDebuffRemain("player", br.functions.spell:getHighestSpellID("quaking"))
 		if quakeRemain > 0 then
 			if (ctx.rawCastTime > 0 and quakeRemain <= ((ctx.rawCastTime + 300) / 1000))
 				or (ctx.rawCastTime == 0 and channeledSpell and quakeRemain < 1.5)

@@ -335,7 +335,7 @@ function unit:isDemon(Unit)
 end
 
 function unit:isExplosive(Unit)
-	return br.functions.unit:GetObjectID(Unit) == 120651
+	return br.lists.unitRules.explosive[br.functions.unit:GetObjectID(Unit)] ~= nil
 end
 
 function unit:isUndead(Unit)

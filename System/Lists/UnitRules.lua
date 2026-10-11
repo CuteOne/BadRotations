@@ -34,6 +34,10 @@ br.lists.unitRules = {
     ignorePlayersWhilePlayerHas = 295249,
     -- Bursting (Mythic+ affix): the player's debuff, checked by Safe Damage Check
     bursting = 240443,
+    -- Explosive (Mythic+ affix) orbs: unit.isExplosive
+    explosive = {
+        [120651] = "Explosives",
+    },
     -- Proving Grounds NPC party members: they count as players, by role
     provingGrounds = {
         [72218] = "TANK",    -- Oto the Protector
