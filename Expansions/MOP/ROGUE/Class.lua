@@ -5,6 +5,7 @@ br.lists.spells.ROGUE.Shared = {
                 ambush              = 8676,
                 blind               = 2094,
                 cheapShot           = 1833,
+                shiv                = 5938,
                 cloakOfShadows      = 31224,
                 combatReadiness     = 74001,  -- MoP defensive CD
                 cripplingPoison     = 3408,

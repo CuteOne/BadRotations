@@ -4,6 +4,7 @@ br.lists.spells.HUNTER.Shared = {
     abilities = {
         -- Core Ranged
         autoShot          = 75,
+        tranquilizingShot = 19801,
         steadyShot        = 34120,                                                          -- TBC only; single rank, level 62
         multiShot         = {2643, 14288, 14289, 14290, 25294, 27021},                     -- R1-R6 (lv18/30/42/54/60/67)
         arcaneShot        = {3044, 14281, 14282, 14283, 14284, 14285, 14286, 14287, 27019}, -- R1-R9 (lv6-69)

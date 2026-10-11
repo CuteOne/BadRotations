@@ -4,6 +4,7 @@ br.lists.spells.PALADIN.Shared = {
             abilities  = {
                 absolution              = 450761,
                 avengingWrath           = 31884,
+                blessingOfFreedom       = 1044,
                 blessingOfKings         = 20217,
                 blessingOfMight         = 19740,
                 blindingLight           = 115750,
