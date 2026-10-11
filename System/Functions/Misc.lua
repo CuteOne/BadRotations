@@ -315,90 +315,13 @@ function misc:canSee(Unit)
 	return los
 end
 
--- if getGround("target"[,"target"]) then
-function misc:getGround(Unit)
-	if br.functions.unit:GetObjectExists(Unit) and br.functions.unit:GetUnitIsVisible(Unit) then
-		local X1, Y1, Z1 = br.functions.unit:GetObjectPosition(Unit)
-		if br._G.TraceLine(X1, Y1, Z1, X1, Y1, Z1 - 2, 0x10) == nil and br._G.TraceLine(X1, Y1, Z1, X1, Y1, Z1 - 2, 0x100) == nil then
-			return false
-		else
-			return true
-		end
-	end
-end
-
-function misc:getGroundDistance(Unit)
-	if br.functions.unit:GetObjectExists(Unit) and br.functions.unit:GetUnitIsVisible(Unit) then
-		local X1, Y1, Z1 = br.functions.unit:GetObjectPosition(Unit)
-		for i = 1, 100 do
-			if br._G.TraceLine(X1, Y1, Z1, X1, Y1, Z1 - i / 10, 0x10) ~= nil or br._G.TraceLine(X1, Y1, Z1, X1, Y1, Z1 - i / 10, 0x100) ~= nil then
-				return i / 10
-			end
-		end
-	else
-		return 0
-	end
-end
-
--- if getPetLineOfSight("target"[,"target"]) then
-function misc:getPetLineOfSight(Unit)
-	if br.functions.unit:GetObjectExists(Unit) and br.functions.unit:GetUnitIsVisible("pet") and br.functions.unit:GetUnitIsVisible(Unit) then
-		local X1, Y1, Z1 = br.functions.unit:GetObjectPosition("pet")
-		local X2, Y2, Z2 = br.functions.unit:GetObjectPosition(Unit)
-		if br._G.TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10) == nil then
-			return true
-		else
-			return false
-		end
-	else
-		return true
-	end
-end
-
 --- Round
 function misc:round2(num, idp)
 	local mult = 10 ^ (idp or 0)
 	return math.floor(num * mult + 0.5) / mult
 end
 
--- if getTalent(8) == true then
-function misc:getTalent(Row, Column, specGroup)
-	if specGroup == nil then
-		specGroup = br._G.C_SpecializationInfo.GetActiveSpecGroup()
-	end
-	local _, _, _, selected = br._G.GetTalentInfo(Row, Column, specGroup)
-	return selected or false
-end
-
--- if hasEmptySlots() then
-function misc:hasEmptySlots()
-	local openSlots = 0
-	for i = 0, 4 do       --Let's look at each bag
-		local numBagSlots = br._G.C_Container.GetContainerNumSlots(i)
-		if numBagSlots > 0 then -- Only look for slots if bag present
-			openSlots = openSlots + select(1, br._G.C_Container.GetContainerNumFreeSlots(i))
-		end
-	end
-	if openSlots > 0 then
-		return true
-	else
-		return false
-	end
-end
-
 -- UnitGUID("target"):sub(-15,-10)
-
---if isGarrMCd() then
-function misc:isGarrMCd(Unit)
-	if Unit == nil then
-		Unit = "target"
-	end
-	if br.functions.unit:GetUnitExists(Unit) and (br.functions.aura:UnitDebuffID(Unit, 145832) or br.functions.aura:UnitDebuffID(Unit, 145171) or br.functions.aura:UnitDebuffID(Unit, 145065) or br.functions.aura:UnitDebuffID(Unit, 145071)) then
-		return true
-	else
-		return false
-	end
-end
 
 -- if isInCombat("target") then
 function misc:isInCombat(Unit)
@@ -409,64 +332,9 @@ function misc:isInCombat(Unit)
 	end
 end
 
-function misc:isInArdenweald()
-	local tContains = br._G.tContains
-	local mapID = br._G.C_Map.GetBestMapForUnit("player")
-	return tContains(br.lists.maps.Ardenweald, mapID)
-end
-
-function misc:isInBastion()
-	local tContains = br._G.tContains
-	local mapID = br._G.C_Map.GetBestMapForUnit("player")
-	return tContains(br.lists.maps.Bastion, mapID)
-end
-
-function misc:isInMaldraxxus()
-	local tContains = br._G.tContains
-	local mapID = br._G.C_Map.GetBestMapForUnit("player")
-	return tContains(br.lists.maps.Maldraxxus, mapID)
-end
-
-function misc:isInRevendreth()
-	local tContains = br._G.tContains
-	local mapID = br._G.C_Map.GetBestMapForUnit("player")
-	return tContains(br.lists.maps.Revendreth, mapID)
-end
-
-function misc:isInTheMaw()
-	local tContains = br._G.tContains
-	local mapID = br._G.C_Map.GetBestMapForUnit("player")
-	return tContains(br.lists.maps.TheMaw, mapID)
-end
-
--- if isInDraenor() then
-function misc:isInDraenor()
-	local tContains = br._G.tContains
-	local currentMapID = br._G.C_Map.GetBestMapForUnit("player")
-	local draenorMapIDs = br.lists.maps.Draenor
-	return tContains(draenorMapIDs, currentMapID)
-end
-
-function misc:isInLegion()
-	local tContains = br._G.tContains
-	local currentMapID = br._G.C_Map.GetBestMapForUnit("player")
-	local legionMapIDs = br.lists.maps.Legion
-	return tContains(legionMapIDs, currentMapID)
-end
-
 function misc:isInProvingGround()
 	local currentMapID = br._G.C_Map.GetBestMapForUnit("player")
 	return currentMapID == 480
-end
-
--- if IsInPvP() then
-function misc:isInPvP()
-	local inpvp = br._G.GetPVPTimer()
-	if (inpvp ~= 301000 and inpvp ~= -1) or (br._G.UnitIsPVP("player") and br._G.UnitIsPVP("target")) then
-		return true
-	else
-		return false
-	end
 end
 
 --if isLongTimeCCed("target") then
@@ -508,29 +376,6 @@ function misc:isPlayer(Unit)
 		end
 	else
 		return false
-	end
-end
-
--- True if the player has stood still (and isn't falling) for at least Seconds.
--- if br.functions.misc:isStanding(2) then
-function misc:isStanding(Seconds)
-	return not br._G.IsFalling() and misc:getStandingTime() >= (Seconds or 0)
-end
-
--- if isValidTarget("target") then
-function misc:isValidTarget(Unit)
-	if br._G.UnitIsEnemy("player", Unit) or br.functions.unit:isDummy(Unit) then
-		if br.functions.unit:GetUnitExists(Unit) and not br.functions.unit:GetUnitIsDeadOrGhost(Unit) then
-			return true
-		else
-			return false
-		end
-	else
-		if br.functions.unit:GetUnitExists(Unit) then
-			return true
-		else
-			return false
-		end
 	end
 end
 
@@ -801,24 +646,6 @@ function misc:UpdateToggle(toggle, delay)
 	end
 end
 
-function misc:BurstToggle(toggle, delay)
-	if br.burstKey == nil then
-		br.burstKey = false
-	end
-	if br._G[toggle .. "Timer"] == nil then
-		br._G[toggle .. "Timer"] = 0
-	end
-	if br.burst and not br._G.GetCurrentKeyBoardFocus() and br._G.GetTime() - _G[toggle .. "Timer"] > delay then
-		if not br.burstKey then
-			br._G[toggle .. "Timer"] = br._G.GetTime()
-			br.burstKey = true
-		else
-			br._G[toggle .. "Timer"] = br._G.GetTime()
-			br.burstKey = false
-		end
-	end
-end
-
 -- if pause() then
 -- set skipCastingCheck to true, to not check if player is casting
 -- (useful if you want to use off-cd stuff, or spells which can be cast while other is casting)
@@ -1033,21 +860,6 @@ function misc:pause(skipCastingCheck)
 	return false
 end
 
--- feed a var
-function misc:toggleTrueNil(var)
-	if _G[var] ~= true then
-		_G[var] = true
-	else
-		_G[var] = nil
-	end
-end
-
-function misc:spellDebug(Message)
-	if br.imDebugging == true and br.functions.misc:getOptionCheck("Debugging Mode") then
-		br.ui.chatOverlay:Show(Message)
-	end
-end
-
 -- Option index: where each option lives (storage page) and its default, recorded by the UI
 -- elements as they are created (br.ui:createCheckbox / createSpinner / createDropdown / ...).
 -- Lookups go straight to the option's page instead of searching every page.
@@ -1174,18 +986,6 @@ function misc:isChecked(Value, Page)
 	return findOption(Value, Page, " Check")
 end
 
--- if br.functions.misc:isSelected("Stormlash Totem") then
-function misc:isSelected(Value)
-	if br.data.settings ~= nil
-		and (br.data.settings[br.loader.selectedSpec].toggles["Cooldowns"] == 3
-			or (br.functions.misc:isChecked(Value) and (br.functions.misc:getValue(Value) == 3
-				or (br.functions.misc:getValue(Value) == 2 and br.data.settings[br.loader.selectedSpec].toggles["Cooldowns"] == 2))))
-	then
-		return true
-	end
-	return false
-end
-
 -- if br.functions.misc:getValue("player") <= br.functions.misc:getValue("Eternal Flame") then
 -- function misc:getValue(Value)
 -- 	if br.data~=nil then
@@ -1242,21 +1042,6 @@ function misc:getValue(Value, Page)
 	-- end
 end
 
-function misc:setValue(Value, Page, Amount)
-	local statusValue = findOption(Value, Page, " Status")
-	if statusValue and statusValue > 0 then
-		statusValue:SetNumber(Amount)
-	end
-	local dropValue = findOption(Value, Page, " Drop")
-	if dropValue and dropValue > 0 then
-		dropValue:SetNumber(Amount)
-	end
-	local editBoxValue = findOption(Value, Page, " EditBox")
-	if editBoxValue then
-		editBoxValue:SetNumber(Amount)
-	end
-end
-
 -- used to gather informations from the bot options frame
 function misc:getOptionCheck(Value)
 	return br.functions.misc:isChecked(Value)
@@ -1264,26 +1049,6 @@ end
 
 function misc:getOptionValue(Value)
 	return br.functions.misc:getValue(Value)
-end
-
-function misc:setOptionValue(Value, Amount)
-	return br.functions.misc:setValue(Value, nil, Amount)
-end
-
-function misc:getOptionText(Value)
-	if br.data ~= nil and br.data.settings ~= nil then
-		local selectedProfile = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-		if selectedProfile ~= nil then
-			if selectedProfile[Value .. "Data"] ~= nil then
-				if selectedProfile[Value .. "Drop"] ~= nil then
-					if selectedProfile[Value .. "Data"][selectedProfile[Value .. "Drop"]] ~= nil then
-						return selectedProfile[Value .. "Data"][selectedProfile[Value .. "Drop"]]
-					end
-				end
-			end
-		end
-	end
-	return ""
 end
 
 function misc:convertName(name)
@@ -1316,92 +1081,6 @@ function misc:devMode()
 			_G.br = nil
 			br._G.print("<Dev Mode Disabled>")
 		end
-	end
-end
-
-function misc:bossHPLimit(unit, hp)
-	-- Boss Active/Health Max
-	local bossHPMax = 0
-	local inBossFight = false
-	local enemyList = br.engines.enemiesEngineFunctions:getEnemies("player", 40)
-	for i = 1, #enemyList do
-		local thisUnit = enemyList[i]
-		if br.functions.unit:isBoss(thisUnit) then
-			bossHPMax = br._G.UnitHealthMax(thisUnit)
-			inBossFight = true
-			break
-		end
-	end
-	return (not inBossFight or (inBossFight and br._G.UnitHealthMax(unit) > bossHPMax * (hp / 100)))
-end
-
-function misc:talentAnywhere()
-	local removeTalent = br._G.RemoveTalent
-	local learnTalent = br._G.LearnTalent
-	-- Load Talent UI if not opened before
-	if not br._G.C_AddOns.IsAddOnLoaded("Blizzard_TalentUI") and not br._G.UnitAffectingCombat("player") then
-		br._G.LoadAddOn("Blizzard_TalentUI")
-	end
-
-	local function talentSelection(row)
-		for column = 1, 3 do
-			if
-				br._G.IsMouseButtonDown(1) and br.newTalent == nil and br._G.MouseIsOver(_G["PlayerTalentFrameTalentsTalentRow" .. row .. "Talent" .. column]) and
-				not select(4, br._G.GetTalentInfoByID(br._G.GetTalentInfo(row, column, 1), 1))
-			then
-				br.selectedTalent = nil
-				br.newTalent = select(1, br._G.GetTalentInfo(row, column, 1))
-				br.newTalentRow = row
-			end
-			if br.newTalentRow ~= nil then
-				if select(4, br._G.GetTalentInfoByID(br._G.GetTalentInfo(br.newTalentRow, column, 1), 1)) then
-					br.selectedTalent = select(1, br._G.GetTalentInfo(br.newTalentRow, column, 1))
-				end
-			end
-		end
-		return br.selectedTalent, br.newTalent -- selectedNew
-	end
-
-	if br._G.PlayerTalentFrame and br._G.PlayerTalentFrame:IsVisible() and not br._G.IsResting() then
-		for row = 1, 7 do
-			br.selectedTalent, br.newTalent, br.selectedNew = talentSelection(row)
-		end
-		--br.ui.chatOverlay:Show(tostring(selectedTalent).." | "..tostring(newTalent).." | "..tostring(selectedNew))
-		if br.newTalent ~= nil then
-			if br.selectedTalent ~= nil and br.selectedTalent ~= br.newTalent and not br.selectedNew and br.debug.timer:useTimer("RemoveTalent", 0.1) then
-				removeTalent(br.selectedTalent)
-			end
-			if br.selectedTalent == nil and br.selectedTalent ~= br.newTalent and not br.selectedNew then
-				learnTalent(br.newTalent)
-				br.selectedNew = true
-			end
-			if br.selectedTalent == br.newTalent then
-				br.selectedNew = false
-				br.newTalent = nil
-			end
-		end
-	end
-end
-
-function misc:getEssenceRank(essenceName)
-	if br.api.wow.GetSpellInfo(essenceName) == nil then
-		return 0
-	end
-	local essenceRank = 0
-	local essenceTable = br._G.C_AzeriteEssence.GetMilestones()
-	local icon = select(3, br.api.wow.GetSpellInfo(essenceName))
-	for i = 1, #essenceTable do
-		local milestone = essenceTable[i]
-		if milestone.slot ~= nil and milestone.unlocked == true then
-			local eRank = br._G.C_AzeriteEssence.GetEssenceInfo(br._G.C_AzeriteEssence.GetMilestoneEssence(milestone.ID))
-				.rank
-			local eIcon = br._G.C_AzeriteEssence.GetEssenceInfo(br._G.C_AzeriteEssence.GetMilestoneEssence(milestone.ID))
-				.icon
-			if icon == eIcon then
-				essenceRank = eRank
-			end
-		end
-		return essenceRank
 	end
 end
 
@@ -1453,33 +1132,6 @@ function misc:addonDebug(msg, system)
 			end
 		end
 	end
-end
-
-function misc:sanguineCheck(unit)
-	if br.sanguine then
-		local x, y, z = br._G.ObjectPosition(unit)
-		for _, v in pairs(br.sanguine) do
-			if br._G.sqrt(((x - v.posX) ^ 2) + ((y - v.posY) ^ 2) + ((z - v.posZ) ^ 2)) < 5 then
-				return true
-			end
-		end
-	end
-	return false
-end
-
-function misc:isTableEmpty(table)
-	if table == nil then
-		return true
-	end
-	local retval = true
-	if next(table) ~= nil then
-		retval = false
-	end
-	return retval
-end
-
-function misc:getItemGlow(object)
-	return br._G.IsQuestObject(object)
 end
 
 function misc:AcceptQueues()

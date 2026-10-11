@@ -79,49 +79,6 @@ function cast:castGroundLocation(X, Y, SpellID, maxDistance, minDistance, radius
 	return false
 end
 
--- if shouldNotOverheal(spellCastTarget) > 80 then
-function cast:shouldNotOverheal(Unit)
-	local myIncomingHeal, allIncomingHeal = 0, 0
-	if br._G.UnitGetIncomingHeals(Unit, "player") ~= nil then myIncomingHeal = br._G.UnitGetIncomingHeals(Unit, "player") end
-	if br._G.UnitGetIncomingHeals(Unit) ~= nil then allIncomingHeal = br._G.UnitGetIncomingHeals(Unit) end
-	allIncomingHeal = allIncomingHeal or 0
-	local overheal
-	if myIncomingHeal >= allIncomingHeal then
-		overheal = myIncomingHeal
-	else
-		overheal = allIncomingHeal
-	end
-	local CurShield = br._G.UnitHealth(Unit)
-	if br.functions.aura:UnitDebuffID("player", 142861) then --Ancient Miasma
-		CurShield = select(14, br.functions.aura:UnitDebuffID(Unit, 142863)) or select(14, br.functions.aura:UnitDebuffID(Unit, 142864)) or
-			select(14, br.functions.aura:UnitDebuffID(Unit, 142865)) or (br._G.UnitHealthMax(Unit) / 2)
-		overheal = 0
-	end
-	local overhealth = 100 * (CurShield + overheal) / br._G.UnitHealthMax(Unit)
-	if overhealth and overheal then
-		return overhealth, overheal
-	else
-		return 0, 0
-	end
-end
-
-function cast:isCastingTime(lagTolerance)
-	lagTolerance = lagTolerance or 0
-	if br._G.UnitCastingInfo("player") ~= nil then
-		if select(5, br._G.UnitCastingInfo("player")) - br._G.GetTime() <= lagTolerance then
-			return true
-		end
-	elseif br._G.UnitChannelInfo("player") ~= nil then
-		if select(5, br._G.UnitChannelInfo("player")) - br._G.GetTime() <= lagTolerance then
-			return true
-		end
-	elseif br.functions.spell:getGlobalCD() <= lagTolerance then
-		return true
-	else
-		return false
-	end
-end
-
 -- if getCastTime("Healing Touch")<3 then
 function cast:getCastTime(spellID)
 	if spellID == 202767 then
@@ -144,18 +101,6 @@ function cast:getCastTimeRemain(unit)
 		return select(5, br._G.UnitChannelInfo(unit)) / 1000 - br._G.GetTime()
 	else
 		return 0
-	end
-end
-
--- if isCasting() == true then
-function cast:castingUnit(Unit)
-	if Unit == nil then Unit = "player" end
-	if br._G.UnitCastingInfo(Unit) ~= nil
-		or br._G.UnitChannelInfo(Unit) ~= nil
-		or br.functions.spell:getGlobalCD() > 0.001 then
-		return true
-	else
-		return false
 	end
 end
 

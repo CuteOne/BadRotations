@@ -2,22 +2,6 @@ local _, br = ...
 br.functions.combat = br.functions.combat or {}
 local combat = br.functions.combat
 
-function combat:canAoE(unit, distance)
-	if unit == nil then
-		return false
-	end
-	if distance == nil then
-		distance = 8
-	end
-	local enemies = br.engines.enemiesEngineFunctions:getEnemies(unit, distance)
-	for i = 1, #enemies do
-		if not br.functions.misc:isValidUnit(enemies[i]) then
-			return false
-		end
-	end
-	return true
-end
-
 -- if canAttack("player","target") then
 function combat:canAttack(Unit1, Unit2)
 	if Unit1 == nil then
@@ -27,27 +11,6 @@ function combat:canAttack(Unit1, Unit2)
 		Unit2 = "target"
 	end
 	return br._G.UnitCanAttack(Unit1, Unit2)
-end
-
-function combat:canDisarm(Unit)
-	if br.functions.unit.DisarmedTarget == nil then
-		br.functions.unit.DisarmedTarget = ""
-	end
-	if br.functions.unit.isDisarmed == true then
-		if br.functions.unit:GetUnitExists(Unit) and br._G.UnitGUID(Unit) ~= br.functions.unit.DisarmedTarget then
-			br.functions.unit.DisarmedTarget = br._G.UnitGUID(Unit)
-			return false
-		else
-			br.functions.unit.isDisarmed = false
-			return true
-		end
-	end
-	if not br.functions.misc:isInCombat("player") or br.functions.unit:GetUnitExists(Unit) then
-		if not br.functions.misc:isInCombat("player") or br._G.UnitGUID(Unit) ~= br.functions.unit.DisarmedTarget then
-			br.functions.unit.isDisarmed = false
-			return true
-		end
-	end
 end
 
 -- if br.functions.combat:getCombatTime() <= 5 then
@@ -83,17 +46,6 @@ function combat:getOoCTime()
 	return (math.floor(combatTime * 1000) / 1000)
 end
 
--- if getLowAllies(60) > 3 then
-function combat:getLowAllies(Value)
-	local lowAllies = 0
-	for i = 1, #br.engines.healingEngine.friend do
-		if br.engines.healingEngine.friend[i].hp <= Value then
-			lowAllies = lowAllies + 1
-		end
-	end
-	return lowAllies
-end
-
 -- if getLowAlliesInTable(60, nNove) > 3 then
 function combat:getLowAlliesInTable(Value, unitTable)
 	local lowAllies = 0
@@ -103,11 +55,6 @@ function combat:getLowAlliesInTable(Value, unitTable)
 		end
 	end
 	return lowAllies
-end
-
--- if getNumEnemies("target",10) >= 3 then
-function combat:getNumEnemies(Unit, Radius)
-	return #br.engines.enemiesEngineFunctions:getEnemies(Unit, Radius)
 end
 
 function combat:isIncapacitated(spellID)
@@ -496,20 +443,6 @@ end
 
 function combat:isTanking(unit)
 	return br._G.UnitThreatSituation("player", unit) ~= nil and br._G.UnitThreatSituation("player", unit) >= 2
-end
-
--- if isAggroed("target") then
-function combat:isAggroed(unit)
-	for i = 1, #br.engines.healingEngine.friend do
-		local friend = br.engines.healingEngine.friend[i].unit
-		local threat = select(5, br._G.UnitDetailedThreatSituation(friend, unit))
-		if threat ~= nil then
-			if threat >= 0 then
-				return true
-			end
-		end
-	end
-	return false
 end
 
 -- True if a tank in the player's party/raid within 40 yards is in combat.

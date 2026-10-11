@@ -1,41 +1,11 @@
 local _, br = ...
 br.functions.power = br.functions.power or {}
 local power = br.functions.power
-local runeTable = {}
-
-function power:getChi(Unit)
-	return br._G.UnitPower(Unit, 12)
-end
-
-function power:getChiMax(Unit)
-	return br._G.UnitPowerMax(Unit, 12)
-end
 
 -- if getCombo() >= 1 then
 function power:getCombo(thisUnit)
 	if thisUnit == nil then thisUnit = "target" end
 	return br._G.GetComboPoints("player", thisUnit) --GetComboPoints("player") - Legion Change
-end
-
-function power:getEmber(Unit)
-	return br._G.UnitPower(Unit, 14)
-end
-
-function power:getEmberMax(Unit)
-	return br._G.UnitPowerMax(Unit, 14)
-end
-
--- if getMana("target") <= 15 then
-function power:getMana(Unit)
-	return 100 * br._G.UnitPower(Unit, 0) / br._G.UnitPowerMax(Unit, 0)
-end
-
-function power:getEssence(Unit)
-	return br._G.UnitPower(Unit, 19)
-end
-
-function power:getEssenceMax(Unit)
-	return br._G.UnitPowerMax(Unit, 19)
 end
 
 -- if br.functions.power:getPower("target") <= 15 then
@@ -63,26 +33,6 @@ function power:getPowerMax(Unit, index)
 		if br.functions.aura:UnitBuffID("player", 106951) then
             value = value * 2
         end
-	end
-	return value
-end
-
-function power:getPowerAlt(Unit)
-	local value = 0
-	local class = select(2, br._G.UnitClass(Unit))
-	local spec = br._G.C_SpecializationInfo.GetSpecialization()
-	local power = br._G.UnitPower
-	if (class == "DRUID" and spec == 2) or class == "ROGUE" then
-		value = power(Unit, 4)
-	end
-	if class == "DEATHKNIGHT" then
-		value = power(Unit, 5)
-	end
-	if class == "WARLOCK" then
-		value = power(Unit, 7)
-	end
-	if class == "EVOKER" then
-		value = power(Unit, 19)
 	end
 	return value
 end
@@ -292,23 +242,6 @@ function power:getTimeToMax(Unit, Limit)
 	return timeTill
 end
 
--- /dump getCastRegen(185358)
-function power:getCastRegen(spellId)
-	local regenRate = br._G.GetPowerRegen("player")
-	local power = 0
-
-	-- Get the "execute time" of the spell (larger of GCD or the cast time).
-	local castTime = br.functions.cast:getCastTime(spellId) or 0
-	local gcd = br.functions.spell:getGlobalCD()
-	if gcd == 0 then
-		gcd = br._G.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100))
-	end
-	local castSeconds = (castTime > gcd) and castTime or gcd
-	power = power + regenRate * castSeconds
-
-	return power
-end
-
 -- if br.functions.power:getRegen("player") > 15 then
 function power:getRegen(Unit)
 	return select(2, br._G.GetPowerRegen(Unit))
@@ -367,18 +300,6 @@ function power:getSpellCosts(spellID)
 		end
 	end
 	return costs
-end
-
-function power:hasResources(spell, offset)
-	local cost, _, costtype = br.functions.power:getSpellCost(spell)
-	offset = offset or 0
-	if not cost then
-		return false
-	elseif cost == 0 then
-		return true
-	elseif br._G.UnitPower("player", costtype) > cost + offset then
-		return true
-	end
 end
 
 -- Mana cost of a spell reference (id, name, or BR spell table); 0 if free, not mana, or treatAsFree.

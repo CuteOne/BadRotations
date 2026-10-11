@@ -70,8 +70,7 @@ function cast:isRejected(kind, spellID, thisUnit)
 	return false
 end
 
--- Kept for existing callers (Buff.lua).
-function cast:setAuraBounced(spellID, guid) cast:setRejected("aura", spellID, guid) end
+-- True while a stronger aura on the unit refused this spell (Buff.lua's refresh checks it).
 function cast:isAuraBounced(spellID, thisUnit) return cast:isRejected("aura", spellID, thisUnit or "player") end
 
 -- Remember which spell BR last sent and at whom, so UI errors can be pinned on it.
@@ -496,15 +495,3 @@ function E.verifyCastStarted(spellID, snapshot, expectedSpellName)
 	}
 end
 
-local function printCastFailedDetails(prefix, spellID, spellName, snapshot, details)
-	br._G.print(prefix .. "Failed cast attempt: SpellID=" .. tostring(spellID) .. " Name=" .. tostring(spellName))
-	br._G.print("  GCD before/after: " .. tostring(snapshot.gcdBefore) .. " -> " .. tostring(details.gcdAfter))
-	br._G.print("  Casting before/after: " .. tostring(snapshot.castingBefore) .. " -> " .. tostring(details.castingAfter))
-	br._G.print("  Channeling before/after: " .. tostring(snapshot.channelingBefore) .. " -> " .. tostring(details.channelingAfter))
-	br._G.print("  PrevLastCastTime/newLastCastTime: " .. tostring(snapshot.prevLastCastTime) .. " -> " .. tostring(details.newLastCastTime))
-	br._G.print("  SpellCD before/after: " .. tostring(snapshot.spellCdBefore) .. " -> " .. tostring(details.spellCdAfter))
-	br._G.print("  IsCurrentSpell before/after: " .. tostring(snapshot.currentSpellBefore) .. " -> " .. tostring(details.currentSpellAfter))
-	br._G.print("  SelfBuff before/after: " .. tostring(snapshot.buffBefore) .. " -> " .. tostring(details.buffAfter))
-	br._G.print("  RecentlyFailed/failedAt: " .. tostring(details.recentlyFailed) .. " -> " .. tostring(details.failedAt))
-	br._G.print("  Inconclusive/noSignals: " .. tostring(details.inconclusive) .. " -> " .. tostring(details.noObservableSignals))
-end

@@ -114,10 +114,6 @@ function spell:canInterrupt(unit, percentint)
 	end
 end
 
-function spell:canStun(unit)
-	return br.engines.enemiesEngineFunctions:isCrowdControlCandidates(unit)
-end
-
 -- if br.functions.spell:getCharges(115399) > 0 then
 function spell:getCharges(spellID)
 	local chargeInfo = br._G.C_Spell.GetSpellCharges(spellID)
@@ -314,63 +310,6 @@ function spell:isSpellInSpellbook(spellID, spellType)
 	return false
 end
 
-function spell:getSpellInSpellBook(spellID, spellType)
-	-- Cross-expansion guards: Enum.SpellBookSpellBank and Enum.SpellBookItemType
-	-- don't exist on TBC/Classic. Same pattern as the sibling isSpellInSpellbook
-	-- above (L347-348) — fall back to the string constants that the legacy
-	-- _G.GetSpellBookItemInfo accepts for the bank arg and returns for the
-	-- type field.
-	local petBank    = (Enum and Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet)        or "PET"
-	local playerBank = (Enum and Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player)     or "SPELL"
-	local typeSpell  = (Enum and Enum.SpellBookItemType  and Enum.SpellBookItemType.Spell)       or "SPELL"
-	local typeFuture = (Enum and Enum.SpellBookItemType  and Enum.SpellBookItemType.FutureSpell) or "FUTURESPELL"
-	local typeFlyout = (Enum and Enum.SpellBookItemType  and Enum.SpellBookItemType.Flyout)      or "FLYOUT"
-	-- Resolve bank once at function-entry. Previously this was re-evaluated each
-	-- inner-loop iteration against `local spellType, id` (the old L375) which
-	-- shadowed the parameter — the "pet" branch was therefore unreachable.
-	-- Hoisting removes the shadow's effect on bank selection.
-	local bank = (spellType == "pet") and petBank or playerBank
-	for i = 1, br._G.GetNumSpellTabs() do
-		local name, texture, offset, numSlots, isGuild, offspecID = br._G.GetSpellTabInfo(i)
-		-- local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
-		for j = offset + 1, offset + numSlots do
-			local itemType, id  -- renamed: no longer shadows the parameter
-			if br._G.GetSpellBookItemInfo then
-				itemType, id = br._G.GetSpellBookItemInfo(j, bank)
-			elseif br._G.C_SpellBook and br._G.C_SpellBook.GetSpellBookItemInfo then
-				local info = br._G.C_SpellBook.GetSpellBookItemInfo(j, bank)
-				-- try to map modern return to older variables
-				if info then
-					itemType = info.itemType
-					id = info.actionID
-				end
-			end
-			-- local spellType, id = spellBookItemInfo.itemType, spellBookItemInfo.actionID
-			-- Note: Classic-era _G.GetSpellBookItemInfo also returns "PETACTION"
-			-- for entries in the pet spellbook. The branches below don't handle
-			-- it (spellName / typeLabel stay nil); if you resurrect the
-			-- commented-out caller below this function (currently around L429,
-			-- search for "spellInBookType"), add a fourth branch here for it.
-			local spellName
-			local typeLabel
-			if itemType == typeSpell then
-				spellName = br._G.C_Spell.GetSpellName(id)
-				typeLabel = "Spell"
-			elseif itemType == typeFuture then
-				spellName = br._G.C_Spell.GetSpellName(id)
-				typeLabel = "Future Spell"
-			elseif itemType == typeFlyout then
-				spellName = GetFlyoutInfo(id)
-				typeLabel = "Flyout"
-			end
-			if id == spellID then
-				return i, j, typeLabel, id, spellName
-			end
-		end
-	end
-	return nil
-end
-
 -- if br.functions.spell:isKnown(106832) then
 -- function spell:isKnown(spellID)
 -- 	local baseSpellID = br.api.wow.FindBaseSpellByID(spellID)
@@ -399,13 +338,6 @@ function spell:isKnown(spellID)
 		inBook = br.functions.spell:isSpellInSpellbook(spellID, "spell")
 	end
 	return inBook or br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID,"spell")
-end
-
-function spell:isActiveEssence(spellID)
-	local heartOfAzerothID = br.functions.spell:getHighestSpellID("heartOfAzeroth") or 296208
-	local _, _, heartIcon = br.api.wow.GetSpellInfo(heartOfAzerothID)
-	local _, _, essenceIcon = br.api.wow.GetSpellInfo(spellID)
-	return heartIcon == essenceIcon
 end
 
 local function getEventBuffIDs()
@@ -629,16 +561,6 @@ function spell:getSpellRank(spellIDOrTable, rank)
         if self:isKnown(spellIDOrTable[i]) then return spellIDOrTable[i] end
     end
     return spellIDOrTable[asked]
-end
-
--- Get the number of ranks for a spell
--- @param spellIDOrTable - A spell ID (number) or table of spell IDs
--- @return number - The total number of ranks available
-function spell:getMaxRank(spellIDOrTable)
-    if type(spellIDOrTable) == "table" then
-        return #spellIDOrTable
-    end
-    return 1
 end
 
 -- Get the current rank the player knows for a spell

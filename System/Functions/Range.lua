@@ -1,7 +1,7 @@
 local _, br = ...
 br.functions.range = br.functions.range or {}
 local range = br.functions.range
-local sqrt, abs, atan, deg, tan = math.sqrt, math.abs, math.atan, math.deg, math.tan
+local sqrt, abs, atan, deg = math.sqrt, math.abs, math.atan, math.deg
 local testSpell = {
     ["WARRIOR"] = 6552,
     ["PALADIN"] = 35395,
@@ -218,133 +218,6 @@ function range:getDistanceCalc(Unit1, Unit2, option)
     return currentDist
 end
 
--- Pure geometric edge-to-edge distance calculation.
--- No spell API calls or empirical correction curves — returns values matching WoW spell
--- tooltip ranges 1:1.
---
--- Server spell formula:  castAllowed  when  centerDist - (cr1+cr2) <= spellTooltipRange
--- Server melee formula:  inMelee      when  centerDist <= max(6, cr1+cr2 + 7/3 + runBonus)
---
--- The 7/3 ≈ 2.333 yd constant is the WoW engine's hardcoded animation reach tolerance,
--- unchanged across all expansions since Vanilla.  It is the actual server value, not a guess.
---
--- Options:
---   "dist"       → raw edge-to-edge (may be negative inside the melee contact zone)
---   "meleeRange" → edge-to-edge melee threshold for these two units
---   default      → clamped to 0; returns 0 when within the melee threshold
-function range:getDistanceCalc2(Unit1, Unit2, option)
-    if Unit2 == nil then
-        Unit2 = Unit1
-        Unit1 = "player"
-    end
-    if Unit1 == nil or Unit2 == nil then return 100 end
-    local _ok2, _isSame2 = pcall(function() return Unit1 == Unit2 or br._G.UnitIsUnit(Unit1, Unit2) end)
-    if _ok2 and _isSame2 then return 0 end
-    if option == nil then option = "none" end
-
-    local currentDist = 100
-
-    if (br.functions.unit:GetUnitIsUnit(Unit1, "player") or (br.functions.unit:GetObjectExists(Unit1) and br.functions.unit:GetUnitIsVisible(Unit1) == true))
-        and (br.functions.unit:GetUnitIsUnit(Unit2, "player") or (br.functions.unit:GetObjectExists(Unit2) and br.functions.unit:GetUnitIsVisible(Unit2) == true))
-    then
-        -- Talent-based range extension (subtracts from edgeDist, widening effective cast range)
-        local rangeMod = 0
-        if br.player ~= nil and option ~= "noMod" then
-            if br.player.talent.astralInfluence ~= nil and br.player.talent.astralInfluence then
-                rangeMod = br.player.talent.rank.astralInfluence == 1 and 1 or 3
-            end
-        end
-
-        -- Unit1 position (prefer engine-cached values to avoid per-call ObjectPosition overhead)
-        local X1, Y1, Z1 = 0, 0, 0
-        local unit1GUID = select(2, br.functions.unit:getGUID(Unit1))
-        local _p1ok2 = pcall(function()
-            if br.engines.enemiesEngine ~= nil and br.engines.enemiesEngine.records[Unit1] ~= nil and br.engines.enemiesEngine.records[Unit1].posX ~= nil then
-                X1, Y1, Z1 = br.engines.enemiesEngine.records[Unit1].posX, br.engines.enemiesEngine.records[Unit1].posY, br.engines.enemiesEngine.records[Unit1].posZ
-            elseif br.functions.unit:GetUnitIsUnit(Unit1, "player") and br.player ~= nil and br.player.state.posX ~= nil then
-                X1, Y1, Z1 = br.player.state.posX, br.player.state.posY, br.player.state.posZ
-            elseif br.functions.misc:isChecked("HE Active") and br.engines.healingEngine.memberSetup ~= nil and br.engines.healingEngine.memberSetup.cache[unit1GUID] ~= nil and br.engines.healingEngine.memberSetup.cache[unit1GUID].x ~= nil then
-                X1, Y1, Z1 = br.engines.healingEngine.memberSetup.cache[unit1GUID].x, br.engines.healingEngine.memberSetup.cache[unit1GUID].y, br.engines.healingEngine.memberSetup.cache[unit1GUID].z
-            else
-                X1, Y1, Z1 = br.functions.unit:GetObjectPosition(Unit1)
-            end
-        end)
-        if not _p1ok2 then X1, Y1, Z1 = br.functions.unit:GetObjectPosition(Unit1) end
-        if not X1 then return 999 end
-
-        -- Unit2 position
-        local X2, Y2, Z2 = 0, 0, 0
-        local unit2GUID = select(2, br.functions.unit:getGUID(Unit2))
-        local _p2ok2 = pcall(function()
-            if br.engines.enemiesEngine ~= nil and br.engines.enemiesEngine.records[Unit2] ~= nil and br.engines.enemiesEngine.records[Unit2].posX ~= nil then
-                X2, Y2, Z2 = br.engines.enemiesEngine.records[Unit2].posX, br.engines.enemiesEngine.records[Unit2].posY, br.engines.enemiesEngine.records[Unit2].posZ
-            elseif br.functions.unit:GetUnitIsUnit(Unit2, "player") and br.player ~= nil and br.player.state.posX ~= nil then
-                X2, Y2, Z2 = br.player.state.posX, br.player.state.posY, br.player.state.posZ
-            elseif br.functions.misc:isChecked("HE Active") and br.engines.healingEngine.memberSetup ~= nil and br.engines.healingEngine.memberSetup.cache[unit2GUID] ~= nil and br.engines.healingEngine.memberSetup.cache[unit2GUID].x ~= nil then
-                X2, Y2, Z2 = br.engines.healingEngine.memberSetup.cache[unit2GUID].x, br.engines.healingEngine.memberSetup.cache[unit2GUID].y, br.engines.healingEngine.memberSetup.cache[unit2GUID].z
-            else
-                X2, Y2, Z2 = br.functions.unit:GetObjectPosition(Unit2)
-            end
-        end)
-        if not _p2ok2 then X2, Y2, Z2 = br.functions.unit:GetObjectPosition(Unit2) end
-        if not X2 then return 999 end
-
-        -- Combat reach scalars: server uses these as the effective hitbox radius per unit.
-        -- Read dynamically — Bear/Cat form CombatReach differs from humanoid 1.5.
-        local cr1 = br._G.UnitCombatReach(Unit1) or 0
-        local cr2 = br._G.UnitCombatReach(Unit2) or 0
-        local reachSum = cr1 + cr2
-
-        -- Running bonus: server widens the melee hit window when both units are in motion
-        local runBonus = 0
-        if br.functions.misc:isMoving(Unit1) and br.functions.misc:isMoving(Unit2) then
-            runBonus = 8 / 3
-        end
-
-        -- Edge-to-edge distance.
-        -- centerDist - reachSum = gap between hitbox surfaces, matching tooltip spell ranges 1:1.
-        local centerDist = sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2) + ((Z2 - Z1) ^ 2))
-        local edgeDist = centerDist - reachSum - rangeMod
-
-        -- Melee threshold as an edge-to-edge value.
-        -- Derived from server formula: max(6, reachSum + 7/3 + runBonus) - reachSum
-        --                            = max(6 - reachSum, 7/3 + runBonus)
-        local meleeThreshold = math.max(6 - reachSum, 7 / 3 + runBonus)
-
-        -- Acrobatic Strikes (Rogue talent): extends melee reach by 3 yards
-        if br.player ~= nil and option ~= "noMod" then
-            if br.player.talent.acrobaticStrikes ~= nil and br.player.talent.acrobaticStrikes then
-                meleeThreshold = meleeThreshold + 3
-            end
-        end
-
-        if option == "dist" then return edgeDist end
-        if option == "meleeRange" then return meleeThreshold end
-
-        -- Within the server's melee threshold: treat as contact (0 yards)
-        if edgeDist <= meleeThreshold then return 0 end
-
-        currentDist = math.max(0, edgeDist)
-    end
-    return currentDist
-end
-
-function range:isInRange(spellID, unit)
-    return br._G.LibStub("SpellRange-1.0").C_Spell.IsSpellInRange(spellID, unit)
-end
-
-function range:getDistanceToLocation(Unit1, X2, Y2, Z2)
-    if Unit1 == nil then
-        Unit1 = "player"
-    end
-    if br.functions.unit:GetObjectExists(Unit1) and br.functions.unit:GetUnitIsVisible(Unit1) then
-        local X1, Y1, Z1 = br.functions.unit:GetObjectPosition(Unit1)
-        return sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2) + ((Z2 - Z1) ^ 2))
-    else
-        return 100
-    end
-end
-
 function range:getFacingDistance()
     if br.functions.unit:GetUnitIsVisible("player") and br.functions.unit:GetUnitIsVisible("target") then
         --local targetDistance = getRealDistance("target")
@@ -369,41 +242,6 @@ function range:getFacingDistance()
         end
     else
         return 1000
-    end
-end
-
--- /dump getTotemDistance("target")
-function range:getTotemDistance(Unit1)
-    if Unit1 == nil then
-        Unit1 = "player"
-    end
-
-    if br.functions.unit:GetUnitIsVisible(Unit1) then
-        -- local objectCount = GetObjectCountBR() or 0
-        local X2, Y2, Z2
-        for i = 1, br._G.GetObjectCount() do
-            if br.functions.unit:GetUnitIsUnit(br._G.UnitCreator(br._G.GetObjectWithIndex(i)), "Player") and (br._G.UnitName(br._G.GetObjectWithIndex(i)) == "Searing Totem" or br._G.UnitName(br._G.GetObjectWithIndex(i)) == "Magma Totem") then
-                X2, Y2, Z2 = br.functions.unit:GetObjectPosition(br._G.GetObjectWithIndex(i))
-            end
-        end
-        local X1, Y1, Z1 = br.functions.unit:GetObjectPosition(Unit1)
-        local totemDistance = sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2) + ((Z2 - Z1) ^ 2))
-        --Print(TotemDistance)
-        return totemDistance
-    else
-        return 0
-    end
-end
-
--- if isInMelee() then
-function range:isInMelee(Unit)
-    if Unit == nil then
-        Unit = "target"
-    end
-    if br.functions.range:getDistance(Unit) < 4 then
-        return true
-    else
-        return false
     end
 end
 
@@ -432,27 +270,6 @@ enemiesAll   = not enemies and br.engines.enemiesEngineFunctions:getEnemiesInCon
         enemiesAll   = not enemies and #br.engines.enemiesEngineFunctions:getEnemies(Unit, effectRng, true) or enemies
     end
     return enemiesValid >= minUnits and enemiesValid >= enemiesAll
-end
-
-function range:inRange(spellID, unit)
-    local spellName = br.api.wow.GetSpellInfo(spellID)
-    if unit == nil then unit = "target" end
-    local inRange = br._G.C_Spell.IsSpellInRange(spellName, unit)
-    if inRange ~= nil then
-        return br._G.C_Spell.IsSpellInRange(spellName, unit) == true
-    else
-        return false
-    end
-end
-
-function range:getBaseDistance(unit1, unit2)
-    if unit2 == nil then
-        unit2 = "player"
-    end
-    local x1, y1, z1 = br._G.ObjectPosition(unit1)
-    local x2, y2, z2 = br._G.ObjectPosition(unit2)
-    return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
-        ((br._G.UnitCombatReach(unit1) or 0) + (br._G.UnitCombatReach(unit2) or 0)), z2 - z1
 end
 
 -- Invalidate the cached class/spec/meleeSpell when the player changes specialization.

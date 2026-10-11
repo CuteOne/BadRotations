@@ -51,33 +51,6 @@ function aura:UnitDebuff(unit, index, filter)
 	return aura:AuraData(unit, index, filter)
 end
 
-function aura:CancelUnitBuffID(unit, spellID, filter)
-	-- local spellName = GetSpellInfo(spellID)
-	for i = 1, 40 do
-		local _, _, _, _, _, _, _, _, _, buffSpellID = aura:UnitBuff(unit, i)
-		if buffSpellID ~= nil then
-			if buffSpellID == spellID then
-				br._G.CancelUnitBuff(unit, i, filter)
-				return true
-			end
-		else
-			return false
-		end
-	end
-end
-
-function aura:UnitAuraID(unit, spellID, filter)
-	local buff = aura:UnitBuffID(unit, spellID, filter)
-	local debuff = aura:UnitDebuffID(unit, spellID, filter)
-	if buff then
-		return buff
-	elseif debuff then
-		return debuff
-	else
-		return nil
-	end
-end
-
 function aura:UnitBuffID(unit, spellID, filter)
 	local key = lookupKey("B", unit, spellID, filter)
 	local known, found = remembered(key)
@@ -496,36 +469,6 @@ function aura:canDispel(Unit, spellID)
 	return HasValidDispel
 end
 
-function aura:getAuraDuration(Unit, AuraID, Source)
-	local auraInfo,_,_,_,duration = aura:UnitAuraID(Unit, AuraID, Source)
-	if not auraInfo then return 0 end
-	if auraInfo.duration then
-		return auraInfo.duration * 1
-	else
-		return duration * 1 or 0
-	end
-end
-
-function aura:getAuraRemain(Unit, AuraID, Source)
-	local auraInfo,_,_,_,_,expires = aura:UnitAuraID(Unit, AuraID, Source)
-	if not auraInfo then return 0 end
-	if auraInfo.expirationTime then
-		return auraInfo.expirationTime - br._G.GetTime()
-	else
-		return (expires - br._G.GetTime()) or 0
-	end
-end
-
-function aura:getAuraStacks(Unit, AuraID, Source)
-	local auraInfo,_,stacks = aura:UnitAuraID(Unit, AuraID, Source)
-	if not auraInfo then return 0 end
-	if auraInfo.applications then
-		return auraInfo.applications
-	else
-		return stacks or 0
-	end
-end
-
 -- if br.functions.aura:getDebuffDuration("target",12345) < 3 then
 function aura:getDebuffDuration(Unit, DebuffID, Source)
 	local auraInfo,_,_,_,duration = aura:UnitDebuffID(Unit, DebuffID, Source)
@@ -697,100 +640,6 @@ function aura:getBuffReact(Unit, BuffID, Source)
 	return false
 end
 
--- if getDisease(30,true,min) < 2 then
-function aura:getDisease(range, aoe, mod)
-	if mod == nil then
-		mod = "min"
-	end
-	if range == nil then
-		range = 5
-	end
-	if aoe == nil then
-		aoe = false
-	end
-	range = tonumber(range)
-	mod = tostring(mod)
-	local dynTar = br.engines.enemiesEngineFunctions:dynamicTarget(range, true)
-	local dynTarAoE = br.engines.enemiesEngineFunctions:dynamicTarget(range, false)
-	local dist = br.functions.range:getDistance("player", dynTar)
-	local distAoE = br.functions.range:getDistance("player", dynTarAoE)
-	local ff = aura:getDebuffRemain(dynTar, 55095, "player") or 0
-	local ffAoE = aura:getDebuffRemain(dynTarAoE, 55095, "player") or 0
-	local bp = aura:getDebuffRemain(dynTar, 55078, "player") or 0
-	local bpAoE = aura:getDebuffRemain(dynTarAoE, 55078, "player") or 0
-	local np = aura:getDebuffRemain(dynTar, 155159, "player") or 0
-	local npAoE = aura:getDebuffRemain(dynTarAoE, 155159, "player") or 0
-	local diseases = { ff, bp }
-	local diseasesAoE = { ffAoE, bpAoE }
-	local minD = 99
-	local maxD = 0
-	if mod == "min" then
-		if aoe == false then
-			if dist < range then
-				if br.functions.misc:getTalent(7, 1) then
-					return np
-				else
-					for i = 1, #diseases do
-						if diseases[i] > 0 and diseases[i] < minD then
-							minD = diseases[i]
-						end
-					end
-					return minD
-				end
-			else
-				return 99
-			end
-		elseif aoe == true then
-			if distAoE < range then
-				if br.functions.misc:getTalent(7, 1) then
-					return npAoE
-				else
-					for i = 1, #diseasesAoE do
-						if diseases[i] > 0 and diseases[i] < minD then
-							minD = diseases[i]
-						end
-					end
-					return minD
-				end
-			else
-				return 99
-			end
-		end
-	elseif mod == "max" then
-		if aoe == false then
-			if dist < range then
-				if br.functions.misc:getTalent(7, 1) then
-					return np
-				else
-					for i = 1, #diseases do
-						if diseases[i] > 0 and diseases[i] > maxD then
-							maxD = diseases[i]
-						end
-					end
-					return maxD
-				end
-			else
-				return 0
-			end
-		elseif aoe == true then
-			if distAoE < range then
-				if br.functions.misc:getTalent(7, 1) then
-					return npAoE
-				else
-					for i = 1, #diseasesAoE do
-						if diseases[i] > 0 and diseases[i] < maxD then
-							maxD = diseases[i]
-						end
-					end
-					return maxD
-				end
-			else
-				return 0
-			end
-		end
-	end
-end
-
 -- TODO: update BL list
 function aura:getLustID()
 	for _, v in pairs(br.lists.spells.Shared.Shared.buffs["bloodLust"]) do
@@ -815,24 +664,6 @@ function aura:hasBloodLust()
 		return true
 	else
 		return false
-	end
-end
-
-function aura:hasBloodLustRemain()
-	if aura:UnitBuffID("player", 90355) then
-		return aura:getBuffRemain("player", 90355)
-	elseif aura:UnitBuffID("player", 2825) then
-		return aura:getBuffRemain("player", 2825)
-	elseif aura:UnitBuffID("player", 146555) then
-		return aura:getBuffRemain("player", 146555)
-	elseif aura:UnitBuffID("player", 390386) then
-		return aura:getBuffRemain("player", 390386)
-	elseif aura:UnitBuffID("player", 32182) then
-		return aura:getBuffRemain("player", 32182)
-	elseif aura:UnitBuffID("player", 80353) then
-		return aura:getBuffRemain("player", 80353)
-	else
-		return 0
 	end
 end
 

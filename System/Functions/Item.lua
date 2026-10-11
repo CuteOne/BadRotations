@@ -38,20 +38,6 @@ function item:canUseItem(itemID)
 	return false
 end
 
--- if canTrinket(13) then
-function item:canTrinket(trinketSlot)
-	if trinketSlot == 13 or trinketSlot == 14 then
-		if trinketSlot == 13 and select(3, br._G.GetInventoryItemCooldown("player", 13)) == 1 and br._G.GetInventoryItemCooldown("player", 13) <= br.player.state.gcdMax then
-			return true
-		end
-		if trinketSlot == 14 and select(3, br._G.GetInventoryItemCooldown("player", 14)) == 1 and br._G.GetInventoryItemCooldown("player", 14) <= br.player.state.gcdMax then
-			return true
-		end
-	else
-		return false
-	end
-end
-
 -- if br.functions.item:hasItem(1234) == true then
 function item:hasItem(itemID)
 	if type(itemID) == "table" then itemID = self:getHighestHeldRank(itemID) end
@@ -118,36 +104,6 @@ function item:getHighestHeldRank(itemIDTable)
         end
     end
     return nil
-end
-
-function item:useItemGround(Unit, itemID, maxDistance, minDistance, radius)
-	if radius == nil then
-		radius = maxDistance
-	end
-	if minDistance == nil then
-		minDistance = 0
-	end
-	if br.functions.unit:GetUnitExists(Unit) and br.functions.misc:getLineOfSight("player", Unit) and br.functions.range:getDistance("player", Unit) < maxDistance and
-		br.functions.range:getDistance("player", Unit) >= minDistance and
-		#br.engines.enemiesEngineFunctions:getEnemies(Unit, radius) >= #br.engines.enemiesEngineFunctions:getEnemies(Unit, radius, true)
-	then
-		br.functions.item:useItem(itemID)
-		local X, Y, Z = br.functions.unit:GetObjectPosition(Unit)
-		--local distanceToGround = getGroundDistance(Unit) or 0
-		br._G.ClickPosition(X, Y, Z) --distanceToGround
-		return true
-	end
-	return false
-end
-
--- True if a usable healing potion is in the bags.
-function item:hasHealthPot()
-	return item:getBestPotion("Heal") ~= nil
-end
-
--- Item ID of the best usable healing potion in the bags, or 0.
-function item:getHealthPot()
-	return item:getBestPotion("Heal") or 0
 end
 
 -- if TierScan("T17")>=2 then

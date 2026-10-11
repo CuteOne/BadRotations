@@ -65,22 +65,6 @@ function unit:GetObjectPosition(Unit)
 	return x, y, z
 end
 
-function unit:GetObjectType(Unit)
-	if br.unlocked and br.functions.unit:GetObjectExists(Unit) then
-		return br._G.ObjectTypes(Unit)
-	else
-		return 65561
-	end
-end
-
-function unit:GetObjectIndex(Index)
-	if br.unlocked and br.functions.unit:GetObjectExists(br._G.GetObjectWithIndex(Index)) then
-		return br._G.GetObjectWithIndex(Index)
-	else
-		return 0
-	end
-end
-
 -- function GetObjectCountBR()
 -- 	if EWT then
 --     	return GetObjectCountBR()
@@ -96,21 +80,6 @@ function unit:GetObjectID(Unit)
 		return br._G.ObjectID(Unit)
 	else
 		return 0
-	end
-end
-
-function unit:UnitIsTappedByPlayer(mob)
-	-- if br._G.UnitTarget("player") and mob == br._G.UnitTarget("player") then return true end
-	-- if UnitAffectingCombat(mob) and br._G.UnitTarget(mob) then
-	--    	mobPlaceHolderOne = br._G.UnitTarget(mob)
-	--    	mobPlaceHolderOne = br._G.UnitCreator(mobPlaceHolderOne) or mobPlaceHolderOne
-	--    	if UnitInParty(mobPlaceHolderOne) then return true end
-	-- end
-	-- return false
-	if br._G.UnitIsTapDenied(mob) == false then
-		return true
-	else
-		return false
 	end
 end
 
@@ -236,22 +205,6 @@ function unit:getHP(Unit)
 	return 0
 end
 
--- if br.functions.unit:getHPLossPercent("player",5) then
-function unit:getHPLossPercent(unit, sec)
-	if unit == nil then unit = "player" end
-	local currentHP = br.functions.unit:getHP(unit)
-	if sec == nil then sec = 1 end
-	if br.snapHP == nil then br.snapHP = 0 end
-	if br.debug.timer:useTimer("Loss Percent", sec) then
-		br.snapHP = currentHP
-	end
-	if br.snapHP < currentHP then
-		return 0
-	else
-		return br.snapHP - currentHP
-	end
-end
-
 function unit:getLowestUnit(range)
 	local lowestUnit = "player"
 	local lowestHP = br.functions.unit:getHP("player")
@@ -270,11 +223,6 @@ function unit:getLowestUnit(range)
 	return lowestUnit
 end
 
--- if getBossID("boss1") == 71734 then
-function unit:getBossID(BossUnitID)
-	return br.functions.unit:GetObjectID(BossUnitID)
-end
-
 function unit:getUnitID(Unit)
 	if br.functions.unit:GetObjectExists(Unit) and br.functions.unit:GetUnitIsVisible(Unit) then
 		local id = select(6, br._G.strsplit("-", br._G.UnitGUID(Unit) or ""))
@@ -286,14 +234,6 @@ end
 function unit:isAberration(Unit)
 	if Unit == nil then Unit = "target" end
 	return br._G.UnitCreatureType(Unit) == "Aberration"
-end
-
--- if br.functions.unit:isAlive([Unit]) == true then
-function unit:isAlive(Unit)
-	Unit = Unit or "player"
-	if br._G.UnitIsDeadOrGhost(Unit) == false then
-		return true
-	end
 end
 
 function unit:isInstanceBoss(unit)
@@ -485,16 +425,6 @@ function unit:isDummy(Unit)
 	end
 	-- GetObjectID is 0 for a unit that doesn't exist, and 0 is never a dummy
 	return br.lists.dummies[br.functions.unit:GetObjectID(Unit)] ~= nil
-end
-
--- if isEnemy([Unit])
-function unit:isEnemy(Unit)
-	Unit = Unit or "target"
-	if br._G.UnitCanAttack(Unit, "player") then
-		return true
-	else
-		return false
-	end
 end
 
 function unit:isTankInRange(range)

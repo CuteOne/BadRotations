@@ -3,49 +3,6 @@ br.functions.custom = br.functions.custom or {}
 local custom = br.functions.custom
 
 -- Functions from coders for public use
-local sqrt, cos, sin = math.sqrt, math.cos, math.sin
---[[                                                                                                ]]
---[[ ragnar                                                                                         ]]
---[[                                                                                                ]]
-function custom:unitLookup(Unit, returnType)
-    for k, _ in pairs(br.engines.enemiesEngine.enemy) do
-        local enemy = br.engines.enemiesEngine.enemy[k]
-        if enemy.guid == Unit or enemy.unit == Unit then
-            if returnType == "guid" then
-                return enemy.guid
-            elseif returnType == "table" then
-                return enemy
-            else
-                return enemy.unit
-            end
-        end
-    end
-end
-
-function custom:getUnitCount(ID, maxRange, tapped)
-    local counter = 0
-    for _, enemy in pairs(br.engines.enemiesEngine.enemy) do
-        local thisUnit = enemy.unit
-        if enemy.id == ID and br.functions.range:getDistance(thisUnit) < maxRange then
-            local unitTapped = not br._G.UnitIsTapDenied(thisUnit)
-            if (tapped == true and unitTapped) or not tapped then
-                counter = counter + 1
-            end
-        end
-    end
-    return counter
-end
-
-function custom:isCCed(Unit)
-    local CCTable = { 84868, 3355, 19386, 118, 28272, 28271, 61305, 61721, 161372, 61780, 161355, 126819, 161354, 115078,
-        20066, 9484, 6770, 1776, 51514, 107079, 10326, 8122, 154359, 2094, 5246, 5782, 5484, 6358, 115268, 339 };
-    for i = 1, #CCTable do
-        if br.functions.aura:UnitDebuffID(Unit, CCTable[i]) then
-            return true
-        end
-    end
-    return false
-end
 
 --get number of units around 1 unit
 function custom:getUnits(thisUnit, allUnitsInRange, radius)
@@ -57,16 +14,6 @@ function custom:getUnits(thisUnit, allUnitsInRange, radius)
         end
     end
     return #unitsAroundThisUnit
-end
-
--- check if unit is blacklisted
-function custom:isNotBlacklisted(checkUnit)
-    local blacklistUnitID = {}
-    if checkUnit == nil then return false end
-    for i = 1, #blacklistUnitID do
-        if br.functions.unit:GetObjectID(checkUnit) == blacklistUnitID[i] then return false end
-    end
-    return true
 end
 
 function custom:castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellType, unit)
@@ -277,63 +224,6 @@ function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, mi
     return br.functions.cast:castAtPosition(x, y, z, spellID)
 end
 
-function custom:isUnitThere(unitNameOrID, distance)
-    -- description:
-    -- check if Unit with ID or name is around
-
-    -- return:
-    -- true/nil
-
-    -- example:
-    -- isUnitThere("Shadowfel Warden")
-
-    if type(unitNameOrID) == "number" then
-        for k, _ in pairs(br.engines.enemiesEngine.enemy) do
-            local thisUnit = br.engines.enemiesEngine.enemy[k].unit
-            if br.functions.unit:GetObjectID(thisUnit) then
-                if distance == nil or br.functions.range:getDistance("player", thisUnit) < distance then
-                    return true
-                end
-            end
-        end
-    end
-    if type(unitNameOrID) == "string" then
-        for k, _ in pairs(br.engines.enemiesEngine.enemy) do
-            local thisUnit = br.engines.enemiesEngine.enemy[k].unit
-            if br._G.UnitName(thisUnit) == unitNameOrID then
-                if distance == nil or br.functions.range:getDistance("player", thisUnit) < distance then
-                    return true
-                end
-            end
-        end
-    end
-end
-
-function custom:getTooltipSize(SpellID)
-    -- description
-    -- get the dmg or heal value from a tooltip
-
-    -- return:
-    -- number
-
-    -- example:
-    -- getTooltipSize(2061)
-
-    local _, _, n1, n2 = br._G.C_Spell.GetSpellDescription(SpellID):find("(%d+),(%d%d%d)")
-    return tonumber(n1 .. n2)
-end
-
-function custom:castBossButton(target)
-    if target == nil then
-        br._G.RunMacroText("/click ExtraActionButton1")
-        return true
-    else
-        -- br._G.TargetUnit(target)
-        br._G.RunMacroText("/click ExtraActionButton1")
-        return true
-    end
-end
-
 -- get threat situation on player and return the number
 function custom:getThreat()
     if br._G.UnitThreatSituation("player") ~= nil then
@@ -344,74 +234,6 @@ function custom:getThreat()
     -- 2 - Unit is mobUnit's primary target, and another unit has 100% or higher raw threat (default UI shows orange indicator)
     -- 3 - Unit is mobUnit's primary target, and no other unit has 100% or higher raw threat (default UI shows red indicator)
     return 0
-end
-
-function custom:getUnitCluster(minUnits, maxRange, radius)
-    -- Description:
-    -- returns the enemy with minUnits around in maxRange
-
-    -- rerturns:
-    -- "0x0000000110E4F09C"
-
-    -- how to use:
-    -- castSpell(getUnitCluster(2,10),SpellID,...,...)
-    -- use "getUnitCluster(minUnits,maxRange)" instead of "target"
-
-    if type(minUnits) ~= "number" then return nil end
-    if type(maxRange) ~= "number" then return nil end
-    if type(radius) ~= "number" then return nil end
-
-    local enemiesInRange = 0
-    local theReturnUnit
-
-    for k, _ in pairs(br.engines.enemiesEngine.enemy) do
-        local thisUnit = br.engines.enemiesEngine.enemy[k].unit
-        local thisEnemies = br.functions.combat:getNumEnemies(thisUnit, radius)
-        if br.functions.misc:getLineOfSight(thisUnit) == true then
-            if br.functions.range:getDistance(thisUnit) < maxRange then
-                if thisEnemies >= minUnits and thisEnemies > enemiesInRange then
-                    theReturnUnit = thisUnit
-                end
-            end
-        end
-    end
-    return select(1, theReturnUnit)
-end
-
-function custom:getBiggestUnitCluster(maxRange, radius, minCount)
-    -- Description:
-    -- returns the enemy with most enemies in radius in maxRange from player
-
-    -- rerturns:
-    -- "0x0000000110E4F09C"
-
-    -- how to use:
-    -- castSpell(getBiggestUnitCluster(40,10),SpellID,...,...)
-    -- use "getBiggestUnitCluster(maxRange,radius)" instead of "target"
-
-    if type(maxRange) ~= "number" then return nil end
-    if type(radius) ~= "number" then return nil end
-    if type(minCount) ~= "number" then minCount = 0 end
-
-    local enemiesInRange = minCount or 0
-    local theReturnUnit
-    -- local foundCluster = false
-
-    for k, _ in pairs(br.engines.enemiesEngine.enemy) do
-        local thisUnit = br.engines.enemiesEngine.enemy[k].unit
-        local thisRange = br.functions.range:getDistance(thisUnit) or 99
-        if br.functions.misc:getLineOfSight(thisUnit) == true then
-            if thisRange < maxRange then
-                local enemyCount = br.functions.combat:getNumEnemies(thisUnit, radius)
-                if enemyCount >= enemiesInRange then
-                    theReturnUnit = thisUnit
-                    -- foundCluster = true
-                    enemiesInRange = enemyCount
-                end
-            end
-        end
-    end
-    return theReturnUnit
 end
 
 --[[                                                                                                ]]
@@ -433,117 +255,12 @@ function custom:mergeTables(a, b)
     return a
 end
 
--- Used by new Class Framework to put all seperat Spell-Tables into new spell table
-function custom:mergeSpellTables(tSpell, tCharacter, tClass, tSpec)
-    tSpell = br.functions.custom:mergeTables(tSpell, tCharacter)
-    tSpell = br.functions.custom:mergeTables(tSpell, tClass)
-    tSpell = br.functions.custom:mergeTables(tSpell, tSpec)
-    return tSpell
-end
-
-function custom:mergeIdTables(idTable)
-    local class = select(2, br._G.UnitClass("player"))
-    local spec = br.loader.selectedSpecID
-    if idTable ~= nil then idTable = {} end
-    if br.lists.spells.Shared ~= nil then
-        idTable = br.functions.custom:mergeTables(idTable, br.lists.spells.Shared)
-    end
-    if br.lists.spells[class] ~= nil then
-        if br.lists.spells[class].Shared ~= nil then
-            idTable = br.functions.custom:mergeTables(idTable, br.lists.spells[class].Shared)
-            if br.lists.spells[class].Shared.abilities ~= nil then
-                idTable = br.functions.custom:mergeTables(idTable, br.lists.spells[class].Shared.abilities)
-            end
-        end
-        if br.lists.spells[class][spec] ~= nil then
-            idTable = br.functions.custom:mergeTables(idTable, br.lists.spells[class][spec])
-            if br.lists.spells[class][spec].abilities ~= nil then
-                idTable = br.functions.custom:mergeTables(idTable, br.lists.spells[class][spec].abilities)
-            end
-        end
-    end
-    return idTable
-end
-
--- takes a given time duration and returns a string representing the hours, minutes, and seconds
--- examply br.functions.custom:formattedTime(time,format))
--- format 1 = short time: HH:MM:SS
--- format 2 = long time:  2hrs 24m 15s
-function custom:formattedTime(inTime, format)
-    if format == nil then format = 1 end
-    inTime = inTime / 1000
-    local hours = math.floor(inTime / 3600)
-    local remains = inTime % 3600
-    local minutes = math.floor(remains / 60)
-    remains = math.floor(remains % 60)
-    return tostring(hours .. ":" .. minutes .. ":" .. remains)
-end
-
---- Checks if a table contains given value
--- local myTable = {"hello", "world"}
--- inTable(myTable, "hello") == true
--- inTable(myTable, "WHAT?") == false
--- check if tContains() does the same wow api
-function custom:inTable(tbl, item)
-    for key, value in pairs(tbl) do
-        if value == item then return key end
-    end
-    return false
-end
-
 --- Inserts table values into a table
 --  No nested table (table in a table)
 function custom:insertTableIntoTable(originalTable, insertTable)
     for i = 1, #insertTable do
         table.insert(originalTable, insertTable[i])
     end
-end
-
---- Returns if specified trinket is equipped in either slot
--- if isTrinketEquipped(124518) then trinket = "Libram of Vindication" end
-function custom:isTrinketEquipped(trinket)
-    if (br._G.GetInventoryItemID("player", 13) == trinket or br._G.GetInventoryItemID("player", 14) == trinket) then
-        return true
-    else
-        return false
-    end
-end
-
---- Return true if player has buff X
--- Parameter: ID
--- hasBuff(12345)
-function custom:hasBuff(spellID)
-    local buffs, i = {}, 1
-    local buff = br.functions.aura:UnitBuff("player", i)
-    while buff do
-        buffs[#buffs + 1] = buff
-        i = i + 1
-        buff = select(10, br.functions.aura:UnitBuff("player", i))
-        if buff ~= nil then
-            if buff == spellID then return true end
-        end
-    end
-    return false
-end
-
---- Cancel the giving BuffID
--- Parameter: ID
--- cancelBuff(12345)
-function custom:cancelBuff(spellID)
-    local buffs, i = {}, 1
-    local buff = br.functions.aura:UnitBuff("player", i)
-    while buff do
-        buffs[#buffs + 1] = buff
-        i = i + 1
-        buff = select(10, br.functions.aura:UnitBuff("player", i))
-        if buff ~= nil then
-            if buff == spellID then
-                br._G.CancelUnitBuff("player", i, "")
-                return true
-            end
-        end
-    end
-    return false
 end
 
 --[[ DBM Timer ]] --
@@ -749,43 +466,6 @@ function br.functions.DBM:getTimer(spellID, time)
     return 999 -- return number to avoid conflicts but to high so it should never trigger
 end
 
--- Future position
-function custom:GetFuturePostion(unit, castTime)
-    local distance = br._G.GetUnitSpeed(unit) * castTime
-    if distance > 0 then
-        local x, y, z = br.functions.unit:GetObjectPosition(unit)
-        local angle = br.functions.unit:GetObjectFacing(unit)
-        --If Unit have a target, let's make sure they don't collide
-        local unitTarget = br._G.UnitTarget(unit)
-        local unitTargetDist = 0
-        if unitTarget ~= nil then
-            local tX, tY, tZ = br.functions.unit:GetObjectPosition(unitTarget)
-            --Lets get predicted position of unit target aswell
-            if br._G.GetUnitSpeed(unitTarget) > 0 then
-                local tDistance = br._G.GetUnitSpeed(unitTarget) * castTime
-                local tAngle = br.functions.unit:GetObjectFacing(unitTarget)
-                tX = tX + cos(tAngle) * tDistance
-                tY = tY + sin(tAngle) * tDistance
-                unitTargetDist = sqrt(((tX - x) ^ 2) + ((tY - y) ^ 2) + ((tZ - z) ^ 2)) -
-                    ((br._G.UnitCombatReach(unit) or 0) + (br._G.UnitCombatReach(unitTarget) or 0))
-                if unitTargetDist < distance then distance = unitTargetDist end
-            else
-                unitTargetDist = br.functions.range:getDistance(unitTarget, unit, "dist")
-                if unitTargetDist < distance then distance = unitTargetDist end
-            end
-            -- calculate angle based on target position/future position
-            angle = br._G.rad(br._G.atan2(tY - y, tX - x))
-            if angle < 0 then
-                angle = br._G.rad(360 + br._G.atan2(tY - y, tX - x))
-            end
-        end
-        x = x + cos(angle) * distance
-        y = y + sin(angle) * distance
-        return x, y, z
-    end
-    return br.functions.unit:GetObjectPosition(unit)
-end
-
 function custom:PullTimerRemain(returnBool)
     if returnBool == nil then returnBool = false end
     if br.functions.DBM:getPulltimer() == 999 then
@@ -874,9 +554,4 @@ function custom:BWCheck()
             end
         end
     end
-end
-
--- Check Instance IDs from https://wow.gamepedia.com/InstanceID
-function custom:getCurrentZoneId()
-    return select(8, br._G.GetInstanceInfo())
 end
