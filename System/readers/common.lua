@@ -42,6 +42,16 @@ _superFrame:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED")
 -- Fired when the spellbook changes (a spell learned at a trainer or on level-up, talents, spec).
 _superFrame:RegisterEvent("SPELLS_CHANGED")
 
+-- Max stacks of an aura on a unit (buff.X.stackMax), from UNIT_AURA's added auras. Called through
+-- pcall: aura fields may be secret-tainted (e.g. by Details), and indexing with a secret spellId
+-- raises "table index is secret". A module function, not a closure made for every aura.
+local function recordMaxStacks(unitTarget, aura)
+	local maxStacks = br.readers.common.auraMaxStacks
+	local sid = aura.spellId
+	maxStacks[sid] = maxStacks[sid] or {}
+	maxStacks[sid][unitTarget] = aura.maxCharges or 0
+end
+
 function common:commonReaders()
 	---------------
 	--[[ Readers ]]
@@ -288,11 +298,7 @@ function common:commonReaders()
 				for _, aura in ipairs(updateInfo.addedAuras) do
 					-- aura fields from UNIT_AURA updateInfo may be secret-tainted (e.g. by Details);
 					-- pcall guards against "table index is secret" on aura.spellId
-					pcall(function()
-						local sid = aura.spellId
-						br.readers.common.auraMaxStacks[sid] = br.readers.common.auraMaxStacks[sid] or {}
-						br.readers.common.auraMaxStacks[sid][unitTarget] = aura.maxCharges or 0
-					end)
+					pcall(recordMaxStacks, unitTarget, aura)
 				end
 			end
 		end
