@@ -137,20 +137,21 @@ end
 function cast:handleCastError(message)
 	if type(message) ~= "string" or isSwingError(message) then return end
 	if not (br.botSpell and br.botGUID and br.botCastTime) then return end
-	-- With Cast Debug on, show every game error that follows a BR cast closely, so a cast that was
-	-- sent but refused by the server (shapeshifted, no mana, ...) shows why instead of only "Casting".
-	-- The error doesn't say which spell it's about: a spell-failed event naming one within a frame or
-	-- two does (an on-next-swing Maul failing at the swing, after BR has cast something else), so the
-	-- line waits a frame for it and falls back to BR's last cast.
+	-- With Cast Debug on, show the game error behind a refused cast, so a cast that was sent but refused
+	-- by the server (shapeshifted, no mana, ...) shows why instead of only "Casting". The error doesn't
+	-- say which spell it's about; a spell-failed event naming one within a frame or two does (an
+	-- on-next-swing Maul failing at the swing, after BR has cast something else), so the line waits a
+	-- frame for it. Without one the error isn't about a cast at all (auto-loot's "There is no loot.",
+	-- a profession, ...) and isn't reported.
 	local errorAt = br._G.GetTime()
 	if (errorAt - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW and (E.castDebugOn() or E.showRefusal(false)) then
-		local lastCastSpell, lastCastGUID = br.botSpell, br.botGUID
+		local lastCastGUID = br.botGUID
 		br._G.C_Timer.After(0, function()
 			local failed = br.functions.lastCast and br.functions.lastCast.lastCastTable
-			local spellID = lastCastSpell
-			if failed and failed.lastFailedSpellID and failed.lastFailedAt and math.abs(failed.lastFailedAt - errorAt) <= 0.1 then
-				spellID = failed.lastFailedSpellID
+			if not (failed and failed.lastFailedSpellID and failed.lastFailedAt and math.abs(failed.lastFailedAt - errorAt) <= 0.1) then
+				return
 			end
+			local spellID = failed.lastFailedSpellID
 			local expected = E.expectedRefusal(message, lastCastGUID)
 			if not E.showRefusal(expected ~= nil) then return end
 			br.player.ui.debug("[CAST FAIL][SERVER] " .. tostring(br.functions.spell:getName(spellID)) .. " — game said: " .. message
