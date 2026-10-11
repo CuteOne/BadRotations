@@ -418,7 +418,7 @@ local function handler(message, editbox)
 	elseif msg == "disengage" then
 		-- Forward Disengage
 		if br._G.IsLeftShiftKeyDown() then
-			br._G.CastSpellByName(br.api.wow.GetSpellInfo(781))
+			br._G.CastSpellByName(br.functions.spell:getName(781))
 		else
 			forewardDisengage()
 		end

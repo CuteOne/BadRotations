@@ -15,7 +15,7 @@ function cast:castAtPosition(X, Y, Z, SpellID)
 
 	-- Ground-targeted spells should not be cast "on" a unit token; doing so can force a self-cast.
 	-- We want the targeting cursor so we can click the provided world coordinates.
-	br._G.CastSpellByName(br.api.wow.GetSpellInfo(SpellID))
+	br._G.CastSpellByName(br.functions.spell:getName(SpellID))
 
 	local baseZ = Z
 	local attempts = 0
@@ -66,7 +66,7 @@ function cast:castGroundLocation(X, Y, SpellID, maxDistance, minDistance, radius
 			br._G.MouselookStop()
 		end
 		-- br._G.print("Casting Spell")
-		br._G.CastSpellByName(br.api.wow.GetSpellInfo(SpellID))
+		br._G.CastSpellByName(br.functions.spell:getName(SpellID))
 		if br._G.IsAoEPending() then
 			-- br._G.print("Clicking Position")
 			br._G.ClickPosition((X + math.random() * 2), (Y + math.random() * 2), Z) --distanceToGround

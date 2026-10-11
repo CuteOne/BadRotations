@@ -156,7 +156,7 @@ function SmartQueue:smartQueue()
 				end
 			elseif br.functions.misc:getOptionValue(br.api.wow.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") == 3 then
 				if br.functions.cast:createCastFunction("player", nil, nil, nil, SmartQueue.queueSpell, nil, nil, nil, nil, true) then
-					br._G.CastSpellByName(br.api.wow.GetSpellInfo(SmartQueue.queueSpell))
+					br._G.CastSpellByName(br.functions.spell:getName(SmartQueue.queueSpell))
 					br.ui.chatOverlay:Show("Casted Queued Spell: " .. br.api.wow.GetSpellInfo(SmartQueue.queueSpell))
 					return true
 				end
