@@ -220,15 +220,10 @@ local function resolveForm()
     if mode == 4 and hasBear then return "bear" end
     return "caster"
 end
--- Break form for outOfFormSpellRef only if there is mana for it and for shifting back.
--- emergency: survival heal - only require mana for the spell itself, not for shifting back.
-
 -- Fleeing: running from any enemy within 10 yards that is chasing us
+local function isChasingPlayer(thisUnit) return unit.isFleeingFrom("player", thisUnit) end
 local function isFleeing()
-    for i = 1, #enemies.yards10 do
-        if unit.isFleeingFrom("player", enemies.yards10[i]) then return true end
-    end
-    return false
+    return enemies.any(enemies.yards10, isChasingPlayer)
 end
 
 -- Gift of the Wild is a differently named aura, so buff.markOfTheWild misses it and a recast
@@ -661,36 +656,34 @@ actionList.Interrupts = function()
     then
         local thisUnit
         local inBear = buff.bearForm.exists()
+        local interruptAt = ui.value("Interrupt At")
         -- * Feral Charge (Bear) - 8 to 25 yards
         if ui.checked("Feral Charge - Int") and inBear and cast.able.feralChargeBear() then
             enemies.get(25)
-            for i = 1, #enemies.yards25 do
-                thisUnit = enemies.yards25[i]
-                if unit.distance(thisUnit) >= 8 and unit.interruptable(thisUnit, ui.value("Interrupt At")) then
-                    if cast.feralChargeBear(thisUnit) then
-                        ui.debug("Casting Feral Charge on " .. unit.name(thisUnit))
-                        return true
-                    end
-                end
+            thisUnit = enemies.first(enemies.yards25, function(thisUnit)
+                return unit.distance(thisUnit) >= 8 and unit.interruptable(thisUnit, interruptAt)
+                    and cast.able.feralChargeBear(thisUnit)
+            end)
+            if thisUnit and cast.feralChargeBear(thisUnit) then
+                ui.debug("Casting Feral Charge on " .. unit.name(thisUnit))
+                return true
             end
         end
         -- * Bash
-        if ui.checked("Bash - Int") and (inBear or ui.checked("Bash - Shift to Bear")) then
-            for i = 1, #enemies.yards5f do
-                thisUnit = enemies.yards5f[i]
-                if unit.interruptable(thisUnit, ui.value("Interrupt At")) and cd.bash.remain() == 0 then
-                    -- Bash requires Bear Form; only shift when the player allowed it.
-                    if not inBear then
-                        if cast.able.bearForm() and cast.bearForm() then
-                            ui.debug("Shifting to Bear Form for Bash interrupt")
-                            return true
-                        end
-                    elseif cast.able.bash(thisUnit) then
-                        if cast.bash(thisUnit) then
-                            ui.debug("Casting Bash on " .. unit.name(thisUnit))
-                            return true
-                        end
+        if ui.checked("Bash - Int") and (inBear or ui.checked("Bash - Shift to Bear")) and cd.bash.remain() == 0 then
+            thisUnit = enemies.first(enemies.yards5f, function(thisUnit)
+                return unit.interruptable(thisUnit, interruptAt) and (not inBear or cast.able.bash(thisUnit))
+            end)
+            if thisUnit then
+                -- Bash requires Bear Form; only shift when the player allowed it.
+                if not inBear then
+                    if cast.able.bearForm() and cast.bearForm() then
+                        ui.debug("Shifting to Bear Form for Bash interrupt")
+                        return true
                     end
+                elseif cast.bash(thisUnit) then
+                    ui.debug("Casting Bash on " .. unit.name(thisUnit))
+                    return true
                 end
             end
         end
