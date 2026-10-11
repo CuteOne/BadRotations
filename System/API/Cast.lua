@@ -7,6 +7,55 @@ local _, br = ...
 
 if br.api == nil then br.api = {} end
 
+-- Callable spells. cast.<spell>, cast.able.<spell> and cast.opener.<spell> are called like
+-- functions with the full argument list (unit, castType, minUnits, effectRng, predict, predictPad,
+-- enemies), and also offer short forms for the cast types, with the arguments that type needs:
+--   cast.demoralizingRoar.aoe(10)          an AoE around you, 10 yards
+--   cast.swipe.aoe(8, 3)                   3+ enemies within 8 yards
+--   cast.flamestrike.ground(8, 3)          on the ground at the target
+-- Area forms take range, minimum units (default 1), then the unit (default per type). .rank(n)
+-- gives the spell at a rank (or the highest known below it), with the same forms:
+--   cast.healingTouch.rank(3)("player")    cast.consecration.rank(1).aoe(8, 3)
+local CALL, RANK_CALL = {}, {} -- private keys: the spell's full call, and its call at a rank
+
+local FORMS = {
+    aoe       = function(call, range, minUnits, unit) return call(unit or "player", "aoe", minUnits or 1, range) end,
+    cone      = function(call, range, minUnits) return call("player", "cone", minUnits or 1, range) end,
+    rect      = function(call, range, minUnits) return call("player", "rect", minUnits or 1, range) end,
+    ground    = function(call, range, minUnits, unit, predict, predictPad)
+        return call(unit or "target", "ground", minUnits or 1, range, predict, predictPad)
+    end,
+    targetAOE = function(call, range, minUnits, unit) return call(unit or "target", "targetAOE", minUnits or 1, range) end,
+    pet       = function(call, unit) return call(unit, "pet") end,
+    dead      = function(call, unit) return call(unit, "dead") end,
+}
+
+local makeCaller
+local callerMeta = {
+    __call = function(self, ...) return self[CALL](...) end,
+    -- Forms and .rank are made the first time a profile uses them
+    __index = function(self, key)
+        local fn
+        if FORMS[key] ~= nil then
+            local form, call = FORMS[key], rawget(self, CALL)
+            fn = function(...) return form(call, ...) end
+        elseif key == "rank" and rawget(self, RANK_CALL) ~= nil then
+            local callAtRank, rank = rawget(self, RANK_CALL), 1
+            local ranked = makeCaller(function(...) return callAtRank(rank, ...) end)
+            fn = function(n) rank = n; return ranked end
+        else
+            return nil
+        end
+        rawset(self, key, fn)
+        return fn
+    end,
+}
+
+-- call(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies); callAtRank(rank, ...) or nil
+makeCaller = function(call, callAtRank)
+    return setmetatable({ [CALL] = call, [RANK_CALL] = callAtRank }, callerMeta)
+end
+
 -- br.api.cast runs once per spell in the spell list. Per-spell functions (cast.<spell>, cast.able.<spell>,
 -- ...) are made every time; generic ones (cast.id, cast.name, cast.form, ...) only the first time.
 br.api.cast = function(self, spell, id)
@@ -39,8 +88,6 @@ br.api.cast = function(self, spell, id)
     -- ===========================
     -- SPELL RANK SYSTEM (CLASSIC)
     -- ===========================
-
-    if cast.rank == nil then cast.rank = {} end
 
     --- Get the highest known rank number for this spell.
     -- @function cast.maxRank.spell
@@ -100,10 +147,16 @@ br.api.cast = function(self, spell, id)
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
-    cast.able[spell] = function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies,
-            true)
-    end
+    -- Also cast.able.spell.aoe(range, minUnits, unit), .rank(n) and the other forms (see the top of this file).
+    cast.able[spell] = makeCaller(
+        function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad,
+                enemies, true)
+        end,
+        function(rank, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng,
+                br.functions.spell:getSpellRank(id, rank), spell, predict, predictPad, enemies, true)
+        end)
 
     --- Checks if the spell is the one currently being cast.
     -- @function cast.active.spell
@@ -326,9 +379,15 @@ br.api.cast = function(self, spell, id)
         -- @treturn boolean
         cast.opener.active = function() return br.functions.cast:isOpenerActive() end
     end
-    cast.opener[spell] = function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        return br.functions.cast:openerStep(spell, id, cast[spell], thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-    end
+    cast.opener[spell] = makeCaller(
+        function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+            return br.functions.cast:openerStep(spell, id, cast[spell], thisUnit, castType, minUnits, effectRng, predict,
+                predictPad, enemies)
+        end,
+        function(rank, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+            return br.functions.cast:openerStep(spell, id, cast[spell].rank(rank), thisUnit, castType, minUnits, effectRng,
+                predict, predictPad, enemies)
+        end)
 
     --- Checks if specified power requirements are not met.
     -- @function cast.pool.spell
@@ -351,41 +410,6 @@ br.api.cast = function(self, spell, id)
     -- @treturn number
     cast.range[spell] = function()
         return br.functions.spell:getSpellRange(currentRank())
-    end
-
-    --- Cast a specific rank of a spell (Classic WoW only).
-    -- Allows casting a lower rank of a spell for mana efficiency or specific mechanics.
-    -- @function cast.rank.spell
-    -- @number rankNum The rank number to cast (1-based index, e.g., 1 for Rank 1, 2 for Rank 2)
-    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
-    -- @string castType Defines the type of AoE or special cast conditions.
-    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @number effectRng The AoE's effect range.
-    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
-    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
-    -- @tab enemies A table of enemy units that the spell should be cast on.
-    -- @treturn boolean
-    -- @usage
-    -- -- Cast Rank 1 Healing Touch for mana efficiency
-    -- if cast.rank.healingTouch(1, "target") then return true end
-    --
-    -- -- Cast Rank 3 Rejuvenation
-    -- if cast.rank.rejuvenation(3, "target") then return true end
-    cast.rank[spell] = function(rankNum, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        if not br.api.hasSpellRanks then
-            -- In non-Classic, just use the regular spell (no ranks)
-            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)
-        end
-
-        -- Get the specific rank spell ID from the spell definition (id might be a table)
-        local rankID = br.functions.spell:getSpellRank(id, rankNum)
-        if not rankID then
-            -- Rank doesn't exist, fallback to base ID
-            rankID = type(id) == "table" and id[1] or id
-        end
-
-        -- Cast the specific rank
-        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, rankID, spell, predict, predictPad, enemies)
     end
 
     --- Gets the amount of power spell will generate when cast.
@@ -418,9 +442,22 @@ br.api.cast = function(self, spell, id)
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
-    cast[spell] = function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)
-    end
+    -- @usage
+    -- cast.wrath()                                  -- best target, best rank
+    -- cast.demoralizingRoar.aoe(10)                 -- around you, 10 yards (aoe/cone/rect/ground/targetAOE:
+    -- cast.swipe.aoe(8, 3)                          --   range, minUnits = 1, unit), pet(unit), dead(unit)
+    -- cast.blizzard.ground(8, 3)                    -- on the ground at the target
+    -- cast.healingTouch.rank(3)("player")           -- rank 3, or the highest known below it
+    -- cast.consecration.rank(1).aoe(8, 3)           -- the forms work at a rank, and on cast.able / cast.opener
+    cast[spell] = makeCaller(
+        function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad,
+                enemies)
+        end,
+        function(rank, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng,
+                br.functions.spell:getSpellRank(id, rank), spell, predict, predictPad, enemies)
+        end)
 
     --- Gets the cast time of player's spell. If the spell has no cast time, it returns the global cooldown.
     -- @function cast.time.spell

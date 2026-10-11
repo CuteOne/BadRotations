@@ -464,7 +464,7 @@ actionList.PreCombat = function()
                 -- Use Rank 1 at low mana to save resources; max rank otherwise.
                 if cast.able.lightningBolt("target") and not unit.moving() then
                     if mana.percent() <= 20 then
-                        if cast.rank.lightningBolt(1, "target") then
+                        if cast.lightningBolt.rank(1)("target") then
                             ui.debug("Casting Lightning Bolt Rank 1 [Precombat]")
                             return true
                         end

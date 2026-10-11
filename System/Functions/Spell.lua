@@ -616,26 +616,19 @@ function spell:getHighestKnownRank(spellIDOrTable)
     return spellIDOrTable[1]
 end
 
--- Get a specific rank of a spell
+-- The spell ID to cast when a profile asks for a rank (cast.<spell>.rank(n)): that rank, or the
+-- highest known rank below it, as a player without that rank would use. When no rank up to it is
+-- known, the rank asked for (the cast engine then reports it as not known). On clients without
+-- ranks, or for a single ID, the spell list entry as it is.
 -- @param spellIDOrTable - A spell ID (number) or table of spell IDs {rank1, rank2, ...}
 -- @param rank - The rank number (1-based index)
--- @return spellID - The spell ID for the specified rank, or nil if doesn't exist
 function spell:getSpellRank(spellIDOrTable, rank)
-    if not br.api.hasSpellRanks then
-        return type(spellIDOrTable) == "table" and spellIDOrTable[1] or spellIDOrTable
+    if not br.api.hasSpellRanks or type(spellIDOrTable) ~= "table" then return spellIDOrTable end
+    local asked = math.max(1, math.min(tonumber(rank) or 1, #spellIDOrTable))
+    for i = asked, 1, -1 do
+        if self:isKnown(spellIDOrTable[i]) then return spellIDOrTable[i] end
     end
-
-    -- If it's not a table, return it for rank 1, nil otherwise
-    if type(spellIDOrTable) ~= "table" then
-        return rank == 1 and spellIDOrTable or nil
-    end
-
-    -- Return the specified rank if it exists
-    if rank >= 1 and rank <= #spellIDOrTable then
-        return spellIDOrTable[rank]
-    end
-
-    return nil
+    return spellIDOrTable[asked]
 end
 
 -- Get the number of ranks for a spell
