@@ -214,8 +214,6 @@ local function needsMarkOfTheWild(thisUnit)
     return buff.markOfTheWild.refresh(thisUnit)
 end
 
-local function needsThorns(thisUnit) return buff.thorns.refresh(thisUnit) end
-
 -- Casts a Caster Form spell, leaving the current form first when it blocks the spell: Cat, Bear,
 -- Travel and Aquatic Form block every caster spell, Moonkin Form blocks heals. free: Clearcasting
 -- makes the spell free; emergency: leave the form even when shifting back isn't affordable.
@@ -253,8 +251,8 @@ actionList.Buffs = function()
     end
     -- Thorns
     if ui.checked("Thorns") then
-        var.thornUnit = ui.buffUnit("Thorns", needsThorns, 30)
-        if cast.able.thorns(var.thornUnit) and needsThorns(var.thornUnit)
+        var.thornUnit = ui.buffUnit("Thorns", buff.thorns.refresh, 30)
+        if cast.able.thorns(var.thornUnit) and buff.thorns.refresh(var.thornUnit)
             and unit.distance(var.thornUnit) < 30 and (var.thornUnit == "player" or unit.player(var.thornUnit))
         then
             if casterCast("thorns", var.thornUnit, "Thorns") then return true end
