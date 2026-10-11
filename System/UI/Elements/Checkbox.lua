@@ -2,6 +2,18 @@ local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local DiesalTools = _G.LibStub("DiesalTools-1.0")
 local DiesalStyle = _G.LibStub("DiesalStyle-1.0")
 local _, br = ...
+-- Hides a checkbox that's only there to hold its row's spacing (text lines, and spinners, dropdowns
+-- and edit boxes made without a checkbox): unticks a saved tick, disables it, and makes the whole frame
+-- invisible. Releasing the style textures alone left the box itself showing as a grey square on the
+-- Retail-based clients; the frame stays in place so the layout doesn't move.
+function br.ui:hideCheckbox(checkBox, savedValue)
+    if savedValue == true or savedValue == 1 then checkBox:SetChecked(false) end
+    checkBox:Disable()
+    checkBox:ReleaseTextures()
+    checkBox.frame:SetAlpha(0)
+    checkBox.frame:EnableMouse(false)
+end
+
 -- checked (optional): default state for new settings. layoutOnly (optional): build the checkbox and
 -- its label for spacing only, without saving or registering an option (br.ui:createText uses this).
 function br.ui:createCheckbox(parent, text, tooltip, checked, layoutOnly)

@@ -28,9 +28,7 @@ function br.ui:createText(parent, text, isCheckbox)
         if pageSettings and pageSettings[key] == false and not (defaults and defaults[key] ~= nil) then
             pageSettings[key] = nil
         end
-        local checkBox = br.ui:createCheckbox(parent, text, "", nil, true)
-        checkBox:Disable()
-        checkBox:ReleaseTextures()
+        br.ui:hideCheckbox(br.ui:createCheckbox(parent, text, "", nil, true))
     end
     ----------------------------
     --------Create Label--------

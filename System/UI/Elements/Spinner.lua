@@ -44,20 +44,7 @@ function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     --------Create CheckBox--------
     -------------------------------
     local checkBox = br.ui:createCheckbox(parent, text, tooltip, checked)
-    if hideCheckbox then
-        local check = data[text .. " Check"]
-        if check == 0 then
-            check = false
-        end
-        if check == 1 then
-            check = true
-        end
-        if check == true then
-            checkBox:SetChecked(false)
-        end
-        checkBox:Disable()
-        checkBox:ReleaseTextures()
-    end
+    if hideCheckbox then br.ui:hideCheckbox(checkBox, data[text .. " Check"]) end
     -------------------------------
 
     ------------------------------
@@ -184,20 +171,7 @@ function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbo
     --------Create CheckBox--------
     -------------------------------
     local checkBox = br.ui:createCheckbox(parent, text, "Enable auto usage of this spell", checked)
-    if hideCheckbox then
-        local check = data[text .. " Check"]
-        if check == 0 then
-            check = false
-        end
-        if check == 1 then
-            check = true
-        end
-        if check == true then
-            checkBox:SetChecked(false)
-        end
-        checkBox:Disable()
-        checkBox:ReleaseTextures()
-    end
+    if hideCheckbox then br.ui:hideCheckbox(checkBox, data[text .. " Check"]) end
 
     ------------------------------
     --------Create Spinner--------

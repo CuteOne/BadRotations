@@ -44,20 +44,7 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     --------Create CheckBox--------
     -------------------------------
     local checkBox = br.ui:createCheckbox(parent, text, tooltip, checked)
-    if hideCheckbox then
-        local check = data[text .. " Check"]
-        if check == 0 then
-            check = false
-        end
-        if check == 1 then
-            check = true
-        end
-        if check == true then
-            checkBox:SetChecked(false)
-        end
-        checkBox:Disable()
-        checkBox:ReleaseTextures()
-    end
+    if hideCheckbox then br.ui:hideCheckbox(checkBox, data[text .. " Check"]) end
     -------------------------------
 
     -------------------------------
