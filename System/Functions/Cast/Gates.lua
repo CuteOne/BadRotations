@@ -312,6 +312,26 @@ local function gateCooldownTimer(ctx, thisUnit, castType, allTalents, allSpells)
 		string.format("castTimer expires in %.2fs", t - br._G.GetTime())
 end
 
+-- Cheap refusal before the full spell context. The rotation runs every tick, also during the
+-- GCD, and most spells it asks about then are simply on cooldown; the cooldown gate needs only
+-- the spell's cooldown, BR's cast timer and the update rate, so it runs on those alone first and
+-- the context (about eight more game calls) is only built for spells that might pass. Same gate,
+-- same refusal record and debug line as the full gate run.
+local precheckCtx = {}
+function E.cooldownPrecheck(spellID, castType, isAbleCheck)
+	if castType == "pet" or E.castTimers == nil then return true end
+	precheckCtx.spellID = spellID
+	precheckCtx.spellCD = br.functions.spell:getSpellCD(spellID) or 0
+	precheckCtx.updateRate = E.getFrameValues().updateRate
+	local pass, reason, detail = gateCooldownTimer(precheckCtx, nil, castType)
+	if pass then return true end
+	E.recordRefusal(spellID, reason, detail)
+	if not isAbleCheck then
+		emitGateDebug(spellID, br.api.wow.GetSpellInfo(spellID), reason, detail)
+	end
+	return false
+end
+
 local function gateGCD(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
 	-- Pass if: GCD is clear, OR spell has its own CD ready, OR spell has no base CD (instant),
 	-- OR a cast is already in progress and will complete within the update window.

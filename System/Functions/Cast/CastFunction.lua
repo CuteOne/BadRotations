@@ -94,6 +94,9 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 		if E.castTimers[spellID] == nil then E.castTimers[spellID] = 0 end -- 0 so t < GetTime() is immediately true
 		if E.rangeDelayTimers == nil then E.rangeDelayTimers = {} end
 
+		-- Most spells asked about during the GCD are on cooldown: refuse those before the context
+		if not isEmpoweredBypass and not E.cooldownPrecheck(spellID, castType, debug) then return false end
+
 		ctx = E.buildSpellContext(spellID, predict, predictPad, castType, effectRng)
 	end
 
