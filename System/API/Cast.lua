@@ -12,7 +12,7 @@ if br.api == nil then br.api = {} end
 -- enemies), and also offer short forms for the cast types, with the arguments that type needs:
 --   cast.demoralizingRoar.aoe(10)          an AoE around you, 10 yards
 --   cast.swipe.aoe(8, 3)                   3+ enemies within 8 yards
---   cast.flamestrike.ground(8, 3)          on the ground at the target
+--   cast.flamestrike.ground(8, 3)          on the ground where it covers 3+ enemies
 -- Area forms take range, minimum units (default 1), then the unit (default per type). .rank(n)
 -- gives the spell at a rank (or the highest known below it), with the same forms:
 --   cast.healingTouch.rank(3)("player")    cast.consecration.rank(1).aoe(8, 3)
@@ -22,8 +22,9 @@ local FORMS = {
     aoe       = function(call, range, minUnits, unit) return call(unit or "player", "aoe", minUnits or 1, range) end,
     cone      = function(call, range, minUnits) return call("player", "cone", minUnits or 1, range) end,
     rect      = function(call, range, minUnits) return call("player", "rect", minUnits or 1, range) end,
+    -- Without a unit: the spot covering the most units ("best"); with one: centred on that unit
     ground    = function(call, range, minUnits, unit, predict, predictPad)
-        return call(unit or "target", "ground", minUnits or 1, range, predict, predictPad)
+        return call(unit or "best", "ground", minUnits or 1, range, predict, predictPad)
     end,
     targetAOE = function(call, range, minUnits, unit) return call(unit or "target", "targetAOE", minUnits or 1, range) end,
     pet       = function(call, unit) return call(unit, "pet") end,
@@ -446,7 +447,7 @@ br.api.cast = function(self, spell, id)
     -- cast.wrath()                                  -- best target, best rank
     -- cast.demoralizingRoar.aoe(10)                 -- around you, 10 yards (aoe/cone/rect/ground/targetAOE:
     -- cast.swipe.aoe(8, 3)                          --   range, minUnits = 1, unit), pet(unit), dead(unit)
-    -- cast.blizzard.ground(8, 3)                    -- on the ground at the target
+    -- cast.blizzard.ground(8, 3)                    -- on the ground where it covers 3+ enemies
     -- cast.healingTouch.rank(3)("player")           -- rank 3, or the highest known below it
     -- cast.consecration.rank(1).aoe(8, 3)           -- the forms work at a rank, and on cast.able / cast.opener
     cast[spell] = makeCaller(

@@ -107,363 +107,174 @@ function custom:castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, 
     end
 end
 
--- function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
---     local _, _, _, _, spellMinRange, spellMaxRange = br.api.wow.GetSpellInfo(spellID)
---     minRange = minRange or spellMinRange or 0
---     maxRange = maxRange or spellMaxRange or 5
---     radius   = radius or maxRange
---     -- return table with combination of every 2 units
---     local function getAllCombinationsOfASet(arr, r)
---         if(r > #arr) then
---             return {}
---         end
---         if(r == 0) then
---             return {}
---         end
---         if(r == 1) then
---             local return_table = {}
---             for i=1,#arr do
---                 table.insert(return_table, {arr[i]})
---             end
---             return return_table
---         else
---             local return_table = {}
---             local arr_new = {}
---             for i=2,#arr do
---                 table.insert(arr_new, arr[i])
---             end
---             for _, val in pairs(getAllCombinationsOfASet(arr_new, r-1)) do
---                 local curr_result = {}
---                 table.insert(curr_result, arr[1]);
---                 for _,curr_val in pairs(val) do
---                     table.insert(curr_result, curr_val)
---                 end
---                 table.insert(return_table, curr_result)
---             end
---             for _, val in pairs(getAllCombinationsOfASet(arr_new, r)) do
---                 table.insert(return_table, val)
---             end
---             return return_table
---         end
---     end
+-- Ground AoE placement: where a circle of `radius` yards, centred within the spell's range, covers the
+-- most units it should hit, and none it shouldn't.
+--   * Units: enemies in combat (allies for a helpful spell) out to range + radius, since a circle at the
+--     edge of the range reaches that far.
+--   * Spots tried: every unit's position, and for each pair of units the two centres that put both on
+--     the circle's edge (the best circle always has one of these) plus the pair's midpoint; spots past
+--     the range are pulled in to its edge, spots inside a minimum range pushed out to it.
+--   * A spot is refused when its circle reaches a unit the AoE safety check wouldn't hit ("Safe Damage
+--     Check": enemies not in combat, neutral or crowd-controlled ones).
+--   * Only units at about the same height count, so a pack on the floor below isn't "covered".
+--   * The best spots are traced for line of sight in order; the first visible one is used. Spots close
+--     to one already found hidden are skipped, so the traces look at different places.
+-- Returns x, y, z and the number of units covered, or nil when no spot covers minUnits.
+-- local x, y, z, count = br.functions.custom:findGroundLocation(br.player.spells.hurricane, 8, 3)
+local GROUND_HEIGHT_TOLERANCE = 6 -- yards up or down a unit can be from the spot and still count
+local GROUND_MAX_UNITS = 30       -- nearest units considered (the search grows with the cube of this)
+local GROUND_MAX_TRACES = 8       -- line-of-sight traces per search
+local GROUND_HIDDEN_AREA = 3      -- yards around a hidden spot that aren't traced again
+local groundSearchCache = {}      -- [key] = { at = frame time, x, y, z, count }: once per frame per spell
 
---     --check if unit is inside of a circle
---     local function unitInCircle(unit, cx, cy)
---         local uX, uY
---         if castTime == nil or castTime == 0 then
---           uX, uY = br.functions.unit:GetObjectPosition(unit)
---         else
---           uX, uY = br.functions.custom:(unit, castTime)
---         end
---         local rUnit = br._G["UnitBoundingRadius"](unit)
---         return math.abs((uX - cx) * (uX - cx) + (uY - cy) * (uY - cy)) <= (rUnit + radius) * (rUnit + radius);
---     end
+local function unitPoints(list, isAlly)
+    local points = {}
+    for i = 1, #list do
+        local thisUnit = isAlly and list[i].unit or list[i]
+        local x, y, z = br.functions.unit:GetObjectPosition(thisUnit)
+        if x and y and z then points[#points + 1] = { unit = thisUnit, x = x, y = y, z = z } end
+    end
+    return points
+end
 
---     --distance from center to unit
---     local function unitDistanceCenter(unit, cx, cy)
---         local uX, uY
---         if castTime == nil or castTime == 0 then
---             uX, uY = br.functions.unit:GetObjectPosition(unit)
---         else
---             uX, uY = br.functions.custom:(unit, castTime)
---         end
---         -- local rUnit = br._G.UnitBoundingRadius(unit)
---         return sqrt(((uX-cx)^2) + ((uY-cy)^2))
---     end
-
---     if minRange == nil then minRange = 0 end
---     local allUnitsInRange
---     if spellType == "heal" then
---         allUnitsInRange = br.engines.healingEngineFunctions:getAllies("player",maxRange)
---     else
---         allUnitsInRange = br.engines.enemiesEngineFunctions:getEnemies("player",maxRange,false)
---     end
-
---     local testCircles = {}
---     if #allUnitsInRange >= 2 then
---         local combs = getAllCombinationsOfASet(allUnitsInRange, 2)
---         for _, val in pairs(combs) do
---             local temp = {}
---             local tX1, tY1, tZ1 = (castTime == nil or castTime == 0) and br.functions.unit:GetObjectPosition(val[1]) or 0,0,0
---                 or br.functions.custom:(val[1], castTime)
---             local tX2, tY2, tZ2 = (castTime == nil or castTime == 0) and br.functions.unit:GetObjectPosition(val[2]) or 0,0,0
---                 or br.functions.custom:(val[2], castTime)
-
---             --distance
---             local q = sqrt((tX2-tX1)^2 + (tY2-tY1)^2)
---             --check to calculation. if result < 0 math.sqrt will give error
---             local calc = ((radius^2)-((q/2)^2))
-
---             if calc > 0 then
---                 --x3, y3
---                 local x3 = (tX1+tX2)/2
---                 local y3 = (tY1+tY2)/2
---                 local sqrt_calc = sqrt(calc)
-
---                 temp.xfc = x3 + sqrt_calc*((tY1-tY2)/q)
---                 temp.yfc = y3 + sqrt_calc*((tX2-tX1)/q)
-
---                 temp.xsc = x3 - sqrt_calc*((tY1-tY2)/q)
---                 temp.ysc = y3 - sqrt_calc*((tX2-tX1)/q)
---                 temp.z = tZ2
-
---                 br._G.tinsert(testCircles, temp)
---             end
---         end
---     end
-
---     local bestCircle = {x = 0, y = 0, z = 0, q = 0, nro = 0}
---     for i=1, #testCircles do
---         local thisCircle = testCircles[i]
---         if br.functions.range:getDistanceToLocation("player",thisCircle.xfc,thisCircle.yfc,thisCircle.z) > minRange
---             or br.functions.range:getDistanceToLocation("player",thisCircle.xsc,thisCircle.ysc,thisCircle.z) > minRange
---         then
---             local tempData = { {count=0, units={}, x=thisCircle.xfc, y=thisCircle.yfc},
---                             {count=0, units={}, x=thisCircle.xsc, y=thisCircle.ysc} }
---             for j=1, #allUnitsInRange do
---                 local unitSource = spellType == "heal" and allUnitsInRange[j].unit or allUnitsInRange[j]
---                 for _,temp in ipairs(tempData) do
---                     if unitInCircle(unitSource,temp.x,temp.y) then
---                         temp.count = temp.count + 1
---                         br._G.tinsert(temp.units, allUnitsInRange[j])
---                     end
---                 end
---             end
---             for _,temp in ipairs(tempData) do
---                 if temp.count > bestCircle.nro then
---                     bestCircle.x = temp.x
---                     bestCircle.y = temp.y
---                     bestCircle.z = thisCircle.z
---                     bestCircle.nro = temp.count
---                     bestCircle.units = {}
-
---                     for p = 1, #temp.units do br._G.tinsert(bestCircle.units,temp.units[p]) end
---                 end
---             end
---         end
---     end
---     --print(#bestCircle.units)
-
---     -- check if units of the best circle is equal of circle of unit, if it is, then cast on this unit
---     -- for i=1,#allUnitsInRange do
---     --     local thisUnit = allUnitsInRange[i]
---     --     nmro = getUnits(thisUnit,allUnitsInRange, radius - 3)
---     --     if nmro >= bestCircle.nro and nmro >= minUnits then
---     --         if castGround(thisUnit,spellID,maxRange,minRange,radius,castTime) then return true else return false end
---     --     end
---     -- end
-
---     --check with minUnits
---     if minUnits == 1 and bestCircle.nro == 0 and br.functions.unit:GetUnitExists("target") and br.functions.range:getDistance("player","target") > minRange then
---         if br.functions.cast:castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
---     end
---     if bestCircle.nro < minUnits then return false end
-
---     if bestCircle.x ~= 0 and bestCircle.y ~= 0 and bestCircle.z ~= 0 then
---         --Calculate x/y position with shortest dist to units
---         local shortestDistance = 999
---         local newBestCircleX, newBestCircleY = 0,0
---         for x = bestCircle.x - radius, bestCircle.x + radius do
---             for y = bestCircle.y - radius, bestCircle.y + radius do
---                 local totalDistance = 0
---                 for i = 1, #bestCircle.units do
---                     totalDistance = totalDistance + unitDistanceCenter(bestCircle.units[i], x, y)
---                 end
---                 if totalDistance < shortestDistance then
---                     shortestDistance = totalDistance
---                     newBestCircleX, newBestCircleY = x, y
---                 end
---             end
---         end
---         bestCircle.x, bestCircle.y = (newBestCircleX + math.random() * 2), (newBestCircleY + math.random() * 2)
---         if br.functions.cast:castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
---     end
--- end
-
-function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
-    -- Finds the best ground location (within spell range) that maximizes the number of units inside a
-    -- fixed-radius circle. If the maximum hit count is >= minUnits, casts at that location.
-    --
-    -- NOTE: castTime is currently unused; reliable movement prediction is not available here.
-
+function custom:findGroundLocation(spellID, radius, minUnits, maxRange, minRange, helpful)
     local _, _, _, _, spellMinRange, spellMaxRange = br.api.wow.GetSpellInfo(spellID)
     minRange = minRange or spellMinRange or 0
     maxRange = maxRange or spellMaxRange or 5
     radius = radius or maxRange
     minUnits = minUnits or 1
-
-    local allUnitsInRange = (spellType == "heal")
-        and br.engines.healingEngineFunctions:getAllies("player", maxRange)
-        or br.engines.enemiesEngineFunctions:getEnemies("player", maxRange, false)
-
-    if not allUnitsInRange or #allUnitsInRange == 0 then return false end
-
-    local playerX, playerY, playerZ = br.functions.unit:GetObjectPosition("player")
-
-    local function dist2(x1, y1, x2, y2)
-        local dx, dy = x2 - x1, y2 - y1
-        return dx * dx + dy * dy
+    local now = br._G.GetTime()
+    local key = tostring(spellID) .. ":" .. radius .. ":" .. minUnits .. ":" .. maxRange .. ":" .. tostring(helpful)
+    local cached = groundSearchCache[key]
+    if cached and cached.at == now then
+        if cached.count == nil then return nil end
+        return cached.x, cached.y, cached.z, cached.count
     end
+    local result = { at = now }
+    groundSearchCache[key] = result
 
-    local function inSpellRange(cx, cy, cz)
-        local d = math.sqrt(dist2(playerX, playerY, cx, cy))
-        return d <= maxRange and d >= (minRange or 0)
-    end
+    local px, py = br.functions.unit:GetObjectPosition("player")
+    if not px then return nil end
+    local reach = maxRange + radius
 
-    -- Build a compact list of points we can evaluate.
-    local points = {}
-    for i = 1, #allUnitsInRange do
-        local unitObj = allUnitsInRange[i]
-        local unitToken = (spellType == "heal" and unitObj.unit) or unitObj
-        if unitToken then
-            local x, y, z = br.functions.unit:GetObjectPosition(unitToken)
-            if x and y and z then
-                points[#points + 1] = { unit = unitToken, x = x, y = y, z = z }
-            end
+    -- Units to cover, and units the circle mustn't reach
+    local points, avoid = {}, {}
+    if helpful then
+        points = unitPoints(br.engines.healingEngineFunctions:getAllies("player", reach), true)
+    else
+        local valid = br.engines.enemiesEngineFunctions:getEnemies("player", reach)
+        points = unitPoints(valid, false)
+        if br.functions.misc:isChecked("Safe Damage Check") then
+            local isValid = {}
+            for i = 1, #valid do isValid[valid[i]] = true end
+            local all = br.engines.enemiesEngineFunctions:getEnemies("player", reach, true)
+            local others = {}
+            for i = 1, #all do if not isValid[all[i]] then others[#others + 1] = all[i] end end
+            avoid = unitPoints(others, false)
         end
     end
-
-    if #points == 0 then return false end
-
-    local candidates = {}
-
-    -- Candidate centers: every unit position.
-    for i = 1, #points do
-        local p = points[i]
-        candidates[#candidates + 1] = { x = p.x, y = p.y, z = p.z }
+    if #points == 0 then return nil end
+    if #points > GROUND_MAX_UNITS then
+        table.sort(points, function(a, b)
+            return (a.x - px) ^ 2 + (a.y - py) ^ 2 < (b.x - px) ^ 2 + (b.y - py) ^ 2
+        end)
+        for i = #points, GROUND_MAX_UNITS + 1, -1 do points[i] = nil end
     end
 
-    -- Candidate centers: circle intersection points for each pair within 2*radius.
-    -- Standard algorithm: for two points p1, p2 with distance d <= 2r,
-    -- compute midpoint m and perpendicular offset h to get two possible centers.
-    local r = radius
-    local r2 = r * r
-    local maxPairDist2 = (2 * r) * (2 * r)
+    local r2 = radius * radius
+    local function covers(cx, cy, cz, p)
+        local dx, dy = p.x - cx, p.y - cy
+        return dx * dx + dy * dy <= r2 and math.abs(p.z - cz) <= GROUND_HEIGHT_TOLERANCE
+    end
+    -- Keep a spot inside the castable ring: pulled in from past the range, out from inside the minimum
+    local function intoRange(cx, cy, cz)
+        local dx, dy = cx - px, cy - py
+        local d = math.sqrt(dx * dx + dy * dy)
+        if d > maxRange then
+            return px + dx / d * maxRange, py + dy / d * maxRange, cz
+        elseif d < minRange then
+            if d == 0 then return nil end
+            return px + dx / d * minRange, py + dy / d * minRange, cz
+        end
+        return cx, cy, cz
+    end
 
-    local function getHitInfoAt(cx, cy, cz)
-        local count = 0
-        local sumX, sumY, sumZ = 0, 0, 0
-        for j = 1, #points do
-            local p = points[j]
-            if dist2(cx, cy, p.x, p.y) <= r2 then
+    -- Score every candidate spot
+    local scored = {}
+    local function consider(cx, cy, cz)
+        cx, cy, cz = intoRange(cx, cy, cz)
+        if cx == nil then return end
+        for i = 1, #avoid do
+            if covers(cx, cy, cz, avoid[i]) then return end
+        end
+        local count, spread = 0, 0
+        for i = 1, #points do
+            local p = points[i]
+            if covers(cx, cy, cz, p) then
                 count = count + 1
-                sumX = sumX + p.x
-                sumY = sumY + p.y
-                sumZ = sumZ + p.z
+                local d2 = (p.x - cx) ^ 2 + (p.y - cy) ^ 2
+                if d2 > spread then spread = d2 end
             end
         end
-        if count == 0 then
-            return 0, nil, nil
+        if count >= minUnits then
+            scored[#scored + 1] = { x = cx, y = cy, z = cz, count = count, spread = spread,
+                fromPlayer = (cx - px) ^ 2 + (cy - py) ^ 2 }
         end
-        local centroid = { x = sumX / count, y = sumY / count, z = sumZ / count }
-
-        -- Centering score: minimize the maximum distance from centroid to any covered unit.
-        local maxDistToCentroid2 = 0
-        for j = 1, #points do
-            local p = points[j]
-            if dist2(cx, cy, p.x, p.y) <= r2 then
-                local d2 = dist2(centroid.x, centroid.y, p.x, p.y)
-                if d2 > maxDistToCentroid2 then
-                    maxDistToCentroid2 = d2
-                end
-            end
-        end
-
-        return count, centroid, maxDistToCentroid2
     end
+    for i = 1, #points do consider(points[i].x, points[i].y, points[i].z) end
+    local maxPair2 = 4 * r2
     for i = 1, #points - 1 do
         local p1 = points[i]
         for j = i + 1, #points do
             local p2 = points[j]
-            local dSq = dist2(p1.x, p1.y, p2.x, p2.y)
-            if dSq > 0 and dSq <= maxPairDist2 then
-                local d = math.sqrt(dSq)
-                local mx, my = (p1.x + p2.x) / 2, (p1.y + p2.y) / 2
-                local hSq = r2 - (d * d) / 4
-                if hSq >= 0 then
-                    local h = math.sqrt(hSq)
-                    local ux, uy = (p2.x - p1.x) / d, (p2.y - p1.y) / d
-                    local px, py = -uy, ux
-                    local z = (p1.z + p2.z) / 2
-                    candidates[#candidates + 1] = { x = mx + px * h, y = my + py * h, z = z }
-                    candidates[#candidates + 1] = { x = mx - px * h, y = my - py * h, z = z }
-                end
+            local dx, dy = p2.x - p1.x, p2.y - p1.y
+            local d2 = dx * dx + dy * dy
+            if d2 > 0 and d2 <= maxPair2 and math.abs(p1.z - p2.z) <= 2 * GROUND_HEIGHT_TOLERANCE then
+                local d = math.sqrt(d2)
+                local h = math.sqrt(math.max(0, r2 - d2 / 4))
+                local mx, my, mz = (p1.x + p2.x) / 2, (p1.y + p2.y) / 2, (p1.z + p2.z) / 2
+                local ox, oy = -dy / d * h, dx / d * h
+                consider(mx + ox, my + oy, mz)
+                consider(mx - ox, my - oy, mz)
+                consider(mx, my, mz)
             end
         end
     end
-
-    local bestLocation = nil
-    local bestCentroid = nil
-    local bestCount = 0
-    local bestMaxDistToCentroid2 = nil
-    local bestDistToPlayer2 = nil
-
-    for i = 1, #candidates do
-        local c = candidates[i]
-        if inSpellRange(c.x, c.y, c.z) then
-            local count, centroid, maxDistToCentroid2 = getHitInfoAt(c.x, c.y, c.z)
-
-            if count > bestCount then
-                bestCount = count
-                bestLocation = c
-                bestCentroid = centroid
-                bestMaxDistToCentroid2 = maxDistToCentroid2
-                bestDistToPlayer2 = dist2(playerX, playerY, c.x, c.y)
-            elseif count == bestCount and bestCount > 0 then
-                -- Tie-breaker order:
-                -- 1) More centered (smaller max distance to centroid)
-                -- 2) Closer to player (minor preference)
-                if centroid and maxDistToCentroid2 then
-                    if (not bestMaxDistToCentroid2) or (maxDistToCentroid2 < bestMaxDistToCentroid2) then
-                        bestLocation = c
-                        bestCentroid = centroid
-                        bestMaxDistToCentroid2 = maxDistToCentroid2
-                        bestDistToPlayer2 = dist2(playerX, playerY, c.x, c.y)
-                    elseif maxDistToCentroid2 == bestMaxDistToCentroid2 then
-                        local d2 = dist2(playerX, playerY, c.x, c.y)
-                        if not bestDistToPlayer2 or d2 < bestDistToPlayer2 then
-                            bestLocation = c
-                            bestCentroid = centroid
-                            bestDistToPlayer2 = d2
-                        end
-                    end
-                end
+    if #scored == 0 then return nil end
+    -- Most units first; then the tightest fit (the farthest covered unit closest to the centre, so
+    -- units at the edge don't walk out); then the spot nearest you
+    table.sort(scored, function(a, b)
+        if a.count ~= b.count then return a.count > b.count end
+        if a.spread ~= b.spread then return a.spread < b.spread end
+        return a.fromPlayer < b.fromPlayer
+    end)
+    local misc = br.functions.misc
+    local hidden, traces = {}, 0
+    local hiddenArea2 = GROUND_HIDDEN_AREA * GROUND_HIDDEN_AREA
+    for i = 1, #scored do
+        local c = scored[i]
+        local nearHidden = false
+        for j = 1, #hidden do
+            if (c.x - hidden[j].x) ^ 2 + (c.y - hidden[j].y) ^ 2 <= hiddenArea2 then nearHidden = true break end
+        end
+        if not nearHidden then
+            if misc:canSeePosition(c.x, c.y, c.z) then
+                result.x, result.y, result.z, result.count = c.x, c.y, c.z, c.count
+                return c.x, c.y, c.z, c.count
             end
+            hidden[#hidden + 1] = c
+            traces = traces + 1
+            if traces >= GROUND_MAX_TRACES then break end
         end
     end
+    return nil
+end
 
-    -- If we found a best cluster, try snapping the cast to the centroid of the covered group.
-    -- This keeps the same hit count when possible, and avoids placing the pack on the edge.
-    -- Only the final point is LoS-traced (tracing every candidate would be hundreds of traces);
-    -- if the centroid is hidden we keep the candidate point, and if that's hidden too we don't cast.
-    local candidateLocation = bestLocation
-    if bestCentroid and inSpellRange(bestCentroid.x, bestCentroid.y, bestCentroid.z) then
-        local centroidCount = 0
-        for j = 1, #points do
-            local p = points[j]
-            if dist2(bestCentroid.x, bestCentroid.y, p.x, p.y) <= r2 then
-                centroidCount = centroidCount + 1
-            end
-        end
-        if centroidCount == bestCount then
-            bestLocation = bestCentroid
-        end
-    end
-
-    if bestLocation and bestCount >= minUnits then
-        local misc = br.functions.misc
-        if not misc:canSeePosition(bestLocation.x, bestLocation.y, bestLocation.z) then
-            if candidateLocation == bestLocation
-                or not misc:canSeePosition(candidateLocation.x, candidateLocation.y, candidateLocation.z)
-            then
-                return false
-            end
-            bestLocation = candidateLocation
-        end
-        return br.functions.cast:castAtPosition(bestLocation.x, bestLocation.y, bestLocation.z, spellID)
-    end
-
-    return false
+-- Casts a ground AoE at the best spot findGroundLocation finds (helpful: covers allies instead).
+function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, helpful)
+    local x, y, z = custom:findGroundLocation(spellID, radius, minUnits, maxRange, minRange, helpful)
+    if x == nil then return false end
+    return br.functions.cast:castAtPosition(x, y, z, spellID)
 end
 
 function custom:isUnitThere(unitNameOrID, distance)

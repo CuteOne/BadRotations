@@ -176,9 +176,14 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 	end
 
 	-- ── Step 12: Special unit / ground-targeted early exits ───────────────────
+	-- "best": the ground spot covering the most units (allies for a helpful spell); cast.able asks
+	-- whether there is one
 	if thisUnit == "best" then
-		if debug then return true end
-		return br.functions.custom:castGroundAtBestLocation(spellID, effectRng, minUnits, ctx.maxRange, ctx.minRange, castType, ctx.castTime)
+		local helpful = ctx.spellType == "Helpful"
+		if debug then
+			return br.functions.custom:findGroundLocation(spellID, effectRng, minUnits, ctx.maxRange, ctx.minRange, helpful) ~= nil
+		end
+		return br.functions.custom:castGroundAtBestLocation(spellID, effectRng, minUnits, ctx.maxRange, ctx.minRange, helpful)
 	end
 
 	if thisUnit == "playerGround" or thisUnit == "targetGround" or castType == "groundCC" then

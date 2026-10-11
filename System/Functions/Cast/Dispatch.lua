@@ -360,7 +360,8 @@ end
 
 function E.dispatchAoE(ctx, thisUnit, castType, minUnits, effectRng, enemies, debug)
 	local enemyCount = enemies
-		or ((castType == "ground" or castType == "aoe") and #br.engines.enemiesEngineFunctions:getEnemies("player", ctx.maxRange))
+		or (castType == "ground"    and #br.engines.enemiesEngineFunctions:getEnemies(thisUnit, effectRng)) -- around the spot
+		or (castType == "aoe"       and #br.engines.enemiesEngineFunctions:getEnemies("player", ctx.maxRange))
 		or (castType == "cone"      and br.engines.enemiesEngineFunctions:getEnemiesInCone(effectRng, ctx.maxRange))
 		or (castType == "rect"      and br.engines.enemiesEngineFunctions:getEnemiesInRect(effectRng, ctx.maxRange))
 		or (castType == "targetAOE" and #br.engines.enemiesEngineFunctions:getEnemies(thisUnit, effectRng))
