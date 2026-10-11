@@ -5,14 +5,27 @@ local engines = br.engines
 local Print  = print
 local LibDraw -- assigned lazily on first Update call (LibStub must be registered first)
 
+-- Auto Delay keeps BR's own work to a share of real time: when a tick (the rotation plus the
+-- enemies engine, which run at this rate) gets expensive, ticks are spaced out just enough to stay
+-- within the share. A cheap BR keeps the Bot Update Rate even when the scene drags FPS down; an
+-- expensive one backs off in proportion. (It used to slow BR by FPS alone, (60 - FPS) / 60, which
+-- made BR slowest in busy fights whatever its own share of the frame.)
+local AUTO_DELAY_SHARE = 0.10 -- at most 10% of real time spent in BR
+local AUTO_DELAY_MAX   = 0.5  -- never more than this between ticks
+engines.tickCost = { rotation = 0, enemies = 0 } -- running averages, milliseconds per tick
+
+-- Fold one measured tick (milliseconds) into a running average
+local function recordTickCost(part, ms)
+    local costs = engines.tickCost
+    costs[part] = costs[part] * 0.8 + ms * 0.2
+end
+
 function engines:getUpdateRate()
     local updateRate = br.functions.misc:getOptionValue("Bot Update Rate") or 0.1
 
     if br.functions.misc:isChecked("Auto Delay") then
-        local FrameRate = br._G.GetFramerate() or 0
-        if FrameRate >= 0 and FrameRate < 60 then
-            updateRate = (60 - FrameRate) / 60
-        end
+        local costSeconds = (engines.tickCost.rotation + engines.tickCost.enemies) / 1000
+        updateRate = math.max(updateRate, math.min(AUTO_DELAY_MAX, costSeconds / AUTO_DELAY_SHARE))
     end
     return updateRate
 end
@@ -45,7 +58,9 @@ local function ObjectManagerUpdate(self, elapsed)
     self.omElapsed = (self.omElapsed or 0) + (elapsed or 0)
     if self.omElapsed < math.max(0.05, engines:getUpdateRate()) then return end
     self.omElapsed = 0
+    local started = br._G.debugprofilestop()
     engines.enemiesEngine:Update()
+    recordTickCost("enemies", br._G.debugprofilestop() - started)
 end
 
 function engines:ObjectManager()
@@ -138,6 +153,7 @@ function engines.Update(frame, elapsed)
                 -- Paused by the unlocker while the game hides values from BR (secret values).
                 return false
             elseif br.debug.timer:useTimer("playerUpdate", br.engines:getUpdateRate()) then
+                local tickStarted = br._G.debugprofilestop()
                 -- Quaking helper
                 if br.functions.misc:getOptionCheck("Quaking Helper") then
                     local quakingID = br.functions.spell:getHighestSpellID("quaking") or 240448
@@ -231,6 +247,7 @@ function engines.Update(frame, elapsed)
                 br.misc.ProfessionHelper:ProfessionHelper()
                 -- Rotation Log
                 br.ui:toggleDebugWindow()
+                recordTickCost("rotation", br._G.debugprofilestop() - tickStarted)
             end -- End Update Check
         end -- End Settings Loaded Check
     end -- End Unlock Check

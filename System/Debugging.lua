@@ -149,6 +149,12 @@ function br.debug.cpu:profile(seconds)
         br._G.print(("|cffFFDD11[BadRotations]|r CPU over %d s | FPS avg %.0f | objects %d | tracked units %d | candidates %d | enemies %d"):format(
             seconds, fpsSamples > 0 and fpsTotal / fpsSamples or 0, br._G.GetObjectCount and br._G.GetObjectCount() or 0,
             #(engine.recordList or {}), count(engine.units), count(engine.enemy)))
+        local costs = br.engines.tickCost
+        if costs then
+            br._G.print(("  BR tick cost (running average): rotation %.2f ms + enemies engine %.2f ms -> %.2f s between ticks%s"):format(
+                costs.rotation, costs.enemies, br.engines:getUpdateRate(),
+                br.functions.misc:isChecked("Auto Delay") and " (Auto Delay)" or ""))
+        end
         for _, stats in ipairs(results) do
             if stats.calls > 0 then
                 br._G.print(("  %-30s %7.2f ms/s  %6.0f calls/s  %6.3f ms/call"):format(
