@@ -40,3 +40,19 @@ range.rangeOrMelee = {
 	[72] = "melee",
     [73] = "melee",
 }
+
+-- Spells that tell whether a unit is in melee range (C_Spell.IsSpellInRange), as spell list keys per
+-- class (Druids by form): the first one the player knows is used, so each client gets its own IDs.
+-- A class listed here also gets the melee-by-position check on clients without specializations.
+range.meleeSpells = {
+	WARRIOR     = { "pummel" },
+	PALADIN     = { "crusaderStrike" },
+	ROGUE       = { "kick" },
+	DEATHKNIGHT = { "deathStrike" },
+	MONK        = { "tigerPalm" },
+	SHAMAN      = { "primalStrike", "stormstrike" },
+	HUNTER      = { "raptorStrike", "wingClip", "growl" },
+	DEMONHUNTER = { "chaosStrike", "soulCleave" },
+	DRUID_CAT   = { "shred", "claw", "mangle" },
+	DRUID_BEAR  = { "maul", "mangle" },
+}

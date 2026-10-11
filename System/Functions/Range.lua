@@ -2,52 +2,26 @@ local _, br = ...
 br.functions.range = br.functions.range or {}
 local range = br.functions.range
 local sqrt, abs, atan, deg = math.sqrt, math.abs, math.atan, math.deg
-local testSpell = {
-    ["WARRIOR"] = 6552,
-    ["PALADIN"] = 35395,
-    ["ROGUE"] = 1766,
-    ["DEATHKNIGHT"] = 49998,
-    ["MONK"] = 100780,
-    ["SHAMAN"] = 73899,
-    ["HUNTER"] = 2649,   -- Growl R1; has "Melee Range" spell data, enables accurate melee detection for Hunter
-    ["DRUIDC"] = 5221,
-    ["DRUIDB"] = 33917,
-    ["DHH"] = 162794,
-    ["DHV"] = 214743,
-    ["SHUNTER"] = 186270
-}
+-- The player's class, and per melee spell list (br.lists.range.meleeSpells) the name of the first spell
+-- the player knows, or false. Kept until the spellbook or spec changes (invalidateMeleeSpellCache).
+local playerClass = nil
+local meleeSpellNames = {}
 
--- Cache class/spec/meleeSpell so getDistanceCalc does NOT call UnitClass+GetSpecializationInfo
--- on every single distance calculation. These never change mid-session; refresh only on
--- spec-change events or when they are first needed.
-local _cachedClass = nil
-local _cachedSpec  = nil
-local _cachedMeleeSpell = nil
-local _cachedMeleeSpellName = nil  -- resolved spell name for C_Spell.IsSpellInRange
-
-local function refreshMeleeSpellCache()
-    _cachedClass = select(2, br._G.UnitClass("player"))
-    _cachedSpec  = br.loader.selectedSpecID
-    _cachedMeleeSpell = nil
-    -- Resolve which melee spell represents "in melee range" for this class/spec.
-    -- Bear/Cat form overrides are handled dynamically each call because form can change.
-    if testSpell[_cachedClass] ~= nil then
-        _cachedMeleeSpell = testSpell[_cachedClass]
-    elseif _cachedSpec == 255 then
-        _cachedMeleeSpell = testSpell["SHUNTER"]
-    elseif _cachedSpec == 263 then
-        _cachedMeleeSpell = testSpell["SHAMAN"]
-    elseif _cachedSpec == 577 then
-        _cachedMeleeSpell = testSpell["DHH"]
-    elseif _cachedSpec == 581 then
-        _cachedMeleeSpell = testSpell["DHV"]
+local function resolveMeleeSpellName(listKey)
+    local known = meleeSpellNames[listKey]
+    if known ~= nil then return known or nil end
+    local name = false
+    local keys = br.lists.range.meleeSpells[listKey]
+    for i = 1, keys and #keys or 0 do
+        local spellID = br.functions.spell:getHighestSpellID(keys[i])
+        if spellID and br.functions.spell:isKnown(spellID) then
+            name = br.functions.spell:getName(spellID) or false
+            break
+        end
     end
-    -- Pre-resolve spell name once (avoids GetSpellInfo in every IsSpellInRange call)
-    if _cachedMeleeSpell ~= nil then
-        _cachedMeleeSpellName = select(1, br.api.wow.GetSpellInfo(_cachedMeleeSpell))
-    else
-        _cachedMeleeSpellName = nil
-    end
+    -- Only once the player's spells are compiled: before that the class lists may not be loaded
+    if br.player and br.player.spells then meleeSpellNames[listKey] = name end
+    return name or nil
 end
 
 function range:getDistance(Unit1, Unit2, option)
@@ -71,25 +45,15 @@ end
 
 function range:getDistanceCalc(Unit1, Unit2, option)
     local currentDist = 100
-    -- Use cached class/spec/meleeSpell; refresh if not yet populated.
-    if _cachedClass == nil then refreshMeleeSpellCache() end
-    local playerClass = _cachedClass
-    local meleeSpell = _cachedMeleeSpell
-    local meleeSpellName = _cachedMeleeSpellName
-    -- Druid form overrides: form can change at any time so resolve dynamically,
-    -- but only when we already know the player is a Druid to avoid extra checks.
+    -- The melee spell list for the class; a Druid's follows the form (Bear Form, else Cat)
+    if playerClass == nil then playerClass = select(2, br._G.UnitClass("player")) end
+    local meleeList = playerClass
     if playerClass == "DRUID" then
-        if br.functions.aura:UnitBuffID("player", 768) then        -- Cat Form
-            meleeSpell = testSpell["DRUIDC"]
-        elseif br.functions.aura:UnitBuffID("player", 5487) then   -- Bear Form
-            meleeSpell = testSpell["DRUIDB"]
-        else
-            meleeSpell = testSpell["DRUIDC"]
-        end
-        if meleeSpell ~= nil then
-            meleeSpellName = select(1, br.api.wow.GetSpellInfo(meleeSpell))
-        end
+        local bearForm = br.functions.spell:getHighestSpellID("bearForm")
+        meleeList = (bearForm and br.functions.aura:UnitBuffID("player", bearForm)) and "DRUID_BEAR" or "DRUID_CAT"
     end
+    local hasMeleeList = br.lists.range.meleeSpells[meleeList] ~= nil
+    local meleeSpellName = hasMeleeList and resolveMeleeSpellName(meleeList) or nil
     -- If Unit2 is nil we compare player to Unit1
     if Unit2 == nil then
         Unit2 = Unit1
@@ -104,7 +68,7 @@ function range:getDistanceCalc(Unit1, Unit2, option)
         and (br.functions.unit:GetUnitIsUnit(Unit2, "player") or (br.functions.unit:GetObjectExists(Unit2) and br.functions.unit:GetUnitIsVisible(Unit2) == true))
     then
         -- If melee spell is in range, return 0 (accurate melee range detection)
-        if meleeSpell ~= nil and meleeSpellName ~= nil then
+        if meleeSpellName ~= nil then
             if br._G.UnitIsUnit(Unit2, "player") and not br._G.UnitIsUnit(Unit1, "player") then
                 if br._G.C_Spell.IsSpellInRange(meleeSpellName, Unit1) == true then
                     return 0
@@ -171,7 +135,7 @@ function range:getDistanceCalc(Unit1, Unit2, option)
 
         -- Classic/TBC fallback: determine melee range from positions alone.
         -- Uses the same constants as the meleeRange calculation below.
-        if not br.api.hasSubSpecs and meleeSpell ~= nil and (br._G.UnitIsUnit(Unit1, "player") or br._G.UnitIsUnit(Unit2, "player")) then
+        if not br.api.hasSubSpecs and hasMeleeList and (br._G.UnitIsUnit(Unit1, "player") or br._G.UnitIsUnit(Unit2, "player")) then
             local edgeToEdge = sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2) + ((Z2 - Z1) ^ 2)) - (PlayerCombatReach + TargetCombatReach)
             local meleeEdgeDistance = MeleeCombatReachConstant + IfSourceAndTargetAreRunning + rangeMod
             if edgeToEdge <= meleeEdgeDistance then
@@ -180,7 +144,7 @@ function range:getDistanceCalc(Unit1, Unit2, option)
         end
         -- Rogue Melee Range Increase Mod
         if br.player ~= nil then
-            if br.player.talent.acrobaticStrikes ~= nil and meleeSpell ~= nil and meleeSpellName ~= nil then
+            if br.player.talent.acrobaticStrikes ~= nil and meleeSpellName ~= nil then
                 if br.player.talent.acrobaticStrikes and option ~= "noMod" and br._G.C_Spell.IsSpellInRange(meleeSpellName, Unit2) == true then
                     rangeMod = 3
                 end
@@ -275,8 +239,6 @@ end
 -- Invalidate the cached class/spec/meleeSpell when the player changes specialization.
 -- Called by Core.lua after a spec change (or on first-use via lazy init in getDistanceCalc).
 function range:invalidateMeleeSpellCache()
-    _cachedClass = nil
-    _cachedSpec  = nil
-    _cachedMeleeSpell = nil
-    _cachedMeleeSpellName = nil
+    playerClass = nil
+    br._G.wipe(meleeSpellNames)
 end

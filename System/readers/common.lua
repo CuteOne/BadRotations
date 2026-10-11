@@ -449,6 +449,7 @@ function common:commonReaders()
 			br.functions.cast:clearSpellFacts()
 			br.functions.spell:clearRankCache()
 			br.functions.lastCast:clearAbilityIDs()
+			br.functions.range:invalidateMeleeSpellCache()
 		end
 	end
 	superReaderFrame:SetScript("OnEvent", SuperReader)
