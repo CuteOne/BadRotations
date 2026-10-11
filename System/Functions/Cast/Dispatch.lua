@@ -351,11 +351,16 @@ function E.dispatchAoE(ctx, thisUnit, castType, minUnits, effectRng, enemies, de
 		or (castType == "rect"      and br.engines.enemiesEngineFunctions:getEnemiesInRect(effectRng, ctx.maxRange))
 		or (castType == "targetAOE" and #br.engines.enemiesEngineFunctions:getEnemies(thisUnit, effectRng))
 		or 0
-	if enemyCount >= minUnits
-		and (br.functions.range:isSafeToAoE(ctx.spellID, thisUnit, effectRng, minUnits, castType, enemyCount)
-			or br.functions.unit:isDummy("target"))
-	then
-		return E.castingSpell(ctx, thisUnit, castType, debug)
+	if enemyCount >= minUnits then
+		-- The safety check counts every unit in reach itself. It used to be handed this count of
+		-- valid enemies as its "all units" count, so it compared the count with itself and an AoE
+		-- was always safe: in game, Demoralizing Roar pulled a neutral mob standing nearby.
+		if br.functions.range:isSafeToAoE(ctx.spellID, thisUnit, effectRng, minUnits, castType)
+			or br.functions.unit:isDummy("target")
+		then
+			return E.castingSpell(ctx, thisUnit, castType, debug)
+		end
+		return E.printReport(ctx, false, "Not Safe")
 	end
 	if castType == "cone" then return E.printReport(ctx, false, "Below Min Units Cone", enemyCount) end
 	if castType == "rect" then return E.printReport(ctx, false, "Below Min Units Rect", enemyCount) end
