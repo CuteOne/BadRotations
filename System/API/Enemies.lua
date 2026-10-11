@@ -28,6 +28,20 @@ br.api.enemies = function(self)
     enemies.cone = enemies.cone or {}
     enemies.rect = enemies.rect or {}
 
+    --- True when any unit in a list passes a check. Instead of looping in the profile, write the
+    -- check once (a function of one unit) and pass it with the list.
+    -- @function enemies.any
+    -- @tparam table list A list of units, such as enemies.yards10
+    -- @tparam function check Returns true for a unit that counts, as check(thisUnit)
+    -- @treturn boolean
+    -- @usage if enemies.any(enemies.yards10, function(thisUnit) return debuff.demoralizingRoar.refresh(thisUnit) end) then
+    enemies.any = function(list, check)
+        for i = 1, #list do
+            if check(list[i]) then return true end
+        end
+        return false
+    end
+
     --- Returns a table of all enemies in the players frontal cone for given angle, range, and combat situation
     -- @function enemies.cone.get
     -- @number angle The angle of the cone to check for enemies
@@ -41,6 +55,35 @@ br.api.enemies = function(self)
         br.functions.misc:setEnemiesVariable(self, "player", range, checkNoCombat, false, "c", table, count)
         -- Backwards compatability for old way
         return table, count
+    end
+
+    --- How many units in a list pass a check.
+    -- @function enemies.count
+    -- @tparam table list A list of units, such as enemies.yards8
+    -- @tparam function check Returns true for a unit that counts, as check(thisUnit)
+    -- @treturn number
+    -- @usage if enemies.count(enemies.yards8, function(thisUnit) return unit.ttd(thisUnit) > 10 end) >= 3 then
+    enemies.count = function(list, check)
+        local count = 0
+        for i = 1, #list do
+            if check(list[i]) then count = count + 1 end
+        end
+        return count
+    end
+
+    --- The first unit in a list that passes a check, to cast on it; nil when none does.
+    -- @function enemies.first
+    -- @tparam table list A list of units, such as enemies.yards5
+    -- @tparam function check Returns true for a unit that counts, as check(thisUnit)
+    -- @return The unit, or nil
+    -- @usage local thisUnit = enemies.first(enemies.yards5, needsLacerate)
+    -- if thisUnit and cast.able.lacerate(thisUnit) then cast.lacerate(thisUnit) end
+    enemies.first = function(list, check)
+        for i = 1, #list do
+            local thisUnit = list[i]
+            if check(thisUnit) then return thisUnit end
+        end
+        return nil
     end
 
     --- Returns a table of all enemies around unit for given range, combat situation, and facing
