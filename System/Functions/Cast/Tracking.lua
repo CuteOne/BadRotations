@@ -37,10 +37,26 @@ local function rejectionKey(kind, spellID, guid)
 	return kind .. ":" .. name .. ":" .. guid
 end
 
--- Record that the game refused spellID on the unit with this GUID.
-function cast:setRejected(kind, spellID, guid)
+-- Record that the game refused spellID on the unit with this GUID (for duration seconds, or the
+-- usual time for this kind of refusal).
+function cast:setRejected(kind, spellID, guid, duration)
 	local key = rejectionKey(kind, spellID, guid)
-	if key then rejections[key] = br._G.GetTime() + (REJECT_DURATION[kind] or 0.5) end
+	if key then rejections[key] = br._G.GetTime() + (duration or REJECT_DURATION[kind] or 0.5) end
+end
+
+-- "A more powerful spell is already active": how long that aura has left on the unit (found by the
+-- spell's name, from any caster), so the spell is left alone until it ends rather than retried
+-- every 30 s. nil when it can't be found or doesn't expire.
+local function strongerAuraRemaining(spellID, guid)
+	local unit = br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(guid)
+	local name = br.api.wow.GetSpellInfo(spellID)
+	if not unit or not name then return nil end
+	local filter = br.functions.spell:getSpellType(name) == "Harmful" and "HARMFUL" or "HELPFUL"
+	local aura = br.api.wow.FindAuraByName(name, unit, filter)
+	local expires = aura and aura.expirationTime
+	if not expires or expires == 0 then return nil end
+	local remaining = expires - br._G.GetTime()
+	return remaining > 0 and remaining or nil
 end
 
 -- True while a recent cast of spellID on thisUnit was refused for this reason.
@@ -117,7 +133,12 @@ function cast:handleCastError(message)
 	local kind = rejectionKindForError(message)
 	if not kind then return end
 	if kind ~= "aura" and (br._G.GetTime() - br.botCastTime) > REJECT_ATTRIBUTION_WINDOW then return end
-	cast:setRejected(kind, br.botSpell, br.botGUID)
+	local duration
+	if kind == "aura" then
+		local remaining = strongerAuraRemaining(br.botSpell, br.botGUID)
+		duration = remaining and math.max(REJECT_DURATION.aura, remaining) or nil
+	end
+	cast:setRejected(kind, br.botSpell, br.botGUID, duration)
 	if E.castTimers then E.castTimers[br.botSpell] = nil end
 	castIntentLocks[br.botSpell] = nil
 end
