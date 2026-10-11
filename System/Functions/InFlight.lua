@@ -3,37 +3,26 @@ br.functions.InFlight = br.functions.InFlight or {}
 local InFlight = br.functions.InFlight
 InFlight.Tracker = {}
 
-local projectileSpeed = {
-    [116] = 35, --Frostbolt
-    [133] = 45, --Fireball
-    [11366] = 35, --Pyroblast
-    [31707] = 16, --Waterbolt
-    [214634] = 30, --Ebonbolt
-}
+-- Seconds until spellID, cast by the source (the player when nil), reaches the destination: a fixed
+-- travel time, or the distance over its speed (br.lists.range); 0 for spells that aren't listed.
+local function listedFor(list, spellID)
+    for key, value in pairs(list) do
+        if br.functions.spell:getHighestSpellID(key) == spellID then return value end
+    end
+    return nil
+end
 
 function InFlight:Hit(spellID, destinationGUID, sourceGUID)
-    local target, source
-    local function distance(unit1, unit2)
-        local x1, y1, z1 = br._G.ObjectPosition(unit1)
-        local x2, y2, z2 = br._G.ObjectPosition(unit2)
-        return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-    end
-    if spellID == 44614 then --override for flurry
-        return 1
-    end
-    if spellID == 153561 then --override for meteor
-        return 3
-    end
-    if destinationGUID == nil or projectileSpeed[spellID] == nil then
-        return 0
-    end
-    if sourceGUID == nil then
-        source = "player"
-    else
-        source = br._G.GetObjectWithGUID(sourceGUID)
-    end
-    target = br._G.GetObjectWithGUID(destinationGUID)
-    return (distance(source, target) / projectileSpeed[spellID])
+    local travelTime = listedFor(br.lists.range.projectileTravelTime, spellID)
+    if travelTime then return travelTime end
+    local speed = listedFor(br.lists.range.projectileSpeed, spellID)
+    if destinationGUID == nil or speed == nil then return 0 end
+    local source = sourceGUID and br._G.GetObjectWithGUID(sourceGUID) or "player"
+    local target = br._G.GetObjectWithGUID(destinationGUID)
+    local x1, y1, z1 = br._G.ObjectPosition(source)
+    local x2, y2, z2 = br._G.ObjectPosition(target)
+    if x1 == nil or x2 == nil then return 0 end
+    return math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2 + (z2 - z1) ^ 2) / speed
 end
 
 function InFlight:Check(spellID, destination)
@@ -44,7 +33,7 @@ function InFlight:Check(spellID, destination)
 end
 
 function InFlight:Remain(spellID, destination)
-    if InFlight.Check(spellID, destination) then
+    if InFlight:Check(spellID, destination) then
         return InFlight.Tracker[spellID].HitTime - br._G.GetTime()
     end
     return 0
@@ -55,7 +44,7 @@ function InFlight:Add(spellID, destinationGUID, sourceGUID)
         InFlight.Tracker[spellID] = {}
     end
     InFlight.Tracker[spellID].CastTime = br._G.GetTime()
-    InFlight.Tracker[spellID].HitTime = br._G.GetTime() + InFlight.Hit(spellID, destinationGUID, sourceGUID)
+    InFlight.Tracker[spellID].HitTime = br._G.GetTime() + InFlight:Hit(spellID, destinationGUID, sourceGUID)
     if destinationGUID == nil then
         return
     end

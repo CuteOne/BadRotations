@@ -56,3 +56,17 @@ range.meleeSpells = {
 	DRUID_CAT   = { "shred", "claw", "mangle" },
 	DRUID_BEAR  = { "maul", "mangle" },
 }
+
+-- Projectiles, for cast.inFlight: speed in yards per second by spell list key, or a fixed travel time
+-- in seconds for spells that don't fly at a set speed.
+range.projectileSpeed = {
+	ebonbolt  = 30,
+	fireball  = 45,
+	frostbolt = 35,
+	pyroblast = 35,
+	waterbolt = 16,
+}
+range.projectileTravelTime = {
+	flurry = 1,
+	meteor = 3,
+}
