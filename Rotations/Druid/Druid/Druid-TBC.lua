@@ -183,67 +183,6 @@ local function timeToNextEnergyTick()
     return math.max(0, (var.lastEnergyTickTime + 2.0) - br._G.GetTime())
 end
 
--- AutoProwl
--- local function autoProwl()
---     if not unit.inCombat() and not buff.prowl.exists() then
---         if #enemies.yards20 > 0 then return true end
---         if #enemies.yards20nc > 0 then
---             for i = 1, #enemies.yards20nc do
---                 local thisUnit = enemies.yards20nc[i]
---                 local threatRange = math.max((20 + (unit.level(thisUnit) - unit.level())), 5)
---                 local react = unit.reaction(thisUnit) or 10
---                 if unit.distance(thisUnit) < threatRange and (react < 4 or (unit.isUnit("target", thisUnit) and react == 4))
---                     and unit.enemy(thisUnit) and unit.canAttack(thisUnit) and not unit.deadOrGhost(thisUnit)
---                 then
---                     return true
---                 end
---             end
---         end
---         -- if unit.isDummy("target") and unit.distance("target") < 20 then return true end
---     end
---     return false
--- end
-
--- Cache for ferociousBiteFinish's parsed damage values. Key: spellID..":"..cp.
--- Rank-change invalidation: spell.X.id() re-reads the spellbook each call
--- (verified at AUDIT.md L23 plan session — Spell.lua:29-33 + Spell.lua:657-672),
--- so post-level-up the new rank's spell ID produces a fresh cache key and old
--- entries become orphaned (harmless).
--- Locale-sensitivity assumption inherited from desc:find() below — wrong on
--- non-English clients; /reload purges this module-scope cache so locale
--- change can't outlast it.
-local ferociousBiteCache = {}
-
--- Ferocious Bite Finish
-local function ferociousBiteFinish(thisUnit)
-    if thisUnit == nil then thisUnit = "target" end
-    if comboPoints() <= 0 or unit.isDummy(thisUnit) then return false end
-
-    local spellID = spell.ferociousBite.id()
-    if spellID == 0 then return false end
-    local cp = comboPoints()
-    local cacheKey = spellID .. ":" .. cp
-
-    local lower = ferociousBiteCache[cacheKey]
-    if lower == nil then
-        local desc = br._G.C_Spell.GetSpellDescription(spellID) or ""
-        if desc == "" then ferociousBiteCache[cacheKey] = false; return false end
-        local comboStart = desc:find(" " .. cp .. " ", 1, true)
-        if comboStart == nil then ferociousBiteCache[cacheKey] = false; return false end
-        local damageList = desc:sub(comboStart + 2)
-        local colonPos = damageList:find(": ", 1, true)
-        if colonPos == nil then ferociousBiteCache[cacheKey] = false; return false end
-        damageList = damageList:sub(colonPos + 2)
-        local spacePos = damageList:find(" ", 1, true) or (#damageList + 1)
-        local token = damageList:sub(1, spacePos - 1):gsub(",", "")
-        local low = token:match("^(%d+)%-%d+$") or token:match("^(%d+)$")
-        lower = tonumber(low)
-        ferociousBiteCache[cacheKey] = lower or false
-    end
-
-    if lower == false or lower == nil then return false end
-    return lower >= (unit.health(thisUnit) or 0)
-end
 
 -- Time Moving
 
@@ -1007,7 +946,7 @@ actionList.CatForm = function()
         end
 
         -- Pre-compute flags reused by multiple checks below.
-        local finish    = ferociousBiteFinish(units.dyn5)
+        local finish    = spell.ferociousBite.kills(units.dyn5)
         -- biteAtEnd: target dies before Rip completes all ticks — skip Rip, use FB instead.
         -- No energy cap on this path: a dying target should receive excess energy as FB bonus damage.
         local biteAtEnd = cp >= 5 and ttd < 6

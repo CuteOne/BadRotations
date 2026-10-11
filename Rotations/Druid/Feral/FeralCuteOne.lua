@@ -181,11 +181,6 @@ local var
 --- Functions ---
 -----------------
 
--- AutoProwl
-local function autoProwl()
-    if unit.inCombat() or buff.prowl.exists() then return false end
-    return #enemies.yards20 > 0 or unit.anyInAggroRange(0, 20)
-end
 -- Multi-Dot HP Limit Set
 local function canDoT(thisUnit)
     local unitHealthMax = unit.healthMax(thisUnit)
@@ -208,23 +203,7 @@ local function canDoT(thisUnit)
 end
 -- Ferocious Bite Finish
 local function ferociousBiteFinish(thisUnit)
-    local desc = br._G.C_Spell.GetSpellDescription(spell.ferociousBite.id())
-    local damage = 0
-    local finishHim = false
-    if ui.value("Ferocious Bite Execute") ~= 3 and comboPoints() > 0 and not unit.isDummy(thisUnit) then
-        local comboStart = desc:find(" " .. comboPoints() .. " ", 1, true)
-        if comboStart ~= nil then
-            comboStart = comboStart + 2
-            local damageList = desc:sub(comboStart, desc:len())
-            comboStart = damageList:find(": ", 1, true) + 2
-            damageList = damageList:sub(comboStart, desc:len())
-            local comboEnd = damageList:find(" ", 1, true) - 1
-            damageList = damageList:sub(1, comboEnd)
-            damage = damageList:gsub(",", "")
-        end
-        finishHim = tonumber(damage) >= unit.health(thisUnit)
-    end
-    return finishHim
+    return ui.value("Ferocious Bite Execute") ~= 3 and spell.ferociousBite.kills(thisUnit)
 end
 -- Primal Wrath Usable
 local function usePrimalWrath()
@@ -366,7 +345,7 @@ actionList.Extras = function()
         if unit.exists("target") and unit.distance(units.dyn8AOE) > 8 then
             unit.clearTarget()
         end
-        if autoProwl() then
+        if (not unit.inCombat() and not buff.prowl.exists() and unit.enemyNear(20)) then
             -- Tiger's Fury - Low Energy
             if ui.checked("Tiger's Fury") and cast.able.tigersFury() and energy.deficit() > 60 then
                 if cast.tigersFury() then
@@ -738,7 +717,7 @@ actionList.PreCombat = function()
             end
             -- Prowl
             -- prowl,if=!buff.prowl.up
-            if cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
+            if cast.able.prowl("player") and buff.catForm.exists() and (not unit.inCombat() and not buff.prowl.exists() and unit.enemyNear(20)) and ui.mode.prowl == 1
                 and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
                 and not buff.bsInc.exists() -- and var.getTime - var.leftCombat > lootDelay
             then

@@ -77,27 +77,6 @@ local fbMaxEnergy
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
--- Ferocious Bite Finish
-local function ferociousBiteFinish(thisUnit)
-    local desc = br._G.C_Spell.GetSpellDescription(spell.ferociousBite.id())
-    local damage = 0
-    local finishHim = false
-    if thisUnit == nil then thisUnit = units.dyn5 end
-    if comboPoints > 0 and not unit.isDummy(thisUnit) then
-        local comboStart = desc:find(" " .. comboPoints .. " ", 1, true)
-        if comboStart ~= nil then
-            comboStart = comboStart + 2
-            local damageList = desc:sub(comboStart, desc:len())
-            comboStart = damageList:find(": ", 1, true) + 2
-            damageList = damageList:sub(comboStart, desc:len())
-            local comboEnd = damageList:find(" ", 1, true) - 1
-            damageList = damageList:sub(1, comboEnd)
-            damage = damageList:gsub(",", "")
-        end
-        finishHim = tonumber(damage) >= unit.health(thisUnit)
-    end
-    return finishHim
-end
 
 local getMarkUnitOption = function(option)
     local thisTar = ui.value(option)
@@ -277,7 +256,7 @@ actionList.Combat = function()
             end
             -- Cat Form
             if buff.catForm.exists() then
-                local finish = ferociousBiteFinish()
+                local finish = spell.ferociousBite.kills(units.dyn5)
                 -- Ferocious Bite
                 if cast.able.ferociousBite() and ((comboPoints == 5 and fbMaxEnergy) or finish) then
                     if finish then

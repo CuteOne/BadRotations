@@ -189,30 +189,9 @@ local function getMangleDamage()
     return baseDmg * multiplier * critMultiplier
 end
 
--- * AutoProwl
-local function autoProwl()
-    if unit.inCombat() or buff.prowl.exists() then return false end
-    return #enemies.yards20 > 0 or unit.anyInAggroRange(0, 20)
-end
 -- * Ferocious Bite Finish
 local function ferociousBiteFinish(thisUnit)
-    local desc = br._G.C_Spell.GetSpellDescription(spell.ferociousBite.id())
-    local damage = 0
-    local finishHim = false
-    if ui.value("Ferocious Bite Execute") == 3 or comboPoints(thisUnit) == 0 or unit.isDummy(thisUnit) then return false end
-    local comboStart = desc:find(" " .. comboPoints(thisUnit) .. " ", 1, true)
-    if comboStart ~= nil then
-        comboStart = comboStart + 2
-        local damageList = desc:sub(comboStart, desc:len())
-        comboStart = damageList:find(": ", 1, true) + 2
-        damageList = damageList:sub(comboStart, desc:len())
-        local comboEnd = damageList:find(" ", 1, true) - 1
-        damageList = damageList:sub(1, comboEnd)
-        damage = damageList:gsub(",", "")
-    end
-    local lower = tonumber(string.match(damage, "^(%d+)%-%d+$")) or 0
-    finishHim = tonumber(lower) >= unit.health(thisUnit)
-    return finishHim
+    return ui.value("Ferocious Bite Execute") ~= 3 and spell.ferociousBite.kills(thisUnit)
 end
 -- * Get Mark Unit Option
 local getMarkUnitOption = function(option)
@@ -393,7 +372,7 @@ actionList.Extras = function()
         if unit.exists("target") and unit.distance(units.dyn8AOE) > 8 then
             unit.clearTarget()
         end
-        if autoProwl() then
+        if (not unit.inCombat() and not buff.prowl.exists() and unit.enemyNear(20)) then
             -- *Tiger's Fury - Low Energy
             if ui.checked("Tiger's Fury") and cast.able.tigersFury() and energy.deficit() > 60 then
                 if cast.tigersFury() then
@@ -967,7 +946,7 @@ actionList.PreCombat = function()
                     if (not talent.dreamOfCenarius or buff.dreamOfCenarius.exists())
                         and buff.catForm.exists() and buff.savageRoar.exists()
                         and cast.able.prowl("player") and not buff.prowl.exists()
-                        and autoProwl() and ui.mode.prowl == 1
+                        and (not unit.inCombat() and not buff.prowl.exists() and unit.enemyNear(20)) and ui.mode.prowl == 1
                         and (not unit.resting() or unit.isDummy("target"))
                         and not buff.bsInc.exists()
                     then
@@ -992,7 +971,7 @@ actionList.PreCombat = function()
                     end
 
                     -- * Prowl (Stealth)
-                    if cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
+                    if cast.able.prowl("player") and buff.catForm.exists() and (not unit.inCombat() and not buff.prowl.exists() and unit.enemyNear(20)) and ui.mode.prowl == 1
                         and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
                         and not buff.bsInc.exists()
                     then
@@ -1066,7 +1045,7 @@ actionList.Combat = function()
         end
         -- -- * Prowl
         -- -- prowl,if=(buff.bs_inc.down|!in_combat)&!buff.prowl.up
-        -- if cast.able.prowl("player") and buff.catForm.exists() and autoProwl()
+        -- if cast.able.prowl("player") and buff.catForm.exists() and (not unit.inCombat() and not buff.prowl.exists() and unit.enemyNear(20))
         --     and ui.mode.prowl == 1 and not buff.prowl.exists() and not unit.resting()
         --     and (((not buff.bsInc.exists() or not unit.inCombat()) and not buff.prowl.exists()))
         -- then

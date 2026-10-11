@@ -168,51 +168,6 @@ local needsHealing
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
--- AutoProwl
-local function autoProwl()
-    if unit.inCombat() or buff.prowl.exists() then return false end
-    return #enemies.yards20 > 0 or unit.anyInAggroRange(0, 20)
-end
--- Cache for ferociousBiteFinish's parsed damage values. Key: spellID..":"..cp.
--- Rank-change invalidation: spell.X.id() re-reads the spellbook each call
--- (verified at AUDIT.md L23 plan session — Spell.lua:29-33 + Spell.lua:657-672),
--- so post-level-up the new rank's spell ID produces a fresh cache key and old
--- entries become orphaned (harmless).
--- Locale-sensitivity assumption inherited from desc:find() below — wrong on
--- non-English clients; /reload purges this module-scope cache so locale
--- change can't outlast it.
-local ferociousBiteCache = {}
-
--- Ferocious Bite Finish
-local function ferociousBiteFinish(thisUnit)
-    if thisUnit == nil then thisUnit = units.dyn5 end
-    if comboPoints <= 0 or unit.isDummy(thisUnit) then return false end
-
-    local spellID = spell.ferociousBite.id()
-    if spellID == 0 then return false end
-    local cp = comboPoints
-    local cacheKey = spellID .. ":" .. cp
-
-    local lower = ferociousBiteCache[cacheKey]
-    if lower == nil then
-        local desc = br._G.C_Spell.GetSpellDescription(spellID) or ""
-        if desc == "" then ferociousBiteCache[cacheKey] = false; return false end
-        local comboStart = desc:find(" " .. cp .. " ", 1, true)
-        if comboStart == nil then ferociousBiteCache[cacheKey] = false; return false end
-        local damageList = desc:sub(comboStart + 2)
-        local colonPos = damageList:find(": ", 1, true)
-        if colonPos == nil then ferociousBiteCache[cacheKey] = false; return false end
-        damageList = damageList:sub(colonPos + 2)
-        local spacePos = damageList:find(" ", 1, true) or (#damageList + 1)
-        local token = damageList:sub(1, spacePos - 1):gsub(",", "")
-        local low = token:match("^(%d+)%-%d+$") or token:match("^(%d+)$")
-        lower = tonumber(low)
-        ferociousBiteCache[cacheKey] = lower or false
-    end
-
-    if lower == false or lower == nil then return false end
-    return lower >= (unit.health(thisUnit) or 0)
-end
 
 -- Behind check (nil-safe)
 -- Prefer the engine API so all profiles share the same fix/behavior.
@@ -451,7 +406,7 @@ actionList.Extra = function()
 
     -- Powershift for Energy (Cat Form with Furor talent)
     if ui.checked("Powershifting") and cast.able.catForm() and buff.catForm.exists() and unit.inCombat() and energy < 30
-        and comboPoints < 5 and not buff.clearcasting.exists() and unit.power.mana.percent() > 30
+        and comboPoints < 5 and not buff.clearcasting.exists() and br.player.power.mana.percent() > 30
     then
         if powershift() then
             ui.debug("Powershift for Energy")
@@ -762,7 +717,7 @@ actionList.Defensive = function()
         -- end
         -- -- Mana Potion
         -- if ui.checked("Mana Potion") and unit.canUseItem(2455)
-        --     and unit.power.mana.percent() < 30
+        --     and br.player.power.mana.percent() < 30
         -- then
         --     if buff.catForm.exists() or buff.bearForm.exists() then
         --         br._G.RunMacroText("/CancelForm")
@@ -821,7 +776,7 @@ actionList.Cooldowns = function()
     if ui.useCDs() then
         -- Innervate
         if ui.checked("Self-Innervate") and cast.able.innervate()
-            and unit.power.mana.percent() < 30
+            and br.player.power.mana.percent() < 30
         then
             if cast.innervate("player") then
                 ui.debug("Casting Innervate")
@@ -962,7 +917,7 @@ end
 -- Action List - Cat Form
 actionList.CatForm = function()
     -- Ferocious Bite - Finish Him!
-    local finish = ferociousBiteFinish(units.dyn5)
+    local finish = spell.ferociousBite.kills(units.dyn5)
     if cast.able.ferociousBite(units.dyn5) and energy >= 35 and finish then
         if cast.ferociousBite(units.dyn5) then
             ui.debug("Casting Ferocious Bite [Finish Him!]")
@@ -1092,7 +1047,7 @@ actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
         if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
             -- Prowl
-            if ui.checked("Prowl") and cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
+            if ui.checked("Prowl") and cast.able.prowl("player") and buff.catForm.exists() and unit.enemyNear(20) and ui.mode.prowl == 1
                 and not buff.prowl.exists() and not unit.resting()
             then
                 if cast.prowl("player") then

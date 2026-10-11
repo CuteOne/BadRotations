@@ -75,23 +75,7 @@ local actionList = {}
 -----------------
 -- Eviscerate Finish
 local function eviscerateFinish(thisUnit)
-    local desc = br._G.C_Spell.GetSpellDescription(spell.eviscerate)
-    local damage = 0
-    finishHim = false
-    if ui.value("Eviscerate Execute") == 3 or combo() == 0 or unit.isDummy(thisUnit) then return false end
-    local comboStart = desc:find(" " .. combo() .. " ", 1, true)
-    if comboStart ~= nil then
-        comboStart = comboStart + 2
-        local damageList = desc:sub(comboStart, desc:len())
-        comboStart = damageList:find(": ", 1, true) + 2
-        damageList = damageList:sub(comboStart, desc:len())
-        local comboEnd = damageList:find(" ", 1, true) - 1
-        damageList = damageList:sub(1, comboEnd)
-        damage = damageList:gsub(",", "")
-    end
-    local lower = tonumber(string.match(damage, "^(%d+)%-%d+$")) or 0
-    finishHim = tonumber(lower) >= unit.health(thisUnit)
-    return finishHim
+    return ui.value("Eviscerate Execute") ~= 3 and br.player.spell.eviscerate.kills(thisUnit)
 end
 
 --------------------

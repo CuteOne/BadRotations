@@ -164,43 +164,6 @@ local noShapeshiftPower
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
--- AutoProwl: enemies already fighting nearby, or an idle enemy we're about to aggro
-local function autoProwl()
-    if unit.inCombat() or buff.prowl.exists() then return false end
-    return #enemies.yards20 > 0 or unit.anyInAggroRange(0, 20)
-end
-
--- Ferocious Bite's guaranteed damage, read from the tooltip of the rank you know: the low end of the
--- damage range per combo point, and the damage each Energy above the cost adds. Read once per rank;
--- English tooltips only. { [1..5] = low damage, perEnergy = damage per extra Energy }, or false.
-local ferociousBiteDamage = {}
-local function ferociousBiteTable(spellID)
-    local known = ferociousBiteDamage[spellID]
-    if known ~= nil then return known end
-    local desc = br._G.C_Spell.GetSpellDescription(spellID) or ""
-    local damage = { perEnergy = tonumber(desc:match("into ([%d%.]+) additional damage")) or 0 }
-    for cp, low in desc:gmatch("(%d) points?%s*:%s*([%d,]+)") do
-        damage[tonumber(cp)] = tonumber((low:gsub(",", "")))
-    end
-    if damage[1] == nil then damage = false end -- couldn't read it: never predict a kill
-    ferociousBiteDamage[spellID] = damage
-    return damage
-end
-
--- Ferocious Bite Finish: true when Ferocious Bite at your current combo points and Energy is sure to
--- kill the unit. Counts the low end of the damage roll plus the extra Energy it converts; Attack Power
--- adds more, but the tooltip doesn't say how much, so it's left out (an underestimate, never an overkill guess).
-local function ferociousBiteFinish(thisUnit)
-    if thisUnit == nil then thisUnit = units.dyn5 end
-    if comboPoints <= 0 or unit.isDummy(thisUnit) then return false end
-    local spellID = spell.ferociousBite.id()
-    if spellID == 0 then return false end
-    local damage = ferociousBiteTable(spellID)
-    if not damage or not damage[comboPoints] then return false end
-    local extraEnergy = math.max(0, energy - (cast.cost.ferociousBite() or 35))
-    return damage[comboPoints] + extraEnergy * damage.perEnergy >= (unit.health(thisUnit) or 0)
-end
-
 local function debugBehind(label, thisUnit)
     if ui == nil or ui.checked == nil or not ui.checked("Behind Debug") then return end
     if thisUnit == nil or not unit.exists(thisUnit) then return end
@@ -244,12 +207,6 @@ local function resolveForm()
     return form
 end
 
--- Fleeing: running from any enemy within 10 yards that is chasing us
-local function isChasingPlayer(thisUnit) return unit.isFleeingFrom("player", thisUnit) end
-local function isFleeing()
-    return enemies.any(enemies.yards10, isChasingPlayer)
-end
-
 -- Gift of the Wild is a differently named aura, so buff.markOfTheWild misses it and a recast
 -- fails with "A more powerful spell is already active". Treat it as satisfying Mark of the Wild.
 local function needsMarkOfTheWild(thisUnit)
@@ -273,33 +230,10 @@ local function casterCast(spellKey, thisUnit, label, free, emergency, isHeal)
     return false
 end
 
--- An enemy attacking someone other than the player (Growl, Challenging Roar)
-local function attackingOthers(thisUnit)
-    if not unit.inCombat(thisUnit) or unit.isTanking(thisUnit) then return false end
-    local victim = unit.target(thisUnit)
-    return victim ~= nil and unit.friend(victim) and not unit.isUnit(victim, "player")
-end
-
 -- A Beast or Dragonkin fighting the player that isn't the target (Hibernate)
 local function hibernateTarget(thisUnit)
     return (unit.beast(thisUnit) or unit.dragonkin(thisUnit)) and not unit.isUnit(thisUnit, "target")
         and unit.isTanking(thisUnit) and cast.able.hibernate(thisUnit)
-end
-
--- A dead group member to bring back, by role ("Tank", "Healer", "Tank or Healer", "Anyone"); nil if none
-local function deadGroupMember(roles)
-    local friends = br.engines.healingEngine.friend
-    for i = 1, #friends do
-        local thisUnit = friends[i].unit
-        local role = friends[i].role
-        if unit.player(thisUnit) and unit.deadOrGhost(thisUnit) and unit.distance(thisUnit) < 30
-            and (roles == "Anyone" or (roles ~= "Healer" and role == "TANK")
-                or (roles ~= "Tank" and role == "HEALER"))
-        then
-            return thisUnit
-        end
-    end
-    return nil
 end
 
 --------------------
@@ -436,7 +370,7 @@ actionList.Defensive = function()
         end
         -- Nature's Grasp: escape tool, the root breaks on damage (castable while shapeshifted)
         if ui.checked("Nature's Grasp") and cast.able.naturesGrasp() and not buff.naturesGrasp.exists("player")
-            and unit.hp() <= ui.value("Nature's Grasp") and isFleeing()
+            and unit.hp() <= ui.value("Nature's Grasp") and unit.chased(10)
         then
             if cast.naturesGrasp("player") then
                 ui.debug("Casting Nature's Grasp")
@@ -445,7 +379,7 @@ actionList.Defensive = function()
         end
         -- Dash: escape tool in Cat Form
         if ui.checked("Dash") and buff.catForm.exists() and cast.able.dash() and not buff.dash.exists()
-            and unit.hp() <= ui.value("Dash") and isFleeing()
+            and unit.hp() <= ui.value("Dash") and unit.chased(10)
         then
             if cast.dash() then
                 ui.debug("Casting Dash")
@@ -525,7 +459,7 @@ end -- End Action List - Defensive
 actionList.Utility = function()
     -- Revive (out of combat, 10 sec cast)
     if ui.checked("Revive") and not unit.inCombat() and unit.inGroup() and not unit.moving() then
-        local thisUnit = deadGroupMember("Anyone")
+        local thisUnit = unit.deadGroupMember(30)
         if thisUnit and cast.able.revive.dead(thisUnit) then
             if inForm or buff.moonkinForm.exists() then
                 if unit.cancelFormFor(spell.revive) then return true end
@@ -538,8 +472,13 @@ actionList.Utility = function()
     if not unit.inCombat() then return false end
     -- Rebirth (in combat)
     if ui.checked("Rebirth") and unit.inGroup() and not unit.moving() then
-        local choices = { "Tank", "Healer", "Tank or Healer", "Anyone" }
-        local thisUnit = deadGroupMember(choices[ui.value("Rebirth")] or "Tank or Healer")
+        -- Rebirth: 1 Tank, 2 Healer, 3 Tank or Healer, 4 Anyone
+        local choice = ui.value("Rebirth")
+        local thisUnit
+        if choice == 1 then thisUnit = unit.deadGroupMember(30, "TANK")
+        elseif choice == 2 then thisUnit = unit.deadGroupMember(30, "HEALER")
+        elseif choice == 3 then thisUnit = unit.deadGroupMember(30, "TANK", "HEALER")
+        else thisUnit = unit.deadGroupMember(30) end
         if thisUnit and cast.able.rebirth.dead(thisUnit) then
             if inForm or buff.moonkinForm.exists() then
                 if unit.cancelFormFor(spell.rebirth) then return true end
@@ -551,7 +490,7 @@ actionList.Utility = function()
     end
     -- Growl: an enemy in melee range attacking someone else
     if ui.checked("Growl") and unit.inGroup() and buff.bearForm.exists() and cast.able.growl() then
-        local thisUnit = enemies.first(enemies.yards5, attackingOthers)
+        local thisUnit = enemies.first(enemies.yards5, unit.attackingOthers)
         if thisUnit and cast.growl(thisUnit) then
             ui.debug("Casting Growl on " .. unit.name(thisUnit))
             return true
@@ -559,7 +498,7 @@ actionList.Utility = function()
     end
     -- Challenging Roar: several enemies around you attacking others
     if ui.checked("Challenging Roar") and unit.inGroup() and buff.bearForm.exists() and cast.able.challengingRoar()
-        and enemies.count(enemies.yards10, attackingOthers) >= ui.value("Challenging Roar")
+        and enemies.count(enemies.yards10, unit.attackingOthers) >= ui.value("Challenging Roar")
     then
         if cast.challengingRoar() then
             ui.debug("Casting Challenging Roar")
@@ -801,7 +740,7 @@ actionList.CatForm = function()
     local ttd = unit.ttd(thisUnit)
     local behind = unit.isBehind(thisUnit, "player") and not unit.facing(thisUnit, "player")
     if behind then debugBehind("Builders behind=true", thisUnit) end
-    local finish = ferociousBiteFinish(thisUnit)
+    local finish = spell.ferociousBite.kills(thisUnit)
 
     -- Ferocious Bite - Finish Him!
     if finish and cast.able.ferociousBite(thisUnit) and energy >= 35 then
@@ -956,7 +895,7 @@ actionList.PreCombat = function()
     if unit.inCombat() or unit.flying() or unit.mounted() then return false end
     -- Prowl
     if not (buff.prowl.exists() or buff.shadowmeld.exists()) and ui.mode.prowl == 1 and buff.catForm.exists()
-        and cast.able.prowl("player") and autoProwl() and not unit.resting()
+        and cast.able.prowl("player") and unit.enemyNear(20) and not unit.resting()
     then
         if cast.prowl("player") then
             ui.debug("Casting Prowl [Precombat]")

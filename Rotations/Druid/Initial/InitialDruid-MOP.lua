@@ -86,34 +86,6 @@ local fbMaxEnergy
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
--- AutoProwl
-local function autoProwl()
-    if unit.inCombat() or buff.prowl.exists() then return false end
-    return #enemies.yards20 > 0 or unit.anyInAggroRange(0, 20)
-end
--- Ferocious Bite Finish
-local function ferociousBiteFinish(thisUnit)
-    local desc = br._G.C_Spell.GetSpellDescription(spell.ferociousBite.id())
-    local damage = 0
-    local finishHim = false
-    if thisUnit == nil then thisUnit = units.dyn5 end
-    if comboPoints > 0 and not unit.isDummy(thisUnit) then
-        local comboStart = desc:find(" " .. comboPoints .. " ", 1, true)
-        if comboStart ~= nil then
-            comboStart = comboStart + 2
-            local damageList = desc:sub(comboStart, desc:len())
-            comboStart = damageList:find(": ", 1, true) + 2
-            damageList = damageList:sub(comboStart, desc:len())
-            local comboEnd = damageList:find(" ", 1, true) - 1
-            damageList = damageList:sub(1, comboEnd)
-            damage = damageList:gsub(",", "")
-        end
-        local lower = tonumber(damage:match("^(%d+)%-%d+$"))
-        finishHim = tonumber(lower) >= unit.health(thisUnit)
-    end
-    return finishHim
-end
-
 local getMarkUnitOption = function(option)
     local thisTar = ui.value(option)
     local thisUnit
@@ -261,7 +233,7 @@ actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
         if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
             -- Prowl
-            if cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
+            if cast.able.prowl("player") and buff.catForm.exists() and (not unit.inCombat() and not buff.prowl.exists() and unit.enemyNear(20)) and ui.mode.prowl == 1
                 and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
             then
                 if cast.prowl("player") then
@@ -352,7 +324,7 @@ actionList.Combat = function()
             -- Cat Form
             if buff.catForm.exists() then
                 -- Ferocious Bite
-                local finish = ferociousBiteFinish(units.dyn5)
+                local finish = spell.ferociousBite.kills(units.dyn5)
                 if cast.able.ferociousBite(units.dyn5) and ((comboPoints == 5 and fbMaxEnergy) or finish) then
                     if finish then
                         if cast.ferociousBite() then
