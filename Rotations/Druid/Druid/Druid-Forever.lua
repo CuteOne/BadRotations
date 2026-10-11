@@ -1,5 +1,3 @@
-local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
-
 -- WoW Forever Druid: Cat Form is the main rotation; Bear and Caster/Moonkin are complete but simpler.
 -- Forever changes that shape the logic (Wowhead Forever data, 2026-10-11):
 --   * Rend and Tear: +20% melee damage on bleeding targets, so a bleed (Rake, Rip, Pounce, Lacerate) stays up.
@@ -172,39 +170,35 @@ local function autoProwl()
     return #enemies.yards20 > 0 or unit.anyInAggroRange(0, 20)
 end
 
--- Ferocious Bite damage per combo point, read from the spell's tooltip once per rank and combo point
--- count (spellID..":"..cp). English tooltips only.
-local ferociousBiteCache = {}
+-- Ferocious Bite's guaranteed damage, read from the tooltip of the rank you know: the low end of the
+-- damage range per combo point, and the damage each Energy above the cost adds. Read once per rank;
+-- English tooltips only. { [1..5] = low damage, perEnergy = damage per extra Energy }, or false.
+local ferociousBiteDamage = {}
+local function ferociousBiteTable(spellID)
+    local known = ferociousBiteDamage[spellID]
+    if known ~= nil then return known end
+    local desc = br._G.C_Spell.GetSpellDescription(spellID) or ""
+    local damage = { perEnergy = tonumber(desc:match("into ([%d%.]+) additional damage")) or 0 }
+    for cp, low in desc:gmatch("(%d) points?%s*:%s*([%d,]+)") do
+        damage[tonumber(cp)] = tonumber((low:gsub(",", "")))
+    end
+    if damage[1] == nil then damage = false end -- couldn't read it: never predict a kill
+    ferociousBiteDamage[spellID] = damage
+    return damage
+end
 
--- Ferocious Bite Finish: true when the lowest Ferocious Bite damage kills the unit
+-- Ferocious Bite Finish: true when Ferocious Bite at your current combo points and Energy is sure to
+-- kill the unit. Counts the low end of the damage roll plus the extra Energy it converts; Attack Power
+-- adds more, but the tooltip doesn't say how much, so it's left out (an underestimate, never an overkill guess).
 local function ferociousBiteFinish(thisUnit)
     if thisUnit == nil then thisUnit = units.dyn5 end
     if comboPoints <= 0 or unit.isDummy(thisUnit) then return false end
-
     local spellID = spell.ferociousBite.id()
     if spellID == 0 then return false end
-    local cp = comboPoints
-    local cacheKey = spellID .. ":" .. cp
-
-    local lower = ferociousBiteCache[cacheKey]
-    if lower == nil then
-        local desc = br._G.C_Spell.GetSpellDescription(spellID) or ""
-        if desc == "" then ferociousBiteCache[cacheKey] = false; return false end
-        local comboStart = desc:find(" " .. cp .. " ", 1, true)
-        if comboStart == nil then ferociousBiteCache[cacheKey] = false; return false end
-        local damageList = desc:sub(comboStart + 2)
-        local colonPos = damageList:find(": ", 1, true)
-        if colonPos == nil then ferociousBiteCache[cacheKey] = false; return false end
-        damageList = damageList:sub(colonPos + 2)
-        local spacePos = damageList:find(" ", 1, true) or (#damageList + 1)
-        local token = damageList:sub(1, spacePos - 1):gsub(",", "")
-        local low = token:match("^(%d+)%-%d+$") or token:match("^(%d+)$")
-        lower = tonumber(low)
-        ferociousBiteCache[cacheKey] = lower or false
-    end
-
-    if lower == false or lower == nil then return false end
-    return lower >= (unit.health(thisUnit) or 0)
+    local damage = ferociousBiteTable(spellID)
+    if not damage or not damage[comboPoints] then return false end
+    local extraEnergy = math.max(0, energy - (cast.cost.ferociousBite() or 35))
+    return damage[comboPoints] + extraEnergy * damage.perEnergy >= (unit.health(thisUnit) or 0)
 end
 
 local function debugBehind(label, thisUnit)
@@ -1156,7 +1150,7 @@ local function runRotation()
     return true
 end -- End runRotation
 br.loader.registerRotation({
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 1484, -- Forever Druid class-level spec ID.
     expansion = "Forever",
     author    = "CuteOne",
