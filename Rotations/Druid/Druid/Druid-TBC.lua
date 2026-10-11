@@ -831,10 +831,10 @@ actionList.BearForm = function()
         end
     end
     -- Demoralizing Roar
-    -- when any enemy in reach needs it, not just the target (the cast system won't roar while a
-    -- mob that isn't fighting us is in reach)
-    if cast.able.demoralizingRoar() and #enemies.yards10 > 0 and debuff.demoralizingRoar.refreshCount(10) > 0 then
-        if cast.demoralizingRoar() then
+    -- Demoralizing Roar: an AoE around the player (10 yards), when any enemy in reach needs it, not
+    -- just the target. As an "aoe" cast it won't go off while a mob that isn't fighting us is in reach.
+    if cast.able.demoralizingRoar("player", "aoe", 1, 10) and debuff.demoralizingRoar.refreshCount(10) > 0 then
+        if cast.demoralizingRoar("player", "aoe", 1, 10) then
             ui.debug("Casting Demoralizing Roar")
             return true
         end
