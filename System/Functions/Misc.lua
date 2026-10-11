@@ -87,119 +87,8 @@ function misc:getFallTime()
 	return br.fallTime
 end
 
--- if br.functions.misc:getLineOfSight("target"[,"target"]) then
-misc.doLinesIntersect = function(a, b, c, d)
-	-- parameter conversion
-	local L1 = { X1 = a.x, Y1 = a.y, X2 = b.x, Y2 = b.y }
-	local L2 = { X1 = c.x, Y1 = c.y, X2 = d.x, Y2 = d.y }
-
-	-- Denominator for ua and ub are the same, so store this calculation
-	d = (L2.Y2 - L2.Y1) * (L1.X2 - L1.X1) - (L2.X2 - L2.X1) * (L1.Y2 - L1.Y1)
-
-	-- Make sure there is not a division by zero - this also indicates that the lines are parallel.
-	-- If n_a and n_b were both equal to zero the lines would be on top of each
-	-- other (coincidental).  This check is not done because it is not
-	-- necessary for this implementation (the parallel check accounts for this).
-	if (d == 0) then
-		return false
-	end
-
-	-- n_a and n_b are calculated as seperate values for readability
-	local n_a = (L2.X2 - L2.X1) * (L1.Y1 - L2.Y1) - (L2.Y2 - L2.Y1) * (L1.X1 - L2.X1)
-	local n_b = (L1.X2 - L1.X1) * (L1.Y1 - L2.Y1) - (L1.Y2 - L1.Y1) * (L1.X1 - L2.X1)
-
-	-- Calculate the intermediate fractional point that the lines potentially intersect.
-	local ua = n_a / d
-	local ub = n_b / d
-
-	-- The fractional point will be between 0 and 1 inclusive if the lines
-	-- intersect.  If the fractional calculation is larger than 1 or smaller
-	-- than 0 the lines would need to be longer to intersect.
-	if (ua >= 0 and ua <= 1 and ub >= 0 and ub <= 1) then
-		local x = L1.X1 + (ua * (L1.X2 - L1.X1))
-		local y = L1.Y1 + (ua * (L1.Y2 - L1.Y1))
-		return true, { x = x, y = y }
-	end
-
-	return false
-end
-
-function misc:carapaceMath(Unit1, Unit2)
-	if Unit2 == nil then
-		Unit2 = Unit1
-		if Unit2 == "player" then
-			Unit1 = "target"
-		else
-			Unit1 = "player"
-		end
-	end
-	if (br.player and br.player.eID and br.player.eID == 2337) then
-		local pX, pY = br.functions.unit:GetObjectPosition(Unit1)
-		local tX, tY = br.functions.unit:GetObjectPosition(Unit2)
-		-- local tentExists = false
-		local tentCheck
-		local tentX, tentY
-		--[[ LibDraw.clearCanvas()
-		if tX ~= nil then
-			LibDraw.Line(pX,pY,pZ,tX,tY,tZ)
-		end ]]
-		br.tentCache = {}
-		for i = 1, br._G.GetObjectCount() do
-			local object = br._G.GetObjectWithIndex(i)
-			local objectid = br._G.ObjectID(object)
-			if objectid == 157485 then
-				-- tentExists = true
-				local tentFacing = br.functions.unit:GetObjectFacing(object)
-				tentX, tentY = br.functions.unit:GetObjectPosition(object)
-				table.insert(
-					br.tentCache,
-					{
-						["tentFacing"] = tentFacing,
-						["tentX"] = select(1, br.functions.unit:GetObjectPosition(object)),
-						["tentY"] = select(2, br.functions.unit:GetObjectPosition(object)),
-						["tentZ"] = select(3, br.functions.unit:GetObjectPosition(object)),
-						["tentX2"] = tentX + (80 * math.cos(tentFacing)),
-						["tentY2"] = tentY + (80 * math.sin(tentFacing))
-					}
-				)
-			end
-		end
-
-		local tentfinal = {}
-		if tentX ~= nil then
-			for i = 1, #br.tentCache do
-				if br.tentCache[i]["tentX"] ~= nil then
-					local a = { x = br.tentCache[i]["tentX"], y = br.tentCache[i]["tentY"] }
-					local b = { x = br.tentCache[i]["tentX2"], y = br.tentCache[i]["tentY2"] }
-					local c = { x = tX, y = tY }
-					local d = { x = pX, y = pY }
-					if tX ~= nil then
-						if misc.doLinesIntersect(a, b, c, d) then
-							--[[ LibDraw.SetColor(255,0,0)
-							LibDraw.Line(tentCache[i]["tentX"],tentCache[i]["tentY"],tentCache[i]["tentZ"],tentCache[i]["tentX2"],tentCache[i]["tentY2"],tentCache[i]["tentZ"])
-							]]
-							tentCheck =
-								false
-							table.insert(tentfinal, tentCheck)
-							--[[ else
-							LibDraw.SetColor(0,255,0)
-							LibDraw.Line(tentCache[i]["tentX"],tentCache[i]["tentY"],tentCache[i]["tentZ"],tentCache[i]["tentX2"],tentCache[i]["tentY2"],tentCache[i]["tentZ"])
-						]]
-						end
-					end
-				end
-			end
-			if tentfinal[1] == nil or tentfinal == nil then
-				return true
-			else
-				return false
-			end
-		else
-			return true
-		end
-	end
-end
-
+-- True when Unit1 can see Unit2 (one unit: the player and it). NPCs in br.lists.los are always seen.
+-- if br.functions.misc:getLineOfSight("target") then
 function misc:getLineOfSight(Unit1, Unit2)
 	if Unit2 == nil then
 		Unit2 = Unit1
@@ -217,58 +106,16 @@ function misc:getLineOfSight(Unit1, Unit2)
 	end
 
 	local skipLoSTable = br.lists.los
-	if skipLoSTable[br.functions.unit:GetObjectID(Unit1)] or skipLoSTable[br.functions.unit:GetObjectID(Unit2)] or -- Kyrian Hunter Ability
-		(Unit1 and Unit1 ~= "player" and br.functions.aura:getDebuffRemain(Unit1, 308498) > 0) or
-		(Unit2 and Unit2 ~= "player" and br.functions.aura:getDebuffRemain(Unit2, 308498) > 0)
-	then
+	if skipLoSTable[br.functions.unit:GetObjectID(Unit1)] or skipLoSTable[br.functions.unit:GetObjectID(Unit2)] then
 		return true
 	end
 
 	local X1, Y1, Z1 = br.functions.unit:GetObjectPosition(Unit1)
 	local X2, Y2, Z2 = br.functions.unit:GetObjectPosition(Unit2)
-	local pX = br.functions.unit:GetObjectPosition("player")
-	local flags = bit.bor(0x10, 0x100)
-	local trace
-	-- Only calculate if we actually got values
-	if (X1 == nil or X2 == nil or pX == nil) then return false end
-	-- Trace to see if we are in Line of Sight
-	if br.player and br.player.eID and (br.player.eID == 2398 or br.player.eID == 2399) then
-		trace = br._G.TraceLine(X1, Y1, Z1 + 2 --[[.25]], X2, Y2, Z2 + 2 --[[.25]], 0x100111)
-	else
-		trace = br._G.TraceLine(X1, Y1, Z1 + 2.25, X2, Y2, Z2 + 2.25, flags)
-		-- if (br._G.UnitIsUnit(Unit2,"target")) then
-		-- 	br._G.print("Target Is LoS: "..tostring(trace))
-		-- end
-	end
-	if trace == nil or trace == false then
-		--Print("Past Traceline")
-		if br.player and br.player.eID and br.player.eID == 2141 then
-			if pX < -108 and X2 < -108 then
-				return true
-			elseif (pX > -108 and pX < -54) and (X2 > -108 and X2 < -54) then
-				return true
-			elseif pX > -54 and X2 > -54 then
-				return true
-			else
-				return false
-			end
-		elseif br.player and br.player.eID and br.player.eID == 2337 then
-			--Print("Past Cara Check")
-			if misc:carapaceMath(Unit1, Unit2) == true then
-				--Print("Cara True")
-				return true
-			else
-				--Print("cara False")
-				return false
-			end
-		else
-			--Print("Skippped all the code")
-			return true
-		end
-	else
-		-- TraceLine returned a hit position: something blocks the line.
-		return false
-	end
+	if X1 == nil or X2 == nil then return false end
+	-- TraceLine returns a hit position when something blocks the line
+	local trace = br._G.TraceLine(X1, Y1, Z1 + 2.25, X2, Y2, Z2 + 2.25, bit.bor(0x10, 0x100))
+	return trace == nil or trace == false
 end
 
 -- Line of sight from the player to a world point, for ground-targeted spells. Traces
