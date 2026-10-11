@@ -16,7 +16,14 @@ function ProfessionHelper:ProfessionHelper()
 									--local containerItemInfo = br._G.GetContainerItemInfo(bagID, slotID);
 									--if containerItemInfo.hyperlink ~= nil then
 									-- local itemName, _, _, _, _, itemClass, itemSubClass = br._G.GetItemInfo(itemLink);
-									local itemID = select(10, br._G.C_Container.GetContainerItemIndo(bagID, slotID)) --tonumber(string.match(containerItemInfo, "Hitem:(%d+)"))
+									-- (this read GetContainerItemIndo, a misspelling, and errored whenever it ran)
+									local itemID
+									if br._G.C_Container.GetContainerItemID then
+										itemID = br._G.C_Container.GetContainerItemID(bagID, slotID)
+									else
+										local info = br._G.C_Container.GetContainerItemInfo(bagID, slotID)
+										itemID = info and info.itemID
+									end
 									if itemID == thisItem then
 										br._G.RunMacroText("/cast " .. br.api.wow.GetSpellInfo(spell))
 										br._G.RunMacroText("/use item:" .. itemID)
@@ -267,11 +274,13 @@ function ProfessionHelper:ProfessionHelper()
 end
 
 function ProfessionHelper:fishing()
-	if br.functions.misc:isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and br.functions.misc:getOptionValue("Fishing") == 1 then
+	-- The fishing toggle is an unlocker feature (IsHackEnabled / SetHackEnabled) only some unlockers have
+	local hasFishHack = br._G.IsHackEnabled ~= nil and br._G.SetHackEnabled ~= nil
+	if hasFishHack and br.functions.misc:isChecked("Fishing") and br.unlocked and br.functions.misc:getOptionValue("Fishing") == 1 then
 		if not br._G.IsHackEnabled("fish") then
 			br._G.SetHackEnabled("fish", true)
 		end
-	elseif br.functions.misc:isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and br.functions.misc:getOptionValue("Fishing") == 2 then
+	elseif hasFishHack and br.functions.misc:isChecked("Fishing") and br.unlocked and br.functions.misc:getOptionValue("Fishing") == 2 then
 		if br._G.IsHackEnabled("fish") then
 			br._G.SetHackEnabled("fish", false)
 		end
