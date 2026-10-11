@@ -10,6 +10,13 @@ br.readers.combatLog.debuffTracker = {}
 br.readers.combatLog.enraged = {}
 local combatLog = br.readers.combatLog
 
+-- TODO: OUTDATED - MoP DPS potions (buff -> item), for the potion-used tracking in combatLog:common
+local DPSPotionsSet = {
+    [1] = { Buff = 105702, Item = 76093 }, -- Intel
+    [2] = { Buff = 105697, Item = 76089 }, -- Agi
+    [3] = { Buff = 105706, Item = 76095 }  -- Str
+}
+
 -- Pre-register at module load time to avoid ADDON_ACTION_FORBIDDEN in NnLua runtime context
 local combatLogFrame = br._G.CreateFrame("Frame")
 combatLogFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -31,7 +38,7 @@ function combatLog:enrageReader(...)
         spell,
         spellName,
         _,
-        spellType = br._G.CombatLogGetCurrentEventInfo()
+        spellType = ... -- the event, read once by the dispatcher
         -- here we will take all spell aura and check if we hold this aura in our enrage table
         -- if we find a match, we set the unit to whitelist with time remaining on the buff
         if param == "SPELL_AURA_APPLIED" and destName ~= nil then
@@ -65,7 +72,13 @@ function combatLog:combatLog()
     ---------------------------
     --[[ Combat Log Reader --]]
     local frame = combatLogFrame  -- frame pre-registered at module load time
-    local function reader(self, event, ...)
+    -- The event's values are read once (CombatLogGetCurrentEventInfo) and handed to every handler
+    -- as arguments; each used to read them again, three times or more per event.
+    local dispatch
+    local function reader()
+        dispatch(br._G.CombatLogGetCurrentEventInfo())
+    end
+    function dispatch(...)
         -- this reader intend to hold all the combatlog related stuff. this is gonna be used
         -- with as few checks as possible per class/spec as in raiding environment we have already enough to check
         -- pulse common stuff for all classes
@@ -121,8 +134,8 @@ function combatLog:common(...)
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
-    guid = br._G.UnitGUID("player")
+    spellType = ... -- the event, read once by the dispatcher
+    guid = guid or br._G.UnitGUID("player") -- the player's GUID doesn't change
     -- Unit Dies - flag the OM so that the next regular OM update cycle cleans up promptly.
     -- Do NOT call updateOM/Update synchronously here: they scan up to 500 objects each and
     -- are called for every UNIT_DIED in the log.  In a raid wipe or big M+ pull, multiple
@@ -253,12 +266,6 @@ function combatLog:common(...)
     ----------------
     --[[Item locks]]
     if source == guid then
-        -- TODO: OUTDATED - MoP
-        local DPSPotionsSet = {
-            [1] = { Buff = 105702, Item = 76093 }, -- Intel
-            [2] = { Buff = 105697, Item = 76089 }, -- Agi
-            [3] = { Buff = 105706, Item = 76095 }  -- Str
-        }
         -- DPS potions
         for i = 1, #DPSPotionsSet do
             if spell == DPSPotionsSet[i].Buff then
@@ -691,7 +698,7 @@ function combatLog:Deathknight(...)
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
+    spellType = ... -- the event, read once by the dispatcher
     -- Breath of Sindragosa Active Tracker
     if spell == 152279 and sourceName == br._G.UnitName("player") then
         if param == "SPELL_AURA_APPLIED" then
@@ -718,7 +725,7 @@ function combatLog:DemonHunter(...)
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
+    spellType = ... -- the event, read once by the dispatcher
     if sourceName ~= br._G.UnitName("player") then
         return
     end
@@ -746,7 +753,7 @@ function combatLog:Druid(...)
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
+    spellType = ... -- the event, read once by the dispatcher
     -----------
     -- Kitty ---------------
     --[[ Bleed Recorder --]]
@@ -843,7 +850,7 @@ function combatLog:Evoker(...)
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
+    spellType = ... -- the event, read once by the dispatcher
     -- if br.functions.unit:GetUnitIsUnit(sourceName, "player") then
     --     print("Param: "..tostring(param)..", Spell: "..tostring(spell)..", SpellName: "..tostring(spellName))
     -- end
@@ -864,7 +871,7 @@ function combatLog:Hunter(...)
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
+    spellType = ... -- the event, read once by the dispatcher
     --[[ Steady Focus ]]
     if spell == 77767 and param == "SPELL_CAST_SUCCESS" then
         if br.data.settings[br.loader.selectedSpec]["1stFocus"] ~= true then
@@ -894,7 +901,7 @@ function combatLog:Mage(...)
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
+    spellType = ... -- the event, read once by the dispatcher
     if source == guid then
         -- Params
         -- SPELL
@@ -951,7 +958,7 @@ function combatLog:Monk(...)
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
+    spellType = ... -- the event, read once by the dispatcher
     -- if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
     -- if br.player ~= nil and br._G.C_SpecializationInfo.GetSpecialization() == 3 and br.player.spells.fistsOfFury ~= nil then
     --     local myspell = br.player.spells
@@ -1008,7 +1015,7 @@ function combatLog:Priest(...)
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
+    spellType = ... -- the event, read once by the dispatcher
     if br._G.C_SpecializationInfo.GetSpecialization() == 3 then
         -- Periodic Damage Events
         if param == "SPELL_PERIODIC_DAMAGE" then
@@ -1111,7 +1118,7 @@ function combatLog:Paladin(...)
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
+    spellType = ... -- the event, read once by the dispatcher
     -----------------------
     --[[ Class Trinket ]]
     if (source == guid and (spell == 35395 or spell == 53595)) then
@@ -1141,7 +1148,7 @@ function combatLog:Rogue(...)
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
+    spellType = ... -- the event, read once by the dispatcher
     --------------------------------------
     --[[ Pick Pocket Success Recorder ]]
     if br.unpickable == nil then br.unpickable = false end
@@ -1243,7 +1250,7 @@ function combatLog:Shaman(...) -- 7
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
+    spellType = ... -- the event, read once by the dispatcher
     --------------------
     --[[ Fire Totem ]]
     if source == guid and param == "SPELL_SUMMON" and (spell == br.player.spells.searingTotem or spell == br.player.spells.magmaTotem) then
@@ -1300,7 +1307,7 @@ function combatLog:Warlock(...) -- 9
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
+    spellType = ... -- the event, read once by the dispatcher
     if br._G.C_SpecializationInfo.GetSpecialization() == 1 then
         if source == guid and param == "UNIT_SPELLCAST_CHANNEL_START" then
             -- Drain Soul counter
@@ -1440,7 +1447,7 @@ function combatLog:Warrior(...)
     spell,
     spellName,
     _,
-    spellType = br._G.CombatLogGetCurrentEventInfo()
+    spellType = ... -- the event, read once by the dispatcher
     ----------------------------------
     --[[ Bleed Recorder (Warrior) --]]
     if destName == br._G.UnitName("player") then
