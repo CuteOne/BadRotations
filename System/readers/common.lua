@@ -322,200 +322,40 @@ function common:commonReaders()
 				br.player.updatePlayer = true
 			end
 		end
-		-------------------------------------------------
-		--[[ SpellCast Sents (used to define target) --]]
-		if event == "UNIT_SPELLCAST_SENT" then
-			local SourceUnit = select(1, ...)
-			-- local SpellID = select(4, ...)
-			br.spellCastTarget = select(2, ...)
-			--Print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
-			-- local MyClass = select(2, br._G.UnitClass("player"))
-			if SourceUnit == "player" then
-
-			end
-		end
-
-		if event == "UNIT_SPELLCAST_INTERRUPTED" then
-			local SourceUnit = select(1, ...)
-			-- local SpellID = select(3, ...)
-			if SourceUnit == "player" then
-				local MyClass = select(2, br._G.UnitClass("player"))
-				if MyClass == "MAGE" then -- Mage
-				end
-			end
-		end
 		-----------------------------
 		--[[ SpellCast Succeeded --]]
-		if event == "UNIT_SPELLCAST_START" then
-			local SourceUnit = select(1, ...)
-			local SpellID = select(3, ...)
-			br.spellCastTarget = select(2, ...)
-			if SourceUnit == "player" then
-				local MyClass = br._G.UnitClass("player")
-				-- Hunter
-				if MyClass == 3 then
-					-- Serpent Sting
-					if SpellID == 1978 then
-						br.LastSerpent = br._G.GetTime()
-						br.LastSerpentTarget = br.spellCastTarget
-					end
-					-- Steady Shot Logic
-					if SpellID == 56641 then
-						if br.SteadyCast and br.SteadyCast >= br._G.GetTime() - 2 and br.SteadyCount == 1 then
-							br.SteadyCast = br._G.GetTime()
-							br.SteadyCount = 2
-						else
-							br.SteadyCast = br._G.GetTime()
-							br.SteadyCount = 1
-						end
-					end
-					-- Focus Generation
-					if SpellID == 77767 then
-						br.focusBuilt = br._G.GetTime()
-					end
-				end
-				if MyClass == "Mage" then -- Mage
-				end
-			end
-		end
-		if event == "UNIT_SPELLCAST_STOP" then
-			local SourceUnit = select(1, ...)
-			-- local SpellID = select(3, ...)
-			if SourceUnit == "player" then
-				local MyClass = br._G.UnitClass("player")
-				if MyClass == "Mage" then -- Mage
-				end
-			end
-		end
-
-		-----------------------------
-		--[[ SpellCast Succeeded --]]
+		-- (The sent / start / stop / interrupted / failed / channel handlers here were removed: they
+		-- set values nothing reads, and their Hunter branch compared the class name with a number,
+		-- so it never ran.)
 		if event == "UNIT_SPELLCAST_SUCCEEDED" then
 			local SourceUnit = select(1, ...)
 			local SpellID = select(3, ...)
 			if br.botCast == true then
 				br.botCast = false
 			end
-			if SourceUnit == "player" then
-				br.lastSucceeded = SpellID -- Used for lastCast tracking
-				-- Queue Casting
-				if br.player ~= nil then
-					if #br.player.queue ~= 0 then
-						for i = 1, #br.player.queue do
-							local queuedID = br.player.queue[i].id
-							if type(queuedID) == "table" and br.functions and br.functions.spell and br.functions.spell.getHighestKnownRank then
-								queuedID = br.functions.spell:getHighestKnownRank(queuedID) or queuedID[1]
-							elseif type(queuedID) == "table" then
-								queuedID = queuedID[1]
-							end
-							if br.api.wow.GetSpellInfo(SpellID) == br.api.wow.GetSpellInfo(queuedID) then
-								br._G.tremove(br.player.queue, i)
-								if br._G.IsAoEPending() then
-									br._G.SpellStopTargeting()
-								end
-								if not br.functions.misc:isChecked("Mute Queue") then
-									br._G.print("Cast Success! - Removed |cFFFF0000" ..
-									br.api.wow.GetSpellInfo(queuedID) .. "|r from the queue.")
-								end
-								break
-							end
+			-- Queue Casting: the queued spell went off, drop it from the queue
+			if SourceUnit == "player" and br.player ~= nil and #br.player.queue ~= 0 then
+				for i = 1, #br.player.queue do
+					local queuedID = br.player.queue[i].id
+					if type(queuedID) == "table" and br.functions and br.functions.spell and br.functions.spell.getHighestKnownRank then
+						queuedID = br.functions.spell:getHighestKnownRank(queuedID) or queuedID[1]
+					elseif type(queuedID) == "table" then
+						queuedID = queuedID[1]
+					end
+					if br.api.wow.GetSpellInfo(SpellID) == br.api.wow.GetSpellInfo(queuedID) then
+						br._G.tremove(br.player.queue, i)
+						if br._G.IsAoEPending() then
+							br._G.SpellStopTargeting()
 						end
-					end
-				end
-				---
-				local MyClass = br._G.UnitClass("player")
-				-- Hunter
-				if MyClass == 3 then
-					-- Serpent Sting
-					if SpellID == 1978 then
-						br.LastSerpent = br._G.GetTime()
-					end
-					-- Steady Shot Logic
-					if SpellID == 56641 then
-						if br.SteadyCast and br.SteadyCast >= br._G.GetTime() - 2 and br.SteadyCount == 1 then
-							br.SteadyCast = br._G.GetTime()
-							br.SteadyCount = 2
-						else
-							br.SteadyCast = br._G.GetTime()
-							br.SteadyCount = 1
+						if not br.functions.misc:isChecked("Mute Queue") then
+							br._G.print("Cast Success! - Removed |cFFFF0000" ..
+							br.api.wow.GetSpellInfo(queuedID) .. "|r from the queue.")
 						end
-					end
-					-- Focus Generation
-					if SpellID == 77767 then
-						br.focusBuilt = br._G.GetTime()
+						break
 					end
 				end
-				if MyClass == "Mage" then -- Mage
-				end
 			end
 		end
-		--------------------------
-		--[[ SpellCast Failed --]]
-		if event == "UNIT_SPELLCAST_FAILED" then
-			local SourceUnit = select(1, ...)
-			local SpellID = select(3, ...)
-			local MyClass = br._G.UnitClass("player")
-			if SourceUnit == "player" and br.functions.spell:isKnown(SpellID) then
-				-- Kill Command
-				if SpellID == 34026 then
-					---Print("Kill Command FAILED")
-				end
-				-- Whistle failed
-				if SpellID == 883 or SpellID == 83242 or SpellID == 83243 or SpellID == 83244 or SpellID == 83245 then
-					br.lastFailedWhistle = br._G.GetTime()
-				end
-			end
-			if SourceUnit == "player" then
-				if MyClass == "Mage" then -- Mage
-				end
-			end
-		end
-		if event == "UNIT_SPELLCAST_CHANNEL_START" then
-			local SourceUnit = select(1, ...)
-			local SpellID = select(3, ...)
-			if SourceUnit == "player" then
-				--Print("Channel Start")
-				br.lastStarted = SpellID
-			end
-		end
-		if event == "UNIT_SPELLCAST_CHANNEL_STOP" then
-			local SourceUnit = select(1, ...)
-			local SpellID = select(3, ...)
-			if SourceUnit == "player" then
-				--Print("Channel STOP")
-				br.lastFinished = SpellID
-			end
-		end
-		if event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
-			local SourceUnit = select(1, ...)
-			-- local SpellID = select(3, ...)
-			if SourceUnit == "player" then
-				--Print("Channel Update")
-			end
-		end
-		-- if event == "UNIT_SPELLCAST_EMPOWER_START" then
-		-- 	local SourceUnit = select(1, ...)
-		-- 	local SpellID = select(3, ...)
-		-- 	if SourceUnit == "player" then
-		-- 		--Print("Channel Start")
-		-- 		br.empowerID = SpellID
-		-- 	end
-		-- end
-		-- if event == "UNIT_SPELLCAST_EMPOWER_STOP" then
-		-- 	local SourceUnit = select(1, ...)
-		-- 	local SpellID = select(3, ...)
-		-- 	if SourceUnit == "player" then
-		-- 		--Print("Channel STOP")
-		-- 		br.empowerID = 0
-		-- 	end
-		-- end
-		-- if event == "UNIT_SPELLCAST_EMPOWER_UPDATE" then
-		-- 	local SourceUnit = select(1, ...)
-		-- 	-- local SpellID = select(3, ...)
-		-- 	if SourceUnit == "player" then
-		-- 		--Print("Channel Update")
-		-- 	end
-		-- end
 		if event == "UI_ERROR_MESSAGE" then
 			local errorMsg = select(1, ...)
 			local messageErr = select(2, ...)
