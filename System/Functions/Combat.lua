@@ -1,6 +1,28 @@
 local _, br = ...
+---@class br.functions.combat
 br.functions.combat = br.functions.combat or {}
 local combat = br.functions.combat
+local threatCache = {}
+
+local function threatSituation(friendlyUnit, enemyUnit)
+	if not br._G.UnitIsVisible(friendlyUnit) then
+		return false
+	end
+	local status = br._G.UnitThreatSituation(friendlyUnit, enemyUnit)
+	-- Also check detailed threat situation as a fallback
+	if status == nil then
+		local _, _, _, _, threatPercent = br._G.UnitDetailedThreatSituation(friendlyUnit, enemyUnit)
+		-- If we have any threat percentage, consider it a valid threat situation
+		if threatPercent and threatPercent > 0 then
+			if br.functions.misc:isChecked("Threat Debug") then
+				br._G.print("[Detailed Threat] " .. br._G.UnitName(friendlyUnit) .. " has " ..
+					br.functions.misc:round2(threatPercent, 1) .. "% threat on " .. br._G.UnitName(enemyUnit))
+			end
+			return true
+		end
+	end
+	return status ~= nil
+end
 
 -- if canAttack("player","target") then
 function combat:canAttack(Unit1, Unit2)
@@ -13,102 +35,18 @@ function combat:canAttack(Unit1, Unit2)
 	return br._G.UnitCanAttack(Unit1, Unit2)
 end
 
--- if br.functions.combat:getCombatTime() <= 5 then
-function combat:getCombatTime()
-	local combatStarted = br.data.settings[br.loader.selectedSpec]["Combat Started"]
-	local combatTime = br.data.settings[br.loader.selectedSpec]["Combat Time"]
-	if combatStarted == nil then
-		return 0
-	end
-	if combatTime == nil then
-		combatTime = 0
-	end
-	if br._G.UnitAffectingCombat("player") == true then
-		combatTime = (br._G.GetTime() - combatStarted)
-	else
-		combatTime = 0
-	end
-	br.data.settings[br.loader.selectedSpec]["Combat Time"] = combatTime
-	return (math.floor(combatTime * 1000) / 1000)
-end
-
-function combat:getOoCTime()
-	local combatStarted = br.data.settings[br.loader.selectedSpec]["Combat Started"]
-	local combatTime
-	if combatStarted ~= nil then
-		return br._G.GetTime()
-	end
-	if br._G.UnitAffectingCombat("player") == false then
-		combatTime = (br._G.GetTime() - combatStarted)
-	else
-		combatTime = 0
-	end
-	return (math.floor(combatTime * 1000) / 1000)
-end
-
--- if getLowAlliesInTable(60, nNove) > 3 then
-function combat:getLowAlliesInTable(Value, unitTable)
-	local lowAllies = 0
-	for i = 1, #unitTable do
-		if unitTable[i].hp <= Value then
-			lowAllies = lowAllies + 1
-		end
-	end
-	return lowAllies
-end
-
-function combat:isIncapacitated(spellID)
+-- Returns true if the player cannot cast *this* spell due to hard loss of control.
+-- Allows "regain control" spells (e.g., freedom/berserker rage) via canRegainControl().
+function combat:cannotCast(spellID)
 	if not br._G.C_LossOfControl then return false end
-	-- Initialize tracking table if it doesn't exist
-	if not br.incapacitationTracker then
-		br.incapacitationTracker = {}
+	local hard, event = combat:hasHardControl()
+	if not hard or not event or not event.locType then
+		return false
 	end
-
-	local event
-	local eventIndex = br._G.C_LossOfControl.GetActiveLossOfControlDataCount()
-	if eventIndex > 0 then
-		for i = 0, eventIndex do
-			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
-			if event then
-				local eventType = event.locType
-				local canRegain = combat:canRegainControl(spellID, eventType)
-
-				-- If we cannot regain control (meaning we are incapacitated)
-				if not canRegain then
-					-- Create a unique key for this event type
-					local trackerKey = eventType .. "_" .. spellID
-
-					-- If this is a new incapacitation, record the start time
-					if not br.incapacitationTracker[trackerKey] then
-						br.incapacitationTracker[trackerKey] = br._G.GetTime()
-					end
-
-					-- Calculate time since incapacitation started
-					local timeSinceStart = br._G.GetTime() - br.incapacitationTracker[trackerKey]
-
-					-- Human-like delay: 0.15 to 0.45 seconds (base 0.3 +/- 0.15)
-					-- You can adjust this value or make it configurable
-					local reactionDelay = 0.15 + math.random() * 0.3
-
-					-- Only return true (we are incapacitated) if enough time has passed
-					if timeSinceStart >= reactionDelay then
-						return true
-					else
-						-- Still within reaction time, pretend we haven't noticed yet
-						return false
-					end
-				else
-					-- We can regain control, so clean up the tracker
-					local trackerKey = eventType .. "_" .. spellID
-					br.incapacitationTracker[trackerKey] = nil
-				end
-			end
-		end
-	else
-		-- No loss of control events, clear all trackers
-		br.incapacitationTracker = {}
+	if spellID ~= nil and combat:canRegainControl(spellID, event.locType) then
+		return false
 	end
-	return false
+	return true
 end
 
 function combat:canRegainControl(spellID, controlEvent)
@@ -213,22 +151,48 @@ function combat:canRegainControl(spellID, controlEvent)
 	return false
 end
 
--- if hasNoControl(12345) == true then
-function combat:hasNoControl(spellID)
-	if not br._G.C_LossOfControl then return false end
-	local event
-	local eventIndex = br._G.C_LossOfControl.GetActiveLossOfControlDataCount()
-	if eventIndex > 0 then
-		for i = 0, eventIndex do
-			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
-			if event then
-				local regain = combat:canRegainControl(spellID, event.locType)
-				if not regain and br.debug.timer:useTimer("regainTimer", 0.25) then regain = combat:canRegainControl(spellID, event.locType) end
-				return regain
-			end
+-- if br.functions.combat:getCombatTime() <= 5 then
+function combat:getCombatTime()
+	local combatStarted = br.data.settings[br.loader.selectedSpec]["Combat Started"]
+	local combatTime = br.data.settings[br.loader.selectedSpec]["Combat Time"]
+	if combatStarted == nil then
+		return 0
+	end
+	if combatTime == nil then
+		combatTime = 0
+	end
+	if br._G.UnitAffectingCombat("player") == true then
+		combatTime = (br._G.GetTime() - combatStarted)
+	else
+		combatTime = 0
+	end
+	br.data.settings[br.loader.selectedSpec]["Combat Time"] = combatTime
+	return (math.floor(combatTime * 1000) / 1000)
+end
+
+-- if getLowAlliesInTable(60, nNove) > 3 then
+function combat:getLowAlliesInTable(Value, unitTable)
+	local lowAllies = 0
+	for i = 1, #unitTable do
+		if unitTable[i].hp <= Value then
+			lowAllies = lowAllies + 1
 		end
 	end
-	return false
+	return lowAllies
+end
+
+function combat:getOoCTime()
+	local combatStarted = br.data.settings[br.loader.selectedSpec]["Combat Started"]
+	local combatTime
+	if combatStarted ~= nil then
+		return br._G.GetTime()
+	end
+	if br._G.UnitAffectingCombat("player") == false then
+		combatTime = (br._G.GetTime() - combatStarted)
+	else
+		combatTime = 0
+	end
+	return (math.floor(combatTime * 1000) / 1000)
 end
 
 -- Returns true if the player is under a "hard" loss-of-control effect (typically prevents casting/attacking).
@@ -262,43 +226,26 @@ function combat:hasHardControl()
 	return false, nil
 end
 
--- Returns true if the player cannot cast *this* spell due to hard loss of control.
--- Allows "regain control" spells (e.g., freedom/berserker rage) via canRegainControl().
-function combat:cannotCast(spellID)
+-- if hasNoControl(12345) == true then
+function combat:hasNoControl(spellID)
 	if not br._G.C_LossOfControl then return false end
-	local hard, event = combat:hasHardControl()
-	if not hard or not event or not event.locType then
-		return false
-	end
-	if spellID ~= nil and combat:canRegainControl(spellID, event.locType) then
-		return false
-	end
-	return true
-end
-
-local threatCache = {}
--- if br.functions.combat:hasThreat("target") then
--- Whether a friendly unit has any threat on an enemy (caller has checked the enemy is visible)
-local function threatSituation(friendlyUnit, enemyUnit)
-	if not br._G.UnitIsVisible(friendlyUnit) then
-		return false
-	end
-	local status = br._G.UnitThreatSituation(friendlyUnit, enemyUnit)
-	-- Also check detailed threat situation as a fallback
-	if status == nil then
-		local _, _, _, _, threatPercent = br._G.UnitDetailedThreatSituation(friendlyUnit, enemyUnit)
-		-- If we have any threat percentage, consider it a valid threat situation
-		if threatPercent and threatPercent > 0 then
-			if br.functions.misc:isChecked("Threat Debug") then
-				br._G.print("[Detailed Threat] " .. br._G.UnitName(friendlyUnit) .. " has " ..
-					br.functions.misc:round2(threatPercent, 1) .. "% threat on " .. br._G.UnitName(enemyUnit))
+	local event
+	local eventIndex = br._G.C_LossOfControl.GetActiveLossOfControlDataCount()
+	if eventIndex > 0 then
+		for i = 0, eventIndex do
+			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
+			if event then
+				local regain = combat:canRegainControl(spellID, event.locType)
+				if not regain and br.debug.timer:useTimer("regainTimer", 0.25) then regain = combat:canRegainControl(spellID, event.locType) end
+				return regain
 			end
-			return true
 		end
 	end
-	return status ~= nil
+	return false
 end
 
+-- if br.functions.combat:hasThreat("target") then
+-- Whether a friendly unit has any threat on an enemy (caller has checked the enemy is visible)
 function combat:hasThreat(unit, playerUnit)
 	-- Early Exit
 	if unit == nil then return false end
@@ -441,8 +388,71 @@ function combat:hasThreat(unit, playerUnit)
 	return false
 end
 
-function combat:isTanking(unit)
-	return br._G.UnitThreatSituation("player", unit) ~= nil and br._G.UnitThreatSituation("player", unit) >= 2
+function combat:isIncapacitated(spellID)
+	if not br._G.C_LossOfControl then return false end
+	-- Initialize tracking table if it doesn't exist
+	if not br.incapacitationTracker then
+		br.incapacitationTracker = {}
+	end
+
+	local event
+	local eventIndex = br._G.C_LossOfControl.GetActiveLossOfControlDataCount()
+	if eventIndex > 0 then
+		for i = 0, eventIndex do
+			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
+			if event then
+				local eventType = event.locType
+				local canRegain = combat:canRegainControl(spellID, eventType)
+
+				-- If we cannot regain control (meaning we are incapacitated)
+				if not canRegain then
+					-- Create a unique key for this event type
+					local trackerKey = eventType .. "_" .. spellID
+
+					-- If this is a new incapacitation, record the start time
+					if not br.incapacitationTracker[trackerKey] then
+						br.incapacitationTracker[trackerKey] = br._G.GetTime()
+					end
+
+					-- Calculate time since incapacitation started
+					local timeSinceStart = br._G.GetTime() - br.incapacitationTracker[trackerKey]
+
+					-- Human-like delay: 0.15 to 0.45 seconds (base 0.3 +/- 0.15)
+					-- You can adjust this value or make it configurable
+					local reactionDelay = 0.15 + math.random() * 0.3
+
+					-- Only return true (we are incapacitated) if enough time has passed
+					if timeSinceStart >= reactionDelay then
+						return true
+					else
+						-- Still within reaction time, pretend we haven't noticed yet
+						return false
+					end
+				else
+					-- We can regain control, so clean up the tracker
+					local trackerKey = eventType .. "_" .. spellID
+					br.incapacitationTracker[trackerKey] = nil
+				end
+			end
+		end
+	else
+		-- No loss of control events, clear all trackers
+		br.incapacitationTracker = {}
+	end
+	return false
+end
+
+-- BR's notion of "in combat". For the player this also honours the "Ignore Combat" and
+-- "Tank Aggro = Player Aggro" options, and treats the player as in combat while grouped
+-- and the target is in combat. Other units only use UnitAffectingCombat.
+-- if br.functions.combat:isInCombat("player") then
+function combat:isInCombat(thisUnit)
+	if thisUnit == nil then thisUnit = "player" end
+	if br._G.UnitAffectingCombat(thisUnit) then return true end
+	if not br.functions.unit:GetUnitIsUnit(thisUnit, "player") then return false end
+	return br.functions.misc:isChecked("Ignore Combat")
+		or (br.functions.misc:isChecked("Tank Aggro = Player Aggro") and combat:isTankInCombat())
+		or (br._G.GetNumGroupMembers() > 1 and br._G.UnitAffectingCombat("target"))
 end
 
 -- True if a tank in the player's party/raid within 40 yards is in combat.
@@ -460,15 +470,6 @@ function combat:isTankInCombat()
 	return false
 end
 
--- BR's notion of "in combat". For the player this also honours the "Ignore Combat" and
--- "Tank Aggro = Player Aggro" options, and treats the player as in combat while grouped
--- and the target is in combat. Other units only use UnitAffectingCombat.
--- if br.functions.combat:isInCombat("player") then
-function combat:isInCombat(thisUnit)
-	if thisUnit == nil then thisUnit = "player" end
-	if br._G.UnitAffectingCombat(thisUnit) then return true end
-	if not br.functions.unit:GetUnitIsUnit(thisUnit, "player") then return false end
-	return br.functions.misc:isChecked("Ignore Combat")
-		or (br.functions.misc:isChecked("Tank Aggro = Player Aggro") and combat:isTankInCombat())
-		or (br._G.GetNumGroupMembers() > 1 and br._G.UnitAffectingCombat("target"))
+function combat:isTanking(unit)
+	return br._G.UnitThreatSituation("player", unit) ~= nil and br._G.UnitThreatSituation("player", unit) >= 2
 end

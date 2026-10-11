@@ -1,8 +1,8 @@
 local _, br = ...
 -- Profile and base options: where each lives, defaults, lookups, and key options that clash.
+---@class br.functions.misc
 br.functions.misc = br.functions.misc or {}
 local misc = br.functions.misc
-
 -- Option index: where each option lives (storage page) and its default, recorded by the UI
 -- elements as they are created (br.ui:createCheckbox / createSpinner / createDropdown / ...).
 -- Lookups go straight to the option's page instead of searching every page.
@@ -13,6 +13,7 @@ local optionDefaults = {}   -- [page] = { [option key] = default }
 local fallbackPages = {}    -- pages found by searching before the option was registered
 
 local missingOptions = {}   -- [option key] = time it was last searched for and not found
+
 local missingSettings       -- the settings table missingOptions belongs to
 
 local warnedDuplicates = {}
@@ -20,73 +21,6 @@ local warnedDuplicates = {}
 local keyOptions = {}       -- [option name] = true for options whose value is a key (br.ui.dropOptions.Toggle)
 
 local warnedKeyClashes = {}
-
---- Records an option whose value is a key from br.ui.dropOptions.Toggle (toggle keys, Pause Mode,
--- keys a profile reads with ui.toggle), so checkKeyClashes can find two options on one key.
-function misc:registerKeyOption(name)
-	if name ~= nil then keyOptions[name] = true end
-end
-
-function misc:isKeyOption(name)
-	return keyOptions[name] == true
-end
-
---- Warns (once per combination) when two key options use the same key: keys are read while held, so
--- holding it would do both (cycle a toggle and pause, say).
-function misc:checkKeyClashes()
-	local keys = br.ui.dropOptions and br.ui.dropOptions.Toggle
-	if keys == nil then return end
-	local byKey = {}
-	for name in pairs(keyOptions) do
-		local key = keys[misc:getOptionValue(name)]
-		if key ~= nil and key ~= "None" then
-			byKey[key] = byKey[key] or {}
-			byKey[key][#byKey[key] + 1] = name
-		end
-	end
-	for key, names in pairs(byKey) do
-		if #names > 1 then
-			table.sort(names)
-			local text = key .. ": " .. table.concat(names, ", ")
-			if not warnedKeyClashes[text] then
-				warnedKeyClashes[text] = true
-				br._G.print("|cffFF0000Key " .. key .. " is set for " .. table.concat(names, " and ")
-					.. ". Holding it does all of them; give one a different key.|r")
-			end
-		end
-	end
-end
-
---- Records an option's page and default (called by the UI elements).
--- The first page an option is created on wins; another page with the same option is reported once.
-function misc:registerOption(page, key, default)
-	if page == nil or key == nil then return end
-	optionDefaults[page] = optionDefaults[page] or {}
-	optionDefaults[page][key] = default
-	missingOptions[key] = nil
-	local known = optionIndex[key]
-	if known == nil then
-		optionIndex[key] = page
-	elseif known ~= page and not warnedDuplicates[key] then
-		warnedDuplicates[key] = true
-		br._G.print("|cffFF8800Option \"" .. key .. "\" exists on pages \"" .. known .. "\" and \"" .. page
-			.. "\"; using \"" .. known .. "\". Rename one of them.|r")
-	end
-end
-
---- Clears the option index (a new profile's pages are about to be built).
-function misc:resetOptionIndex()
-	optionIndex = {}
-	optionDefaults = {}
-	fallbackPages = {}
-	missingOptions = {}
-	keyOptions = {}
-end
-
---- Page -> { option key -> default } for every registered option (used by the save guard).
-function misc:getOptionDefaults()
-	return optionDefaults
-end
 
 local function findOption(Value, Page, Type)
 	if Type == nil then Type = " Check" end
@@ -129,10 +63,54 @@ local function findOption(Value, Page, Type)
 	return notFound
 end
 
--- if br.functions.misc:isChecked("Debug") then
-function misc:isChecked(Value, Page)
-	if Value == nil then return false end
-	return findOption(Value, Page, " Check")
+--- Warns (once per combination) when two key options use the same key: keys are read while held, so
+-- holding it would do both (cycle a toggle and pause, say).
+function misc:checkKeyClashes()
+	local keys = br.ui.dropOptions and br.ui.dropOptions.Toggle
+	if keys == nil then return end
+	local byKey = {}
+	for name in pairs(keyOptions) do
+		local key = keys[misc:getOptionValue(name)]
+		if key ~= nil and key ~= "None" then
+			byKey[key] = byKey[key] or {}
+			byKey[key][#byKey[key] + 1] = name
+		end
+	end
+	for key, names in pairs(byKey) do
+		if #names > 1 then
+			table.sort(names)
+			local text = key .. ": " .. table.concat(names, ", ")
+			if not warnedKeyClashes[text] then
+				warnedKeyClashes[text] = true
+				br._G.print("|cffFF0000Key " .. key .. " is set for " .. table.concat(names, " and ")
+					.. ". Holding it does all of them; give one a different key.|r")
+			end
+		end
+	end
+end
+
+-- Reads a module option: from "Rotation Options" when the profile defines that page, otherwise
+-- from "Base Options" (option lookups search the other pages when not found on the first).
+-- if br.functions.misc:getModuleOption("Use Racial", "Check") then
+function misc:getModuleOption(option, optionType)
+	local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+	local page = (settings ~= nil and settings["Rotation Options"] ~= nil) and "Rotation Options" or "Base Options"
+	if optionType == "Check" then return misc:isChecked(option, page) end
+	if optionType == "Value" then return misc:getOptionValue(option, page) end
+end
+
+-- used to gather informations from the bot options frame
+function misc:getOptionCheck(Value)
+	return br.functions.misc:isChecked(Value)
+end
+
+--- Page -> { option key -> default } for every registered option (used by the save guard).
+function misc:getOptionDefaults()
+	return optionDefaults
+end
+
+function misc:getOptionValue(Value)
+	return br.functions.misc:getValue(Value)
 end
 
 -- if br.functions.misc:getValue("player") <= br.functions.misc:getValue("Eternal Flame") then
@@ -191,21 +169,44 @@ function misc:getValue(Value, Page)
 	-- end
 end
 
--- used to gather informations from the bot options frame
-function misc:getOptionCheck(Value)
-	return br.functions.misc:isChecked(Value)
+-- if br.functions.misc:isChecked("Debug") then
+function misc:isChecked(Value, Page)
+	if Value == nil then return false end
+	return findOption(Value, Page, " Check")
 end
 
-function misc:getOptionValue(Value)
-	return br.functions.misc:getValue(Value)
+function misc:isKeyOption(name)
+	return keyOptions[name] == true
 end
 
--- Reads a module option: from "Rotation Options" when the profile defines that page, otherwise
--- from "Base Options" (option lookups search the other pages when not found on the first).
--- if br.functions.misc:getModuleOption("Use Racial", "Check") then
-function misc:getModuleOption(option, optionType)
-	local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-	local page = (settings ~= nil and settings["Rotation Options"] ~= nil) and "Rotation Options" or "Base Options"
-	if optionType == "Check" then return misc:isChecked(option, page) end
-	if optionType == "Value" then return misc:getOptionValue(option, page) end
+--- Records an option whose value is a key from br.ui.dropOptions.Toggle (toggle keys, Pause Mode,
+-- keys a profile reads with ui.toggle), so checkKeyClashes can find two options on one key.
+function misc:registerKeyOption(name)
+	if name ~= nil then keyOptions[name] = true end
+end
+
+--- Records an option's page and default (called by the UI elements).
+-- The first page an option is created on wins; another page with the same option is reported once.
+function misc:registerOption(page, key, default)
+	if page == nil or key == nil then return end
+	optionDefaults[page] = optionDefaults[page] or {}
+	optionDefaults[page][key] = default
+	missingOptions[key] = nil
+	local known = optionIndex[key]
+	if known == nil then
+		optionIndex[key] = page
+	elseif known ~= page and not warnedDuplicates[key] then
+		warnedDuplicates[key] = true
+		br._G.print("|cffFF8800Option \"" .. key .. "\" exists on pages \"" .. known .. "\" and \"" .. page
+			.. "\"; using \"" .. known .. "\". Rename one of them.|r")
+	end
+end
+
+--- Clears the option index (a new profile's pages are about to be built).
+function misc:resetOptionIndex()
+	optionIndex = {}
+	optionDefaults = {}
+	fallbackPages = {}
+	missingOptions = {}
+	keyOptions = {}
 end

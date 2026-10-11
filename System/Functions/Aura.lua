@@ -1,13 +1,15 @@
 local _, br = ...
+---@class br.functions.aura
 br.functions.aura = br.functions.aura or {}
 local aura = br.functions.aura
-
 -- Aura lookups are remembered for the rest of the frame (auras can't change within one), so the
 -- exists / remain / duration / stack / refresh questions about the same aura share one scan.
 -- Keyed by the unit itself, except tokens that can point at another unit later in the frame
 -- (target, focus, mouseover, ...target after a retarget), which are keyed by their GUID.
 local lookups, lookupsAt = {}, nil
+
 local NOT_FOUND = {}
+
 local function lookupKey(kind, unit, spellID, filter)
 	if unit == nil then return nil end
 	if type(unit) == "string" and (unit:find("target", 1, true) or unit == "focus" or unit == "mouseover") then
@@ -21,84 +23,17 @@ local function lookupKey(kind, unit, spellID, filter)
 	end
 	return kind .. tostring(unit) .. ":" .. tostring(spellID) .. ":" .. tostring(filter)
 end
+
 local function remembered(key)
 	local found = key and lookups[key]
 	if found == NOT_FOUND then return true, nil end
 	return found ~= nil, found
 end
+
 local function remember(key, found)
 	if key then lookups[key] = found == nil and NOT_FOUND or found end
 	return found
 end
-
-function aura:AuraData(unit, index, filter)
-	local auraData = br.api.wow.GetAuraDataByIndex(unit, index, filter)
-	if not auraData then return nil end
-	if _G.AuraUtil and _G.AuraUtil.UnpackAuraData then
-		return _G.AuraUtil.UnpackAuraData(auraData)
-	end
-	-- If AuraUtil doesn't exist, return the auraData structure
-	return auraData
-end
-
--- Overwrite UnitBuff
-function aura:UnitBuff(unit, index, filter)
-	return aura:AuraData(unit, index, filter)
-end
-
--- Overwrite UnitDebuff
-function aura:UnitDebuff(unit, index, filter)
-	return aura:AuraData(unit, index, filter)
-end
-
-function aura:UnitBuffID(unit, spellID, filter)
-	local key = lookupKey("B", unit, spellID, filter)
-	local known, found = remembered(key)
-	if known then return found end
-	return remember(key, aura:findBuff(unit, spellID, filter))
-end
-
-function aura:findBuff(unit, spellID, filter)
-	local spellName = br.api.wow.GetSpellInfo(spellID)
-	if not spellName then return nil end
-	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
- 	if unit == "player" then
-	    local auraInfo = br.api.wow.GetPlayerAuraBySpellID(spellID)
-	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
-	end
-	if exactSearch then
-		for i = 1, 40 do
-			local auraInfo = br.api.wow.GetBuffDataByIndex(unit, i, "player")
-			if not auraInfo then return nil end
-			if auraInfo.spellId == spellID then
-				return br.api.wow.GetBuffDataByIndex(unit, i)
-			end
-		end
-	else
-		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
-			-- br._G.print("Unit: " .. tostring(unit) .. ", Spell: " .. tostring(spellName) .. ", ID: " .. tostring(spellID))
-			return br.api.wow.FindAuraByName(spellName, unit, "HELPFUL|PLAYER")
-		end
-		return br.api.wow.FindAuraByName(spellName, unit, "HELPFUL")
-	end
-end
-
--- function aura:UnitDebuffID(unit, spellID, filter)
--- 	local thisUnit = br._G["ObjectPointer"](unit)
--- 	local spellName = br.api.wow.GetSpellInfo(spellID)
--- 	-- Check Cache
--- 	if br.functions.misc:isChecked("Cache Debuffs") then
--- 		if br.engines.enemiesEngine.enemy[thisUnit] ~= nil then
--- 			if filter == nil then filter = "player" else filter = br._G["ObjectPointer"](filter) end
--- 			if br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter] ~= nil then
--- 				if br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter][spellID] ~= nil then
--- 					return br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter][spellID](spellID, thisUnit)
--- 				else
--- 					return nil
--- 				end
--- 			end
--- 		end
--- 	end
 
 -- 	-- Failsafe if not cached
 -- 	if unit == "player" then
@@ -131,9 +66,6 @@ end
 -- end
 local _UnitDebuffID_lock = false
 
--- The debuff search behind aura:UnitDebuffID, run under pcall. A module function rather than a
--- closure made on every call. Aura indexes have no gaps, so each scan stops at the first empty slot
--- instead of reading all 40 (a unit without the debuff used to cost 40 reads).
 local function findDebuff(unit, spellID, filter)
         local thisUnit = br._G["ObjectPointer"](unit)
         local spellName = br.api.wow.GetSpellInfo(spellID)
@@ -181,28 +113,6 @@ local function findDebuff(unit, spellID, filter)
             end
         end
         return nil
-end
-
-function aura:UnitDebuffID(unit, spellID, filter)
-    -- guard invalid input quickly
-    if not unit or not spellID then return nil end
-
-    -- prevent re-entrancy / infinite recursion that can cause "script ran too long"
-    if _UnitDebuffID_lock then return nil end
-    _UnitDebuffID_lock = true
-
-    local key = lookupKey("D", unit, spellID, filter)
-    local known, found = remembered(key)
-    if known then
-        _UnitDebuffID_lock = false
-        return found
-    end
-    local ok, r1 = pcall(findDebuff, unit, spellID, filter)
-
-    -- release lock and return the result (if pcall failed, nil and not remembered)
-    _UnitDebuffID_lock = false
-    if not ok then return nil end
-    return remember(key, r1)
 end
 
 local function Dispel(unit, stacks, buffDuration, buffRemain, buffSpellID, buff)
@@ -257,6 +167,33 @@ local function Dispel(unit, stacks, buffDuration, buffRemain, buffSpellID, buff)
 		end
 		return nil
 	end
+end
+
+-- Base tick interval (seconds) for DoTs used by debuff.ticksGainedOnRefresh.
+local baseTickTimes = {
+	rake = 3,
+	rip = 2,
+	moonfire = 2,
+	moonfireFeral = 2,
+	thrashCat = 3,
+}
+
+-- Bleed snapshot upkeep for Feral (103) and Assassination (259), run each tick. The combat
+-- log reader records snapshots in debuff.X.bleed / debuff.X.exsa; this drops dead units and
+-- zeroes snapshots for bleeds that are no longer applied.
+-- br.functions.aura:cleanBleedSnapshots(br.player.debuff, br.loader.selectedSpecID)
+local bleedSnapshotKeys = { rake = true, rip = true, rupture = true, garrote = true, crimsonTempest = true }
+
+local exsanguinateKeys = { crimsonTempest = true, garrote = true, rupture = true }
+
+function aura:AuraData(unit, index, filter)
+	local auraData = br.api.wow.GetAuraDataByIndex(unit, index, filter)
+	if not auraData then return nil end
+	if _G.AuraUtil and _G.AuraUtil.UnpackAuraData then
+		return _G.AuraUtil.UnpackAuraData(auraData)
+	end
+	-- If AuraUtil doesn't exist, return the auraData structure
+	return auraData
 end
 
 -- if br.functions.aura:canDispel("target",SpellID) == true then
@@ -409,9 +346,102 @@ function aura:canDispel(Unit, spellID)
 	return HasValidDispel
 end
 
--- if br.functions.aura:getDebuffDuration("target",12345) < 3 then
-function aura:getDebuffDuration(Unit, DebuffID, Source)
-	local auraInfo,_,_,_,duration = aura:UnitDebuffID(Unit, DebuffID, Source)
+function aura:cleanBleedSnapshots(debuff, spec)
+	if debuff == nil or (spec ~= 103 and spec ~= 259) then return end
+	for k in pairs(bleedSnapshotKeys) do
+		local thisDebuff = debuff[k]
+		if thisDebuff then
+			if thisDebuff.bleed == nil then thisDebuff.bleed = {} end
+			for thisUnit in pairs(thisDebuff.bleed) do
+				if br.functions.unit:GetUnitIsDeadOrGhost(thisUnit) then
+					thisDebuff.bleed[thisUnit] = nil
+				elseif not thisDebuff.exists(thisUnit, "EXACT") then
+					thisDebuff.bleed[thisUnit] = 0
+				end
+			end
+		end
+	end
+	if spec ~= 259 then return end
+	for k in pairs(exsanguinateKeys) do
+		local thisDebuff = debuff[k]
+		if thisDebuff then
+			if thisDebuff.exsa == nil then thisDebuff.exsa = {} end
+			for thisUnit in pairs(thisDebuff.exsa) do
+				if br.functions.unit:GetUnitIsDeadOrGhost(thisUnit) then
+					thisDebuff.exsa[thisUnit] = nil
+				elseif not thisDebuff.exists(thisUnit) then
+					thisDebuff.exsa[thisUnit] = false
+				end
+			end
+		end
+	end
+end
+
+function aura:findBuff(unit, spellID, filter)
+	local spellName = br.api.wow.GetSpellInfo(spellID)
+	if not spellName then return nil end
+	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
+ 	if unit == "player" then
+	    local auraInfo = br.api.wow.GetPlayerAuraBySpellID(spellID)
+	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
+	end
+	if exactSearch then
+		for i = 1, 40 do
+			local auraInfo = br.api.wow.GetBuffDataByIndex(unit, i, "player")
+			if not auraInfo then return nil end
+			if auraInfo.spellId == spellID then
+				return br.api.wow.GetBuffDataByIndex(unit, i)
+			end
+		end
+	else
+		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
+			-- br._G.print("Unit: " .. tostring(unit) .. ", Spell: " .. tostring(spellName) .. ", ID: " .. tostring(spellID))
+			return br.api.wow.FindAuraByName(spellName, unit, "HELPFUL|PLAYER")
+		end
+		return br.api.wow.FindAuraByName(spellName, unit, "HELPFUL")
+	end
+end
+
+-- function aura:UnitDebuffID(unit, spellID, filter)
+-- 	local thisUnit = br._G["ObjectPointer"](unit)
+-- 	local spellName = br.api.wow.GetSpellInfo(spellID)
+-- 	-- Check Cache
+-- 	if br.functions.misc:isChecked("Cache Debuffs") then
+-- 		if br.engines.enemiesEngine.enemy[thisUnit] ~= nil then
+-- 			if filter == nil then filter = "player" else filter = br._G["ObjectPointer"](filter) end
+-- 			if br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter] ~= nil then
+-- 				if br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter][spellID] ~= nil then
+-- 					return br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter][spellID](spellID, thisUnit)
+-- 				else
+-- 					return nil
+-- 				end
+-- 			end
+-- 		end
+-- 	end
+
+-- local tick = br.functions.aura:getBaseTickTime("rake")
+function aura:getBaseTickTime(key)
+	return baseTickTimes[key] or 3
+end
+
+function aura:getBuffCount(spellID)
+	local counter = 0
+	for i = 1, #br.engines.healingEngine.friend do
+		local thisUnit = br.engines.healingEngine.friend[i].unit
+		-- check if unit is valid
+		-- if br.functions.unit:GetObjectExists(thisUnit) then
+			-- increase counter for each occurences
+			if aura:UnitBuffID(thisUnit, spellID, "player") then
+				counter = counter + 1
+			end
+		-- end
+	end
+	return tonumber(counter)
+end
+
+-- if getBuffDuration("target",12345) < 3 then
+function aura:getBuffDuration(Unit, BuffID, Source)
+	local auraInfo,_,_,_,duration = aura:UnitBuffID(Unit, BuffID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.duration then
 		return auraInfo.duration * 1
@@ -420,9 +450,22 @@ function aura:getDebuffDuration(Unit, DebuffID, Source)
 	end
 end
 
--- if br.functions.aura:getDebuffRemain("target",12345) < 3 then
-function aura:getDebuffRemain(Unit, DebuffID, Source)
-	local auraInfo,_,_,_,_,expires = aura:UnitDebuffID(Unit, DebuffID, Source)
+function aura:getBuffReact(Unit, BuffID, Source)
+	local auraInfo, _, _, _, duration, expire = aura:UnitBuffID(Unit, BuffID, Source)
+	if not auraInfo then return false end
+	if auraInfo.duration then
+		duration = auraInfo.duration
+		expire = auraInfo.expirationTime
+	end
+	if duration ~= nil then
+		return (br._G.GetTime() - (expire - duration)) > 0.5
+	end
+	return false
+end
+
+-- if br.functions.aura:getBuffRemain("target",12345) < 3 then
+function aura:getBuffRemain(Unit, BuffID, Source)
+	local auraInfo,_,_,_,_,expires = aura:UnitBuffID(Unit, BuffID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.expirationTime then
 		return auraInfo.expirationTime - br._G.GetTime()
@@ -431,15 +474,15 @@ function aura:getDebuffRemain(Unit, DebuffID, Source)
 	end
 end
 
--- if br.functions.aura:getDebuffStacks("target",138756) > 0 then
-function aura:getDebuffStacks(Unit, DebuffID, Source)
-	local auraInfo,_,stacks = aura:UnitDebuffID(Unit, DebuffID, Source)
+-- if br.functions.aura:getBuffStacks(138756) > 0 then
+function aura:getBuffStacks(Unit, BuffID, Source)
+	local auraInfo,_,stacks = aura:UnitBuffID(Unit, BuffID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.applications then
 		return auraInfo.applications
 	else
 		return stacks or 0
-	end
+ 	end
 end
 
 function aura:getDebuffCount(spellID)
@@ -457,19 +500,15 @@ function aura:getDebuffCount(spellID)
 	return tonumber(counter)
 end
 
-function aura:getDebuffRemainCount(spellID, remain)
-	local counter = 0
-	for k, _ in pairs(br.engines.enemiesEngine.enemy) do
-		local thisUnit = br.engines.enemiesEngine.enemy[k].unit
-		-- check if unit is valid
-		-- if br.functions.unit:GetObjectExists(thisUnit) then
-			-- increase counter for each occurences
-			if aura:UnitDebuffID(thisUnit, spellID, "player") and aura:getDebuffRemain(thisUnit, spellID, "player") >= remain then
-				counter = counter + 1
-			end
-		-- end
+-- if br.functions.aura:getDebuffDuration("target",12345) < 3 then
+function aura:getDebuffDuration(Unit, DebuffID, Source)
+	local auraInfo,_,_,_,duration = aura:UnitDebuffID(Unit, DebuffID, Source)
+	if not auraInfo then return 0 end
+	if auraInfo.duration then
+		return auraInfo.duration * 1
+	else
+		return duration * 1 or 0
 	end
-	return tonumber(counter)
 end
 
 function aura:getDebuffMinMax(spell, range, debuffType, returnType, source)
@@ -519,20 +558,9 @@ function aura:getDebuffMinMaxButForPetsThisTime(spell, range, debuffType, return
 	return lowestUnit
 end
 
--- if getBuffDuration("target",12345) < 3 then
-function aura:getBuffDuration(Unit, BuffID, Source)
-	local auraInfo,_,_,_,duration = aura:UnitBuffID(Unit, BuffID, Source)
-	if not auraInfo then return 0 end
-	if auraInfo.duration then
-		return auraInfo.duration * 1
-	else
-		return duration * 1 or 0
-	end
-end
-
--- if br.functions.aura:getBuffRemain("target",12345) < 3 then
-function aura:getBuffRemain(Unit, BuffID, Source)
-	local auraInfo,_,_,_,_,expires = aura:UnitBuffID(Unit, BuffID, Source)
+-- if br.functions.aura:getDebuffRemain("target",12345) < 3 then
+function aura:getDebuffRemain(Unit, DebuffID, Source)
+	local auraInfo,_,_,_,_,expires = aura:UnitDebuffID(Unit, DebuffID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.expirationTime then
 		return auraInfo.expirationTime - br._G.GetTime()
@@ -541,25 +569,14 @@ function aura:getBuffRemain(Unit, BuffID, Source)
 	end
 end
 
--- if br.functions.aura:getBuffStacks(138756) > 0 then
-function aura:getBuffStacks(Unit, BuffID, Source)
-	local auraInfo,_,stacks = aura:UnitBuffID(Unit, BuffID, Source)
-	if not auraInfo then return 0 end
-	if auraInfo.applications then
-		return auraInfo.applications
-	else
-		return stacks or 0
- 	end
-end
-
-function aura:getBuffCount(spellID)
+function aura:getDebuffRemainCount(spellID, remain)
 	local counter = 0
-	for i = 1, #br.engines.healingEngine.friend do
-		local thisUnit = br.engines.healingEngine.friend[i].unit
+	for k, _ in pairs(br.engines.enemiesEngine.enemy) do
+		local thisUnit = br.engines.enemiesEngine.enemy[k].unit
 		-- check if unit is valid
 		-- if br.functions.unit:GetObjectExists(thisUnit) then
 			-- increase counter for each occurences
-			if aura:UnitBuffID(thisUnit, spellID, "player") then
+			if aura:UnitDebuffID(thisUnit, spellID, "player") and aura:getDebuffRemain(thisUnit, spellID, "player") >= remain then
 				counter = counter + 1
 			end
 		-- end
@@ -567,17 +584,15 @@ function aura:getBuffCount(spellID)
 	return tonumber(counter)
 end
 
-function aura:getBuffReact(Unit, BuffID, Source)
-	local auraInfo, _, _, _, duration, expire = aura:UnitBuffID(Unit, BuffID, Source)
-	if not auraInfo then return false end
-	if auraInfo.duration then
-		duration = auraInfo.duration
-		expire = auraInfo.expirationTime
+-- if br.functions.aura:getDebuffStacks("target",138756) > 0 then
+function aura:getDebuffStacks(Unit, DebuffID, Source)
+	local auraInfo,_,stacks = aura:UnitDebuffID(Unit, DebuffID, Source)
+	if not auraInfo then return 0 end
+	if auraInfo.applications then
+		return auraInfo.applications
+	else
+		return stacks or 0
 	end
-	if duration ~= nil then
-		return (br._G.GetTime() - (expire - duration)) > 0.5
-	end
-	return false
 end
 
 -- TODO: update BL list
@@ -586,18 +601,6 @@ function aura:getLustID()
 		if aura:UnitBuffID("player", v) then return v end
 	end
 	return 0
-end
-
--- True while the player has a Bloodlust-style haste buff: any in the global list's buffs.bloodLust.
--- if br.functions.aura:hasBloodLust() then
-function aura:hasBloodLust()
-	local shared = br.lists.spells and br.lists.spells.Shared and br.lists.spells.Shared.Shared
-	local lusts = shared and shared.buffs and shared.buffs.bloodLust
-	if lusts == nil then return false end
-	for _, buffID in pairs(lusts) do
-		if aura:UnitBuffID("player", buffID) then return true end
-	end
-	return false
 end
 
 -- Snapshot strength of a bleed/DoT (Feral) used by debuff.calc; 0 when not applicable.
@@ -655,52 +658,56 @@ function aura:getSnapshotValue(dot)
 	return 0
 end
 
--- Base tick interval (seconds) for DoTs used by debuff.ticksGainedOnRefresh.
-local baseTickTimes = {
-	rake = 3,
-	rip = 2,
-	moonfire = 2,
-	moonfireFeral = 2,
-	thrashCat = 3,
-}
--- local tick = br.functions.aura:getBaseTickTime("rake")
-function aura:getBaseTickTime(key)
-	return baseTickTimes[key] or 3
+-- True while the player has a Bloodlust-style haste buff: any in the global list's buffs.bloodLust.
+-- if br.functions.aura:hasBloodLust() then
+function aura:hasBloodLust()
+	local shared = br.lists.spells and br.lists.spells.Shared and br.lists.spells.Shared.Shared
+	local lusts = shared and shared.buffs and shared.buffs.bloodLust
+	if lusts == nil then return false end
+	for _, buffID in pairs(lusts) do
+		if aura:UnitBuffID("player", buffID) then return true end
+	end
+	return false
 end
 
--- Bleed snapshot upkeep for Feral (103) and Assassination (259), run each tick. The combat
--- log reader records snapshots in debuff.X.bleed / debuff.X.exsa; this drops dead units and
--- zeroes snapshots for bleeds that are no longer applied.
--- br.functions.aura:cleanBleedSnapshots(br.player.debuff, br.loader.selectedSpecID)
-local bleedSnapshotKeys = { rake = true, rip = true, rupture = true, garrote = true, crimsonTempest = true }
-local exsanguinateKeys = { crimsonTempest = true, garrote = true, rupture = true }
-function aura:cleanBleedSnapshots(debuff, spec)
-	if debuff == nil or (spec ~= 103 and spec ~= 259) then return end
-	for k in pairs(bleedSnapshotKeys) do
-		local thisDebuff = debuff[k]
-		if thisDebuff then
-			if thisDebuff.bleed == nil then thisDebuff.bleed = {} end
-			for thisUnit in pairs(thisDebuff.bleed) do
-				if br.functions.unit:GetUnitIsDeadOrGhost(thisUnit) then
-					thisDebuff.bleed[thisUnit] = nil
-				elseif not thisDebuff.exists(thisUnit, "EXACT") then
-					thisDebuff.bleed[thisUnit] = 0
-				end
-			end
-		end
-	end
-	if spec ~= 259 then return end
-	for k in pairs(exsanguinateKeys) do
-		local thisDebuff = debuff[k]
-		if thisDebuff then
-			if thisDebuff.exsa == nil then thisDebuff.exsa = {} end
-			for thisUnit in pairs(thisDebuff.exsa) do
-				if br.functions.unit:GetUnitIsDeadOrGhost(thisUnit) then
-					thisDebuff.exsa[thisUnit] = nil
-				elseif not thisDebuff.exists(thisUnit) then
-					thisDebuff.exsa[thisUnit] = false
-				end
-			end
-		end
-	end
+-- Overwrite UnitBuff
+function aura:UnitBuff(unit, index, filter)
+	return aura:AuraData(unit, index, filter)
+end
+
+function aura:UnitBuffID(unit, spellID, filter)
+	local key = lookupKey("B", unit, spellID, filter)
+	local known, found = remembered(key)
+	if known then return found end
+	return remember(key, aura:findBuff(unit, spellID, filter))
+end
+
+-- Overwrite UnitDebuff
+function aura:UnitDebuff(unit, index, filter)
+	return aura:AuraData(unit, index, filter)
+end
+
+-- The debuff search behind aura:UnitDebuffID, run under pcall. A module function rather than a
+-- closure made on every call. Aura indexes have no gaps, so each scan stops at the first empty slot
+-- instead of reading all 40 (a unit without the debuff used to cost 40 reads).
+function aura:UnitDebuffID(unit, spellID, filter)
+    -- guard invalid input quickly
+    if not unit or not spellID then return nil end
+
+    -- prevent re-entrancy / infinite recursion that can cause "script ran too long"
+    if _UnitDebuffID_lock then return nil end
+    _UnitDebuffID_lock = true
+
+    local key = lookupKey("D", unit, spellID, filter)
+    local known, found = remembered(key)
+    if known then
+        _UnitDebuffID_lock = false
+        return found
+    end
+    local ok, r1 = pcall(findDebuff, unit, spellID, filter)
+
+    -- release lock and return the result (if pcall failed, nil and not remembered)
+    _UnitDebuffID_lock = false
+    if not ok then return nil end
+    return remember(key, r1)
 end

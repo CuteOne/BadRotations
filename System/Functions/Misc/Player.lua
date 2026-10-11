@@ -1,30 +1,23 @@
 local _, br = ...
 -- The player's own state: latency, movement and standing time, falling, looting, combat.
+---@class br.functions.misc
 br.functions.misc = br.functions.misc or {}
 local misc = br.functions.misc
+local movingTimer
 
--- getLatency()
-function misc:getLatency()
-	-- local lag = ((select(3,GetNetStats()) + select(4,GetNetStats())) / 1000)
-	local lag = select(4, br._G.GetNetStats()) / 1000
-	if lag < .05 then
-		lag = .05
-	elseif lag > .4 then
-		lag = .4
+local standingTimer
+
+function misc:AcceptQueues()
+	if misc:getOptionCheck("Accept Queues") then
+		-- Accept Queues
+		-- local randomReady = math.random(8, 15)
+		-- add some randomness
+		if misc.readyToAccept and misc.readyToAccept <= br._G.GetTime() - 5 then
+			br._G.AcceptProposal()
+			misc.readyToAccept = nil
+			-- randomReady = nil
+		end
 	end
-	return lag
-end
-
--- Home latency (to the realm server) in seconds, unclamped.
-function misc:getHomeLatency()
-	return (select(3, br._G.GetNetStats()) or 0) / 1000
-end
-
--- How long to wait for the server to answer something BR sent: a round trip plus a margin.
--- @param latency home latency in seconds; read from the client when not given
-function misc:getRoundTripHold(latency)
-	latency = latency or misc:getHomeLatency()
-	return math.max(0.20, latency * 2 + 0.10)
 end
 
 --Calculate Agility
@@ -78,6 +71,46 @@ function misc:getFallTime()
 	return br.fallTime
 end
 
+-- Home latency (to the realm server) in seconds, unclamped.
+function misc:getHomeLatency()
+	return (select(3, br._G.GetNetStats()) or 0) / 1000
+end
+
+-- getLatency()
+function misc:getLatency()
+	-- local lag = ((select(3,GetNetStats()) + select(4,GetNetStats())) / 1000)
+	local lag = select(4, br._G.GetNetStats()) / 1000
+	if lag < .05 then
+		lag = .05
+	elseif lag > .4 then
+		lag = .4
+	end
+	return lag
+end
+
+-- Seconds the player has been moving (0 while standing still).
+-- if br.functions.misc:getMovingTime() > 2 then
+function misc:getMovingTime()
+	local now = br._G.GetTime()
+	if movingTimer == nil or br._G.GetUnitSpeed("player") == 0 then movingTimer = now end
+	return now - movingTimer
+end
+
+-- How long to wait for the server to answer something BR sent: a round trip plus a margin.
+-- @param latency home latency in seconds; read from the client when not given
+function misc:getRoundTripHold(latency)
+	latency = latency or misc:getHomeLatency()
+	return math.max(0.20, latency * 2 + 0.10)
+end
+
+-- Seconds the player has been standing still (0 while moving).
+-- if br.functions.misc:getStandingTime() > 2 then
+function misc:getStandingTime()
+	local now = br._G.GetTime()
+	if standingTimer == nil or br._G.GetUnitSpeed("player") > 0 then standingTimer = now end
+	return now - standingTimer
+end
+
 -- if isInCombat("target") then
 function misc:isInCombat(Unit)
 	if br._G.UnitAffectingCombat(Unit) or br.functions.misc:isChecked("Ignore Combat") then
@@ -103,37 +136,4 @@ function misc:isMoving(Unit)
 		return false
 	end
 	return br._G.GetUnitSpeed(Unit) > 0
-end
-
-function misc:AcceptQueues()
-	if misc:getOptionCheck("Accept Queues") then
-		-- Accept Queues
-		-- local randomReady = math.random(8, 15)
-		-- add some randomness
-		if misc.readyToAccept and misc.readyToAccept <= br._G.GetTime() - 5 then
-			br._G.AcceptProposal()
-			misc.readyToAccept = nil
-			-- randomReady = nil
-		end
-	end
-end
-
--- Seconds the player has been moving (0 while standing still).
--- if br.functions.misc:getMovingTime() > 2 then
-local movingTimer
-
-function misc:getMovingTime()
-	local now = br._G.GetTime()
-	if movingTimer == nil or br._G.GetUnitSpeed("player") == 0 then movingTimer = now end
-	return now - movingTimer
-end
-
--- Seconds the player has been standing still (0 while moving).
--- if br.functions.misc:getStandingTime() > 2 then
-local standingTimer
-
-function misc:getStandingTime()
-	local now = br._G.GetTime()
-	if standingTimer == nil or br._G.GetUnitSpeed("player") > 0 then standingTimer = now end
-	return now - standingTimer
 end

@@ -1,21 +1,8 @@
 local _, br = ...
 -- Debug messages and developer mode.
+---@class br.functions.misc
 br.functions.misc = br.functions.misc or {}
 local misc = br.functions.misc
-
-function misc:devMode()
-	if br.functions.misc:isChecked("Dev Mode") then
-		if _G.br == nil then
-			_G.br = br
-			br._G.print("<Dev Mode Enabled>")
-		end
-	else
-		if _G.br ~= nil then
-			_G.br = nil
-			br._G.print("<Dev Mode Disabled>")
-		end
-	end
-end
 
 function misc:addonDebug(msg, system)
 	if msg == nil then
@@ -63,6 +50,20 @@ function misc:addonDebug(msg, system)
 			if br.debug.timer:useTimer(timerKey, 0.1) then
 				print(br.ui.colors.class .. "[BadRotations] Profile Debug: |cffFFFFFF" .. msgText)
 			end
+		end
+	end
+end
+
+function misc:devMode()
+	if br.functions.misc:isChecked("Dev Mode") then
+		if _G.br == nil then
+			_G.br = br
+			br._G.print("<Dev Mode Enabled>")
+		end
+	else
+		if _G.br ~= nil then
+			_G.br = nil
+			br._G.print("<Dev Mode Disabled>")
 		end
 	end
 end

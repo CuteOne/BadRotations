@@ -1,10 +1,13 @@
 local _, br = ...
+---@class br.functions.range
 br.functions.range = br.functions.range or {}
 local range = br.functions.range
 local sqrt, abs, atan, deg = math.sqrt, math.abs, math.atan, math.deg
+
 -- The player's class, and per melee spell list (br.lists.range.meleeSpells) the name of the first spell
 -- the player knows, or false. Kept until the spellbook or spec changes (invalidateMeleeSpellCache).
 local playerClass = nil
+
 local meleeSpellNames = {}
 
 local function resolveMeleeSpellName(listKey)
@@ -209,6 +212,13 @@ function range:getFacingDistance()
     end
 end
 
+-- Invalidate the cached class/spec/meleeSpell when the player changes specialization.
+-- Called by Core.lua after a spec change (or on first-use via lazy init in getDistanceCalc).
+function range:invalidateMeleeSpellCache()
+    playerClass = nil
+    br._G.wipe(meleeSpellNames)
+end
+
 function range:isSafeToAoE(spellID, Unit, effectRng, minUnits, aoeType, enemies)
     if not br.functions.misc:isChecked("Safe Damage Check") then return true end
     local enemiesValid, enemiesAll
@@ -228,17 +238,10 @@ function range:isSafeToAoE(spellID, Unit, effectRng, minUnits, aoeType, enemies)
         enemiesAll   = not enemies and br.engines.enemiesEngineFunctions:getEnemiesInRect(effectRng, maxRange, false, true) or enemies
     elseif aoeType == "cone" then
         enemiesValid = br.engines.enemiesEngineFunctions:getEnemiesInCone(effectRng, maxRange, false)
-enemiesAll   = not enemies and br.engines.enemiesEngineFunctions:getEnemiesInCone(effectRng, maxRange, true) or enemies
+        enemiesAll   = not enemies and br.engines.enemiesEngineFunctions:getEnemiesInCone(effectRng, maxRange, true) or enemies
     else
         enemiesValid = #br.engines.enemiesEngineFunctions:getEnemies(Unit, effectRng)
         enemiesAll   = not enemies and #br.engines.enemiesEngineFunctions:getEnemies(Unit, effectRng, true) or enemies
     end
     return enemiesValid >= minUnits and enemiesValid >= enemiesAll
-end
-
--- Invalidate the cached class/spec/meleeSpell when the player changes specialization.
--- Called by Core.lua after a spec change (or on first-use via lazy init in getDistanceCalc).
-function range:invalidateMeleeSpellCache()
-    playerClass = nil
-    br._G.wipe(meleeSpellNames)
 end

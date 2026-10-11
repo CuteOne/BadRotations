@@ -1,4 +1,5 @@
 local _, br = ...
+---@class br.functions.InFlight
 br.functions.InFlight = br.functions.InFlight or {}
 local InFlight = br.functions.InFlight
 InFlight.Tracker = {}
@@ -10,6 +11,25 @@ local function listedFor(list, spellID)
         if br.functions.spell:getHighestSpellID(key) == spellID then return value end
     end
     return nil
+end
+
+function InFlight:Add(spellID, destinationGUID, sourceGUID)
+    if InFlight.Tracker[spellID] == nil then
+        InFlight.Tracker[spellID] = {}
+    end
+    InFlight.Tracker[spellID].CastTime = br._G.GetTime()
+    InFlight.Tracker[spellID].HitTime = br._G.GetTime() + InFlight:Hit(spellID, destinationGUID, sourceGUID)
+    if destinationGUID == nil then
+        return
+    end
+    InFlight.Tracker[spellID].Target = br._G.GetObjectWithGUID(destinationGUID)
+end
+
+function InFlight:Check(spellID, destination)
+    if InFlight.Tracker[spellID] and InFlight.Tracker[spellID].HitTime > br._G.GetTime() and (not destination or not InFlight.Tracker[spellID].Target or br.functions.unit:GetUnitIsUnit(InFlight.Tracker[spellID].Target, destination)) then
+        return true
+    end
+    return false
 end
 
 function InFlight:Hit(spellID, destinationGUID, sourceGUID)
@@ -25,28 +45,9 @@ function InFlight:Hit(spellID, destinationGUID, sourceGUID)
     return math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2 + (z2 - z1) ^ 2) / speed
 end
 
-function InFlight:Check(spellID, destination)
-    if InFlight.Tracker[spellID] and InFlight.Tracker[spellID].HitTime > br._G.GetTime() and (not destination or not InFlight.Tracker[spellID].Target or br.functions.unit:GetUnitIsUnit(InFlight.Tracker[spellID].Target, destination)) then
-        return true
-    end
-    return false
-end
-
 function InFlight:Remain(spellID, destination)
     if InFlight:Check(spellID, destination) then
         return InFlight.Tracker[spellID].HitTime - br._G.GetTime()
     end
     return 0
-end
-
-function InFlight:Add(spellID, destinationGUID, sourceGUID)
-    if InFlight.Tracker[spellID] == nil then
-        InFlight.Tracker[spellID] = {}
-    end
-    InFlight.Tracker[spellID].CastTime = br._G.GetTime()
-    InFlight.Tracker[spellID].HitTime = br._G.GetTime() + InFlight:Hit(spellID, destinationGUID, sourceGUID)
-    if destinationGUID == nil then
-        return
-    end
-    InFlight.Tracker[spellID].Target = br._G.GetObjectWithGUID(destinationGUID)
 end

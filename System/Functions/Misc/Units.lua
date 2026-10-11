@@ -1,65 +1,11 @@
 local _, br = ...
 -- Which units count: valid targets, the enemies list check, targeting and tanks.
+---@class br.functions.misc
 br.functions.misc = br.functions.misc or {}
 local misc = br.functions.misc
-
 local isValidUnitCache = {}
 
 local lastIsValidUnitCleanup = 0
-
---if isLongTimeCCed("target") then
--- CCs with >=20 seconds
-function misc:isLongTimeCCed(Unit)
-	if Unit == nil then
-		return false
-	end
-	local longTimeCC = br.lists.longCC
-	for i = 1, 40 do
-		local auraInfo = br.api.wow.GetDebuffDataByIndex(Unit, i)
-		if auraInfo and longTimeCC[tonumber(auraInfo.spellId)] == true then return true end
-	end
-	return false
-end
-
-function misc:isPlayer(Unit)
-	if br.functions.unit:GetUnitExists(Unit) ~= true then
-		return false
-	end
-	if br._G.UnitIsPlayer(Unit) == true then
-		return true
-	elseif br._G.UnitIsPlayer(Unit) ~= true then
-		if br.lists.unitRules.provingGrounds[tonumber(string.match(br._G.UnitGUID(Unit), "-(%d+)-%x+$"))] ~= nil then
-			return true
-		end
-	else
-		return false
-	end
-end
-
-function misc:isTargeting(Unit, MatchUnit)
-	local thisUnit = br.functions.unit:GetUnit(Unit)
-	if thisUnit == nil then
-		return false
-	end
-	local unitTarget = br._G.UnitTarget(thisUnit)
-	if unitTarget == nil then
-		return false
-	end
-	return unitTarget == br._G.ObjectPointer(MatchUnit or "player")
-end
-
-function misc:hasTank()
-	if #br.engines.healingEngine.friend == 1 then return false end
-	for i = 1, #br.engines.healingEngine.friend do
-		local thisUnit = br.engines.healingEngine.friend[i].unit
-		if br._G.UnitGroupRolesAssigned(thisUnit) == "TANK"
-			and br.functions.range:getDistance(thisUnit) < 40 and br._G.UnitIsPlayer(thisUnit)
-		then
-			return true
-		end
-	end
-	return false
-end
 
 -- distance: the unit's distance from the player if the caller has just measured it
 -- Other players count as enemies while the player, or they, have one of the unitRules debuffs
@@ -154,6 +100,60 @@ function misc:enemyListCheck(Unit, distance)
 	-- would make this answer secret too (usable by BR, but hidden wherever it's shown)
 	if basicChecks and los and not br.functions.unit:isHeldBack(Unit) then return true end
 	return false
+end
+
+function misc:hasTank()
+	if #br.engines.healingEngine.friend == 1 then return false end
+	for i = 1, #br.engines.healingEngine.friend do
+		local thisUnit = br.engines.healingEngine.friend[i].unit
+		if br._G.UnitGroupRolesAssigned(thisUnit) == "TANK"
+			and br.functions.range:getDistance(thisUnit) < 40 and br._G.UnitIsPlayer(thisUnit)
+		then
+			return true
+		end
+	end
+	return false
+end
+
+--if isLongTimeCCed("target") then
+-- CCs with >=20 seconds
+function misc:isLongTimeCCed(Unit)
+	if Unit == nil then
+		return false
+	end
+	local longTimeCC = br.lists.longCC
+	for i = 1, 40 do
+		local auraInfo = br.api.wow.GetDebuffDataByIndex(Unit, i)
+		if auraInfo and longTimeCC[tonumber(auraInfo.spellId)] == true then return true end
+	end
+	return false
+end
+
+function misc:isPlayer(Unit)
+	if br.functions.unit:GetUnitExists(Unit) ~= true then
+		return false
+	end
+	if br._G.UnitIsPlayer(Unit) == true then
+		return true
+	elseif br._G.UnitIsPlayer(Unit) ~= true then
+		if br.lists.unitRules.provingGrounds[tonumber(string.match(br._G.UnitGUID(Unit), "-(%d+)-%x+$"))] ~= nil then
+			return true
+		end
+	else
+		return false
+	end
+end
+
+function misc:isTargeting(Unit, MatchUnit)
+	local thisUnit = br.functions.unit:GetUnit(Unit)
+	if thisUnit == nil then
+		return false
+	end
+	local unitTarget = br._G.UnitTarget(thisUnit)
+	if unitTarget == nil then
+		return false
+	end
+	return unitTarget == br._G.ObjectPointer(MatchUnit or "player")
 end
 
 function misc:isValidUnit(Unit)

@@ -1,4 +1,5 @@
 local _, br = ...
+---@class br.functions.action
 br.functions.action = br.functions.action or {}
 local action = br.functions.action
 

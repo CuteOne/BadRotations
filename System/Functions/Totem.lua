@@ -1,8 +1,8 @@
 local _, br = ...
 
+---@class br.functions.totem
 br.functions.totem = br.functions.totem or {}
 local totem = br.functions.totem
-
 local function resolveCandidateName(candidate)
     if not candidate then return nil end
 
@@ -21,44 +21,6 @@ local function resolveCandidateName(candidate)
     return nil
 end
 
-function totem:getSlotInfo(slot)
-    if not slot then return false, nil, 0, 0, nil end
-    local haveTotem, name, startTime, duration, icon = br._G.GetTotemInfo(slot)
-    if not haveTotem then
-        return false, nil, 0, 0, nil
-    end
-    return true, name, startTime or 0, duration or 0, icon
-end
-
-function totem:slotRemains(slot)
-    local haveTotem, _, startTime, duration = self:getSlotInfo(slot)
-    if not haveTotem or duration <= 0 or startTime <= 0 then return 0 end
-    local remaining = (startTime + duration) - br._G.GetTime()
-    return remaining > 0 and remaining or 0
-end
-
--- Candidates can be:
--- - spell IDs (number)
--- - spell keys from br.player.spells (string)
--- - literal localized names (string)
-function totem:slotMatchesAny(slot, ...)
-    local haveTotem, activeName = self:getSlotInfo(slot)
-    if not haveTotem or not activeName or activeName == "" then return false end
-
-    for i = 1, select('#', ...) do
-        local candidate = select(i, ...)
-        local candidateName
-
-        candidateName = resolveCandidateName(candidate)
-
-        if candidateName and candidateName ~= "" and activeName == candidateName then
-            return true
-        end
-    end
-
-    return false
-end
-
 function totem:anySlotMatchesAny(...)
     for slot = 1, 4 do
         if self:slotMatchesAny(slot, ...) then
@@ -66,6 +28,16 @@ function totem:anySlotMatchesAny(...)
         end
     end
     return false
+end
+
+-- Returns distance from player to a specific totem type (spell key/id/name).
+-- Returns 0 if the totem isn't active (any slot) or can't be located.
+function totem:distanceTo(candidate)
+    local name = resolveCandidateName(candidate)
+    if not name or name == "" then return 0 end
+    if not self:anySlotMatchesAny(candidate) then return 0 end
+    local _, dist = self:getObjectByName(name)
+    return dist or 0
 end
 
 -- Returns the closest world object that matches the active totem name in this slot.
@@ -111,15 +83,6 @@ function totem:getActiveObject(slot)
     return bestObj, bestDist, name
 end
 
--- Returns player distance to the active totem in this slot.
--- Returns 0 when no totem exists, or its object can't be located.
-function totem:slotDistance(slot)
-    local haveTotem = self:getSlotInfo(slot)
-    if not haveTotem then return 0 end
-    local _, dist = self:getActiveObject(slot)
-    return dist or 0
-end
-
 -- Returns the closest world object with the given localized name created by the player.
 function totem:getObjectByName(name)
     if not name or name == "" then return nil, nil end
@@ -156,12 +119,49 @@ function totem:getObjectByName(name)
     return bestObj, bestDist
 end
 
--- Returns distance from player to a specific totem type (spell key/id/name).
--- Returns 0 if the totem isn't active (any slot) or can't be located.
-function totem:distanceTo(candidate)
-    local name = resolveCandidateName(candidate)
-    if not name or name == "" then return 0 end
-    if not self:anySlotMatchesAny(candidate) then return 0 end
-    local _, dist = self:getObjectByName(name)
+function totem:getSlotInfo(slot)
+    if not slot then return false, nil, 0, 0, nil end
+    local haveTotem, name, startTime, duration, icon = br._G.GetTotemInfo(slot)
+    if not haveTotem then
+        return false, nil, 0, 0, nil
+    end
+    return true, name, startTime or 0, duration or 0, icon
+end
+
+-- Returns player distance to the active totem in this slot.
+-- Returns 0 when no totem exists, or its object can't be located.
+function totem:slotDistance(slot)
+    local haveTotem = self:getSlotInfo(slot)
+    if not haveTotem then return 0 end
+    local _, dist = self:getActiveObject(slot)
     return dist or 0
+end
+
+-- Candidates can be:
+-- - spell IDs (number)
+-- - spell keys from br.player.spells (string)
+-- - literal localized names (string)
+function totem:slotMatchesAny(slot, ...)
+    local haveTotem, activeName = self:getSlotInfo(slot)
+    if not haveTotem or not activeName or activeName == "" then return false end
+
+    for i = 1, select('#', ...) do
+        local candidate = select(i, ...)
+        local candidateName
+
+        candidateName = resolveCandidateName(candidate)
+
+        if candidateName and candidateName ~= "" and activeName == candidateName then
+            return true
+        end
+    end
+
+    return false
+end
+
+function totem:slotRemains(slot)
+    local haveTotem, _, startTime, duration = self:getSlotInfo(slot)
+    if not haveTotem or duration <= 0 or startTime <= 0 then return 0 end
+    local remaining = (startTime + duration) - br._G.GetTime()
+    return remaining > 0 and remaining or 0
 end

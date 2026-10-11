@@ -1,8 +1,8 @@
 local _, br = ...
 -- When the rotation pauses (key, casting, channelling, mounted, ...).
+---@class br.functions.misc
 br.functions.misc = br.functions.misc or {}
 local misc = br.functions.misc
-
 -- if pause() then
 -- set skipCastingCheck to true, to not check if player is casting
 -- (useful if you want to use off-cd stuff, or spells which can be cast while other is casting)
@@ -20,11 +20,12 @@ misc.pauseCast = br._G.GetTime()
 local nonBlockingChannelNames = {
 	"fumping", -- Fumper (item 31810, TBC quest "Fumping"): surfaces a hostile bone sifter
 }
+
+local nonBlockingChannels
+
 -- Resolved { [spellID] = true } lookup, built lazily on first pause() call (the spell lists
 -- load after this file). Names absent on the active expansion resolve to nil and are
 -- skipped, so this is safe to share across Classic/TBC/MOP/Retail.
-local nonBlockingChannels
-
 function misc:pause(skipCastingCheck)
 	-- Cache GetTime() once — used repeatedly below.
 	local now = br._G.GetTime()

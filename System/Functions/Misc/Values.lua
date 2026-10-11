@@ -1,5 +1,6 @@
 local _, br = ...
 -- Small value helpers: whether BR may use a (secret) value, rounding, names and addon paths.
+---@class br.functions.misc
 br.functions.misc = br.functions.misc or {}
 local misc = br.functions.misc
 
@@ -11,14 +12,6 @@ function misc:canUseValue(value)
 	if br._G.issecretvalue then return not br._G.issecretvalue(value) end
 	return true
 end
-
---- Round
-function misc:round2(num, idp)
-	local mult = 10 ^ (idp or 0)
-	return math.floor(num * mult + 0.5) / mult
-end
-
--- UnitGUID("target"):sub(-15,-10)
 
 function misc:convertName(name)
 	if name ~= nil then
@@ -39,16 +32,6 @@ function misc:convertName(name)
 	return "None"
 end
 
--- Class folder name used under Rotations/ and Settings/ (e.g. "Druid", "Death Knight").
--- local folder = br.functions.misc:getClassFolderName("DEATHKNIGHT")
-function misc:getClassFolderName(class)
-	if class == nil then class = "" end
-	local formatClass = class:sub(1, 1):upper() .. class:sub(2):lower()
-	if formatClass == "Deathknight" then formatClass = "Death Knight" end
-	if formatClass == "Demonhunter" then formatClass = "Demon Hunter" end
-	return formatClass
-end
-
 -- BadRotations' folder on disk and the path separator for this OS.
 -- local path, sep = br.functions.misc:getAddonPath()
 function misc:getAddonPath()
@@ -59,3 +42,21 @@ function misc:getAddonPath()
 	end
 	return wowDir .. sep .. br.loader.addonName, sep
 end
+
+-- Class folder name used under Rotations/ and Settings/ (e.g. "Druid", "Death Knight").
+-- local folder = br.functions.misc:getClassFolderName("DEATHKNIGHT")
+function misc:getClassFolderName(class)
+	if class == nil then class = "" end
+	local formatClass = class:sub(1, 1):upper() .. class:sub(2):lower()
+	if formatClass == "Deathknight" then formatClass = "Death Knight" end
+	if formatClass == "Demonhunter" then formatClass = "Demon Hunter" end
+	return formatClass
+end
+
+--- Round
+function misc:round2(num, idp)
+	local mult = 10 ^ (idp or 0)
+	return math.floor(num * mult + 0.5) / mult
+end
+
+-- UnitGUID("target"):sub(-15,-10)

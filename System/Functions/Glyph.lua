@@ -1,12 +1,8 @@
 local _, br = ...
 
+---@class br.functions.glyph
 br.functions.glyph = br.functions.glyph or {}
 local glyph = br.functions.glyph
-
--- Defensive wrapper: retail clients may not support classic glyph APIs.
-function glyph:isAvailable()
-    return type(br._G.GetGlyphSocketInfo) == "function"
-end
 
 function glyph:getSocketCount()
     if type(br._G.GetNumGlyphSockets) == "function" then
@@ -34,4 +30,9 @@ function glyph:hasGlyph(glyphSpellId)
     end
 
     return false
+end
+
+-- Defensive wrapper: retail clients may not support classic glyph APIs.
+function glyph:isAvailable()
+    return type(br._G.GetGlyphSocketInfo) == "function"
 end

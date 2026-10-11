@@ -1,11 +1,17 @@
 local _, br = ...
+---@class br.functions.SmartQueue
 br.functions.SmartQueue = br.functions.SmartQueue or {}
 local SmartQueue = br.functions.SmartQueue
 SmartQueue.queueSpell = false
+
 local queueSpellTime
+
 local queueSpellPos = { x = 0, y = 0, z = 0 }
+
 local queueSpellTarget
+
 local smartQueueFrame
+
 local ignoreKeys = { ["LALT"] = true, ["LSHIFT"] = true, ["LCTRL"] = true }
 
 local function checkKeys(self, key)
@@ -95,6 +101,7 @@ local function GetKeyBindings()
 		--for i,v in pairs(br.player.spells.bindings) do print(i,v) end
 	end
 end
+
 local function spellSuccess(self, event, ...)
 	if event == "UNIT_SPELLCAST_SUCCEEDED" then
 		local sourceUnit = select(1, ...)

@@ -1,7 +1,9 @@
 local _, br = ...
 -- Toggle keys: reading the key a toggle (or key option) is set to, cycling toggles, missing toggles.
+---@class br.functions.misc
 br.functions.misc = br.functions.misc or {}
 local misc = br.functions.misc
+local warnedMissingToggles = {}
 
 function misc:SpecificToggle(toggle)
 	if br.customToggle then
@@ -47,8 +49,6 @@ end
 -- ui.useCDs() without a "Cooldown" toggle, so cooldowns would silently never be used).
 -- Only checks once startup has finished, so a toggle bar deferred by combat isn't reported.
 -- br.functions.misc:warnMissingToggle("Cooldown", "cooldowns", "ui.useCDs()")
-local warnedMissingToggles = {}
-
 function misc:warnMissingToggle(toggleName, purpose, apiCall)
 	if not (br.loader.bootstrap and br.loader.bootstrap.stage == "RUNNING") then return end
 	if br.ui.toggles and br.ui.toggles[toggleName] ~= nil then return end

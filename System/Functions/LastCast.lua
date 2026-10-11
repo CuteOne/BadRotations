@@ -1,16 +1,25 @@
 local _, br = ...
+---@class br.functions.lastCast
 br.functions.lastCast = br.functions.lastCast or {}
 local lastCast = br.functions.lastCast
-
 lastCast.lastCastTable = {}
+
 lastCast.lastCastTable.tracker = {}
+
 lastCast.lastCastTable.castTime = {}
+
 lastCast.lastCastTable.failedTime = {}
+
 lastCast.lastCastTable.lastFailedReason = {}
+
 local tracker = lastCast.lastCastTable.tracker
+
 local castTime = lastCast.lastCastTable.castTime
+
 local failedTime = lastCast.lastCastTable.failedTime
+
 local waitForSuccess
+
 local lastCastFrame = br._G.CreateFrame("Frame")
 
 -- Spells (spell list keys) whose casts aren't tracked at all
@@ -22,6 +31,7 @@ local IGNORED = { "counterspell", "iceBarrier", "shimmer" }
 -- the double-cast guard saw them as never cast). Built once the lists exist; cleared on spellbook,
 -- talent, level and spec changes (readers/common.lua).
 local abilityIDs, ignoredIDs
+
 local function buildAbilityIDs()
     local abilities = br.player and br.player.spells and br.player.spells.abilities
     if abilities == nil then return false end
@@ -52,10 +62,6 @@ end
 local function isIgnored(spellID)
     if ignoredIDs == nil and not buildAbilityIDs() then return false end
     return ignoredIDs[spellID] == true
-end
-
-function lastCast:clearAbilityIDs()
-    abilityIDs, ignoredIDs = nil, nil
 end
 
 local function addSpell(spellID)
@@ -129,16 +135,29 @@ end
 
 -- Begin Cast Events
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_SENT")          -- Fired when a unit attempts to cast a spell regardless of the success of the cast.
+
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_START")         -- Fired when a unit begins casting a non-instant cast spell.
+
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START") -- Fired when a unit begins channeling in the course of casting a spell.
+
 -- lastCastFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_START")
 -- Stop Cast Events
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_STOP")         -- Fired when a unit stops casting.
+
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP") -- Fired when a unit stops channeling.
+
 -- lastCastFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_STOP")
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")       -- Fired when a unit's spellcast fails.
+
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
+
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")  -- Fired when a unit's spellcast is interrupted
+
 -- Complete Cast Events
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")    -- Fired when a spell is cast successfully.
+
 lastCastFrame:SetScript("OnEvent", eventTracker)
+
+function lastCast:clearAbilityIDs()
+    abilityIDs, ignoredIDs = nil, nil
+end
