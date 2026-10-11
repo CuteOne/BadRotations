@@ -182,7 +182,14 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 	-- Sending a spell while another cast is running pre-casts it into the queue window.
 	local castBeforeKey = E.currentCastKey()
 
-	br._G.CastSpellByName(castName, thisUnit)
+	-- A lower rank than the best one known (cast.<spell>.rank(n)) has to be sent by ID: on ranked
+	-- clients casting by name sends the highest known rank.
+	local bestRankID = br.api.hasSpellRanks and castName == ctx.spellName and select(7, br.api.wow.GetSpellInfo(castName))
+	if bestRankID and bestRankID ~= ctx.spellID then
+		br._G.CastSpellByID(ctx.spellID, thisUnit)
+	else
+		br._G.CastSpellByName(castName, thisUnit)
+	end
 	if br._G.IsAoEPending() then
 		local X, Y, Z = br._G.ObjectPosition(thisUnit)
 		br._G.ClickPosition(X, Y, Z)
