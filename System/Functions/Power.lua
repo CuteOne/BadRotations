@@ -9,32 +9,15 @@ function power:getCombo(thisUnit)
 end
 
 -- if br.functions.power:getPower("target") <= 15 then
+-- The unit's power of that type (index 4: the player's combo points on the unit), as the game reports it.
+-- Clearcasting and similar free casts are the cast engine's concern, not a different power value.
 function power:getPower(Unit, index)
-	local value = index == 4 and br._G.GetComboPoints("player", Unit) or br._G.UnitPower(Unit, index)
-	-- Only apply Druid buffs to energy (index 3)
-	if index == 3 and select(3, br._G.UnitClass("player")) == 11 then
-		-- Druid: Clearcasting affects energy values as if there is max energy available
-		if br.functions.aura:UnitBuffID("player", 16870) then
-			value = br._G.UnitPowerMax(Unit, index)
-		end
-		-- Druid: Berserk affects energy values report as having 50% more
-		if br.functions.aura:UnitBuffID("player", 106951) then
-			value = value * 5
-		end
-	end
-	return value
+	if index == 4 then return br._G.GetComboPoints("player", Unit) end
+	return br._G.UnitPower(Unit, index)
 end
 
 function power:getPowerMax(Unit, index)
-	local value = br._G.UnitPowerMax(Unit, index)
-	-- Only apply Druid buffs to energy (index 3)
-	if index == 3 and select(3, br._G.UnitClass("player")) == 11 then
-		-- Druid: Berserk halves costs -> treat energy max as doubled for checks
-		if br.functions.aura:UnitBuffID("player", 106951) then
-            value = value * 2
-        end
-	end
-	return value
+	return br._G.UnitPowerMax(Unit, index)
 end
 
 -- Return array of 6 rune objects suitable for SimC-style logic
@@ -235,7 +218,11 @@ function power:getTimeToMax(Unit, Limit)
 	local curr = br._G.UnitPower(Unit)
 	local curr2 = curr
 	local _, regen = br._G.GetPowerRegen(Unit)
-	if select(3, br._G.UnitClass("player")) == 11 and br._G.C_SpecializationInfo.GetSpecialization() == 2 and br.functions.spell:isKnown(114107) then
+	-- Feral's Soul of the Forest gives energy back per combo point spent
+	local soulOfTheForest = br.player and br.player.spells and br.player.spells.soulOfTheForest
+	if select(3, br._G.UnitClass("player")) == 11 and br._G.C_SpecializationInfo.GetSpecialization() == 2
+		and soulOfTheForest and br.functions.spell:isKnown(soulOfTheForest)
+	then
 		curr2 = curr + 4 * br.functions.power:getCombo()
 	end
 	timeTill = (curr2 > max) and 0 or (max - curr2) * (1.0 / regen)
