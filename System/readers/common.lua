@@ -312,6 +312,27 @@ function common:commonReaders()
 		-- Auto-attack on / off
 		if event == "PLAYER_ENTER_COMBAT" or event == "PLAYER_LEAVE_COMBAT" then
 			br.functions.unit:setAutoAttacking(event == "PLAYER_ENTER_COMBAT")
+			-- Cast Debug: when auto attack stops mid-fight (a queued Maul / Heroic Strike goes with it,
+			-- "Interrupted"), say what was going on, so the cause can be told from the log
+			if event == "PLAYER_LEAVE_COMBAT" and br._G.UnitAffectingCombat("player") and br.player and br.player.ui
+				and (br.functions.misc:isChecked("Cast Debug") or br.functions.misc:isChecked("Display Failcasts"))
+			then
+				local unit, misc = br.functions.unit, br.functions.misc
+				local target = "no target"
+				if unit:GetUnitExists("target") then
+					local name = br._G.UnitName("target")
+					target = (misc:canUseValue(name) and not (br._G.issecretvalue and br._G.issecretvalue(name)) and name or "target")
+						.. string.format(" %.1f yds", br.functions.range:getDistance("target") or -1)
+						.. (unit:GetUnitIsDeadOrGhost("target") and ", dead" or "")
+				end
+				local lastCast = ""
+				if br.botSpell and br.botCastTime then
+					lastCast = string.format(", BR's last cast %s %.1fs ago", tostring(br.api.wow.GetSpellInfo(br.botSpell)),
+						br._G.GetTime() - br.botCastTime)
+				end
+				local controlled = br.functions.combat.hasHardControl and br.functions.combat:hasHardControl() and ", you're crowd controlled" or ""
+				br.player.ui.debug("[AUTO ATTACK OFF] mid-fight: " .. target .. lastCast .. controlled)
+			end
 			return
 		end
 		-- Player moving
