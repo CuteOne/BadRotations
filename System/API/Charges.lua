@@ -15,7 +15,7 @@ br.api.charges = function(self, spell, id)
     -- @function charges.spell.count
     -- @return number
     charges.count = function()
-        local spellID = br.functions.spell:resolveRank(id)
+        local spellID = br.functions.spell:currentRank(id)
         return br.functions.spell:getCharges(spellID)
     end
 
@@ -23,7 +23,7 @@ br.api.charges = function(self, spell, id)
     -- @function charges.spell.exists
     -- @return boolean
     charges.exists = function()
-        local spellID = br.functions.spell:resolveRank(id)
+        local spellID = br.functions.spell:currentRank(id)
         return br.functions.spell:getCharges(spellID) >= 1
     end
 
@@ -31,7 +31,7 @@ br.api.charges = function(self, spell, id)
     -- @function charges.spell.frac
     -- @return number
     charges.frac = function()
-        local spellID = br.functions.spell:resolveRank(id)
+        local spellID = br.functions.spell:currentRank(id)
         return br.functions.spell:getChargesFrac(spellID)
     end
 
@@ -39,7 +39,7 @@ br.api.charges = function(self, spell, id)
     -- @function charges.spell.max
     -- @return number
     charges.max = function()
-        local spellID = br.functions.spell:resolveRank(id)
+        local spellID = br.functions.spell:currentRank(id)
         return br.functions.spell:getChargesFrac(spellID, true)
     end
 
@@ -48,7 +48,7 @@ br.api.charges = function(self, spell, id)
     -- @bool[opt] chargeMax If true, returns the time remaining until all charges are available.
     -- @return number
     charges.recharge = function(chargeMax)
-        local spellID = br.functions.spell:resolveRank(id)
+        local spellID = br.functions.spell:currentRank(id)
         if chargeMax then
             return br.functions.spell:getRecharge(spellID, true)
         else
@@ -57,7 +57,7 @@ br.api.charges = function(self, spell, id)
     end
 
     charges.spellCount = function()
-        local spellID = br.functions.spell:resolveRank(id)
+        local spellID = br.functions.spell:currentRank(id)
         return br._G.C_Spell.GetSpellCastCount(spellID)
     end
 
@@ -65,7 +65,7 @@ br.api.charges = function(self, spell, id)
     -- @function charges.spell.timeTillFull
     -- @return number
     charges.timeTillFull = function()
-        local spellID = br.functions.spell:resolveRank(id)
+        local spellID = br.functions.spell:currentRank(id)
         return br.functions.spell:getFullRechargeTime(spellID)
     end
 end

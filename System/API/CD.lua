@@ -23,7 +23,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].duration = function()
         -- Special handling for global CD in Classic
-        local spellID = br.functions.spell:resolveRank(id)
+        local spellID = br.functions.spell:currentRank(id)
         if spell == "global" and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
@@ -40,7 +40,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].exists = function()
         -- Special handling for global CD in Classic
-        local spellID = br.functions.spell:resolveRank(id)
+        local spellID = br.functions.spell:currentRank(id)
         if spell == "global" and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
@@ -56,7 +56,7 @@ br.api.cd = function(self, spell, id)
     -- @return number
     -- @within cd.spell
     cd[spell].prevgcd = function()
-        local spellID = br.functions.spell:resolveRank(id)
+        local spellID = br.functions.spell:currentRank(id)
         return select(2, br._G.GetSpellBaseCooldown(spellID))
     end
 
@@ -66,7 +66,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].ready = function()
         -- Special handling for global CD in Classic
-        local spellID = br.functions.spell:resolveRank(id)
+        local spellID = br.functions.spell:currentRank(id)
         if spell == "global" and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
@@ -82,7 +82,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].remain = function()
         -- Special handling for global CD in Classic
-        local spellID = br.functions.spell:resolveRank(id)
+        local spellID = br.functions.spell:currentRank(id)
         if spell == "global" and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
@@ -98,7 +98,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].remains = function()
         -- Special handling for global CD in Classic
-        local spellID = br.functions.spell:resolveRank(id)
+        local spellID = br.functions.spell:currentRank(id)
         if spell == "global" and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end

@@ -32,7 +32,9 @@ br.api.cast = function(self, spell, id)
     if cast.safe == nil then cast.safe = {} end
     if cast.time == nil then cast.time = {} end
     if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
-    local resolvedID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+    -- The spell's current rank, looked up when a helper runs (cached until the spellbook changes),
+    -- so a rank learned at a trainer counts straight away; it used to be fixed when this was built
+    local function currentRank() return br.functions.spell:currentRank(id) end
 
     -- ===========================
     -- SPELL RANK SYSTEM (CLASSIC)
@@ -109,7 +111,7 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean
     cast.active[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return br.functions.cast:isCastingSpell(resolvedID, thisUnit)
+        return br.functions.cast:isCastingSpell(currentRank(), thisUnit)
     end
 
     --- Checks if the spell is set to auto-repeat or if it's the current spell being cast.
@@ -119,7 +121,7 @@ br.api.cast = function(self, spell, id)
         -- Auto attack: the game's own on/off events, since the Attack spell stops being "current"
         -- while Maul / Heroic Strike is queued (profiles then restarted attacking mid-fight)
         if spell == "autoAttack" and br.functions.unit:isAutoAttacking() then return true end
-        return br._G.C_Spell.IsAutoRepeatSpell(br.api.wow.GetSpellInfo(resolvedID)) or br._G.C_Spell.IsCurrentSpell(resolvedID)
+        return br._G.C_Spell.IsAutoRepeatSpell(br.api.wow.GetSpellInfo(currentRank())) or br._G.C_Spell.IsCurrentSpell(currentRank())
     end
 
     --- Cancels the current spell being cast if it matches the specified spell.
@@ -141,9 +143,9 @@ br.api.cast = function(self, spell, id)
     cast.cost[spell] = function(altPower)
         if altPower == nil then altPower = false end
         if altPower then
-            return select(2, br.functions.power:getSpellCost(resolvedID))
+            return select(2, br.functions.power:getSpellCost(currentRank()))
         else
-            return select(1, br.functions.power:getSpellCost(resolvedID))
+            return select(1, br.functions.power:getSpellCost(currentRank()))
         end
     end
 
@@ -162,7 +164,7 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean
     cast.current[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return br.functions.cast:isCastingSpell(resolvedID, thisUnit)
+        return br.functions.cast:isCastingSpell(currentRank(), thisUnit)
     end
 
     --- Checks if the spell is capable of dispelling the target.
@@ -171,14 +173,14 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean
     cast.dispel[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "target" end
-        return br.functions.aura:canDispel(thisUnit, resolvedID) or false
+        return br.functions.aura:canDispel(thisUnit, currentRank()) or false
     end
 
     --- Gets current empowered rank of the spell or 0 if not empowered.
     -- @function cast.empowered.spell
     -- @treturn number
     cast.empowered[spell] = function()
-        return br.functions.spell:getEmpoweredRank(resolvedID)
+        return br.functions.spell:getEmpoweredRank(currentRank())
     end
 
     --- Casts the form corresponding to the provided formIndex number.
@@ -216,7 +218,7 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean
     cast.inFlight[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "target" end
-        return br.functions.InFlight:Check(resolvedID, thisUnit)
+        return br.functions.InFlight:Check(currentRank(), thisUnit)
     end
 
     --- Gets time remaining on a spell in flight to the target.
@@ -224,7 +226,7 @@ br.api.cast = function(self, spell, id)
     -- @string thisUnit The target unit to check for the spell in flight.
     -- @treturn number
     cast.inFlightRemain[spell] = function(thisUnit)
-        return br.functions.InFlight:Remain(resolvedID, thisUnit)
+        return br.functions.InFlight:Remain(currentRank(), thisUnit)
     end
 
     --- Checks if the spell was the last one cast or not.
@@ -234,14 +236,14 @@ br.api.cast = function(self, spell, id)
     cast.last[spell] = function(index)
         local tracker = br.functions.lastCast.lastCastTable.tracker
         index = index or 1
-        return tracker[index] and tracker[index] == resolvedID
+        return tracker[index] and tracker[index] == currentRank()
     end
 
     --- Gets the GetTime() value the last cast of this spell occurred, or 0 if it hasn't been cast.
     -- @function cast.last.time.spell
     -- @treturn number
     cast.last.time[spell] = function()
-        return br.functions.lastCast.lastCastTable.castTime[resolvedID] or 0
+        return br.functions.lastCast.lastCastTable.castTime[currentRank()] or 0
     end
 
     --- Runs the macro text passed to it. Optionally integrates with the cast gate's
@@ -296,7 +298,7 @@ br.api.cast = function(self, spell, id)
     -- @function cast.noControl.spell
     -- @treturn boolean
     cast.noControl[spell] = function()
-        return br.functions.combat:hasNoControl(resolvedID)
+        return br.functions.combat:hasNoControl(currentRank())
     end
 
     --- Casts a spell as a step of an opener and marks the step done.
@@ -344,7 +346,7 @@ br.api.cast = function(self, spell, id)
     -- @function cast.range.spell
     -- @treturn number
     cast.range[spell] = function()
-        return br.functions.spell:getSpellRange(resolvedID)
+        return br.functions.spell:getSpellRange(currentRank())
     end
 
     --- Cast a specific rank of a spell (Classic WoW only).
@@ -386,7 +388,7 @@ br.api.cast = function(self, spell, id)
     -- @function cast.regen.spell
     -- @treturn number
     cast.regen[spell] = function()
-        return br.functions.spell:getCastingRegen(resolvedID)
+        return br.functions.spell:getCastingRegen(currentRank())
     end
 
     --- Checks if safe to cast specified aoe spell on unit given the aoe dimensions.
@@ -397,7 +399,7 @@ br.api.cast = function(self, spell, id)
     -- @number effectRng Specify the AoE's effect range to determine units hit by it.
     -- @treturn boolean
     cast.safe[spell] = function(thisUnit, aoeType, minUnits, effectRng)
-        return br.functions.range:isSafeToAoE(resolvedID, thisUnit, effectRng, minUnits, aoeType)
+        return br.functions.range:isSafeToAoE(currentRank(), thisUnit, effectRng, minUnits, aoeType)
     end
 
     --- Cast a spell based on various parameters.
@@ -420,7 +422,7 @@ br.api.cast = function(self, spell, id)
     -- @function cast.time.spell
     -- @treturn number
     cast.time[spell] = function()
-        local castTime = br.functions.cast:getCastTime(resolvedID)
+        local castTime = br.functions.cast:getCastTime(currentRank())
         return castTime > 0 and castTime or br.functions.spell:getGlobalCD(true)
     end
 
@@ -439,7 +441,7 @@ br.api.cast = function(self, spell, id)
     -- @function cast.timeSinceLast.spell
     -- @treturn number
     cast.timeSinceLast[spell] = function()
-        return br._G.GetTime() - (br.functions.lastCast.lastCastTable.castTime[resolvedID] or 0)
+        return br._G.GetTime() - (br.functions.lastCast.lastCastTable.castTime[currentRank()] or 0)
     end
 
     --- Checks if the provided condition is true else it waits for 0.1sec.

@@ -1054,6 +1054,8 @@ end
 local optionIndex = {}      -- [option key, e.g. "Auto Loot Check"] = page
 local optionDefaults = {}   -- [page] = { [option key] = default }
 local fallbackPages = {}    -- pages found by searching before the option was registered
+local missingOptions = {}   -- [option key] = time it was last searched for and not found
+local missingSettings       -- the settings table missingOptions belongs to
 local warnedDuplicates = {}
 
 --- Records an option's page and default (called by the UI elements).
@@ -1062,6 +1064,7 @@ function misc:registerOption(page, key, default)
 	if page == nil or key == nil then return end
 	optionDefaults[page] = optionDefaults[page] or {}
 	optionDefaults[page][key] = default
+	missingOptions[key] = nil
 	local known = optionIndex[key]
 	if known == nil then
 		optionIndex[key] = page
@@ -1077,6 +1080,7 @@ function misc:resetOptionIndex()
 	optionIndex = {}
 	optionDefaults = {}
 	fallbackPages = {}
+	missingOptions = {}
 end
 
 --- Page -> { option key -> default } for every registered option (used by the save guard).
@@ -1105,13 +1109,23 @@ local function findOption(Value, Page, Type)
 		if pageSettings ~= nil and pageSettings[option] ~= nil then return pageSettings[option] end
 		if optionIndex[option] ~= nil then return notFound end
 	end
-	-- Not registered yet (UI not built, or Power off): find it once and remember the page
+	-- Not registered yet (UI not built, or Power off): find it once and remember the page.
+	-- An option no page has is remembered as missing for a second, so asking for an option the
+	-- profile never created doesn't search every page on every call.
+	if missingSettings ~= settings then
+		missingOptions = {}
+		missingSettings = settings
+	end
+	local now = br._G.GetTime()
+	local missedAt = missingOptions[option]
+	if missedAt ~= nil and now - missedAt < 1 then return notFound end
 	for pageName, pageSettings in pairs(settings) do
 		if type(pageSettings) == "table" and pageName ~= "PageList" and pageSettings[option] ~= nil then
 			fallbackPages[option] = pageName
 			return pageSettings[option]
 		end
 	end
+	missingOptions[option] = now
 	return notFound
 end
 
