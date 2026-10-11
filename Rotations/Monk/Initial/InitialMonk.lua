@@ -62,8 +62,6 @@ local function options()
     br.ui:spinner(section, "Leg Sweep - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
     -- Vivify
     br.ui:spinner(section, "Vivify", { value = 60, tip = "Health Percent to Cast At" })
-    -- Target Heal Key
-    br.ui:dropdown(section, "Target Heal Key", { choices = "Toggle", value = "LeftShift", checkbox = false })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
