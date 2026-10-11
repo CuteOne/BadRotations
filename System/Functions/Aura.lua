@@ -648,23 +648,16 @@ function aura:getLustID()
 	return 0
 end
 
+-- True while the player has a Bloodlust-style haste buff: any in the global list's buffs.bloodLust.
+-- if br.functions.aura:hasBloodLust() then
 function aura:hasBloodLust()
-	if aura:UnitBuffID("player", 90355) or -- Ancient Hysteria
-		aura:UnitBuffID("player", 2825) or -- Bloodlust
-		aura:UnitBuffID("player", 146555) or -- Drums of Rage
-		aura:UnitBuffID("player", 390386) or -- Fury of the Aspects
-		aura:UnitBuffID("player", 32182) or -- Heroism
-		aura:UnitBuffID("player", 90355) or -- Netherwinds
-		aura:UnitBuffID("player", 80353) or -- Timewarp
-		aura:UnitBuffID("player", 230935) or -- Drums of the Mountain
-		aura:UnitBuffID("player", 256740) or -- Drums of the Maelstrom
-		aura:UnitBuffID("player", 441076) or -- Timeless Drums
-		aura:UnitBuffID("player", 264667) -- Primal Rage
-	then
-		return true
-	else
-		return false
+	local shared = br.lists.spells and br.lists.spells.Shared and br.lists.spells.Shared.Shared
+	local lusts = shared and shared.buffs and shared.buffs.bloodLust
+	if lusts == nil then return false end
+	for _, buffID in pairs(lusts) do
+		if aura:UnitBuffID("player", buffID) then return true end
 	end
+	return false
 end
 
 -- Snapshot strength of a bleed/DoT (Feral) used by debuff.calc; 0 when not applicable.

@@ -279,10 +279,9 @@ br.api.ui = function(self)
         -- @return boolean - Returns true if cooldowns should be used
         ui.useCDs = function()
             if ui.mode.cooldown == nil then br.functions.misc:warnMissingToggle("Cooldown", "cooldowns", "ui.useCDs()") end
-            local hasBloodLust = br._G["hasBloodLust"]
             return (ui.mode.cooldown == 1 and br.functions.unit:isBoss())
                 or ui.mode.cooldown == 2
-                or (ui.mode.cooldown == 4 and hasBloodLust())
+                or (ui.mode.cooldown == 4 and br.functions.aura:hasBloodLust())
         end
     end
 
