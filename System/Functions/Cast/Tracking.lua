@@ -89,12 +89,17 @@ local function errorText(globalName, fallback)
 	return fallback
 end
 
+-- Errors from the auto-attack swing, not from a spell: "You are facing the wrong way!" fires while
+-- auto attack is on and the target is behind you, whatever BR last cast (Demoralizing Roar, a heal).
+local function isSwingError(message)
+	return message == errorText("ERR_BADATTACKFACING", "You are facing the wrong way!")
+end
+
 local function rejectionKindForError(message)
 	if message == errorText("SPELL_FAILED_AURA_BOUNCED", "A more powerful spell is already active.") then return "aura" end
 	if message == errorText("SPELL_FAILED_LINE_OF_SIGHT", "Target not in line of sight") then return "los" end
 	if message == errorText("SPELL_FAILED_UNIT_NOT_INFRONT", "Target needs to be in front of you.")
 		or message == errorText("SPELL_FAILED_NOT_INFRONT", "You must be in front of your target.")
-		or message == errorText("ERR_BADATTACKFACING", "You are facing the wrong way!")
 	then
 		return "facing"
 	end
@@ -130,7 +135,7 @@ end
 -- recent cast and frees that spell's throttles so the rotation can use it on
 -- another unit straight away.
 function cast:handleCastError(message)
-	if type(message) ~= "string" then return end
+	if type(message) ~= "string" or isSwingError(message) then return end
 	if not (br.botSpell and br.botGUID and br.botCastTime) then return end
 	-- With Cast Debug on, show every game error that follows a BR cast closely, so a cast that was
 	-- sent but refused by the server (shapeshifted, no mana, ...) shows why instead of only "Casting".
@@ -154,6 +159,8 @@ function cast:handleCastError(message)
 	end
 	local kind = rejectionKindForError(message)
 	if not kind then return end
+	-- A cast on yourself can't be out of sight or facing the wrong way: never mark the player
+	if UNIT_WIDE_REJECT[kind] and br.botGUID == br._G.UnitGUID("player") then return end
 	if kind ~= "aura" and (br._G.GetTime() - br.botCastTime) > REJECT_ATTRIBUTION_WINDOW then return end
 	local duration
 	if kind == "aura" then
