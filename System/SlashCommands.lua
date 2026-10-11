@@ -514,9 +514,16 @@ local function handler(message, editbox)
 			-- hand the target to units.dynN.
 			if br.functions.unit:GetUnitExists("target") then
 				local misc = br.functions.misc
+				-- One secret value (Forever hides some reads) makes the whole joined line secret, so
+				-- each value is checked on its own, before and after tostring, and shown as <secret>
+				local isSecret = br._G.issecretvalue
 				local function try(fn)
 					local ok, value = pcall(fn)
-					return ok and tostring(value) or "error"
+					if not ok then return "error" end
+					if isSecret and isSecret(value) then return "<secret>" end
+					local okText, text = pcall(tostring, value)
+					if not okText or (isSecret and isSecret(text)) then return "<secret>" end
+					return text
 				end
 				br._G.print("  target valid: " .. try(function() return misc:isValidUnit("target") end)
 					.. " | enemyList " .. try(function() return misc:enemyListCheck("target") end)
