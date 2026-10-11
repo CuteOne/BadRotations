@@ -32,6 +32,16 @@ br.api.spell = function(self, k, v)
         return realID or 0
     end
 
+    --- For a combo point finisher (Ferocious Bite, Eviscerate, ...): true when it's sure to kill the unit
+    -- at your current combo points and Energy, from the damage the tooltip lists. Never true on dummies.
+    -- @function spell.k.kills
+    -- @param[opt="target"] thisUnit The unit to finish
+    -- @return boolean
+    -- @usage if spell.ferociousBite.kills(units.dyn5) and cast.able.ferociousBite(units.dyn5) then
+    spell[k].kills = function(thisUnit)
+        return br.functions.spell:finisherKills(br.functions.spell:currentRank(v), thisUnit)
+    end
+
     --- Checks if the spell is known.
     -- @function spell.k.known
     -- @return boolean

@@ -586,6 +586,43 @@ br.api.unit = function(self)
         return br.functions.unit:isFleeingFrom(thisUnit, fromUnit)
     end
 
+    --- Check if you're running away from an enemy that is chasing you
+    -- @function unit.chased
+    -- @number[opt=10] range How close the chasing enemy is
+    -- @return boolean True while an enemy within range chases you as you move away from it
+    -- @usage if unit.chased(10) and cast.able.dash() then
+    unit.chased = function(range)
+        return br.functions.unit:isChased(range)
+    end
+
+    --- Check if an enemy is close enough to start a fight
+    -- @function unit.enemyNear
+    -- @number range Yards to look within
+    -- @return boolean True when an enemy is already fighting within range, or an idle one's aggro range reaches you
+    -- @usage if not unit.inCombat() and unit.enemyNear(20) and cast.able.prowl() then
+    unit.enemyNear = function(range)
+        return br.functions.unit:isEnemyNear(range)
+    end
+
+    --- Check if an enemy is attacking someone other than you
+    -- @function unit.attackingOthers
+    -- @param thisUnit The enemy to check
+    -- @return boolean True when it's in combat, not attacking you, and its target is friendly
+    -- @usage local thisUnit = enemies.first(enemies.yards5, unit.attackingOthers) -- a mob to taunt
+    unit.attackingOthers = function(thisUnit)
+        return br.functions.unit:isAttackingOthers(thisUnit)
+    end
+
+    --- Get a dead player in your group, to resurrect
+    -- @function unit.deadGroupMember
+    -- @number range Yards to look within
+    -- @param ... Optional roles to pick from ("TANK", "HEALER", "DAMAGER"); anyone when none are given
+    -- @return string|nil The unit, or nil when there's none
+    -- @usage local thisUnit = unit.deadGroupMember(30, "TANK", "HEALER")
+    unit.deadGroupMember = function(range, ...)
+        return br.functions.unit:getDeadGroupMember(range, ...)
+    end
+
     --- Check if a unit is tanking
     -- @function unit.isTanking
     -- @param thisUnit The unit to check, defaults to "player" if nil

@@ -699,6 +699,53 @@ function unit:isFleeingFrom(thisUnit, fromUnit)
 	return unit:getFacing(thisUnit, fromUnit) == false and unit:getFacing(fromUnit, thisUnit) == true
 end
 
+-- True when an enemy is close enough to start a fight: one already fighting within radius, or an idle
+-- one whose aggro range you're in. For stealthing before a pull (Prowl, Stealth).
+-- if br.functions.unit:isEnemyNear(20) then
+function unit:isEnemyNear(radius)
+	if #br.engines.enemiesEngineFunctions:getEnemies("player", radius) > 0 then return true end
+	return unit:anyInAggroRange(0, radius)
+end
+
+-- True while the player is running away from an enemy within radius that is chasing it (escapes).
+-- if br.functions.unit:isChased(10) then
+function unit:isChased(radius)
+	local nearby = br.engines.enemiesEngineFunctions:getEnemies("player", radius or 10)
+	for i = 1, #nearby do
+		if unit:isFleeingFrom("player", nearby[i]) then return true end
+	end
+	return false
+end
+
+-- True when an enemy is attacking a friendly unit other than the player (to taunt it off them).
+-- if br.functions.unit:isAttackingOthers(thisUnit) then
+function unit:isAttackingOthers(thisUnit)
+	if not br._G.UnitAffectingCombat(thisUnit) or br.functions.combat:isTanking(thisUnit) then return false end
+	local victim = br._G.UnitTarget(thisUnit)
+	return victim ~= nil and br._G.UnitIsFriend(victim, "player") and not br._G.UnitIsUnit(victim, "player")
+end
+
+-- A dead player in the group within range, for a resurrection; nil when there's none. Give roles
+-- ("TANK", "HEALER", "DAMAGER") to only pick those; without any, anyone.
+-- local thisUnit = br.functions.unit:getDeadGroupMember(30, "TANK", "HEALER")
+function unit:getDeadGroupMember(range, ...)
+	local roles = select("#", ...) > 0 and { ... } or nil
+	local friends = br.engines.healingEngine.friend
+	for i = 1, #friends do
+		local friend = friends[i]
+		local thisUnit = friend.unit
+		if br._G.UnitIsPlayer(thisUnit) and br._G.UnitIsDeadOrGhost(thisUnit)
+			and (br.functions.range:getDistance("player", thisUnit) or 99) < range
+		then
+			if roles == nil then return thisUnit end
+			for j = 1, #roles do
+				if friend.role == roles[j] then return thisUnit end
+			end
+		end
+	end
+	return nil
+end
+
 -- Picks the unit to buff from a "Player/Target/Mouseover/Focus/Group" option value.
 -- needsBuff(unit) decides which group member to pick; missing units fall back to the player.
 -- local thisUnit = br.functions.unit:getBuffUnit(2, function(u) return true end, 30)

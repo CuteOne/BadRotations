@@ -773,6 +773,40 @@ function spell:getName(spellID)
 	return name
 end
 
+-- A combo point finisher's guaranteed damage (Ferocious Bite, Eviscerate, ...), read from its tooltip
+-- once per spell ID: { [combo points] = low end of the damage roll, perEnergy = damage each Energy
+-- above the cost adds }, or false when the tooltip doesn't list damage per combo point. English only.
+local finisherDamage = {}
+function spell:getFinisherDamage(spellID)
+	local known = finisherDamage[spellID]
+	if known ~= nil then return known end
+	local desc = br._G.C_Spell.GetSpellDescription(spellID) or ""
+	local damage = { perEnergy = tonumber(desc:match("into ([%d%.]+) additional damage")) or 0 }
+	for cp, low in desc:gmatch("(%d) points?%s*:%s*([%d,]+)") do
+		damage[tonumber(cp)] = tonumber((low:gsub(",", "")))
+	end
+	if damage[1] == nil then damage = false end
+	finisherDamage[spellID] = damage
+	return damage
+end
+
+-- True when the finisher, at your combo points on thisUnit and your Energy, is sure to kill it: the
+-- low end of the damage roll plus the extra Energy it converts. Attack Power adds more, but tooltips
+-- don't say how much, so it's left out (an underestimate). Never true for training dummies.
+-- if br.functions.spell:finisherKills(22568, "target") then
+function spell:finisherKills(spellID, thisUnit)
+	if thisUnit == nil then thisUnit = "target" end
+	if spellID == nil or spellID == 0 or br.functions.unit:isDummy(thisUnit) then return false end
+	local comboPoints = br.functions.power:getCombo(thisUnit) or 0
+	if comboPoints <= 0 then return false end
+	local damage = spell:getFinisherDamage(spellID)
+	if not damage or not damage[comboPoints] then return false end
+	-- A free finisher (Clearcasting) converts no extra Energy that we can count on
+	local cost = br.functions.power:getSpellCost(spellID) or 0
+	local extraEnergy = cost > 0 and math.max(0, (br._G.UnitPower("player", 3) or 0) - cost) or 0
+	return damage[comboPoints] + extraEnergy * damage.perEnergy >= (br._G.UnitHealth(thisUnit) or 0)
+end
+
 -- Highest known rank from a table of rank IDs (first rank if none known); non-tables pass through.
 -- local id = br.functions.spell:resolveRank({ 5176, 5177, 5178 })
 function spell:resolveRank(id)
