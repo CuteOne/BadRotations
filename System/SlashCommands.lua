@@ -524,7 +524,14 @@ local function handler(message, editbox)
 				local function try(fn)
 					local ok, value = pcall(fn)
 					if not ok then return "error" end
-					if isSecret and isSecret(value) then return "<secret>" end
+					if isSecret and isSecret(value) then
+						-- A secret true / false BR may use: testing it gives a plain answer to show
+						if type(value) == "boolean" and misc:canUseValue(value) then
+							if value then return "true" end
+							return "false"
+						end
+						return "<secret>"
+					end
 					local okText, text = pcall(tostring, value)
 					if not okText or (isSecret and isSecret(text)) then return "<secret>" end
 					return text

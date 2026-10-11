@@ -648,7 +648,10 @@ function misc:enemyListCheck(Unit, distance)
 	end
 
 	-- (isHeldBack compares NPC IDs; this used to compare the unit itself with them, so never applied)
-	return basicChecks and los and not br.functions.unit:isHeldBack(Unit)
+	-- A plain true / false: some checks compare secret values (health on Forever), and their results
+	-- would make this answer secret too (usable by BR, but hidden wherever it's shown)
+	if basicChecks and los and not br.functions.unit:isHeldBack(Unit) then return true end
+	return false
 end
 
 function misc:isValidUnit(Unit)
