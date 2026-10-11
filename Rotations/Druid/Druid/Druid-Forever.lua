@@ -53,6 +53,7 @@ local function options()
     br.ui:dropdown(section, "Cat Opener", { choices = { "Pounce", "Ravage", "Shred", "Rake" }, value = "Ravage", checkbox = false,
         tip = "Select Spell to Open with from Stealth (falls back to the next learned option)" })
     br.ui:checkbox(section, "Faerie Fire", { tip = "Use Faerie Fire from range in Caster Form" })
+    br.ui:checkbox(section, "Bear Opener", { tip = "Open a Bear Form pull with Enrage, Demoralizing Roar, then Maul, in that order" })
     br.ui:dropdown(section, "Clearcasting Use", { choices = { "Any", "DPS Only", "Healing Only", "None" }, checkbox = false,
         tip = "What Clearcasting (Omen of Clarity) procs should be spent on" })
 
@@ -761,6 +762,32 @@ actionList.BearForm = function()
     end
 end -- End Action List - Bear Form
 
+-- Action List - Bear Opener: Enrage, Demoralizing Roar, then Maul, in that order. Each cast.opener
+-- line waits its turn; a step whose condition is false is passed over.
+actionList.BearOpener = function()
+    if not buff.bearForm.exists() then return false end
+    if not unit.valid("target") or unit.deadOrGhost("target") or unit.distance("target") >= 5 then return false end
+    -- Enrage
+    if not buff.enrage.exists() and rage < 10 then
+        if cast.opener.enrage() then
+            ui.debug("Casting Enrage [Opener]")
+            return true
+        end
+    end
+    -- Demoralizing Roar
+    if debuff.demoralizingRoar.refreshCount(10) > 0 then
+        if cast.opener.demoralizingRoar("player", "aoe", 1, 10) then
+            ui.debug("Casting Demoralizing Roar [Opener]")
+            return true
+        end
+    end
+    -- Maul
+    if cast.opener.maul("target") then
+        ui.debug("Casting Maul [Opener]")
+        return true
+    end
+end -- End Action List - Bear Opener
+
 -- Action List - Cat Opener (Stealth + Non-Stealth)
 actionList.CatOpener = function()
     if not buff.catForm.exists() then return false end
@@ -1010,6 +1037,8 @@ actionList.PreCombat = function()
             if thisDistance < 5 then
                 -- Cat Opener (Stealth + Non-Stealth)
                 if actionList.CatOpener() then return true end
+                -- Bear Opener
+                if ui.checked("Bear Opener") and actionList.BearOpener() then return true end
                 -- Bear Form
                 if activeForm == "bear" and buff.bearForm.exists() then
                     -- Enrage
@@ -1066,6 +1095,7 @@ actionList.Combat = function()
 
         -- Call Action List - Bear Form
         if activeForm == "bear" and buff.bearForm.exists() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+            if ui.checked("Bear Opener") and actionList.BearOpener() then return true end
             if actionList.BearForm() then return true end
         end
 
