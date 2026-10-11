@@ -224,11 +224,11 @@ br.api.debuffs = function(debuff, k, v)
         v = currentRank()
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        if br.functions.aura:getDebuffStacks(thisUnit, v, sourceUnit) == 0 and br.functions.aura:UnitDebuffID(thisUnit, v, sourceUnit) ~= nil then
-            return 1
-        else
-            return br.functions.aura:getDebuffStacks(thisUnit, v, sourceUnit)
-        end
+        -- A debuff that's on but doesn't stack reports 0 applications: count it as 1
+        local auraInfo = br.functions.aura:UnitDebuffID(thisUnit, v, sourceUnit)
+        if auraInfo == nil then return 0 end
+        local stacks = auraInfo.applications or 0
+        return stacks == 0 and 1 or stacks
     end
 
     --- Gets the number of debuff ticks that will be gained by reapplying the debuff to the specified unit.

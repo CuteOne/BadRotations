@@ -2,6 +2,35 @@ local _, br = ...
 br.functions.aura = br.functions.aura or {}
 local aura = br.functions.aura
 
+-- Aura lookups are remembered for the rest of the frame (auras can't change within one), so the
+-- exists / remain / duration / stack / refresh questions about the same aura share one scan.
+-- Keyed by the unit itself, except tokens that can point at another unit later in the frame
+-- (target, focus, mouseover, ...target after a retarget), which are keyed by their GUID.
+local lookups, lookupsAt = {}, nil
+local NOT_FOUND = {}
+local function lookupKey(kind, unit, spellID, filter)
+	if unit == nil then return nil end
+	if type(unit) == "string" and (unit:find("target", 1, true) or unit == "focus" or unit == "mouseover") then
+		unit = br._G.UnitGUID(unit)
+		if not unit then return nil end
+	end
+	local now = br._G.GetTime()
+	if lookupsAt ~= now then
+		br._G.wipe(lookups)
+		lookupsAt = now
+	end
+	return kind .. tostring(unit) .. ":" .. tostring(spellID) .. ":" .. tostring(filter)
+end
+local function remembered(key)
+	local found = key and lookups[key]
+	if found == NOT_FOUND then return true, nil end
+	return found ~= nil, found
+end
+local function remember(key, found)
+	if key then lookups[key] = found == nil and NOT_FOUND or found end
+	return found
+end
+
 function aura:AuraData(unit, index, filter)
 	local auraData = br.api.wow.GetAuraDataByIndex(unit, index, filter)
 	if not auraData then return nil end
@@ -50,6 +79,13 @@ function aura:UnitAuraID(unit, spellID, filter)
 end
 
 function aura:UnitBuffID(unit, spellID, filter)
+	local key = lookupKey("B", unit, spellID, filter)
+	local known, found = remembered(key)
+	if known then return found end
+	return remember(key, aura:findBuff(unit, spellID, filter))
+end
+
+function aura:findBuff(unit, spellID, filter)
 	local spellName = br.api.wow.GetSpellInfo(spellID)
 	if not spellName then return nil end
 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
@@ -182,12 +218,18 @@ function aura:UnitDebuffID(unit, spellID, filter)
     if _UnitDebuffID_lock then return nil end
     _UnitDebuffID_lock = true
 
-    local ok, r1, r2, r3, r4, r5 = pcall(findDebuff, unit, spellID, filter)
+    local key = lookupKey("D", unit, spellID, filter)
+    local known, found = remembered(key)
+    if known then
+        _UnitDebuffID_lock = false
+        return found
+    end
+    local ok, r1 = pcall(findDebuff, unit, spellID, filter)
 
-    -- release lock and return results (if pcall failed, return nil)
+    -- release lock and return the result (if pcall failed, nil and not remembered)
     _UnitDebuffID_lock = false
     if not ok then return nil end
-    return r1, r2, r3, r4, r5
+    return remember(key, r1)
 end
 
 local function Dispel(unit, stacks, buffDuration, buffRemain, buffSpellID, buff)

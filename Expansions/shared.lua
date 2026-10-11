@@ -195,40 +195,35 @@ do
         return nil
     end
 
+    -- One pass over a unit's buffs or debuffs for an aura with this name
+    local function scanByName(name, u, ft, isHarm)
+        for i = 1, 40 do
+            local aura = isHarm and api.GetDebuffDataByIndex(u, i, ft)
+                                 or api.GetBuffDataByIndex(u, i, ft)
+            if not aura then return nil end
+            if aura.name == name then return aura end
+        end
+    end
+
     api.FindAuraByName = function(spellName, unit, filter)
         if not spellName or not unit then return nil end
         -- Skip _G.AuraUtil.FindAuraByName: it internally calls GetAuraDataBySpellName which
         -- rejects object pointers in Midnight. api.GetXxxDataByIndex already handles unit
         -- conversion correctly per expansion (including NN ObjectUnit wrapping on Retail).
-        local upFilter = filter and string.upper(filter) or nil
-        local hasPlayer  = upFilter and string.find(upFilter, "PLAYER",  1, true)
-        local hasHelpful = upFilter and string.find(upFilter, "HELPFUL", 1, true)
-        local hasHarmful = upFilter and string.find(upFilter, "HARMFUL", 1, true)
-        local function scan(name, u, ft, isHarm)
-            for i = 1, 40 do
-                local aura = isHarm and api.GetDebuffDataByIndex(u, i, ft)
-                                     or api.GetBuffDataByIndex(u, i, ft)
-                if not aura then break end
-                if aura.name == name then return aura end
-            end
+        if not filter then
+            return scanByName(spellName, unit, nil, false) or scanByName(spellName, unit, nil, true)
         end
-        if upFilter then
-            if hasHelpful then
-                local r = scan(spellName, unit, filter, false)
-                if r then return r end
-            end
-            if hasHarmful then
-                local r = scan(spellName, unit, filter, true)
-                if r then return r end
-            end
-            if hasPlayer and not hasHelpful and not hasHarmful then
-                local r = scan(spellName, unit, "PLAYER", false) or scan(spellName, unit, "PLAYER", true)
-                if r then return r end
-            end
-        else
-            local r = scan(spellName, unit, nil, false) or scan(spellName, unit, nil, true)
-            if r then return r end
+        local upFilter = string.upper(filter)
+        local hasHelpful = string.find(upFilter, "HELPFUL", 1, true)
+        local hasHarmful = string.find(upFilter, "HARMFUL", 1, true)
+        if hasHelpful or hasHarmful then
+            return (hasHelpful and scanByName(spellName, unit, filter, false))
+                or (hasHarmful and scanByName(spellName, unit, filter, true)) or nil
         end
+        if string.find(upFilter, "PLAYER", 1, true) then
+            return scanByName(spellName, unit, "PLAYER", false) or scanByName(spellName, unit, "PLAYER", true)
+        end
+        -- A filter without HELPFUL / HARMFUL / PLAYER: only the generic aura list covers it
         for i = 1, 40 do
             local aura = api.GetAuraDataByIndex(unit, i, filter)
             if not aura then break end
