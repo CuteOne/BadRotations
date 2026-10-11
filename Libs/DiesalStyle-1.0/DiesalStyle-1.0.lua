@@ -95,16 +95,28 @@ end
 -- versions report fonts that don't load, and LibSharedMedia keeps the first path registered for a
 -- name, so registering a dead path early would also hide a working one registered later.
 local probeFont, probeTexture
+-- Never raises: a probe that can't be made or used just means "doesn't load".
 local function loads(mediaType, path)
   if mediaType == 'font' then
-    probeFont = probeFont or CreateFont("DiesalStyleMediaProbe")
+    if not probeFont then
+      local ok, font = pcall(CreateFont, "DiesalStyleMediaProbe")
+      probeFont = ok and type(font) == 'table' and font or nil
+    end
+    if not probeFont then return false end
     local ok, result = pcall(probeFont.SetFont, probeFont, path, 12, '') -- raises (Forever) or returns false
     return ok and result ~= false
   end
-  probeTexture = probeTexture or TextureFrame:CreateTexture()
-  probeTexture:SetTexture(nil)
-  probeTexture:SetTexture(path)
-  return probeTexture:GetTexture() ~= nil -- nil when the file isn't there
+  if not probeTexture then
+    local ok, texture = pcall(TextureFrame.CreateTexture, TextureFrame)
+    probeTexture = ok and type(texture) == 'table' and texture or nil
+  end
+  if not probeTexture then return false end
+  local ok, loaded = pcall(function()
+    probeTexture:SetTexture(nil)
+    probeTexture:SetTexture(path)
+    return probeTexture:GetTexture() ~= nil -- nil when the file isn't there
+  end)
+  return ok and loaded
 end
 local SHARED_MEDIA = {
   -- LibSharedMedia type, LibSharedMedia name, DiesalStyle media name
