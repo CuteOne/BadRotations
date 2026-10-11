@@ -156,7 +156,7 @@ function engines.Update(frame, elapsed)
                 local tickStarted = br._G.debugprofilestop()
                 -- Quaking helper
                 if br.functions.misc:getOptionCheck("Quaking Helper") then
-                    local quakingID = br.functions.spell:getHighestSpellID("quaking") or 240448
+                    local quakingID = br.functions.spell:getHighestSpellID("quaking")
                     if (br._G.UnitChannelInfo("player") or br._G.UnitCastingInfo("player")) and
                         br.functions.aura:getDebuffRemain("player", quakingID) < 0.5 and br.functions.aura:getDebuffRemain("player", quakingID) > 0 then
                         br._G.RunMacroText("/stopcasting")

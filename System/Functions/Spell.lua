@@ -6,7 +6,7 @@ local spell = br.functions.spell
 function spell:canInterrupt(unit, percentint)
 	unit = unit or "target"
 	-- M+ Affix: Beguiling (Prevents Interrupt) - Queen's Decree: Unstoppable buff
-	local queensDecreeID = br.functions.spell:getHighestSpellID("queensDecreeUnstoppable") or 302417
+	local queensDecreeID = br.functions.spell:getHighestSpellID("queensDecreeUnstoppable")
 	if br.functions.aura:UnitBuffID(unit, queensDecreeID) ~= nil then return false end
 	local interruptTarget = br.functions.misc:getOptionValue("Interrupt Target")
 	if interruptTarget == 2 and not br.functions.unit:GetUnitIsUnit(unit, "target") then
@@ -221,7 +221,7 @@ function spell:getGlobalCD(max)
 		end
 	end
 	-- Use expansion-defined GCD spell if available (Classic/TBC define GetGCDSpellID in their expansion file)
-	local gcdSpellID = br.functions.spell:getHighestSpellID("global") or 61304
+	local gcdSpellID = br.functions.spell:getHighestSpellID("global")
 	if br.api.wow.GetGCDSpellID then
 		gcdSpellID = br.api.wow.GetGCDSpellID()
 	end
@@ -251,7 +251,7 @@ function spell:getCastingRegen(spellID)
 	power = power + regenRate * castSeconds + tooltip
 
 	-- Get the amount of time remaining on the Steady Focus buff.
-	local steadyFocusID = br.functions.spell:getHighestSpellID("steadyFocus") or 193534
+	local steadyFocusID = br.functions.spell:getHighestSpellID("steadyFocus")
 	if br.functions.aura:UnitBuffID("player", steadyFocusID) ~= nil then
 		local seconds = br.functions.aura:getBuffRemain("player", steadyFocusID)
 		if seconds <= 0 then
@@ -341,8 +341,8 @@ function spell:isKnown(spellID)
 end
 
 local function getEventBuffIDs()
-    return br.functions.spell:getHighestSpellID("forTheAlliance") or 193863,
-           br.functions.spell:getHighestSpellID("forTheHorde")    or 193864
+    return br.functions.spell:getHighestSpellID("forTheAlliance"),
+           br.functions.spell:getHighestSpellID("forTheHorde")
 end
 
 local function flipRace()
@@ -614,7 +614,24 @@ end
 -- If the found value is a rank table (Classic), returns the highest known rank.
 -- @param key - The spell name key as it appears in the spell list (e.g. "rake", "global")
 -- @return number|nil - The spell ID, or nil if the list is not loaded or the key is not found.
+-- The spell ID for a spell list key (the highest known rank of a rank list), searching every list.
+-- Answers are remembered per key until the spellbook changes (clearRankCache).
+-- local gcdSpell = br.functions.spell:getHighestSpellID("global")
+local highestSpellIDs = {}
+local NO_SPELL = {}
 function spell:getHighestSpellID(key)
+    local known = highestSpellIDs[key]
+    if known ~= nil then
+        if known == NO_SPELL then return nil end
+        return known
+    end
+    local found = spell:findHighestSpellID(key)
+    -- Only once the player's spells are compiled: before that the class lists may not be loaded yet
+    if br.player and br.player.spells then highestSpellIDs[key] = found == nil and NO_SPELL or found end
+    return found
+end
+
+function spell:findHighestSpellID(key)
     if not br.lists or not br.lists.spells then return nil end
     local function search(t)
         for k, v in pairs(t) do
@@ -753,4 +770,5 @@ end
 
 function spell:clearRankCache()
 	br._G.wipe(currentRanks)
+	br._G.wipe(highestSpellIDs)
 end
