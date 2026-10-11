@@ -99,9 +99,20 @@ function cast:handleCastError(message)
 	if not (br.botSpell and br.botGUID and br.botCastTime) then return end
 	-- With Cast Debug on, show every game error that follows a BR cast closely, so a cast that was
 	-- sent but refused by the server (shapeshifted, no mana, ...) shows why instead of only "Casting".
-	if (br._G.GetTime() - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW and E.shouldPrintCastDebug() then
-		br.player.ui.debug("[CAST FAIL][SERVER] " .. tostring(br.api.wow.GetSpellInfo(br.botSpell))
-			.. " — game said: " .. message)
+	-- The error doesn't say which spell it's about: a spell-failed event naming one within a frame or
+	-- two does (an on-next-swing Maul failing at the swing, after BR has cast something else), so the
+	-- line waits a frame for it and falls back to BR's last cast.
+	local errorAt = br._G.GetTime()
+	if (errorAt - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW and E.shouldPrintCastDebug() then
+		local lastCastSpell = br.botSpell
+		br._G.C_Timer.After(0, function()
+			local failed = br.functions.lastCast and br.functions.lastCast.lastCastTable
+			local spellID = lastCastSpell
+			if failed and failed.lastFailedSpellID and failed.lastFailedAt and math.abs(failed.lastFailedAt - errorAt) <= 0.1 then
+				spellID = failed.lastFailedSpellID
+			end
+			br.player.ui.debug("[CAST FAIL][SERVER] " .. tostring(br.api.wow.GetSpellInfo(spellID)) .. " — game said: " .. message)
+		end)
 	end
 	local kind = rejectionKindForError(message)
 	if not kind then return end
