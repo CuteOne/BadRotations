@@ -19,23 +19,44 @@ local ignoreList = {
     [212653] = "Shimmer",
 }
 
-local function addSpell(spellID)
-    for _, v in pairs(br.player.spells.abilities) do
-        if v == spellID then
-            br._G.tinsert(tracker, 1, spellID)
-            if #tracker == 10 then
-                tracker[10] = nil
+-- Every spell ID of the profile's abilities, each rank of a rank list included. Ranked
+-- abilities are lists ({rank1, rank2, ...}), so comparing the cast's ID with each entry missed
+-- them all: on ranked clients their casts were never recorded (cast.last.time, timeSinceLast and
+-- the double-cast guard saw them as never cast). Built once the lists exist; cleared on spellbook,
+-- talent, level and spec changes (readers/common.lua).
+local abilityIDs
+local function isAbility(spellID)
+    if abilityIDs == nil then
+        local abilities = br.player and br.player.spells and br.player.spells.abilities
+        if abilities == nil then return false end
+        abilityIDs = {}
+        for _, v in pairs(abilities) do
+            if type(v) == "table" then
+                for _, rankID in ipairs(v) do abilityIDs[rankID] = true end
+            elseif v then
+                abilityIDs[v] = true
             end
-            lastCast.lastCast= spellID -- legacy support for some rotations reading this in locals
         end
     end
+    return abilityIDs[spellID] == true
+end
+
+function lastCast:clearAbilityIDs()
+    abilityIDs = nil
+end
+
+local function addSpell(spellID)
+    if not isAbility(spellID) then return end
+    br._G.tinsert(tracker, 1, spellID)
+    if #tracker == 10 then
+        tracker[10] = nil
+    end
+    lastCast.lastCast = spellID -- legacy support for some rotations reading this in locals
 end
 
 local function addCastTime(spellID)
-    for _, v in pairs(br.player.spells.abilities) do
-        if v == spellID then
-            castTime[v] = br._G.GetTime()
-        end
+    if isAbility(spellID) then
+        castTime[spellID] = br._G.GetTime()
     end
 end
 

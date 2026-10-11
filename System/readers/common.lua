@@ -565,6 +565,7 @@ function common:commonReaders()
 		then
 			br.functions.cast:clearSpellFacts()
 			br.functions.spell:clearRankCache()
+			br.functions.lastCast:clearAbilityIDs()
 		end
 	end
 	superReaderFrame:SetScript("OnEvent", SuperReader)
