@@ -38,6 +38,7 @@ local function rotationLine()
     end
     return ""
 end
+elementOptions.rotationLine = rotationLine
 
 --- Prints a mistake in red at the rotation file's line ("Druid-Forever.lua:72: ...").
 function elementOptions.problem(message)
