@@ -315,7 +315,7 @@ function common:commonReaders()
 			-- Cast Debug: when auto attack stops mid-fight (a queued Maul / Heroic Strike goes with it,
 			-- "Interrupted"), say what was going on, so the cause can be told from the log
 			if event == "PLAYER_LEAVE_COMBAT" and br._G.UnitAffectingCombat("player") and br.player and br.player.ui
-				and (br.functions.misc:isChecked("Cast Debug") or br.functions.misc:isChecked("Display Failcasts"))
+				and br.functions.misc:isChecked("Cast Debug") -- a diagnostic: Cast Debug only
 			then
 				local unit, misc = br.functions.unit, br.functions.misc
 				local target = "no target"

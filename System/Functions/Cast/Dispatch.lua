@@ -28,6 +28,13 @@ local REPORT_CODES = {
 	["Cast Failed"]           = "CAST_FAILED",
 }
 
+-- Refusals that are part of normal play, not a problem
+local EXPECTED_REPORTS = {
+	["No Unit"] = true, ["Below Min Units"] = true, ["Below Min Units Facing"] = true,
+	["Below Min Units Cone"] = true, ["Below Min Units Rect"] = true, ["No Range"] = true,
+	["Not Safe"] = true, ["Invalid Unit"] = true, ["No Control"] = true,
+}
+
 function E.printReport(ctx, debugOnly, debugReason, thisCount)
 	if debugReason == nil then debugReason = "" end
 	local thisUnit, spellID, minUnits, effectRng = ctx.unit, ctx.spellID, ctx.minUnits, ctx.effectRng
@@ -45,9 +52,9 @@ function E.printReport(ctx, debugOnly, debugReason, thisCount)
 	E.recordRefusal(spellID, reasonCode, refusalDetail)
 	if ctx.debug then return false end -- never print for cast.able checks
 	local prefix = "[CAST FAIL][" .. reasonCode .. "] "
-	if (br.functions.misc:isChecked("Display Failcasts") and not debugOnly)
-		or br.functions.misc:isChecked("Cast Debug")
-	then
+	-- Routine refusals (no unit, not enough units, out of range, unsafe, out of sight, crowd controlled)
+	-- show with Cast Debug only; the rest (cast failed, not dead, ...) with Display Failcasts too
+	if E.showRefusal(debugOnly or EXPECTED_REPORTS[debugReason] == true) then
 		if debugReason == "No Unit" then
 			br.player.ui.debug(prefix .. ctx.spellName .. " — no unit found in " .. ctx.maxRange .. " yrds.")
 		elseif debugReason == "Below Min Units" then

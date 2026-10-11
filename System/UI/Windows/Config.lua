@@ -186,8 +186,8 @@ function br.ui:createConfigWindow()
         br.ui:dropdown(section, "Addon Debug Messages", { choices = { "System Only", "Profile Only", "All" }, value = "All",
             tip = "Check this to display developer debug messages." })
         br.ui:checkbox(section, "Target Validation Debug", { tip = "Check this to display current target's validation." })
-        br.ui:checkbox(section, "Display Failcasts", { tip = "Dispaly Failcasts in Debug." })
-        br.ui:checkbox(section, "Cast Debug", { tip = "Shows information about how the bot is casting." })
+        br.ui:checkbox(section, "Display Failcasts", { tip = "Show casts that failed for a reason worth fixing (not enough power, wrong form, a cast the game rejected). Expected refusals (out of range, target died, not enough targets) are left out." })
+        br.ui:checkbox(section, "Cast Debug", { tip = "Troubleshooting: show every cast refusal and check, including the expected ones (tagged as expected)." })
         br.ui:checkbox(section, "Threat Debug", { tip = "Shows information about threat and threat changes." })
 
         section = br.ui:section("Developer Options", { window = br.ui.window.config })

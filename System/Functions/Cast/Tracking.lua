@@ -107,6 +107,24 @@ end
 
 E.castTimers = nil -- per-spell cast throttle; created on first createCastFunction call
 
+-- Why a game refusal is expected (the fight caused it, or BR already handles it), or nil when it
+-- points at a problem worth seeing. Unknown messages count as problems, so nothing new is hidden.
+function E.expectedRefusal(message, castGUID)
+	local kind = rejectionKindForError(message)
+	if kind == "aura" then return "a stronger aura is active; BR leaves the spell until it ends" end
+	if kind == "los" then return "out of sight; BR waits until the unit is back in view" end
+	if kind == "facing" then return "not facing; BR turns to other units meanwhile" end
+	if kind == "range" then return "out of range" end
+	if message == errorText("SPELL_FAILED_INTERRUPTED", "Interrupted") then
+		-- An on-next-swing attack is dropped when the target dies or changes, or auto attack stops
+		local unit = castGUID and br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(castGUID)
+		if unit == nil or br.functions.unit:GetUnitIsDeadOrGhost(unit) then return "the target died" end
+		if br._G.UnitGUID("target") ~= castGUID then return "the target changed" end
+		return "interrupted by movement or the fight"
+	end
+	return nil
+end
+
 -- Called from the UI_ERROR_MESSAGE reader. Records the refusal against BR's most
 -- recent cast and frees that spell's throttles so the rotation can use it on
 -- another unit straight away.
@@ -119,15 +137,18 @@ function cast:handleCastError(message)
 	-- two does (an on-next-swing Maul failing at the swing, after BR has cast something else), so the
 	-- line waits a frame for it and falls back to BR's last cast.
 	local errorAt = br._G.GetTime()
-	if (errorAt - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW and E.shouldPrintCastDebug() then
-		local lastCastSpell = br.botSpell
+	if (errorAt - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW and (E.castDebugOn() or E.showRefusal(false)) then
+		local lastCastSpell, lastCastGUID = br.botSpell, br.botGUID
 		br._G.C_Timer.After(0, function()
 			local failed = br.functions.lastCast and br.functions.lastCast.lastCastTable
 			local spellID = lastCastSpell
 			if failed and failed.lastFailedSpellID and failed.lastFailedAt and math.abs(failed.lastFailedAt - errorAt) <= 0.1 then
 				spellID = failed.lastFailedSpellID
 			end
-			br.player.ui.debug("[CAST FAIL][SERVER] " .. tostring(br.api.wow.GetSpellInfo(spellID)) .. " — game said: " .. message)
+			local expected = E.expectedRefusal(message, lastCastGUID)
+			if not E.showRefusal(expected ~= nil) then return end
+			br.player.ui.debug("[CAST FAIL][SERVER] " .. tostring(br.api.wow.GetSpellInfo(spellID)) .. " — game said: " .. message
+				.. (expected and (" (expected: " .. expected .. ")") or ""))
 		end)
 	end
 	local kind = rejectionKindForError(message)
@@ -287,8 +308,16 @@ function E.affordableAfterPromised(spellID)
 	return true
 end
 
-function E.shouldPrintCastDebug()
-	return br.functions.misc and (br.functions.misc:isChecked("Cast Debug") or br.functions.misc:isChecked("Display Failcasts"))
+-- The two debug options:
+--   Cast Debug         every refusal and check, routine ones tagged, for troubleshooting
+--   Display Failcasts  only refusals that point at a problem (a profile, BR, or the setup)
+function E.castDebugOn()
+	return br.functions.misc ~= nil and br.functions.misc:isChecked("Cast Debug")
+end
+-- Whether to show a refusal: always with Cast Debug; with Display Failcasts unless it's expected
+function E.showRefusal(expected)
+	if E.castDebugOn() then return true end
+	return not expected and br.functions.misc ~= nil and br.functions.misc:isChecked("Display Failcasts")
 end
 
 function E.setCastIntentLock(spellID, duration)

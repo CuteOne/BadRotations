@@ -61,7 +61,7 @@ function cast:getRefusal(spellName)
 end
 
 local function emitGateDebug(spellID, spellName, reason, detail)
-	if not E.shouldPrintCastDebug() then return end
+	if not E.castDebugOn() then return end -- gate refusals (on cooldown, GCD, ...) are routine
 	local now = br._G.GetTime()
 	if now < E.gateDebugSilentUntil then return end
 	local key = spellID .. reason
