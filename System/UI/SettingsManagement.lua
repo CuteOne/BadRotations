@@ -352,6 +352,7 @@ function settingsManagement:registerAllOptions()
 		for _, failMsg in ipairs(failedPages) do br._G.print("|cffFF8800  - " .. failMsg .. "|r") end
 		return false
 	end
+	if pagesRun > 0 then br.functions.misc:checkKeyClashes() end
 	return pagesRun > 0
 end
 

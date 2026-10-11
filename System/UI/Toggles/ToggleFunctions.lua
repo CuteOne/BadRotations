@@ -513,6 +513,7 @@ function br.ui:toggleKeys()
     local keys = br.ui.dropOptions.Toggle
     local section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
     for _, toggle in ipairs(declaredToggles) do
+        br.functions.misc:registerKeyOption(toggle.name .. " Mode")
         br.ui:createDropdownWithout(section, toggle.name .. " Mode", keys, br.ui.elementOptions.indexOf(keys, toggle.key or "None"),
             br.ui.elementOptions.white("Key that cycles the " .. toggle.name .. " toggle"))
     end

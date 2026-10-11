@@ -108,6 +108,7 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
         "OnValueChanged",
         function(this, event, key, value, selection)
             data[text .. " Drop"] = key
+            if br.functions.misc:isKeyOption(text) then br.functions.misc:checkKeyClashes() end
         end
     )
     -- Event: Tooltip
@@ -179,6 +180,7 @@ function br.ui:dropdown(section, name, options)
         local shownValue = type(options.value) == "string" and ("\"" .. options.value .. "\"") or tostring(options.value)
         return elementOptions.problem(what .. ": value " .. shownValue .. " is not one of its choices")
     end
+    if options.choices == "Toggle" then br.functions.misc:registerKeyOption(name) end
     local white = elementOptions.white
     local shown = {}
     for i, choice in ipairs(choices) do shown[i] = white(choice) end

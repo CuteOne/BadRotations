@@ -1057,6 +1057,44 @@ local fallbackPages = {}    -- pages found by searching before the option was re
 local missingOptions = {}   -- [option key] = time it was last searched for and not found
 local missingSettings       -- the settings table missingOptions belongs to
 local warnedDuplicates = {}
+local keyOptions = {}       -- [option name] = true for options whose value is a key (br.ui.dropOptions.Toggle)
+local warnedKeyClashes = {}
+
+--- Records an option whose value is a key from br.ui.dropOptions.Toggle (toggle keys, Pause Mode,
+-- keys a profile reads with ui.toggle), so checkKeyClashes can find two options on one key.
+function misc:registerKeyOption(name)
+	if name ~= nil then keyOptions[name] = true end
+end
+
+function misc:isKeyOption(name)
+	return keyOptions[name] == true
+end
+
+--- Warns (once per combination) when two key options use the same key: keys are read while held, so
+-- holding it would do both (cycle a toggle and pause, say).
+function misc:checkKeyClashes()
+	local keys = br.ui.dropOptions and br.ui.dropOptions.Toggle
+	if keys == nil then return end
+	local byKey = {}
+	for name in pairs(keyOptions) do
+		local key = keys[misc:getOptionValue(name)]
+		if key ~= nil and key ~= "None" then
+			byKey[key] = byKey[key] or {}
+			byKey[key][#byKey[key] + 1] = name
+		end
+	end
+	for key, names in pairs(byKey) do
+		if #names > 1 then
+			table.sort(names)
+			local text = key .. ": " .. table.concat(names, ", ")
+			if not warnedKeyClashes[text] then
+				warnedKeyClashes[text] = true
+				br._G.print("|cffFF0000Key " .. key .. " is set for " .. table.concat(names, " and ")
+					.. ". Holding it does all of them; give one a different key.|r")
+			end
+		end
+	end
+end
 
 --- Records an option's page and default (called by the UI elements).
 -- The first page an option is created on wins; another page with the same option is reported once.
@@ -1081,6 +1119,7 @@ function misc:resetOptionIndex()
 	optionDefaults = {}
 	fallbackPages = {}
 	missingOptions = {}
+	keyOptions = {}
 end
 
 --- Page -> { option key -> default } for every registered option (used by the save guard).
