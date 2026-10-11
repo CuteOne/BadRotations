@@ -3,6 +3,17 @@ local _, br = ...
 br.functions.item = br.functions.item or {}
 local item = br.functions.item
 
+-- Potions found in the bags, per name match ("Heal", "Mana"), best first; rebuilt after the bags change
+local potionCandidates = {}
+do
+	local bagWatch = br._G.CreateFrame("Frame")
+	local watching = pcall(bagWatch.RegisterEvent, bagWatch, "BAG_UPDATE_DELAYED")
+	if watching then
+		bagWatch:SetScript("OnEvent", function() br._G.wipe(potionCandidates) end)
+	end
+	item.watchingBags = watching
+end
+
 -- if br.functions.item:canUseItem(1710) then
 function item:canUseItem(itemID)
 	if type(itemID) == "table" then itemID = self:getHighestHeldRank(itemID) end
@@ -33,21 +44,30 @@ end
 -- Best usable potion in the bags whose name contains both nameMatch and "Potion" (e.g. "Heal", "Mana").
 -- Matches the Consumable item class and the name, since localized subtype strings differ between flavors.
 -- local potion = br.functions.item:getBestPotion("Heal")
+-- The best usable potion in the bags whose name contains nameMatch ("Heal", "Mana"), or nil. The bags
+-- are read once per change (BAG_UPDATE_DELAYED); whether a potion can be used is asked each time.
+-- local itemID = br.functions.item:getBestPotion("Heal")
 function item:getBestPotion(nameMatch)
-	local candidates = {}
-	for bag = 0, 4 do
-		for slot = 1, br._G.C_Container.GetContainerNumSlots(bag) do
-			local itemID = br._G.C_Container.GetContainerItemID(bag, slot)
-			if itemID ~= nil then
-				local itemName, _, _, itemLevel = br._G.C_Item.GetItemInfo(itemID)
-				local classID = select(6, br._G.C_Item.GetItemInfoInstant(itemID))
-				if itemName and classID == 0 and itemName:find("Potion", 1, true) and itemName:find(nameMatch, 1, true) then
-					candidates[#candidates + 1] = { itemID = itemID, itemLevel = itemLevel or 0 }
+	local candidates = item.watchingBags and potionCandidates[nameMatch] or nil
+	if candidates == nil then
+		candidates = {}
+		local complete = true -- false when an item's info isn't loaded yet: scan again next time
+		for bag = 0, 4 do
+			for slot = 1, br._G.C_Container.GetContainerNumSlots(bag) do
+				local itemID = br._G.C_Container.GetContainerItemID(bag, slot)
+				if itemID ~= nil then
+					local itemName, _, _, itemLevel = br._G.C_Item.GetItemInfo(itemID)
+					if itemName == nil then complete = false end
+					local classID = select(6, br._G.C_Item.GetItemInfoInstant(itemID))
+					if itemName and classID == 0 and itemName:find("Potion", 1, true) and itemName:find(nameMatch, 1, true) then
+						candidates[#candidates + 1] = { itemID = itemID, itemLevel = itemLevel or 0 }
+					end
 				end
 			end
 		end
+		table.sort(candidates, function(a, b) return a.itemLevel > b.itemLevel end)
+		if complete then potionCandidates[nameMatch] = candidates end
 	end
-	table.sort(candidates, function(a, b) return a.itemLevel > b.itemLevel end)
 	for i = 1, #candidates do
 		if item:canUseItem(candidates[i].itemID) then return candidates[i].itemID end
 	end

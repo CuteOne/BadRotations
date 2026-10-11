@@ -29,7 +29,7 @@ br.api.module = function(self)
             -- br.ui:createSpinner(section, "Minimum Keystone to Auto Use", 2, 2, 30, 1, "|cffFFFFFFMinimum keystone number of the key before submitting it. ")
         end
         if section == nil then
-            if br.functions.misc:getModuleOption("Auto Mythic+ Keystone", "Check") then
+            if br.functions.misc:getModuleOption("Auto Mythic+ Keystone", "Check") and var.autoKeystone == nil then
                 var.autoKeystone = br._G.CreateFrame("Frame")
                 var.autoKeystone:RegisterEvent("ADDON_LOADED")
                 var.autoKeystone:SetScript("OnEvent", function(self, event, addon)
@@ -78,7 +78,14 @@ br.api.module = function(self)
         if section == nil then
             -- Health Potion / Stones
             if ui.checked("Healthstone/Potion") and unit.inCombat() and unit.hp() <= ui.value("Healthstone/Potion") then
-                --Health Pot should be first since it's the greatest heal; healthstones second
+                -- Healthstone first: it doesn't share the potion's cooldown, so the potion stays ready for
+                -- a second emergency
+                if use.able.healthstone() and has.healthstone() then
+                    if use.healthstone() then
+                        ui.debug("Using Healthstone")
+                        return true
+                    end
+                end
                 local healPot = br.functions.item:getBestPotion("Heal")
                 if healPot ~= nil and has.item(healPot) and br.functions.item:canUseItem(healPot) then
                     if use.item(healPot) then
@@ -86,20 +93,6 @@ br.api.module = function(self)
                         return true
                     end
                 end
-                -- Lock Candy
-                if use.able.healthstone() and has.healthstone() then
-                    if use.healthstone() then
-                        ui.debug("Using Healthstone")
-                        return true
-                    end
-                end
-                --Legion Healthstone
-                -- if use.able.legionHealthstone() and has.legionHealthstone() then
-                --     if use.legionHealthstone() then
-                --         ui.debug("Using Legion Healthstone")
-                --         return true
-                --     end
-                -- end
             end
             -- Mana Potion
             if ui.checked("Mana Potion") and unit.inCombat() and br.functions.unit:usesMana() then
@@ -263,20 +256,6 @@ br.api.module = function(self)
                 return true
             end
         end
-    end
-
-    --- ImbueUp Module - Weapon imbuement runes (Dragonflight). Not implemented; creates no options and does nothing.
-    -- @function module.ImbueUp
-    -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
-    module.ImbueUp = function(section)
-        return
-    end
-
-    --- PhialUp Module - Dragonflight phials. Not implemented; creates no options and does nothing.
-    -- @function module.PhialUp
-    -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
-    module.PhialUp = function(section)
-        return
     end
 
     --- Racial Module - Uses the player's racial abilities based on the options set in the Profile Options.
