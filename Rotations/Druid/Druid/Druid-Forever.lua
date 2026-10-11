@@ -734,10 +734,9 @@ actionList.BearForm = function()
             return true
         end
     end
-    -- Demoralizing Roar
-    if cast.able.demoralizingRoar() and not debuff.demoralizingRoar.exists(units.dyn5)
-        and #enemies.yards10 > 0
-    then
+    -- Demoralizing Roar: when any enemy in reach needs it, not just the target (a mob joining later
+    -- gets it too). The cast system won't roar while a mob that isn't fighting us is in reach.
+    if cast.able.demoralizingRoar() and #enemies.yards10 > 0 and debuff.demoralizingRoar.refreshCount(10) > 0 then
         if cast.demoralizingRoar() then
             ui.debug("Casting Demoralizing Roar")
             return true
