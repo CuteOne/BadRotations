@@ -178,6 +178,10 @@ function engines.Update(frame, elapsed)
                 if br.unlocked and br.functions.misc:isChecked("Smart Queue") then
                     br.functions.SmartQueue:smartQueue()
                 end
+                -- Healing Engine: before the profile runs, so heal decisions see this tick's group health
+                if br.functions.misc:isChecked("HE Active") then
+                    br.engines.healingEngine.friend:Update()
+                end
                 -- Update Player
                 if br.player ~= nil and (not br._G.CanExitVehicle() or (br.functions.unit:GetUnitExists("target") and br.functions.range:getDistance("target") < 5)) then
                     br.player:update()
@@ -185,10 +189,6 @@ function engines.Update(frame, elapsed)
                 -- Automatic catch the pig
                 if br.functions.misc:getOptionCheck("Freehold - Pig Catcher") or br.functions.misc:getOptionCheck("De Other Side - Bomb Snatcher") then
                     br.misc.Zu:bossHelper()
-                end
-                -- Healing Engine
-                if br.functions.misc:isChecked("HE Active") then
-                    br.engines.healingEngine.friend:Update()
                 end
                 -- Auto Loot
                 br.engines.lootEngine:autoLoot()
