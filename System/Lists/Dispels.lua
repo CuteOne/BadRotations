@@ -40,3 +40,23 @@ br.lists.dispell = {
 	[144351] = "Magic",[333227] = "Undying Rage",[326450] = "Loyal Beasts",[320012] = "Unholy Frenzy",
 	[333241] = "Raging Tantrum"
 }
+
+-- What each class's dispels remove, by spell list key ("" = Enrage). canDispel looks the spell up in the
+-- player's own spells, so a key covers every rank and each client's ID.
+br.lists.dispelTypes = {
+	PALADIN     = { cleanse = { "Poison", "Disease", "Magic" }, cleanseToxins = { "Poison", "Disease" }, purify = { "Poison", "Disease" } },
+	HUNTER      = { tranquilizingShot = { "Magic", "" } },
+	ROGUE       = { cloakOfShadows = { "Poison", "Curse", "Disease", "Magic" }, shiv = { "" } },
+	PRIEST      = { purify = { "Disease", "Magic" }, purifyDisease = { "Disease" }, cureDisease = { "Disease" },
+		abolishDisease = { "Disease" }, dispelMagic = { "Magic" }, massDispel = { "Magic" } },
+	SHAMAN      = { cleanseSpirit = { "Curse" }, purifySpirit = { "Curse", "Magic" }, purge = { "Magic" },
+		curePoison = { "Poison" }, cureDisease = { "Disease" } },
+	MAGE        = { removeCurse = { "Curse" }, removeLesserCurse = { "Curse" } },
+	WARLOCK     = { devourMagic = { "Magic" } },
+	MONK        = { detox = { "Poison", "Disease" } },
+	DRUID       = { abolishPoison = { "Poison" }, curePoison = { "Poison" }, removeCurse = { "Curse" },
+		removeCorruption = { "Poison", "Curse" }, naturesCure = { "Poison", "Curse", "Magic" }, soothe = { "" } },
+	DEMONHUNTER = { consumeMagic = { "Magic" } },
+	EVOKER      = { expunge = { "Poison" }, cauterizingFlame = { "Bleed", "Poison", "Curse", "Disease" },
+		naturalize = { "Magic", "Poison" } },
+}
