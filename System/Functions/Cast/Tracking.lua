@@ -279,8 +279,7 @@ function E.affordableAfterPromised(spellID)
 		end
 		if promised > 0 then
 			local current = br._G.UnitPower("player", cost.type)
-			local secret = br._G.issecretvalue and br._G.issecretvalue(current)
-			if type(current) == "number" and not secret and current - promised < cost.amount then
+			if type(current) == "number" and br.functions.misc:canUseValue(current) and current - promised < cost.amount then
 				return false, string.format("power %d, %d promised to earlier casts, cost %d", current, promised, cost.amount)
 			end
 		end

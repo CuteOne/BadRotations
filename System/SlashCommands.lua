@@ -486,6 +486,10 @@ local function handler(message, editbox)
 			local label = tostring(entry.name) .. " (" .. tostring(entry.spellID) .. ")"
 			if entry.refusedAt then
 				local detail = entry.detail and (": " .. tostring(entry.detail)) or ""
+				-- A detail made from a secret value would hide the whole line when printed
+				if br._G.issecretvalue and (br._G.issecretvalue(entry.detail) or br._G.issecretvalue(detail)) then
+					detail = ": (details are a value the game keeps secret)"
+				end
 				br._G.print(string.format("|cffFFDD11[BadRotations]|r %s last refused %.1fs ago — |cFFFF0000%s|r%s",
 					label, now - entry.refusedAt, tostring(entry.reason), detail))
 			else

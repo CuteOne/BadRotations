@@ -15,6 +15,15 @@ function misc:getLatency()
 	return lag
 end
 
+-- Whether BR may use a value (compare it, do arithmetic with it). On clients with secret values,
+-- canaccessvalue answers that; issecretvalue is true even for values BR's protected scripts may
+-- use (measured on Forever), so it only decides whether a value can be shown in chat.
+function misc:canUseValue(value)
+	if br._G.canaccessvalue then return br._G.canaccessvalue(value) and true or false end
+	if br._G.issecretvalue then return not br._G.issecretvalue(value) end
+	return true
+end
+
 -- Home latency (to the realm server) in seconds, unclamped.
 function misc:getHomeLatency()
 	return (select(3, br._G.GetNetStats()) or 0) / 1000
