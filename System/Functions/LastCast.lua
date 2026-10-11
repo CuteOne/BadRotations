@@ -13,36 +13,49 @@ local failedTime = lastCast.lastCastTable.failedTime
 local waitForSuccess
 local lastCastFrame = br._G.CreateFrame("Frame")
 
-local ignoreList = {
-    [2139] = "Counterspell",
-    [11426] = "Ice Barrier",
-    [212653] = "Shimmer",
-}
+-- Spells (spell list keys) whose casts aren't tracked at all
+local IGNORED = { "counterspell", "iceBarrier", "shimmer" }
 
 -- Every spell ID of the profile's abilities, each rank of a rank list included. Ranked
 -- abilities are lists ({rank1, rank2, ...}), so comparing the cast's ID with each entry missed
 -- them all: on ranked clients their casts were never recorded (cast.last.time, timeSinceLast and
 -- the double-cast guard saw them as never cast). Built once the lists exist; cleared on spellbook,
 -- talent, level and spec changes (readers/common.lua).
-local abilityIDs
-local function isAbility(spellID)
-    if abilityIDs == nil then
-        local abilities = br.player and br.player.spells and br.player.spells.abilities
-        if abilities == nil then return false end
-        abilityIDs = {}
-        for _, v in pairs(abilities) do
-            if type(v) == "table" then
-                for _, rankID in ipairs(v) do abilityIDs[rankID] = true end
-            elseif v then
-                abilityIDs[v] = true
-            end
+local abilityIDs, ignoredIDs
+local function buildAbilityIDs()
+    local abilities = br.player and br.player.spells and br.player.spells.abilities
+    if abilities == nil then return false end
+    abilityIDs, ignoredIDs = {}, {}
+    for _, v in pairs(abilities) do
+        if type(v) == "table" then
+            for _, rankID in ipairs(v) do abilityIDs[rankID] = true end
+        elseif v then
+            abilityIDs[v] = true
         end
     end
+    for _, key in ipairs(IGNORED) do
+        local v = abilities[key]
+        if type(v) == "table" then
+            for _, rankID in ipairs(v) do ignoredIDs[rankID] = true end
+        elseif v then
+            ignoredIDs[v] = true
+        end
+    end
+    return true
+end
+
+local function isAbility(spellID)
+    if abilityIDs == nil and not buildAbilityIDs() then return false end
     return abilityIDs[spellID] == true
 end
 
+local function isIgnored(spellID)
+    if ignoredIDs == nil and not buildAbilityIDs() then return false end
+    return ignoredIDs[spellID] == true
+end
+
 function lastCast:clearAbilityIDs()
-    abilityIDs = nil
+    abilityIDs, ignoredIDs = nil, nil
 end
 
 local function addSpell(spellID)
@@ -63,7 +76,7 @@ end
 local function eventTracker(_, event, ...)
     local sourceUnit = select(1, ...)
     local spellID = event == "UNIT_SPELLCAST_SENT" and select(4, ...) or select(3, ...)
-    if sourceUnit == "player" and br.player and not ignoreList[spellID] then
+    if sourceUnit == "player" and br.player and not isIgnored(spellID) then
         if event == "UNIT_SPELLCAST_SENT" or event == "UNIT_SPELLCAST_START"
             or event == "UNIT_SPELLCAST_CHANNEL_START" --or event == "UNIT_SPELLCAST_EMPOWER_START"
         then
