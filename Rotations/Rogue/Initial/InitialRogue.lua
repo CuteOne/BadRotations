@@ -9,8 +9,8 @@ local function toggles()
         { name = "Off", icon = "sinisterStrike", overlay = "Rotation Disabled", tip = "Disable Rotation" },
     } })
     br.ui:toggle("Defensive", { modes = {
-        { name = "On", icon = "evasion", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
-        { name = "Off", icon = "evasion", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+        { name = "On", icon = "crimsonVial", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "crimsonVial", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
     br.ui:toggle("Interrupt", { modes = {
         { name = "On", icon = "kick", overlay = "Interrupts Enabled", tip = "Use Interrupt Abilities" },
@@ -39,8 +39,8 @@ local function options()
     --- DEFENSIVE OPTIONS ---
     -------------------------
     section = br.ui:section("Defensive")
-    -- Evasion
-    br.ui:spinner(section, "Evasion", { value = 70, tip = "Health Percent to Cast At" })
+    -- Crimson Vial
+    br.ui:spinner(section, "Crimson Vial", { value = 70, tip = "Health Percent to Cast At" })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
@@ -83,10 +83,10 @@ end
 --------------------
 -- Action List - Extras
 actionList.Extras = function()
-    -- Deadly Poison
-    if cast.able.deadlyPoison() and not buff.deadlyPoison.exists() then
-        if cast.deadlyPoison() then
-            ui.debug("Casting Deadly Poison")
+    -- Instant Poison (Deadly Poison is Assassination's; before a spec this is the rogue's poison)
+    if cast.able.instantPoison() and not buff.instantPoison.exists() then
+        if cast.instantPoison() then
+            ui.debug("Casting Instant Poison")
             return true
         end
     end
@@ -102,11 +102,11 @@ actionList.Extras = function()
 end
 -- Action List - Defensive
 actionList.Defensive = function()
-    --Evasion
-    if unit.level() >= 8 and ui.checked("Evasion") then
-        if cast.able.evasion() and unit.inCombat() and unit.hp() <= ui.value("Evasion") then
-            if cast.evasion() then
-                ui.debug("Casting Evasion")
+    -- Crimson Vial (Evasion is a talent, so not there before a spec)
+    if ui.checked("Crimson Vial") then
+        if cast.able.crimsonVial() and unit.inCombat() and unit.hp() <= ui.value("Crimson Vial") then
+            if cast.crimsonVial() then
+                ui.debug("Casting Crimson Vial")
                 return true
             end
         end
