@@ -4,8 +4,9 @@ local DiesalStyle = _G.LibStub("DiesalStyle-1.0")
 local _, br = ...
 -- Hides a checkbox that's only there to hold its row's spacing (text lines, and spinners, dropdowns
 -- and edit boxes made without a checkbox): unticks a saved tick, disables it, and makes the whole frame
--- invisible. Releasing the style textures alone left the box itself showing as a grey square on the
--- Retail-based clients; the frame stays in place so the layout doesn't move.
+-- invisible. Disable() paints the box's own check texture grey, which releasing the style textures
+-- doesn't remove, so it showed as a grey square. The frame stays in place so the layout doesn't move;
+-- createCheckbox makes a reused frame visible again.
 function br.ui:hideCheckbox(checkBox, savedValue)
     if savedValue == true or savedValue == 1 then checkBox:SetChecked(false) end
     checkBox:Disable()
@@ -48,6 +49,9 @@ function br.ui:createCheckbox(parent, text, tooltip, checked, layoutOnly)
     --------Create CheckBox--------
     -------------------------------
     local checkBox = DiesalGUI:Create("CheckBox")
+    -- DiesalGUI reuses released checkboxes; one may have been a hidden spacer (br.ui:hideCheckbox)
+    checkBox.frame:SetAlpha(1)
+    checkBox.frame:EnableMouse(true)
 
     checkBox:SetParent(parent.content)
     checkBox:SetPoint("TOPLEFT", parent.content, "TOPLEFT", 5, Y)
