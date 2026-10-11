@@ -16,7 +16,6 @@ function Player:new(spec)
 	self.actionList = {}                                    -- Action Lists
 	self.class = select(2, br._G.UnitClass("player"))       -- Class (non-localised)
 	self.glyph = {}                                         -- Glyphs
-	self.opener = {}                                        -- Opener flag tracking
 	self.pandemic = {}                                      -- Base Duration per Unit/Debuff (combat log reader)
 	self.pet = {}                                           -- Pet Information Table
 	self.pet.list = {}                                      -- Table of Pets
@@ -131,8 +130,10 @@ function Player:startRotation()
 	end
 
 	if self.rotation ~= nil and self.rotation.run ~= nil then
+		br.functions.cast:openerBeginPass()
 		self:runModules()
 		self.rotation.run()
+		br.functions.cast:openerEndPass()
 	else
 		return
 	end

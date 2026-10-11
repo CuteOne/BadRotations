@@ -67,6 +67,11 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 		E.recordRefusal(spellID, "ALREADY_CASTING", "casting it, outside the queue window")
 		return false
 	end
+	-- An opener step is waiting: nothing after it in the rotation goes first
+	if E.openerHolds and E.openerHolds() then
+		E.recordRefusal(spellID, "OPENER", "an opener step is waiting its turn")
+		return false
+	end
 	-- Intent lock prevents rapid recasting (skipped for cast.able checks).
 	if not debug and E.isCastIntentLocked(spellID) then
 		E.recordRefusal(spellID, "INTENT_LOCK", "just cast; settling")

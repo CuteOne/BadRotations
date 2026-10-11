@@ -105,45 +105,6 @@ function cast:shouldNotOverheal(Unit)
 	end
 end
 
--- Used in openers
-function cast:castOpener(spellIndex, flag, index, checkdistance)
-	local spellCast = br.player.spells[spellIndex]
-	local castable = br.player.cast.able[spellIndex]
-	local castSpell = br.player.cast[spellIndex]
-	local spellName = select(1, br.api.wow.GetSpellInfo(spellCast))
-	local maxRange = select(6, br.api.wow.GetSpellInfo(spellCast))
-	local cooldown = br.player.cd[spellIndex].remain()
-	if not maxRange or maxRange == 0 then maxRange = 5 end
-	if checkdistance == nil then checkdistance = true end
-	if not checkdistance or br.functions.range:getDistance("target") < maxRange then
-		if (not castable() and (cooldown == 0 or cooldown > br.player.state.gcdMax)) then
-			br.functions.cast:castOpenerFail(spellName, flag, index)
-			-- Print(index..": "..spellName.." (Uncastable)");
-			-- br._G[flag] = true;
-			-- return true
-		else
-			if castSpell() then
-				if br.player.opener[flag] == nil then
-					br._G.print(index .. ": " .. spellName)
-					br.player.opener[flag] = true
-				elseif br.player.opener[flag] ~= true then
-					br._G.print(index .. ": " .. spellName)
-					br.player.opener[flag] = true
-				end
-				return true
-			end
-		end
-	end
-end
-
-function cast:castOpenerFail(spellName, flag, index)
-	if br.player.opener[flag] == nil then
-		br._G.print(index .. ": " .. spellName .. " (Uncastable)")
-		br.player.opener[flag] = true
-	end
-	return true
-end
-
 function cast:isCastingTime(lagTolerance)
 	lagTolerance = lagTolerance or 0
 	if br._G.UnitCastingInfo("player") ~= nil then

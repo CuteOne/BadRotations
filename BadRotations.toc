@@ -78,6 +78,7 @@ System\Functions\Cast\Helpers.lua
 System\Functions\Cast\Gates.lua
 System\Functions\Cast\Dispatch.lua
 System\Functions\Cast\CastFunction.lua
+System\Functions\Cast\Opener.lua
 System\Functions\Combat.lua
 System\Functions\Custom.lua
 System\Functions\InFlight.lua

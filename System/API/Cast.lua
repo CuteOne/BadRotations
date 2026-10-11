@@ -301,29 +301,33 @@ br.api.cast = function(self, spell, id)
         return br.functions.combat:hasNoControl(currentRank())
     end
 
-    --- Casts a spell as a step of an opener and marks the step done.
-    -- @function cast.opener
-    -- @string thisSpell The spell's key in the spell list.
-    -- @string thisTracker The opener step's flag name (br.player.opener[thisTracker]).
-    -- @number thisCount The step number, shown in chat.
-    -- @bool[opt=true] checkDistance Only cast when the target is in the spell's range.
+    --- Casts a spell as one step of an opener: same arguments and result as cast.spell (true when
+    -- the cast is sent). Write the opener as ordinary priority lines; the steps go in the order
+    -- they're called in. A step that's done or skipped lets the next line run; the current step
+    -- casts when it can, and while it waits every cast after it in the rotation is refused, so
+    -- nothing jumps in (lines above the opener still run); later steps wait their turn. A step is
+    -- done when the game confirms the cast, and skipped when the spell isn't known, its cooldown
+    -- won't be up in time, or it can't be cast for about two GCDs. A step whose condition is false
+    -- is passed over. The opener resets out of combat without a target, or on a new target.
+    -- @function cast.opener.spell
     -- @treturn boolean
+    -- @usage
+    -- if not debuff.rake.exists("target") then
+    --     if cast.opener.rake() then ui.debug("Casting Rake [Opener]") return true end
+    -- end
     if cast.opener == nil then
-        cast.opener = function(thisSpell, thisTracker, thisCount, checkDistance)
-            return br.functions.cast:castOpener(thisSpell, thisTracker, thisCount, checkDistance)
-        end
+        cast.opener = {}
+        --- True once the opener has run all its steps (until it resets).
+        -- @function cast.opener.done
+        -- @treturn boolean
+        cast.opener.done = function() return br.functions.cast:isOpenerDone() end
+        --- True while an opener is under way: started and not finished.
+        -- @function cast.opener.active
+        -- @treturn boolean
+        cast.opener.active = function() return br.functions.cast:isOpenerActive() end
     end
-
-    --- Marks an opener step done when its spell can't be cast.
-    -- @function cast.openerFail
-    -- @string thisSpell The spell's name, shown in chat.
-    -- @string thisTracker The opener step's flag name.
-    -- @number thisCount The step number, shown in chat.
-    -- @treturn boolean
-    if cast.openerFail == nil then
-        cast.openerFail = function(thisSpell, thisTracker, thisCount)
-            return br.functions.cast:castOpenerFail(thisSpell, thisTracker, thisCount)
-        end
+    cast.opener[spell] = function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        return br.functions.cast:openerStep(spell, id, cast[spell], thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
     end
 
     --- Checks if specified power requirements are not met.
