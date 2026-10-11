@@ -347,6 +347,15 @@ function E.dispatchAoE(ctx, thisUnit, castType, minUnits, effectRng, enemies, de
 end
 
 function E.dispatchST(ctx, thisUnit, castType, minUnits, enemies, debug)
+	-- A harmful spell with no range, cast on the player, hits everything around the player
+	-- (Demoralizing Roar, Thunder Clap): it gets the AoE safety check, so it doesn't pull neutral or
+	-- not-yet-engaged mobs standing nearby. Without a radius from the call, 10 yards.
+	if thisUnit == "player" and castType == "norm" and ctx.spellType == "Harmful"
+		and br._G.C_Spell.SpellHasRange and not br._G.C_Spell.SpellHasRange(ctx.spellName)
+		and not br.functions.range:isSafeToAoE(ctx.spellID, "player", math.max(ctx.effectRng or 5, 10), 1, "aoe")
+	then
+		return E.printReport(ctx, false, "Not Safe")
+	end
 	-- getFacing returns true/false/nil. nil means "can't determine" (no unlocker, or positions
 	-- unavailable). Treat nil as OK — only block when the API definitively says not facing.
 	local facingOk = (castType == "norm" and br.functions.unit:getFacing("player", thisUnit) ~= false

@@ -157,7 +157,7 @@ br.api.debuffs = function(debuff, k, v)
             -- check if unit is valid
             if br.functions.unit:GetObjectExists(thisUnit) and distance <= range then
                 -- increase counter for each occurences
-                if not debuff.refresh(thisUnit, "player") then
+                if debuff.refresh(thisUnit, "player") then
                     counter = counter + 1
                 end
             end
