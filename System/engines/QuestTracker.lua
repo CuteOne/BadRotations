@@ -7,10 +7,6 @@ questTracker.objectives = questTracker.objectives or {}     -- [questId] = { { t
 questTracker.objectiveCount = 0
 questTracker.completedCount = 0
 questTracker.completed = questTracker.completed or {} -- titles of finished quests, so their tooltip lines read as "done"
--- Bitmask of the game object dynamic-flag bit(s) the server sets on objects that are
--- interactable for an active quest. nil until verified on a client (see QuestProbe.lua);
--- when set, and the unlocker exposes ObjectDynamicFlags, it decides isQuestObject outright.
-questTracker.dynFlagMask = questTracker.dynFlagMask or nil
 
 local REBUILD_DELAY = 2 -- seconds; quest events arrive in bursts
 
@@ -438,8 +434,9 @@ function questTracker:isQuestObject(object)
 	local objectID = br._G.ObjectID(object)
 	if ignoreObjects[objectID] then return false end
 
-	-- Server flag, when verified for this client
-	local mask = questTracker.dynFlagMask
+	-- The server's quest flag on the object, on clients where its bit is known (br.api.questObjectFlag,
+	-- set per expansion) and the unlocker can read it: it decides outright
+	local mask = br.api.questObjectFlag
 	if mask and br._G.ObjectDynamicFlags then
 		local flags = br._G.ObjectDynamicFlags(object)
 		if type(flags) == "number" then

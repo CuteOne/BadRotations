@@ -131,7 +131,12 @@ local function newEntry(obj)
         return { ignore = true, gen = 0 } -- players, corpses, dynamic objects...
     end
     local name = isUnit and br._G.UnitName(obj) or br._G.ObjectName(obj)
-    if not name or name == "" then return nil end
+    if not name or name == "" then
+        -- Units without a name aren't readable yet. Game objects can stay nameless (Forever's unlocker
+        -- returns none), and can still be quest objects by their server flag.
+        if isUnit then return nil end
+        name = ""
+    end
     local x, y, z = br._G.ObjectPosition(obj)
     if not x then return nil end
     return {
@@ -241,10 +246,11 @@ local function scan()
                         e.zFar = dz > Z_FAR or dz < -Z_FAR
                         e.colorKey = kind .. (e.zFar and "z" or "")
                         local label
+                        local shownName = e.name ~= "" and e.name or (kind == "quest" and "Quest object" or "Object")
                         if opts.extra then
-                            label = e.name .. "  [" .. e.id .. "] \n" .. e.guid .. "  [ZDiff: " .. floor(dz) .. "]  " .. floor(dist) .. "y"
+                            label = shownName .. "  [" .. e.id .. "] \n" .. e.guid .. "  [ZDiff: " .. floor(dz) .. "]  " .. floor(dist) .. "y"
                         else
-                            label = e.name .. "  [" .. floor(dist) .. "y]"
+                            label = shownName .. "  [" .. floor(dist) .. "y]"
                         end
                         e.label = label
                         tracked[#tracked + 1] = e

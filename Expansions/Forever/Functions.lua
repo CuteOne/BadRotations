@@ -12,6 +12,10 @@ br.api.hasSubSpecs            = false  -- one class-level spec, no specializatio
 br.api.comboPointsOnTarget    = true   -- TODO: verify; assumed Classic behaviour (lost on target switch)
 br.api.hasCharmBreakTracking  = false  -- TODO: verify whether C_LossOfControl works here
 br.api.expansion = "Forever"
+-- Game object dynamic flag the server sets on objects for an active quest (0x20, "sparkle"; 0x04 is
+-- "activate"). Verified with /qprobe on 2026-10-11: the Trial of the Lake Bauble Container reads 0xC024,
+-- a plain object nearby 0x8000. The quest tracker uses it; game object names come back empty here.
+br.api.questObjectFlag        = 0x20
 
 local api = br.api.wow
 
