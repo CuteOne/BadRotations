@@ -405,9 +405,10 @@ actionList.Extra = function()
         end
         -- Caster Form
         if activeForm == "caster" and (buff.bearForm.exists() or buff.catForm.exists()) then
-            unit.cancelForm()
-            ui.debug("Casting Caster Form")
-            return true
+            if unit.cancelForm() then
+                ui.debug("Casting Caster Form")
+                return true
+            end
         end
         -- Cat Form
         if activeForm == "cat"
