@@ -443,6 +443,14 @@ function unit:isBeast(Unit)
 	return isBeast
 end
 
+-- Dragonkin (creature type 2). The type ID comes second from UnitCreatureType on current clients;
+-- the English name covers clients that only return the name.
+function unit:isDragonkin(Unit)
+	if Unit == nil then Unit = "target" end
+	local typeName, typeID = br._G.UnitCreatureType(Unit)
+	return typeID == 2 or typeName == "Dragonkin"
+end
+
 function unit:isHumanoid(Unit)
 	if Unit == nil then Unit = "target" end
 	local isHumanoid = false

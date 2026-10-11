@@ -77,6 +77,15 @@ br.api.unit = function(self)
         return br.functions.unit:isBeast(thisUnit)
     end
 
+    --- Check if a unit is Dragonkin
+    -- @function unit.dragonkin
+    -- @param thisUnit The unit to check, defaults to "target" if nil
+    -- @return boolean True if the unit is Dragonkin
+    unit.dragonkin = function(thisUnit)
+        if thisUnit == nil then thisUnit = "target" end
+        return br.functions.unit:isDragonkin(thisUnit)
+    end
+
     --- Check if a unit can be attacked
     -- @function unit.canAttack
     -- @param thisUnit The unit to check
