@@ -103,6 +103,10 @@ local function options()
 
     section = br.ui:section("Defensive")
     br.ui:checkbox(section, "Self Heal In Group", { checked = true, tip = "Enable/Disable Healing Self while Grouped" })
+    br.ui:dropdown(section, "Heal Others", { choices = { "Player", "Target", "Mouseover", "Focus" }, checkbox = false,
+        tip = "Besides yourself, also heal this friendly player with the heals below (Player: only yourself)" })
+    br.ui:dropdown(section, "Heal Others Key", { choices = "Toggle", value = "None", checkbox = false,
+        tip = "Only heal the Heal Others unit while this key is held (None: no key needed)" })
     br.ui:spinner(section, "Healing Touch", { value = 35, checked = true, tip = "Health Percent to Cast At" })
     br.ui:checkbox(section, "Nature's Swiftness", { checked = true, tip = "Make an emergency Healing Touch instant with Nature's Swiftness (talent)" })
     br.ui:spinner(section, "Regrowth", { value = 55, checked = true, tip = "Health Percent to Cast At (Swiftmend first when a heal over time is on you)" })
@@ -226,6 +230,21 @@ local function casterCast(spellKey, thisUnit, label, free, emergency, isHeal)
         return true
     end
     return false
+end
+
+-- The friendly player to heal besides yourself: the Heal Others unit (target, mouseover or focus),
+-- when there is one in range, alive and not you, and its key (if set) is held; nil otherwise
+local healOthersUnits = { [2] = "target", [3] = "mouseover", [4] = "focus" }
+local function healOthersUnit()
+    local thisUnit = healOthersUnits[ui.value("Heal Others")]
+    if thisUnit == nil then return nil end
+    if br.ui.dropOptions.Toggle[ui.value("Heal Others Key")] ~= "None" and not ui.toggle("Heal Others Key") then return nil end
+    if unit.exists(thisUnit) and unit.friend(thisUnit) and unit.player(thisUnit) and not unit.deadOrGhost(thisUnit)
+        and not unit.isUnit(thisUnit, "player") and unit.distance(thisUnit) < 40
+    then
+        return thisUnit
+    end
+    return nil
 end
 
 -- A Beast or Dragonkin fighting the player that isn't the target (Hibernate)
@@ -405,47 +424,57 @@ actionList.Defensive = function()
             end
         end
     end
+    -- Heals: you first, then the Heal Others unit (if any) at the same thresholds
+    local other = var.healOther
+    local otherName = other and (" on " .. unit.name(other)) or ""
     -- Healing Touch: the emergency heal, leaves any form regardless of Energy/Rage. Nature's Swiftness
     -- (off the GCD) makes it instant.
-    if ui.checked("Healing Touch") and not cast.current.healingTouch() and inGroupOk and unit.hp() <= ui.value("Healing Touch") then
-        if ui.checked("Nature's Swiftness") and unit.inCombat() and not inForm and not buff.moonkinForm.exists()
-            and cast.able.naturesSwiftness() and not buff.naturesSwiftness.exists()
+    if ui.checked("Healing Touch") and not cast.current.healingTouch() then
+        local selfLow = inGroupOk and unit.hp() <= ui.value("Healing Touch")
+        local otherLow = other ~= nil and unit.hp(other) <= ui.value("Healing Touch")
+        if (selfLow or otherLow) and ui.checked("Nature's Swiftness") and unit.inCombat() and not inForm
+            and not buff.moonkinForm.exists() and cast.able.naturesSwiftness() and not buff.naturesSwiftness.exists()
         then
             if cast.naturesSwiftness() then
                 ui.debug("Casting Nature's Swiftness")
                 return true
             end
         end
-        if cast.able.healingTouch("player") and (not unit.moving() or buff.naturesSwiftness.exists()) then
-            if casterCast("healingTouch", "player", "Healing Touch", freeHeal, true, true) then return true end
+        if not unit.moving() or buff.naturesSwiftness.exists() then
+            if selfLow and cast.able.healingTouch("player") then
+                if casterCast("healingTouch", "player", "Healing Touch", freeHeal, true, true) then return true end
+            end
+            if otherLow and cast.able.healingTouch(other) then
+                if casterCast("healingTouch", other, "Healing Touch" .. otherName, freeHeal, true, true) then return true end
+            end
         end
-    end
-    -- Healing Touch on a friendly player target
-    if ui.checked("Healing Touch") and not cast.current.healingTouch() and not unit.moving() and unit.friend("target")
-        and unit.player("target") and unit.hp("target") <= ui.value("Healing Touch") and cast.able.healingTouch("target")
-    then
-        if casterCast("healingTouch", "target", "Healing Touch on " .. unit.name("target"), freeHeal, true, true) then return true end
     end
     -- Swiftmend / Regrowth: leaves Cat or Bear Form only when Energy/Rage is low or the heal is free
-    if ui.checked("Regrowth") and inGroupOk and unit.hp() <= ui.value("Regrowth") and (freeHeal or noShapeshiftPower) then
-        if cast.able.swiftmend("player") and (buff.rejuvenation.exists("player") or buff.regrowth.exists("player")) then
-            if casterCast("swiftmend", "player", "Swiftmend", freeHeal, false, true) then return true end
-        end
-        if cast.able.regrowth("player") and not cast.current.regrowth() and not unit.moving() and not buff.regrowth.exists("player") then
-            if casterCast("regrowth", "player", "Regrowth", freeHeal, false, true) then return true end
+    if ui.checked("Regrowth") and (freeHeal or noShapeshiftPower) then
+        for i = 1, 2 do -- you, then the Heal Others unit
+            local thisUnit = i == 1 and "player" or other
+            if thisUnit ~= nil and (i == 2 or inGroupOk) and unit.hp(thisUnit) <= ui.value("Regrowth") then
+                local label = i == 1 and "" or otherName
+                if cast.able.swiftmend(thisUnit) and (buff.rejuvenation.exists(thisUnit) or buff.regrowth.exists(thisUnit)) then
+                    if casterCast("swiftmend", thisUnit, "Swiftmend" .. label, freeHeal, false, true) then return true end
+                end
+                if cast.able.regrowth(thisUnit) and not cast.current.regrowth() and not unit.moving() and not buff.regrowth.exists(thisUnit) then
+                    if casterCast("regrowth", thisUnit, "Regrowth" .. label, freeHeal, false, true) then return true end
+                end
+            end
         end
     end
     -- Rejuvenation: too slow to justify two shapeshifts in combat
     if ui.checked("Rejuvenation") and (not unit.inCombat() or not inForm) then
-        if unit.friend("target") and unit.player("target") and unit.hp("target") <= ui.value("Rejuvenation")
-            and buff.rejuvenation.refresh("target") and cast.able.rejuvenation("target")
-        then
-            if casterCast("rejuvenation", "target", "Rejuvenation on " .. unit.name("target"), freeHeal, false, true) then return true end
-        end
-        if not unit.friend("target") and unit.hp() <= ui.value("Rejuvenation") and buff.rejuvenation.refresh("player")
-            and not buff.clearcasting.exists() and (unit.solo() or ui.checked("Self Heal In Group")) and cast.able.rejuvenation("player")
+        if unit.hp() <= ui.value("Rejuvenation") and buff.rejuvenation.refresh("player") and not buff.clearcasting.exists()
+            and (unit.solo() or ui.checked("Self Heal In Group")) and cast.able.rejuvenation("player")
         then
             if casterCast("rejuvenation", "player", "Rejuvenation", freeHeal, false, true) then return true end
+        end
+        if other ~= nil and unit.hp(other) <= ui.value("Rejuvenation") and buff.rejuvenation.refresh(other)
+            and cast.able.rejuvenation(other)
+        then
+            if casterCast("rejuvenation", other, "Rejuvenation" .. otherName, freeHeal, false, true) then return true end
         end
     end
 end -- End Action List - Defensive
@@ -1047,6 +1076,9 @@ local function runRotation()
     -- The form the Forms toggle picks, and whether a form that blocks caster spells is up
     activeForm = resolveForm()
     inForm = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
+
+    -- The friendly player to heal besides yourself (Heal Others option and key), or nil
+    var.healOther = healOthersUnit()
 
     -- Clearcasting Use: 1 Any, 2 DPS Only, 3 Healing Only, 4 None
     local omenSetting = ui.value("Clearcasting Use")
