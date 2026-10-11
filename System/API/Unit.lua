@@ -537,10 +537,10 @@ br.api.unit = function(self)
     --- Check if a unit is casting
     -- @function unit.isCasting
     -- @param thisUnit The unit to check, defaults to "player" if nil
-    -- @return boolean True if the unit is casting
+    -- @return boolean True if the unit is casting or channelling
     unit.isCasting = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return br.functions.unit:isCasting(thisUnit)
+        return br.functions.cast:isUnitCasting(thisUnit)
     end
 
     --- Check if a unit is a training dummy
