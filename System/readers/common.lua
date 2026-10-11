@@ -10,6 +10,7 @@ local _regenDisFrame    = br._G.CreateFrame("Frame"); _regenDisFrame:RegisterEve
 local _regenEnFrame     = br._G.CreateFrame("Frame"); _regenEnFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 local _uiErrFrame       = br._G.CreateFrame("Frame"); _uiErrFrame:RegisterEvent("UI_ERROR_MESSAGE")
 local _superFrame       = br._G.CreateFrame("Frame")
+local autoAttackGUID      -- the unit auto attack started on (PLAYER_ENTER_COMBAT), for the Cast Debug stop line
 _superFrame:RegisterEvent("CHAT_MSG_ADDON")
 _superFrame:RegisterEvent("PLAYER_STARTED_MOVING")
 -- Auto-attack starting and stopping (unit:isAutoAttacking)
@@ -312,6 +313,10 @@ function common:commonReaders()
 		-- Auto-attack on / off
 		if event == "PLAYER_ENTER_COMBAT" or event == "PLAYER_LEAVE_COMBAT" then
 			br.functions.unit:setAutoAttacking(event == "PLAYER_ENTER_COMBAT")
+			-- The unit auto attack started on, so a stop can tell "it died" from "the target changed"
+			local targetGUID = br._G.UnitGUID("target")
+			if not br.functions.misc:canUseValue(targetGUID) then targetGUID = nil end
+			if event == "PLAYER_ENTER_COMBAT" then autoAttackGUID = targetGUID end
 			-- Cast Debug: when auto attack stops mid-fight (a queued Maul / Heroic Strike goes with it,
 			-- "Interrupted"), say what was going on, so the cause can be told from the log
 			if event == "PLAYER_LEAVE_COMBAT" and br._G.UnitAffectingCombat("player") and br.player and br.player.ui
@@ -324,6 +329,9 @@ function common:commonReaders()
 					target = (misc:canUseValue(name) and not (br._G.issecretvalue and br._G.issecretvalue(name)) and name or "target")
 						.. string.format(" %.1f yds", br.functions.range:getDistance("target") or -1)
 						.. (unit:GetUnitIsDeadOrGhost("target") and ", dead" or "")
+					if autoAttackGUID ~= nil and targetGUID ~= nil and targetGUID ~= autoAttackGUID then
+						target = target .. " (not the unit auto attack started on)"
+					end
 				end
 				local lastCast = ""
 				if br.botSpell and br.botCastTime then
