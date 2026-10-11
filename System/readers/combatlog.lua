@@ -14,7 +14,7 @@ local combatLog = br.readers.combatLog
 local combatLogFrame = br._G.CreateFrame("Frame")
 combatLogFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
--- will update the br.read.enraged list
+-- will update the br.readers.combatLog.enraged list (it wrote to br.read, which doesn't exist, and errored)
 function combatLog:enrageReader(...)
     if br.functions.misc:getOptionCheck("Enrages Handler") then
         local timeStamp,
@@ -39,7 +39,7 @@ function combatLog:enrageReader(...)
                 -- find unit in engine, if its not there, dont add it.
                 if destination ~= nil then
                     br._G.tinsert(
-                        br.read.enraged,
+                        br.readers.combatLog.enraged,
                         1,
                         { guid = destination, spellType = br.lists.dispell[spell], buffID = spell }
                     )
@@ -48,11 +48,11 @@ function combatLog:enrageReader(...)
         end
         if param == "SPELL_AURA_REMOVED" then
             -- look for a match to remove
-            local targets = br.read.enraged
+            local targets = br.readers.combatLog.enraged
             if #targets > 0 then
                 for i = #targets, 1, -1 do
                     if targets[i].guid == destination and targets[i].buffID == spell then
-                        br._G.tremove(br.read.enraged, i)
+                        br._G.tremove(br.readers.combatLog.enraged, i)
                     end
                 end
             end
