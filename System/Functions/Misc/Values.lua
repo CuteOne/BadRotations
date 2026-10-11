@@ -1,0 +1,61 @@
+local _, br = ...
+-- Small value helpers: whether BR may use a (secret) value, rounding, names and addon paths.
+br.functions.misc = br.functions.misc or {}
+local misc = br.functions.misc
+
+-- Whether BR may use a value (compare it, do arithmetic with it). On clients with secret values,
+-- canaccessvalue answers that; issecretvalue is true even for values BR's protected scripts may
+-- use (measured on Forever), so it only decides whether a value can be shown in chat.
+function misc:canUseValue(value)
+	if br._G.canaccessvalue then return br._G.canaccessvalue(value) and true or false end
+	if br._G.issecretvalue then return not br._G.issecretvalue(value) end
+	return true
+end
+
+--- Round
+function misc:round2(num, idp)
+	local mult = 10 ^ (idp or 0)
+	return math.floor(num * mult + 0.5) / mult
+end
+
+-- UnitGUID("target"):sub(-15,-10)
+
+function misc:convertName(name)
+	if name ~= nil then
+		-- Remove hyphens and lowercase the letter that follows
+		name = name:gsub("-(%a)", function(letter)
+			return letter:lower()
+		end)
+		-- Cap All First Letters of Words
+		name = name:gsub("(%a)([%w_']*)", function(first, rest)
+			return first:upper() .. rest:lower()
+		end)
+		-- Lower first character of name
+		name = name:gsub("%a", string.lower, 1)
+		-- Remove all non alphanumeric in string
+		name = name:gsub("%W", "")
+		return name
+	end
+	return "None"
+end
+
+-- Class folder name used under Rotations/ and Settings/ (e.g. "Druid", "Death Knight").
+-- local folder = br.functions.misc:getClassFolderName("DEATHKNIGHT")
+function misc:getClassFolderName(class)
+	if class == nil then class = "" end
+	local formatClass = class:sub(1, 1):upper() .. class:sub(2):lower()
+	if formatClass == "Deathknight" then formatClass = "Death Knight" end
+	if formatClass == "Demonhunter" then formatClass = "Demon Hunter" end
+	return formatClass
+end
+
+-- BadRotations' folder on disk and the path separator for this OS.
+-- local path, sep = br.functions.misc:getAddonPath()
+function misc:getAddonPath()
+	local sep = br._G.IsMacClient() and "/" or "\\"
+	local wowDir = br._G.GetWoWDirectory() or ""
+	if wowDir:match('_retail_') then
+		return wowDir .. sep .. 'Interface' .. sep .. 'AddOns' .. sep .. br.loader.addonName, sep
+	end
+	return wowDir .. sep .. br.loader.addonName, sep
+end

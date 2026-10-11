@@ -84,7 +84,14 @@ System\Functions\Custom.lua
 System\Functions\InFlight.lua
 System\Functions\Item.lua
 System\Functions\LastCast.lua
-System\Functions\Misc.lua
+System\Functions\Misc\Values.lua
+System\Functions\Misc\Player.lua
+System\Functions\Misc\Sight.lua
+System\Functions\Misc\Units.lua
+System\Functions\Misc\Toggles.lua
+System\Functions\Misc\Pause.lua
+System\Functions\Misc\Options.lua
+System\Functions\Misc\Debug.lua
 System\Functions\Power.lua
 System\Functions\Range.lua
 System\Functions\Spell.lua
