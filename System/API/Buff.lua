@@ -17,7 +17,8 @@ br.api.buffs = function(buff, k, v)
     --- Cancel a buff.
     -- @function buff.spell.cancel
     -- @string[opt="player"] thisUnit The unit to check.
-    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @string[opt="player"] sourceUnit "player": your own (on the player, a copy anyone cast on
+    --   you counts, so a buff isn't recast over someone else's); "any": from anyone
     buff.cancel = function(thisUnit, sourceUnit)
         v = currentRank()
         if thisUnit == nil then thisUnit = 'player' end
@@ -46,7 +47,8 @@ br.api.buffs = function(buff, k, v)
     --- Check if a buff does NOT exists -- added for readablity into SIMC converted rotations
     -- @function buff.spell.down
     -- @string[opt="player"] thisUnit The unit to check.
-    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @string[opt="player"] sourceUnit "player": your own (on the player, a copy anyone cast on
+    --   you counts, so a buff isn't recast over someone else's); "any": from anyone
     -- @treturn boolean
     buff.down = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -60,7 +62,8 @@ br.api.buffs = function(buff, k, v)
     --- Get the duration of a buff.
     -- @function buff.spell.duration
     -- @string[opt="player"] thisUnit The unit to check.
-    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @string[opt="player"] sourceUnit "player": your own (on the player, a copy anyone cast on
+    --   you counts, so a buff isn't recast over someone else's); "any": from anyone
     -- @treturn number
     buff.duration = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -76,7 +79,8 @@ br.api.buffs = function(buff, k, v)
     --- Check if a buff exists.
     -- @function buff.spell.exists
     -- @string[opt="player"] thisUnit The unit to check.
-    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @string[opt="player"] sourceUnit "player": your own (on the player, a copy anyone cast on
+    --   you counts, so a buff isn't recast over someone else's); "any": from anyone
     -- @treturn boolean
     buff.exists = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -92,7 +96,8 @@ br.api.buffs = function(buff, k, v)
     --- Check if a buff can be reacted to.
     -- @function buff.spell.react
     -- @string[opt="player"] thisUnit The unit to check.
-    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @string[opt="player"] sourceUnit "player": your own (on the player, a copy anyone cast on
+    --   you counts, so a buff isn't recast over someone else's); "any": from anyone
     -- @treturn boolean
     buff.react = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -108,7 +113,8 @@ br.api.buffs = function(buff, k, v)
     --- Check if a buff should be refreshed.
     -- @function buff.spell.refresh
     -- @string[opt="player"] thisUnit The unit to check.
-    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @string[opt="player"] sourceUnit "player": your own (on the player, a copy anyone cast on
+    --   you counts, so a buff isn't recast over someone else's); "any": from anyone
     -- @treturn boolean
     buff.refresh = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -143,7 +149,8 @@ br.api.buffs = function(buff, k, v)
     --- Get the remaining time of a buff.
     -- @function buff.spell.remain
     -- @string[opt="player"] thisUnit The unit to check.
-    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @string[opt="player"] sourceUnit "player": your own (on the player, a copy anyone cast on
+    --   you counts, so a buff isn't recast over someone else's); "any": from anyone
     -- @treturn number
     buff.remain = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -159,7 +166,8 @@ br.api.buffs = function(buff, k, v)
     --- Get the remaining time of a buff. (Duplicate of br.player.buff.spell.remain)
     -- @function buff.spell.remains
     -- @string[opt="player"] thisUnit The unit to check.
-    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @string[opt="player"] sourceUnit "player": your own (on the player, a copy anyone cast on
+    --   you counts, so a buff isn't recast over someone else's); "any": from anyone
     -- @treturn number
     buff.remains = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -175,7 +183,8 @@ br.api.buffs = function(buff, k, v)
     --- Get the stack count of a buff.
     -- @function buff.spell.stack
     -- @string[opt="player"] thisUnit The unit to check.
-    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @string[opt="player"] sourceUnit "player": your own (on the player, a copy anyone cast on
+    --   you counts, so a buff isn't recast over someone else's); "any": from anyone
     -- @treturn number
     buff.stack = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -191,7 +200,8 @@ br.api.buffs = function(buff, k, v)
     --- Get the maximum stack count of a buff.
     -- @function buff.spell.stackMax
     -- @string[opt="player"] thisUnit The unit to check.
-    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @string[opt="player"] sourceUnit "player": your own (on the player, a copy anyone cast on
+    --   you counts, so a buff isn't recast over someone else's); "any": from anyone
     -- @treturn number
     buff.stackMax = function(thisUnit, sourceUnit)
         v = currentRank()

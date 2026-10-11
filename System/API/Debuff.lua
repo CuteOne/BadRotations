@@ -46,7 +46,7 @@ br.api.debuffs = function(debuff, k, v)
     --- Gets the duration of a debuff on a unit.
     -- @function debuff.spell.duration
     -- @string[opt="target"] thisUnit The unit to check the debuff duration on.
-    -- @string[opt="player"] sourceUnit The unit that applied the debuff.
+    -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn number
     debuff.duration = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -58,7 +58,7 @@ br.api.debuffs = function(debuff, k, v)
     --- Checks if a debuff exists on a unit.
     -- @function debuff.spell.exists
     -- @string[opt="target"] thisUnit The unit to check the debuff on.
-    -- @string[opt="player"] sourceUnit The unit that applied the debuff.
+    -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn boolean
     debuff.exists = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -115,7 +115,7 @@ br.api.debuffs = function(debuff, k, v)
     --- Gets the pandemic threshold for refreshing a debuff.
     -- @function debuff.spell.pandemic
     -- @string[opt="target"] thisUnit The unit to check the pandemic threshold on.
-    -- @string[opt="player"] sourceUnit The unit that applied the debuff.
+    -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn number
     debuff.pandemic = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -132,7 +132,7 @@ br.api.debuffs = function(debuff, k, v)
     --- Gets the multiplier for the debuff based on its remaining time and duration.
     -- @function debuff.spell.pmultiplier
     -- @string[opt="target"] thisUnit The unit to check the debuff multiplier on.
-    -- @string[opt="player"] sourceUnit The unit that applied the debuff.
+    -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn number
     debuff.pmultiplier = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -150,7 +150,7 @@ br.api.debuffs = function(debuff, k, v)
     --- Checks if a debuff should be refreshed based on its remaining time and pandemic threshold.
     -- @function debuff.spell.refresh
     -- @string[opt="target"] thisUnit The unit to check if the debuff should be refreshed on.
-    -- @string[opt="player"] sourceUnit The unit that applied the debuff.
+    -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn boolean
     debuff.refresh = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -185,7 +185,7 @@ br.api.debuffs = function(debuff, k, v)
     --- Gets the remaining time of a debuff on a unit.
     -- @function debuff.spell.remain
     -- @string[opt="target"] thisUnit The unit to check the debuff remaining time on.
-    -- @string[opt="player"] sourceUnit The unit that applied the debuff.
+    -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn number
     debuff.remain = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -206,7 +206,7 @@ br.api.debuffs = function(debuff, k, v)
     --- Gets the remaining time of a debuff on a unit. (Duplicate of debuff.spell.remain)
     -- @function debuff.spell.remains
     -- @string[opt="target"] thisUnit The unit to check the debuff remaining time on.
-    -- @string[opt="player"] sourceUnit The unit that applied the debuff.
+    -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn number
     debuff.remains = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -218,7 +218,7 @@ br.api.debuffs = function(debuff, k, v)
     --- Gets the stack count of a debuff on a unit.
     -- @function debuff.spell.stack
     -- @string[opt="target"] thisUnit The unit to check the debuff stack count on.
-    -- @string[opt="player"] sourceUnit The unit that applied the debuff.
+    -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn number
     debuff.stack = function(thisUnit, sourceUnit)
         v = currentRank()
@@ -241,7 +241,8 @@ br.api.debuffs = function(debuff, k, v)
         local hasteMultiplier = 1 + (haste / 100)
         local baseTickTime = br.functions.aura:getBaseTickTime(v)
         local hastedTickTime = baseTickTime / hasteMultiplier
-        local auraInfo = br.functions.aura:UnitDebuffID(thisUnit, v, nil, "PLAYER")
+        if thisUnit == nil then thisUnit = "target" end
+        local auraInfo = br.functions.aura:UnitDebuffID(thisUnit, v, "player") -- your own DoT only
         if auraInfo then
             local expirationTime = auraInfo.expirationTime
             local duration = auraInfo.duration
@@ -271,7 +272,8 @@ br.api.debuffs = function(debuff, k, v)
         local hasteMultiplier = 1 + (haste / 100)
         local baseTickTime = br.functions.aura:getBaseTickTime(v)
         local hastedTickTime = baseTickTime / hasteMultiplier
-        local auraInfo = br.functions.aura:UnitDebuffID(thisUnit, v, nil, "PLAYER")
+        if thisUnit == nil then thisUnit = "target" end
+        local auraInfo = br.functions.aura:UnitDebuffID(thisUnit, v, "player") -- your own DoT only
         if auraInfo then
             local expirationTime = auraInfo.expirationTime
             -- local duration = auraInfo.duration
