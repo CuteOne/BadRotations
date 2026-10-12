@@ -5,13 +5,84 @@ local item = br.functions.item
 
 -- Potions found in the bags, per name match ("Heal", "Mana"), best first; rebuilt after the bags change
 local potionCandidates = {}
+-- The bags' filled slots and the count per itemID (item:getBagItems); nil until read after a change
+local bagItems, bagTotals
 do
 	local bagWatch = br._G.CreateFrame("Frame")
 	local watching = pcall(bagWatch.RegisterEvent, bagWatch, "BAG_UPDATE_DELAYED")
 	if watching then
-		bagWatch:SetScript("OnEvent", function() br._G.wipe(potionCandidates) end)
+		bagWatch:SetScript("OnEvent", function()
+			br._G.wipe(potionCandidates)
+			bagItems, bagTotals = nil, nil
+		end)
 	end
 	item.watchingBags = watching
+end
+
+local function readBags()
+	local items, totals = {}, {}
+	local lastBag = (br._G.NUM_BAG_SLOTS or 4) + (br._G.NUM_REAGENTBAG_SLOTS or 0)
+	for bag = 0, lastBag do
+		for slot = 1, br._G.C_Container.GetContainerNumSlots(bag) do
+			local info = br._G.C_Container.GetContainerItemInfo(bag, slot)
+			if info and info.itemID then
+				local count = info.stackCount or 1
+				items[#items + 1] = { bag = bag, slot = slot, itemID = info.itemID, count = count }
+				totals[info.itemID] = (totals[info.itemID] or 0) + count
+			end
+		end
+	end
+	return items, totals
+end
+
+-- Every filled bag slot, { bag, slot, itemID, count } in bag order, and the total count per itemID.
+-- Read once per bag change (BAG_UPDATE_DELAYED); on a client without that event, on every call.
+-- local slots, totals = br.functions.item:getBagItems()
+function item:getBagItems()
+	if bagItems == nil or not item.watchingBags then bagItems, bagTotals = readBags() end
+	return bagItems, bagTotals
+end
+
+-- Hidden tooltip, for clients without C_TooltipInfo
+local scanTooltip
+local function tooltipLines(bag, slot)
+	if br._G.C_TooltipInfo and br._G.C_TooltipInfo.GetBagItem then
+		local data = br._G.C_TooltipInfo.GetBagItem(bag, slot)
+		local lines, texts = data and data.lines or {}, {}
+		for i = 1, #lines do texts[i] = lines[i].leftText end
+		return texts
+	end
+	if scanTooltip == nil then
+		scanTooltip = br._G.CreateFrame("GameTooltip", "BRBagScanTooltip", nil, "GameTooltipTemplate")
+	end
+	scanTooltip:SetOwner(br._G.WorldFrame, "ANCHOR_NONE")
+	scanTooltip:SetBagItem(bag, slot)
+	local texts = {}
+	for i = 1, scanTooltip:NumLines() do
+		local line = br._G["BRBagScanTooltipTextLeft" .. i]
+		texts[i] = line and line:GetText()
+	end
+	scanTooltip:Hide()
+	return texts
+end
+
+-- Whether the tooltip of the item in a bag slot has a line that reads text. Pass the game's own
+-- string (ITEM_MILLABLE, LOCKED, ...) so it works in every locale; false when text is nil (a client
+-- without that string), nil when the tooltip couldn't be read (item data not loaded yet, or text the
+-- game won't let BR compare: on Forever it can be flagged secret, so it's read under pcall).
+-- if br.functions.item:bagTooltipHas(0, 1, br._G.ITEM_MILLABLE) then
+function item:bagTooltipHas(bag, slot, text)
+	if text == nil then return false end
+	local ok, found = pcall(function()
+		local texts = tooltipLines(bag, slot)
+		if #texts == 0 then return nil end
+		for i = 1, #texts do
+			if texts[i] == text then return true end
+		end
+		return false
+	end)
+	if not ok then return nil end
+	return found
 end
 
 -- if br.functions.item:canUseItem(1710) then
@@ -52,17 +123,14 @@ function item:getBestPotion(nameMatch)
 	if candidates == nil then
 		candidates = {}
 		local complete = true -- false when an item's info isn't loaded yet: scan again next time
-		for bag = 0, 4 do
-			for slot = 1, br._G.C_Container.GetContainerNumSlots(bag) do
-				local itemID = br._G.C_Container.GetContainerItemID(bag, slot)
-				if itemID ~= nil then
-					local itemName, _, _, itemLevel = br._G.C_Item.GetItemInfo(itemID)
-					if itemName == nil then complete = false end
-					local classID = select(6, br._G.C_Item.GetItemInfoInstant(itemID))
-					if itemName and classID == 0 and itemName:find("Potion", 1, true) and itemName:find(nameMatch, 1, true) then
-						candidates[#candidates + 1] = { itemID = itemID, itemLevel = itemLevel or 0 }
-					end
-				end
+		local slots = item:getBagItems()
+		for i = 1, #slots do
+			local itemID = slots[i].itemID
+			local itemName, _, _, itemLevel = br._G.C_Item.GetItemInfo(itemID)
+			if itemName == nil then complete = false end
+			local classID = select(6, br._G.C_Item.GetItemInfoInstant(itemID))
+			if itemName and classID == 0 and itemName:find("Potion", 1, true) and itemName:find(nameMatch, 1, true) then
+				candidates[#candidates + 1] = { itemID = itemID, itemLevel = itemLevel or 0 }
 			end
 		end
 		table.sort(candidates, function(a, b) return a.itemLevel > b.itemLevel end)

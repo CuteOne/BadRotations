@@ -26,7 +26,12 @@ br.api.botOptions["Healing Options"] = function(section)
         tip = "Set how long to stop healing tank before Decaying Strike is cast." })
 end
 
-br.api.botOptions["Other Features"] = function(_, window)
+br.api.botOptions["Other Features"] = function(professions, window)
+    -- Profession Helper's Retail-only items (Expansions/Retail/Professions.lua)
+    br.ui:checkbox(professions, "Leather Scraps", { tip = "Combine Raw Beast Hide Scraps. Profession Helper must be checked." })
+    br.ui:checkbox(professions, "Fish Oil", { tip = "Turn Battle for Azeroth fish into Aromatic Fish Oil. Profession Helper must be checked." })
+    br.ui:dropdown(professions, "Bait", { choices = { "Lost Sole Bait", "Silvergill Pike Bait", "Pocked Bonefish Bait", "Iridescent Amberjack Bait", "Spinefin Piranha Bait", "Elysian Thade Bait" }, value = "Lost Sole Bait",
+        tip = "Keep this Shadowlands fishing bait up." })
     local section = br.ui:section("Dungeon Helpers", { window = window })
     br.ui:checkbox(section, "Quaking Helper", { tip = "Auto cancel channeling and block casts during mythic+ affix quaking" })
 end

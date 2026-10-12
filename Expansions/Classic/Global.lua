@@ -51,6 +51,7 @@ br.lists.spells.Shared = {
             abilities        = {
                 autoAttack     = 6603,
                 autoShot       = 75,
+                disenchant     = 13262, -- Enchanting (Profession Helper)
                 global         = 5176, -- Classic uses class-specific GCD spells, but we use a default here
                 racial         = br.functions.spell:getRacial(),
                 -- Each racial by name, for profiles that want a specific one. Only the

@@ -143,16 +143,10 @@ function br.ui:createConfigWindow()
         br.ui:checkbox(section, "Bypass Vehicle Check")
         br.ui:spinner(section, "Profession Helper", { value = 0.5, max = 1, step = 0.1,
             tip = "Check to enable Professions Helper.", boxTip = "Set Desired Recast Delay." })
-        br.ui:dropdown(section, "Prospect Ores", { choices = { "SL", "BFA", "Legion", "WoD", "MoP", "Cata", "All" }, value = "SL",
-            tip = "Prospect Desired Ores. Profession Helper must be checked." })
-        br.ui:dropdown(section, "Mill Herbs", { choices = { "SL", "BFA", "Legion", "WoD", "MoP", "Cata", "All" }, value = "SL",
-            tip = "Mill Desired Herbs. Profession Helper must be checked." })
-        br.ui:checkbox(section, "Disenchant", { tip = "Disenchant Cata blues/greens. Profession Helper must be checked." })
-        br.ui:checkbox(section, "Leather Scraps", { tip = "Combine leather scraps. Profession Helper must be checked." })
-        br.ui:checkbox(section, "Lockboxes", { tip = "Unlock Lockboxes. Profession Helper must be checked." })
-        br.ui:checkbox(section, "Fish Oil", { tip = "Turn Fish into Aromatic Fish Oil. Profession Helper must be checked." })
-        br.ui:dropdown(section, "Bait", { choices = { "Lost Sole Bait", "Silvergill Pike Bait", "Pocked Bonefish Bait", "Iridescent Amberjack Bait", "Spinefin Piranha Bait", "Elysian Thade Bait" }, value = "Lost Sole Bait",
-            tip = "Using the bait." })
+        br.ui:checkbox(section, "Prospect Ores", { tip = "Prospect every stack of five ores the game marks Prospectable (needs Prospecting). Profession Helper must be checked." })
+        br.ui:checkbox(section, "Mill Herbs", { tip = "Mill every stack of five herbs the game marks Millable (needs Milling). Profession Helper must be checked." })
+        br.ui:checkbox(section, "Disenchant", { tip = "Disenchant the crafted items in BR's Disenchant list (Mists of Pandaria, Legion and Battle for Azeroth crafts). Profession Helper must be checked." })
+        br.ui:checkbox(section, "Lockboxes", { tip = "Pick and open locked boxes (needs Pick Lock). Profession Helper must be checked." })
         expansionOptions("Other Features")
     end
 

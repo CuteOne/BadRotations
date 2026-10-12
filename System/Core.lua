@@ -247,8 +247,6 @@ function engines.Update(frame, elapsed)
                 end
                 -- Accept dungeon queues
                 br.functions.misc:AcceptQueues()
-                -- Fishing bait
-                br.misc.ProfessionHelper:bait()
                 -- Profession Helper
                 br.misc.ProfessionHelper:ProfessionHelper()
                 -- Rotation Log

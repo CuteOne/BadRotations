@@ -50,6 +50,7 @@ Expansions\shared.lua
 Expansions\Retail\Functions.lua
 Expansions\Retail\Options.lua
 Expansions\Retail\Pulse.lua
+Expansions\Retail\Professions.lua
 Expansions\MOP\Functions.lua
 Expansions\TBC\Functions.lua
 Expansions\Classic\Functions.lua
@@ -116,6 +117,7 @@ System\Lists\FleeEmotes.lua
 System\Lists\LongCC.lua
 System\Lists\NoTouchUnits.lua
 System\Lists\Pets.lua
+System\Lists\Professions.lua
 System\Lists\ShieldUnits.lua
 System\Lists\Specs.lua
 System\Lists\Spells.lua
