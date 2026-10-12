@@ -327,9 +327,21 @@ function combat:hasThreat(unit, playerUnit)
 				" has threat with you.")
 		end
 		return true
-		-- Threat Bypass Validation
-		-- elseif playerInCombat and br.lists.threatBypass[unitID] ~= nil and #br.engines.enemiesEngineFunctions:getEnemies(unit,20,true) == 0 then
-		-- 		return true
+	end
+	-- Summons of an enemy we're fighting (totems, spirits, idols...) have no threat of their own: they
+	-- count when their creator is an enemy in combat with the player or group (no list needed)
+	if playerInCombat and br._G.UnitCanAttack("player", unit) then
+		local creator = br._G.UnitCreator and br._G.UnitCreator(unit)
+		creator = creator ~= nil and br._G.ObjectPointer(creator) or nil
+		local enemies = br.engines.enemiesEngine
+		if creator ~= nil and creator ~= br._G.ObjectPointer("player")
+			and (enemies.enemy[creator] ~= nil or enemies.damaged[creator] ~= nil)
+		then
+			if br.functions.misc:isChecked("Threat Debug") then
+				br._G.print("[Summon Threat] " .. tostring(br._G.UnitName(unit)) .. " was summoned by an enemy you're fighting.")
+			end
+			return true
+		end
 	end
 	-- Open World Mob Pack Validation
 	if instance == "none" and playerInCombat and not br.functions.unit:isCritter(unit) then
