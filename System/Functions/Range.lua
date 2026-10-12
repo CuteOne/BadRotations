@@ -11,12 +11,15 @@ local playerClass = nil
 local meleeSpellNames = {}
 
 -- The melee spell list (br.lists.range.meleeSpells) for the player now: the class's, a Druid's by form
--- (Bear Form, else Cat)
+-- (Bear or Cat; none in caster form, where neither form's spells can be cast)
 local function meleeListKey()
     if playerClass == nil then playerClass = select(2, br._G.UnitClass("player")) end
     if playerClass ~= "DRUID" then return playerClass end
     local bearForm = br.functions.spell:getHighestSpellID("bearForm")
-    return (bearForm and br.functions.aura:UnitBuffID("player", bearForm)) and "DRUID_BEAR" or "DRUID_CAT"
+    if bearForm and br.functions.aura:UnitBuffID("player", bearForm) then return "DRUID_BEAR" end
+    local catForm = br.functions.spell:getHighestSpellID("catForm")
+    if catForm and br.functions.aura:UnitBuffID("player", catForm) then return "DRUID_CAT" end
+    return nil
 end
 
 -- Exact range rules, as the game's server applies them (see the comment above range:getEdgeDistance)

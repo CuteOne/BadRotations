@@ -44,6 +44,8 @@ range.rangeOrMelee = {
 -- Spells that tell whether a unit is in melee range (C_Spell.IsSpellInRange), as spell list keys per
 -- class (Druids by form): the first one the player knows is used, so each client gets its own IDs.
 -- A class listed here also gets the melee-by-position check on clients without specializations.
+-- Only spells with melee range: never next-swing spells (Maul, Raptor Strike and Heroic Strike on Classic)
+-- or ranged ones, which the game reports in range far outside melee.
 range.meleeSpells = {
 	WARRIOR     = { "pummel" },
 	PALADIN     = { "crusaderStrike" },
@@ -51,10 +53,10 @@ range.meleeSpells = {
 	DEATHKNIGHT = { "deathStrike" },
 	MONK        = { "tigerPalm" },
 	SHAMAN      = { "primalStrike", "stormstrike" },
-	HUNTER      = { "raptorStrike", "wingClip", "growl" },
+	HUNTER      = { "wingClip" },
 	DEMONHUNTER = { "chaosStrike", "soulCleave" },
 	DRUID_CAT   = { "shred", "claw", "mangle" },
-	DRUID_BEAR  = { "maul", "mangle" },
+	DRUID_BEAR  = { "mangle" },
 }
 
 -- Projectiles, for cast.inFlight: speed in yards per second by spell list key, or a fixed travel time
