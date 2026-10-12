@@ -198,6 +198,8 @@ local function stillValid(e)
         if br.functions.unit:GetUnitIsDeadOrGhost(e.obj) and not br.functions.unit:GetUnitIsFriend("player", e.obj) then
             return false
         end
+    elseif e.kind == "rare" then
+        if br.functions.unit:GetUnitIsDeadOrGhost(e.obj) then return false end
     end
     return true
 end
