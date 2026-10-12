@@ -84,13 +84,7 @@ local function refresh()
 	local burn, shields = misc:getOptionCheck("Forced Burn"), misc:getOptionCheck("Avoid Shields")
 	local tank = misc:getOptionCheck("Tank Threat") and br.functions.combat:isPlayerTank()
 	local custom = br.player and br.player.units and br.player.units.customTargetWeight
-	local playerPointer = br._G.ObjectPointer("player")
 	local targetPointer = br._G.UnitExists("target") and br._G.ObjectPointer("target") or nil
-	local group = {}
-	for _, friend in ipairs(br.engines.healingEngine.friend or {}) do
-		local pointer = br._G.ObjectPointer(friend.unit)
-		if pointer and pointer ~= playerPointer then group[pointer] = true end
-	end
 
 	local units = {}
 	for _, unit in ipairs(ef:getEnemies("player", SCAN_RANGE)) do
@@ -107,13 +101,16 @@ local function refresh()
 		unitScore, unitParts = 0, explaining and {} or nil
 		addPart("preference", W.preference * preference(unit, mode, distance, mostHealth))
 		addPart("nearness", W.nearness * math.max(0, 1 - distance / SCAN_RANGE))
+		-- Who it attacks, compared with UnitIsUnit: unlockers hand UnitTarget back as a pointer, GUID or
+		-- token, which doesn't always equal ObjectPointer("player")
 		local victim = br._G.UnitTarget(unit)
-		if victim ~= nil and victim == playerPointer then
+		local onPlayer = victim ~= nil and br._G.UnitIsUnit(victim, "player")
+		if onPlayer then
 			addPart("attacking you", W.attackingMe)
-		elseif victim ~= nil and group[victim] then
+		elseif victim ~= nil and (br._G.UnitIsUnit(victim, "pet") or br._G.UnitInParty(victim) or br._G.UnitInRaid(victim)) then
 			addPart("attacking your group", W.attackingGroup)
 		end
-		if tank and victim ~= nil and victim ~= playerPointer then addPart("lost aggro", W.lostAggro) end
+		if tank and victim ~= nil and not onPlayer then addPart("lost aggro", W.lostAggro) end
 		if nearDeath then
 			local hp = br.functions.unit:getHP(unit)
 			if hp < NEAR_DEATH then addPart("near death", W.nearDeath * (1 - hp / NEAR_DEATH)) end

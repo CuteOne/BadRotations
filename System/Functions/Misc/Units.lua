@@ -151,7 +151,9 @@ function misc:isTargeting(Unit, MatchUnit)
 	if unitTarget == nil then
 		return false
 	end
-	return unitTarget == br._G.ObjectPointer(MatchUnit or "player")
+	-- UnitIsUnit: unlockers hand UnitTarget back as a pointer, GUID or token, which doesn't always
+	-- equal ObjectPointer
+	return br._G.UnitIsUnit(unitTarget, MatchUnit or "player") and true or false
 end
 
 -- Caches an isValidUnit answer by GUID and returns it

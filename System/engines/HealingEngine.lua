@@ -170,7 +170,7 @@ if not healingEngine.metaTable1 then
 				if time_remain < br.functions.misc:getOptionValue("Decaying Strike Timer") then
 					for i = 1, br._G.GetObjectCount() do
 						local thisUnit = br._G.GetObjectWithIndex(i)
-						if br.functions.unit:GetObjectID(thisUnit) == decaying.caster and br._G.UnitTarget(thisUnit) == o.unit then
+						if br.functions.unit:GetObjectID(thisUnit) == decaying.caster and br._G.UnitTarget(thisUnit) ~= nil and br._G.UnitIsUnit(br._G.UnitTarget(thisUnit), o.unit) then
 							return 250, 250, 250
 						end
 					end

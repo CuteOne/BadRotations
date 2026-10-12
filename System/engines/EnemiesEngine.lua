@@ -259,9 +259,10 @@ function Record:update(now, inCombat, hasGroup, fps)
 
 	local isDamaged = engine.damaged[unit] ~= nil
 	local isDead = br.functions.unit:GetUnitIsDeadOrGhost(unit)
-	-- The unit is visible here, so pointer comparisons answer "targeting the player?" and "is the
-	-- player's target?" as misc:isTargeting and unit:GetUnitIsUnit would
-	local isTargeting = playerPointer ~= nil and br._G.UnitTarget(unit) == playerPointer
+	-- "Targeting the player?" by UnitIsUnit: unlockers return UnitTarget as a pointer, GUID or token
+	-- (not always equal to the player's pointer); "is the player's target?" is a pointer compare
+	local victim = br._G.UnitTarget(unit)
+	local isTargeting = victim ~= nil and br._G.UnitIsUnit(victim, "player") and true or false
 	local isPlayerTarget = targetPointer ~= nil and unit == targetPointer
 
 	-- Candidate: close, alive, not a critter, and passes misc:enemyListCheck (damaged units always do)
