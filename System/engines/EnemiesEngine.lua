@@ -76,6 +76,7 @@ function engine:track(unit)
 		isOwnPet   = rules.ownPets[id] ~= nil or br.functions.unit:GetUnitIsUnit(br._G.UnitCreator(unit), "player"),
 		debuffs    = {},
 		range      = 0,
+		seenAt     = br._G.GetTime(), -- when the engine first saw it (timestamp is the last re-check)
 	}, Record)
 	engine.records[unit] = record
 	return record

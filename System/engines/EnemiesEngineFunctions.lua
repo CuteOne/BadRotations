@@ -316,22 +316,48 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	return enemiesTable
 end
 
--- returns true if target should be burnt
+-- br.lists.burnUnits entries that mark ANY unit with an aura (anyUnit = true; buff = the aura),
+-- collected on first use
+local burnAuras
+local function burnAuraEntries()
+	if burnAuras == nil then
+		burnAuras = {}
+		for _, entry in pairs(br.lists.burnUnits) do
+			if entry.anyUnit and entry.buff then burnAuras[#burnAuras + 1] = entry end
+		end
+	end
+	return burnAuras
+end
+
+--- How much Forced Burn weighs a unit that must be focused down (br.lists.burnUnits): the entry's coef,
+--- or 0. Entries are by NPC ID (optionally only while it has a buff, or not while it casts a spell),
+--- or by an aura on any unit (anyUnit).
 function enemiesEngineFunctions:isBurnTarget(unit)
 	local coef = 0
 	-- check if unit is valid
 	if br.functions.misc:getOptionCheck("Forced Burn") and br._G.UnitExists(unit) and br.functions.combat:hasThreat(unit) then
 		local unitID = br.functions.unit:GetObjectID(unit)
 		local burnUnit = br.lists.burnUnits[unitID]
-		local unitTime = br.engines.enemiesEngine.units[unit] ~= nil and br.engines.enemiesEngine.units[unit].timestamp or br._G.GetTime() - 1
-		-- if unit have selected debuff
-		if burnUnit and burnUnit.isValidUnit and (burnUnit.cast == nil or not br.functions.cast:isCasting(burnUnit.cast, unitID)) and (br._G.GetTime() - unitTime) > 0.25 then
+		if burnUnit and burnUnit.anyUnit then burnUnit = nil end -- an aura entry, not this NPC
+		-- not in its first 0.25 s (a unit just seen); timestamp is the last re-check, so it's seenAt
+		local record = br.engines.enemiesEngine.units[unit]
+		local unitTime = record ~= nil and record.seenAt or br._G.GetTime() - 1
+		-- (it also required burnUnit.isValidUnit, a field no entry has, so no unit was ever burned)
+		if burnUnit and (burnUnit.cast == nil or not br.functions.cast:isCasting(burnUnit.cast, unitID)) and (br._G.GetTime() - unitTime) > 0.25 then
 			if burnUnit.buff and br.functions.aura:UnitBuffID(unit, burnUnit.buff) then
 				coef = burnUnit.coef
 			end
 			if not burnUnit.buff and (br._G.UnitName(unit) == burnUnit.name or --[[burnUnit or]] burnUnit.id == unitID) then
 				--if not UnitIsUnit("target",unit) then TargetUnit(unit) end
 				coef = burnUnit.coef
+			end
+		end
+		if coef == 0 then
+			for _, entry in ipairs(burnAuraEntries()) do
+				if br.functions.aura:UnitBuffID(unit, entry.buff) then
+					coef = entry.coef
+					break
+				end
 			end
 		end
 	end

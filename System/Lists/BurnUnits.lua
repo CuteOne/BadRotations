@@ -2,7 +2,9 @@ local _, br = ...
 if br.lists == nil then
     br.lists = {}
 end
--- burnUnits = List of UnitID/Names we should have highest prio on.
+-- burnUnits: units that must be focused (burned) down to prevent heavy or lethal damage (Forced Burn).
+--   [npcID] = { coef, name, id [, buff = only while it has this aura] [, cast = not while casting this] }
+--   [auraID] = { coef, name, buff = auraID, anyUnit = true }: any unit with that aura
 br.lists.burnUnits = {
     --[[===========================]]
     --[[  LATER EXPANSIONS (KEEP)  ]]
@@ -65,7 +67,7 @@ br.lists.burnUnits = {
     [101637] = { coef = 150, name = "Valarjar Aspirant", id = 101637 },
     [102019] = { coef = 100, name = "Stormforged Obliterator", id = 102019 },
     -- m+ stuff
-    [343502] = { coef = 50, name = "Inspiring - M+ Affix", id = 343502 },
+    [343502] = { coef = 50, name = "Inspiring", buff = 343502, anyUnit = true }, -- M+ affix: any unit with the aura
     [173729] = { coef = 150, name = "Manifestation of Pride", id = 173729 },
     --Plaguefall
     [164362] = { coef = 50, name = "Slimy Morsel", id = 164362 }, -- Plaguefall Dungeon - if they reach boss the heal him
