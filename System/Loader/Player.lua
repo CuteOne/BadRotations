@@ -100,7 +100,7 @@ end
 
 -- Updates things out of combat
 function Player:baseUpdateOOC()
-	if br.functions.misc:getOptionCheck("Queue Casting") and #self.queue ~= 0 then
+	if #self.queue ~= 0 and br.functions.misc:getOptionCheck("Queue Casting") then
 		self.queue = {} -- Reset Queue Casting Table out of combat
 		br._G.print("Out of Combat - Queue List Cleared")
 	end
@@ -183,8 +183,7 @@ function Player:runModules()
 	if not self.unit.inCombat() then
 		-- Module Auto Mythic+ Keystone (Retail)
 		if br.isRetail then self.module.autoKeystone() end
-	end
-	if self.unit.inCombat() then
+	else
 		-- Module - Combatpotion Up (Mists of Pandaria)
 		if br.isMOP then self.module.CombatPotionUp() end
 		-- Module - Basic Trinkets

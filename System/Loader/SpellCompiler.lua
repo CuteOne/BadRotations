@@ -77,8 +77,14 @@ local function compileList(player, spellTable, origin, spec)
     end
 end
 
--- Warn about list entries whose IDs the client doesn't recognise.
+-- Lists already checked this session: builds run again on every gear, talent and level change,
+-- and a list's IDs don't change in between
+local validated = setmetatable({}, { __mode = "k" })
+
+-- Warn about list entries whose IDs the client doesn't recognise (once per list per session).
 local function validateList(spellTable)
+    if validated[spellTable] then return end
+    validated[spellTable] = true
     local function check(spellType, spellRef, id)
         local name, _, _, _, _, _, gsiSpellID = br.api.wow.GetSpellInfo(id)
         if not name or gsiSpellID ~= id then
