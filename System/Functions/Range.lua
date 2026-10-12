@@ -137,13 +137,54 @@ end
 -- Talents that change range (Astral Influence, Acrobatic Strikes) count unless option is "noMod".
 -- 100 when a unit is missing or not visible, 999 without a position.
 -- if br.functions.range:getDistance("target") < 5 then
+-- Distances measured this frame: distanceMemo[option or 1][Unit1][Unit2]. Positions can't change
+-- within a frame; "target" can, when BR targets something (range:clearDistanceMemo).
+local distanceMemoAt
+local distanceMemo = {}
+
+--- Forgets this frame's distances (call after changing the player's target mid-frame).
+function range:clearDistanceMemo()
+    distanceMemoAt = nil
+end
+
+local measureDistance
+
 function range:getDistance(Unit1, Unit2, option)
     if Unit2 == nil then
         Unit2 = Unit1
         Unit1 = "player"
     end
     if Unit1 == nil or Unit2 == nil then return 100 end
-    local okSame, isSame = pcall(function() return Unit1 == Unit2 or br._G.UnitIsUnit(Unit1, Unit2) end)
+    local now = br._G.GetTime()
+    if distanceMemoAt ~= now then
+        distanceMemoAt, distanceMemo = now, {}
+    end
+    local byOption = distanceMemo[option or 1]
+    if byOption == nil then
+        byOption = {}
+        distanceMemo[option or 1] = byOption
+    end
+    -- a secret unit value can't index a table (Forever): pcall, and then don't remember it
+    local ok, byFirst = pcall(rawget, byOption, Unit1)
+    if ok and byFirst then
+        local okKnown, known = pcall(rawget, byFirst, Unit2)
+        if okKnown and known then return known end
+    end
+    local distance = measureDistance(Unit1, Unit2, option)
+    if ok then
+        if byFirst == nil then
+            byFirst = {}
+            pcall(rawset, byOption, Unit1, byFirst)
+        end
+        pcall(rawset, byFirst, Unit2, distance)
+    end
+    return distance
+end
+
+-- The distance getDistance reports, measured
+function measureDistance(Unit1, Unit2, option)
+    if Unit1 == Unit2 then return 0 end
+    local okSame, isSame = pcall(br._G.UnitIsUnit, Unit1, Unit2)
     if okSame and isSame then return 0 end
     local unitFuncs = br.functions.unit
     local isPlayer1, isPlayer2 = unitFuncs:GetUnitIsUnit(Unit1, "player"), unitFuncs:GetUnitIsUnit(Unit2, "player")

@@ -97,7 +97,7 @@ function misc:pause(skipCastingCheck)
 		if br.functions.unit:GetObjectExists("target") and br.functions.misc:isInCombat("player") then
 			if br.functions.combat:getCombatTime() >= (tonumber(br.functions.misc:getOptionValue("DPS Testing")) * 60) and br.functions.unit:isDummy() then
 				br._G.StopAttack()
-				br._G.ClearTarget()
+				br._G.ClearTarget(); br.functions.range:clearDistanceMemo()
 				br._G.print(tonumber(br.functions.misc:getOptionValue("DPS Testing")) ..
 					" Minute Dummy Test Concluded - Profile Stopped")
 				br.profileStop = true
@@ -107,7 +107,7 @@ function misc:pause(skipCastingCheck)
 		elseif not br.functions.misc:isInCombat("player") and br.profileStop == true then
 			if br.functions.unit:GetObjectExists("target") then
 				br._G.StopAttack()
-				br._G.ClearTarget()
+				br._G.ClearTarget(); br.functions.range:clearDistanceMemo()
 				br.profileStop = false
 			end
 		end

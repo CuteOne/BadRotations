@@ -173,6 +173,7 @@ br.api.unit = function(self)
     -- @function unit.clearTarget
     -- @return nil
     unit.clearTarget = function()
+        br.functions.range:clearDistanceMemo()
         return br._G.ClearTarget()
     end
 
