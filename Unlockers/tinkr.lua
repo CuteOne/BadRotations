@@ -382,6 +382,13 @@ function unlock.TinkrUnlock()
 	------------------------- Unit ------------------
 	b.UnitCreator = function(...) return ObjectCreator(Object(...)) end
 	b.UnitMovementFlags = function(...) return ObjectMovementFlag(Object(...)) end
+	-- ObjectFlags(unit) returns flags1-4, unitFlags1, unitFlags2, dynamicFlags (Tinkr's API definitions,
+	-- WoW-U/vscode-tinkr-api); unitFlags1 is the unit flags field. Not yet seen in play.
+	b.UnitFlags = function(...)
+		local object = Object(...)
+		if object == nil then return nil end
+		return (select(5, ObjectFlags(object)))
+	end
 	b.UnitBoundingRadius = function(...) return ObjectBoundingRadius(Object(...)) end
 	b.UnitCombatReach = function(...) return ObjectCombatReach(Object(...)) end
 	b.UnitTarget = function(...) return ObjectCastingTarget(Object(...)) end
