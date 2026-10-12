@@ -482,6 +482,7 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 			then
 				br._G.TargetUnit(result)
 				targetFacts.at = nil -- the target changed: read it afresh
+				enemiesEngineFunctions.lastRetargetAt = br._G.GetTime() -- for the targeting log
 			end
 		end
 	end

@@ -381,11 +381,15 @@ br.debug.target = br.debug.target or {}
 local targetLine = fileLog("BRTarget.log")
 local TARGET_REPORT_UNITS = 6
 
-function br.debug.target:report()
+-- reason (optional): why an automatic report was made (written to the log only, not chat); units:
+-- how many candidates to list
+function br.debug.target:report(reason, units)
+    units = units or TARGET_REPORT_UNITS
     local function say(text)
-        br._G.print("|cffFFDD11[BR target]|r " .. text)
+        if reason == nil then br._G.print("|cffFFDD11[BR target]|r " .. text) end
         targetLine(text)
     end
+    if reason then say("--- " .. reason .. " ---") end
     if not (br.engines.targeting and br.engines.targeting.explain) then return say("Targeting isn't loaded.") end
     local misc = br.functions.misc
     local focus, list = br.engines.targeting:explain()
@@ -393,14 +397,39 @@ function br.debug.target:report()
         br._G.UnitExists("target") and printable(br._G.UnitName("target")) or "none"))
     if #list == 0 then return say("No enemy BR may attack.") end
     say("Focus: " .. (focus and printable(br._G.UnitName(focus)) or "none"))
-    for i = 1, math.min(TARGET_REPORT_UNITS, #list) do
+    for i = 1, math.min(units, #list) do
         local entry = list[i]
         local parts = {}
         for _, part in ipairs(entry.parts) do parts[#parts + 1] = ("%s %.1f"):format(part[1], plainNumber(part[2])) end
         say(("%d. %s %.1fyd: %.1f = %s"):format(i, printable(br._G.UnitName(entry.unit)), plainNumber(entry.distance or 0),
             plainNumber(entry.score), #parts > 0 and table.concat(parts, ", ") or "nothing"))
     end
-    if #list > TARGET_REPORT_UNITS then say(("... %d more"):format(#list - TARGET_REPORT_UNITS)) end
+    if #list > units then say(("... %d more"):format(#list - units)) end
+end
+
+-- Automatic reports in combat, so nothing depends on running /br target at the right moment: when BR's
+-- focus changes, the target changes, or BR changes the target. At most one per AUTO_GAP seconds and
+-- AUTO_PER_COMBAT per fight. Called by Player:startRotation after the rotation.
+local AUTO_GAP, AUTO_PER_COMBAT = 3, 30
+local autoLast, autoCount, lastFocus, lastTargetGUID = 0, 0, nil, nil
+function br.debug.target:watch()
+    if not br._G.UnitAffectingCombat("player") or not br.engines.targeting then
+        autoCount, lastFocus, lastTargetGUID = 0, nil, nil
+        return
+    end
+    local now = br._G.GetTime()
+    local focus = br.engines.targeting:getFocus()
+    local guid = br._G.UnitGUID("target")
+    local reason
+    if focus ~= lastFocus then reason = "BR's focus changed" end
+    if guid ~= lastTargetGUID then
+        reason = br.engines.enemiesEngineFunctions.lastRetargetAt == now and "BR changed your target" or "your target changed"
+    end
+    lastFocus, lastTargetGUID = focus, guid
+    if reason and now - autoLast >= AUTO_GAP and autoCount < AUTO_PER_COMBAT then
+        autoLast, autoCount = now, autoCount + 1
+        self:report(reason, 3)
+    end
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -545,3 +574,74 @@ function br.debug.melee:watch(player)
         episode = nil
     end
 end
+
+----------------------------------------------------------------------------------------------------
+-- Idle recorder (diagnostic): in combat with an enemy within 8 yd, when the player has cast nothing
+-- and isn't auto-attacking anything in melee for IDLE_AFTER seconds, writes one snapshot of the moment
+-- to BRIdle.log: target, BR's picks and scores, what the cast engine passed or refused, game errors.
+-- Called by Player:startRotation after the rotation.
+----------------------------------------------------------------------------------------------------
+br.debug.idle = br.debug.idle or {}
+local idleLine = fileLog("BRIdle.log")
+local IDLE_AFTER = 4
+local lastActionAt, idleLogged, idleInCombat = 0, false, false
+local idleErrors = {}
+
+local idleEvents = br._G.CreateFrame("Frame")
+idleEvents:RegisterEvent("UNIT_SPELLCAST_START")
+idleEvents:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+idleEvents:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+idleEvents:RegisterEvent("UI_ERROR_MESSAGE")
+idleEvents:SetScript("OnEvent", function(_, event, a, b)
+    if event == "UI_ERROR_MESSAGE" then
+        if #idleErrors < 10 then idleErrors[#idleErrors + 1] = printable(b) end
+    elseif a == "player" then
+        lastActionAt, idleLogged = br._G.GetTime(), false
+        br._G.wipe(idleErrors)
+    end
+end)
+
+function br.debug.idle:watch(player)
+    local now = br._G.GetTime()
+    if not br._G.UnitAffectingCombat("player") then
+        idleInCombat = false
+        return
+    end
+    -- the clock starts when the fight does (also after a /reload mid-fight)
+    if not idleInCombat then
+        idleInCombat, lastActionAt, idleLogged = true, now, false
+        return
+    end
+    if idleLogged or now - lastActionAt < IDLE_AFTER then return end
+    if #br.engines.enemiesEngineFunctions:getEnemies("player", 8) == 0 then return end
+    -- swinging at a target in melee isn't idle
+    local targetDist = br._G.UnitExists("target") and br.functions.range:getDistance("target") or 99
+    if br.functions.unit:isAutoAttacking() and targetDist < 5 then return end
+    idleLogged = true
+    local units = player and player.units
+    local spec = br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
+    idleLine(("=== idle %.1fs in combat ==="):format(now - lastActionAt))
+    idleLine("  target " .. (br._G.UnitExists("target") and (printable(br._G.UnitName("target")) .. (" %.1fyd"):format(plainNumber(targetDist))) or "none")
+        .. " | dyn5 " .. (units and units.dyn5 and printable(br._G.UnitName(units.dyn5)) or "none")
+        .. " | auto attack " .. (br.functions.unit:isAutoAttacking() and "on" or "off")
+        .. " | paused toggle " .. tostring(spec and spec.toggles and spec.toggles["Pause"]))
+    local decisions = {}
+    if br.functions.cast.eachDecisionSince then br.functions.cast:eachDecisionSince(lastActionAt, function(name, reason, detail)
+        if #decisions < 15 then
+            decisions[#decisions + 1] = printable(name) .. (reason and (" refused " .. reason .. (detail and (" (" .. printable(tostring(detail)):sub(1, 40) .. ")") or "")) or " passed")
+        end
+    end) end
+    idleLine("  BR since the last action: " .. (#decisions > 0 and table.concat(decisions, ", ") or "nothing tried"))
+    if #idleErrors > 0 then idleLine("  game errors: " .. table.concat(idleErrors, ", ")) end
+    if br.engines.targeting then
+        local focus, list = br.engines.targeting:explain()
+        idleLine("  focus " .. (focus and printable(br._G.UnitName(focus)) or "none") .. ", candidates:")
+        for i = 1, math.min(3, #list) do
+            local parts = {}
+            for _, part in ipairs(list[i].parts) do parts[#parts + 1] = ("%s %.1f"):format(part[1], plainNumber(part[2])) end
+            idleLine(("    %s %.1fyd: %.1f = %s"):format(printable(br._G.UnitName(list[i].unit)), plainNumber(list[i].distance or 0),
+                plainNumber(list[i].score), table.concat(parts, ", ")))
+        end
+    end
+end
+
