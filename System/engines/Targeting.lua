@@ -35,7 +35,7 @@ local SCAN_RANGE = 50  -- yards; the enemies engine lists no further
 local scoredAt          -- GetTime of the frame the scores are for
 local scores = {}       -- unit -> score, for every unit BR may attack this frame
 local distances = {}    -- unit -> distance (yards), measured with the scores
-local burning = {}      -- unit -> true for burn units (Forced Burn) this frame
+local priority = {}     -- unit -> "burn", "totem" or "skull" for priority units this frame (by option)
 local focus, focusSince -- BR's overall choice and when it was made
 local lastPick = {}     -- request key -> the unit it took last
 local explaining        -- while explaining: unit -> { { part, value }, ... }
@@ -77,7 +77,7 @@ local function refresh()
 	scoredAt = now
 	br._G.wipe(scores)
 	br._G.wipe(distances)
-	br._G.wipe(burning)
+	br._G.wipe(priority)
 	local misc, ef = br.functions.misc, br.engines.enemiesEngineFunctions
 	local mode = misc:getOptionValue("Target Preference") - 1
 	local nearDeath = misc:isChecked("Prefer Near Death")
@@ -117,15 +117,21 @@ local function refresh()
 			local hp = br.functions.unit:getHP(unit)
 			if hp < NEAR_DEATH then addPart("near death", W.nearDeath * (1 - hp / NEAR_DEATH)) end
 		end
-		if skull and br._G.GetRaidTargetIndex(unit) == 8 then addPart("skull", W.priority) end
-		if totems and ef:isTotem(unit) then addPart("totem", W.priority) end
+		if skull and br._G.GetRaidTargetIndex(unit) == 8 then
+			addPart("skull", W.priority)
+			priority[unit] = priority[unit] or "skull"
+		end
+		if totems and ef:isTotem(unit) then
+			addPart("totem", W.priority)
+			priority[unit] = priority[unit] or "totem"
+		end
 		-- a burn unit must die to prevent heavy damage: the top priority plus its own weight, so it
 		-- beats ordinary reasons and takes over the focus when it appears mid-fight
 		if burn then
 			local burnWeight = ef:isBurnTarget(unit)
 			if burnWeight > 0 then
 				addPart("burn", W.priority + burnWeight)
-				burning[unit] = true
+				priority[unit] = "burn"
 			end
 		end
 		if shields then addPart("shield", ef:getShieldCoefficient(unit)) end
@@ -172,16 +178,28 @@ function targeting:pick(range, facing)
 	return best
 end
 
---- The best burn unit (Forced Burn) a request of this range and facing can reach, or nil. Burn units
---- take spells even over a usable target (enemiesEngineFunctions:dynamicTarget).
-function targeting:pickBurn(range, facing)
+--- The best priority unit (burn, totem with Prioritize Totems, skull with Skull First) a request of this
+--- range and facing can reach, or nil. Priority units take spells even over a usable target
+--- (enemiesEngineFunctions:dynamicTarget). burnOnly: only burn units (a target holding combo points).
+function targeting:pickPriority(range, facing, burnOnly)
 	refresh()
-	if next(burning) == nil then return nil end
+	if next(priority) == nil then return nil end
 	local best
 	for _, unit in ipairs(br.engines.enemiesEngineFunctions:getEnemies("player", range, false, facing)) do
-		if burning[unit] and distances[unit] < range and (best == nil or scores[unit] > scores[best]) then best = unit end
+		local kind = priority[unit]
+		if kind and (not burnOnly or kind == "burn") and distances[unit] < range
+			and (best == nil or scores[unit] > scores[best])
+		then
+			best = unit
+		end
 	end
 	return best
+end
+
+--- True for a priority unit this frame (see targeting:pickPriority).
+function targeting:isPriority(unit)
+	refresh()
+	return priority[unit] ~= nil
 end
 
 --- BR's overall focus this frame and the scores (for /br target and diagnostics).

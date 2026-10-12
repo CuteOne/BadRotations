@@ -485,6 +485,16 @@ local function targetUsable(range, facing)
 	return true
 end
 
+-- True when the target holds the player's combo points (Classic-era: stored on it, lost on a switch)
+local function targetHoldsComboPoints()
+	return br.api and br.api.comboPointsOnTarget
+		and (tonumber(br._G.GetComboPoints and br._G.GetComboPoints("player", "target")) or 0) > 0 or false
+end
+
+-- Facing requests up to this range (yards) are melee: auto attack follows the WoW target, so BR switches
+-- it to its pick in the cases dynamicTarget describes
+local MELEE_RETARGET = 8
+
 --- The unit a request of this range (yards) and facing should attack: the selected target when it can
 --- take it, otherwise BR's pick (br.engines.targeting), or nil.
 --- Options (Targeting page): Targeting Mode Off (or Targeting Only In Combat, out of combat) keeps to
@@ -507,24 +517,30 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 	local dynamicOn = mode ~= 1 and (inCombat or not misc:isChecked("Targeting Only In Combat"))
 	if not dynamicOn then
 		result = usable and "target" or nil
+	elseif usable and targetHoldsComboPoints() then
+		-- Combo points are stored on the target (Classic-era) and lost on a switch: only a burn unit
+		-- (lethal if ignored) takes the spell from it
+		result = br.engines.targeting:pickPriority(range, facing, true) or "target"
 	elseif usable and not autoTargetDynamic then
-		-- a burn unit must die to prevent heavy damage: it takes the spell even over a usable target
-		-- (the WoW target stays as the player set it)
-		result = br.engines.targeting:pickBurn(range, facing) or "target"
-	elseif usable and br.api and br.api.comboPointsOnTarget
-		and (tonumber(br._G.GetComboPoints and br._G.GetComboPoints("player", "target")) or 0) > 0
-	then
-		-- Combo points are stored on the target (Classic-era) and lost on a switch
-		result = "target"
+		-- a priority unit (burn, totem, skull: by option) takes the spell even over a usable target
+		result = br.engines.targeting:pickPriority(range, facing) or "target"
 	else
 		result = br.engines.targeting:pick(range, facing)
-		-- In combat, set the WoW target to the pick when wanted (never to a dummy, nor an explosive
-		-- when facing is required)
-		if inCombat and result ~= nil then
+	end
+	-- In combat, set the WoW target to the pick when wanted (never to a dummy, nor an explosive when
+	-- facing is required). Melee (a facing request up to MELEE_RETARGET yards) also follows the pick
+	-- when it's attacking the player while the target can't take melee, or when it's a priority unit:
+	-- auto attack and next-swing spells (Maul) only ever hit the WoW target, so without the switch
+	-- they swing at nothing (2026-10-12 play: no hits, no rage, nothing usable).
+	if dynamicOn and inCombat and result ~= nil and result ~= "target" then
+		do
 			local unitFns = br.functions.unit
 			local targetExists = unitFns:GetObjectExists("target")
+			local meleeRequest = facing and range <= MELEE_RETARGET
 			local wantRetarget = autoTargetDynamic or not targetExists or not br.functions.cast:isUnitVisible("target")
 				or (misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack("target"))
+				or (meleeRequest and (br.engines.targeting:isPriority(result)
+					or (not usable and misc:isTargeting(result))))
 			if wantRetarget and not unitFns:GetUnitIsUnit(result, "target") and not unitFns:isDummy(result)
 				and not (facing and unitFns:isExplosive(result))
 			then
