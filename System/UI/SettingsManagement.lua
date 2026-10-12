@@ -24,7 +24,10 @@ function settingsManagement:normalizeSpecKey(rawSpec)
 	return rawSpec
 end
 
+-- Folders known to exist (checked or made this session)
+local knownDirs = {}
 local function checkDirectory(dir)
+	if knownDirs[dir] then return end
 	if not br._G.DirectoryExists(dir) then
 		br._G.CreateDirectory(dir)
 		if not br._G.DirectoryExists(dir) then
@@ -33,6 +36,7 @@ local function checkDirectory(dir)
 			return nil
 		end
 	end
+	knownDirs[dir] = true
 end
 
 --------------------------------------------------------------------------
@@ -42,121 +46,79 @@ local function exportstring(s)
     return string.format("%q", s)
 end
 
--- The Save Function
-local tableSave = function(tbl, filename)
-    local charS, charE = "   ", "\n"
-    -- local file,err = io.open( filename, "wb" )
-    -- if err then return err end
-    -- br._G.WriteFile(filename, "", false)
-    local content = ""
-    -- initiate variables for save procedure
-    local tables, lookup = { tbl }, { [tbl] = 1 }
-    -- file:write( "return {"..charE )
-    -- br._G.WriteFile(filename, "return {" .. charE, true)
-    content = content .. "return {" .. charE
-
-    for idx, t in ipairs(tables) do
-        -- file:write( "-- Table: {"..idx.."}"..charE )
-        -- br._G.WriteFile(filename, "-- Table: {" .. idx .. "}" .. charE, true)
-        content = content .. "-- Table: {" .. idx .. "}" .. charE
-        -- file:write( "{"..charE )
-        -- br._G.WriteFile(filename, "{" .. charE, true)
-        content = content .. "{" .. charE
-        local thandled = {}
-
-        for i, v in ipairs(t) do
-            thandled[i] = true
-            local stype = type(v)
-            -- only handle value
-            if stype == "table" then
-                if not lookup[v] then
-                    table.insert(tables, v)
-                    lookup[v] = #tables
-                end
-                -- file:write( charS.."{"..lookup[v].."},"..charE )
-                -- br._G.WriteFile(filename, charS .. "{" .. lookup[v] .. "}," .. charE, true)
-                content = content .. charS .. "{" .. lookup[v] .. "}," .. charE
-            elseif stype == "string" then
-                -- file:write(  charS..exportstring( v )..","..charE )
-                -- br._G.WriteFile(filename, charS .. exportstring(v) .. "," .. charE, true)
-                content = content .. charS .. exportstring(v) .. "," .. charE
-            elseif stype == "number" or stype == "boolean" then
-                -- file:write(  charS..tostring( v )..","..charE )
-                -- br._G.WriteFile(filename, charS .. tostring(v) .. "," .. charE, true)
-                content = content .. charS .. tostring(v) .. "," .. charE
-            end
-        end
-
-        for i, v in pairs(t) do
-            -- escape handled values
-            if (not thandled[i]) then
-                local str = ""
-                local stype = type(i)
-                -- handle index
-                if stype == "table" then
-                    if not lookup[i] then
-                        table.insert(tables, i)
-                        lookup[i] = #tables
-                    end
-                    str = charS .. "[{" .. lookup[i] .. "}]="
-                elseif stype == "string" then
-                    str = charS .. "[" .. exportstring(i) .. "]="
-                elseif stype == "number" then
-                    str = charS .. "[" .. tostring(i) .. "]="
-                elseif stype == "boolean" then
-                    str = charS .. "[" .. i .. "]="
-                end
-
-                if str ~= "" then
-                    stype = type(v)
-                    -- handle value
-                    if stype == "table" then
-                        if not lookup[v] then
-                            table.insert(tables, v)
-                            lookup[v] = #tables
-                        end
-                        -- file:write( str.."{"..lookup[v].."},"..charE )
-                        -- br._G.WriteFile(filename, str .. "{" .. lookup[v] .. "}," .. charE, true)
-                        content = content .. str .. "{" .. lookup[v] .. "}," .. charE
-                    elseif stype == "string" then
-                        -- file:write( str..exportstring( v )..","..charE )
-                        -- br._G.WriteFile(filename, str .. exportstring(v) .. "," .. charE, true)
-                        content = content .. str .. exportstring(v) .. "," .. charE
-                    elseif stype == "number" or stype == "boolean" then
-                        -- file:write( str..tostring( v )..","..charE )
-                        -- br._G.WriteFile(filename, str .. tostring(v) .. "," .. charE, true)
-                        content = content .. str .. tostring(v) .. "," .. charE
-                    end
-                end
-            end
-        end
-        -- file:write( "},"..charE )
-        -- br._G.WriteFile(filename, "}," .. charE, true)
-        content = content .. "}," .. charE
-    end
-    -- file:write( "}" )
-    -- br._G.WriteFile(filename, "}", true)
-    content = content .. "}"
-    -- file:close()
-    br._G.WriteFile(filename, content, false)
+-- Keys in a fixed order, so the same settings always give the same file text
+local function keyOrder(a, b)
+    local ta, tb = type(a), type(b)
+    if ta ~= tb then return ta < tb end
+    if ta == "number" or ta == "string" then return a < b end
+    return tostring(a) < tostring(b)
 end
 
--- The Load Function
-local tableLoad = function(sfile)
-    local file = br._G.ReadFile(sfile)
+-- The file text for a table: "return { {table 1}, {table 2}, ... }", where a table value or key is
+-- written as {n}, the number of its table (shared and cyclic tables are written once)
+local function serialize(tbl)
+    local charS, charE = "   ", "\n"
+    local out = { "return {" .. charE }
+    local tables, lookup = { tbl }, { [tbl] = 1 }
+    -- The text for a key or value, or nil for types that aren't saved (functions, ...)
+    local function literal(v)
+        local vtype = type(v)
+        if vtype == "table" then
+            if not lookup[v] then
+                tables[#tables + 1] = v
+                lookup[v] = #tables
+            end
+            return "{" .. lookup[v] .. "}"
+        elseif vtype == "string" then
+            return exportstring(v)
+        elseif vtype == "number" or vtype == "boolean" then
+            return tostring(v)
+        end
+    end
+    for idx, t in ipairs(tables) do
+        out[#out + 1] = "-- Table: {" .. idx .. "}" .. charE
+        out[#out + 1] = "{" .. charE
+        local thandled = {}
+        for i, v in ipairs(t) do
+            thandled[i] = true
+            local value = literal(v)
+            if value then out[#out + 1] = charS .. value .. "," .. charE end
+        end
+        local keys = {}
+        for i in pairs(t) do
+            if not thandled[i] then keys[#keys + 1] = i end
+        end
+        table.sort(keys, keyOrder)
+        for _, i in ipairs(keys) do
+            local key = literal(i)
+            if key then
+                local value = literal(t[i])
+                if value then out[#out + 1] = charS .. "[" .. key .. "]=" .. value .. "," .. charE end
+            end
+        end
+        out[#out + 1] = "}," .. charE
+    end
+    out[#out + 1] = "}"
+    return table.concat(out)
+end
+
+-- The Save Function
+local function tableSave(tbl, filename)
+    br._G.WriteFile(filename, serialize(tbl), false)
+end
+
+-- A table from file text written by serialize (nil for no text)
+local function parse(file, name)
     if file == nil or file == "" then
         return
     end
-    local ftables = br._G.loadstring(file, sfile)
-    -- local ftables,err = loadfile( sfile )
-    -- if err then return _,err end
+    local ftables = br._G.loadstring(file, name)
     local tables
     if (ftables) then
         tables = ftables()
     else
         tables = {}
     end
-    -- return deepcopy(tables)
     for idx = 1, #tables do
         local tolinki = {}
         for i, v in pairs(tables[idx]) do
@@ -173,6 +135,11 @@ local tableLoad = function(sfile)
         end
     end
     return tables[1]
+end
+
+-- The Load Function
+local function tableLoad(sfile)
+    return parse(br._G.ReadFile(sfile), sfile)
 end
 
 -- Default Settings
@@ -491,9 +458,8 @@ local function countValues(t, seen)
 end
 
 -- Keeps the previous SETTINGS_BACKUPS versions of a file as <file>.bak1 .. .bakN
-local function rotateBackups(path)
-	local current = br._G.ReadFile(path)
-	if current == nil or current == "" then return end
+-- current: the file's text now
+local function rotateBackups(path, current)
 	for i = SETTINGS_BACKUPS - 1, 1, -1 do
 		local older = br._G.ReadFile(path .. ".bak" .. i)
 		if older ~= nil and older ~= "" then
@@ -695,12 +661,21 @@ local function countReverted(newPages, diskPages)
 	return reverted, customised
 end
 
+-- Settings files whose backups were rotated this session
+local backedUp = {}
+
 -- Writes a settings file with the S0 protections: backups, and refusing to replace a full file
--- with a mostly empty one (unless allowEmpty, used for a deliberate reset). With the option index
--- available it also refuses a save where most customised options went back to their defaults.
+-- with a mostly empty one (unless allowEmpty, used for a deliberate reset or snapshot). With the
+-- option index available it also refuses a save where most customised options went back to their
+-- defaults. A file that would come out the same isn't written. Routine saves keep the file as it
+-- was before this session's first save as .bak1 (so a run of saves doesn't push every older copy
+-- out); a deliberate write always keeps the file it replaces.
 local function writeSettingsFile(path, data, label, allowEmpty)
+	local content = serialize(data)
+	local current = br._G.ReadFile(path)
+	if content == current then return true end
 	if not allowEmpty then
-		local onDisk = tableLoad(path)
+		local onDisk = parse(current, path)
 		local reverted, customised = countReverted(data.pages, onDisk and onDisk.pages)
 		if reverted >= GUARD_MIN_REVERTED and reverted >= customised / 2 then
 			br._G.print("|cffFF0000Settings not saved (" .. label .. "):|r " .. reverted .. " of your " .. customised
@@ -715,13 +690,21 @@ local function writeSettingsFile(path, data, label, allowEmpty)
 			return false
 		end
 	end
-	rotateBackups(path)
-	tableSave(data, path)
+	if (allowEmpty or not backedUp[path]) and current ~= nil and current ~= "" then
+		rotateBackups(path, current)
+		backedUp[path] = true
+	end
+	br._G.WriteFile(path, content, false)
 	return true
 end
 
--- Records this character's class, spec and time of save (used to seed new characters)
+-- Records this character's class, spec and time of save (used to seed new characters), once per
+-- spec per session
+-- Specs already recorded this session (the time is only used to pick the most recent character)
+local indexTouched = {}
 local function touchIndex(specKey)
+	if indexTouched[specKey] then return end
+	indexTouched[specKey] = true
 	local path = indexPath()
 	local index = tableLoad(path) or {}
 	local key = characterKey()
