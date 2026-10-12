@@ -10,6 +10,11 @@ local lookups, lookupsAt = {}, nil
 
 local NOT_FOUND = {}
 
+-- True for aura data that hasn't run out; expirationTime 0 is an aura that doesn't expire (forms).
+local function isActive(auraInfo)
+	return auraInfo ~= nil and (auraInfo.expirationTime == 0 or auraInfo.expirationTime > br._G.GetTime())
+end
+
 local function lookupKey(kind, unit, spellID, filter)
 	if unit == nil then return nil end
 	if type(unit) == "string" and (unit:find("target", 1, true) or unit == "focus" or unit == "mouseover") then
@@ -86,7 +91,7 @@ local function findDebuff(unit, spellID, filter)
         -- Failsafe if not cached
         if unit == "player" then
             local auraInfo = br.api.wow.GetPlayerAuraBySpellID(spellID)
-            if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
+            if isActive(auraInfo) then return auraInfo end
         end
         local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
         if exactSearch then
@@ -383,7 +388,7 @@ function aura:findBuff(unit, spellID, filter)
 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
  	if unit == "player" then
 	    local auraInfo = br.api.wow.GetPlayerAuraBySpellID(spellID)
-	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
+	    if isActive(auraInfo) then return auraInfo end
 	end
 	if exactSearch then
 		for i = 1, 40 do
