@@ -26,17 +26,10 @@ function slashCommands:SlashCommandHelp(cmd, msg)
 	-- br.slashCommands.commandHelp = br.slashCommands.commandHelp .. "|cffFFFFFF\n        /" .. cmd .. "|cffFFDD11 - " .. msg
 end
 
+-- /br on its own: BadRotations on/off (the main button), and the minimap button shown
 local function toggleUI()
-	local UIState = false
-	if UIState == false then
-		br.ui.toggles.mainButton:Click()
-		br.ui.minimapButton.frame:Show()
-		br.UIState = true
-	else
-		br.ui.toggles.mainButton:Click()
-		br.ui.minimapButton.frame:Hide()
-		br.UIState = false
-	end
+	br.ui.toggles.mainButton:Click()
+	br.ui.minimapButton.frame:Show()
 end
 
 local function toggle(name, index, check)
@@ -166,7 +159,7 @@ local function handler(message, editbox)
 		toggleUI()
 	elseif msg == "help" then
 		-- Help
-		br.SlashCommandHelp("Print Help")
+		br.slashCommands:SlashCommandHelp("Print Help")
 	elseif msg1 == "cooldowns" then
 		if not br.player then return false end
 		if br.player.ui.mode.cooldown == 2 then

@@ -163,47 +163,26 @@ function br.ui:saveWindowPosition()
 end
 
 function br.ui:showWindow(windowName)
-    for k, _ in pairs(br.ui.window) do
-        if k == windowName then
-            if br.ui.window[k].parent ~= nil then
-                br.ui.window[k].parent:Show()
-                br.data.settings[br.loader.selectedSpec][k].active = true
-            end
-        end
+    local window = br.ui.window[windowName]
+    if window ~= nil and window.parent ~= nil then
+        window.parent:Show()
+        br.data.settings[br.loader.selectedSpec][windowName].active = true
     end
 end
 
+-- windowName "all" closes every open window, for every spec that has it saved as open
 function br.ui:closeWindow(windowName)
-    for k, _ in pairs(br.ui.window) do
-        if k == windowName or windowName == "all" then
-            if br.ui.window[k].parent ~= nil then
-                if k == windowName then
-                    br.ui.window[k].parent.closeButton:Click()
-                    break
-                else
-                    for l, w in pairs(br.data.settings) do
-                        if
-                            br.data.settings[tostring(l)] ~= nil and type(w) ~= "string" and type(w) ~= "number" and
-                                type(w) ~= "boolean"
-                         then
-                            for m, _ in pairs(br.data.settings[tostring(l)]) do
-                                if m == k then
-                                    if
-                                        br.data.settings[br.loader.selectedSpec] ~= nil and
-                                            br.data.settings[br.loader.selectedSpec].toggles ~= nil and
-                                            br.data.settings[br.loader.selectedSpec].toggles["Power"] ~= 1
-                                     then
-                                        if br.data.settings[l][m].active == nil or br.data.settings[l][m].active then
-                                            br.ui.window[k].parent.closeButton:Click()
-                                            br.data.settings[l][m].active = false
-                                        end
-                                    elseif br.data.settings[l][m].active == nil or br.data.settings[l][m].active then
-                                        br.ui.window[k].parent.closeButton:Click()
-                                        br.data.settings[l][m].active = false
-                                    end
-                                end
-                            end
-                        end
+    for name, window in pairs(br.ui.window) do
+        if window.parent ~= nil then
+            if name == windowName then
+                window.parent.closeButton:Click()
+                return
+            elseif windowName == "all" then
+                for _, specSettings in pairs(br.data.settings) do
+                    local state = type(specSettings) == "table" and specSettings[name]
+                    if type(state) == "table" and state.active ~= false then
+                        window.parent.closeButton:Click()
+                        state.active = false
                     end
                 end
             end
@@ -212,23 +191,15 @@ function br.ui:closeWindow(windowName)
 end
 
 function br.ui:toggleWindow(windowName)
-    for k, _ in pairs(br.ui.window) do
-        if k == windowName then
-            if br.ui.window[k].parent ~= nil then
-                if br.data.settings[br.loader.selectedSpec][k] ~= nil then
-                    if br.data.settings[br.loader.selectedSpec][k].active == nil then
-                        br.ui.window[k].parent:Show()
-                        br.data.settings[br.loader.selectedSpec][k].active = true
-                    elseif br.data.settings[br.loader.selectedSpec][k].active then
-                        br.ui.window[k].parent.closeButton:Click()
-                        br.data.settings[br.loader.selectedSpec][k].active = false
-                    else
-                        br.ui.window[k].parent:Show()
-                        br.data.settings[br.loader.selectedSpec][k].active = true
-                    end
-                end
-            end
-        end
+    local window = br.ui.window[windowName]
+    local state = br.data.settings[br.loader.selectedSpec][windowName]
+    if window == nil or window.parent == nil or state == nil then return end
+    if state.active then
+        window.parent.closeButton:Click()
+        state.active = false
+    else
+        window.parent:Show()
+        state.active = true
     end
 end
 

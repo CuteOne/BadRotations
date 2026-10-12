@@ -35,34 +35,6 @@ local function checkDirectory(dir)
 	end
 end
 
-local function cleanOrphanedSettings(specID)
-    if not br.data or not br.data.settings or not br.data.settings[specID] then
-        return
-    end
-
-    local currentSettings = br.data.settings[specID]
-
-    -- Only clean options - toggles and modes are small and mostly static
-    if not currentSettings.options or not br.ui or not br.ui.options or not br.ui.options.options then
-        return
-    end
-
-    -- Build quick lookup of valid option keys
-    local validOptions = {}
-    for _, optionDef in pairs(br.ui.options.options) do
-        if type(optionDef) == "table" and optionDef.key then
-            validOptions[optionDef.key] = true
-        end
-    end
-
-    -- Remove orphaned options
-    for key in pairs(currentSettings.options) do
-        if not validOptions[key] then
-            currentSettings.options[key] = nil
-        end
-    end
-end
-
 --------------------------------------------------------------------------
 -- Table Save/Load code from: http://lua-users.org/wiki/SaveTableToFile --
 --------------------------------------------------------------------------
@@ -438,10 +410,6 @@ function settingsManagement:cleanSettings()
 			br._G.print("|cffFFDD00[cleanSettings] Skipping duplicate check - only " .. uiPageCount .. " pages built (need 3+)|r")
 		end
 
-		-- Note: this gate is redundant with Block A above (L543 already indexed
-		-- the same path unguarded); restructuring requires preserving that the
-		-- two blocks always run together, since the shared `removedItems` is
-		-- lifted to outer scope.
 		if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] then
 			local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
 
@@ -533,19 +501,6 @@ local function rotateBackups(path)
 		end
 	end
 	br._G.WriteFile(path .. ".bak1", current, false)
-end
-
-settingsManagement.fileList = {}
-function settingsManagement:findFileInFolder(file, folder)
-	if folder == nil or folder == "" then return false end
-	table.wipe(settingsManagement.fileList)
-	settingsManagement.fileList = br._G.GetDirectoryFiles(folder .. "*.lua")
-	for i = 1, #settingsManagement.fileList do
-		if settingsManagement.fileList[i] == file then
-			return true
-		end
-	end
-	return false
 end
 
 --------------------------------------------------------------------------
