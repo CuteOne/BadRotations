@@ -59,6 +59,9 @@ local function options()
         tip = "Time in seconds the profile will wait while moving to shift. Combat is instant!" })
     br.ui:dropdown(section, "Clearcasting Use", { choices = { "Any", "DPS Only", "Healing Only", "None" }, checkbox = false,
         tip = "What Clearcasting (Omen of Clarity) procs should be spent on" })
+    br.ui:spinner(section, "Faerie Fire", { value = 40, checked = true,
+        tip = "Keep Faerie Fire on your target in any form: it lowers the target's armor and stops it stealthing",
+        boxTip = "In Cat or Bear Form, only while your mana is at or above this percent, so heals and shifting back stay affordable" })
 
     section = br.ui:section("Cat Form")
     br.ui:dropdown(section, "Cat Opener", { choices = { "Pounce", "Ravage", "Shred", "Rake" }, value = "Ravage", checkbox = false,
@@ -77,7 +80,6 @@ local function options()
 
     section = br.ui:section("Caster Form")
     br.ui:checkbox(section, "Moonkin Form", { checked = true, tip = "Use Moonkin Form (talent) when the Forms toggle picks Caster" })
-    br.ui:checkbox(section, "Faerie Fire", { tip = "Use Faerie Fire on your target in Caster Form" })
     br.ui:spinner(section, "Hurricane", { value = 3, min = 2, max = 10, step = 1,
         tip = "Channel Hurricane on your target when at least this many enemies are within 8 yards of it" })
     br.ui:checkbox(section, "Hibernate", { tip = "In Caster Form, Hibernate a Beast or Dragonkin attacking you that isn't your target" })
@@ -864,15 +866,6 @@ end -- End Action List - Cat Form
 actionList.CasterForm = function()
     local thisUnit = units.dyn30AOE
     local ttd = unit.ttd(thisUnit)
-    -- Faerie Fire
-    if ui.checked("Faerie Fire") and cast.able.faerieFire("target") and unit.enemy("target") and unit.canAttack("target")
-        and not debuff.faerieFire.exists("target") and unit.ttd("target") > 10
-    then
-        if cast.faerieFire("target") then
-            ui.debug("Casting Faerie Fire")
-            return true
-        end
-    end
     -- Hurricane: no cooldown on Forever; channel it into a pack
     if ui.checked("Hurricane") and not unit.moving() and cast.able.hurricane.ground(8, ui.value("Hurricane")) then
         if cast.hurricane.ground(8, ui.value("Hurricane")) then
@@ -1019,6 +1012,17 @@ actionList.Combat = function()
         local chargeKey = spell.feralChargeBear.known() and "feralChargeBear" or "feralCharge"
         if cast.able[chargeKey]("target") and cast[chargeKey]("target") then
             ui.debug("Casting Feral Charge")
+            return true
+        end
+    end
+    -- Faerie Fire: castable in every form on Forever, and it doesn't stack, so anyone's counts. Target
+    -- only: the armor loss helps the damage you deal to that unit, and each cast costs a GCD and mana.
+    -- In Cat/Bear the mana is what heals and shifting back need, so it keeps a reserve. Never from Prowl.
+    if ui.checked("Faerie Fire") and (not inForm or mana >= ui.value("Faerie Fire")) and not buff.prowl.exists()
+        and unit.ttd("target") > 10 and not debuff.faerieFire.exists("target", "any") and cast.able.faerieFire("target")
+    then
+        if cast.faerieFire("target") then
+            ui.debug("Casting Faerie Fire")
             return true
         end
     end
