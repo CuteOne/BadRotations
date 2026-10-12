@@ -425,8 +425,11 @@ function engine:scan(now, fps, inRaid)
 		then
 			local x, y, z = ObjectPosition(unit)
 			local inReach = x ~= nil and pX ~= nil and math.sqrt(((x - pX) ^ 2) + ((y - pY) ^ 2) + ((z - pZ) ^ 2)) <= maxDistance
+			-- A corpse you may loot is tracked too (Auto Loot), even when the game no longer counts it
+			-- as attackable: one that died out of view or before a /reload was never tracked alive
 			if inReach and #engine.recordList < limit and not br.functions.unit:isCritter(unit)
-				and (br._G.UnitCanAttack("player", unit) or (br._G.UnitGUID(unit) and string.match(br._G.UnitGUID(unit), "Pet")))
+				and (br._G.UnitCanAttack("player", unit) or (br._G.UnitGUID(unit) and string.match(br._G.UnitGUID(unit), "Pet"))
+					or (autoLoot and br._G.UnitIsDeadOrGhost(unit) and br._G.CanLootUnit(br._G.UnitGUID(unit))))
 			then
 				record = engine:track(unit)
 				if record then list(record) end
