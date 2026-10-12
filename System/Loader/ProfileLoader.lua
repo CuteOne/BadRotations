@@ -26,9 +26,10 @@ local function errorhandler(err)
     return br._G.geterrorhandler()(err)
 end
 
--- Compiles and runs one rotation/support file in an environment that sees br and _G.
+-- Compiles and runs one rotation/support file. Its environment sees br, and reads globals through
+-- br._G, so bare names get BR's versions (expansion shims, unlocker functions, tagged print).
 local function loadFile(profile, file)
-    local custom_env = setmetatable({ br = br }, { __index = _G })
+    local custom_env = setmetatable({ br = br }, { __index = br._G })
     local func, errorMessage = br._G.loadstring(profile, file);
     if not func then
         br._G.print("Error: " .. file .. " Cannot Load.  Please inform devs!")

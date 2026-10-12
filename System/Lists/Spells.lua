@@ -24,11 +24,12 @@ local function getFilesLocation()
     return br.functions.misc:getAddonPath()
 end
 
+-- Spell list files read bare globals through br._G (BR's versions: expansion shims, unlocker functions)
 local function loadFile(path, label)
     local data = br._G.ReadFile(path)
     if data then
         local func = assert(loadstring(data, label))
-        setfenv(func, setmetatable({}, {__index = _G}))
+        setfenv(func, setmetatable({}, {__index = br._G}))
         func(nil, br)
         return true
     end
@@ -65,7 +66,7 @@ function br.lists:loadExpansionSpells()
         local legacy = br._G.ReadFile(expBase .. sep .. "Spells.lua")
         if legacy then
             local func = assert(loadstring(legacy, expansion .. " Spells"))
-            setfenv(func, setmetatable({}, {__index = _G}))
+            setfenv(func, setmetatable({}, {__index = br._G}))
             func(nil, br)
         else
             br._G.print("|cffFF0000Error:|r " .. expansion .. " spell lists not found!")
