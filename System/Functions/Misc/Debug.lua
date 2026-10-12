@@ -12,7 +12,7 @@ function misc:addonDebug(msg, system)
 	-- A message built with a secret value (a unit name, say) can only print as <SECRET>; say where it
 	-- came from instead, so the line can be found
 	if br._G.issecretvalue and (br._G.issecretvalue(msg) or br._G.issecretvalue(msgText)) then
-		local where = br.ui.elementOptions and br.ui.elementOptions.rotationLine() or ""
+		local where = br.ui.elementOptions and br.ui.elementOptions.rotationLine(true) or ""
 		msgText = "(a debug line holding a secret value, from " .. (where ~= "" and where:gsub(":%s*$", "") or "BR") .. ")"
 	end
 	-- Prefer the dropdown value for Addon Debug Messages. Some configs

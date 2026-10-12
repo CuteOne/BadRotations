@@ -25,18 +25,31 @@ function elementOptions.indexOf(list, text)
     end
 end
 
+-- Debug plumbing between a message and the code that sent it
+local PLUMBING = { "ElementOptions%.lua", "Misc[/\\]Debug%.lua", "API[/\\]UI%.lua" }
+local function isPlumbing(location)
+    for i = 1, #PLUMBING do if location:find(PLUMBING[i]) then return true end end
+    return false
+end
+
 -- The rotation file's line that called into BR ("Druid-Forever.lua:72: "): the first caller outside
--- BR's System folder, or "" when there is none
-local function rotationLine()
+-- BR's System folder, or "" when there is none. With orSystem, code with no rotation file above it
+-- (an event handler, say) gets the first System line outside the debug plumbing instead: past a
+-- game (C) frame, callers above it (the loader, the game) say nothing about where the line came from.
+local function rotationLine(orSystem)
+    local systemLine
     for level = 2, 16 do
         local _, location = pcall(error, "", level)
         location = tostring(location)
-        if location == "" then break end
-        if not location:find("[/\\]System[/\\]") then
+        if location == "" then
+            if not orSystem or systemLine then break end
+        elseif not location:find("[/\\]System[/\\]") then
             return (location:gsub('^%[string "(.-)"%]', "%1"))
+        elseif orSystem and systemLine == nil and not isPlumbing(location) then
+            systemLine = location
         end
     end
-    return ""
+    return systemLine and (systemLine:gsub('^%[string "(.-)"%]', "%1"):gsub("^.*[/\\](System[/\\])", "%1")) or ""
 end
 elementOptions.rotationLine = rotationLine
 
