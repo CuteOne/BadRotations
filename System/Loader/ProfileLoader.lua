@@ -189,11 +189,17 @@ end
 function profileLoader:loadSupport(thisFile)
     if thisFile == nil then return end
     br.loader.rotations.support = br.loader.rotations.support or {}
-    if br.loader.rotations.support[thisFile] then
+    -- A support file sets a table or a function; a table is emptied before the file fills it again
+    if type(br.loader.rotations.support[thisFile]) == "table" then
         br._G.wipe(br.loader.rotations.support[thisFile])
     end
     local file = thisFile .. ".lua"
     local classPath, sep = getClassRotationsPath()
-    local profile = br._G.ReadFile(classPath .. 'Support' .. sep .. file)
+    local path = classPath .. 'Support' .. sep .. file
+    local profile = br._G.ReadFile(path)
+    if profile == nil then
+        warn("support file not found: " .. path)
+        return
+    end
     loadFile(profile, file)
 end
