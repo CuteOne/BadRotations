@@ -884,8 +884,8 @@ function settingsManagement:loadSettings(profile)
 end
 
 --- Saves the current settings: the character's Bot/Base Options files and the profile's settings
--- file. wipe = true resets them (the "Reset Options" path).
-function settingsManagement:saveSettings(wipe)
+-- file. wipe = true resets them (the "Reset Options" path). quiet = true leaves out the chat lines.
+function settingsManagement:saveSettings(wipe, quiet)
 	local profile = br.loader.selectedProfileName
 	-- "None" means no rotation is loaded; saving it would only store defaults (and create a folder)
 	if profile == nil or profile == "" or profile == "None" then
@@ -899,12 +899,21 @@ function settingsManagement:saveSettings(wipe)
 	end
 	local specKey = br.loader.selectedSpec
 	local files = wipe and { bot = {}, base = {}, profile = {} } or currentFiles()
-	br._G.print("Saving Profiles and Settings to Directory: " .. tostring(profileDir))
+	if not quiet then br._G.print("Saving Profiles and Settings to Directory: " .. tostring(profileDir)) end
 	writeSettingsFile(botOptionsPath(), files.bot, "Bot Options", wipe)
 	writeSettingsFile(baseOptionsPath(specKey), files.base, "Base Options", wipe)
 	writeSettingsFile(profileDir .. "settings.lua", files.profile, profile, wipe)
 	touchIndex(specKey)
-	br._G.print("Saved Settings for Profile " .. profile)
+	if not quiet then br._G.print("Saved Settings for Profile " .. profile) end
+end
+
+--- Saves right away after a change made in the UI (Power click, toggle bar moved, profile switch),
+-- so it survives a crash; logout saves everything anyway. Only once this session's settings were
+-- loaded (never defaults over a real file), and without chat lines unless loud.
+function settingsManagement:saveIfLoaded(loud)
+	if br.loader.bootstrap and br.loader.bootstrap:canSave() then
+		settingsManagement:saveSettings(false, not loud)
+	end
 end
 
 ---------------------

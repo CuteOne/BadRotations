@@ -41,7 +41,7 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
                 br._G.print("Unable to change profile in combat.  Please try again when combat ends.")
             else
                 -- Save the current profile before switching (saving after would write it into the new one)
-                br.ui.settingsManagement:saveSettings()
+                br.ui.settingsManagement:saveIfLoaded(true)
                 br.data.settings[br.loader.selectedSpec][text .. "Drop"] = key
                 br.data.settings[br.loader.selectedSpec][text .. "DropValue"] = value
                 br.data.lastProfile = key

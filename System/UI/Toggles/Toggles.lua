@@ -76,8 +76,7 @@ function toggles:TogglesFrame()
 		mainButton:SetNormalTexture(turnOn and toggles.backIconOn or toggles.backIconOff)
 		glow.texture:SetTexture(turnOn and toggles.genericIconOn or toggles.genericIconOff)
 		if br._G.GameTooltip:IsOwned(mainButton) then mainTip() end
-		-- Persist toggle state immediately
-		br.ui.settingsManagement:saveSettings()
+		br.ui.settingsManagement:saveIfLoaded()
 	end)
 	mainButton:SetScript("OnEnter", function()
 		br._G.GameTooltip:SetOwner(mainButton, "ANCHOR_RIGHT")
@@ -92,8 +91,7 @@ function toggles:TogglesFrame()
 		local anchor, _, _, x, y = mainButton:GetPoint(1)
 		br.data.settings.mainButton = br.data.settings.mainButton or {}
 		br.data.settings.mainButton.pos = { anchor = anchor, x = x, y = y }
-		-- Persist updated position immediately
-		br.ui.settingsManagement:saveSettings()
+		br.ui.settingsManagement:saveIfLoaded()
 	end)
 	mainButton:SetScript("OnMouseWheel", function(_, delta)
 		if not br._G.IsLeftAltKeyDown() then return end
