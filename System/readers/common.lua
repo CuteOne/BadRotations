@@ -47,6 +47,13 @@ _superFrame:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED")
 -- Fired when the spellbook changes (a spell learned at a trainer or on level-up, talents, spec).
 _superFrame:RegisterEvent("SPELLS_CHANGED")
 
+-- The unit auto attack started on is dead or gone
+local function autoAttackTargetDied()
+	if autoAttackGUID == nil then return false end
+	local unit = br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(autoAttackGUID)
+	return unit == nil or br.functions.unit:GetUnitIsDeadOrGhost(unit)
+end
+
 -- Max stacks of an aura on a unit (buff.X.stackMax), from UNIT_AURA's added auras. Called through
 -- pcall: aura fields may be secret-tainted (e.g. by Details), and indexing with a secret spellId
 -- raises "table index is secret". A module function, not a closure made for every aura.
@@ -325,9 +332,11 @@ function common:commonReaders()
 			if not br.functions.misc:canUseValue(targetGUID) then targetGUID = nil end
 			if event == "PLAYER_ENTER_COMBAT" then autoAttackGUID = targetGUID end
 			-- Cast Debug: when auto attack stops mid-fight (a queued Maul / Heroic Strike goes with it,
-			-- "Interrupted"), say what was going on, so the cause can be told from the log
+			-- "Interrupted"), say what was going on, so the cause can be told from the log. Not when the
+			-- unit it started on died: the game drops a dead target, the fight's normal end.
 			if event == "PLAYER_LEAVE_COMBAT" and br._G.UnitAffectingCombat("player") and br.player and br.player.ui
 				and br.functions.misc:isChecked("Cast Debug") -- a diagnostic: Cast Debug only
+				and not autoAttackTargetDied()
 			then
 				local unit, misc = br.functions.unit, br.functions.misc
 				local target = "no target"
