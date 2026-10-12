@@ -65,14 +65,12 @@ local function onSetHyperlink(self, link)
 end
 hooksecurefunc(_G.ItemRefTooltip, "SetHyperlink", onSetHyperlink)
 hooksecurefunc(GameTooltip, "SetHyperlink", onSetHyperlink)
--- The spell ID of an aura tooltip (getData: a br.api.wow aura reader), or nil when it can't be read:
--- the aura readers throw in combat on Forever, and the ID can be secret
+-- The spell ID of an aura tooltip (getData: a br.api.wow aura reader), or nil when there's no aura
+-- or the ID isn't a value BR may use
 local function auraSpellID(getData, ...)
-	local ok, id = pcall(function(...)
-		local aura = getData(...)
-		return aura and aura.spellId
-	end, ...)
-	if ok and id and br.functions.misc:canUseValue(id) then return id end
+	local aura = getData(...)
+	local id = aura and aura.spellId
+	if id and br.functions.misc:canUseValue(id) then return id end
 end
 -- Spells
 for method, getData in pairs({ SetUnitBuff = "GetBuffDataByIndex", SetUnitDebuff = "GetDebuffDataByIndex",
