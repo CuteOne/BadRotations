@@ -20,8 +20,9 @@ function misc:addonDebug(msg, system)
 	-- set.
 	local addonDebugValue = br.functions.misc:getValue("Addon Debug Messages")
 	if br.functions.misc:isChecked("Addon Debug Messages") and addonDebugValue then
-		local showSystem = addonDebugValue == 1 or addonDebugValue == 2
-		local showProfile = addonDebugValue == 1 or addonDebugValue == 3
+		-- Choices: 1 System Only, 2 Profile Only, 3 All
+		local showSystem = addonDebugValue == 1 or addonDebugValue == 3
+		local showProfile = addonDebugValue == 2 or addonDebugValue == 3
 
 		-- Use a per-message short timer key so different messages printed
 		-- within a short interval aren't suppressed by the same global key.
