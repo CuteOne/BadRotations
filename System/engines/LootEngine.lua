@@ -28,6 +28,7 @@ if not lootEngine.metaTable then
 	lootEngine.lootSkipList = {}      -- GUIDs to skip this session (loot that can't be taken)
 	lootEngine.isLooting = false      -- Interact fired, awaiting loot window
 	lootEngine.lootWindowOpen = false -- Track if loot window is currently open
+	lootEngine.lootShown = false      -- LOOT_READY/LOOT_OPENED already handled for this loot
 	lootEngine.lootStartTime = 0      -- GetTime() the current interact was fired (timeout ref)
 	lootEngine.metaTable = {}         -- MetaTable for the engine
 	lootEngine.metaTable.__index = {
@@ -207,6 +208,7 @@ if not lootEngine.metaTable then
 		self:debug("Looting " .. (br._G.UnitName(lootUnit) or "unknown")
 			.. " at " .. math.floor(br.functions.range:getDistance(lootUnit) or 0) .. " yards")
 		self.lootGUID = unitGUID
+		self.lootShown = false
 		self.lootAttempts[unitGUID] = now
 		self.isLooting = true
 		self.lootStartTime = now
@@ -367,41 +369,53 @@ if not lootEngine.metaTable then
 		br._G.C_Timer.NewTicker(30, function() lootEngine:cleanupAttempts() end)
 
 		-- Register for loot events
+		-- The interact worked: loot is ready. LOOT_READY comes first, and with a fast-loot addon it
+		-- can be the only one: the addon takes everything and closes the loot before LOOT_OPENED, so
+		-- waiting for LOOT_OPENED alone timed out and interacted with the corpse again. Whichever
+		-- comes first counts, once per interact.
+		local function lootShown()
+			lootEngine.lootWindowOpen = true
+			lootEngine.isLooting = false
+			if lootEngine.lootShown then return end
+			lootEngine.lootShown = true
+			-- Count this successful open against the GUID we interacted with. Repeated
+			-- opens with loot still remaining are how getLoot detects unlootable
+			-- (unique/quest/already-owned) items — see MAX_LOOT_OPENS.
+			if lootEngine.lootGUID then
+				lootEngine.lootOpenCount[lootEngine.lootGUID] = (lootEngine.lootOpenCount[lootEngine.lootGUID] or 0) + 1
+			end
+			lootEngine:debug("Loot window opened")
+
+			-- Remove the unit from lootable table now that loot window opened successfully
+			if lootEngine.lootUnit then
+				-- Find and remove the unit from the lootable table (indexed by unit token)
+				if br.engines.enemiesEngine.lootable[lootEngine.lootUnit] then
+					br.engines.enemiesEngine.lootable[lootEngine.lootUnit] = nil
+					lootEngine:debug("Removed " .. (br._G.UnitName(lootEngine.lootUnit) or "unknown") .. " from lootable table")
+				end
+			end
+
+			-- If program Auto Loot is enabled and game Auto Loot is disabled, manually loot
+			if br.functions.misc:getOptionCheck("Auto Loot") and br._G.GetCVar("AutoLootDefault") == "0" then
+				-- Small delay to ensure loot frame is fully populated
+				br._G.C_Timer.After(0.1, function()
+					lootEngine:manuallyLootAll()
+				end)
+			end
+		end
+
 		local eventFrame = br._G.CreateFrame("Frame")
+		pcall(eventFrame.RegisterEvent, eventFrame, "LOOT_READY") -- not on every client
 		eventFrame:RegisterEvent("LOOT_OPENED")
 		eventFrame:RegisterEvent("LOOT_CLOSED")
 		eventFrame:RegisterEvent("LOOT_BIND_CONFIRM")
 		eventFrame:SetScript("OnEvent", function(self, event, ...)
-			if event == "LOOT_OPENED" then
-				lootEngine.lootWindowOpen = true
-				lootEngine.isLooting = false -- the interact succeeded; the window is up
-				-- Count this successful open against the GUID we interacted with. Repeated
-				-- opens with loot still remaining are how getLoot detects unlootable
-				-- (unique/quest/already-owned) items — see MAX_LOOT_OPENS.
-				if lootEngine.lootGUID then
-					lootEngine.lootOpenCount[lootEngine.lootGUID] = (lootEngine.lootOpenCount[lootEngine.lootGUID] or 0) + 1
-				end
-				lootEngine:debug("Loot window opened")
-
-				-- Remove the unit from lootable table now that loot window opened successfully
-				if lootEngine.lootUnit then
-					-- Find and remove the unit from the lootable table (indexed by unit token)
-					if br.engines.enemiesEngine.lootable[lootEngine.lootUnit] then
-						br.engines.enemiesEngine.lootable[lootEngine.lootUnit] = nil
-						lootEngine:debug("Removed " .. (br._G.UnitName(lootEngine.lootUnit) or "unknown") .. " from lootable table")
-					end
-				end
-
-				-- If program Auto Loot is enabled and game Auto Loot is disabled, manually loot
-				if br.functions.misc:getOptionCheck("Auto Loot") and br._G.GetCVar("AutoLootDefault") == "0" then
-					-- Small delay to ensure loot frame is fully populated
-					br._G.C_Timer.After(0.1, function()
-						lootEngine:manuallyLootAll()
-					end)
-				end
+			if event == "LOOT_READY" or event == "LOOT_OPENED" then
+				lootShown()
 
 			elseif event == "LOOT_CLOSED" then
 				lootEngine.lootWindowOpen = false
+				lootEngine.lootShown = false
 				lootEngine.isLooting = false
 				lootEngine.lootStartTime = 0
 				-- If the corpse we just looted is now empty, clear its open-count so the
