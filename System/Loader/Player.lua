@@ -34,6 +34,7 @@ function Player:new(spec)
 		instance = select(2, br._G.IsInInstance()),         -- Instance type (none, party, raid, etc)
 		-- posX, posY, posZ: player position cache (Range.lua)
 		-- mounted, dismountTime: mount state and when the player last landed (getCharacterInfo)
+		-- pauseReason: why the rotation is paused this tick, nil when it runs (startRotation)
 	}
 	return self
 end
@@ -120,7 +121,16 @@ function Player:getInCombat()
 	state.inCombatPrevious = state.inCombat
 end
 
--- Start the rotation or return if paused
+-- The overlay text for a pause reason; casting and similar pauses pass silently
+local quietPauses = { ["dead"] = true, ["control disabled"] = true, ["casting"] = true, ["channelling"] = true, ["item channel"] = true }
+local function pauseText(reason)
+	if reason == "pause toggle" then return "\124cFFED0000 -- Paused -- " end
+	return "Profile Paused: " .. reason
+end
+
+-- Start the rotation, unless BR is paused (misc:pauseReason). While paused, neither the shared
+-- modules nor the profile run. A rotation registered with actsWhileCasting keeps running while
+-- the player casts or channels.
 function Player:startRotation()
 	local startTime = br._G.debugprofilestop()
 	-- Halt all rotations during loading screens and transitions
@@ -139,18 +149,28 @@ function Player:startRotation()
 		return
 	end
 
-	if self.rotation ~= nil and self.rotation.run ~= nil then
+	if self.rotation == nil or self.rotation.run == nil then
+		return
+	end
+
+	local state = self.state
+	local reason = br.functions.misc:pauseReason(self.rotation.actsWhileCasting == true)
+	-- Shown once when the reason changes, not on every paused tick
+	if reason ~= state.pauseReason and reason and not quietPauses[reason] then
+		br.ui.chatOverlay:Show(pauseText(reason))
+	end
+	state.pauseReason = reason
+
+	if reason == nil then
 		br.functions.cast:openerBeginPass()
 		self:runModules()
 		self.rotation.run()
 		br.functions.cast:openerEndPass()
-		br.debug.melee:watch(self)
-		br.debug.target:watch()
-		br.debug.idle:watch(self)
-		br.debug.melee:readComboPoints()
-	else
-		return
 	end
+	br.debug.melee:watch(self)
+	br.debug.target:watch()
+	br.debug.idle:watch(self, reason ~= nil)
+	br.debug.melee:readComboPoints()
 	br.debug.cpu:updateDebug(startTime, "rotation")
 end
 

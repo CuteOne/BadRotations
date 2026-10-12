@@ -950,5 +950,6 @@ br.loader.registerRotation({
     readiness = "Raid",
     toggles   = toggles,
     options   = options,
+    actsWhileCasting = true, -- acts during casts and channels; checks them itself
     run       = runRotation,
 })

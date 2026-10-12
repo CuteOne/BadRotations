@@ -617,10 +617,15 @@ idleEvents:SetScript("OnEvent", function(_, event, a, b)
     end
 end)
 
-function br.debug.idle:watch(player)
+function br.debug.idle:watch(player, paused)
     local now = br._G.GetTime()
     if not br._G.UnitAffectingCombat("player") then
         idleInCombat = false
+        return
+    end
+    -- a paused rotation isn't idle: the clock starts again when the pause ends
+    if paused then
+        idleInCombat, lastActionAt, idleLogged = true, now, false
         return
     end
     -- the clock starts when the fight does (also after a /reload mid-fight)

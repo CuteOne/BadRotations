@@ -108,7 +108,8 @@ end
 --- Registers a rotation profile. Called by each rotation file (see Rotations/sample rotation.lua).
 -- The rotation is offered only when its specID and expansion match the player.
 -- @tparam table def name, specID (number or list), expansion (string or list), run, and optional
---   toggles, options, plus README metadata: author, patch, coverage, status, readiness
+--   toggles, options, actsWhileCasting (true: the rotation keeps running while the player casts or
+--   channels; it then checks casts itself), plus README metadata: author, patch, coverage, status, readiness
 function br.loader.registerRotation(def)
     local file = loading.file or "?"
     local problem = validate(def)

@@ -233,6 +233,7 @@ br.loader.registerRotation({
     coverage  = "100%",         -- Estimated percent coverage of class mechanics
     status    = "Full",         -- Full, Limited, Sporadic, Inactive or Unknown
     readiness = "Untested",     -- Raid, NoRaid, Basic, Development or Untested
+    -- actsWhileCasting = true, -- Optional: keep running while casting or channelling (BR pauses otherwise)
     toggles   = toggles,        -- The toggles function above
     options   = options,        -- The options function above (or a list of pages)
     run       = runRotation,
