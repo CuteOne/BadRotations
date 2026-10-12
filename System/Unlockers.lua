@@ -3,6 +3,8 @@ br.unlockers = br.unlockers or {}
 local unlockers = br.unlockers
 
 br.unlockers.selected = "None"
+-- The unlocker's own API table, set by its adapter (diagnostics list names from it)
+br.unlockers.raw = nil
 
 -- Unlocker adapters, in priority order. Each adapter file (Unlockers/*.lua)
 -- defines br.unlockers:<fn>(): it sets up br._G and returns true only when its

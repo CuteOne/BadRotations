@@ -606,6 +606,7 @@ function br.unlockers:NNUnlock()
 		return false
 	end
 
+	br.unlockers.raw = C_Timer.Nn
 	b.print("NN Unlocker Loaded")
 	return true
 end

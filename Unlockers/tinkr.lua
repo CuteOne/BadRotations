@@ -648,5 +648,6 @@ function unlock.TinkrUnlock()
 	-- 	return UnitIsTrivial(Object(...))
 	-- end
 
+	unlock.raw = getfenv(1)
 	return true
 end
