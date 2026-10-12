@@ -375,6 +375,35 @@ function br.debug.timer:useTimer(timerName, interval, randomPercent)
 end--]]
 
 ----------------------------------------------------------------------------------------------------
+-- /br target: the enemy BR focuses on and why (br.engines.targeting:explain), in chat and BRTarget.log
+----------------------------------------------------------------------------------------------------
+br.debug.target = br.debug.target or {}
+local targetLine = fileLog("BRTarget.log")
+local TARGET_REPORT_UNITS = 6
+
+function br.debug.target:report()
+    local function say(text)
+        br._G.print("|cffFFDD11[BR target]|r " .. text)
+        targetLine(text)
+    end
+    if not (br.engines.targeting and br.engines.targeting.explain) then return say("Targeting isn't loaded.") end
+    local misc = br.functions.misc
+    local focus, list = br.engines.targeting:explain()
+    say(("Targeting Mode %s (1 Off, 2 Assist, 3 Full) | your target: %s"):format(tostring(misc:getValue("Targeting Mode")),
+        br._G.UnitExists("target") and printable(br._G.UnitName("target")) or "none"))
+    if #list == 0 then return say("No enemy BR may attack.") end
+    say("Focus: " .. (focus and printable(br._G.UnitName(focus)) or "none"))
+    for i = 1, math.min(TARGET_REPORT_UNITS, #list) do
+        local entry = list[i]
+        local parts = {}
+        for _, part in ipairs(entry.parts) do parts[#parts + 1] = ("%s %.1f"):format(part[1], plainNumber(part[2])) end
+        say(("%d. %s %.1fyd: %.1f = %s"):format(i, printable(br._G.UnitName(entry.unit)), plainNumber(entry.distance or 0),
+            plainNumber(entry.score), #parts > 0 and table.concat(parts, ", ") or "nothing"))
+    end
+    if #list > TARGET_REPORT_UNITS then say(("... %d more"):format(#list - TARGET_REPORT_UNITS)) end
+end
+
+----------------------------------------------------------------------------------------------------
 -- Melee recorder (diagnostic, temporary): in combat, when the target is out of melee while another
 -- enemy is in melee, writes what BR saw and did to BRMelee.log, with nothing to switch on. Called by
 -- Player:startRotation after the rotation runs. Looks into the 2026-10-12 report of standing idle when
@@ -486,9 +515,9 @@ function br.debug.melee:watch(player)
                 .. " | target fleeing " .. tostring(br.functions.unit:isFleeing("target") and true or false)
                 .. " | target valid " .. tostring(valid and true or false) .. (reason and (" (" .. reason .. ")") or ""))
             for i = 1, math.min(3, #inMelee) do meleeWrite("  in melee: " .. meleeUnit(inMelee[i])) end
-            meleeWrite("  settings: Dynamic Targetting " .. tostring(misc:isChecked("Dynamic Targetting"))
-                .. " (" .. tostring(misc:getValue("Dynamic Targetting")) .. "), Target Dynamic Target "
-                .. tostring(misc:isChecked("Target Dynamic Target")))
+            meleeWrite("  settings: Targeting Mode " .. tostring(misc:getValue("Targeting Mode"))
+                .. " (1 Off, 2 Assist, 3 Full), Only In Combat " .. tostring(misc:isChecked("Targeting Only In Combat"))
+                .. ", Don't break CCs " .. tostring(misc:isChecked("Don't break CCs")))
             meleeWrite("  " .. meleeState(player))
         end
         episode.lastSeen = now
