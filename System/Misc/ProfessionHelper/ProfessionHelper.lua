@@ -2,41 +2,45 @@ local _, br = ...
 br.misc.ProfessionHelper = br.misc.ProfessionHelper or {}
 local ProfessionHelper = br.misc.ProfessionHelper
 
+-- When the helper last used an item. A loot window that opens within OWN_LOOT seconds of that is the
+-- helper's (milling, prospecting, a lockbox) and it empties it; any other window is left alone.
+local lastAction
+local OWN_LOOT = 5
+
+local function ready(delay)
+	return (lastAction == nil or lastAction <= br._G.GetTime() - delay) and not br._G.LootFrame:IsShown()
+end
+
 function ProfessionHelper:ProfessionHelper()
 	if br.functions.misc:isChecked("Profession Helper") then
 		if not br.functions.misc:isInCombat("player") and not (br._G.IsMounted() or br._G.IsFlying()) then
 			local lootDelay = br.functions.misc:getValue("Profession Helper")
+			if br._G.LootFrame:IsShown() then
+				if lastAction and br._G.GetTime() - lastAction < OWN_LOOT then
+					br.engines.lootEngine:manuallyLootAll()
+				end
+				return
+			end
+			-- Uses the first listed item found in the bags, at most one per tick
 			local function processThatTable(thisTable, spell)
+				if not ready(lootDelay) then return end
 				for i = 1, #thisTable do
 					local thisItem = thisTable[i]
 					if br._G.GetItemCount(thisItem, false, false) >= 5 or spell == 13262 then
 						for bagID = 0, br._G["NUM_BAG_SLOTS"] do
 							for slotID = 1, br._G.C_Container.GetContainerNumSlots(bagID) do
-								if br.lootTimer == nil or br.lootTimer <= br._G.GetTime() - lootDelay and not br._G.LootFrame:IsShown() then
-									--local containerItemInfo = br._G.GetContainerItemInfo(bagID, slotID);
-									--if containerItemInfo.hyperlink ~= nil then
-									-- local itemName, _, _, _, _, itemClass, itemSubClass = br._G.GetItemInfo(itemLink);
-									-- (this read GetContainerItemIndo, a misspelling, and errored whenever it ran)
-									local itemID
-									if br._G.C_Container.GetContainerItemID then
-										itemID = br._G.C_Container.GetContainerItemID(bagID, slotID)
-									else
-										local info = br._G.C_Container.GetContainerItemInfo(bagID, slotID)
-										itemID = info and info.itemID
-									end
-									if itemID == thisItem then
-										br._G.RunMacroText("/cast " .. br.api.wow.GetSpellInfo(spell))
-										br._G.RunMacroText("/use item:" .. itemID)
-										br.lootTimer = br._G.GetTime()
-									end
-									--end
-								elseif br._G.LootFrame:IsShown() then
-									for l = 1, br._G.GetNumLootItems() do
-										if br._G.LootSlotHasItem(l) then
-											br._G.LootSlot(l)
-										end
-									end
-									br._G.CloseLoot()
+								local itemID
+								if br._G.C_Container.GetContainerItemID then
+									itemID = br._G.C_Container.GetContainerItemID(bagID, slotID)
+								else
+									local info = br._G.C_Container.GetContainerItemInfo(bagID, slotID)
+									itemID = info and info.itemID
+								end
+								if itemID == thisItem then
+									br._G.RunMacroText("/cast " .. br.api.wow.GetSpellInfo(spell))
+									br._G.RunMacroText("/use item:" .. itemID)
+									lastAction = br._G.GetTime()
+									return
 								end
 							end
 						end
@@ -207,10 +211,10 @@ function ProfessionHelper:ProfessionHelper()
 			if br.functions.misc:isChecked("Leather Scraps") then
 				-- Raw Beast Hide Scraps
 				if br._G.GetItemCount(110610, false, false) >= 10 then
-					if br.lootTimer == nil or br.lootTimer <= br._G.GetTime() - lootDelay then
+					if ready(lootDelay) then
 						if br._G.IsUsableItem(110610) then
 							br._G.UseItemByName(110610)
-							br.lootTimer = br._G.GetTime()
+							lastAction = br._G.GetTime()
 						end
 					end
 				end
@@ -218,28 +222,20 @@ function ProfessionHelper:ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Lockboxes -----------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if br.functions.misc:isChecked("Lockboxes") then
+			local pickLock = br.functions.spell:getHighestSpellID("pickLock")
+			if br.functions.misc:isChecked("Lockboxes") and br.functions.spell:isKnown(pickLock) then
 				local tableLockBox = {
 					121331 -- Leystone Lockbox
 				}
 				for i = 1, #tableLockBox do
 					local thisItem = tableLockBox[i]
-					if br._G.GetItemCount(thisItem, false, false) >= 1 then
-						if br.lootTimer == nil or br.lootTimer <= br._G.GetTime() - lootDelay and not br._G.LootFrame:IsShown() then
-							br.functions.cast:castByName(br.functions.spell:getName(1804), "player")
-							br._G.UseItemByName(tostring(select(1, br._G.GetItemInfo(thisItem))))
-							br._G.C_Timer.After(1.5,
-								function() br._G.UseItemByName(tostring(select(1, br._G.GetItemInfo(thisItem)))) end)
-							br.lootTimer = br._G.GetTime()
-							return
-						end
-					elseif br._G.LootFrame:IsShown() then
-						for l = 1, br._G.GetNumLootItems() do
-							if br._G.LootSlotHasItem(l) then
-								br._G.LootSlot(l)
-							end
-						end
-						br._G.CloseLoot()
+					if br._G.GetItemCount(thisItem, false, false) >= 1 and ready(lootDelay) then
+						br.functions.cast:castByName(br.functions.spell:getName(pickLock), "player")
+						br._G.UseItemByName(tostring(select(1, br._G.GetItemInfo(thisItem))))
+						br._G.C_Timer.After(1.5,
+							function() br._G.UseItemByName(tostring(select(1, br._G.GetItemInfo(thisItem)))) end)
+						lastAction = br._G.GetTime()
+						return
 					end
 				end
 			end
@@ -260,10 +256,10 @@ function ProfessionHelper:ProfessionHelper()
 				for i = 1, #tableFish do
 					local thisItem = tableFish[i]
 					if br._G.GetItemCount(thisItem, false, false) >= 1 then
-						if br.lootTimer == nil or br.lootTimer <= br._G.GetTime() - lootDelay then
+						if ready(lootDelay) then
 							if br._G.IsUsableItem(thisItem) then
 								br._G.UseItemByName(thisItem)
-								br.lootTimer = br._G.GetTime()
+								lastAction = br._G.GetTime()
 							end
 						end
 					end
@@ -273,21 +269,7 @@ function ProfessionHelper:ProfessionHelper()
 	end
 end
 
-function ProfessionHelper:fishing()
-	-- The fishing toggle is an unlocker feature (IsHackEnabled / SetHackEnabled) only some unlockers have
-	local hasFishHack = br._G.IsHackEnabled ~= nil and br._G.SetHackEnabled ~= nil
-	if hasFishHack and br.functions.misc:isChecked("Fishing") and br.unlocked and br.functions.misc:getOptionValue("Fishing") == 1 then
-		if not br._G.IsHackEnabled("fish") then
-			br._G.SetHackEnabled("fish", true)
-		end
-	elseif hasFishHack and br.functions.misc:isChecked("Fishing") and br.unlocked and br.functions.misc:getOptionValue("Fishing") == 2 then
-		if br._G.IsHackEnabled("fish") then
-			br._G.SetHackEnabled("fish", false)
-		end
-	end
-	------------------------------------------------------------------------------------------------------
-	-- Bait ----------------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
+function ProfessionHelper:bait()
 	if br.functions.misc:isChecked("Bait") then
 		local bait = br.functions.misc:getValue("Bait")
 		if bait == 1 then -- Lost Sole Bait

@@ -150,7 +150,6 @@ function br.ui:createConfigWindow()
         br.ui:checkbox(section, "Disenchant", { tip = "Disenchant Cata blues/greens. Profession Helper must be checked." })
         br.ui:checkbox(section, "Leather Scraps", { tip = "Combine leather scraps. Profession Helper must be checked." })
         br.ui:checkbox(section, "Lockboxes", { tip = "Unlock Lockboxes. Profession Helper must be checked." })
-        br.ui:dropdown(section, "Fishing", { choices = { "Enabled", "Disabled" }, value = "Disabled", tip = "Turn EWT Fishing On/Off" })
         br.ui:checkbox(section, "Fish Oil", { tip = "Turn Fish into Aromatic Fish Oil. Profession Helper must be checked." })
         br.ui:dropdown(section, "Bait", { choices = { "Lost Sole Bait", "Silvergill Pike Bait", "Pocked Bonefish Bait", "Iridescent Amberjack Bait", "Spinefin Piranha Bait", "Elysian Thade Bait" }, value = "Lost Sole Bait",
             tip = "Using the bait." })
