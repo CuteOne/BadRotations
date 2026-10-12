@@ -892,7 +892,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check
     -- @return boolean True if the unit is valid
     unit.valid = function(thisUnit)
-        return br.functions.misc:isValidUnit(thisUnit)
+        return (br.functions.misc:isValidUnit(thisUnit))
     end
 
     --- Get player's average weapon damage
