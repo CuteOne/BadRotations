@@ -646,3 +646,32 @@ function br.debug.idle:watch(player)
     end
 end
 
+----------------------------------------------------------------------------------------------------
+-- Combo point probe (diagnostic): are combo points kept on the target (Classic) or on the player
+-- (Retail since 6.0.2)? Forever's tooltips list them as a cost like Retail's, unconfirmed. When the
+-- target changes while the player has combo points, BRMelee.log gets the points before and after,
+-- read both ways (GetComboPoints on the target, and the player's ComboPoints power, type 4).
+-- br.api.comboPointsOnTarget (Expansions/<Name>) follows the answer.
+----------------------------------------------------------------------------------------------------
+local comboBefore, comboPowerBefore = 0, 0
+local comboLogged = 0
+local function readCombo()
+    local onTarget = br._G.GetComboPoints and tonumber(br._G.GetComboPoints("player", "target")) or 0
+    local power = br._G.UnitPower and tonumber(br._G.UnitPower("player", 4)) or 0
+    return plainNumber(onTarget or 0), plainNumber(power or 0)
+end
+local comboFrame = br._G.CreateFrame("Frame")
+comboFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+comboFrame:SetScript("OnEvent", function()
+    if comboLogged >= 20 or (comboBefore <= 0 and comboPowerBefore <= 0) then return end
+    comboLogged = comboLogged + 1
+    local onTarget, power = readCombo()
+    meleeWrite(("combo points on a target switch: before %d on the target / %d as power -> after %d on the new target / %d as power (on-target flag %s)"):format(
+        comboBefore, comboPowerBefore, onTarget, power, tostring(br.api.comboPointsOnTarget)))
+end)
+
+-- Called each tick (Player:startRotation): the points before any switch
+function br.debug.melee:readComboPoints()
+    comboBefore, comboPowerBefore = readCombo()
+end
+

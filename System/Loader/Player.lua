@@ -137,6 +137,7 @@ function Player:startRotation()
 		br.debug.melee:watch(self)
 		br.debug.target:watch()
 		br.debug.idle:watch(self)
+		br.debug.melee:readComboPoints()
 	else
 		return
 	end
