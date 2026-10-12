@@ -27,6 +27,10 @@ if br.lists.longCC then
         br.lists.longCC[id] = true
     end
 end
+-- Entangling Roots ranks (Rank 2+): a root, see System/Lists/LongCC.lua
+if br.lists.longCC then
+    for _, id in ipairs({ 1062, 5195, 5196, 9852, 9853, 26989 }) do br.lists.longCC[id] = "root" end
+end
 
 -- Several TBC racials are a different spell per class (checked against Wowhead's TBC
 -- database, 2026-10-05).

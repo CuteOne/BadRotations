@@ -26,6 +26,10 @@ if br.lists.longCC then
         br.lists.longCC[id] = true
     end
 end
+-- Entangling Roots ranks (Rank 2+): a root, see System/Lists/LongCC.lua
+if br.lists.longCC then
+    for _, id in ipairs({ 1062, 5195, 5196, 9852, 9853 }) do br.lists.longCC[id] = "root" end
+end
 
 -- Forever reworked the racials and added new ones, plus a new race, the Skyborne (High
 -- Order for the Alliance, Windshaper for the Horde). There are no Blood Elves or Draenei.

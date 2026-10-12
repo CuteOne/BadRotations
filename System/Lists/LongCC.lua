@@ -2,10 +2,18 @@ local _, br = ...
 if br.lists == nil then
 	br.lists = {}
 end
--- Crowd control that takes a mob out of the fight (polymorph, sap, trap, fear...): "Don't break
--- CCs" leaves these units alone. Roots and stuns aren't here: they hold a mob in the fight, and
--- attacking it is the point.
+-- Crowd control BR shouldn't break ("Don't break CCs", misc:isCCProtected):
+--   true    takes a mob out of the fight (polymorph, sap, trap, fear...): left alone
+--   "root"  holds a mob in place, and damage may break it: left alone unless it's the player's
+--           target (rooted to be fought, e.g. root-and-nuke)
+-- Stuns aren't here: attacking a stunned mob is the point.
 br.lists.longCC = {
+	[339] = "root", -- Druid - Entangling Roots
+	[102359] = "root", -- Druid - Mass Entanglement
+	[200108] = "root", -- Hunter - Ranger's Net
+	[162488] = "root", -- Hunter - Steel Trap
+	[212638] = "root", -- Hunter - Tracker's Net
+	[64695] = "root", -- Shaman - Earthgrab Totem
 	[207167] = true, -- Death Knight -- Blinding Sleet
 	[217832] = true, -- Demon Hunter -- Imprison
 	[99] = true, -- Druid - Incapacitating Roar

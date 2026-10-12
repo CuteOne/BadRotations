@@ -81,16 +81,32 @@ end
 
 --if isLongTimeCCed("target") then
 -- CCs with >=20 seconds
+--- True when "Don't break CCs" should keep BR off Unit: crowd control that takes it out of the
+--- fight, or roots on a unit other than the player's target (an add parked out of the fight; a target
+--- the player rooted is being fought, as with root-and-nuke).
+function misc:isCCProtected(Unit)
+	local kind = misc:isLongTimeCCed(Unit)
+	if kind == "cc" then return true end
+	if kind == "root" then return not br.functions.unit:GetUnitIsUnit(Unit, "target") end
+	return false
+end
+
+--- The crowd control on Unit from br.lists.longCC: "cc" (takes it out of the fight), "root" (holds
+--- it in place; damage may break it), or false.
 function misc:isLongTimeCCed(Unit)
 	if Unit == nil then
 		return false
 	end
 	local longTimeCC = br.lists.longCC
+	local rooted = false
 	for i = 1, 40 do
 		local auraInfo = br.api.wow.GetDebuffDataByIndex(Unit, i)
-		if auraInfo and longTimeCC[tonumber(auraInfo.spellId)] == true then return true end
+		if not auraInfo then break end
+		local kind = longTimeCC[tonumber(auraInfo.spellId)]
+		if kind == true then return "cc" end
+		if kind == "root" then rooted = true end
 	end
-	return false
+	return rooted and "root" or false
 end
 
 function misc:isPlayer(Unit)
@@ -199,7 +215,7 @@ function misc:isValidUnit(Unit)
 		end
 	end
 	local burnUnit = misc:getOptionCheck("Forced Burn") and br.engines.enemiesEngineFunctions:isBurnTarget(Unit) > 0
-	local isCC = misc:getOptionCheck("Don't break CCs") and misc:isLongTimeCCed(Unit) or false
+	local isCC = misc:getOptionCheck("Don't break CCs") and misc:isCCProtected(Unit) or false
 	-- A crowd-controlled unit the player deliberately targets may be attacked when no other enemy is
 	-- fighting and the fight can start well: it's the next pull, not a mob taken out of a fight
 	if isCC and playerTarget and not othersFighting(Unit) and br.functions.combat:isReadyToFight() then

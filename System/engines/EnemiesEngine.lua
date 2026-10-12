@@ -298,7 +298,7 @@ function Record:update(now, inCombat, hasGroup, fps)
 		local ttl = inCombat and 0.05 or 0.10
 		if self.quickCheckAt == nil or self.quickCheckAt < now - ttl then
 			self.quickCheckOk = self.hpabs > 0 and not isDead and br._G.UnitCanAttack("player", unit)
-				and not (br.functions.misc:getOptionCheck("Don't break CCs") and br.functions.misc:isLongTimeCCed(unit))
+				and not (br.functions.misc:getOptionCheck("Don't break CCs") and br.functions.misc:isCCProtected(unit))
 				and br.engines.enemiesEngineFunctions:isSafeToAttack(unit)
 			self.quickCheckAt = now
 		end

@@ -26,6 +26,10 @@ if br.lists.longCC then
         br.lists.longCC[id] = true
     end
 end
+-- Entangling Roots ranks (Rank 2+): a root, see System/Lists/LongCC.lua
+if br.lists.longCC then
+    for _, id in ipairs({ 1062, 5195, 5196, 9852, 9853 }) do br.lists.longCC[id] = "root" end
+end
 
 -- Racial IDs checked against Wowhead's Classic database (2026-10-05).
 local playerClass = select(2, br._G.UnitClass("player"))
