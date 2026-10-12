@@ -2,19 +2,17 @@ local _, br = ...
 if br.lists == nil then
 	br.lists = {}
 end
+-- Crowd control that takes a mob out of the fight (polymorph, sap, trap, fear...): "Don't break
+-- CCs" leaves these units alone. Roots and stuns aren't here: they hold a mob in the fight, and
+-- attacking it is the point.
 br.lists.longCC = {
 	[207167] = true, -- Death Knight -- Blinding Sleet
 	[217832] = true, -- Demon Hunter -- Imprison
-	[339] = true, -- Druid - Entangling Roots
 	[99] = true, -- Druid - Incapacitating Roar
 	[2637] = true, -- Druid - Hibernate
-	[102359] = true, -- Druid - Mass Entanglement
 	[209790] = true, -- Hunter - Freezing Arrow
 	[3355] = true, -- Hunter - Freezing Trap
-	[200108] = true, -- Hunter - Ranger's Net
 	[213691] = true, -- Hunter - Scatter Shot
-	[162488] = true, -- Hunter - Steel Trap
-	[212638] = true, -- Hunter - Tracker's Net
 	[19386] = true, -- Hunter - Wyvern Sting
 	[31661] = true, -- Mage - Dragon's Breath
 	--[122] = true, -- Mage - Frost Nova
@@ -37,7 +35,6 @@ br.lists.longCC = {
 	[2094] = true, -- Rogue - Blind
 	[1776] = true, -- Rogue - Gouge
 	[6770] = true, -- Rogue - Sap
-	[64695] = true, -- Shaman - Earthgrab Totem
 	[211015] = true, -- Shaman - Hex (Cockroach)
 	[210873] = true, -- Shaman - Hex (Compy)
 	[51514] = true, -- Shaman - Hex (Frog)

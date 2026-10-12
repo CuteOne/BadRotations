@@ -457,6 +457,35 @@ end
 
 -- True if a tank in the player's party/raid within 40 yards is in combat.
 -- if br.functions.combat:isTankInCombat() then
+--- True when the player is the tank: their group role is Tank, or they're in a tanking form or
+--- stance (br.functions.spell:isTankForm).
+function combat:isPlayerTank()
+	if br._G.UnitGroupRolesAssigned and br._G.UnitGroupRolesAssigned("player") == "TANK" then return true end
+	return br.functions.spell:isTankForm(br.functions.unit:getFormSpellID())
+end
+
+-- Health and mana (percent) a fight should start with
+local READY_HEALTH, READY_MANA = 60, 40
+
+--- True when it's a good moment to start a fight (e.g. break a crowd control): the player isn't
+--- low on health or mana, or eating or drinking, and in a group the tanks aren't low on health.
+function combat:isReadyToFight()
+	local unitFns = br.functions.unit
+	if unitFns:getHP("player") < READY_HEALTH then return false end
+	if unitFns:usesMana() then
+		local maxMana = br._G.UnitPowerMax("player", 0)
+		if maxMana > 0 and br._G.UnitPower("player", 0) / maxMana * 100 < READY_MANA then return false end
+	end
+	if unitFns:isEating("player") or unitFns:isDrinking("player") then return false end
+	local healing = br.engines.healingEngineFunctions
+	if br._G.GetNumGroupMembers() > 1 and healing and healing.getTanksTable then
+		for _, tank in ipairs(healing:getTanksTable()) do
+			if unitFns:getHP(tank.unit) < READY_HEALTH then return false end
+		end
+	end
+	return true
+end
+
 function combat:isTankInCombat()
 	local instance = select(2, br._G.IsInInstance())
 	if instance ~= "raid" and instance ~= "party" then return false end

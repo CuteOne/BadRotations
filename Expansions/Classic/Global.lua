@@ -10,7 +10,6 @@ if br.lists.longCC then br.lists.longCC[99] = nil end
 -- higher rank. Each ID below was checked against Wowhead's Classic database (2026-10-05).
 if br.lists.longCC then
     for _, id in ipairs({
-        1062, 5195, 5196, 9852, 9853,   -- Entangling Roots (Rank 2-6)
         18657, 18658,                   -- Hibernate (Rank 2-3)
         14308, 14309,                   -- Freezing Trap Effect (Rank 2-3)
         24132, 24133,                   -- Wyvern Sting (Rank 2-3)

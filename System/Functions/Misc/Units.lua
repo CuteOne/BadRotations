@@ -120,6 +120,15 @@ function misc:isTargeting(Unit, MatchUnit)
 	return unitTarget == br._G.ObjectPointer(MatchUnit or "player")
 end
 
+-- True when an enemy other than Unit is in combat (with the player or their group)
+local function othersFighting(Unit)
+	local pointer = br._G.ObjectPointer(Unit)
+	for other, record in pairs(br.engines.enemiesEngine.enemy) do
+		if other ~= pointer and br._G.UnitAffectingCombat(record.unit or other) then return true end
+	end
+	return false
+end
+
 -- Caches an isValidUnit answer by GUID and returns it
 local function rememberValid(guid, now, value, reason)
 	if guid then isValidUnitCache[guid] = { value = value, reason = reason, time = now } end
@@ -191,6 +200,11 @@ function misc:isValidUnit(Unit)
 	end
 	local burnUnit = misc:getOptionCheck("Forced Burn") and br.engines.enemiesEngineFunctions:isBurnTarget(Unit) > 0
 	local isCC = misc:getOptionCheck("Don't break CCs") and misc:isLongTimeCCed(Unit) or false
+	-- A crowd-controlled unit the player deliberately targets may be attacked when no other enemy is
+	-- fighting and the fight can start well: it's the next pull, not a mob taken out of a fight
+	if isCC and playerTarget and not othersFighting(Unit) and br.functions.combat:isReadyToFight() then
+		isCC = false
+	end
 	local mcCheck = (misc:isChecked("Attack MC Targets") and (not br.functions.unit:GetUnitIsFriend(Unit, "player") or (br._G.UnitIsCharmed(Unit) and br._G.UnitCanAttack("player", Unit))))
 		or not br.functions.unit:GetUnitIsFriend(Unit, "player")
 

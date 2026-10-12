@@ -760,13 +760,15 @@ end
 -- 			or br._G.IsSpellKnown(spellID) or br._G.IsPlayerSpell(tonumber(baseSpellID) or br._G.IsSpellKnown(baseSpellID))) -- or spellInBookType == "Spell")
 -- end
 
--- Check whether a shapeshift form is a tanking form (Bear Form or Dire Bear Form in the spell list)
+-- Check whether a shapeshift form is a tanking form (Bear Form, Dire Bear Form or Defensive Stance
+-- in the spell list)
 -- @param formSpellID - The form's spell ID
 -- @return boolean
 function spell:isTankForm(formSpellID)
     local spells = br.player and br.player.spells
     if spells == nil or formSpellID == nil then return false end
     return spell:isRankOf(formSpellID, spells.bearForm) or spell:isRankOf(formSpellID, spells.direBearForm)
+        or spell:isRankOf(formSpellID, spells.defensiveStance)
 end
 
 -- Highest known rank from a table of rank IDs (first rank if none known); non-tables pass through.
