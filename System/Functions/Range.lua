@@ -11,15 +11,21 @@ local playerClass = nil
 local meleeSpellNames = {}
 
 -- The melee spell list (br.lists.range.meleeSpells) for the player now: the class's, a Druid's by form
--- (Bear or Cat; none in caster form, where neither form's spells can be cast)
+-- (Bear or Cat; none in caster form, where neither form's spells can be cast). A Druid's is worked out
+-- once per frame, since getDistance asks on every call.
+local druidKey, druidKeyAt = nil, nil
 local function meleeListKey()
     if playerClass == nil then playerClass = select(2, br._G.UnitClass("player")) end
     if playerClass ~= "DRUID" then return playerClass end
+    local now = br._G.GetTime()
+    if druidKeyAt == now then return druidKey end
+    druidKeyAt = now
     local form = br.functions.unit:getFormSpellID()
-    if form == nil then return nil end
-    if form == br.functions.spell:getHighestSpellID("bearForm") then return "DRUID_BEAR" end
-    if form == br.functions.spell:getHighestSpellID("catForm") then return "DRUID_CAT" end
-    return nil
+    if form == nil then druidKey = nil
+    elseif form == br.functions.spell:getHighestSpellID("bearForm") then druidKey = "DRUID_BEAR"
+    elseif form == br.functions.spell:getHighestSpellID("catForm") then druidKey = "DRUID_CAT"
+    else druidKey = nil end
+    return druidKey
 end
 
 -- Exact range rules, as the game's server applies them (see the comment above range:getEdgeDistance)
@@ -29,6 +35,8 @@ local MELEE_MINIMUM = 5             -- melee reach is never less than this
 local MELEE_BONUS = 1               -- the game's extra yard on melee (measured on Forever, as AzerothCore has it)
 local LEEWAY = 8 / 3                -- extra reach while both units run
 local LEEWAY_MIN_SPEED = 4.97       -- faster than walking
+local OUT_OF_MELEE = 5.01           -- getDistance's least answer outside melee: just over 5
+local ACROBATIC_STRIKES = 3         -- the Rogue talent's extra melee reach
 
 local function resolveMeleeSpellName(listKey)
     local known = meleeSpellNames[listKey]
@@ -122,155 +130,49 @@ function range:getMeleeSpellName()
     return resolveMeleeSpellName(listKey), listKey
 end
 
+-- Distance between two units, as profiles compare it: 0 in melee range, otherwise the edge-to-edge
+-- distance (what spell ranges are measured against) but never 5 or less, so "< 5" and "<= 5" both mean
+-- melee. Melee is the game's own answer for the player's melee spell when the player is one of the two
+-- and the game gives one, else the melee rule (range:getMeleeReach). One unit: distance from the player.
+-- Talents that change range (Astral Influence, Acrobatic Strikes) count unless option is "noMod".
+-- 100 when a unit is missing or not visible, 999 without a position.
+-- if br.functions.range:getDistance("target") < 5 then
 function range:getDistance(Unit1, Unit2, option)
     if Unit2 == nil then
         Unit2 = Unit1
         Unit1 = "player"
     end
-    -- if br.engines.enemiesEngine.units ~= nil then
-    --     if (Unit1 == "player" and br.engines.enemiesEngine.units[br._G.ObjectPointer(Unit2)] ~= nil) then
-    --         return br.engines.enemiesEngine.units[br._G.ObjectPointer(Unit2)].range
-    --     end
-    --     if (br.engines.enemiesEngine.units[br._G.ObjectPointer(Unit1)] ~= nil and Unit2 == "player") then
-    --         return br.engines.enemiesEngine.units[br._G.ObjectPointer(Unit1)].range
-    --     end
-    --     local thisUnit = Unit1 == "player" and br.engines.enemiesEngine.units[br._G.ObjectPointer(Unit2)] or
-    --         br.engines.enemiesEngine.units[br._G.ObjectPointer(Unit1)]
-    --     if thisUnit ~= nil then return thisUnit.range end
-    -- end
-    return range:getDistanceCalc(Unit1, Unit2, option)
-end
-
-function range:getDistanceCalc(Unit1, Unit2, option)
-    local currentDist = 100
-    local hasMeleeList = br.lists.range.meleeSpells[meleeListKey()] ~= nil
-    local meleeSpellName = range:getMeleeSpellName()
-    -- If Unit2 is nil we compare player to Unit1
-    if Unit2 == nil then
-        Unit2 = Unit1
-        Unit1 = "player"
-    end
     if Unit1 == nil or Unit2 == nil then return 100 end
-    local _ok1, _isSame1 = pcall(function() return Unit1 == Unit2 or br._G.UnitIsUnit(Unit1, Unit2) end)
-    if _ok1 and _isSame1 then return 0 end
-    if option == nil then option = "none" end
-    -- Check if objects exists and are visible
-    if (br.functions.unit:GetUnitIsUnit(Unit1, "player") or (br.functions.unit:GetObjectExists(Unit1) and br.functions.unit:GetUnitIsVisible(Unit1) == true))
-        and (br.functions.unit:GetUnitIsUnit(Unit2, "player") or (br.functions.unit:GetObjectExists(Unit2) and br.functions.unit:GetUnitIsVisible(Unit2) == true))
+    local okSame, isSame = pcall(function() return Unit1 == Unit2 or br._G.UnitIsUnit(Unit1, Unit2) end)
+    if okSame and isSame then return 0 end
+    local unitFuncs = br.functions.unit
+    local isPlayer1, isPlayer2 = unitFuncs:GetUnitIsUnit(Unit1, "player"), unitFuncs:GetUnitIsUnit(Unit2, "player")
+    if not (isPlayer1 or (unitFuncs:GetObjectExists(Unit1) and unitFuncs:GetUnitIsVisible(Unit1) == true))
+        or not (isPlayer2 or (unitFuncs:GetObjectExists(Unit2) and unitFuncs:GetUnitIsVisible(Unit2) == true))
     then
-        -- If melee spell is in range, return 0 (accurate melee range detection)
-        if meleeSpellName ~= nil then
-            if br._G.UnitIsUnit(Unit2, "player") and not br._G.UnitIsUnit(Unit1, "player") then
-                if br._G.C_Spell.IsSpellInRange(meleeSpellName, Unit1) == true then
-                    return 0
-                end
-            end
-            if br._G.UnitIsUnit(Unit1, "player") and not br._G.UnitIsUnit(Unit2, "player") then
-                if br._G.C_Spell.IsSpellInRange(meleeSpellName, Unit2) == true then
-                    return 0
-                end
-            end
-        end
-        local rangeMod = 0
-        --See if we already have a position, else get position
-        local X1, Y1, Z1, X2, Y2, Z2 = 0, 0, 0, 0, 0, 0
-        -- if not string.find(Unit1,"0x") then Unit1 = br._G.GetObjectWithGUID(br._G.UnitGUID(Unit1)) end
-        -- if not string.find(Unit2,"0x") then Unit2 = br._G.GetObjectWithGUID(br._G.UnitGUID(Unit2)) end
-        --Unit1 Position
-        local unit1GUID = select(2, br.functions.unit:getGUID(Unit1))
-        local _p1ok = pcall(function()
-            if br.engines.enemiesEngine ~= nil and br.engines.enemiesEngine.records[Unit1] ~= nil and br.engines.enemiesEngine.records[Unit1].posX ~= nil then
-                X1, Y1, Z1 = br.engines.enemiesEngine.records[Unit1].posX, br.engines.enemiesEngine.records[Unit1].posY, br.engines.enemiesEngine.records[Unit1].posZ
-            elseif br.functions.unit:GetUnitIsUnit(Unit1, "player") and br.player ~= nil and br.player.state.posX ~= nil then
-                X1, Y1, Z1 = br.player.state.posX, br.player.state.posY, br.player.state.posZ
-            elseif br.functions.misc:isChecked("HE Active") and br.engines.healingEngine.memberSetup ~= nil and br.engines.healingEngine.memberSetup.cache[unit1GUID] ~= nil and br.engines.healingEngine.memberSetup.cache[unit1GUID].x ~= nil then
-                X1, Y1, Z1 = br.engines.healingEngine.memberSetup.cache[unit1GUID].x, br.engines.healingEngine.memberSetup.cache[unit1GUID].y,
-                    br.engines.healingEngine.memberSetup.cache[unit1GUID].z
-            else
-                X1, Y1, Z1 = br.functions.unit:GetObjectPosition(Unit1)
-            end
-        end)
-        if not _p1ok then X1, Y1, Z1 = br.functions.unit:GetObjectPosition(Unit1) end
-        if not X1 then return 999 end
-        --Unit2 Position
-        local unit2GUID = select(2, br.functions.unit:getGUID(Unit2))
-        local _p2ok = pcall(function()
-            if br.engines.enemiesEngine ~= nil and br.engines.enemiesEngine.records[Unit2] ~= nil and br.engines.enemiesEngine.records[Unit2].posX ~= nil then
-                X2, Y2, Z2 = br.engines.enemiesEngine.records[Unit2].posX, br.engines.enemiesEngine.records[Unit2].posY, br.engines.enemiesEngine.records[Unit2].posZ
-            elseif br.functions.unit:GetUnitIsUnit(Unit2, "player") and br.player ~= nil and br.player.state.posX ~= nil then
-                X2, Y2, Z2 = br.player.state.posX, br.player.state.posY, br.player.state.posZ
-            elseif br.functions.misc:isChecked("HE Active") and br.engines.healingEngine.memberSetup ~= nil and br.engines.healingEngine.memberSetup.cache[unit2GUID] ~= nil and br.engines.healingEngine.memberSetup.cache[unit2GUID].x ~= nil then
-                X2, Y2, Z2 = br.engines.healingEngine.memberSetup.cache[unit2GUID].x, br.engines.healingEngine.memberSetup.cache[unit2GUID].y,
-                    br.engines.healingEngine.memberSetup.cache[unit2GUID].z
-            else
-                X2, Y2, Z2 = br.functions.unit:GetObjectPosition(Unit2)
-            end
-        end)
-        if not _p2ok then X2, Y2, Z2 = br.functions.unit:GetObjectPosition(Unit2) end
-        if not X2 then return 999 end
-        -- Melee Range Bypass
-        if br.player ~= nil then
-            -- Modifier for Balance Affinity range change (Druid - Not Balance)
-            if br.player.talent.astralInfluence ~= nil then
-                if br.player.talent.astralInfluence and option ~= "noMod" then
-                    rangeMod = br.player.talent.rank.astralInfluence == 1 and 1 or 3
-                end
-            end
-        end
-        -- Get the distance
-        local TargetCombatReach = br._G.UnitCombatReach(Unit2) or 0
-        local PlayerCombatReach = br._G.UnitCombatReach(Unit1) or 0
-        local MeleeCombatReachConstant = 7 / 3
-        local IfSourceAndTargetAreRunning = 0
-        if br.functions.misc:isMoving(Unit1) and br.functions.misc:isMoving(Unit2) then IfSourceAndTargetAreRunning = 8 / 3 end
-
-        -- Classic/TBC fallback: determine melee range from positions alone.
-        -- Uses the same constants as the meleeRange calculation below.
-        if not br.api.hasSubSpecs and hasMeleeList and (br._G.UnitIsUnit(Unit1, "player") or br._G.UnitIsUnit(Unit2, "player")) then
-            local edgeToEdge = sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2) + ((Z2 - Z1) ^ 2)) - (PlayerCombatReach + TargetCombatReach)
-            local meleeEdgeDistance = MeleeCombatReachConstant + IfSourceAndTargetAreRunning + rangeMod
-            if edgeToEdge <= meleeEdgeDistance then
-                return 0
-            end
-        end
-        -- Rogue Melee Range Increase Mod
-        if br.player ~= nil then
-            if br.player.talent.acrobaticStrikes ~= nil and meleeSpellName ~= nil then
-                if br.player.talent.acrobaticStrikes and option ~= "noMod" and br._G.C_Spell.IsSpellInRange(meleeSpellName, Unit2) == true then
-                    rangeMod = 3
-                end
-            end
-        end
-        local dist = sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2) + ((Z2 - Z1) ^ 2)) - (PlayerCombatReach + TargetCombatReach) -
-            rangeMod
-        local dist2 = dist + 0.03 * ((13 - dist) / 0.13)
-        local dist3 = dist + 0.05 * ((8 - dist) / 0.15) --+ 1
-        local dist4 = dist + (PlayerCombatReach + TargetCombatReach)
-        local meleeRange = br._G.max(6,
-            PlayerCombatReach + TargetCombatReach + MeleeCombatReachConstant + IfSourceAndTargetAreRunning)
-        if option == "dist" then return dist end
-        if option == "dist2" then return dist2 end
-        if option == "dist3" then return dist3 end
-        if option == "dist4" then return dist4 end
-        if option == "meleeRange" then return meleeRange end
-        -- currentDist = br._G.max(dist, meleeRange, 0)
-        if dist > 13 then
-            currentDist = br._G.max(0, dist)
-        elseif dist2 > 8 and dist3 > 8 then
-            currentDist = dist2
-        elseif dist3 > 5 and dist4 > 5 then
-            currentDist = dist3
-        elseif dist4 > meleeRange then -- Thanks Ssateneth
-            currentDist = dist4
-        else
-            currentDist = 5
-        end
-        -- Modifier for Mastery: Sniper Training (Hunter - Marksmanship)
-        -- if currentDist < 100 and br.functions.spell:isKnown(193468) and option ~= "noMod" and (Unit1 == "player" or Unit2 == "player") then
-        --     currentDist = currentDist - (currentDist * (GetMasteryEffect() / 100))
-        -- end
+        return 100
     end
-    return currentDist
+    local centre = range:getCenterDistance(Unit1, Unit2)
+    if centre == nil then return 999 end
+    local talent = option ~= "noMod" and br.player and br.player.talent
+    -- Melee: the game's answer when it has one
+    local inMelee = nil
+    local other = (isPlayer1 and Unit2) or (isPlayer2 and Unit1) or nil
+    if other then
+        local meleeSpell = range:getMeleeSpellName()
+        if meleeSpell then inMelee = br._G.C_Spell.IsSpellInRange(meleeSpell, other) end
+    end
+    if inMelee == nil then
+        local reach = range:getMeleeReach(Unit1, Unit2)
+        if talent and talent.acrobaticStrikes then reach = reach + ACROBATIC_STRIKES end
+        inMelee = centre <= reach
+    end
+    if inMelee then return 0 end
+    local edge = centre - range:getCombatReach(Unit1) - range:getCombatReach(Unit2)
+    if talent and talent.astralInfluence then
+        edge = edge - (talent.rank.astralInfluence == 1 and 1 or 3)
+    end
+    return math.max(OUT_OF_MELEE, edge)
 end
 
 function range:getFacingDistance()
@@ -301,7 +203,7 @@ function range:getFacingDistance()
 end
 
 -- Invalidate the cached class/spec/meleeSpell when the player changes specialization.
--- Called by Core.lua after a spec change (or on first-use via lazy init in getDistanceCalc).
+-- Called after a spec change and when the spellbook changes.
 function range:invalidateMeleeSpellCache()
     playerClass = nil
     br._G.wipe(meleeSpellNames)

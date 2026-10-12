@@ -304,9 +304,9 @@ function E.checkRange(ctx, thisUnit, castType)
 	-- A harmful spell with no range of its own (a next-swing spell such as Maul) lands only in melee,
 	-- but the game reports it in range at any distance, so measure melee instead.
 	if castType ~= "pet" and ctx.hasNoRange and ctx.spellType == "Harmful" then
-		if br.functions.range:isInMelee("player", thisUnit) then return true end
-		return false, string.format("no range of its own: needs melee (centre %.1f, melee reach %.1f)",
-			br.functions.range:getCenterDistance("player", thisUnit) or -1, br.functions.range:getMeleeReach("player", thisUnit))
+		local distance = br.functions.range:getDistance(thisUnit)
+		if distance < 5 then return true end
+		return false, string.format("no range of its own: needs melee (distance %.1f)", distance or -1)
 	end
 	-- For pet castType, IsSpellInRange evaluates from the PLAYER's position — not the
 	-- pet's — so it cannot reliably gate melee or short-range pet abilities.  Skip the
@@ -350,15 +350,15 @@ function E.checkRange(ctx, thisUnit, castType)
 		and br.functions.range:getDistance(thisUnit, "pet")
 		or  br.functions.range:getDistance(thisUnit)
 
-	-- Melee spells (maxRange == 0) would produce distance < -1.5 which is always false.
-	-- Treat as in-range when within 5 yards (standard melee reach).
+	-- getDistance is 0 in melee, else edge to edge (what spell ranges are measured against).
+	-- maxRange 0 (pet melee abilities): melee.
 	if ctx.maxRange == 0 then
-		if distance <= 5 then return true end
-		return false, string.format("IsSpellInRange=nil, distance %.1f > melee 5", distance or -1)
+		if distance < 5 then return true end
+		return false, string.format("IsSpellInRange=nil, distance %.1f: not in melee", distance or -1)
 	end
-	if distance >= ctx.minRange and distance < ctx.maxRange - 1.5 then return true end
-	return false, string.format("IsSpellInRange=nil, distance %.1f, needs %.1f to under %.1f",
-		distance or -1, ctx.minRange, ctx.maxRange - 1.5)
+	if distance >= ctx.minRange and distance <= ctx.maxRange then return true end
+	return false, string.format("IsSpellInRange=nil, distance %.1f, needs %.1f to %.1f",
+		distance or -1, ctx.minRange, ctx.maxRange)
 end
 
 -- ─────────────────────────────────────────────────────────────────────────────

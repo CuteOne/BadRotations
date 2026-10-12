@@ -233,7 +233,7 @@ function bootstrap:checkSpecChange()
 	self.settingsLoaded = false
 	br._G.wipe(br.slashCommands.commandHelp)
 	br.slashCommands:slashHelpList()
-	-- Invalidate cached melee spell so getDistanceCalc picks up the new spec.
+	-- Invalidate cached melee spell so getDistance picks up the new spec.
 	if br.functions.range.invalidateMeleeSpellCache then
 		br.functions.range:invalidateMeleeSpellCache()
 	end
