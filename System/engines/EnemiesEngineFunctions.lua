@@ -508,7 +508,9 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 	if not dynamicOn then
 		result = usable and "target" or nil
 	elseif usable and not autoTargetDynamic then
-		result = "target"
+		-- a burn unit must die to prevent heavy damage: it takes the spell even over a usable target
+		-- (the WoW target stays as the player set it)
+		result = br.engines.targeting:pickBurn(range, facing) or "target"
 	elseif usable and br.api and br.api.comboPointsOnTarget
 		and (tonumber(br._G.GetComboPoints and br._G.GetComboPoints("player", "target")) or 0) > 0
 	then

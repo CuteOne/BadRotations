@@ -35,6 +35,7 @@ local SCAN_RANGE = 50  -- yards; the enemies engine lists no further
 local scoredAt          -- GetTime of the frame the scores are for
 local scores = {}       -- unit -> score, for every unit BR may attack this frame
 local distances = {}    -- unit -> distance (yards), measured with the scores
+local burning = {}      -- unit -> true for burn units (Forced Burn) this frame
 local focus, focusSince -- BR's overall choice and when it was made
 local lastPick = {}     -- request key -> the unit it took last
 local explaining        -- while explaining: unit -> { { part, value }, ... }
@@ -76,6 +77,7 @@ local function refresh()
 	scoredAt = now
 	br._G.wipe(scores)
 	br._G.wipe(distances)
+	br._G.wipe(burning)
 	local misc, ef = br.functions.misc, br.engines.enemiesEngineFunctions
 	local mode = misc:getOptionValue("Target Preference") - 1
 	local nearDeath = misc:isChecked("Prefer Near Death")
@@ -121,7 +123,10 @@ local function refresh()
 		-- beats ordinary reasons and takes over the focus when it appears mid-fight
 		if burn then
 			local burnWeight = ef:isBurnTarget(unit)
-			if burnWeight > 0 then addPart("burn", W.priority + burnWeight) end
+			if burnWeight > 0 then
+				addPart("burn", W.priority + burnWeight)
+				burning[unit] = true
+			end
 		end
 		if shields then addPart("shield", ef:getShieldCoefficient(unit)) end
 		if custom then
@@ -164,6 +169,18 @@ function targeting:pick(range, facing)
 		end
 	end
 	lastPick[key] = best
+	return best
+end
+
+--- The best burn unit (Forced Burn) a request of this range and facing can reach, or nil. Burn units
+--- take spells even over a usable target (enemiesEngineFunctions:dynamicTarget).
+function targeting:pickBurn(range, facing)
+	refresh()
+	if next(burning) == nil then return nil end
+	local best
+	for _, unit in ipairs(br.engines.enemiesEngineFunctions:getEnemies("player", range, false, facing)) do
+		if burning[unit] and distances[unit] < range and (best == nil or scores[unit] > scores[best]) then best = unit end
+	end
 	return best
 end
 
