@@ -53,6 +53,12 @@ if not lootEngine.metaTable then
 		return br.debug.loot and br.debug.loot:tag(guid) or ""
 	end
 
+	-- "N.N yd edge to edge" for the debug lines: the distance the interact range is checked on
+	function lootEngine:edgeText(unit)
+		local edge = br.functions.range:getEdgeDistance("player", unit)
+		return edge and ("%.1f yd edge to edge"):format(br.functions.misc:plainNumber(edge)) or "no position"
+	end
+
 	-- Check if available bag slots, return number of free slots
 	function lootEngine:emptySlots()
 		local openSlots = 0
@@ -187,13 +193,9 @@ if not lootEngine.metaTable then
 			return
 		end
 
-		-- Range + line of sight. Use the game's own interact-distance test (index 3 =
-		-- interact range), mirroring the Tracker engine — far more reliable than a guessed
-		-- yard threshold. A failed interact from here is transient (retried next pass) and
-		-- never feeds the skip logic.
-		if br._G.CheckInteractDistance and not br._G.CheckInteractDistance(lootUnit, 3) then
-			self:debug("Loot unit not yet in interact range: "
-				.. math.floor(br.functions.range:getDistance(lootUnit) or 99) .. " yards")
+		-- Range + line of sight. An interact from too far opens no window and costs a retry.
+		if not br.functions.range:isInInteractRange(lootUnit) then
+			self:debug("Loot unit not yet in interact range: " .. lootEngine:edgeText(lootUnit))
 			return
 		end
 		if not br.functions.misc:getLineOfSight("player", lootUnit) then
@@ -213,7 +215,7 @@ if not lootEngine.metaTable then
 		end
 
 		self:debug("Looting " .. (br._G.UnitName(lootUnit) or "unknown") .. " " .. lootEngine:tag(unitGUID)
-			.. " at " .. math.floor(br.functions.range:getDistance(lootUnit) or 0) .. " yards")
+			.. " at " .. lootEngine:edgeText(lootUnit))
 		self.lootGUID = unitGUID
 		self.lootShown = false
 		self.lootAttempts[unitGUID] = now
