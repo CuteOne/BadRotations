@@ -205,12 +205,11 @@ end
 --   by the healing engine friend list which may include the player and return > 1 when solo.
 actionList.Aspects = function()
     -- Wait for the buff scanner to stabilize after a taxi landing or dismount.
-    -- var.dismountTime is set the tick unit.mounted() transitions false→true→false,
-    -- captured outside the haltProfile gate so it fires even while the profile is
-    -- paused (which it is for the duration of the flight). Without this delay,
-    -- Aspects fires on the first free tick while aura data is still stale, producing
-    -- a spurious re-cast of the aspect that was already active.
-    if var.dismountTime and (ui.time() - var.dismountTime) < 2.0 then return end
+    -- BR records the landing even while the rotation is paused (it is for the whole
+    -- flight). Without this delay, Aspects fires on the first free tick while aura data
+    -- is still stale, producing a spurious re-cast of the aspect that was already active.
+    local sinceDismount = unit.timeSinceDismount()
+    if sinceDismount and sinceDismount < 2.0 then return end
 
     local now      = ui.time()
     local inCombat = unit.inCombat()
@@ -1091,18 +1090,6 @@ local function runRotation()
         var.moveStart = nil
     end
     var.wasMoving = isMovingNow
-
-    -- Track dismount transitions every frame, before the halt check.
-    -- haltProfile is true while mounted (ui.pause()), so this must run outside that
-    -- gate to capture the exact tick the player lands. var.dismountTime is used by
-    -- actionList.Aspects to delay aspect application until the buff scanner is stable.
-    local isMountedNow = unit.mounted()
-    if var.wasMounted and not isMountedNow then
-        var.dismountTime = ui.time()
-    elseif isMountedNow then
-        var.dismountTime = nil  -- clear while airborne; countdown only starts on landing
-    end
-    var.wasMounted = isMountedNow
 
     ---------------------
     --- Begin Profile ---

@@ -33,6 +33,7 @@ function Player:new(spec)
 		inCombatPrevious = false,                           -- Previous combat state, for start/end messages
 		instance = select(2, br._G.IsInInstance()),         -- Instance type (none, party, raid, etc)
 		-- posX, posY, posZ: player position cache (Range.lua)
+		-- mounted, dismountTime: mount state and when the player last landed (getCharacterInfo)
 	}
 	return self
 end
@@ -80,6 +81,15 @@ function Player:getCharacterInfo()
 	state.health = br.functions.unit:getHP("player")
 	state.instance = select(2, br._G.IsInInstance())
 	state.posX, state.posY, state.posZ = br._G.ObjectPosition("player")
+	-- When the player last landed from a mount (unit.timeSinceDismount). Kept here, not in the
+	-- profile, because the rotation doesn't run while mounted.
+	local mounted = br._G.IsMounted() == true
+	if mounted then
+		state.dismountTime = nil
+	elseif state.mounted then
+		state.dismountTime = br._G.GetTime()
+	end
+	state.mounted = mounted
 end
 
 -- Out of combat update

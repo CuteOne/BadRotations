@@ -678,6 +678,14 @@ br.api.unit = function(self)
         return IsMounted()
     end
 
+    --- Seconds since the player last landed from a mount
+    -- @function unit.timeSinceDismount
+    -- @return number|nil Seconds since dismounting, nil while mounted or if not mounted since login
+    unit.timeSinceDismount = function()
+        local dismountTime = br.player.state.dismountTime
+        return dismountTime and (br._G.GetTime() - dismountTime) or nil
+    end
+
     --- Check if a unit is moving
     -- @function unit.moving
     -- @param thisUnit The unit to check, defaults to "player" if nil
