@@ -189,35 +189,61 @@ local function rangedTestSpell()
     return nil
 end
 
+local function isFlagged(value) return br._G.issecretvalue ~= nil and br._G.issecretvalue(value) end
+
+-- On Forever, values BR may use can still be flagged secret, and any text built from one prints as
+-- <SECRET>. Text can't be cleaned, so it shows as "?".
 local function printable(value)
-    if value == nil or (br._G.issecretvalue and br._G.issecretvalue(value)) then return "?" end
+    if value == nil or isFlagged(value) then return "?" end
     return tostring(value)
 end
 
-local function inOut(value)
-    if value == nil then return "--" end
-    return value and "IN" or "OUT"
+-- A flagged number rebuilt from comparisons (which BR may make), to the nearest 0.01.
+local function plainNumber(value)
+    if not isFlagged(value) then return value end
+    local sign = 1
+    if value < 0 then sign, value = -1, -value end
+    local low, high = 0, 10000000
+    while low < high do
+        local mid = math.floor((low + high + 1) / 2)
+        if value * 100 >= mid then low = mid else high = mid - 1 end
+    end
+    return sign * low / 100
 end
 
--- Everything one check needs, for the target
+-- Branching on a flagged boolean gives plain strings
+local function inOut(value)
+    if value == nil then return "--" end
+    if value then return "IN" end
+    return "OUT"
+end
+
+-- Everything one check needs, for the target. m.flagged names the values the game flagged secret.
 local function measure()
     local range = br.functions.range
     if not br._G.UnitExists("target") then return nil end
+    local m, flagged = {}, {}
+    local function keep(name, value)
+        if value ~= nil and isFlagged(value) then flagged[#flagged + 1] = name end
+        m[name] = type(value) == "number" and plainNumber(value) or value
+    end
     local centre, flat, dz = range:getCenterDistance("player", "target")
     if centre == nil then return nil end
-    local m = { centre = centre, flat = flat, dz = dz,
-        reachPlayer = range:getCombatReach("player"), reachTarget = range:getCombatReach("target"),
-        edge = range:getEdgeDistance("player", "target"), leeway = range:getLeeway("player", "target"),
-        meleeReach = range:getMeleeReach("player", "target"), aoe = range:getAoEDistance("player", "target"),
-        old = range:getDistance("player", "target") }
-    m.meleeBR = centre <= m.meleeReach
-    m.meleeSpell = range:getMeleeSpellName()
-    if m.meleeSpell then m.meleeGame = br._G.C_Spell.IsSpellInRange(m.meleeSpell, "target") end
+    keep("centre", centre); keep("flat", flat); keep("dz", dz)
+    keep("reachPlayer", range:getCombatReach("player")); keep("reachTarget", range:getCombatReach("target"))
+    keep("speedPlayer", br._G.GetUnitSpeed("player")); keep("speedTarget", br._G.GetUnitSpeed("target"))
+    keep("edge", range:getEdgeDistance("player", "target")); keep("leeway", range:getLeeway("player", "target"))
+    keep("meleeReach", range:getMeleeReach("player", "target")); keep("aoe", range:getAoEDistance("player", "target"))
+    keep("old", range:getDistance("player", "target"))
+    m.meleeBR = centre <= range:getMeleeReach("player", "target")
+    keep("meleeSpell", range:getMeleeSpellName())
+    if m.meleeSpell then keep("meleeGame", br._G.C_Spell.IsSpellInRange(m.meleeSpell, "target")) end
     m.spell, m.spellRange = rangedTestSpell()
     if m.spell then
-        m.spellBR = m.edge <= m.spellRange
-        m.spellGame = br._G.C_Spell.IsSpellInRange(m.spell, "target")
+        m.spellBR = range:getEdgeDistance("player", "target") <= m.spellRange
+        keep("spellGame", br._G.C_Spell.IsSpellInRange(m.spell, "target"))
     end
+    m.flagged = flagged
     return m
 end
 
@@ -227,6 +253,8 @@ local function snapshot()
     local m = measure()
     if m == nil then return say("Target something first.") end
     say("Target: " .. printable(br._G.UnitName("target")) .. (m.leeway > 0 and "  (both running: +2.67 melee leeway)" or ""))
+    if #m.flagged > 0 then say("  flagged secret by the game (still usable): " .. table.concat(m.flagged, ", ")) end
+    say(("  speed: you %.2f, target %.2f yd/s"):format(m.speedPlayer or 0, m.speedTarget or 0))
     say(("  centre %.2f yd (2D %.2f, height %.2f) | combat reach: you %.2f, target %.2f"):format(m.centre, m.flat, m.dz, m.reachPlayer, m.reachTarget))
     say(("  edge-to-edge %.2f yd | current getDistance %.2f"):format(m.edge, m.old))
     say(("  melee: within %.2f yd of centre -> BR %s | game (%s) %s"):format(m.meleeReach, inOut(m.meleeBR), printable(m.meleeSpell), inOut(m.meleeGame)))
