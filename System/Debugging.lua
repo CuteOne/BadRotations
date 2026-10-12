@@ -192,23 +192,37 @@ end
 local function isFlagged(value) return br._G.issecretvalue ~= nil and br._G.issecretvalue(value) end
 
 -- On Forever, values BR may use can still be flagged secret, and any text built from one prints as
--- <SECRET>. Text can't be cleaned, so it shows as "?".
-local function printable(value)
-    if value == nil or isFlagged(value) then return "?" end
-    return tostring(value)
-end
+-- <SECRET> (and can't be written to a file). BR may compare them, so they're rebuilt from comparisons.
 
--- A flagged number rebuilt from comparisons (which BR may make), to the nearest 0.01.
-local function plainNumber(value)
-    if not isFlagged(value) then return value end
-    local sign = 1
-    if value < 0 then sign, value = -1, -value end
-    local low, high = 0, 10000000
+-- The whole number 0..max that value (scaled) rounds down to, found by halving
+local function plainInteger(value, max)
+    local low, high = 0, max
     while low < high do
         local mid = math.floor((low + high + 1) / 2)
-        if value * 100 >= mid then low = mid else high = mid - 1 end
+        if value >= mid then low = mid else high = mid - 1 end
     end
-    return sign * low / 100
+    return low
+end
+
+-- A flagged number, to the nearest 0.01
+local function plainNumber(value)
+    if not isFlagged(value) then return value end
+    if value < 0 then return -plainInteger(-value * 100, 10000000) / 100 end
+    return plainInteger(value * 100, 10000000) / 100
+end
+
+-- Flagged text, byte by byte
+local function plainText(text)
+    if not isFlagged(text) then return text end
+    local bytes = {}
+    for i = 1, plainInteger(#text, 4096) do bytes[i] = string.char(plainInteger(text:byte(i), 255)) end
+    return table.concat(bytes)
+end
+
+local function printable(value)
+    if value == nil then return "?" end
+    if type(value) == "string" then return plainText(value) end
+    return tostring(value)
 end
 
 -- Branching on a flagged boolean gives plain strings
@@ -257,8 +271,8 @@ end
 local rangeLog = {}
 local function say(text)
     br._G.print("|cffFFDD11[BR range]|r " .. text)
-    if br._G.WriteFile == nil or br._G.GetWoWDirectory == nil or isFlagged(text) then return end
-    rangeLog[#rangeLog + 1] = ("%.1f "):format(br._G.GetTime()) .. text:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
+    if br._G.WriteFile == nil or br._G.GetWoWDirectory == nil then return end
+    rangeLog[#rangeLog + 1] = ("%.1f "):format(br._G.GetTime()) .. plainText(text):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
     if #rangeLog > 500 then table.remove(rangeLog, 1) end
     pcall(br._G.WriteFile, br._G.GetWoWDirectory() .. "\\BRRange.log", table.concat(rangeLog, "\n") .. "\n", false)
 end
