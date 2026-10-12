@@ -26,6 +26,7 @@ end
 local DEFAULT_COMBAT_REACH = 1.5   -- a player's combat reach when the unit's can't be read
 local MELEE_OFFSET = 4 / 3          -- added to both combat reaches for melee
 local MELEE_MINIMUM = 5             -- melee reach is never less than this
+local MELEE_BONUS = 1               -- the game's extra yard on melee (measured on Forever, as AzerothCore has it)
 local LEEWAY = 8 / 3                -- extra reach while both units run
 local LEEWAY_MIN_SPEED = 4.97       -- faster than walking
 
@@ -50,7 +51,9 @@ end
 -- unit's combat reach (its hitbox radius), differently per kind of check. TrinityCore, CMaNGOS Classic
 -- and AzerothCore agree on these rules:
 --   * Spell range:  centre distance (3D) <= range + both combat reaches  -> edge distance <= range
---   * Melee:        centre distance (3D) <= max(5, both combat reaches + 4/3); the spell's range isn't used
+--   * Melee:        centre distance (3D) <= max(5, both combat reaches + 4/3); the spell's range isn't used.
+--                   The game adds 1 yd to that: measured on Forever with /br range (2026-10-11, the edge at
+--                   about 6 yd for two 1.25-1.5 reaches), as AzerothCore does for melee spells
 --   * AoE:          a unit is hit when its centre is within radius + its own combat reach of the AoE's
 --                   centre (the caster's reach doesn't count); 2D, and the height difference within radius
 --   * Running:      melee (and spells on players) get 8/3 yd more while both units run
@@ -87,11 +90,11 @@ function range:getLeeway(unit1, unit2)
     return (speed1 > LEEWAY_MIN_SPEED and speed2 > LEEWAY_MIN_SPEED) and LEEWAY or 0
 end
 
--- How far apart two units' centres can be for melee: max(5, both combat reaches + 4/3), plus the
+-- How far apart two units' centres can be for melee: max(5, both combat reaches + 4/3) + 1, plus the
 -- running leeway.
 function range:getMeleeReach(unit1, unit2)
     return math.max(MELEE_MINIMUM, range:getCombatReach(unit1) + range:getCombatReach(unit2) + MELEE_OFFSET)
-        + range:getLeeway(unit1, unit2)
+        + MELEE_BONUS + range:getLeeway(unit1, unit2)
 end
 
 -- True when the two units are in melee range of each other.
