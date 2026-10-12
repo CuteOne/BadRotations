@@ -7,6 +7,15 @@ local isValidUnitCache = {}
 
 local lastIsValidUnitCleanup = 0
 
+-- True when an enemy other than Unit is in combat (with the player or their group)
+local function othersFighting(Unit)
+	local pointer = br._G.ObjectPointer(Unit)
+	for other, record in pairs(br.engines.enemiesEngine.enemy) do
+		if other ~= pointer and br._G.UnitAffectingCombat(record.unit or other) then return true end
+	end
+	return false
+end
+
 -- distance: the unit's distance from the player if the caller has just measured it
 -- Other players count as enemies while the player, or they, have one of the unitRules debuffs
 local function isAttackablePlayer(Unit)
@@ -81,32 +90,41 @@ end
 
 --if isLongTimeCCed("target") then
 -- CCs with >=20 seconds
---- True when "Don't break CCs" should keep BR off Unit: crowd control that takes it out of the
---- fight, or roots on a unit other than the player's target (an add parked out of the fight; a target
---- the player rooted is being fought, as with root-and-nuke).
+--- True when "Don't break CCs" should keep BR off Unit, which has crowd control or roots on it
+--- (br.lists.longCC). Players CC or root a mob to heal, eat or drink, gain distance or a better spot,
+--- park an add, or escape, so BR breaks it only when:
+---   it's the player's target (anything else was parked by them or the group), and either
+---   it fled at low health (unit:isFleeing "flee": stop it before it brings help; not while the
+---   player eats or drinks), or
+---   no other enemy is fighting, the player isn't moving (still repositioning), and
+---   combat:isReadyToFight() (health, mana, not eating or drinking, tanks).
 function misc:isCCProtected(Unit)
-	local kind = misc:isLongTimeCCed(Unit)
-	if kind == "cc" then return true end
-	if kind == "root" then return not br.functions.unit:GetUnitIsUnit(Unit, "target") end
-	return false
+	if not misc:isLongTimeCCed(Unit) then return false end
+	local unitFns = br.functions.unit
+	if not unitFns:GetUnitIsUnit(Unit, "target") then return true end
+	if unitFns:isFleeing(Unit) == "flee" then
+		return unitFns:isEating("player") or unitFns:isDrinking("player")
+	end
+	return othersFighting(Unit) or misc:isMoving("player") or not br.functions.combat:isReadyToFight()
 end
 
---- The crowd control on Unit from br.lists.longCC: "cc" (takes it out of the fight), "root" (holds
---- it in place; damage may break it), or false.
+--- The crowd control on Unit from br.lists.longCC: "cc" (takes it out of the fight), "fear" (a fear:
+--- out of the fight, but running loose), "root" (holds it in place; damage may break it), or false.
 function misc:isLongTimeCCed(Unit)
 	if Unit == nil then
 		return false
 	end
 	local longTimeCC = br.lists.longCC
-	local rooted = false
+	local feared, rooted = false, false
 	for i = 1, 40 do
 		local auraInfo = br.api.wow.GetDebuffDataByIndex(Unit, i)
 		if not auraInfo then break end
 		local kind = longTimeCC[tonumber(auraInfo.spellId)]
 		if kind == true then return "cc" end
+		if kind == "fear" then feared = true end
 		if kind == "root" then rooted = true end
 	end
-	return rooted and "root" or false
+	return feared and "fear" or rooted and "root" or false
 end
 
 function misc:isPlayer(Unit)
@@ -134,15 +152,6 @@ function misc:isTargeting(Unit, MatchUnit)
 		return false
 	end
 	return unitTarget == br._G.ObjectPointer(MatchUnit or "player")
-end
-
--- True when an enemy other than Unit is in combat (with the player or their group)
-local function othersFighting(Unit)
-	local pointer = br._G.ObjectPointer(Unit)
-	for other, record in pairs(br.engines.enemiesEngine.enemy) do
-		if other ~= pointer and br._G.UnitAffectingCombat(record.unit or other) then return true end
-	end
-	return false
 end
 
 -- Caches an isValidUnit answer by GUID and returns it
@@ -216,11 +225,6 @@ function misc:isValidUnit(Unit)
 	end
 	local burnUnit = misc:getOptionCheck("Forced Burn") and br.engines.enemiesEngineFunctions:isBurnTarget(Unit) > 0
 	local isCC = misc:getOptionCheck("Don't break CCs") and misc:isCCProtected(Unit) or false
-	-- A crowd-controlled unit the player deliberately targets may be attacked when no other enemy is
-	-- fighting and the fight can start well: it's the next pull, not a mob taken out of a fight
-	if isCC and playerTarget and not othersFighting(Unit) and br.functions.combat:isReadyToFight() then
-		isCC = false
-	end
 	local mcCheck = (misc:isChecked("Attack MC Targets") and (not br.functions.unit:GetUnitIsFriend(Unit, "player") or (br._G.UnitIsCharmed(Unit) and br._G.UnitCanAttack("player", Unit))))
 		or not br.functions.unit:GetUnitIsFriend(Unit, "player")
 

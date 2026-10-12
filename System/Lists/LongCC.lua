@@ -3,7 +3,9 @@ if br.lists == nil then
 	br.lists = {}
 end
 -- Crowd control BR shouldn't break ("Don't break CCs", misc:isCCProtected):
---   true    takes a mob out of the fight (polymorph, sap, trap, fear...): left alone
+--   true    takes a mob out of the fight (polymorph, sap, trap...): left alone
+--   "fear"  a fear: out of the fight like the above, but the mob runs loose (unit:isFleeing says
+--           "fear", e.g. so a profile can root it before it runs into other mobs)
 --   "root"  holds a mob in place, and damage may break it: left alone unless it's the player's
 --           target (rooted to be fought, e.g. root-and-nuke)
 -- Stuns aren't here: attacking a stunned mob is the point.
@@ -37,7 +39,7 @@ br.lists.longCC = {
 	[28271] = true, -- Mage - Polymorph (Turtle)
 	[115078] = true, -- Monk - Paralysis
 	[20066] = true, -- Paladin - Repentance
-	[8122] = true, -- Priest - Psychic Scream
+	[8122] = "fear", -- Priest - Psychic Scream
 	[9484] = true, -- Priest - Shackle Undead
 	[199743] = true, -- Rogue - Parley
 	[2094] = true, -- Rogue - Blind
@@ -49,8 +51,8 @@ br.lists.longCC = {
 	[211010] = true, -- Shaman - Hex (Snake)
 	[211004] = true, -- Shaman - Hex (Spider)
 	[196942] = true, -- Shaman - Voodoo Totem: Hex
-	[118699] = true, -- Warlock - Fear
-	[5484] = true, -- Warlock - Howl of Terror
+	[118699] = "fear", -- Warlock - Fear
+	[5484] = "fear", -- Warlock - Howl of Terror
 	[710] = true, -- Warlock - Banish
 	[82579] = true -- Various - Chloroform (Red Ridge: Keeshan Questline)
 }

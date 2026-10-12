@@ -12,6 +12,7 @@ local _uiErrFrame       = br._G.CreateFrame("Frame"); _uiErrFrame:RegisterEvent(
 local _superFrame       = br._G.CreateFrame("Frame")
 local autoAttackGUID      -- the unit auto attack started on (PLAYER_ENTER_COMBAT), for the Cast Debug stop line
 _superFrame:RegisterEvent("CHAT_MSG_ADDON")
+_superFrame:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
 _superFrame:RegisterEvent("PLAYER_STARTED_MOVING")
 -- Auto-attack starting and stopping (unit:isAutoAttacking)
 _superFrame:RegisterEvent("PLAYER_ENTER_COMBAT")
@@ -305,6 +306,12 @@ function common:commonReaders()
 					pcall(recordMaxStacks, unitTarget, aura)
 				end
 			end
+		end
+		-- A mob's flee emote ("%s attempts to run away in fear!"): unit:isFleeing. The text can be
+		-- secret, and a secret string can't index a table, hence the pcall
+		if event == "CHAT_MSG_MONSTER_EMOTE" then
+			local text = ...
+			pcall(br.functions.unit.noteFleeEmote, br.functions.unit, text, (select(12, ...)))
 		end
 		-- Azerite Essence
 		if event == "AZERITE_ESSENCE_ACTIVATED" and br.player then

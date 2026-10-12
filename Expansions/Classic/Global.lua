@@ -15,16 +15,17 @@ if br.lists.longCC then
         24132, 24133,                   -- Wyvern Sting (Rank 2-3)
         19503,                          -- Scatter Shot
         12824, 12825, 12826,            -- Polymorph (Rank 2-4)
-        8124, 10888, 10890,             -- Psychic Scream (Rank 2-4)
         9485, 10955,                    -- Shackle Undead (Rank 2-3)
         1777, 8629, 11285, 11286,       -- Gouge (Rank 2-5)
         2070, 11297,                    -- Sap (Rank 2-3)
-        5782, 6213, 6215,               -- Fear (Rank 1-3)
-        17928,                          -- Howl of Terror (Rank 2)
         18647,                          -- Banish (Rank 2)
     }) do
         br.lists.longCC[id] = true
     end
+end
+-- Fears (Psychic Scream Rank 2-4, Fear Rank 1-3, Howl of Terror Rank 2), see System/Lists/LongCC.lua
+if br.lists.longCC then
+    for _, id in ipairs({ 8124, 10888, 10890, 5782, 6213, 6215, 17928 }) do br.lists.longCC[id] = "fear" end
 end
 -- Entangling Roots ranks (Rank 2+): a root, see System/Lists/LongCC.lua
 if br.lists.longCC then

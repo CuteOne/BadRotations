@@ -113,6 +113,7 @@ System\Lists\Dummy.lua
 System\Lists\InterruptWhitelist.lua
 System\Lists\Items.lua
 System\Lists\LineOfSight.lua
+System\Lists\FleeEmotes.lua
 System\Lists\LongCC.lua
 System\Lists\Maps.lua
 System\Lists\NoTouchUnits.lua

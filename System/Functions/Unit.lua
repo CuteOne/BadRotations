@@ -2,6 +2,10 @@ local _, br = ...
 ---@class br.functions.unit
 br.functions.unit = br.functions.unit or {}
 local unit = br.functions.unit
+-- When each mob (GUID) gave the flee emote, and how long a flee counts for (TrinityCore's default
+-- flee delay is 7 s; a fleeing mob runs until it finds help or the timer ends)
+local fleeEmoteAt = {}
+local FLEE_TIME = 10
 unit.isDisarmed = false
 
 -- Creature types, by the ID UnitCreatureType returns as its second value. Clients that return only the
@@ -554,36 +558,27 @@ function unit:isExplosive(Unit)
 	return br.lists.unitRules.explosive[br.functions.unit:GetObjectID(Unit)] ~= nil
 end
 
+--- Whether thisUnit is running loose: "flee" (it fled at low health: the game's flee emote named it,
+--- or the unlocker's fleeing unit flag is set without a fear on it), "fear" (a fear from
+--- br.lists.longCC), or false. A unit merely moving away doesn't count.
 function unit:isFleeing(thisUnit)
-    if thisUnit == nil then thisUnit = "target" end
-
-    -- Early exit if unit doesn't exist or is dead
-    if not unit:GetObjectExists(thisUnit) or unit:GetUnitIsDeadOrGhost(thisUnit) then
-        return false
-    end
-
-    -- Don't check bosses (they typically don't flee)
-    if unit:isBoss(thisUnit) then
-        return false
-    end
-
-    -- Health-based fleeing detection (10-25% health range)
-    local unitHP = unit:getHP(thisUnit)
-    local lowHealthThreshold = unitHP <= 25 and unitHP > 0
-
-    -- Movement pattern detection
-    local isMovingAway = false
-    local unitSpeed = br._G.GetUnitSpeed(thisUnit)
-    if unitSpeed > 0 then
-        -- Check if unit is facing away from player (indicating fleeing)
-        local isFacingPlayer = unit:getFacing(thisUnit, "player")
-        if not isFacingPlayer then
-            isMovingAway = true
-        end
-    end
-
-    -- Return true if any fleeing condition is met
-    return --[[lowHealthThreshold and]] isMovingAway
+	if thisUnit == nil then thisUnit = "target" end
+	if not unit:GetObjectExists(thisUnit) or unit:GetUnitIsDeadOrGhost(thisUnit) then return false end
+	if br.functions.misc:isLongTimeCCed(thisUnit) == "fear" then return "fear" end
+	local guid = br._G.UnitGUID(thisUnit)
+	local fledAt = guid and fleeEmoteAt[guid]
+	if fledAt then
+		if br._G.GetTime() - fledAt <= FLEE_TIME then return "flee" end
+		fleeEmoteAt[guid] = nil
+	end
+	-- The server's fleeing unit flag, where the unlocker reads unit flags and the expansion has
+	-- confirmed the bit (br.api.fleeingUnitFlag)
+	local flag = br.api.fleeingUnitFlag
+	if flag and br._G.UnitFlags then
+		local flags = br._G.UnitFlags(thisUnit)
+		if type(flags) == "number" and bit.band(flags, flag) ~= 0 then return "flee" end
+	end
+	return false
 end
 
 -- True if thisUnit is moving away from fromUnit while fromUnit faces it (being chased).
@@ -597,6 +592,13 @@ function unit:isFleeingFrom(thisUnit, fromUnit)
 end
 
 --- True while a form cancel BR sent is still on its way (sent within a round trip, form still on).
+--- Records a CHAT_MSG_MONSTER_EMOTE: the flee emote (br.lists.fleeEmotes) marks the mob as fleeing.
+function unit:noteFleeEmote(text, guid)
+	if text and guid and br.lists.fleeEmotes[text] then
+		fleeEmoteAt[guid] = br._G.GetTime()
+	end
+end
+
 function unit:isFormCancelPending()
 	return br._G.GetTime() - formCancelSentAt < br.functions.misc:getRoundTripHold() and (br._G.GetShapeshiftForm() or 0) ~= 0
 end
