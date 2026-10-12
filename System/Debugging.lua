@@ -707,3 +707,70 @@ function br.debug.melee:readComboPoints()
     comboBefore, comboPowerBefore = readCombo()
 end
 
+
+----------------------------------------------------------------------------------------------------
+-- Cast queue recorder (diagnostic): the server refused heals sent during another heal with "Another
+-- action is in progress" (2026-10-12). BRCast.log gets a line for every spell BR sends while the
+-- player is casting or channelling (a pre-cast), and one for every such refusal, with what BR saw
+-- when it sent: the cast it went behind, time left on it, the queue window, the GCD, pushbacks and
+-- BR's previous send. Called by the cast dispatcher (noteSend) just before each send.
+----------------------------------------------------------------------------------------------------
+br.debug.cast = br.debug.cast or {}
+local castLine = fileLog("BRCast.log")
+local CAST_LOG_CAP = 150 -- lines per session
+local castLogged = 0
+local lastSend, previousSend -- { name, at, behind, remain, window, gcd, pushbacks }
+local pushbacks = 0          -- UNIT_SPELLCAST_DELAYED on the player's current cast
+
+local function castWrite(text)
+    if castLogged >= CAST_LOG_CAP then return end
+    castLogged = castLogged + 1
+    castLine(text)
+end
+
+-- The player's cast or channel: name, seconds left
+local function currentCast(now)
+    local name, _, _, _, endMS = br._G.UnitCastingInfo("player")
+    if name == nil then name, _, _, _, endMS = br._G.UnitChannelInfo("player") end
+    if name == nil then return nil end
+    return printable(name), endMS and (plainNumber(endMS) / 1000 - now) or nil
+end
+
+local function describeSend(send, now)
+    if send == nil then return "none" end
+    return ("%s %.2fs ago%s"):format(send.name, now - send.at,
+        send.behind and (" behind %s with %.2fs left"):format(send.behind, send.remain or -1) or "")
+end
+
+function br.debug.cast:noteSend(spellID)
+    local now = br._G.GetTime()
+    local behind, remain = currentCast(now)
+    previousSend = lastSend
+    lastSend = { name = printable(br.functions.spell:getName(spellID)), at = now, behind = behind, remain = remain,
+        window = br.functions.cast:getQueueWindow(), gcd = br.functions.spell:getGlobalCD() or 0, pushbacks = pushbacks }
+    if behind then
+        castWrite(("pre-cast %s behind %s: %.2fs left, window %.2fs, GCD %.2fs, pushbacks %d, latency %dms | previous send %s"):format(
+            lastSend.name, behind, remain or -1, lastSend.window, lastSend.gcd, pushbacks,
+            plainNumber(br.functions.misc:getHomeLatency() or 0) * 1000, describeSend(previousSend, now)))
+    end
+end
+
+local inProgressText = br._G.SPELL_FAILED_SPELL_IN_PROGRESS or "Another action is in progress"
+local castEvents = br._G.CreateFrame("Frame")
+castEvents:RegisterEvent("UNIT_SPELLCAST_START")
+castEvents:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+castEvents:RegisterEvent("UNIT_SPELLCAST_DELAYED")
+castEvents:RegisterEvent("UI_ERROR_MESSAGE")
+castEvents:SetScript("OnEvent", function(_, event, a, b)
+    if event == "UI_ERROR_MESSAGE" then
+        if printable(b) ~= inProgressText then return end
+        local now = br._G.GetTime()
+        local casting, remain = currentCast(now)
+        castWrite(("REFUSED (%s): casting %s | BR's last send %s, GCD then %.2fs, window %.2fs | send before that %s"):format(
+            printable(b), casting and ("%s, %.2fs left"):format(casting, remain or -1) or "nothing",
+            describeSend(lastSend, now), lastSend and lastSend.gcd or -1, lastSend and lastSend.window or -1,
+            describeSend(previousSend, now)))
+    elseif a == "player" then
+        if event == "UNIT_SPELLCAST_DELAYED" then pushbacks = pushbacks + 1 else pushbacks = 0 end
+    end
+end)

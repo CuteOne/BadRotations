@@ -181,6 +181,7 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 
 	-- Sending a spell while another cast is running pre-casts it into the queue window.
 	local castBeforeKey = E.currentCastKey()
+	if br.debug.cast then br.debug.cast:noteSend(ctx.spellID) end
 
 	-- A lower rank than the best one known (cast.<spell>.rank(n)) has to be sent by ID: on ranked
 	-- clients casting by name sends the highest known rank.
