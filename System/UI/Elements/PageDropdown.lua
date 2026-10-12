@@ -69,44 +69,14 @@ function br.ui:createPagesDropdown(window, menuPages)
     end
     newDropdown:SetList(pageNames)
 
-
-    -- newDropdown:SetEventListener(
-    --     "OnValueChanged",
-    --     function(this, event, key, value, selection)
-    --         window:ReleaseChildren()
-    --         window.currentPage = key
-    --         window.currentPageName = value
-    --         if key ~= nil then
-    --             window.pages[key][2]()
-    --         end
-    --         --Print(key.." - "..tostring(value))
-    --         br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["currentPage"] = window.currentPage
-    --         br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["totalPages"] = #window.pages
-    --         br.data.ui["currentPage"] = window.currentPage
-    --         br.data.ui["totalPages"] = #window.pages
-    --     end
-    -- )
-    -- if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] == nil or
-    --     br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["currentPage"] == nil
-    -- then
-    --     newDropdown:SetValue(1)
-    -- else
-    --     for i = 1, #data["PageList"] do
-    --         newDropdown:SetValue(i)
-    --     end
-    --     newDropdown:SetValue(br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["currentPage"])
-    -- end
-    -- newDropdown:ApplySettings()
-    -- window.parent:AddChild(newDropdown)
     -- This window's own settings (position, open state and the page it was on)
     local windowName = windowKey(window)
     local windowSettings = windowName and br.data.settings[br.loader.selectedSpec][windowName]
     newDropdown:SetEventListener(
         "OnValueChanged",
-        function(this, event, key, value, selection)
+        function(this, event, key)
             window:ReleaseChildren()
             window.currentPage = key
-            window.currentPageName = value
             if key ~= nil then
                 window.pages[key][2]()
                 if windowSettings then windowSettings.page = key end
@@ -118,16 +88,8 @@ function br.ui:createPagesDropdown(window, menuPages)
     local pageToShow = windowSettings and windowSettings.page or 1
     if window.pages[pageToShow] == nil then pageToShow = 1 end
 
-    -- Set the dropdown value
+    -- SetValue fires OnValueChanged, which builds the page
     newDropdown:SetValue(pageToShow)
     newDropdown:ApplySettings()
     window.parent:AddChild(newDropdown)
-
-    -- Manually trigger the page load since SetValue doesn't fire the event
-    window:ReleaseChildren()
-    window.currentPage = pageToShow
-    window.currentPageName = pageNames[pageToShow]
-    if window.pages[pageToShow] and window.pages[pageToShow][2] then
-        window.pages[pageToShow][2]()
-    end
 end
