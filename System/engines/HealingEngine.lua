@@ -462,11 +462,6 @@ if not healingEngine.metaTable1 then
 					end
 				end
 			end
-			if br.engines.healingEngineFrame.pulseNovaDebugTimer == nil or br.engines.healingEngineFrame.pulseNovaDebugTimer <= GetTime() then
-				br.engines.healingEngineFrame.pulseNovaDebugTimer = GetTime() + 0.5
-				br.engines.healingEngineFrame:pulseNovaDebug()
-			end
-			-- update these frames to current br.engines.healingEngine.friend values via a pulse in nova engine
 		end
 		-- We are creating the initial Main Table
 		br.engines.healingEngine.friend()
