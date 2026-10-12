@@ -189,35 +189,11 @@ local function rangedTestSpell()
     return nil
 end
 
-local function isFlagged(value) return br._G.issecretvalue ~= nil and br._G.issecretvalue(value) end
-
--- On Forever, values BR may use can still be flagged secret, and any text built from one prints as
--- <SECRET> (and can't be written to a file). BR may compare them, so they're rebuilt from comparisons.
-
--- The whole number 0..max that value (scaled) rounds down to, found by halving
-local function plainInteger(value, max)
-    local low, high = 0, max
-    while low < high do
-        local mid = math.floor((low + high + 1) / 2)
-        if value >= mid then low = mid else high = mid - 1 end
-    end
-    return low
-end
-
--- A flagged number, to the nearest 0.01
-local function plainNumber(value)
-    if not isFlagged(value) then return value end
-    if value < 0 then return -plainInteger(-value * 100, 10000000) / 100 end
-    return plainInteger(value * 100, 10000000) / 100
-end
-
--- Flagged text, byte by byte
-local function plainText(text)
-    if not isFlagged(text) then return text end
-    local bytes = {}
-    for i = 1, plainInteger(#text, 4096) do bytes[i] = string.char(plainInteger(text:byte(i), 255)) end
-    return table.concat(bytes)
-end
+-- Flagged values (see misc:plainNumber in System/Functions/Misc/Debug.lua)
+local function isFlagged(value) return br.functions.misc:isFlagged(value) end
+local function plainInteger(value, max) return br.functions.misc:plainInteger(value, max) end
+local function plainNumber(value) return br.functions.misc:plainNumber(value) end
+local function plainText(text) return br.functions.misc:plainText(text) end
 
 local function printable(value)
     if value == nil then return "?" end

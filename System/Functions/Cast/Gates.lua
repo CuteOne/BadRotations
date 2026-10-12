@@ -69,6 +69,9 @@ function cast:getRefusal(spellName)
 	return key and refusals[key]
 end
 
+-- A number for a debug detail: flagged values print as <SECRET> and hide the whole line
+local function plain(value) return br.functions.misc:plainNumber(value) end
+
 local function emitGateDebug(spellID, spellName, reason, detail)
 	if not E.castDebugOn() then return end -- gate refusals (on cooldown, GCD, ...) are routine
 	local now = br._G.GetTime()
@@ -76,8 +79,10 @@ local function emitGateDebug(spellID, spellName, reason, detail)
 	local key = spellID .. reason
 	if gateDebugThrottle[key] and now < gateDebugThrottle[key] then return end
 	gateDebugThrottle[key] = now + GATE_DEBUG_THROTTLE_SECS
-	local msg = "[GATE: " .. reason .. "] " .. tostring(spellName) .. " (" .. tostring(spellID) .. ")"
-	if detail then msg = msg .. " — " .. detail end
+	local msg = "[GATE: " .. reason .. "] " .. tostring(br.functions.misc:plainText(spellName)) .. " (" .. tostring(spellID) .. ")"
+	-- Detail numbers are made printable where they're built (plain); anything still flagged would
+	-- hide the whole line, so only the detail is left out
+	if detail then msg = msg .. " — " .. (br.functions.misc:isFlagged(detail) and "(detail holds a secret value)" or detail) end
 	br.player.ui.debug(msg)
 end
 
@@ -260,7 +265,7 @@ local function gateDoubleCast(ctx, thisUnit, castType, allTalents, allSpells) --
 	if elapsed > window then return true end
 	return false, "DOUBLE_CAST",
 		string.format("cast %.2fs ago, window=%.2fs (GCD %.2fs + lat %.0fms)",
-			elapsed, window, ctx.gcdMax, ctx.latency * 1000)
+			plain(elapsed), plain(window), plain(ctx.gcdMax), plain(ctx.latency * 1000))
 end
 
 local function gateDiesSoon(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
@@ -277,7 +282,7 @@ local function gateDiesSoon(ctx, thisUnit, castType, allTalents, allSpells) -- l
 	if castSeconds <= ctx.gcdMax then return true end
 	local ttd = br.engines.ttdTable:getTTD(thisUnit)
 	if castSeconds < ttd then return true end
-	return false, "DIES_SOON", string.format("castTime=%.2fs TTD=%.2fs", castSeconds, ttd)
+	return false, "DIES_SOON", string.format("castTime=%.2fs TTD=%.2fs", plain(castSeconds), plain(ttd))
 end
 
 local function gateUsable(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
@@ -294,7 +299,7 @@ local function gateUsable(ctx, thisUnit, castType, allTalents, allSpells) -- lua
 				or  (br._G.UnitPower("pet") or 0)
 			if petPower < minCost then
 				return false, "NOT_USABLE",
-					string.format("pet focus %d < cost %d", petPower, minCost)
+					string.format("pet focus %d < cost %d", plain(petPower), plain(minCost))
 			end
 		end
 		return true
@@ -335,7 +340,7 @@ local function gateCooldownTimer(ctx, thisUnit, castType, allTalents, allSpells)
 			if cdStart and cdDuration and cdDuration > 0
 					and (cdStart + cdDuration) > br._G.GetTime() then
 				return false, "PET_ON_COOLDOWN",
-					string.format("petCD=%.2fs remaining", (cdStart + cdDuration) - br._G.GetTime())
+					string.format("petCD=%.2fs remaining", plain((cdStart + cdDuration) - br._G.GetTime()))
 			end
 		end
 		-- castTimers fallback: covers CastPetAction attempts where the game did not apply a
@@ -356,7 +361,7 @@ local function gateCooldownTimer(ctx, thisUnit, castType, allTalents, allSpells)
 	if t == nil or t < br._G.GetTime() then
 		if ctx.spellCD <= ctx.updateRate then return true end
 		return false, "ON_COOLDOWN",
-			string.format("spellCD=%.2fs updateRate=%.3fs", ctx.spellCD, ctx.updateRate)
+			string.format("spellCD=%.2fs updateRate=%.3fs", plain(ctx.spellCD), plain(ctx.updateRate))
 	end
 	return false, "CAST_TIMER",
 		string.format("castTimer expires in %.2fs", t - br._G.GetTime())
