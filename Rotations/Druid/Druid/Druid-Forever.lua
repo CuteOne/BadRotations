@@ -62,6 +62,8 @@ local function options()
     br.ui:spinner(section, "Faerie Fire", { value = 40, checked = true,
         tip = "Keep Faerie Fire on your target in any form: it lowers the target's armor and stops it stealthing",
         boxTip = "In Cat or Bear Form, only while your mana is at or above this percent, so heals and shifting back stay affordable" })
+    br.ui:checkbox(section, "Faerie Fire Pull", { tip = "Out of combat, pull your hostile target from up to 30 yards with Faerie Fire in Bear or Caster Form "
+        .. "(never from Prowl), once you're ready to fight (Ready To Fight options, Targeting page)" })
 
     section = br.ui:section("Cat Form")
     br.ui:dropdown(section, "Cat Opener", { choices = { "Pounce", "Ravage", "Shred", "Rake" }, value = "Ravage", checkbox = false,
@@ -250,6 +252,12 @@ local function healOthersUnit()
 end
 
 -- A Beast or Dragonkin fighting the player that isn't the target (Hibernate)
+-- Bear filler: another enemy in Swipe's reach without Faerie Fire that will live long enough to matter
+local function faerieFireFiller(thisUnit)
+    return not unit.isUnit(thisUnit, "target") and unit.ttd(thisUnit) > 10
+        and not debuff.faerieFire.exists(thisUnit, "any") and cast.able.faerieFire(thisUnit)
+end
+
 local function hibernateTarget(thisUnit)
     return (unit.beast(thisUnit) or unit.dragonkin(thisUnit)) and not unit.isUnit(thisUnit, "target")
         and unit.isTanking(thisUnit) and cast.able.hibernate(thisUnit)
@@ -921,6 +929,16 @@ actionList.PreCombat = function()
     end
     if not unit.valid("target") then return false end
     local thisDistance = unit.distance("target") or 99
+    -- Faerie Fire Pull: brings the target to you with the debuff already up (Bear or Caster Form)
+    if ui.checked("Faerie Fire Pull") and (buff.bearForm.exists() or not inForm) and not buff.prowl.exists()
+        and thisDistance < 30 and unit.enemy("target") and unit.readyToFight()
+        and not debuff.faerieFire.exists("target", "any") and cast.able.faerieFire("target")
+    then
+        if cast.faerieFire("target") then
+            ui.debug("Casting Faerie Fire [Pull]")
+            return true
+        end
+    end
     -- Pull from range before shifting: Starfire for a Caster/Moonkin player once learned, else Wrath
     if not unit.moving() and not inForm and thisDistance < 30 then
         if (activeForm == "caster" or activeForm == "moonkin") and cast.able.starfire("target") and not cast.current.starfire() then
@@ -1030,6 +1048,15 @@ actionList.Combat = function()
     if activeForm == "bear" and buff.bearForm.exists() and inMelee then
         if ui.checked("Bear Opener") and actionList.BearOpener() then return true end
         if actionList.BearForm() then return true end
+        -- Faerie Fire filler: when the Bear list had nothing to do, the other enemies Swipe hits (lower
+        -- armor means more Swipe damage and threat), above the mana reserve
+        if ui.checked("Faerie Fire") and mana >= ui.value("Faerie Fire") and spell.swipe.known() and #enemies.yards8 > 1 then
+            local thisUnit = enemies.first(enemies.yards8, faerieFireFiller)
+            if thisUnit ~= nil and cast.faerieFire(thisUnit) then
+                ui.debug("Casting Faerie Fire [Filler]")
+                return true
+            end
+        end
     end
     -- Call Action List - Cat Form
     if activeForm == "cat" and buff.catForm.exists() and inMelee then
