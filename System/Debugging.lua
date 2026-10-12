@@ -266,20 +266,35 @@ local function measure()
     return m
 end
 
--- A log file in the unlocker's folder (GetWoWDirectory) holding the last `keep` lines; returns the
--- function that adds a line. Used since chat copy windows show <SECRET> on Forever.
-local function fileLog(fileName, keep)
-    local lines = {}
+-- Logs in the unlocker's folder (GetWoWDirectory), e.g. BRMelee.log: written for Claude to read
+-- between sessions, since chat copy windows show <SECRET> on Forever. A line is added to what the
+-- file holds now (read afresh each time, so lines removed from the file while the game runs stay
+-- removed; unlockers' WriteFile can't append), and the file keeps its newest LOG_MAX_BYTES.
+-- Each session's first line in a file is a dated header. Returns the function that adds a line.
+local LOG_MAX_BYTES = 262144
+local function fileLog(fileName)
+    local sessionStarted = false
     return function(text)
-        if br._G.WriteFile == nil or br._G.GetWoWDirectory == nil then return end
-        lines[#lines + 1] = ("%.1f "):format(br._G.GetTime()) .. plainText(text):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
-        if #lines > keep then table.remove(lines, 1) end
-        pcall(br._G.WriteFile, br._G.GetWoWDirectory() .. "\\" .. fileName, table.concat(lines, "\n") .. "\n", false)
+        if br._G.WriteFile == nil or br._G.ReadFile == nil or br._G.GetWoWDirectory == nil then return end
+        local path = br._G.GetWoWDirectory() .. "\\" .. fileName
+        local line = ("%.1f "):format(br._G.GetTime()) .. plainText(text):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
+        if not sessionStarted then
+            sessionStarted = true
+            line = "=== session " .. (br._G.date and br._G.date("%Y-%m-%d %H:%M") or "?") .. " ===\n" .. line
+        end
+        local ok, current = pcall(br._G.ReadFile, path)
+        if not ok or type(current) ~= "string" then current = "" end
+        local content = current .. line .. "\n"
+        if #content > LOG_MAX_BYTES then
+            local cut = content:find("\n", #content - LOG_MAX_BYTES / 2, true)
+            content = content:sub((cut or 0) + 1)
+        end
+        pcall(br._G.WriteFile, path, content, false)
     end
 end
 
 -- Every line also goes to BRRange.log
-local rangeLine = fileLog("BRRange.log", 500)
+local rangeLine = fileLog("BRRange.log")
 local function say(text)
     br._G.print("|cffFFDD11[BR range]|r " .. text)
     rangeLine(text)
@@ -366,7 +381,7 @@ end--]]
 -- the target fled while a second mob stayed in melee.
 ----------------------------------------------------------------------------------------------------
 br.debug.melee = br.debug.melee or {}
-local meleeLine = fileLog("BRMelee.log", 1000)
+local meleeLine = fileLog("BRMelee.log")
 local MELEE_EPISODE_LINES = 40 -- lines kept per episode
 local episode                   -- { started, lastSeen, lastSnap, lines, events }
 
@@ -394,8 +409,21 @@ local meleeEvents = br._G.CreateFrame("Frame")
 meleeEvents:RegisterEvent("UI_ERROR_MESSAGE")
 meleeEvents:RegisterEvent("UNIT_SPELLCAST_FAILED")
 meleeEvents:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+meleeEvents:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
 -- UI_ERROR_MESSAGE: errorType, message; UNIT_SPELLCAST_*: unit, castGUID, spellID
-meleeEvents:SetScript("OnEvent", function(_, event, a, b, c)
+meleeEvents:SetScript("OnEvent", function(_, event, a, b, c, ...)
+    -- Monster emotes in combat, episode or not: the flee emote's wording in this client's language
+    -- (br.lists.fleeEmotes) and whether BR can read it
+    if event == "CHAT_MSG_MONSTER_EMOTE" then
+        if not br._G.UnitAffectingCombat("player") then return end
+        local guid = select(9, ...) -- payload 12
+        local ok, entry = pcall(function() return br.lists.fleeEmotes[a] end)
+        local known = ok and entry and true or false
+        local fromTarget = guid ~= nil and guid == br._G.UnitGUID("target")
+        meleeWrite("emote: \"" .. printable(a) .. "\" from " .. printable(b) .. (fromTarget and " (target)" or "")
+            .. " | flee text known: " .. tostring(known) .. " | guid " .. (guid and "yes" or "none"))
+        return
+    end
     if not episode then return end
     local text
     if event == "UI_ERROR_MESSAGE" then
@@ -413,12 +441,30 @@ local function meleeState(player)
         "target " .. meleeUnit("target"),
         "BR melee pick (dyn5) " .. (units and units.dyn5 and meleeUnit(units.dyn5) or "none"),
         "auto attack " .. (br.functions.unit:isAutoAttacking() and "on" or "off"),
+        "target fleeing " .. tostring(br.functions.unit:isFleeing("target")),
     }
+    -- The target's unit flags where the unlocker reads them (to confirm the fleeing bit, 0x00800000
+    -- on TrinityCore-era servers, before br.api.fleeingUnitFlag is set)
+    if br._G.UnitFlags then
+        local ok, flags = pcall(br._G.UnitFlags, "target")
+        if ok and type(flags) == "number" then
+            if isFlagged(flags) then flags = plainInteger(flags, 4294967295) end
+            parts[#parts + 1] = ("target flags 0x%08X"):format(flags)
+        end
+    end
     return table.concat(parts, " | ")
 end
 
+local meleeEnvironmentLogged = false
 function br.debug.melee:watch(player)
     local now = br._G.GetTime()
+    -- Once a session: client facts the fleeing and eating checks depend on
+    if not meleeEnvironmentLogged then
+        meleeEnvironmentLogged = true
+        meleeWrite("client: locale " .. tostring(br._G.GetLocale and br._G.GetLocale())
+            .. " | AuraUtil.UnpackAuraData " .. tostring(_G.AuraUtil ~= nil and _G.AuraUtil.UnpackAuraData ~= nil)
+            .. " | unlocker UnitFlags " .. tostring(br._G.UnitFlags ~= nil))
+    end
     local active = false
     local inMelee
     if br._G.UnitAffectingCombat("player") and br._G.UnitExists("target") then
