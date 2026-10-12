@@ -226,7 +226,7 @@ function ProfessionHelper:ProfessionHelper()
 					local thisItem = tableLockBox[i]
 					if br._G.GetItemCount(thisItem, false, false) >= 1 then
 						if br.lootTimer == nil or br.lootTimer <= br._G.GetTime() - lootDelay and not br._G.LootFrame:IsShown() then
-							br._G.CastSpellByName(br.api.wow.GetSpellInfo(1804), "player")
+							br.functions.cast:castByName(br.functions.spell:getName(1804), "player")
 							br._G.UseItemByName(tostring(select(1, br._G.GetItemInfo(thisItem))))
 							br._G.C_Timer.After(1.5,
 								function() br._G.UseItemByName(tostring(select(1, br._G.GetItemInfo(thisItem)))) end)

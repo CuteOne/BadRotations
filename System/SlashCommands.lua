@@ -412,7 +412,7 @@ local function handler(message, editbox)
 	elseif msg == "disengage" then
 		-- Forward Disengage
 		if br._G.IsLeftShiftKeyDown() then
-			br._G.CastSpellByName(br.functions.spell:getName(781))
+			br.functions.cast:castByName(br.functions.spell:getName(781))
 		else
 			forewardDisengage()
 		end

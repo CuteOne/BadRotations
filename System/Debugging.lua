@@ -755,6 +755,20 @@ function br.debug.cast:noteSend(spellID)
     end
 end
 
+-- A cast by name the game refused with a Lua error (cast:castByName). The error report's stack is
+-- secret on Forever, so the call site and arguments are written here instead: the first few per
+-- call site, then a count every 100th.
+local sendErrors = {}
+function br.debug.cast:noteSendError(name, unit, err)
+    local site = printable(br._G.debugstack and br._G.debugstack(3, 1, 0) or "?"):gsub("%s+$", "")
+    local seen = (sendErrors[site] or 0) + 1
+    sendErrors[site] = seen
+    if seen > 3 and seen % 100 ~= 0 then return end
+    castWrite(("SEND ERROR #%d from %s: name %s (%s), unit %s (%s), exists %s | %s"):format(
+        seen, site, printable(name), type(name), printable(unit), type(unit),
+        tostring(unit ~= nil and br._G.UnitExists(unit) or nil), printable(err)))
+end
+
 local inProgressText = br._G.SPELL_FAILED_SPELL_IN_PROGRESS or "Another action is in progress"
 local castEvents = br._G.CreateFrame("Frame")
 castEvents:RegisterEvent("UNIT_SPELLCAST_START")

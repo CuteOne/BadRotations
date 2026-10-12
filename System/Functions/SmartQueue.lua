@@ -151,7 +151,7 @@ function SmartQueue:smartQueue()
 		if br._G.IsAoEPending() and br.functions.misc:getOptionValue(br.api.wow.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") ~= 3 then
 			local pendingSpell = SmartQueue.queueSpell
 			br._G.CancelPendingSpell()
-			br._G.CastSpellByName(br.api.wow.GetSpellInfo(pendingSpell), "cursor")
+			br.functions.cast:castByName(br.functions.spell:getName(pendingSpell), "cursor")
 			return true
 		end
 		if SmartQueue.queueSpell and not br._G.UnitCastingInfo("player") then
@@ -164,7 +164,7 @@ function SmartQueue:smartQueue()
 				end
 			elseif br.functions.misc:getOptionValue(br.api.wow.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") == 3 then
 				if br.functions.cast:createCastFunction("player", nil, nil, nil, SmartQueue.queueSpell, nil, nil, nil, nil, true) then
-					br._G.CastSpellByName(br.functions.spell:getName(SmartQueue.queueSpell))
+					br.functions.cast:castByName(br.functions.spell:getName(SmartQueue.queueSpell))
 					br.ui.chatOverlay:Show("Casted Queued Spell: " .. br.api.wow.GetSpellInfo(SmartQueue.queueSpell))
 					return true
 				end

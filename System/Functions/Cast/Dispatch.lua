@@ -189,7 +189,7 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 	if bestRankID and bestRankID ~= ctx.spellID then
 		br._G.CastSpellByID(ctx.spellID, thisUnit)
 	else
-		br._G.CastSpellByName(castName, thisUnit)
+		cast:castByName(castName, thisUnit)
 	end
 	if br._G.IsAoEPending() then
 		local X, Y, Z = br._G.ObjectPosition(thisUnit)

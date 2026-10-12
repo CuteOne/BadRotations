@@ -5,6 +5,21 @@ local E = cast.internal
 -- Public cast helpers: ground casts, openers, cast-time and casting queries, the public
 -- throttle setters and the pet action bar cache.
 
+-- Every cast by name goes through here. The game answers a bad argument with a Lua error, and on
+-- clients with secret values its stack can't be read, so the caller can't be found from the error
+-- report. A refused call is written to BRCast.log with its call site and arguments instead, and
+-- the rotation carries on. Returns true when the game accepted the call.
+function cast:castByName(name, unit)
+	local ok, err
+	if unit == nil then
+		ok, err = pcall(br._G.CastSpellByName, name)
+	else
+		ok, err = pcall(br._G.CastSpellByName, name, unit)
+	end
+	if not ok and br.debug.cast and br.debug.cast.noteSendError then br.debug.cast:noteSendError(name, unit, err) end
+	return ok
+end
+
 --cast spell on position x,y,z
 function cast:castAtPosition(X, Y, Z, SpellID)
 	local mouselookActive = false
@@ -15,7 +30,7 @@ function cast:castAtPosition(X, Y, Z, SpellID)
 
 	-- Ground-targeted spells should not be cast "on" a unit token; doing so can force a self-cast.
 	-- We want the targeting cursor so we can click the provided world coordinates.
-	br._G.CastSpellByName(br.functions.spell:getName(SpellID))
+	cast:castByName(br.functions.spell:getName(SpellID))
 
 	local baseZ = Z
 	local attempts = 0
@@ -66,7 +81,7 @@ function cast:castGroundLocation(X, Y, SpellID, maxDistance, minDistance, radius
 			br._G.MouselookStop()
 		end
 		-- br._G.print("Casting Spell")
-		br._G.CastSpellByName(br.functions.spell:getName(SpellID))
+		cast:castByName(br.functions.spell:getName(SpellID))
 		if br._G.IsAoEPending() then
 			-- br._G.print("Clicking Position")
 			br._G.ClickPosition((X + math.random() * 2), (Y + math.random() * 2), Z) --distanceToGround
