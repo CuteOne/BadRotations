@@ -164,6 +164,103 @@ function br.debug.cpu:profile(seconds)
     end)
 end
 
+-- /br range [watch|stop]: checks BR's range rules (System/Functions/Range.lua) against the game's own answers
+-- for the target. A snapshot prints the measurements; watch prints a line each time the game's or BR's
+-- melee / spell range answer changes, so walking in and out of range shows whether they flip together.
+br.debug.range = {}
+local rangeWatch = nil
+
+-- A known harmful spell with a 20-45 yd range from the player's spells, to compare spell range with.
+local function rangedTestSpell()
+    local abilities = br.player and br.player.spells and br.player.spells.abilities
+    if abilities == nil then return nil end
+    local keys = {}
+    for key in pairs(abilities) do keys[#keys + 1] = key end
+    table.sort(keys)
+    for _, key in ipairs(keys) do
+        local spellID = br.functions.spell:currentRank(abilities[key])
+        if type(spellID) == "number" and br.functions.spell:isKnown(spellID) then
+            local name, _, _, _, _, maxRange = br.api.wow.GetSpellInfo(spellID)
+            if name and maxRange and maxRange >= 20 and maxRange <= 45 and br.functions.spell:getSpellType(name) == "Harmful" then
+                return name, maxRange
+            end
+        end
+    end
+    return nil
+end
+
+local function printable(value)
+    if value == nil or (br._G.issecretvalue and br._G.issecretvalue(value)) then return "?" end
+    return tostring(value)
+end
+
+local function inOut(value)
+    if value == nil then return "--" end
+    return value and "IN" or "OUT"
+end
+
+-- Everything one check needs, for the target
+local function measure()
+    local range = br.functions.range
+    if not br._G.UnitExists("target") then return nil end
+    local centre, flat, dz = range:getCenterDistance("player", "target")
+    if centre == nil then return nil end
+    local m = { centre = centre, flat = flat, dz = dz,
+        reachPlayer = range:getCombatReach("player"), reachTarget = range:getCombatReach("target"),
+        edge = range:getEdgeDistance("player", "target"), leeway = range:getLeeway("player", "target"),
+        meleeReach = range:getMeleeReach("player", "target"), aoe = range:getAoEDistance("player", "target"),
+        old = range:getDistance("player", "target") }
+    m.meleeBR = centre <= m.meleeReach
+    m.meleeSpell = range:getMeleeSpellName()
+    if m.meleeSpell then m.meleeGame = br._G.C_Spell.IsSpellInRange(m.meleeSpell, "target") end
+    m.spell, m.spellRange = rangedTestSpell()
+    if m.spell then
+        m.spellBR = m.edge <= m.spellRange
+        m.spellGame = br._G.C_Spell.IsSpellInRange(m.spell, "target")
+    end
+    return m
+end
+
+local function say(text) br._G.print("|cffFFDD11[BR range]|r " .. text) end
+
+local function snapshot()
+    local m = measure()
+    if m == nil then return say("Target something first.") end
+    say("Target: " .. printable(br._G.UnitName("target")) .. (m.leeway > 0 and "  (both running: +2.67 melee leeway)" or ""))
+    say(("  centre %.2f yd (2D %.2f, height %.2f) | combat reach: you %.2f, target %.2f"):format(m.centre, m.flat, m.dz, m.reachPlayer, m.reachTarget))
+    say(("  edge-to-edge %.2f yd | current getDistance %.2f"):format(m.edge, m.old))
+    say(("  melee: within %.2f yd of centre -> BR %s | game (%s) %s"):format(m.meleeReach, inOut(m.meleeBR), printable(m.meleeSpell), inOut(m.meleeGame)))
+    if m.spell then
+        say(("  %s (%d yd): BR %s | game %s"):format(m.spell, m.spellRange, inOut(m.spellBR), inOut(m.spellGame)))
+    end
+    say(("  AoE: target's edge %.2f yd from you (2D) -> an 8 yd AoE would hit: %s"):format(m.aoe, (m.aoe <= 8 and math.abs(m.dz) <= 8) and "yes" or "no"))
+end
+
+function br.debug.range:probe(arg)
+    arg = arg and arg:lower()
+    if arg == "stop" then
+        if rangeWatch then rangeWatch:Cancel(); rangeWatch = nil end
+        return say("Stopped.")
+    end
+    -- Slash commands run outside BR's protected scripts; timer callbacks run inside them (Forever)
+    if arg ~= "watch" then return br._G.C_Timer.After(0, snapshot) end
+    if rangeWatch then rangeWatch:Cancel() end
+    local last, stopAt = nil, br._G.GetTime() + 120
+    say("Watching the target for 2 minutes (/br range stop to end). Walk in and out of range.")
+    rangeWatch = br._G.C_Timer.NewTicker(0.1, function()
+        if br._G.GetTime() > stopAt then rangeWatch:Cancel(); rangeWatch = nil; return say("Stopped (2 minutes).") end
+        local m = measure()
+        if m == nil then return end
+        local key = inOut(m.meleeBR) .. inOut(m.meleeGame) .. inOut(m.spellBR) .. inOut(m.spellGame)
+        if key == last then return end
+        last = key
+        local agree = (m.meleeGame == nil or m.meleeBR == m.meleeGame) and (m.spellGame == nil or m.spellBR == m.spellGame)
+        say(("%s melee BR %s/game %s | %s BR %s/game %s | centre %.2f edge %.2f%s"):format(agree and "|cff00FF00ok|r" or "|cffFF4040DIFFER|r",
+            inOut(m.meleeBR), inOut(m.meleeGame), printable(m.spell), inOut(m.spellBR), inOut(m.spellGame), m.centre, m.edge,
+            m.leeway > 0 and " (running)" or ""))
+    end)
+end
+
 -- INTO TIMER LUA
 
 br.debug.timer = {}

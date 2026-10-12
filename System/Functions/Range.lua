@@ -10,6 +10,22 @@ local playerClass = nil
 
 local meleeSpellNames = {}
 
+-- The melee spell list (br.lists.range.meleeSpells) for the player now: the class's, a Druid's by form
+-- (Bear Form, else Cat)
+local function meleeListKey()
+    if playerClass == nil then playerClass = select(2, br._G.UnitClass("player")) end
+    if playerClass ~= "DRUID" then return playerClass end
+    local bearForm = br.functions.spell:getHighestSpellID("bearForm")
+    return (bearForm and br.functions.aura:UnitBuffID("player", bearForm)) and "DRUID_BEAR" or "DRUID_CAT"
+end
+
+-- Exact range rules, as the game's server applies them (see the comment above range:getEdgeDistance)
+local DEFAULT_COMBAT_REACH = 1.5   -- a player's combat reach when the unit's can't be read
+local MELEE_OFFSET = 4 / 3          -- added to both combat reaches for melee
+local MELEE_MINIMUM = 5             -- melee reach is never less than this
+local LEEWAY = 8 / 3                -- extra reach while both units run
+local LEEWAY_MIN_SPEED = 4.97       -- faster than walking
+
 local function resolveMeleeSpellName(listKey)
     local known = meleeSpellNames[listKey]
     if known ~= nil then return known or nil end
@@ -25,6 +41,79 @@ local function resolveMeleeSpellName(listKey)
     -- Only once the player's spells are compiled: before that the class lists may not be loaded
     if br.player and br.player.spells then meleeSpellNames[listKey] = name end
     return name or nil
+end
+
+-- How the game measures range. The server checks distances between unit centres and allows for each
+-- unit's combat reach (its hitbox radius), differently per kind of check. TrinityCore, CMaNGOS Classic
+-- and AzerothCore agree on these rules:
+--   * Spell range:  centre distance (3D) <= range + both combat reaches  -> edge distance <= range
+--   * Melee:        centre distance (3D) <= max(5, both combat reaches + 4/3); the spell's range isn't used
+--   * AoE:          a unit is hit when its centre is within radius + its own combat reach of the AoE's
+--                   centre (the caster's reach doesn't count); 2D, and the height difference within radius
+--   * Running:      melee (and spells on players) get 8/3 yd more while both units run
+-- One distance number can't serve all three, which is why these are separate functions.
+
+-- The unit's combat reach (hitbox radius) used in range checks.
+function range:getCombatReach(unit)
+    local reach = unit and br._G.UnitCombatReach(unit)
+    return (reach and reach > 0) and reach or DEFAULT_COMBAT_REACH
+end
+
+-- Distance between two units' centres: 3D, 2D and the height difference; nil when either has no position.
+function range:getCenterDistance(unit1, unit2)
+    local x1, y1, z1 = br.functions.unit:GetObjectPosition(unit1)
+    local x2, y2, z2 = br.functions.unit:GetObjectPosition(unit2)
+    if x1 == nil or x2 == nil then return nil end
+    local dx, dy, dz = x2 - x1, y2 - y1, z2 - z1
+    local flat = dx * dx + dy * dy
+    return sqrt(flat + dz * dz), sqrt(flat), dz
+end
+
+-- Edge-to-edge distance between two units: what a spell's range is compared with (in range when this is
+-- no more than the spell's range). nil when either has no position.
+-- if br.functions.range:getEdgeDistance("player", "target") <= 30 then
+function range:getEdgeDistance(unit1, unit2)
+    local centre = range:getCenterDistance(unit1, unit2)
+    if centre == nil then return nil end
+    return math.max(0, centre - range:getCombatReach(unit1) - range:getCombatReach(unit2))
+end
+
+-- The extra reach both units running gives: 8/3 yd when both move faster than a walk, else 0.
+function range:getLeeway(unit1, unit2)
+    local speed1, speed2 = br._G.GetUnitSpeed(unit1) or 0, br._G.GetUnitSpeed(unit2) or 0
+    return (speed1 > LEEWAY_MIN_SPEED and speed2 > LEEWAY_MIN_SPEED) and LEEWAY or 0
+end
+
+-- How far apart two units' centres can be for melee: max(5, both combat reaches + 4/3), plus the
+-- running leeway.
+function range:getMeleeReach(unit1, unit2)
+    return math.max(MELEE_MINIMUM, range:getCombatReach(unit1) + range:getCombatReach(unit2) + MELEE_OFFSET)
+        + range:getLeeway(unit1, unit2)
+end
+
+-- True when the two units are in melee range of each other.
+-- if br.functions.range:isInMelee("player", "target") then
+function range:isInMelee(unit1, unit2)
+    local centre = range:getCenterDistance(unit1, unit2)
+    return centre ~= nil and centre <= range:getMeleeReach(unit1, unit2)
+end
+
+-- How far a unit is from an AoE's centre, as the AoE sees it: the 2D distance from the centre unit to
+-- the unit's centre, less the unit's combat reach. A radius-R AoE hits it when this is no more than R
+-- (and the height difference is within R; heightDiff is returned for that). nil without positions.
+-- local d, dz = br.functions.range:getAoEDistance("player", thisUnit); if d <= 8 and math.abs(dz) <= 8 then
+function range:getAoEDistance(centreUnit, unit)
+    local _, flat, dz = range:getCenterDistance(centreUnit, unit)
+    if flat == nil then return nil end
+    return math.max(0, flat - range:getCombatReach(unit)), dz
+end
+
+-- The name of the spell the game is asked "is it in melee range" with (br.lists.range.meleeSpells: the
+-- first known spell of the class's list, a Druid's by form), or nil.
+function range:getMeleeSpellName()
+    local listKey = meleeListKey()
+    if br.lists.range.meleeSpells[listKey] == nil then return nil end
+    return resolveMeleeSpellName(listKey)
 end
 
 function range:getDistance(Unit1, Unit2, option)
@@ -48,15 +137,8 @@ end
 
 function range:getDistanceCalc(Unit1, Unit2, option)
     local currentDist = 100
-    -- The melee spell list for the class; a Druid's follows the form (Bear Form, else Cat)
-    if playerClass == nil then playerClass = select(2, br._G.UnitClass("player")) end
-    local meleeList = playerClass
-    if playerClass == "DRUID" then
-        local bearForm = br.functions.spell:getHighestSpellID("bearForm")
-        meleeList = (bearForm and br.functions.aura:UnitBuffID("player", bearForm)) and "DRUID_BEAR" or "DRUID_CAT"
-    end
-    local hasMeleeList = br.lists.range.meleeSpells[meleeList] ~= nil
-    local meleeSpellName = hasMeleeList and resolveMeleeSpellName(meleeList) or nil
+    local hasMeleeList = br.lists.range.meleeSpells[meleeListKey()] ~= nil
+    local meleeSpellName = range:getMeleeSpellName()
     -- If Unit2 is nil we compare player to Unit1
     if Unit2 == nil then
         Unit2 = Unit1
