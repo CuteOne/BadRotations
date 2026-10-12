@@ -104,11 +104,9 @@ System\Functions\Totem.lua
 
 ## Lists
 
-System\Lists\AoEDamage.lua
 System\Lists\Bosses.lua
 System\Lists\BurnUnits.lua
 System\Lists\CCUnits.lua
-System\Lists\Defensives.lua
 System\Lists\Dispels.lua
 System\Lists\Dummy.lua
 System\Lists\InterruptWhitelist.lua
@@ -116,7 +114,6 @@ System\Lists\Items.lua
 System\Lists\LineOfSight.lua
 System\Lists\FleeEmotes.lua
 System\Lists\LongCC.lua
-System\Lists\Maps.lua
 System\Lists\NoTouchUnits.lua
 System\Lists\Pets.lua
 System\Lists\ShieldUnits.lua
@@ -124,7 +121,6 @@ System\Lists\Specs.lua
 System\Lists\Spells.lua
 System\Lists\Range.lua
 System\Lists\Tier.lua
-System\Lists\ThreatBypass.lua
 System\Lists\TankBusters.lua
 System\Lists\UnitRules.lua
 
