@@ -134,6 +134,7 @@ function Player:startRotation()
 		self:runModules()
 		self.rotation.run()
 		br.functions.cast:openerEndPass()
+		br.debug.melee:watch(self)
 	else
 		return
 	end

@@ -266,15 +266,23 @@ local function measure()
     return m
 end
 
--- Every line also goes to BRRange.log in the unlocker's folder (GetWoWDirectory), since chat copy
--- windows show <SECRET> on Forever.
-local rangeLog = {}
+-- A log file in the unlocker's folder (GetWoWDirectory) holding the last `keep` lines; returns the
+-- function that adds a line. Used since chat copy windows show <SECRET> on Forever.
+local function fileLog(fileName, keep)
+    local lines = {}
+    return function(text)
+        if br._G.WriteFile == nil or br._G.GetWoWDirectory == nil then return end
+        lines[#lines + 1] = ("%.1f "):format(br._G.GetTime()) .. plainText(text):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
+        if #lines > keep then table.remove(lines, 1) end
+        pcall(br._G.WriteFile, br._G.GetWoWDirectory() .. "\\" .. fileName, table.concat(lines, "\n") .. "\n", false)
+    end
+end
+
+-- Every line also goes to BRRange.log
+local rangeLine = fileLog("BRRange.log", 500)
 local function say(text)
     br._G.print("|cffFFDD11[BR range]|r " .. text)
-    if br._G.WriteFile == nil or br._G.GetWoWDirectory == nil then return end
-    rangeLog[#rangeLog + 1] = ("%.1f "):format(br._G.GetTime()) .. plainText(text):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
-    if #rangeLog > 500 then table.remove(rangeLog, 1) end
-    pcall(br._G.WriteFile, br._G.GetWoWDirectory() .. "\\BRRange.log", table.concat(rangeLog, "\n") .. "\n", false)
+    rangeLine(text)
 end
 
 local function snapshot()
@@ -350,3 +358,115 @@ function br.debug.timer:useTimer(timerName, interval, randomPercent)
         return false
     end
 end--]]
+
+----------------------------------------------------------------------------------------------------
+-- Melee recorder (diagnostic, temporary): in combat, when the target is out of melee while another
+-- enemy is in melee, writes what BR saw and did to BRMelee.log, with nothing to switch on. Called by
+-- Player:startRotation after the rotation runs. Looks into the 2026-10-12 report of standing idle when
+-- the target fled while a second mob stayed in melee.
+----------------------------------------------------------------------------------------------------
+br.debug.melee = br.debug.melee or {}
+local meleeLine = fileLog("BRMelee.log", 1000)
+local MELEE_EPISODE_LINES = 40 -- lines kept per episode
+local episode                   -- { started, lastSeen, lastSnap, lines, events }
+
+local function meleeWrite(text)
+    if episode then
+        if episode.lines >= MELEE_EPISODE_LINES then return end
+        episode.lines = episode.lines + 1
+    end
+    meleeLine(text)
+end
+
+-- "Name 6.2yd in front" for a unit
+local function meleeUnit(u)
+    if u == nil then return "none" end
+    local unitFns = br.functions.unit
+    local d = br.functions.range:getDistance(u)
+    local text = ("%s %.1fyd %s"):format(printable(br._G.UnitName(u)), plainNumber(d or 99),
+        unitFns:getFacing("player", u) and "in front" or "not in front")
+    if unitFns:GetUnitIsUnit(u, "target") then text = text .. " (target)" end
+    return text
+end
+
+-- Game messages during an episode (spell failures, red error text)
+local meleeEvents = br._G.CreateFrame("Frame")
+meleeEvents:RegisterEvent("UI_ERROR_MESSAGE")
+meleeEvents:RegisterEvent("UNIT_SPELLCAST_FAILED")
+meleeEvents:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+-- UI_ERROR_MESSAGE: errorType, message; UNIT_SPELLCAST_*: unit, castGUID, spellID
+meleeEvents:SetScript("OnEvent", function(_, event, a, b, c)
+    if not episode then return end
+    local text
+    if event == "UI_ERROR_MESSAGE" then
+        text = "error: " .. printable(b)
+    elseif a == "player" then
+        local name = br.functions.spell:getName(c)
+        text = (event == "UNIT_SPELLCAST_FAILED" and "failed: " or "cast: ") .. printable(name or c)
+    end
+    if text and #episode.events < 20 then episode.events[#episode.events + 1] = text end
+end)
+
+local function meleeState(player)
+    local units = player and player.units
+    local parts = {
+        "target " .. meleeUnit("target"),
+        "BR melee pick (dyn5) " .. (units and units.dyn5 and meleeUnit(units.dyn5) or "none"),
+        "auto attack " .. (br.functions.unit:isAutoAttacking() and "on" or "off"),
+    }
+    return table.concat(parts, " | ")
+end
+
+function br.debug.melee:watch(player)
+    local now = br._G.GetTime()
+    local active = false
+    local inMelee
+    if br._G.UnitAffectingCombat("player") and br._G.UnitExists("target") then
+        local targetDist = br.functions.range:getDistance("target")
+        if targetDist == nil or targetDist >= 5 then
+            inMelee = br.engines.enemiesEngineFunctions:getEnemies("player", 5)
+            active = #inMelee > 0
+        end
+    end
+
+    if active then
+        if not episode then
+            episode = { started = now, lastSeen = now, lastSnap = now, lines = 0, events = {} }
+            local misc = br.functions.misc
+            local valid, reason = misc:isValidUnit("target")
+            local form = br.functions.unit:getFormSpellID()
+            meleeWrite("=== Target out of melee, " .. #inMelee .. " enemy in melee ===")
+            meleeWrite("  form " .. (form and printable(br.functions.spell:getName(form)) or "none")
+                .. " | target fleeing " .. tostring(br.functions.unit:isFleeing("target") and true or false)
+                .. " | target valid " .. tostring(valid and true or false) .. (reason and (" (" .. reason .. ")") or ""))
+            for i = 1, math.min(3, #inMelee) do meleeWrite("  in melee: " .. meleeUnit(inMelee[i])) end
+            meleeWrite("  settings: Dynamic Targetting " .. tostring(misc:isChecked("Dynamic Targetting"))
+                .. " (" .. tostring(misc:getValue("Dynamic Targetting")) .. "), Target Dynamic Target "
+                .. tostring(misc:isChecked("Target Dynamic Target")))
+            meleeWrite("  " .. meleeState(player))
+        end
+        episode.lastSeen = now
+        if now - episode.lastSnap >= 1 then
+            local decisions = {}
+            br.functions.cast:eachDecisionSince(episode.lastSnap, function(name, reason)
+                if #decisions < 8 then decisions[#decisions + 1] = printable(name) .. (reason and (" refused " .. reason) or " passed") end
+            end)
+            episode.lastSnap = now
+            meleeWrite(("  +%.1fs %s"):format(now - episode.started, meleeState(player)))
+            if #decisions > 0 then meleeWrite("    BR: " .. table.concat(decisions, ", ")) end
+            if #episode.events > 0 then
+                meleeWrite("    game: " .. table.concat(episode.events, ", "))
+                br._G.wipe(episode.events)
+            end
+        end
+    elseif episode and now - episode.lastSeen > 1.5 then
+        local how
+        if not br._G.UnitAffectingCombat("player") then how = "combat ended"
+        elseif not br._G.UnitExists("target") then how = "no target"
+        else how = "target back in melee, or no enemy in melee" end
+        local lasted = episode.lastSeen - episode.started
+        episode.lines = 0
+        meleeWrite(("=== ended after %.1fs: %s ==="):format(lasted, how))
+        episode = nil
+    end
+end

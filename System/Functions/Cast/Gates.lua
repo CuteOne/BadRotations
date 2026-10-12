@@ -54,6 +54,15 @@ function E.recordPass(spellID)
 	if entry then entry.passedAt = br._G.GetTime() end
 end
 
+--- Calls fn(name, reason, detail) for every spell the engine refused since `since` (GetTime), and
+--- fn(name, nil) for every one it passed (diagnostics, e.g. br.debug.melee).
+function cast:eachDecisionSince(since, fn)
+	for _, entry in pairs(refusals) do
+		if entry.refusedAt and entry.refusedAt >= since then fn(entry.name, entry.reason, entry.detail) end
+		if entry.passedAt and entry.passedAt >= since then fn(entry.name, nil) end
+	end
+end
+
 -- Last refusal/pass record for a spell name (any case/spacing), or nil.
 function cast:getRefusal(spellName)
 	local key = refusalKey(spellName)
