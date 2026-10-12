@@ -215,5 +215,3 @@ System\Misc\ProfessionHelper\ProfessionHelper.lua
 
 exports.lua
 
-## Updater --------------------------------------------
-System\Updater.lua

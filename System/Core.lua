@@ -107,8 +107,12 @@ function engines.Update(frame, elapsed)
     if not br.unlocked then
         -- Load and Cycle BR
         -- Notify Not Unlocked
-        br.ui:closeWindow("all")
-        br.ui.chatOverlay:Show("Unable To Load")
+        -- once, not every frame, while no unlocker is found
+        if not engines.notUnlockedShown then
+            engines.notUnlockedShown = true
+            br.ui:closeWindow("all")
+            br.ui.chatOverlay:Show("Unable To Load")
+        end
         if br.functions.misc:isChecked("Notify Not Unlocked") and
             br.debug.timer:useTimer("notLoaded", br.functions.misc:getOptionValue("Notify Not Unlocked"))
         then
@@ -162,14 +166,8 @@ function engines.Update(frame, elapsed)
                         br._G.RunMacroText("/stopcasting")
                     end
                 end
-                -- Blizz br._G.CastSpellByName bug bypass
-                if br.castID then
-                    -- Print("Casting by ID")
-                    br._G.CastSpellByID(br.botSpell, br.botUnit)
-                    br.castID = false
-                end
                 -- Queue Casting
-                if (br.functions.misc:isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0))
+                if br.functions.misc:isChecked("Queue Casting") and br.player ~= nil and #br.player.queue > 0
                     and not br._G.UnitChannelInfo("player")
                 then
                     if br.functions.cast:castQueue() then return end
@@ -207,9 +205,8 @@ function engines.Update(frame, elapsed)
                 -- Spec change: save and restart from ROTATIONS (Loader/Bootstrap.lua)
                 bootstrap:checkSpecChange()
                 -- Show Main Button
-                if br.data.settings ~= nil and br.data.settings[br.loader.selectedSpec].toggles["Main"] ~= 1 and
-                    br.data.settings[br.loader.selectedSpec].toggles["Main"] ~= 0 then
-                    br.data.settings[br.loader.selectedSpec].toggles["Main"] = 1
+                if toggles["Main"] ~= 1 and toggles["Main"] ~= 0 then
+                    toggles["Main"] = 1
                     br.ui.toggles.mainButton:Show()
                 end
                 -- Display Distance on Main Icon

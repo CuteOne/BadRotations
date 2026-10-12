@@ -594,11 +594,6 @@ function combatLog:common(...)
                 else
                     br.castCount = br.lastCount
                 end
-                -- Blizz br._G.CastSpellByName bug bypass
-                local resolvedBotSpell = type(br.botSpell) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(br.botSpell) or br.botSpell[1]) or br.botSpell
-                if br.api.wow.GetSpellInfo(spell) == br.api.wow.GetSpellInfo(resolvedBotSpell) and spell ~= resolvedBotSpell then
-                    br.castID = true
-                end
             end
             -- set destination
             if destination == nil or destName == nil then

@@ -33,7 +33,6 @@ function br.ui:createConfigWindow()
             tip = "Will alert you at the set interval when Unlocker is not attached." })
         br.ui:checkbox(section, "Reset Options", { tip = "|cffFF0000 WARNING!|cffFFFFFF Checking this will reset setting on reload!" })
         br.ui:checkbox(section, "Reset Saved Profiles", { tip = "|cffFF0000 WARNING!|cffFFFFFF Checking this will reset saved profiles on reload!" })
-        br.ui:checkbox(section, "Auto Check for Updates", { tip = "EWT only. This uses the Git master head sha for comparison. |cffFF0000Experimental!" })
     end
 
     local function callEnemiesEngine()

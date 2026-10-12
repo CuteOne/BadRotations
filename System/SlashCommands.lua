@@ -101,7 +101,7 @@ local function getStringIndex(string, index)
 end
 
 local function updateRate()
-	print("Current Update Rate: " .. br.engines:getUpdateRate())
+	br._G.print("Current Update Rate: " .. br.engines:getUpdateRate())
 end
 
 local function forewardDisengage() -- from Stinky Twitch
@@ -109,7 +109,7 @@ local function forewardDisengage() -- from Stinky Twitch
 	if s and s.startTime == 0 then
 		br._G.FaceDirection(br._G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true)
 		br._G.CastSpellByID(781)
-		br.C_Timer.After(0.05,
+		br._G.C_Timer.After(0.05,
 			function() br._G.FaceDirection(br._G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true) end)
 	end
 end
@@ -144,7 +144,9 @@ slashCommands:slashHelpList()
 
 local function handler(message, editbox)
 	local msg = string.lower(message)
+	-- the command word is matched without case; its arguments (spell names, toggles) keep theirs
 	local msg1 = getStringIndex(message, 1)
+	if msg1 then msg1 = string.lower(msg1) end
 	local msg2 = getStringIndex(message, 2)
 	local msg3 = getStringIndex(message, 3)
 	local msg4 = getStringIndex(message, 4)
@@ -163,17 +165,12 @@ local function handler(message, editbox)
 		br.slashCommands:SlashCommandHelp("Print Help")
 	elseif msg1 == "cooldowns" then
 		if not br.player then return false end
-		if br.player.ui.mode.cooldown == 2 then
-			br._G.RunMacroText("/br toggle Cooldown 3")
-		else
-			br._G.RunMacroText(
-				"/br toggle Cooldown 2")
-		end
+		br.ui:ToggleToValue("Cooldown", br.player.ui.mode.cooldown == 2 and 3 or 2)
 	elseif msg1 == "blacklist" then
 		-- Blacklist
 		if msg2 == "dump" then
 			br._G.print("|cffFF0000Blacklist:")
-			if #br.data.blackList == (0 or nil) then
+			if br.data.blackList == nil or #br.data.blackList == 0 then
 				br._G.print("|cffFFDD11Empty")
 			end
 			if br.data.blackList then
@@ -218,7 +215,7 @@ local function handler(message, editbox)
 			return true
 		else]]
 		if msg2 == "toggle" then
-			if br.data.settings[br.loader.selectedSpec].toggles["Pause"] == 0 then
+			if br.data.settings[br.loader.selectedSpec].toggles["Pause"] ~= 1 then
 				br.ui.chatOverlay:Show("\124cFFED0000 -- Paused -- ")
 				br._G.print("|cFFFF0000Paused")
 				br.data.settings[br.loader.selectedSpec].toggles["Pause"] = 1
@@ -250,7 +247,9 @@ local function handler(message, editbox)
 		end
 	elseif msg1 == "queue" then
 		-- Queue
-		if msg2 == "clear" then
+		if br.player == nil or br.player.queue == nil then
+			br._G.print("The queue is available once a rotation is loaded.")
+		elseif msg2 == "clear" then
 			if br.player.queue == nil then
 				br._G.print("Queue Already Cleared")
 			end
@@ -392,12 +391,12 @@ local function handler(message, editbox)
 		else
 			br._G.print("No Target Found.  Please Select a Target Before Adding")
 		end
-	elseif msg1 == "debuff" then
-		-- Debuff List
+	elseif msg1 == "baddebuff" then
+		-- Do Not Heal debuff list
 		if msg2 == nil then
 			br._G.print("No Spell Provided to Add")
 		else
-			local spellName, _, _, _, _, _, spellId = br.api.wow.GetSpellInfo(msg3)
+			local spellName, _, _, _, _, _, spellId = br.api.wow.GetSpellInfo(msg2)
 			if spellName == nil then
 				br._G.print("Invalid Spell ID: |cffFFDD11 Unable to add.")
 			else
@@ -551,8 +550,6 @@ local function handler(message, editbox)
 				end
 			end
 		end)
-	elseif msg1 == "update" then
-		br.updater:Update()
 	elseif msg1 == "clean" or msg1 == "cleansettings" then
 		if br.ui and br.ui.settingsManagement then
 			br._G.print("|cffFFDD11[BadRotations]|r Manually cleaning orphaned settings...")
@@ -577,8 +574,8 @@ local function dumpInfo(msg, editbox)
 			_G.targetInfo.unitID = thisUnit.id
 			local buff1 = br.functions.aura:UnitBuff("target", 1)
 			local buff2 = br.functions.aura:UnitBuff("target", 2)
-			local deBuff1 = br.functions.aura:UnitBuff("target", 1)
-			local deBuff2 = br.functions.aura:UnitBuff("target", 2)
+			local deBuff1 = br.functions.aura:UnitDebuff("target", 1)
+			local deBuff2 = br.functions.aura:UnitDebuff("target", 2)
 			if buff1 then
 				_G.targetInfo.buff1 = buff1
 			end
