@@ -362,14 +362,34 @@ function enemiesEngineFunctions:isCrowdControlCandidates(Unit)
 end
 
 -- returns true if we can safely attack this target
+-- br.lists.noTouchUnits by NPC ID: { [npcID] = { entries }, any = { entries for every unit (unitID 1) } },
+-- built on first use and again when the list grows (it's an array, checked for every unit with Safe
+-- Damage Check on)
+local noTouchIndex, noTouchIndexed
+local NO_ENTRIES = {}
+local function noTouchEntries(unitID)
+	if noTouchIndex == nil or noTouchIndexed ~= #br.lists.noTouchUnits then
+		noTouchIndexed = #br.lists.noTouchUnits
+		noTouchIndex = { any = {} }
+		for _, entry in ipairs(br.lists.noTouchUnits) do
+			local key = entry.unitID == 1 and "any" or entry.unitID
+			noTouchIndex[key] = noTouchIndex[key] or {}
+			noTouchIndex[key][#noTouchIndex[key] + 1] = entry
+		end
+	end
+	return noTouchIndex.any, noTouchIndex[unitID] or NO_ENTRIES
+end
+
 function enemiesEngineFunctions:isSafeToAttack(unit)
 	if br.functions.misc:getOptionCheck("Safe Damage Check") == true then
 		local startTime = br._G.debugprofilestop()
 		-- check if unit is valid
 		local unitID = br.functions.unit:GetObjectExists(unit) and br.functions.unit:GetObjectID(unit) or 0
-		for i = 1, #br.lists.noTouchUnits do
-			local noTouch = br.lists.noTouchUnits[i]
-			if noTouch.unitID == 1 or noTouch.unitID == unitID then
+		local anyUnit, thisUnit = noTouchEntries(unitID)
+		for pass = 1, 2 do
+			local entries = pass == 1 and anyUnit or thisUnit
+			for i = 1, #entries do
+				local noTouch = entries[i]
 				if noTouch.buff == nil then return false end --If a unit exist in the list without a buff it's just blacklisted
 				if noTouch.buff > 0 then
 					-- Not Safe with Buff/Debuff
