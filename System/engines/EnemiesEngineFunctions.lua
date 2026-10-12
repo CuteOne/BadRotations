@@ -441,21 +441,24 @@ end
 
 --- The unit a request of this range (yards) and facing should attack: the selected target when it can
 --- take it, otherwise BR's pick (br.engines.targeting), or nil.
---- Options: Dynamic Targetting off (or "Only In Combat" out of combat) keeps to the selected target;
---- Target Dynamic Target lets BR's pick replace a usable target and sets the WoW target to it.
---- In combat with no usable target, the WoW target is set to the pick.
+--- Options (Targeting page): Targeting Mode Off (or Targeting Only In Combat, out of combat) keeps to
+--- the selected target; Assist uses BR's pick when the target can't take the request; Full lets BR's
+--- pick replace a usable target and sets the WoW target to it. In combat with no usable target, the
+--- WoW target is set to the pick.
 function enemiesEngineFunctions:dynamicTarget(range, facing)
 	if range == nil or range > 100 then return nil end
 	local startTime = br._G.debugprofilestop()
 	local misc = br.functions.misc
 	facing = facing or false
 	local inCombat = br._G.UnitAffectingCombat("player")
-	local autoTargetDynamic = misc:isChecked("Target Dynamic Target")
+	-- Targeting Mode: 1 Off, 2 Assist (the default), 3 Full
+	local mode = misc:getOptionValue("Targeting Mode")
+	if mode == 0 then mode = 2 end
+	local autoTargetDynamic = mode == 3
 	local usable = targetUsable(range, facing)
 	local result
 
-	local dynamicOn = misc:isChecked("Dynamic Targetting")
-		and (misc:getOptionValue("Dynamic Targetting") == 2 or inCombat)
+	local dynamicOn = mode ~= 1 and (inCombat or not misc:isChecked("Targeting Only In Combat"))
 	if not dynamicOn then
 		result = usable and "target" or nil
 	elseif usable and not autoTargetDynamic then

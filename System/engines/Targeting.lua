@@ -2,7 +2,8 @@ local _, br = ...
 -- Targeting: BR's choice of which enemy to attack (dynamic targeting).
 --
 -- Once per frame every valid enemy within SCAN_RANGE that BR may attack is scored on one scale:
---   preference     the Wise Target choice (health or distance), up to W.preference
+--   preference     the Target Preference (health or distance), up to W.preference
+--   nearDeath      Prefer Near Death: more the closer a unit below NEAR_DEATH health is to dying
 --   nearness       a tie-break, closer first
 --   attackingMe    the unit attacks the player; attackingGroup: it attacks someone in the group
 --   lostAggro      Tank Threat: the player is the tank and the unit attacks someone else
@@ -23,8 +24,10 @@ local W = {
 	attackingGroup = 15,
 	lostAggro = 40,
 	priority = 60,
+	nearDeath = 30,
 	hold = 15,
 }
+local NEAR_DEATH = 20  -- health % below which Prefer Near Death weighs a unit more
 local HOLD_TIME = 1.0  -- seconds a new focus is kept before another unit may replace it
 local SCAN_RANGE = 50  -- yards; the enemies engine lists no further
 
@@ -33,8 +36,18 @@ local scores = {}       -- unit -> score, for every unit BR may attack this fram
 local distances = {}    -- unit -> distance (yards), measured with the scores
 local focus, focusSince -- BR's overall choice and when it was made
 local lastPick = {}     -- request key -> the unit it took last
+local explaining        -- while explaining: unit -> { { part, value }, ... }
+local unitScore, unitParts -- the unit being scored
 
--- Wise Target: 0..1 for how well the unit matches the chosen preference
+-- Adds a part to the unit being scored (and to its explanation while explaining)
+local function addPart(name, value)
+	if value == 0 then return end
+	unitScore = unitScore + value
+	if unitParts then unitParts[#unitParts + 1] = { name, value } end
+end
+
+-- Target Preference: 0..1 for how well the unit matches it (mode: 1 Highest %, 2 Lowest %,
+-- 3 Highest health, 4 Lowest health, 5 Nearest, 6 Furthest; the option's "None" is 0)
 local function preference(unit, mode, distance, mostHealth)
 	if mode == 1 then return br.functions.unit:getHP(unit) / 100 end                -- Highest %
 	if mode == 2 then return 1 - br.functions.unit:getHP(unit) / 100 end            -- Lowest %
@@ -63,7 +76,8 @@ local function refresh()
 	br._G.wipe(scores)
 	br._G.wipe(distances)
 	local misc, ef = br.functions.misc, br.engines.enemiesEngineFunctions
-	local mode = misc:getOptionCheck("Wise Target") and misc:getOptionValue("Wise Target") or nil
+	local mode = misc:getOptionValue("Target Preference") - 1
+	local nearDeath = misc:isChecked("Prefer Near Death")
 	local dontBreakCC, safeCheck = misc:getOptionCheck("Don't break CCs"), misc:getOptionCheck("Safe Damage Check")
 	local skull, totems = misc:getOptionCheck("Skull First"), misc:isChecked("Prioritize Totems")
 	local burn, shields = misc:getOptionCheck("Forced Burn"), misc:getOptionCheck("Avoid Shields")
@@ -88,25 +102,32 @@ local function refresh()
 	for _, unit in ipairs(units) do
 		local distance = br.functions.range:getDistance(unit) or SCAN_RANGE
 		distances[unit] = distance
-		local score = W.preference * preference(unit, mode, distance, mostHealth)
-			+ W.nearness * math.max(0, 1 - distance / SCAN_RANGE)
+		-- the parts of the score are kept only while explaining (/br target)
+		unitScore, unitParts = 0, explaining and {} or nil
+		addPart("preference", W.preference * preference(unit, mode, distance, mostHealth))
+		addPart("nearness", W.nearness * math.max(0, 1 - distance / SCAN_RANGE))
 		local victim = br._G.UnitTarget(unit)
 		if victim ~= nil and victim == playerPointer then
-			score = score + W.attackingMe
+			addPart("attacking you", W.attackingMe)
 		elseif victim ~= nil and group[victim] then
-			score = score + W.attackingGroup
+			addPart("attacking your group", W.attackingGroup)
 		end
-		if tank and victim ~= nil and victim ~= playerPointer then score = score + W.lostAggro end
-		if skull and br._G.GetRaidTargetIndex(unit) == 8 then score = score + W.priority end
-		if totems and ef:isTotem(unit) then score = score + W.priority end
-		if burn then score = score + ef:isBurnTarget(unit) end
-		if shields then score = score + ef:getShieldCoefficient(unit) end
+		if tank and victim ~= nil and victim ~= playerPointer then addPart("lost aggro", W.lostAggro) end
+		if nearDeath then
+			local hp = br.functions.unit:getHP(unit)
+			if hp < NEAR_DEATH then addPart("near death", W.nearDeath * (1 - hp / NEAR_DEATH)) end
+		end
+		if skull and br._G.GetRaidTargetIndex(unit) == 8 then addPart("skull", W.priority) end
+		if totems and ef:isTotem(unit) then addPart("totem", W.priority) end
+		if burn then addPart("burn", ef:isBurnTarget(unit)) end
+		if shields then addPart("shield", ef:getShieldCoefficient(unit)) end
 		if custom then
 			local weight = custom(unit)
-			if type(weight) == "number" then score = score + weight end
+			if type(weight) == "number" then addPart("profile weight", weight) end
 		end
-		if unit == targetPointer then score = score + W.hold end
-		scores[unit] = score
+		if unit == targetPointer then addPart("your target", W.hold) end
+		scores[unit] = unitScore
+		if unitParts then explaining[unit] = unitParts end
 	end
 
 	-- The focus: kept for HOLD_TIME, then replaced only by a clearly better unit
@@ -148,3 +169,18 @@ function targeting:getFocus()
 	refresh()
 	return focus, scores
 end
+
+--- The current scores, explained: BR's focus and every unit it may attack, best first, each as
+--- { unit = , score = , distance = , parts = { { name, value }, ... } } (for /br target).
+function targeting:explain()
+	explaining, scoredAt = {}, nil
+	refresh()
+	local list = {}
+	for unit, score in pairs(scores) do
+		list[#list + 1] = { unit = unit, score = score, distance = distances[unit], parts = explaining[unit] or {} }
+	end
+	explaining = nil
+	table.sort(list, function(x, y) return x.score > y.score end)
+	return focus, list
+end
+

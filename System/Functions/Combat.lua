@@ -464,23 +464,25 @@ function combat:isPlayerTank()
 	return br.functions.spell:isTankForm(br.functions.unit:getFormSpellID())
 end
 
--- Health and mana (percent) a fight should start with
-local READY_HEALTH, READY_MANA = 60, 40
-
 --- True when it's a good moment to start a fight (e.g. break a crowd control): the player isn't
 --- low on health or mana, or eating or drinking, and in a group the tanks aren't low on health.
+--- Thresholds: the Ready To Fight Health / Mana options (Targeting page; health 60 when unset).
 function combat:isReadyToFight()
-	local unitFns = br.functions.unit
-	if unitFns:getHP("player") < READY_HEALTH then return false end
-	if unitFns:usesMana() then
+	local unitFns, misc = br.functions.unit, br.functions.misc
+	local readyHealth = misc:getOptionValue("Ready To Fight Health")
+	if readyHealth <= 0 then readyHealth = 60 end
+	-- 0 means no mana requirement (the option registers 40 at startup)
+	local readyMana = misc:getOptionValue("Ready To Fight Mana")
+	if unitFns:getHP("player") < readyHealth then return false end
+	if readyMana > 0 and unitFns:usesMana() then
 		local maxMana = br._G.UnitPowerMax("player", 0)
-		if maxMana > 0 and br._G.UnitPower("player", 0) / maxMana * 100 < READY_MANA then return false end
+		if maxMana > 0 and br._G.UnitPower("player", 0) / maxMana * 100 < readyMana then return false end
 	end
 	if unitFns:isEating("player") or unitFns:isDrinking("player") then return false end
 	local healing = br.engines.healingEngineFunctions
 	if br._G.GetNumGroupMembers() > 1 and healing and healing.getTanksTable then
 		for _, tank in ipairs(healing:getTanksTable()) do
-			if unitFns:getHP(tank.unit) < READY_HEALTH then return false end
+			if unitFns:getHP(tank.unit) < readyHealth then return false end
 		end
 	end
 	return true

@@ -39,25 +39,8 @@ function br.ui:createConfigWindow()
     local function callEnemiesEngine()
         -- Enemies Engine
         section = br.ui:section("Enemies Engine", { window = br.ui.window.config })
-        br.ui:dropdown(section, "Dynamic Targetting", { choices = { "Only In Combat", "Default" }, value = "Default",
-            tip = "Check this to allow dynamic targetting. If unchecked, profile will only attack current target." })
-        --br.ui:createCheckbox(section, "Include Range", "Checking this will pick a new target if current target is out of range. (Only valid on Lite mode)")
-        br.ui:checkbox(section, "Target Dynamic Target", { tip = "Check this will target the current dynamic target." })
         br.ui:checkbox(section, "Tank Aggro = Player Aggro", { tip = "If checked, when tank gets aggro, player will go into combat" })
-        br.ui:checkbox(section, "Hostiles Only", { tip = "Checking this will target only units hostile to you." })
-        br.ui:checkbox(section, "Attack MC Targets", { tip = "Check this to allow addon to attack charmed/mind controlled targets." })
         br.ui:checkbox(section, "Enhanced Time to Die", { tip = "A more precise time to die check, but can be ressource heavy." })
-        br.ui:checkbox(section, "Prioritize Totems", { tip = "Check this to target totems first." })
-        br.ui:dropdown(section, "Wise Target", { choices = { "Highest %", "Lowest %", "abs Highest", "abs Lowest", "Nearest", "Furthest" }, value = "Highest %",
-            tip = "|cffFFDD11Check if you want to use Wise Targetting, if unchecked there will be no priorisation from hp/range." })
-        br.ui:dropdown(section, "Wise Target Frequency", { choices = { "Default", "Only on Target Death" }, value = "Default", checkbox = false,
-            tip = "Sets how often Wise Target checks for a better target." })
-        br.ui:checkbox(section, "Forced Burn", { tip = "Check to allow forced Burn on specific whitelisted units." })
-        br.ui:checkbox(section, "Avoid Shields", { tip = "Check to avoid attacking shielded units." })
-        br.ui:checkbox(section, "Tank Threat", { tip = "Check add more priority to targets you lost aggro on(tank only)." })
-        br.ui:checkbox(section, "Safe Damage Check", { tip = "Check to prevent damage to targets you dont want to attack." })
-        br.ui:checkbox(section, "Don't break CCs", { tip = "Check to prevent damage to targets that are CC." })
-        br.ui:checkbox(section, "Skull First", { tip = "Check to enable focus skull dynamically." })
         br.ui:checkbox(section, "Boss Detection Only In Instance", { tip = "Check to only detect Dungeon/Raid Bosses, not Open World" })
         br.ui:checkbox(section, "Dispel Only Whitelist", { tip = "Check to only dispel debuffs listed on the whitelist." })
         br.ui:checkbox(section, "Purge Only Whitelist", { tip = "Check to only purge buffs listed on the whitelist." })
@@ -70,6 +53,63 @@ function br.ui:createConfigWindow()
         -- br.ui:createCheckbox(section, "Crowd Control", "Check to use crowd controls on select units/buffs.")
         br.ui:checkbox(section, "Enrages Handler", { tip = "Check this to allow Enrages Handler." })
         expansionOptions("Enemies Engine")
+    end
+
+    -- Targeting options before 2026-10-12 lived on the Enemies Engine page under other names: copy a
+    -- character's choices to the Targeting page once (the old keys are then cleaned up as unused)
+    local function migrateTargetingOptions()
+        local profileSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+        local old = profileSettings and profileSettings["Bot Options/Enemies Engine"]
+        if type(old) ~= "table" or old["Dynamic Targetting Check"] == nil then return end
+        local function page(name)
+            profileSettings[name] = profileSettings[name] or {}
+            return profileSettings[name]
+        end
+        local targeting = page("Bot Options/Targeting")
+        if targeting["Targeting Mode Drop"] == nil then
+            targeting["Targeting Mode Drop"] = not old["Dynamic Targetting Check"] and 1
+                or old["Target Dynamic Target Check"] and 3 or 2
+            targeting["Targeting Only In Combat Check"] = old["Dynamic Targetting Drop"] == 1
+            targeting["Target Preference Drop"] = old["Wise Target Check"] and (old["Wise Target Drop"] or 1) + 1 or 1
+        end
+        for name, keys in pairs({
+            ["Bot Options/Priorities"] = { "Skull First", "Prioritize Totems", "Forced Burn", "Avoid Shields", "Tank Threat" },
+            ["Bot Options/Crowd Control"] = { "Don't break CCs" },
+            ["Bot Options/Safety"] = { "Safe Damage Check", "Hostiles Only", "Attack MC Targets" },
+        }) do
+            local to = page(name)
+            for _, key in ipairs(keys) do
+                if to[key .. " Check"] == nil and old[key .. " Check"] ~= nil then to[key .. " Check"] = old[key .. " Check"] end
+            end
+        end
+    end
+
+    local function callTargeting()
+        migrateTargetingOptions()
+        section = br.ui:section("Targeting", { window = br.ui.window.config })
+        br.ui:dropdown(section, "Targeting Mode", { choices = { "Off", "Assist", "Full" }, value = "Assist", checkbox = false,
+            tip = "Off: spells only use your target. Assist: BR picks the best enemy for each spell when your target can't take it (in combat without a target, it targets that enemy). Full: BR also switches your target to its pick." })
+        br.ui:checkbox(section, "Targeting Only In Combat", { tip = "BR picks enemies only while you're in combat; out of combat, spells only use your target." })
+        br.ui:dropdown(section, "Target Preference", { choices = { "None", "Highest %", "Lowest %", "Highest health", "Lowest health", "Nearest", "Furthest" },
+            value = "None", checkbox = false, tip = "Which enemy BR leans towards when others are equal." })
+        br.ui:checkbox(section, "Prefer Near Death", { tip = "Weigh enemies below 20% health more, so all your spells finish them off. Your profile's execute logic still applies." })
+        section = br.ui:section("Priorities", { window = br.ui.window.config })
+        br.ui:checkbox(section, "Skull First", { tip = "Prefer the enemy marked with a skull." })
+        br.ui:checkbox(section, "Prioritize Totems", { tip = "Prefer totems." })
+        br.ui:checkbox(section, "Forced Burn", { tip = "Prefer specific whitelisted units that must die first." })
+        br.ui:checkbox(section, "Avoid Shields", { tip = "Avoid enemies behind a shield." })
+        br.ui:checkbox(section, "Tank Threat", { tip = "When you tank: prefer enemies attacking someone else." })
+        section = br.ui:section("Crowd Control", { window = br.ui.window.config })
+        br.ui:checkbox(section, "Don't break CCs", { checked = true,
+            tip = "Leave crowd-controlled, feared or rooted enemies alone. Your own target may be attacked once no other enemy is fighting, you've stopped moving and you're ready (below), or at once if it fled at low health." })
+        br.ui:spinner(section, "Ready To Fight Health", { value = 60, min = 10, max = 100, step = 5, checkbox = false,
+            tip = "Your health (%) before BR breaks a crowd control on your target; in a group, the tanks' too." })
+        br.ui:spinner(section, "Ready To Fight Mana", { value = 40, min = 0, max = 100, step = 5, checkbox = false,
+            tip = "Your mana (%) before BR breaks a crowd control on your target (mana users)." })
+        section = br.ui:section("Safety", { window = br.ui.window.config })
+        br.ui:checkbox(section, "Safe Damage Check", { tip = "Don't damage units that must not be attacked (whitelisted mechanics)." })
+        br.ui:checkbox(section, "Hostiles Only", { tip = "Only attack hostile units (not neutral ones), unless they're your target or attacking you." })
+        br.ui:checkbox(section, "Attack MC Targets", { tip = "Allow attacking charmed / mind-controlled players." })
     end
 
     local function callHealingEngine()
@@ -247,6 +287,10 @@ function br.ui:createConfigWindow()
             {
                 [1] = "General",
                 [2] = callGeneral
+            },
+            {
+                [1] = "Targeting",
+                [2] = callTargeting
             },
             {
                 [1] = "Enemies Engine",
