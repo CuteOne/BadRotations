@@ -374,8 +374,10 @@ function enemiesEngineFunctions:isSafeToAttack(unit)
 				if noTouch.buff > 0 then
 					-- Not Safe with Buff/Debuff
 					if br.functions.aura:UnitBuffID(unit, noTouch.buff) or br.functions.aura:UnitDebuffID(unit, noTouch.buff)
-						-- Bursting M+ Affix (stacks first: time to die is only needed when they're high)
-						or (br.functions.aura:getDebuffStacks("player", br.lists.unitRules.bursting) >= br.functions.misc:getOptionValue("Bursting Stack Limit")
+						-- Bursting M+ Affix (stacks first: time to die is only needed when they're high). The
+						-- limit is a Retail option: 0 (no option) means the check doesn't apply
+						or (br.functions.misc:getOptionValue("Bursting Stack Limit") > 0
+							and br.functions.aura:getDebuffStacks("player", br.lists.unitRules.bursting) >= br.functions.misc:getOptionValue("Bursting Stack Limit")
 							and (br.engines.ttdTable:getTTD(unit) or 0) <= br.functions.aura:getDebuffRemain("player", br.lists.unitRules.bursting) + (br.functions.spell:getGlobalCD(true) * 2))
 					then
 						return false

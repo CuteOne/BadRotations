@@ -202,10 +202,6 @@ function engines.Update(frame, elapsed)
                 if br.player ~= nil and (not br._G.CanExitVehicle() or (br.functions.unit:GetUnitExists("target") and br.functions.range:getDistance("target") < 5)) then
                     br.player:update()
                 end
-                -- Automatic catch the pig
-                if br.functions.misc:getOptionCheck("Freehold - Pig Catcher") or br.functions.misc:getOptionCheck("De Other Side - Bomb Snatcher") then
-                    br.misc.Zu:bossHelper()
-                end
                 -- Auto Loot
                 br.engines.lootEngine:autoLoot()
                 -- Spec change: save and restart from ROTATIONS (Loader/Bootstrap.lua)

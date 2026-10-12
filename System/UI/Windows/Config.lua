@@ -11,6 +11,12 @@ function br.ui:createConfigWindow()
     end
 
     local section
+    -- Options an expansion adds at the end of a page (Expansions/<Name>/Options.lua)
+    local function expansionOptions(page)
+        local add = br.api.botOptions and br.api.botOptions[page]
+        if add then add(section, br.ui.window.config) end
+    end
+
     local function callGeneral()
         -- General
         section = br.ui:section("General", { window = br.ui.window.config })
@@ -42,7 +48,6 @@ function br.ui:createConfigWindow()
         br.ui:checkbox(section, "Attack MC Targets", { tip = "Check this to allow addon to attack charmed/mind controlled targets." })
         br.ui:checkbox(section, "Enhanced Time to Die", { tip = "A more precise time to die check, but can be ressource heavy." })
         br.ui:checkbox(section, "Prioritize Totems", { tip = "Check this to target totems first." })
-        br.ui:checkbox(section, "Darter Targeter", { tip = "Auto target Darters on Hivemind" })
         br.ui:dropdown(section, "Wise Target", { choices = { "Highest %", "Lowest %", "abs Highest", "abs Lowest", "Nearest", "Furthest" }, value = "Highest %",
             tip = "|cffFFDD11Check if you want to use Wise Targetting, if unchecked there will be no priorisation from hp/range." })
         br.ui:dropdown(section, "Wise Target Frequency", { choices = { "Default", "Only on Target Death" }, value = "Default", checkbox = false,
@@ -51,9 +56,6 @@ function br.ui:createConfigWindow()
         br.ui:checkbox(section, "Avoid Shields", { tip = "Check to avoid attacking shielded units." })
         br.ui:checkbox(section, "Tank Threat", { tip = "Check add more priority to targets you lost aggro on(tank only)." })
         br.ui:checkbox(section, "Safe Damage Check", { tip = "Check to prevent damage to targets you dont want to attack." })
-        --br.ui:createCheckbox(section, "Ignore Big Slime on PF", "Check to not attack Slimy Smorgasbord")
-        br.ui:spinner(section, "Bursting Stack Limit", { value = 2, min = 1, max = 10, step = 1, checkbox = false,
-            tip = "**Requires Safe Damage Check** - Set to desired limit, will still dps targets but not kill until below limit." })
         br.ui:checkbox(section, "Don't break CCs", { tip = "Check to prevent damage to targets that are CC." })
         br.ui:checkbox(section, "Skull First", { tip = "Check to enable focus skull dynamically." })
         br.ui:checkbox(section, "Boss Detection Only In Instance", { tip = "Check to only detect Dungeon/Raid Bosses, not Open World" })
@@ -67,6 +69,7 @@ function br.ui:createConfigWindow()
         br.ui:checkbox(section, "Only Known Units", { tip = "Check this to interrupt only on known units using whitelist." })
         -- br.ui:createCheckbox(section, "Crowd Control", "Check to use crowd controls on select units/buffs.")
         br.ui:checkbox(section, "Enrages Handler", { tip = "Check this to allow Enrages Handler." })
+        expansionOptions("Enemies Engine")
     end
 
     local function callHealingEngine()
@@ -112,11 +115,7 @@ function br.ui:createConfigWindow()
         br.ui:checkbox(section, "Fish Oil", { tip = "Turn Fish into Aromatic Fish Oil. Profession Helper must be checked." })
         br.ui:dropdown(section, "Bait", { choices = { "Lost Sole Bait", "Silvergill Pike Bait", "Pocked Bonefish Bait", "Iridescent Amberjack Bait", "Spinefin Piranha Bait", "Elysian Thade Bait" }, value = "Lost Sole Bait",
             tip = "Using the bait." })
-        section = br.ui:section("Dungeon Helpers", { window = br.ui.window.config })
-        br.ui:checkbox(section, "Quaking Helper", { tip = "Auto cancel channeling and block casts during mythic+ affix quaking" })
-        br.ui:spinner(section, "Catcher/Snatcher Delay", { value = 0.5, max = 1, step = 0.1, checkbox = false })
-        br.ui:checkbox(section, "Freehold - Pig Catcher", { tip = "Catch pig in Ring of Booty" })
-        br.ui:checkbox(section, "De Other Side - Bomb Snatcher", { tip = "Catch bomb in The Manastorms fight" })
+        expansionOptions("Other Features")
     end
 
     local function callSettingsEngine()
@@ -224,17 +223,7 @@ function br.ui:createConfigWindow()
         section = br.ui:section("Healing Options", { window = br.ui.window.config })
         br.ui:checkbox(section, "Ignore Range Check", { tip = "Will ignore any range checks for dispels" })
         br.ui:checkbox(section, "Ignore Stack Count", { tip = "Will ignore any stack checks for dispels" })
-        br.ui:spinner(section, "Bwonsamdi's Wrath HP", { value = 30, min = 1, checkbox = false,
-            tip = "Set HP to decurse Bwonsamdi's Wrath (Mythic Conclave)" })
-        br.ui:spinner(section, "Reaping", { value = 20, min = 1, checkbox = false, tip = "Set how many stacks of reaping needed to dispel." })
-        br.ui:spinner(section, "Promise of Power", { value = 8, min = 1, max = 10, step = 1, checkbox = false,
-            tip = "Set how many stacks of promise of power needed to dispel." })
-        br.ui:spinner(section, "Toxic Brand", { value = 10, min = 1, max = 20, step = 1,
-            tip = "Set how many stacks of toxic brand to stop healing party members at." })
-        br.ui:checkbox(section, "Arcane Burst", { tip = "Will dispel Arcane Burst if checked." })
-        br.ui:spinner(section, "Necrotic Rot", { value = 40, min = 1, tip = "Set how many stacks of necrotic rot to stop healing party members at." })
-        br.ui:spinner(section, "Decaying Strike Timer", { value = 5, min = 1, max = 20, step = 1, checkbox = false,
-            tip = "Set how long to stop healing tank before Decaying Strike is cast." })
+        expansionOptions("Healing Options")
     end
 
     -- local function callDebugOptions()
