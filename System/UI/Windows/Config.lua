@@ -129,13 +129,7 @@ function br.ui:createConfigWindow()
             tip = "Pick a set of settings, then Save the current settings to it or Load it" })
         br.ui:text(section, "Loading replaces your current settings")
         br.ui:text(section, "(the replaced files are kept as .bak1).")
-        local y = -5
-        for i = 1, #section.children do
-            if section.children[i].type ~= "Spinner" and section.children[i].type ~= "Dropdown" then
-                y = y - section.children[i].frame:GetHeight() * 1.2
-            end
-        end
-        y = br.functions.misc:round2(y, 1)
+        local y = br.ui.elementOptions.nextRowY(section)
         local settings = br.ui.settingsManagement
         br.ui:createButton(section, "Save", 10, y, function()
             local name = selectedSnapshot()
@@ -150,13 +144,7 @@ function br.ui:createConfigWindow()
         section = br.ui:section("Export/Import from Settings Folder", { window = br.ui.window.config })
         br.ui:text(section, "Export/Import all settings for this profile:")
         br.ui:text(section, "Settings/Exported Settings/<Class>/<Spec>/" .. tostring(br.loader.selectedProfileName))
-        y = -5
-        for i = 1, #section.children do
-            if section.children[i].type ~= "Spinner" and section.children[i].type ~= "Dropdown" then
-                y = y - section.children[i].frame:GetHeight() * 1.2
-            end
-        end
-        y = br.functions.misc:round2(y, 1)
+        y = br.ui.elementOptions.nextRowY(section)
         br.ui:createButton(section, "Export", 10, y, function()
             settings:cleanSettings()
             settings:saveSnapshot(settings:exportDir(), { "bot", "base", "profile" }, "exported settings")

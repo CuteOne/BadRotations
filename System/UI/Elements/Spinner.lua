@@ -1,153 +1,70 @@
 local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
-local DiesalTools = _G.LibStub("DiesalTools-1.0")
 local _, br = ...
--- checked (optional): default state of the option's checkbox for new settings
-function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox, checked)
-    local activePage = parent.settings.storageName or parent.settings.sectionName or ""
-    if activePage == "" then
-        if parent and parent.settings and parent.settings.parentObject and parent.settings.parentObject.pageDD then
-            local pdd = parent.settings.parentObject.pageDD
-            if pdd.value and pdd.settings and pdd.settings.list and pdd.settings.list[pdd.value] then
-                activePage = pdd.settings.list[pdd.value]
-            end
-        end
-    end
-    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = br.data.settings[br.loader.selectedSpec]
-        [br.loader.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage]
-    -- Ensure the active page is registered in the profile PageList so
-    -- option lookups (findOption) can locate values immediately.
-    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] or {}
-    local pageList = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"]
-    local found = false
-    for i = 1, #pageList do
-        if pageList[i] == activePage then
-            found = true
-            break
-        end
-    end
-    if not found then
-        br._G.tinsert(pageList, activePage)
-    end
-    -------------------------------
-    ----Need to calculate Y Pos----
-    -------------------------------
-    local Y = -5
-    for i = 1, #parent.children do
-        if parent.children[i].type ~= "Spinner" and parent.children[i].type ~= "Dropdown" then
-            Y = Y - parent.children[i].frame:GetHeight() * 1.2
-        end
-    end
-    Y = DiesalTools.Round(Y)
 
-    -------------------------------
-    --------Create CheckBox--------
-    -------------------------------
-    local checkBox = br.ui:createCheckbox(parent, text, tooltip, checked)
-    if hideCheckbox then br.ui:hideCheckbox(checkBox, data[text .. " Check"]) end
-    -------------------------------
+local function spinnerSettings(min, max, step)
+    return {
+        height = 12,
+        width = 29,
+        mouse = true,
+        mouseWheel = true,
+        buttons = false,
+        buttonsWidth = 0,
+        bar = true,
+        min = min or 0,
+        max = max or 100,
+        step = step or 5,
+        shiftStep = 1
+    }
+end
 
-    ------------------------------
-    --------Create Spinner--------
-    ------------------------------
+-- A spinner at offset x on row Y of parent, saving its number as data[key] (default number)
+local function addSpinner(parent, page, data, key, number, min, max, step, x, Y, tooltip)
+    local elementOptions = br.ui.elementOptions
     local spinner = DiesalGUI:Create("Spinner")
     parent:AddChild(spinner)
-
     spinner:SetParent(parent.content)
-    spinner:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", -10, Y)
-    spinner:SetSettings(
-        {
-            height = 12,
-            width = 29,
-            mouse = true,
-            mouseWheel = true,
-            buttons = false,
-            buttonsWidth = 0,
-            bar = true,
-            min = min or 0,
-            max = max or 100,
-            step = step or 5,
-            shiftStep = 1
-        }
-    )
-    --    spinner:AddStyleSheet(spinnerStyleSheet)
-
-    --------------
-    ---BR Stuff---
-    --------------
-    -- Read number from config or set default
-    br.functions.misc:registerOption(activePage, text .. " Status", number)
-    if data[text .. " Status"] == nil then
-        data[text .. " Status"] = number
+    spinner:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", x, Y)
+    spinner:SetSettings(spinnerSettings(min, max, step))
+    br.functions.misc:registerOption(page, key, number)
+    if data[key] == nil then
+        data[key] = number
     end
-
     -- Add to UI Settings **Do not comment out or remove, will result in loss of settings**
-    if br.data.ui == nil then
-        br.data.ui = {}
-    end
-    if br.data.ui[activePage] == nil then br.data.ui[activePage] = {} end
-    br.data.ui[activePage][text .. " Status"] = data[text .. " Status"]
-
-    local state = data[text .. " Status"]
-    spinner:SetNumber(state)
-
-    ------------------
-    ------Events------
-    ------------------
-    -- Event: OnValueChange
+    elementOptions.mirror(page, key, data[key])
+    spinner:SetNumber(data[key])
     spinner:SetEventListener(
         "OnValueChanged",
         function()
-            data[text .. " Status"] = spinner:GetNumber()
+            data[key] = spinner:GetNumber()
         end
     )
-    -- Event: Tooltip
-    if tooltip or tooltipSpin then
-        local tooltip = tooltipSpin or tooltip
-        spinner:SetEventListener(
-            "OnEnter",
-            function()
-                -- GameTooltip:SetOwner(spinner.frame, "ANCHOR_TOPLEFT", 0 , 2)
-                -- GameTooltip:AddLine(tooltip)
-                br._G.GameTooltip:SetOwner(br._G.Minimap, "ANCHOR_CURSOR", 50, 50)
-                br._G.GameTooltip:SetText(tooltip, 214 / 255, 25 / 255, 25 / 255)
-                br._G.GameTooltip:Show()
-            end
-        )
-        spinner:SetEventListener(
-            "OnLeave",
-            function()
-                br._G.GameTooltip:Hide()
-            end
-        )
-    end
-    ----------------------
-    ------END Events------
-    ----------------------
+    if tooltip then elementOptions.cursorTooltip(spinner, tooltip) end
     spinner:ApplySettings()
-    ---------------------------
-    --------END Spinner--------
-    ---------------------------
+    return spinner
+end
+
+-- checked (optional): default state of the option's checkbox for new settings
+function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox, checked)
+    local elementOptions = br.ui.elementOptions
+    local activePage, data = elementOptions.pageData(parent)
+    local Y = elementOptions.nextRowY(parent)
+    local checkBox = br.ui:createCheckbox(parent, text, tooltip, checked)
+    if hideCheckbox then br.ui:hideCheckbox(checkBox, data[text .. " Check"]) end
+    local spinner = addSpinner(parent, activePage, data, text .. " Status", number, min, max, step, -10, Y,
+        tooltipSpin or tooltip)
     return spinner, checkBox
 end
 
 -- Spinner Object : {number, min, max, step, tooltip}
 -- checked (optional): default state of the option's checkbox for new settings
 function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbox, checked)
+    local elementOptions = br.ui.elementOptions
     -- The window page this is on (double spinners used to be saved under it)
-    local windowPage = ""
-    if parent and parent.settings and parent.settings.parentObject and parent.settings.parentObject.pageDD then
-        local pdd = parent.settings.parentObject.pageDD
-        if pdd.value and pdd.settings and pdd.settings.list and pdd.settings.list[pdd.value] then
-            windowPage = pdd.settings.list[pdd.value]
-        end
-    end
+    local windowPage = elementOptions.windowPage(parent)
     -- Saved under the section's storage name, like every other option
-    local activePage = parent.settings.storageName or parent.settings.sectionName or windowPage
-    local profileSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-    profileSettings[activePage] = profileSettings[activePage] or {}
-    local data = profileSettings[activePage]
+    local activePage, data = elementOptions.pageData(parent)
     -- Move values saved under the window page's name before this changed
+    local profileSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
     local oldData = windowPage ~= activePage and profileSettings[windowPage] or nil
     if type(oldData) == "table" then
         for _, key in ipairs({ text .. " 1Status", text .. " 2Status" }) do
@@ -156,150 +73,14 @@ function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbo
         end
         if next(oldData) == nil then profileSettings[windowPage] = nil end
     end
-    -------------------------------
-    ----Need to calculate Y Pos----
-    -------------------------------
-    local Y = -5
-    for i = 1, #parent.children do
-        if parent.children[i].type ~= "Spinner" and parent.children[i].type ~= "Dropdown" then
-            Y = Y - parent.children[i].frame:GetHeight() * 1.2
-        end
-    end
-    Y = DiesalTools.Round(Y)
-
-    -------------------------------
-    --------Create CheckBox--------
-    -------------------------------
+    local Y = elementOptions.nextRowY(parent)
     local checkBox = br.ui:createCheckbox(parent, text, "Enable auto usage of this spell", checked)
     if hideCheckbox then br.ui:hideCheckbox(checkBox, data[text .. " Check"]) end
-
-    ------------------------------
-    --------Create Spinner--------
-    ------------------------------
-    local spinnerElement1 = DiesalGUI:Create("Spinner")
-    local spinnerElement2 = DiesalGUI:Create("Spinner")
-    parent:AddChild(spinnerElement1)
-    parent:AddChild(spinnerElement2)
-
-    spinnerElement1:SetParent(parent.content)
-    spinnerElement2:SetParent(parent.content)
-    spinnerElement1:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", -50, Y)
-    spinnerElement2:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", -10, Y)
-    spinnerElement1:SetSettings(
-        {
-            height = 12,
-            width = 29,
-            mouse = true,
-            mouseWheel = true,
-            buttons = false,
-            buttonsWidth = 0,
-            bar = true,
-            min = spinner1.min or 0,
-            max = spinner1.max or 100,
-            step = spinner1.step or 5,
-            shiftStep = 1
-        }
-    )
-    spinnerElement2:SetSettings(
-        {
-            height = 12,
-            width = 29,
-            mouse = true,
-            mouseWheel = true,
-            buttons = false,
-            buttonsWidth = 0,
-            bar = true,
-            min = spinner2.min or 0,
-            max = spinner2.max or 100,
-            step = spinner2.step or 5,
-            shiftStep = 1
-        }
-    )
-
-    --------------
-    ---BR Stuff---
-    --------------
-    -- Read number from config or set default
-    br.functions.misc:registerOption(activePage, text .. " 1Status", spinner1.number)
-    br.functions.misc:registerOption(activePage, text .. " 2Status", spinner2.number)
-    if data[text .. " 1Status"] == nil then
-        data[text .. " 1Status"] = spinner1.number
-    end
-    if data[text .. " 2Status"] == nil then
-        data[text .. " 2Status"] = spinner2.number
-    end
-
-    -- Add to UI Settings **Do not comment out or remove, will result in loss of settings**
-    if br.data.ui == nil then
-        br.data.ui = {}
-    end
-    if br.data.ui[activePage] == nil then br.data.ui[activePage] = {} end
-    br.data.ui[activePage][text .. " 1Status"] = data[text .. " 1Status"]
-    br.data.ui[activePage][text .. " 2Status"] = data[text .. " 2Status"]
-
-    local state1 = data[text .. " 1Status"]
-    spinnerElement1:SetNumber(state1)
-    local state2 = data[text .. " 2Status"]
-    spinnerElement2:SetNumber(state2)
-
-    ------------------
-    ------Events------
-    ------------------
-    -- Event: OnValueChange
-    spinnerElement1:SetEventListener(
-        "OnValueChanged",
-        function()
-            data[text .. " 1Status"] = spinnerElement1:GetNumber()
-        end
-    )
-    spinnerElement2:SetEventListener(
-        "OnValueChanged",
-        function()
-            data[text .. " 2Status"] = spinnerElement2:GetNumber()
-        end
-    )
-    -- Event: Tooltip
-    if spinner1.tooltip then
-        spinnerElement1:SetEventListener(
-            "OnEnter",
-            function()
-                br._G.GameTooltip:SetOwner(br._G.Minimap, "ANCHOR_CURSOR", 50, 50)
-                br._G.GameTooltip:SetText(spinner1.tooltip, 214 / 255, 25 / 255, 25 / 255)
-                br._G.GameTooltip:Show()
-            end
-        )
-        spinnerElement1:SetEventListener(
-            "OnLeave",
-            function()
-                br._G.GameTooltip:Hide()
-            end
-        )
-    end
-    if spinner2.tooltip then
-        spinnerElement2:SetEventListener(
-            "OnEnter",
-            function()
-                br._G.GameTooltip:SetOwner(br._G.Minimap, "ANCHOR_CURSOR", 50, 50)
-                br._G.GameTooltip:SetText(spinner2.tooltip, 214 / 255, 25 / 255, 25 / 255)
-                br._G.GameTooltip:Show()
-            end
-        )
-        spinnerElement2:SetEventListener(
-            "OnLeave",
-            function()
-                br._G.GameTooltip:Hide()
-            end
-        )
-    end
-    ----------------------
-    ------END Events------
-    ----------------------
-    spinnerElement1:ApplySettings()
-    spinnerElement2:ApplySettings()
-    ---------------------------
-    --------END Spinner--------
-    ---------------------------
-    return spinner1, spinner2
+    local first = addSpinner(parent, activePage, data, text .. " 1Status", spinner1.number, spinner1.min, spinner1.max,
+        spinner1.step, -50, Y, spinner1.tooltip)
+    local second = addSpinner(parent, activePage, data, text .. " 2Status", spinner2.number, spinner2.min, spinner2.max,
+        spinner2.step, -10, Y, spinner2.tooltip)
+    return first, second, checkBox
 end
 
 function br.ui:createSpinnerWithout(parent, text, number, min, max, step, tooltip, tooltipSpin)

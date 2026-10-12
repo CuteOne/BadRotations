@@ -1,20 +1,10 @@
 local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
-local DiesalTools = _G.LibStub("DiesalTools-1.0")
 local _, br = ...
 function br.ui:createText(parent, text, isCheckbox)
     if isCheckbox == nil then
         isCheckbox = false
     end
-    -------------------------------
-    ----Need to calculate Y Pos----
-    -------------------------------
-    local Y = -5
-    for i = 1, #parent.children do
-        if parent.children[i].type ~= "Spinner" and parent.children[i].type ~= "Dropdown" then
-            Y = Y - parent.children[i].frame:GetHeight() * 1.2
-        end
-    end
-    Y = DiesalTools.Round(Y)
+    local Y = br.ui.elementOptions.nextRowY(parent)
     --------------------------------------------------
     --------Create Hidden CheckBox for Spacing--------
     --------------------------------------------------

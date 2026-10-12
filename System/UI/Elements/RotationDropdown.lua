@@ -2,7 +2,6 @@ local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local _, br = ...
 function br.ui:createRotationDropdown(parent, itemlist, tooltip)
     local newDropdown = DiesalGUI:Create("Dropdown")
-    local parent = parent
     local text = "Rotation"
 
     newDropdown:SetParent(parent.titleBar)
@@ -53,23 +52,8 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
             end
         end
     )
-    -- Event: Tooltip
-    if tooltip then
-        newDropdown:SetEventListener(
-            "OnEnter",
-            function(this, event)
-                br._G.GameTooltip:SetOwner(br._G.Minimap, "ANCHOR_CURSOR", 50, 50)
-                br._G.GameTooltip:SetText(tooltip, 214 / 255, 25 / 255, 25 / 255)
-                br._G.GameTooltip:Show()
-            end
-        )
-        newDropdown:SetEventListener(
-            "OnLeave",
-            function(this, event)
-                br._G.GameTooltip:Hide()
-            end
-        )
-    end
+    if tooltip then br.ui.elementOptions.cursorTooltip(newDropdown, tooltip) end
+
     newDropdown:ApplySettings()
 
     parent:AddChild(newDropdown)

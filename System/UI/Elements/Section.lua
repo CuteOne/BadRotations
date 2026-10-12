@@ -2,7 +2,6 @@ local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local _, br = ...
 function br.ui:createSection(parent, sectionName, tooltip)
     local newSection = DiesalGUI:Create("AccordianSection")
-    local parent = parent
 
     newSection:SetParentObject(parent)
     newSection:ClearAllPoints()
@@ -41,23 +40,7 @@ function br.ui:createSection(parent, sectionName, tooltip)
             br.data.ui[storageName .. " Section"] = newSection.settings.expanded
         end
     )
-    -- Event: Tooltip
-    if tooltip then
-        newSection:SetEventListener(
-            "OnEnter",
-            function(this, event)
-                br._G.GameTooltip:SetOwner(br._G.Minimap, "ANCHOR_CURSOR", 50, 50)
-                br._G.GameTooltip:SetText(tooltip, 214 / 255, 25 / 255, 25 / 255)
-                br._G.GameTooltip:Show()
-            end
-        )
-        newSection:SetEventListener(
-            "OnLeave",
-            function(this, event)
-                br._G.GameTooltip:Hide()
-            end
-        )
-    end
+    if tooltip then br.ui.elementOptions.cursorTooltip(newSection, tooltip) end
 
     newSection:ApplySettings()
 

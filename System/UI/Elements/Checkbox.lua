@@ -1,5 +1,4 @@
 local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
-local DiesalTools = _G.LibStub("DiesalTools-1.0")
 local DiesalStyle = _G.LibStub("DiesalStyle-1.0")
 local _, br = ...
 -- Hides a checkbox that's only there to hold its row's spacing (text lines, and spinners, dropdowns
@@ -18,41 +17,18 @@ end
 -- checked (optional): default state for new settings. layoutOnly (optional): build the checkbox and
 -- its label for spacing only, without saving or registering an option (br.ui:createText uses this).
 function br.ui:createCheckbox(parent, text, tooltip, checked, layoutOnly)
+    local elementOptions = br.ui.elementOptions
     -- Class Specific Color for UI Elements
     local classColor = {
         color = br.ui.colors:getColor("player").hex
     }
-    -- Option Storage Location
-    -- local parent1 = parent.children[1]
-    if (parent.settings.sectionName == "Cooldowns") then
-        br.parent = parent
-    end
-
-    -------------------------------
-    ----Need to calculate Y Pos----
-    -------------------------------
-    local Y = -5
-    for i = 1, #parent.children do
-        if parent.children[i].type ~= "Spinner" and parent.children[i].type ~= "Dropdown" then
-            Y = Y - parent.children[i].frame:GetHeight() * 1.2
-        end
-    end
-    Y = DiesalTools.Round(Y)
-
-    ----------------------------
-    --------Create Label--------
-    ----------------------------
+    local Y = elementOptions.nextRowY(parent)
     br.ui:createText(parent, text, true)
-    ----------------------------
 
-    -------------------------------
-    --------Create CheckBox--------
-    -------------------------------
     local checkBox = DiesalGUI:Create("CheckBox")
     -- DiesalGUI reuses released checkboxes; one may have been a hidden spacer (br.ui:hideCheckbox)
     checkBox.frame:SetAlpha(1)
     checkBox.frame:EnableMouse(true)
-
     checkBox:SetParent(parent.content)
     checkBox:SetPoint("TOPLEFT", parent.content, "TOPLEFT", 5, Y)
     checkBox:SetSettings(
@@ -67,81 +43,28 @@ function br.ui:createCheckbox(parent, text, tooltip, checked, layoutOnly)
         parent:AddChild(checkBox)
         return checkBox
     end
-    --------------
-    ---BR Stuff---
-    --------------
-    local activePage = parent.settings.storageName or parent.settings.sectionName or ""
-    -- Fallback: try the window page dropdown if sectionName isn't available
-    if activePage == "" and parent.settings.parentObject and parent.settings.parentObject.pageDD then
-        local pdd = parent.settings.parentObject.pageDD
-        if pdd.value and pdd.settings and pdd.settings.list and pdd.settings.list[pdd.value] then
-            activePage = pdd.settings.list[pdd.value]
-        end
-    end
-    local activePageSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] or {}
-    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = activePageSettings
-    local data = activePageSettings
-    -- Ensure the active page is registered in the profile PageList so
-    -- option lookups (findOption) can locate values immediately.
-    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] or {}
-    local pageList = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"]
-    local found = false
-    for i = 1, #pageList do
-        if pageList[i] == activePage then
-            found = true
-            break
-        end
-    end
-    if not found then
-        br._G.tinsert(pageList, activePage)
-    end
+
+    local activePage, data = elementOptions.pageData(parent)
     local value = text .. " Check"
     br.functions.misc:registerOption(activePage, value, checked and true or false)
-
-    -- Read check value from config, false if nothing found
-    -- Set default
-    if data[value] == nil and not checked then
-        data[value] = false
-        if br.data.ui[activePage] ~= nil then
-            br.data.ui[activePage][value] = false
-        end
-    end
-    if data[value] == nil and checked then
-        data[value] = true
-        if br.data.ui[activePage] ~= nil then
-            br.data.ui[activePage][value] = false
-        end
+    -- New settings start at the default
+    if data[value] == nil then
+        data[value] = checked and true or false
     end
     -- Add to UI Settings **Do not comment out or remove, will result in loss of settings**
-    if br.data.ui == nil then
-        br.data.ui = {}
-    end
-    if br.data.ui[activePage] == nil then br.data.ui[activePage] = {} end
-    br.data.ui[activePage][value] = data[value]
-
+    elementOptions.mirror(activePage, value, data[value])
     local check = data[value]
-    if check == 0 then
-        check = false
-    end
-    if check == 1 then
-        check = true
-    end
-
-    if check == false then
+    if check == true or check == 1 then
+        checkBox:SetChecked(true)
+    elseif check == false or check == 0 then
         checkBox:SetChecked(false)
     end
-    if check == true then
-        checkBox:SetChecked(true)
-    end
-    ------------------
-    ------Events------
-    ------------------
-    -- Event: OnValueChanged
+
     checkBox:SetEventListener(
         "OnValueChanged",
         function(this, event, checked)
             data[value] = checked
-            br.data.ui[activePage][value] = checked
+            elementOptions.mirror(activePage, value, checked)
             -- Create Chat Overlay
             if checked then
                 DiesalStyle:StyleTexture(checkBox.check, classColor)
@@ -151,7 +74,6 @@ function br.ui:createCheckbox(parent, text, tooltip, checked, layoutOnly)
             end
         end
     )
-    -- Event: Tooltip
     if tooltip then
         checkBox:SetEventListener(
             "OnEnter",
@@ -168,17 +90,10 @@ function br.ui:createCheckbox(parent, text, tooltip, checked, layoutOnly)
             end
         )
     end
-    ----------------------
-    ------END Events------
-    ----------------------
 
     DiesalStyle:StyleTexture(checkBox.check, classColor)
     checkBox:ApplySettings()
-    ----------------------------
-    --------END CheckBox--------
-    ----------------------------
     parent:AddChild(checkBox)
-
     return checkBox
 end
 

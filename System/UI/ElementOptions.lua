@@ -102,6 +102,64 @@ function elementOptions.ready(element, section, name)
     return true
 end
 
+--- The y offset for the next row in a section, below the rows its elements already take (spinners
+-- and dropdowns share their checkbox's row).
+function elementOptions.nextRowY(section)
+    local y = -5
+    for _, child in ipairs(section.children) do
+        if child.type ~= "Spinner" and child.type ~= "Dropdown" then
+            y = y - child.frame:GetHeight() * 1.2
+        end
+    end
+    return br._G.LibStub("DiesalTools-1.0").Round(y)
+end
+
+--- The name of the page a window's page dropdown shows ("" when there is none). Elements used to be
+-- saved under it before they were saved under their section.
+function elementOptions.windowPage(section)
+    local pageDD = section.settings.parentObject and section.settings.parentObject.pageDD
+    if pageDD and pageDD.value and pageDD.settings and pageDD.settings.list then
+        return pageDD.settings.list[pageDD.value] or ""
+    end
+    return ""
+end
+
+--- The page an element in section saves to (the section's storage name) and that page's saved
+-- settings, made when missing. The page goes on the profile's PageList so option lookups
+-- (findOption) find it at once.
+function elementOptions.pageData(section)
+    local page = section.settings.storageName or section.settings.sectionName or ""
+    if page == "" then page = elementOptions.windowPage(section) end
+    local profileSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+    profileSettings[page] = profileSettings[page] or {}
+    profileSettings.PageList = profileSettings.PageList or {}
+    local listed = false
+    for _, name in ipairs(profileSettings.PageList) do
+        if name == page then listed = true break end
+    end
+    if not listed then br._G.tinsert(profileSettings.PageList, page) end
+    return page, profileSettings[page]
+end
+
+--- Puts an option's value in the UI mirror (br.data.ui), which the settings clean-up keeps settings by.
+function elementOptions.mirror(page, key, value)
+    br.data.ui = br.data.ui or {}
+    br.data.ui[page] = br.data.ui[page] or {}
+    br.data.ui[page][key] = value
+end
+
+--- Shows text in a tooltip by the cursor while the mouse is on widget (a DiesalGUI object).
+function elementOptions.cursorTooltip(widget, text)
+    widget:SetEventListener("OnEnter", function()
+        br._G.GameTooltip:SetOwner(br._G.Minimap, "ANCHOR_CURSOR", 50, 50)
+        br._G.GameTooltip:SetText(text, 214 / 255, 25 / 255, 25 / 255)
+        br._G.GameTooltip:Show()
+    end)
+    widget:SetEventListener("OnLeave", function()
+        br._G.GameTooltip:Hide()
+    end)
+end
+
 -- A stand-in for a widget while recording: GetParent is UIParent (the top of the frame tree), other
 -- Get... methods return 0 (sizes the element code does arithmetic with), any other field reads as
 -- another stand-in and calling one does nothing, so the element code runs without building frames

@@ -1,98 +1,39 @@
 local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
-local DiesalTools = _G.LibStub("DiesalTools-1.0")
 local _, br = ...
 -- checked (optional): default state of the option's checkbox for new settings
 function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, hideCheckbox, checked)
-    local activePage = parent.settings.storageName or parent.settings.sectionName or ""
-    if activePage == "" then
-        if parent and parent.settings and parent.settings.parentObject and parent.settings.parentObject.pageDD then
-            local pdd = parent.settings.parentObject.pageDD
-            if pdd.value and pdd.settings and pdd.settings.list and pdd.settings.list[pdd.value] then
-                activePage = pdd.settings.list[pdd.value]
-            end
-        end
-    end
-    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = br.data.settings[br.loader.selectedSpec]
-        [br.loader.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage]
-    -- Ensure the active page is registered in the profile PageList so
-    -- option lookups (findOption) can locate values immediately.
-    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] or {}
-    local pageList = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"]
-    local found = false
-    for i = 1, #pageList do
-        if pageList[i] == activePage then
-            found = true
-            break
-        end
-    end
-    if not found then
-        br._G.tinsert(pageList, activePage)
-    end
-    -------------------------------
-    ----Need to calculate Y Pos----
-    -------------------------------
-    local Y = -5
-    for i = 1, #parent.children do
-        if parent.children[i].type ~= "Spinner" and parent.children[i].type ~= "Dropdown" then
-            Y = Y - parent.children[i].frame:GetHeight() * 1.2
-        end
-    end
-    Y = DiesalTools.Round(Y)
-
-    -------------------------------
-    --------Create CheckBox--------
-    -------------------------------
+    local elementOptions = br.ui.elementOptions
+    local activePage, data = elementOptions.pageData(parent)
+    local Y = elementOptions.nextRowY(parent)
     local checkBox = br.ui:createCheckbox(parent, text, tooltip, checked)
     if hideCheckbox then br.ui:hideCheckbox(checkBox, data[text .. " Check"]) end
-    -------------------------------
 
-    -------------------------------
-    --------Create Dropdown--------
-    -------------------------------
     local newDropdown = DiesalGUI:Create("Dropdown")
-    local default = default or 1
     parent:AddChild(newDropdown)
-
     newDropdown:SetParent(parent.content)
     newDropdown:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", -10, Y)
     newDropdown:SetHeight(12)
     newDropdown:SetList(itemlist)
 
-    --------------
-    ---BR Stuff---
-    --------------
-    local value = text .. " Drop"
-    br.functions.misc:registerOption(activePage, value, default)
-
-    -- Read from config or set default
-    if data[value] == nil then
-        data[value] = default
+    local key = text .. " Drop"
+    default = default or 1
+    br.functions.misc:registerOption(activePage, key, default)
+    if data[key] == nil then
+        data[key] = default
     end
-
     -- Add to UI Settings **Do not comment out or remove, will result in loss of settings**
-    if br.data.ui == nil then
-        br.data.ui = {}
-    end
-    if br.data.ui[activePage] == nil then br.data.ui[activePage] = {} end
-    br.data.ui[activePage][value] = data[value]
+    elementOptions.mirror(activePage, key, data[key])
+    newDropdown:SetValue(data[key])
 
-    local value = data[value]
-    newDropdown:SetValue(value)
-
-    ------------------
-    ------Events------
-    ------------------
-    -- Event: OnClick
+    -- The open list goes on the window (the top frame under UIParent) so the window doesn't clip it
     local main_window = parent.content
-    if main_window:GetParent() ~= UIParent then
+    if main_window:GetParent() ~= br._G.UIParent then
         repeat
             main_window = main_window:GetParent()
-        until main_window:GetParent() == nil or main_window:GetParent() == UIParent
+        until main_window:GetParent() == nil or main_window:GetParent() == br._G.UIParent
     end
-
     local strata = newDropdown.dropdown:GetFrameStrata()
-    newDropdown:SetEventListener("OnClick", function(self, event, ...)
+    newDropdown:SetEventListener("OnClick", function(self)
         if self.dropdown:IsShown() then
             strata = self.dropdown:GetFrameStrata()
             self.dropdown:SetParent(main_window)
@@ -102,42 +43,15 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
             self.dropdown:SetFrameStrata(strata)
         end
     end)
-
-    -- Event: OnValueChange
     newDropdown:SetEventListener(
         "OnValueChanged",
-        function(this, event, key, value, selection)
-            data[text .. " Drop"] = key
+        function(this, event, choice)
+            data[key] = choice
             if br.functions.misc:isKeyOption(text) then br.functions.misc:checkKeyClashes() end
         end
     )
-    -- Event: Tooltip
-    if tooltip or tooltipDrop then
-        local tooltip = tooltipDrop or tooltip
-        newDropdown:SetEventListener(
-            "OnEnter",
-            function(this, event)
-                br._G.GameTooltip:SetOwner(br._G.Minimap, "ANCHOR_CURSOR", 50, 50)
-                br._G.GameTooltip:SetText(tooltip, 214 / 255, 25 / 255, 25 / 255)
-                br._G.GameTooltip:Show()
-            end
-        )
-        newDropdown:SetEventListener(
-            "OnLeave",
-            function(this, event)
-                br._G.GameTooltip:Hide()
-            end
-        )
-    end
-
-    ----------------------
-    ------END Events------
-    ----------------------
+    if tooltip or tooltipDrop then elementOptions.cursorTooltip(newDropdown, tooltipDrop or tooltip) end
     newDropdown:ApplySettings()
-    ----------------------------
-    --------END Dropdown--------
-    ----------------------------
-
     return newDropdown, checkBox
 end
 
