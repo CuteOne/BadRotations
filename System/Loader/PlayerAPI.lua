@@ -13,7 +13,8 @@ local function buildTalents(player, spec)
     -- br.allTalents = allTalents
     if player.talent == nil then player.talent = {} end
     -- Heroic Talent Patching
-    local spellListTalents = player.spells.talents -- Copy to holding table
+    local spellListTalents = {} -- Holding table, so the hero talents aren't added to spells.talents
+    for k, v in pairs(player.spells.talents) do spellListTalents[k] = v end
     if player.spells.talentsHeroic ~= nil then
         -- Add heroic talents to holding table
         for k, v in pairs(player.spells.talentsHeroic) do spellListTalents[k] = v end
@@ -189,6 +190,8 @@ end
 
 -- Builds cd, charges, equiped, has and use functions for every item.
 local function buildItems(player)
+    -- The equipped heirloom neck (0 when none) changes with gear, and builds run again on gear changes
+    player.items.heirloomNeck = br.functions.item:getHeirloomNeck()
     -- Cycle through Items List
     for item, id in pairs(player.items) do                                --player.spells.items) do
         if player.charges == nil then player.charges = {} end               -- Item Charge Functions
@@ -209,8 +212,6 @@ local function buildItems(player)
         br.api.has(player.has, item, id)
 
         br.api.use(player.use, item, id)
-
-        br.functions.item:getHeirloomNeck()
     end
 end
 

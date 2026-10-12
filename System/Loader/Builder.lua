@@ -24,7 +24,9 @@ function builder:new(spec, specName)
         return
     end
 
-    self.items = br.lists.items
+    -- Its own copy: the spell compiler adds the spell lists' items to it
+    self.items = {}
+    for name, id in pairs(br.lists.items) do self.items[name] = id end
     self.pets  = br.lists.pets
 
     -- Compile spell lists and build the profile API
