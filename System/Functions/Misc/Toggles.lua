@@ -5,43 +5,38 @@ br.functions.misc = br.functions.misc or {}
 local misc = br.functions.misc
 local warnedMissingToggles = {}
 
+-- Whether each key choice is held, in br.ui.dropOptions.Toggle order
+local KEY_HELD = {
+	function() return br._G.IsLeftControlKeyDown() end,  -- LeftCtrl
+	function() return br._G.IsLeftShiftKeyDown() end,    -- LeftShift
+	function() return br._G.IsRightControlKeyDown() end, -- RightCtrl
+	function() return br._G.IsRightShiftKeyDown() end,   -- RightShift
+	function() return br._G.IsRightAltKeyDown() end,     -- RightAlt
+	function() return false end,                         -- None
+	function() return br._G.GetKeyState(0x04) end,       -- MMouse
+	function() return br._G.GetKeyState(0x05) end,       -- Mouse4
+	function() return br._G.GetKeyState(0x06) end,       -- Mouse5
+}
+-- When each toggle's key last cycled it
+local lastCycled = {}
+
+--- Whether the key chosen in a key option (a br.ui.dropOptions.Toggle dropdown) is held: false for
+--- "None", nil when the option doesn't exist.
 function misc:SpecificToggle(toggle)
-	if br.customToggle then
-		return false
-	elseif br.functions.misc:getOptionValue(toggle) == 1 then
-		return br._G.IsLeftControlKeyDown()
-	elseif br.functions.misc:getOptionValue(toggle) == 2 then
-		return br._G.IsLeftShiftKeyDown()
-	elseif br.functions.misc:getOptionValue(toggle) == 3 then
-		return br._G.IsRightControlKeyDown()
-	elseif br.functions.misc:getOptionValue(toggle) == 4 then
-		return br._G.IsRightShiftKeyDown()
-	elseif br.functions.misc:getOptionValue(toggle) == 5 then
-		return br._G.IsRightAltKeyDown()
-	elseif br.functions.misc:getOptionValue(toggle) == 6 then
-		return false
-	elseif br.functions.misc:getOptionValue(toggle) == 7 then
-		return br._G.GetKeyState(0x04)
-	elseif br.functions.misc:getOptionValue(toggle) == 8 then
-		return br._G.GetKeyState(0x05)
-	elseif br.functions.misc:getOptionValue(toggle) == 9 then
-		return br._G.GetKeyState(0x06)
-	elseif br.functions.misc:getOptionValue(toggle) == 10 then
-		return br._G.GetKeyState(0xC0)
-	end
+	local held = KEY_HELD[misc:getOptionValue(toggle)]
+	if held == nil then return nil end
+	return held()
 end
 
+--- Moves a toggle to its next mode while its key ("<toggle> Mode") is held, at most once per delay
+--- seconds.
 function misc:UpdateToggle(toggle, delay)
-	--if toggle == nil then toggle = "toggle" end
-	if br.customToggle then
-		toggle = br.toggleKey
-	end
-	if br._G[toggle .. "Timer"] == nil then
-		br._G[toggle .. "Timer"] = 0
-	end
-	if (br.functions.misc:SpecificToggle(toggle .. " Mode") or br.customToggle) and not br._G.GetCurrentKeyBoardFocus() and br._G.GetTime() - br._G[toggle .. "Timer"] > delay then
-		br._G[toggle .. "Timer"] = br._G.GetTime()
-		br.ui:ToggleValue(tostring(toggle))
+	local now = br._G.GetTime()
+	if now - (lastCycled[toggle] or 0) > delay and misc:SpecificToggle(toggle .. " Mode")
+		and not br._G.GetCurrentKeyBoardFocus()
+	then
+		lastCycled[toggle] = now
+		br.ui:ToggleValue(toggle)
 	end
 end
 

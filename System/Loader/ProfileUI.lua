@@ -129,10 +129,19 @@ end
 --- Copies each saved toggle state into ui.mode (e.g. "Rotation" -> ui.mode.rotation) and
 -- refreshes the toggle buttons.
 -- @param player br.player
+-- ui.mode names by toggle name ("Rotation" -> "rotation")
+local modeNames = setmetatable({}, { __index = function(t, k)
+    local name = k:sub(1, 1):lower() .. k:sub(2)
+    t[k] = name
+    return name
+end })
+
 function profileUI:updateToggleModes(player)
     local toggles = br.data.settings[br.loader.selectedSpec].toggles
+    local made = br.ui.toggles.modes
     for k, value in pairs(toggles) do
-        player.ui.mode[k:sub(1, 1):lower() .. k:sub(2)] = value
-        br.functions.misc:UpdateToggle(k, 0.25)
+        player.ui.mode[modeNames[k]] = value
+        -- Only toggles the profile made have a key option and a button to cycle
+        if made[k] then br.functions.misc:UpdateToggle(k, 0.25) end
     end
 end
