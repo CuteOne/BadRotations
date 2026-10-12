@@ -115,8 +115,8 @@ end
 -- first known spell of the class's list, a Druid's by form), or nil.
 function range:getMeleeSpellName()
     local listKey = meleeListKey()
-    if br.lists.range.meleeSpells[listKey] == nil then return nil end
-    return resolveMeleeSpellName(listKey)
+    if br.lists.range.meleeSpells[listKey] == nil then return nil, listKey end
+    return resolveMeleeSpellName(listKey), listKey
 end
 
 function range:getDistance(Unit1, Unit2, option)

@@ -236,7 +236,9 @@ local function measure()
     keep("meleeReach", range:getMeleeReach("player", "target")); keep("aoe", range:getAoEDistance("player", "target"))
     keep("old", range:getDistance("player", "target"))
     m.meleeBR = centre <= range:getMeleeReach("player", "target")
-    keep("meleeSpell", range:getMeleeSpellName())
+    local meleeSpell, listKey = range:getMeleeSpellName()
+    keep("meleeSpell", meleeSpell)
+    m.listKey = listKey or "no melee list"
     if m.meleeSpell then keep("meleeGame", br._G.C_Spell.IsSpellInRange(m.meleeSpell, "target")) end
     -- Auto Attack's range is the melee check itself, in any form
     local autoAttack = br.functions.spell:getHighestSpellID("autoAttack")
@@ -269,7 +271,7 @@ local function snapshot()
     say(("  speed: you %.2f, target %.2f yd/s"):format(m.speedPlayer or 0, m.speedTarget or 0))
     say(("  centre %.2f yd (2D %.2f, height %.2f) | combat reach: you %.2f, target %.2f"):format(m.centre, m.flat, m.dz, m.reachPlayer, m.reachTarget))
     say(("  edge-to-edge %.2f yd | current getDistance %.2f"):format(m.edge, m.old))
-    say(("  melee: within %.2f yd of centre -> BR %s | game: Auto Attack %s, %s %s"):format(m.meleeReach, inOut(m.meleeBR),
+    say(("  melee [%s]: within %.2f yd of centre -> BR %s | game: Auto Attack %s, %s %s"):format(m.listKey, m.meleeReach, inOut(m.meleeBR),
         inOut(m.autoGame), printable(m.meleeSpell), inOut(m.meleeGame)))
     if m.spell then
         say(("  %s (%d yd): BR %s | game %s"):format(m.spell, m.spellRange, inOut(m.spellBR), inOut(m.spellGame)))
@@ -292,13 +294,13 @@ function br.debug.range:probe(arg)
         if br._G.GetTime() > stopAt then rangeWatch:Cancel(); rangeWatch = nil; return say("Stopped (2 minutes).") end
         local m = measure()
         if m == nil then return end
-        local key = inOut(m.meleeBR) .. inOut(m.autoGame) .. inOut(m.meleeGame) .. inOut(m.spellBR) .. inOut(m.spellGame)
+        local key = m.listKey .. inOut(m.meleeBR) .. inOut(m.autoGame) .. inOut(m.meleeGame) .. inOut(m.spellBR) .. inOut(m.spellGame)
         if key == last then return end
         last = key
         local agree = (m.autoGame == nil or m.meleeBR == m.autoGame) and (m.meleeGame == nil or m.meleeBR == m.meleeGame)
             and (m.spellGame == nil or m.spellBR == m.spellGame)
-        say(("%s melee BR %s/game: Auto Attack %s, %s %s | %s BR %s/game %s | centre %.2f edge %.2f reach %.2f%s"):format(
-            agree and "|cff00FF00ok|r" or "|cffFF4040DIFFER|r", inOut(m.meleeBR), inOut(m.autoGame), printable(m.meleeSpell),
+        say(("%s [%s] melee BR %s/game: Auto Attack %s, %s %s | %s BR %s/game %s | centre %.2f edge %.2f reach %.2f%s"):format(
+            agree and "|cff00FF00ok|r" or "|cffFF4040DIFFER|r", m.listKey, inOut(m.meleeBR), inOut(m.autoGame), printable(m.meleeSpell),
             inOut(m.meleeGame), printable(m.spell), inOut(m.spellBR), inOut(m.spellGame), m.centre, m.edge, m.reachTarget,
             m.leeway > 0 and " (running)" or ""))
     end)
