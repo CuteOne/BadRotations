@@ -279,7 +279,6 @@ end
 -- @param spec Spec ID
 function playerAPI:build(player, spec)
     buildTalents(player, spec)
-    if not player.spells.abilities then return end
     buildLegacyTables(player)
     buildPower(player)
     buildAuras(player)

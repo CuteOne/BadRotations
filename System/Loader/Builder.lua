@@ -9,7 +9,7 @@ local builder = br.loader.builder
 function builder:new(spec, specName)
     local loadStart = br._G.debugprofilestop()
     local self = br.loader.Player:new(spec)
-    self.profile = specName or "Initial"
+    self.specName = specName or "Initial"
 
     -- Rotation files are loaded by the Bootstrap ROTATIONS stage before the player is built.
     -- Select the previously chosen rotation, or the first available one
@@ -30,9 +30,7 @@ function builder:new(spec, specName)
     self.pets  = br.lists.pets
 
     -- Compile spell lists and build the profile API
-    if spec == br.loader.selectedSpecID and (self.talent == nil or self.cast == nil) then
-        self:rebuild()
-    end
+    self:rebuild()
 
     br.debug.cpu:updateDebug(loadStart, "rotation.loadTime")
     return self

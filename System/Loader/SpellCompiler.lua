@@ -62,11 +62,9 @@ local function compileList(player, spellTable, origin, spec)
             if spellType == 'items' then
                 player.items = player.items or {}
                 player.items[spellRef] = spellID
-            elseif spellType == 'imbues' then
-                -- Imbue values are enchant IDs, not spell IDs
-                assign(player, spellType, spellRef, spellID, origin)
             else
                 assign(player, spellType, spellRef, spellID, origin)
+                -- (imbues are never active: their values are enchant IDs, not spell IDs)
                 if isActiveType(spellType, spec) and type(spellID) ~= 'table' and not br._G.C_Spell.IsSpellPassive(spellID) then
                     player.spells.abilities = player.spells.abilities or {}
                     player.spellSource["abilities"] = player.spellSource["abilities"] or {}

@@ -19,7 +19,7 @@ function Player:new(spec)
 	self.pandemic = {}                                      -- Base Duration per Unit/Debuff (combat log reader)
 	self.pet = {}                                           -- Pet Information Table
 	self.pet.list = {}                                      -- Table of Pets
-	self.profile = "None"                                   -- Profile Name
+	self.specName = "None"                                  -- Spec name (settings key; the profile window title)
 	self.queue = {}                                         -- Queued Spells
 	self.race = select(2, br._G.UnitRace("player"))         -- Race (non-localised; Undead = Scourge)
 	self.rotation = {}                                      -- Selected Rotation

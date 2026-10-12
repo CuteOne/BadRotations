@@ -41,7 +41,7 @@ function profileUI:buildBaseOptionsPage(player)
     player.module.BasicHealing(section_module)
     br.ui:text(section_module, "===Combat Options===")
     player.module.CombatPotionUp(section_module) -- Mists of Pandaria
-    if br.isMOP then
+    if br.isMOP then -- checked here too, so the primary stat (secret in combat on Forever) is only read on MoP
         player.module.FlaskUp(br.functions.unit:getPrimaryStat(), section_module) -- Mists of Pandaria
     end
     player.module.BasicTrinkets(nil, section_module)
@@ -52,13 +52,8 @@ end
 -- @param spec Spec ID
 function profileUI:createOptions(player, spec)
     local specSettings = br.data.settings[br.loader.selectedSpec]
-    for i = 1, #specSettings do
-        if specSettings[i] ~= specSettings[br.loader.selectedProfile] then
-            br.ui:closeWindow("profile")
-        end
-    end
     if specSettings[br.loader.selectedProfile] == nil then specSettings[br.loader.selectedProfile] = {} end
-    br.ui:createProfileWindow(player.profile)
+    br.ui:createProfileWindow(player.specName)
 
     -- Rotation dropdown with the names of every profile for this spec
     br._G.wipe(rotationNames)

@@ -161,11 +161,8 @@ function profileLoader:loadProfiles()
     local list = br.loader.rotations[specID]
     local matchedProfiles = list and #list or 0
 
-    -- Track per-spec no-rotation state so callers can avoid retrying
-    br.loader.noRotationsFound = br.loader.noRotationsFound or {}
     br.loader.noRotationsFoundWarned = br.loader.noRotationsFoundWarned or {}
     if matchedProfiles == 0 then
-        br.loader.noRotationsFound[specID] = true
         -- Warn once per spec per session (login / reload / spec change)
         if not br.loader.noRotationsFoundWarned[specID] then
             br.loader.noRotationsFoundWarned[specID] = true
@@ -180,7 +177,6 @@ function profileLoader:loadProfiles()
             end
         end
     else
-        br.loader.noRotationsFound[specID] = nil
         br.loader.noRotationsFoundWarned[specID] = nil
     end
 end

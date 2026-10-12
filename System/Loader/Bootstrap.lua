@@ -154,15 +154,9 @@ end
 -- One frame after the windows exist: register every page, then remove stale settings.
 stages.UI_CLEANUP = function()
 	if waitForCombat() then return end
-	-- selectedSpec is already the settings key (class name on expansions without sub-specs)
-	local specKey = br.loader.selectedSpec
-	if specKey == nil or specKey == "" then specKey = "Initial" end
-	local config = br.data.settings[specKey] and br.data.settings[specKey].config
-	if config == nil then
-		br.data.settings[specKey] = br.data.settings[specKey] or {}
-		br.data.settings[specKey].config = {}
-		config = br.data.settings[specKey].config
-	end
+	local settings = specSettings()
+	settings.config = settings.config or {}
+	local config = settings.config
 	local firstLoad = not config.initialLoad
 	if br.ui.window.config == nil or br.ui.window.config.frame == nil then
 		br.ui.window.config = br.ui.window.config or {}
