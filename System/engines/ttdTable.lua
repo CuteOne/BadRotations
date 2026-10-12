@@ -11,8 +11,23 @@ local enemyTable
 -- less than every threshold, so e.g. Druid biteAtEnd (`ttd < 6`) misread an
 -- unknown TTD as "target dies in <6s" and fired the wrong finisher.
 local TTD_NEVER = 999
+-- Seconds of damage needed before an estimate is given: one early hit over a moment would read as
+-- "dying now". (The Enhanced path needs two samples about 0.5 s apart.)
+local MIN_SAMPLE = 1
 local lastRefreshAt, lastRefreshHP -- frame time and HP threshold of the last TTDRefresh
+local refreshStamp = 0
 
+-- The enemy object for a unit token ("target", which units.dynN often is) or an object.
+-- Enemies are keyed by object, so a token never matched before.
+local function objectOf(unit)
+	if unit == nil then return nil end
+	return br._G.ObjectPointer(unit) or unit
+end
+
+--- Updates time to die for every enemy. The clock for a unit starts at the first damage seen (its
+--- health and the time are moved along while it takes none, or is healed back), so time it spent
+--- idle before the pull doesn't dilute its damage rate. Units that left the enemies list are dropped.
+-- @param hpLimit the health percentage to estimate the time to (0 = death)
 function br.engines.ttdTable:TTDRefresh(hpLimit)
 	if not enemyTable then
 		enemyTable = {
@@ -20,6 +35,7 @@ function br.engines.ttdTable:TTDRefresh(hpLimit)
 			ttd = {},
 			dps = {},
 			health = {},
+			seen = {},
 			totalUnits = 0,
 		}
 	end
@@ -28,59 +44,51 @@ function br.engines.ttdTable:TTDRefresh(hpLimit)
 	local ttd = enemyTable.ttd
 	local dps = enemyTable.dps
 	local health = enemyTable.health
+	local seen = enemyTable.seen
+	local now = br._G.GetTime()
+	refreshStamp = refreshStamp + 1
 
 	if hpLimit == nil then hpLimit = 0 end
 
-	for k, _ in pairs(br.engines.enemiesEngine.enemy) do
-		local object = br.engines.enemiesEngine.enemy[k].unit
+	for _, record in pairs(br.engines.enemiesEngine.enemy) do
+		local object = record.unit
+		local currentHP = br._G.UnitHealth(object)
+		seen[object] = refreshStamp
 		if not units[object] then
-			units[object] = br._G.GetTime()
-			-- Baseline health is the unit's current health at first sighting
-			health[object] = br._G.UnitHealth(object)
-			dps[object] = 0
-			if ttd[object] == nil then
-				ttd[object] = TTD_NEVER
-			end
 			enemyTable.totalUnits = enemyTable.totalUnits + 1
+			units[object], health[object], dps[object], ttd[object] = now, currentHP, 0, TTD_NEVER
 		else
-			if units[object] and ttd[object] then
-				local currentHP = br._G.UnitHealth(object)
-				local maxHP = health[object]
-				local diff = maxHP - currentHP
-				local dura = br._G.GetTime() - units[object]
-				local _dps = (dura > 0) and (diff / dura) or 0
-				dps[object] = math.floor(_dps)
-				local adjustment = maxHP * (hpLimit / 100)
-				-- No net damage observed (diff <= 0, e.g. healed back to baseline)
-				-- or no measurable DPS yet: the unit is not on track to die, so
-				-- report TTD_NEVER rather than the old -1/0 sentinels that
-				-- `ttd < N` checks misread as "dying now".
-				if diff <= 0 or _dps <= 0 then
+			local diff = health[object] - currentHP
+			if diff <= 0 then
+				-- No damage since the clock started (or healed back): start it again from here
+				units[object], health[object], dps[object], ttd[object] = now, currentHP, 0, TTD_NEVER
+			else
+				local dura = now - units[object]
+				local rate = diff / dura
+				dps[object] = math.floor(rate)
+				if dura < MIN_SAMPLE then
 					ttd[object] = TTD_NEVER
 				else
-					-- max(0, ...) over a positive dps is always >= 0; 0 means the
-					-- unit is at/below the requested HP threshold (dying now).
-					ttd[object] = math.max(0, currentHP - adjustment) / _dps
+					-- 0 means the unit is at/below the requested HP threshold (dying now)
+					local adjustment = health[object] * (hpLimit / 100)
+					ttd[object] = math.max(0, currentHP - adjustment) / rate
 				end
 			end
 		end
 	end
-	for object, _ in pairs(units) do
-		local unitHealth = br._G.UnitHealth(object) or 0
-		if unitHealth <= 0 then
-			units[object] = nil
-			ttd[object] = nil
-			health[object] = nil
-			dps[object] = nil
+	for object in pairs(units) do
+		if seen[object] ~= refreshStamp then
+			units[object], ttd[object], health[object], dps[object], seen[object] = nil, nil, nil, nil, nil
 			enemyTable.totalUnits = enemyTable.totalUnits - 1
 		end
 	end
 end
 
+--- Seconds until unit dies (or reaches hp percent), or 999 when it isn't known to be dying.
 function br.engines.ttdTable:getTTD(unit, hp)
+	local object = objectOf(unit)
 	if br.functions.misc:getOptionCheck("Enhanced Time to Die") then
-		if unit == "target" and br.functions.unit:GetObjectExists("target") then unit = br._G.UnitTarget("player") end
-		local record = br.engines.enemiesEngine.records[unit]
+		local record = object and br.engines.enemiesEngine.records[object]
 		if record ~= nil then
 			record:unitTtd(hp)
 			-- Un-computed .ttd (nil) means "unknown", not "dying now" — return
@@ -98,21 +106,8 @@ function br.engines.ttdTable:getTTD(unit, hp)
 		lastRefreshAt, lastRefreshHP = now, hp
 		ttdTable:TTDRefresh(hp)
 	end
-	local thisUnit = unit
-	-- if thisUnit ~= nil then
-	-- 	if not string.find(thisUnit, "0x") or not type(thisUnit) == "number" then
-	-- 		if br.functions.unit:GetObjectExists(thisUnit) and not br.functions.unit:GetUnitIsDeadOrGhost(thisUnit) and br.functions.unit:GetUnitIsVisible(thisUnit) then
-	-- 			thisUnit = br._G.GetObjectWithGUID(br._G.UnitGUID(thisUnit))
-	-- 		else
-	-- 			return -2
-	-- 		end
-	-- 	end
-	-- end
-
-	if enemyTable then
-		if enemyTable.ttd[thisUnit] ~= nil then
-			return enemyTable.ttd[thisUnit]
-		end
+	if enemyTable and object and enemyTable.ttd[object] ~= nil then
+		return enemyTable.ttd[object]
 	end
 	return TTD_NEVER
 end
