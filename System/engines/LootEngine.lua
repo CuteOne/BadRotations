@@ -121,6 +121,10 @@ if not lootEngine.metaTable then
 
 		local now = GetTime()
 
+		-- A loot window is up: LOOT_OPENED cleared isLooting, so without this the next pass
+		-- interacted with the same corpse again and counted a second open toward MAX_LOOT_OPENS.
+		if self.lootWindowOpen then return end
+
 		-- Resolve any in-flight interact. If we fired an interact and the loot window
 		-- never opened within WINDOW_TIMEOUT, release the state so we can retry — a
 		-- window that fails to open is a range/LoS/timing miss, NOT a blocked item, so
