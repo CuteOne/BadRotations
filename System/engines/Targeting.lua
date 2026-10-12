@@ -8,7 +8,8 @@ local _, br = ...
 --   attackingMe    the unit attacks the player; attackingGroup: it attacks someone in the group
 --   lostAggro      Tank Threat: the player is the tank and the unit attacks someone else
 --   priority       skull (Skull First), totems (Prioritize Totems)
---   burn, shields, the profile's units.customTargetWeight: their own values
+--   burn           Forced Burn: W.priority plus the list entry's own weight
+--   shields, the profile's units.customTargetWeight: their own values
 --   hold           the current target and BR's current focus, so a switch needs a clearly better unit
 -- The focus is the best-scored unit overall; once chosen it is kept for HOLD_TIME. Each request
 -- (range, facing) takes the focus when it can reach it, otherwise the best-scored unit it can reach,
@@ -119,7 +120,12 @@ local function refresh()
 		end
 		if skull and br._G.GetRaidTargetIndex(unit) == 8 then addPart("skull", W.priority) end
 		if totems and ef:isTotem(unit) then addPart("totem", W.priority) end
-		if burn then addPart("burn", ef:isBurnTarget(unit)) end
+		-- a burn unit must die to prevent heavy damage: the top priority plus its own weight, so it
+		-- beats ordinary reasons and takes over the focus when it appears mid-fight
+		if burn then
+			local burnWeight = ef:isBurnTarget(unit)
+			if burnWeight > 0 then addPart("burn", W.priority + burnWeight) end
+		end
 		if shields then addPart("shield", ef:getShieldCoefficient(unit)) end
 		if custom then
 			local weight = custom(unit)
