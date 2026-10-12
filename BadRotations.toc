@@ -135,6 +135,7 @@ System\Lists\UnitRules.lua
 
 System\Engines\EnemiesEngine.lua
 System\Engines\EnemiesEngineFunctions.lua
+System\Engines\Targeting.lua
 System\Engines\HealingEngine.lua
 System\Engines\HealingEngineCollections.lua
 System\Engines\HealingEngineFunctions.lua
