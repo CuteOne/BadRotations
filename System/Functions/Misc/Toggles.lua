@@ -41,7 +41,7 @@ function misc:UpdateToggle(toggle, delay)
 	end
 	if (br.functions.misc:SpecificToggle(toggle .. " Mode") or br.customToggle) and not br._G.GetCurrentKeyBoardFocus() and br._G.GetTime() - br._G[toggle .. "Timer"] > delay then
 		br._G[toggle .. "Timer"] = br._G.GetTime()
-		br.ui:UpdateButton(tostring(toggle))
+		br.ui:ToggleValue(tostring(toggle))
 	end
 end
 
@@ -51,7 +51,7 @@ end
 -- br.functions.misc:warnMissingToggle("Cooldown", "cooldowns", "ui.useCDs()")
 function misc:warnMissingToggle(toggleName, purpose, apiCall)
 	if not (br.loader.bootstrap and br.loader.bootstrap.stage == "RUNNING") then return end
-	if br.ui.toggles and br.ui.toggles[toggleName] ~= nil then return end
+	if br.ui.toggles and br.ui.toggles.modes[toggleName] ~= nil then return end
 	local profile = tostring(br.loader.selectedProfileName)
 	local key = profile .. "|" .. toggleName
 	if warnedMissingToggles[key] then return end

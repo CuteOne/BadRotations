@@ -57,10 +57,10 @@ local function toggle(name, index, check)
 				break
 			end
 			if index == nil then
-				br.ToggleValue(toggle)
+				br.ui:ToggleValue(toggle)
 				break
 			else
-				br.ToggleToValue(toggle, index)
+				br.ui:ToggleToValue(toggle, index)
 				break
 			end
 		end
@@ -81,13 +81,13 @@ local function toggleRange(name, index1, index2)
 		local lowerKey = string.lower(k)
 		if name == lowerKey then
 			if tostring(br.data.settings[br.loader.selectedSpec].toggles[k]) == index1 then
-				br.ToggleToValue(toggle, index2)
+				br.ui:ToggleToValue(toggle, index2)
 				return
 			elseif tostring(br.data.settings[br.loader.selectedSpec].toggles[k]) == index2 then
-				br.ToggleToValue(toggle, index1)
+				br.ui:ToggleToValue(toggle, index1)
 				return
 			else
-				br.ToggleToValue(toggle, index1)
+				br.ui:ToggleToValue(toggle, index1)
 				return
 			end
 		end
@@ -434,17 +434,12 @@ local function handler(message, editbox)
 			br.ui:toggleWindow("profile")
 		elseif msg2 == "togglebar" then
 			-- Show/Hide Toggle Bar
-			if br._G.UnitAffectingCombat("player") then
-				br._G.print(
-					"Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
+			if br.data.settings[br.loader.selectedSpec].toggles["Main"] == 1 then
+				br.data.settings[br.loader.selectedSpec].toggles["Main"] = 0
+				br.ui.toggles.mainButton:Hide()
 			else
-				if br.data.settings[br.loader.selectedSpec].toggles["Main"] == 1 then
-					br.data.settings[br.loader.selectedSpec].toggles["Main"] = 0
-					br.ui.toggles.mainButton:Hide()
-				else
-					br.data.settings[br.loader.selectedSpec].toggles["Main"] = 1
-					br.ui.toggles.mainButton:Show()
-				end
+				br.data.settings[br.loader.selectedSpec].toggles["Main"] = 1
+				br.ui.toggles.mainButton:Show()
 			end
 		elseif msg2 == "icon" then
 			if br.hiddenIcon == nil or br.hiddenIcon == false then

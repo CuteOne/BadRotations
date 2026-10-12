@@ -1,434 +1,180 @@
 local _, br = ...
 br.ui.toggles = br.ui.toggles or {}
+local toggles = br.ui.toggles
+-- The modes of each toggle the loaded profile made, by toggle name
+toggles.modes = toggles.modes or {}
+-- The toggle bar's buttons by toggle name ({ button, text, glow, col, row }). A profile reload hides
+-- them and a toggle made again with the same name gets its button back.
+toggles.bar = toggles.bar or {}
 
-local function StripModes(name)
-  return name:gsub("Modes$", "")
+local function savedToggles()
+	local specSettings = br.data.settings[br.loader.selectedSpec]
+	specSettings.toggles = specSettings.toggles or {}
+	return specSettings.toggles
 end
 
-local function Trim(s)
-	return s:match("^%s*(.-)%s*$")
-end
-
-local function FindToggle(toggleValue)
-	local toggles = br.data.settings[br.loader.selectedSpec].toggles
-	for k, _ in pairs(toggles) do
-		if string.upper(toggleValue) == string.upper(k) then
-			return k
-		end
+-- The name a toggle was made with, matched without case ("rotation" finds "Rotation")
+local function findToggle(name)
+	if type(name) ~= "string" then return nil end
+	if toggles.modes[name] then return name end
+	local wanted = name:upper()
+	for made in pairs(toggles.modes) do
+		if made:upper() == wanted then return made end
 	end
-	return nil
 end
 
-function br.ui:createToggle(table, name, col, row)
+-- The saved mode of a toggle, or 1 when nothing (or a mode it no longer has) is saved
+local function currentIndex(name)
+	local index = tonumber(savedToggles()[name]) or 1
+	if index < 1 or index > #toggles.modes[name] then index = 1 end
+	return index
+end
+
+-- A mode's icon: a spell (the highest known rank of a ranked list) or item ID, or a texture
+local function modeIcon(mode)
+	local icon = mode.icon
+	if type(icon) == "table" then
+		icon = br.functions.spell:getHighestKnownRank(icon) or icon[1]
+	end
+	if type(icon) == "number" then
+		local spellName, _, spellIcon = br.api.wow.GetSpellInfo(icon)
+		icon = spellName and spellIcon or br._G.C_Item.GetItemIconByID(icon)
+	end
+	return icon or toggles.emptyIcon
+end
+
+local function showTip(name)
+	local tooltip = br._G.GameTooltip
+	tooltip:SetOwner(toggles.bar[name].button, "ANCHOR_RIGHT")
+	tooltip:SetText(toggles.modes[name][currentIndex(name)].tip, 225 / 255, 225 / 255, 225 / 255, nil, true)
+	tooltip:Show()
+end
+
+-- Shows a toggle's saved mode on its button
+local function drawToggle(name)
+	local entry, mode = toggles.bar[name], toggles.modes[name][currentIndex(name)]
+	entry.text:SetText(mode.mode)
+	entry.button:SetNormalTexture(modeIcon(mode))
+	entry.glow.texture:SetTexture(mode.highlight == 0 and toggles.genericIconOff or toggles.genericIconOn)
+	-- Only while the mouse is on this button: a keybind changes the mode without a hover
+	if br._G.GameTooltip:IsOwned(entry.button) then showTip(name) end
+end
+
+-- Sizes and places a toggle button for the current button size
+local function layoutButton(entry)
+	local size = br.data.settings.buttonSize
+	entry.button:SetSize(size, size)
+	entry.button:ClearAllPoints()
+	entry.button:SetPoint("LEFT", entry.col * (size + 2), entry.row * (size + 2))
+	entry.text:SetTextHeight(size / 3)
+	entry.text:ClearAllPoints()
+	entry.text:SetPoint("CENTER", 3, -(size / 8))
+	entry.glow:SetSize(size * 1.67, size * 1.67)
+end
+
+local function newButton(name)
+	local button = br._G.CreateFrame("Button", nil, toggles.mainButton)
+	button:RegisterForClicks("AnyUp")
+	local text = button:CreateFontString(nil, "OVERLAY")
+	text:SetFont(br.data.settings.font, br.data.settings.fontsize, "THICKOUTLINE")
+	text:SetJustifyH("CENTER")
+	text:SetTextColor(1, 1, 1, 1)
+	local glow = br._G.CreateFrame("Frame", nil, button)
+	glow:SetPoint("CENTER")
+	glow.texture = glow:CreateTexture(nil, "OVERLAY")
+	glow.texture:SetAllPoints()
+	glow.texture:SetAlpha(1)
+	button:SetScript("OnClick", function(_, mouseButton)
+		if mouseButton == "RightButton" then br.ui:ToggleMinus(name) else br.ui:ToggleValue(name) end
+	end)
+	button:SetScript("OnEnter", function() showTip(name) end)
+	button:SetScript("OnLeave", function() br._G.GameTooltip:Hide() end)
+	return { button = button, text = text, glow = glow }
+end
+
+-- Saves and shows a toggle's new mode, and names it in the chat overlay
+local function setToggle(name, index)
+	savedToggles()[name] = index
+	drawToggle(name)
+	br.ui.chatOverlay:Show("\124cFF3BB0FF" .. toggles.modes[name][index].overlay)
+end
+
+--- Adds a toggle (its modes) and its button at column col, row row of the toggle bar.
+function br.ui:createToggle(modes, name, col, row)
 	if type(name) ~= "string" then
-		br._G.print("Invaild type " .. type(name) .. " detected for table " .. name .. ".  Please let devs know!")
-	else
-		br.ui.toggles[name] = table
-		br.ui:CreateButton(name, col, row)
-		-- br.ui:RefreshButton(name)
+		return br._G.print("Invalid toggle name " .. tostring(name) .. ". Please let devs know!")
 	end
+	toggles.modes[name] = modes
+	br.ui:CreateButton(name, col, row)
 end
 
-function br.ui:RefreshButton(name)
-	local index = br.ui.toggles[name] and br.ui.toggles[name].value or 1
-	br.ui:changeButton(name, index)
+--- Shows the button of a toggle made with createToggle, making it the first time.
+function br.ui:CreateButton(name, col, row)
+	if br.data.settings[br.loader.selectedSpec] == nil or toggles.modes[name] == nil then return end
+	local entry = toggles.bar[name]
+	if entry == nil then
+		entry = newButton(name)
+		toggles.bar[name] = entry
+	end
+	entry.col, entry.row = col, row
+	layoutButton(entry)
+	entry.button:Show()
+	local saved = savedToggles()
+	saved[name] = currentIndex(name)
+	drawToggle(name)
+	if toggles.mainButton ~= nil then
+		if saved["Main"] == 1 then toggles.mainButton:Show() else toggles.mainButton:Hide() end
+	end
+	br.slashCommands:SlashCommandHelp(
+		"br toggle " .. name .. " 1-" .. #toggles.modes[name],
+		"Toggles " .. name .. ", Optional: specify number to toggle to or 2 numbers to toggle between"
+	)
 end
 
--- when we find a match, we reset tooltip
-function br.ui:ResetTip(toggleValue, thisValue)
-	br._G.GameTooltip:SetOwner(br.ui.toggles["button" .. StripModes(toggleValue)], br.ui.toggles.mainButton, 0, 0)
-	br._G.GameTooltip:SetText(br.ui.toggles[toggleValue][thisValue].tip, 225 / 255, 225 / 255, 225 / 255, nil, true)
-	br._G.GameTooltip:Show()
-end
-
+--- Hides the toggle bar's buttons and forgets the toggles (a profile's toggles are about to be made).
 function br.ui:GarbageButtons()
-	if br.ui.toggles.buttonsTable and not br._G.UnitAffectingCombat("player") then
-		for i = 1, #br.ui.toggles.buttonsTable do
-			local Name = br.ui.toggles.buttonsTable[i].name
-			if br.ui.toggles["button" .. Name] then br.ui.toggles["button" .. Name]:Hide() end
-			if br.ui.toggles["text" .. Name] then br.ui.toggles["text" .. Name]:Hide() end
-			if br.ui.toggles["frame" .. Name] then br.ui.toggles["frame" .. Name].texture:Hide() end
-			br.ui.toggles[Name] = nil
-		end
+	for name, entry in pairs(toggles.bar) do
+		entry.button:Hide()
+		toggles.modes[name] = nil
 	end
 end
 
-function br.ui:ToggleToValue(toggleValue, index)
-	if br.ui.toggles[toggleValue] == nil then
-		toggleValue = FindToggle(toggleValue)
-	end
-	index = tonumber(index)
-	local modesCount = #br.ui.toggles[toggleValue]
-	if index > modesCount then
-		br._G.print(
-			"Invalid Toggle Index for |cffFFDD11" ..
-			toggleValue ..
-			": |cFFFF0000 Index ( |r" .. index .. "|cFFFF0000) exceeds Max ( |r" .. modesCount .. "|cFFFF0000)|r."
-		)
-	else
-		br.ui:specialToggleCodes(toggleValue, index)
-		if not br.data.settings[br.loader.selectedSpec].toggles then
-			br.data.settings[br.loader.selectedSpec].toggles = {}
-		end
-		br.data.settings[br.loader.selectedSpec].toggles[tostring(toggleValue)] = index
-		br.ui:changeButton(toggleValue, index)
-		-- We reset the tip
-		br.ui:ResetTip(toggleValue, index)
-	end
-end
-
-function br.ui:ToggleValue(toggleValue)
-	local toggles = br.data.settings[br.loader.selectedSpec].toggles
-	if toggles[toggleValue] == nil then
-		toggleValue = FindToggle(toggleValue)
-	end
-	if toggles[toggleValue] == nil then
-		br._G.print("No toggle mode found for " .. toggleValue .. ". Please inform devs of this error!")
-		return
-	end
-	-- prevent nil fails
-	local toggleOldValue
-	if toggles then
-		toggleOldValue = toggles[tostring(toggleValue)] or 1
-	end
-	local modesCount = #br.ui.toggles[toggleValue]
-	if toggleOldValue == nil then
-		if not toggles then
-			toggles = {}
-		end
-		toggles[tostring(toggleValue)] = 1
-		toggleOldValue = toggles[tostring(toggleValue)]
-	end
-	-- Scan Table and find which mode = our i
-	for i = 1, modesCount do
-		if toggleOldValue == i then
-			-- see if we can go higher in modes is #modes > i
-			if modesCount > i then
-				-- calculate newValue
-				local newValue = i + 1
-				br.ui:specialToggleCodes(toggleValue, newValue)
-				-- We set the value in DB
-				toggles[tostring(toggleValue)] = newValue
-				br.ui:changeButton(toggleValue, newValue)
-				-- We reset the tip
-				br.ui:ResetTip(toggleValue, newValue)
-				break
-			else
-				br.ui:specialToggleCodes(toggleValue, 1)
-				-- if cannot go higher we define mode to 1.
-				toggles[tostring(toggleValue)] = 1
-				br.ui:changeButton(toggleValue, 1)
-				-- We reset the tip
-				br.ui:ResetTip(toggleValue, 1)
-				break
-			end
-		end
-	end
-end
-
-function br.ui:ToggleMinus(toggleValue)
-	local toggles = br.data.settings[br.loader.selectedSpec].toggles
-	if not toggles[tostring(toggleValue)] then
-		toggleValue = FindToggle(toggleValue)
-	end
-	if not toggles[tostring(toggleValue)] then
-		br._G.print("No toggle mode found for " .. toggleValue .. ". Please inform devs of this error!")
-		return
-	end
-	-- prevent nil fails
-	if not toggles then
-		toggles = {}
-	end
-	if toggles[tostring(toggleValue)] == nil then
-		toggles[tostring(toggleValue)] = 1
-	end
-	local modesCount = #br.ui.toggles[tostring(toggleValue)]
-	-- Scan Table and find which mode = our i
-	for i = 1, modesCount do
-		local thisValue = toggles[tostring(toggleValue)] or 1
-		if thisValue == i then
-			-- see if we can go lower in modes
-			local newValue = i - 1
-			if i > 1 then
-				-- calculate newValue
-				br.ui:specialToggleCodes(toggleValue, newValue)
-				-- We set the value in DB
-				toggles[tostring(toggleValue)] = newValue
-				-- change the button
-				br.ui:changeButton(toggleValue, newValue)
-				-- We reset the tip
-				br.ui:ResetTip(toggleValue, newValue)
-				break
-			else
-				-- if cannot go lower we define to last mode
-				toggles[tostring(toggleValue)] = modesCount
-				br.ui:specialToggleCodes(toggleValue, modesCount)
-				br.ui:changeButton(toggleValue, modesCount)
-				-- We reset the tip
-				br.ui:ResetTip(toggleValue, modesCount)
-				break
-			end
-		end
-	end
-end
-
-function br.ui:specialToggleCodes(toggleValue, newValue)
-	if toggleValue == "Interrupts" then
-		local InterruptsModes = br.InterruptsModes
-		if newValue == 1 and InterruptsModes[1].mode == "None" then
-			-- no interupts mode
-			if br.data.settings[br.loader.selectedSpec]["Interrupts HandlerCheck"] ~= 0 then
-				br["optionsInterrupts HandlerCheck"]:Click()
-			end
-		elseif newValue == 2 and InterruptsModes[2].mode == "Raid" then
-			-- on/off switch
-			if br.data.settings[br.loader.selectedSpec]["Interrupts HandlerCheck"] ~= 1 then
-				br["optionsInterrupts HandlerCheck"]:Click()
-			end
-			-- only known switch
-			if br.data.settings[br.loader.selectedSpec]["Only Known UnitsCheck"] ~= 1 then
-				br["optionsOnly Known UnitsCheck"]:Click()
-			end
-		elseif newValue == 3 and InterruptsModes[3].mode == "All" then
-			-- interrupt all mode
-			-- on/off switch
-			if br.data.settings[br.loader.selectedSpec]["Interrupts HandlerCheck"] ~= 1 then
-				br["optionsInterrupts HandlerCheck"]:Click()
-			end
-			-- only known switch
-			if br.data.settings[br.loader.selectedSpec]["Only Known UnitsCheck"] ~= 0 then
-				br["optionsOnly Known UnitsCheck"]:Click()
-			end
-		end
-	end
-end
-
-function br.ui:changeButtonValue(toggleValue, newValue)
-	if br.ui.toggles[toggleValue] == nil then
-		toggleValue = FindToggle(toggleValue)
-	end
-	if br.ui.toggles[toggleValue] == nil then
-		br._G.print("No toggle mode found for " .. toggleValue .. ". Please inform devs of this error!")
-		return
-	end
-	br.data.settings[br.loader.selectedSpec].toggles[tostring(toggleValue)] = newValue
-end
-
-	-- set to desired button value
-function br.ui:changeButton(toggleValue, newValue)
-	local toggleValue = Trim(toggleValue)
-	if newValue == 0 then newValue = 1 end
-	local Icon
-	-- define text
-	br.ui.toggles["text" .. StripModes(toggleValue)]:SetText(br.ui.toggles[toggleValue][newValue].mode)
-	-- define icon
-	local iconValue = br.ui.toggles[toggleValue][newValue].icon
-	-- Handle table-based spell ranks (Classic WoW)
-	if type(iconValue) == "table" then
-		-- Get highest known rank for icon display
-		if br.functions and br.functions.spell and br.functions.spell.getHighestKnownRank then
-			iconValue = br.functions.spell:getHighestKnownRank(iconValue) or iconValue[1]
-		else
-			iconValue = iconValue[1] -- Fallback to first rank
-		end
-	end
-	if type(iconValue) == "number" then
-		-- Try spell first, then item if spell doesn't exist
-		local spellName, _, spellIcon = br.api.wow.GetSpellInfo(iconValue)
-		if spellName then
-			Icon = spellIcon
-		else
-			-- Try as item ID
-			Icon = br._G.C_Item.GetItemIconByID(iconValue)
-		end
-	else
-		Icon = iconValue
-	end
-	br.ui.toggles["button" .. StripModes(toggleValue)]:SetNormalTexture(Icon or br.ui.toggles.emptyIcon)
-	-- define highlight
-	if br.ui.toggles[toggleValue][newValue].highlight == 0 then
-		br.ui.toggles["frame" .. StripModes(toggleValue)].texture:SetTexture(br.ui.toggles.genericIconOff)
-	else
-		br.ui.toggles["frame" .. StripModes(toggleValue)].texture:SetTexture(br.ui.toggles.genericIconOn)
-	end
-	-- We tell the user we changed mode
-	br.ui.chatOverlay:Show("\124cFF3BB0FF" .. br.ui.toggles[toggleValue][newValue].overlay)
-	-- We reset the tip
-	br.ui:ResetTip(toggleValue, newValue)
-end
-
-function br.ui:UpdateButton(Name)
-	Name = tostring(Name) --string.upper(Name)
-	br.ui:ToggleValue(Name)
-end
-
+--- Resizes and places every toggle button for the current button size.
 function br.ui:buttonsResize()
-	for i = 1, #br.ui.toggles.buttonsTable do
-		local Name = br.ui.toggles.buttonsTable[i].name
-		local x = br.ui.toggles.buttonsTable[i].bx
-		local y = br.ui.toggles.buttonsTable[i].by
-		br.ui.toggles["button" .. Name]:SetWidth(br.data.settings["buttonSize"])
-		br.ui.toggles["button" .. Name]:SetHeight(br.data.settings["buttonSize"])
-		br.ui.toggles["button" .. Name]:SetPoint("LEFT", x * (br.data.settings["buttonSize"]), y * (br.data.settings["buttonSize"]))
-		br.ui.toggles["text" .. Name]:SetTextHeight(br.data.settings["buttonSize"] / 3)
-		br.ui.toggles["text" .. Name]:SetPoint("CENTER", 0, -(br.data.settings["buttonSize"] / 4))
-		br.ui.toggles["frame" .. Name]:SetWidth(br.data.settings["buttonSize"] * 1.67)
-		br.ui.toggles["frame" .. Name]:SetHeight(br.data.settings["buttonSize"] * 1.67)
-		br.ui.toggles["frame" .. Name].texture:SetWidth(br.data.settings["buttonSize"] * 1.67)
-		br.ui.toggles["frame" .. Name].texture:SetHeight(br.data.settings["buttonSize"] * 1.67)
-	end
+	for _, entry in pairs(toggles.bar) do layoutButton(entry) end
 end
 
--- /run CreateButton("AoE",2,2)
-function br.ui:CreateButton(Name, x, y)
-	if type(Name) ~= "string" then
-		br._G.print("Invaild type " .. type(Name) .. " detected for table " .. Name .. ".  Please let devs know!")
-		return
+--- Sets a toggle (name without case) to mode index.
+function br.ui:ToggleToValue(name, index)
+	local found = findToggle(name)
+	if found == nil then
+		return br._G.print("No toggle named " .. tostring(name) .. ".")
 	end
-	if br.data.settings[br.loader.selectedSpec] ~= nil then
-		local Icon
-		-- local Name = string.upper(Name)
-		-- todo: extend to use spec + profile specific variable; ATM it shares between profile AND spec, -> global for char
-		if br.data.settings[br.loader.selectedSpec].toggles == nil then
-			br.data.settings[br.loader.selectedSpec].toggles = {}
-		end
-		local toggleIndex = br.data.settings[br.loader.selectedSpec].toggles[Name]
-		if toggleIndex == nil or toggleIndex > #br.ui.toggles[Name] or toggleIndex == 0 then
-			toggleIndex = 1
-		end
-		if br.ui.toggles.buttonsTable then
-			br._G.tinsert(br.ui.toggles.buttonsTable, { name = Name, bx = x, by = y })
-		end
-		br.ui.toggles["button" .. Name] = br._G.CreateFrame("Button", "MyButtonBR", br.ui.toggles.mainButton, "SecureHandlerClickTemplate")
-		br.ui.toggles["button" .. Name]:SetWidth(br.data.settings["buttonSize"])
-		br.ui.toggles["button" .. Name]:SetHeight(br.data.settings["buttonSize"])
-		br.ui.toggles["button" .. Name]:SetPoint(
-			"LEFT",
-			x * (br.data.settings["buttonSize"]) + (x * 2),
-			y * (br.data.settings["buttonSize"]) + (y * 2)
-		)
-		br.ui.toggles["button" .. Name]:RegisterForClicks("AnyUp")
-		local toggleIcon = br.ui.toggles[Name][toggleIndex].icon
-		-- Handle table-based spell ranks (Classic WoW)
-		if type(toggleIcon) == "table" then
-			-- Get highest known rank for icon display
-			if br.functions and br.functions.spell and br.functions.spell.getHighestKnownRank then
-				toggleIcon = br.functions.spell:getHighestKnownRank(toggleIcon) or toggleIcon[1]
-			else
-				toggleIcon = toggleIcon[1] -- Fallback to first rank
-			end
-		end
-		if toggleIcon ~= nil and type(toggleIcon) == "number" then
-			-- Try spell first, then item if spell doesn't exist
-			local spellName, _, spellIcon = br.api.wow.GetSpellInfo(toggleIcon)
-			if spellName then
-				Icon = spellIcon
-			else
-				-- Try as item ID
-				Icon = br._G.C_Item.GetItemIconByID(toggleIcon)
-			end
-		else
-			Icon = toggleIcon or br.ui.toggles.emptyIcon
-		end
-		Icon = Icon or br.ui.toggles.emptyIcon
-		br.ui.toggles["button" .. Name]:SetNormalTexture(Icon)
-		--CreateBorder(br["button"..Name], 8, 0.6, 0.6, 0.6)
-		br.ui.toggles["text" .. Name] = br.ui.toggles["button" .. Name]:CreateFontString(nil, "OVERLAY")
-		br.ui.toggles["text" .. Name]:SetFont(br.data.settings.font, br.data.settings.fontsize, "THICKOUTLINE")
-		br.ui.toggles["text" .. Name]:SetJustifyH("CENTER")
-		br.ui.toggles["text" .. Name]:SetTextHeight(br.data.settings["buttonSize"] / 3)
-		br.ui.toggles["text" .. Name]:SetPoint("CENTER", 3, -(br.data.settings["buttonSize"] / 8))
-		br.ui.toggles["text" .. Name]:SetTextColor(1, 1, 1, 1)
-		br.ui.toggles["frame" .. Name] = br._G.CreateFrame("Frame", nil, br.ui.toggles["button" .. Name])
-		br.ui.toggles["frame" .. Name]:SetWidth(br.data.settings["buttonSize"] * 1.67)
-		br.ui.toggles["frame" .. Name]:SetHeight(br.data.settings["buttonSize"] * 1.67)
-		br.ui.toggles["frame" .. Name]:SetPoint("CENTER")
-		br.ui.toggles["frame" .. Name].texture = br.ui.toggles["frame" .. Name]:CreateTexture(nil, "OVERLAY")
-		br.ui.toggles["frame" .. Name].texture:SetAllPoints()
-		br.ui.toggles["frame" .. Name].texture:SetWidth(br.data.settings["buttonSize"] * 1.67)
-		br.ui.toggles["frame" .. Name].texture:SetHeight(br.data.settings["buttonSize"] * 1.67)
-		br.ui.toggles["frame" .. Name].texture:SetAlpha(1)
-		br.ui.toggles["frame" .. Name].texture:SetTexture(br.ui.toggles.genericIconOn)
-		if br.ui.toggles[Name] == nil then
-			br._G.print("No table found for " .. Name)
-			br.ui.toggles[Name] = tostring(Name)
-		else
-			br.ui.toggles[Name] = br.ui.toggles[Name] or ""
-		end
-		local modeValue
-		if toggleIndex == nil then
-			toggleIndex = 1
-			modeValue = 1
-		else
-			modeValue = toggleIndex
-		end
-		br.data.settings[br.loader.selectedSpec].toggles[Name] = modeValue
-		br.ui.toggles["button" .. Name]:SetScript(
-			"OnClick",
-			function(_, button)
-				if button == "RightButton" then
-					br.ui:ToggleMinus(Name)
-				else
-					br.ui:ToggleValue(Name)
-				end
-			end
-		)
-		br.ui.toggles["button" .. Name]:SetScript(
-			"OnMouseWheel",
-			function(_, delta)
-				local Go = false
-				if delta < 0 and toggleIndex > 1 then
-					Go = true
-				elseif delta > 0 and toggleIndex < #br.ui.toggles[Name] then
-					Go = true
-				end
-				if Go == true then
-					toggleIndex = toggleIndex + delta
-				end
-			end
-		)
-		br.ui.toggles["button" .. Name]:SetScript(
-			"OnEnter",
-			function()
-				br._G.GameTooltip:SetOwner(br.ui.toggles["button" .. Name], br._G.UIParent, 0, 0)
-				br._G.GameTooltip:SetText(
-					br.ui.toggles[Name][toggleIndex].tip,
-					225 / 255,
-					225 / 255,
-					225 / 255,
-					nil,
-					true
-				)
-				br._G.GameTooltip:Show()
-			end
-		)
-		br.ui.toggles["button" .. Name]:SetScript(
-			"OnLeave",
-			function()
-				br._G.GameTooltip:Hide()
-			end
-		)
-		br.ui.toggles["text" .. Name]:SetText(br.ui.toggles[Name][modeValue].mode)
-		if br.ui.toggles[Name][modeValue].highlight == 0 then
-			br.ui.toggles["frame" .. Name].texture:SetTexture(br.ui.toggles.genericIconOff)
-		else
-			br.ui.toggles["frame" .. Name].texture:SetTexture(br.ui.toggles.genericIconOn)
-		end
-		if br.ui.toggles.mainButton ~= nil then
-			if br.data.settings[br.loader.selectedSpec].toggles["Main"] == 1 and not br._G.UnitAffectingCombat("player") then
-				br.ui.toggles.mainButton:Show()
-			elseif not br._G.UnitAffectingCombat("player") then
-				br.ui.toggles.mainButton:Hide()
-			elseif br._G.UnitAffectingCombat("player") then
-				br._G.print(
-					"Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
-			end
-		end
-		br.slashCommands:SlashCommandHelp(
-			"br toggle " .. Name .. " 1-" .. #br.ui.toggles[Name],
-			"Toggles " .. Name .. ", Optional: specify number to toggle to or 2 numbers to toggle between"
-		)
+	local modesCount = #toggles.modes[found]
+	index = tonumber(index)
+	if index == nil or index < 1 or index > modesCount then
+		return br._G.print("Invalid Toggle Index for |cffFFDD11" .. found .. ": |cFFFF0000 Index ( |r" .. tostring(index)
+			.. "|cFFFF0000) must be 1 to |r" .. modesCount .. "|cFFFF0000.|r")
 	end
+	if index ~= currentIndex(found) then setToggle(found, index) end
+end
+
+--- Moves a toggle (name without case) to its next mode, from the last back to the first.
+function br.ui:ToggleValue(name)
+	local found = findToggle(name)
+	if found == nil then
+		return br._G.print("No toggle named " .. tostring(name) .. ".")
+	end
+	setToggle(found, currentIndex(found) % #toggles.modes[found] + 1)
+end
+
+--- Moves a toggle (name without case) to its previous mode, from the first to the last.
+function br.ui:ToggleMinus(name)
+	local found = findToggle(name)
+	if found == nil then
+		return br._G.print("No toggle named " .. tostring(name) .. ".")
+	end
+	setToggle(found, (currentIndex(found) - 2) % #toggles.modes[found] + 1)
 end
 
 -- Toggles made with br.ui:toggle for the current rotation (for the Toggle Keys section)

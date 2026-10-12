@@ -213,10 +213,8 @@ function engines.Update(frame, elapsed)
                 -- Show Main Button
                 if br.data.settings ~= nil and br.data.settings[br.loader.selectedSpec].toggles["Main"] ~= 1 and
                     br.data.settings[br.loader.selectedSpec].toggles["Main"] ~= 0 then
-                    if not br._G.UnitAffectingCombat("player") then
-                        br.data.settings[br.loader.selectedSpec].toggles["Main"] = 1
-                        br.ui.toggles.mainButton:Show()
-                    end
+                    br.data.settings[br.loader.selectedSpec].toggles["Main"] = 1
+                    br.ui.toggles.mainButton:Show()
                 end
                 -- Display Distance on Main Icon
                 if br.ui.toggles.mainButton ~= nil then

@@ -127,7 +127,7 @@ function br.ui:MinimapButton()
 			print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
 		end
 		if button == "LeftButton" then
-			if br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() and not br._G.UnitAffectingCombat("player") then
+			if br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() then
 				if br.data.settings[br.loader.selectedSpec].toggles["Main"] == 1 then
 					br.data.settings[br.loader.selectedSpec].toggles["Main"] = 0
 					br.ui.toggles.mainButton:Hide()
@@ -135,8 +135,6 @@ function br.ui:MinimapButton()
 					br.data.settings[br.loader.selectedSpec].toggles["Main"] = 1
 					br.ui.toggles.mainButton:Show()
 				end
-			elseif br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() and br._G.UnitAffectingCombat("player") then
-				br._G_.print("Combat Lockdown detected. Unable to modify minimap button. Please try again when out of combat.")
 			elseif not br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() then
 				br.ui:toggleWindow("config")
 			end
