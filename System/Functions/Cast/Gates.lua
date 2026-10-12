@@ -121,7 +121,7 @@ local function defineGroup(fields, loader)
 	for _, field in ipairs(fields) do contextGroups[field] = loader end
 end
 
-defineGroup({ "spellName", "icon", "rawCastTime", "castTime", "minRange", "maxRange" }, function(ctx)
+defineGroup({ "spellName", "icon", "rawCastTime", "castTime", "minRange", "maxRange", "hasNoRange" }, function(ctx)
 	local spellName, _, icon, rawCastTime, minRange, maxRange = br.api.wow.GetSpellInfo(ctx.spellID)
 	-- Some spells return 0 for maxRange on the override; fall back to the base spell.
 	if (not maxRange or maxRange == 0) and ctx.baseSpellID and ctx.baseSpellID ~= ctx.spellID then
@@ -132,6 +132,7 @@ defineGroup({ "spellName", "icon", "rawCastTime", "castTime", "minRange", "maxRa
 	if ctx.predictPad then castTime = castTime + ctx.predictPad end
 	-- maxRange 0 from the API: for castType "pet" that's the literal melee range (checkRange
 	-- uses distance <= 5); for every other cast type it means "unspecified", so effectRng.
+	rawset(ctx, "hasNoRange", not maxRange or maxRange == 0)
 	if not maxRange or maxRange == 0 then
 		maxRange = (ctx.castType == "pet") and 0 or tonumber(ctx.requestedRng)
 	else

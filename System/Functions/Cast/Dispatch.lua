@@ -301,6 +301,13 @@ function E.checkRange(ctx, thisUnit, castType)
 	if castType ~= "pet" and cast:isRejected("range", ctx.spellID, thisUnit) then
 		return false, "game said out of range moments ago"
 	end
+	-- A harmful spell with no range of its own (a next-swing spell such as Maul) lands only in melee,
+	-- but the game reports it in range at any distance, so measure melee instead.
+	if castType ~= "pet" and ctx.hasNoRange and ctx.spellType == "Harmful" then
+		if br.functions.range:isInMelee("player", thisUnit) then return true end
+		return false, string.format("no range of its own: needs melee (centre %.1f, melee reach %.1f)",
+			br.functions.range:getCenterDistance("player", thisUnit) or -1, br.functions.range:getMeleeReach("player", thisUnit))
+	end
 	-- For pet castType, IsSpellInRange evaluates from the PLAYER's position — not the
 	-- pet's — so it cannot reliably gate melee or short-range pet abilities.  Skip the
 	-- API check entirely for pet spells and always measure pet-to-target distance directly.
