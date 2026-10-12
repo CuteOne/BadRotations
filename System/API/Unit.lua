@@ -605,6 +605,14 @@ br.api.unit = function(self)
         return br.functions.unit:isEnemyNear(range)
     end
 
+    --- Check if it's a good moment to start a fight
+    -- @function unit.readyToFight
+    -- @return boolean True when you aren't low on health or mana or eating or drinking, and in a group the tanks aren't low (Ready To Fight options, Targeting page)
+    -- @usage if not unit.inCombat() and unit.readyToFight() and cast.able.faerieFire("target") then
+    unit.readyToFight = function()
+        return br.functions.combat:isReadyToFight()
+    end
+
     --- Check if an enemy is attacking someone other than you
     -- @function unit.attackingOthers
     -- @param thisUnit The enemy to check
