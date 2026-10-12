@@ -44,7 +44,13 @@ if not lootEngine.metaTable then
 		if message and self.oldMessage ~= message then
 			br.functions.misc:addonDebug("<LootEngine> " .. (math.floor(GetTime() * 1000) / 1000) .. " " .. message, true)
 			self.oldMessage = message
+			if br.debug.loot then br.debug.loot:line(message) end
 		end
+	end
+
+	-- The short corpse tag the debug lines use (different corpses of the same mob differ)
+	function lootEngine:tag(guid)
+		return br.debug.loot and br.debug.loot:tag(guid) or ""
 	end
 
 	-- Check if available bag slots, return number of free slots
@@ -133,7 +139,8 @@ if not lootEngine.metaTable then
 		-- a window, do nothing.
 		if self.isLooting then
 			if not self.lootWindowOpen and (now - self.lootStartTime) > WINDOW_TIMEOUT then
-				self:debug("Interact produced no loot window in time - will retry")
+				self:debug("Interact on " .. lootEngine:tag(self.lootGUID) .. " produced no loot window in "
+					.. ("%.1f"):format(now - self.lootStartTime) .. "s - will retry")
 				self.isLooting = false
 			else
 				return
@@ -205,7 +212,7 @@ if not lootEngine.metaTable then
 			return
 		end
 
-		self:debug("Looting " .. (br._G.UnitName(lootUnit) or "unknown")
+		self:debug("Looting " .. (br._G.UnitName(lootUnit) or "unknown") .. " " .. lootEngine:tag(unitGUID)
 			.. " at " .. math.floor(br.functions.range:getDistance(lootUnit) or 0) .. " yards")
 		self.lootGUID = unitGUID
 		self.lootShown = false
@@ -384,7 +391,8 @@ if not lootEngine.metaTable then
 			if lootEngine.lootGUID then
 				lootEngine.lootOpenCount[lootEngine.lootGUID] = (lootEngine.lootOpenCount[lootEngine.lootGUID] or 0) + 1
 			end
-			lootEngine:debug("Loot window opened")
+			lootEngine:debug("Loot window opened" .. (lootEngine.lootGUID
+				and (" (BR's interact on " .. lootEngine:tag(lootEngine.lootGUID) .. ")") or " (not BR's interact)"))
 
 			-- Remove the unit from lootable table now that loot window opened successfully
 			if lootEngine.lootUnit then
@@ -421,12 +429,14 @@ if not lootEngine.metaTable then
 				-- If the corpse we just looted is now empty, clear its open-count so the
 				-- tracking starts fresh next time. If loot remains (a blocked unique item),
 				-- keep the count so getLoot can skip it after MAX_LOOT_OPENS.
-				if lootEngine.lootGUID and not CanLootUnit(lootEngine.lootGUID) then
+				local lootLeft = lootEngine.lootGUID and CanLootUnit(lootEngine.lootGUID)
+				if lootEngine.lootGUID and not lootLeft then
 					lootEngine.lootOpenCount[lootEngine.lootGUID] = nil
 				end
+				lootEngine:debug("Loot window closed" .. (lootEngine.lootGUID
+					and (", " .. lootEngine:tag(lootEngine.lootGUID) .. (lootLeft and " still has loot" or " emptied")) or ""))
 				lootEngine.lootGUID = nil
 				lootEngine.lootUnit = nil
-				lootEngine:debug("Loot window closed")
 
 			elseif event == "LOOT_BIND_CONFIRM" then
 				-- Auto-confirm Bind on Pickup items when program Auto Loot is enabled

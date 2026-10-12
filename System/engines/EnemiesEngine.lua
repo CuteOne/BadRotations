@@ -357,6 +357,10 @@ function Record:update(now, inCombat, hasGroup, fps)
 	-- Loot
 	if autoLoot and isDead and engine.lootable[unit] == nil and br._G.CanLootUnit(self.guid) then
 		engine.lootable[unit] = self
+		if br.debug.loot then
+			br.debug.loot:line(("lootable: %s %s at %.0f yd"):format(br.functions.misc:plainText(br._G.UnitName(unit) or "?"),
+				br.debug.loot:tag(self.guid), br.functions.misc:plainNumber(self.distance or 0)))
+		end
 	end
 	-- Pets: the player's own, and other players'
 	if self.isOwnPet and br.player ~= nil and br.player.pet.list[unit] == nil then

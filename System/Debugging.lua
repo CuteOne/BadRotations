@@ -764,3 +764,26 @@ castEvents:SetScript("OnEvent", function(_, event, a, b)
         if event == "UNIT_SPELLCAST_DELAYED" then pushbacks = pushbacks + 1 else pushbacks = 0 end
     end
 end)
+
+----------------------------------------------------------------------------------------------------
+-- Loot recorder (diagnostic): the loot engine's lines, also in BRLoot.log, so a corpse looted twice
+-- or a window BR didn't open can be read without Addon Debug Messages or a chat paste (2026-10-12:
+-- "Looting Moonstalker" again 5 s after it was removed, with two Moonstalker corpses about).
+-- br.debug.loot:tag(guid) gives the short corpse tag the lines use.
+----------------------------------------------------------------------------------------------------
+br.debug.loot = br.debug.loot or {}
+local lootLine = fileLog("BRLoot.log")
+local LOOT_LOG_CAP = 300 -- lines per session
+local lootLogged = 0
+
+function br.debug.loot:line(text)
+    if lootLogged >= LOOT_LOG_CAP then return end
+    lootLogged = lootLogged + 1
+    lootLine(text)
+end
+
+-- "#" and the end of the GUID's spawn part: different corpses of the same mob get different tags
+function br.debug.loot:tag(guid)
+    if guid == nil then return "#?" end
+    return "#" .. (printable(guid):match("(%x%x%x%x%x%x)$") or "?")
+end
