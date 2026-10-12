@@ -15,10 +15,10 @@ local meleeSpellNames = {}
 local function meleeListKey()
     if playerClass == nil then playerClass = select(2, br._G.UnitClass("player")) end
     if playerClass ~= "DRUID" then return playerClass end
-    local bearForm = br.functions.spell:getHighestSpellID("bearForm")
-    if bearForm and br.functions.aura:UnitBuffID("player", bearForm) then return "DRUID_BEAR" end
-    local catForm = br.functions.spell:getHighestSpellID("catForm")
-    if catForm and br.functions.aura:UnitBuffID("player", catForm) then return "DRUID_CAT" end
+    local form = br.functions.unit:getFormSpellID()
+    if form == nil then return nil end
+    if form == br.functions.spell:getHighestSpellID("bearForm") then return "DRUID_BEAR" end
+    if form == br.functions.spell:getHighestSpellID("catForm") then return "DRUID_CAT" end
     return nil
 end
 
