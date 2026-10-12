@@ -8,7 +8,8 @@ local E = cast.internal
 --   * a step that's done (or skipped) lets the next line run;
 --   * the first step not done is the current one: it casts when it can. While it waits (GCD, power,
 --     the cast on its way) every cast after it in this pass is refused ("OPENER" in /br why), so
---     nothing further down the rotation jumps in. Lines above the opener still run.
+--     nothing further down the rotation jumps in. Lines above the opener still run. A next-swing
+--     spell (Maul) stops holding once the game shows it queued.
 --   * later steps wait their turn.
 -- A step is done when the game confirms the cast (UNIT_SPELLCAST_SUCCEEDED), not when it's sent,
 -- so a refused cast is tried again. It's skipped when the spell isn't known, its cooldown won't
@@ -68,17 +69,20 @@ local function castSince(ids, since)
 end
 
 -- Still on its way: being cast or channelled, queued on the next swing, or sent within a round trip.
+-- The second result is true when it's queued on the next swing (Maul): it's committed, and its cost
+-- is already promised (E.promiseCosts), but it lands only when a swing does, which can take seconds
+-- (target behind the player or out of reach), so later casts don't wait for it.
 local function stillPending(entry)
 	local now = br._G.GetTime()
-	if now - entry.sentAt < br.functions.misc:getRoundTripHold() then return true end
+	if now - entry.sentAt < br.functions.misc:getRoundTripHold() then return true, false end
 	local _, _, _, _, _, _, _, _, castingID = br._G.UnitCastingInfo("player")
 	local _, _, _, _, _, _, _, channelID = br._G.UnitChannelInfo("player")
 	for i = 1, #entry.ids do
 		local id = entry.ids[i]
-		if id == castingID or id == channelID then return true end
-		if br._G.IsCurrentSpell and br._G.IsCurrentSpell(id) and now - entry.sentAt < 6 then return true end
+		if id == castingID or id == channelID then return true, false end
+		if br._G.IsCurrentSpell and br._G.IsCurrentSpell(id) and now - entry.sentAt < 6 then return true, true end
 	end
-	return false
+	return false, false
 end
 
 -- Settles sent steps: done once confirmed, back to not done once they're no longer on their way.
@@ -208,7 +212,11 @@ function cast:openerStep(spellKey, id, castFn, ...)
 			opener.current, opener.held = nil, false
 			return false -- the next line is the next step, this pass
 		end
-		if stillPending(entry) then return false end -- held
+		local pending, onNextSwing = stillPending(entry)
+		if pending then
+			if onNextSwing then opener.held = false end -- queued: the next lines may go
+			return false
+		end
 		opener.pending[key] = nil -- never landed: try again
 	end
 
