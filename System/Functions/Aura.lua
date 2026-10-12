@@ -22,8 +22,11 @@ local function lookupKey(kind, unit, spellID, filter)
 		if not unit then return nil end
 	end
 	local now = br._G.GetTime()
-	if lookupsAt ~= now then
-		br._G.wipe(lookups)
+	-- A new table each frame, and a new one when this context can't read it: once a lookup holding a
+	-- secret value is stored, Forever marks the table secret, and tainted code (a slash command, a UI
+	-- click) reading it raises "attempted to iterate a table that cannot be accessed while tainted"
+	if lookupsAt ~= now or (br._G.canaccesstable and not br._G.canaccesstable(lookups)) then
+		lookups = {}
 		lookupsAt = now
 	end
 	return kind .. tostring(unit) .. ":" .. tostring(spellID) .. ":" .. tostring(filter)

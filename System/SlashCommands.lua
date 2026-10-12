@@ -457,7 +457,8 @@ local function handler(message, editbox)
 	elseif msg1 == "range" then
 		br.debug.range:probe(msg2)
 	elseif msg1 == "target" then
-		br.debug.target:report()
+		-- Slash handlers run tainted; timer callbacks run protected (secret values readable), as /br why
+		br._G.C_Timer.After(0, function() br.debug.target:report() end)
 	elseif msg1 == "why" then
 		-- Why did BR last refuse this spell? Covers cast.able checks, which never print.
 		local spellText = message:match("^%s*%S+%s+(.-)%s*$")
