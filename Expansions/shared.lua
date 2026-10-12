@@ -16,7 +16,7 @@ br.api.hasCharmBreakTracking = false
 -- of Power) require a follow-up channel lock after casting. Retail only.
 br.api.hasBFAItemChannels = false
 -- The server's fleeing unit flag (UNIT_FLAG_FLEEING, the same bit in every version). unit:isFleeing
--- reads it where the unlocker provides UnitFlags (daemonic and tinkr per their docs; nn unknown, the
+-- reads it where the unlocker provides UnitFlags (daemonic and tinkr per their docs; nn unknown; the
 -- BRMelee.log client line lists its API names). Without it the flee emote is used. Confirmed in play on Forever 2026-10-12: fleeing mobs read 0x00880800
 -- against 0x00080800.
 br.api.fleeingUnitFlag = 0x00800000
