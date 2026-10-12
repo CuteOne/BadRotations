@@ -24,7 +24,6 @@ br.lists.pets = {
     imp               = 416,
     incubus           = 185317,
     infernal          = 89,
-    sayaad            = 366222,
     succubus          = 1863,
     vilefiend         = 135816,
     voidwalker        = 1860,
