@@ -737,7 +737,8 @@ end
 -- A cast by name the game refused with a Lua error (cast:castByName). The error report's stack is
 -- secret on Forever, so the call site and arguments are written here instead: the first few per
 -- call site, then a count every 100th. "flagged" and "usable" tell whether the game marked the
--- argument secret and whether BR may use it; retry is the second send with plain copies.
+-- argument secret and whether BR may use it (2026-10-12: every cast by name was refused for a
+-- fight with arguments that print as plain "Swipe", "target"; were they flagged?).
 local sendErrors = {}
 local function argumentState(value)
     if value == nil then return "-" end
@@ -745,18 +746,16 @@ local function argumentState(value)
     return ("%s/%s"):format(misc:isFlagged(value) and "flagged" or "plain", misc:canUseValue(value) and "usable" or "unusable")
 end
 
-function br.debug.cast:noteSendError(name, unit, err, retry)
+function br.debug.cast:noteSendError(name, unit, err)
     local site = printable(br._G.debugstack and br._G.debugstack(3, 1, 0) or "?"):gsub("%s+$", "")
     local seen = (sendErrors[site] or 0) + 1
     sendErrors[site] = seen
     if seen > 3 and seen % 100 ~= 0 then return end
     local usable = br.functions.misc:canUseValue(unit)
-    local retryText = retry == nil and "not tried (no flagged argument BR may use)"
-        or retry.ok and "accepted" or ("refused too | " .. printable(retry.err))
-    castWrite(("SEND ERROR #%d from %s: name %s (%s, %s), unit %s (%s, %s), exists %s, combat %s | %s | retry with plain copies: %s"):format(
+    castWrite(("SEND ERROR #%d from %s: name %s (%s, %s), unit %s (%s, %s), exists %s, combat %s | %s"):format(
         seen, site, printable(name), type(name), argumentState(name), printable(unit), type(unit), argumentState(unit),
         tostring(unit ~= nil and usable and br._G.UnitExists(unit) or nil), tostring(br._G.InCombatLockdown()),
-        printable(err), retryText))
+        printable(err)))
 end
 
 local inProgressText = br._G.SPELL_FAILED_SPELL_IN_PROGRESS or "Another action is in progress"

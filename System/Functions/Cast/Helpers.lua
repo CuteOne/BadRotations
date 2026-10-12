@@ -5,36 +5,19 @@ local E = cast.internal
 -- Public cast helpers: ground casts, openers, cast-time and casting queries, the public
 -- throttle setters and the pet action bar cache.
 
-local function sendByName(name, unit)
-	if unit == nil then return pcall(br._G.CastSpellByName, name) end
-	return pcall(br._G.CastSpellByName, name, unit)
-end
-
--- Whether value is a flagged (secret) string BR may use, which can be rebuilt as plain text
-local function canPlainCopy(value)
-	local misc = br.functions.misc
-	return type(value) == "string" and misc:isFlagged(value) and misc:canUseValue(value)
-end
-
 -- Every cast by name goes through here. The game answers a bad argument with a Lua error, and on
 -- clients with secret values its stack can't be read, so the caller can't be found from the error
 -- report. A refused call is written to BRCast.log with its call site and arguments instead, and
 -- the rotation carries on. Returns true when the game accepted the call.
 function cast:castByName(name, unit)
-	local ok, err = sendByName(name, unit)
-	if ok then return true end
-	-- 2026-10-12: every cast by name was refused with a usage error for a whole fight, with
-	-- arguments that print as plain "Swipe", "target". If the game refuses flagged arguments,
-	-- plain copies of them go through. (A plain copy compares equal to the flagged original.)
-	local retry
-	local copyName, copyUnit = canPlainCopy(name), canPlainCopy(unit)
-	if copyName or copyUnit then
-		local misc = br.functions.misc
-		local retryOk, retryErr = sendByName(copyName and misc:plainText(name) or name, copyUnit and misc:plainText(unit) or unit)
-		retry = { ok = retryOk, err = retryErr }
+	local ok, err
+	if unit == nil then
+		ok, err = pcall(br._G.CastSpellByName, name)
+	else
+		ok, err = pcall(br._G.CastSpellByName, name, unit)
 	end
-	if br.debug.cast and br.debug.cast.noteSendError then br.debug.cast:noteSendError(name, unit, err, retry) end
-	return retry ~= nil and retry.ok or false
+	if not ok and br.debug.cast and br.debug.cast.noteSendError then br.debug.cast:noteSendError(name, unit, err) end
+	return ok
 end
 
 --cast spell on position x,y,z
