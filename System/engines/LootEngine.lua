@@ -37,14 +37,10 @@ if not lootEngine.metaTable then
 
 	setmetatable(lootEngine, lootEngine.metaTable)
 
-	-- Debug function
-	function lootEngine:debug(message, forceShow)
-		-- Check if loot debugging is enabled or forceShow is true
-		local showDebug = forceShow or (br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
-			and br.data.settings[br.loader.selectedSpec].toggles
-			and br.data.settings[br.loader.selectedSpec].toggles["isDebugging"])
-
-		if showDebug and message and self.oldMessage ~= message then
+	-- Debug function: a system line under Addon Debug Messages (a message isn't repeated in a row).
+	-- It was keyed to an "isDebugging" toggle that nothing makes, so it never showed.
+	function lootEngine:debug(message)
+		if message and self.oldMessage ~= message then
 			br.functions.misc:addonDebug("<LootEngine> " .. (math.floor(GetTime() * 1000) / 1000) .. " " .. message, true)
 			self.oldMessage = message
 		end
@@ -218,6 +214,13 @@ if not lootEngine.metaTable then
 	function lootEngine:autoLoot()
 		if not br.functions.misc:getOptionCheck("Auto Loot") then return end
 
+		-- Single pacing throttle, driven by the "Auto Loot" spinner (delay in seconds). First, so the
+		-- checks below (stealth auras, a bag scan) run at that pace rather than every tick; the
+		-- in-flight isLooting/window state machine in getLoot prevents interact spam.
+		local delay = br.functions.misc:getOptionValue("Auto Loot")
+		if not delay or delay <= 0 then delay = 0.5 end
+		if not br.debug.timer:useTimer("autoLoot", delay) then return end
+
 		-- Combat policy: loot out of combat, or in combat only when no enemies are within
 		-- 10y (e.g. AoE farming where the mobs we're looting are already dead). getLoot no
 		-- longer hard-blocks on combat, so this single gate now actually governs the policy.
@@ -264,13 +267,6 @@ if not lootEngine.metaTable then
 			end
 			return
 		end
-
-		-- Single pacing throttle, driven by the "Auto Loot" spinner (delay in seconds).
-		-- Replaces the old overlapping lootTimer(1s) + getLoot(value) + per-GUID(2s) gates;
-		-- the in-flight isLooting/window state machine in getLoot prevents interact spam.
-		local delay = br.functions.misc:getOptionValue("Auto Loot")
-		if not delay or delay <= 0 then delay = 0.5 end
-		if not br.debug.timer:useTimer("autoLoot", delay) then return end
 
 		-- Pick the closest lootable corpse (skip-listed GUIDs are ignored) and loot it.
 		if self:lootCount() == 0 then return end
@@ -363,15 +359,8 @@ if not lootEngine.metaTable then
 	function lootEngine:init()
 		self:debug("Loot Engine initialized")
 
-		-- Set up periodic cleanup
-		local cleanupFrame = br._G.CreateFrame("Frame")
-		cleanupFrame:SetScript("OnUpdate", function(self, elapsed)
-			self.timeSinceLastCleanup = (self.timeSinceLastCleanup or 0) + elapsed
-			if self.timeSinceLastCleanup >= 30 then -- Clean up every 30 seconds
-				lootEngine:cleanupAttempts()
-				self.timeSinceLastCleanup = 0
-			end
-		end)
+		-- Periodic cleanup, every 30 seconds
+		br._G.C_Timer.NewTicker(30, function() lootEngine:cleanupAttempts() end)
 
 		-- Register for loot events
 		local eventFrame = br._G.CreateFrame("Frame")
@@ -395,7 +384,7 @@ if not lootEngine.metaTable then
 					-- Find and remove the unit from the lootable table (indexed by unit token)
 					if br.engines.enemiesEngine.lootable[lootEngine.lootUnit] then
 						br.engines.enemiesEngine.lootable[lootEngine.lootUnit] = nil
-						lootEngine:debug("Removed " .. br._G.UnitName(lootEngine.lootUnit) .. " from lootable table")
+						lootEngine:debug("Removed " .. (br._G.UnitName(lootEngine.lootUnit) or "unknown") .. " from lootable table")
 					end
 				end
 
