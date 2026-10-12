@@ -15,6 +15,11 @@ br.api.hasCharmBreakTracking = false
 -- BFA trinket/essence channels (Focused Azerite Beam, Cyclotronic Blast, Azshara's Font
 -- of Power) require a follow-up channel lock after casting. Retail only.
 br.api.hasBFAItemChannels = false
+-- The server's fleeing unit flag (UNIT_FLAG_FLEEING, the same bit in every version). unit:isFleeing
+-- reads it where the unlocker adapter maps UnitFlags (nn/tinkr/daemonic don't yet, and use
+-- the flee emote instead). Confirmed in play on Forever 2026-10-12: fleeing mobs read 0x00880800
+-- against 0x00080800.
+br.api.fleeingUnitFlag = 0x00800000
 
 -- IsPassiveSpell: C_Spell.IsSpellPassive with _G.IsPassiveSpell fallback.
 -- Retail overrides this (no _G fallback needed on modern clients).

@@ -9,16 +9,14 @@ if not br.isForever then return end
 -- Capability flags for Forever
 br.api.hasSpellRanks          = true   -- Classic content: spells have rank-specific IDs
 br.api.hasSubSpecs            = false  -- one class-level spec, no specialization subfolders
-br.api.comboPointsOnTarget    = true   -- TODO: verify; assumed Classic behaviour (lost on target switch)
+br.api.comboPointsOnTarget    = true   -- unverified, the safe choice: Forever's tooltips list combo points as a cost like Retail's
+                                        -- (player-held); the combo point probe in System/Debugging.lua records a switch to settle it
 br.api.hasCharmBreakTracking  = false  -- TODO: verify whether C_LossOfControl works here
 br.api.expansion = "Forever"
 -- Game object dynamic flag the server sets on objects for an active quest (0x20, "sparkle"; 0x04 is
 -- "activate"). Verified with /qprobe on 2026-10-11: the Trial of the Lake Bauble Container reads 0xC024,
 -- a plain object nearby 0x8000. The quest tracker uses it; game object names come back empty here.
 br.api.questObjectFlag        = 0x20
--- The server's fleeing unit flag (UNIT_FLAG_FLEEING). Seen in play 2026-10-12 (BRMelee.log): fleeing
--- mobs read 0x00880800 against 0x00080800 normally. unit:isFleeing reads it where the unlocker has UnitFlags.
-br.api.fleeingUnitFlag        = 0x00800000
 
 local api = br.api.wow
 

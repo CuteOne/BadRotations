@@ -6,6 +6,7 @@ if not br.isMOP then return end
 
 -- Capability flags for MoP Classic
 br.api.hasCharmBreakTracking  = false  -- C_LossOfControl not available on MOP clients
+br.api.comboPointsOnTarget    = true   -- combo points are stored on the target until 6.0.2 (Warlords of Draenor)
 br.api.expansion = "MOP"
 
 local api = br.api.wow
