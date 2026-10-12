@@ -197,7 +197,10 @@ local function plainText(text) return br.functions.misc:plainText(text) end
 
 local function printable(value)
     if value == nil then return "?" end
-    if type(value) == "string" then return plainText(value) end
+    if type(value) == "string" then
+        if not br.functions.misc:canUseValue(value) then return "<unusable secret>" end
+        return plainText(value)
+    end
     return tostring(value)
 end
 
@@ -733,16 +736,27 @@ end
 
 -- A cast by name the game refused with a Lua error (cast:castByName). The error report's stack is
 -- secret on Forever, so the call site and arguments are written here instead: the first few per
--- call site, then a count every 100th.
+-- call site, then a count every 100th. "flagged" and "usable" tell whether the game marked the
+-- argument secret and whether BR may use it; retry is the second send with plain copies.
 local sendErrors = {}
-function br.debug.cast:noteSendError(name, unit, err)
+local function argumentState(value)
+    if value == nil then return "-" end
+    local misc = br.functions.misc
+    return ("%s/%s"):format(misc:isFlagged(value) and "flagged" or "plain", misc:canUseValue(value) and "usable" or "unusable")
+end
+
+function br.debug.cast:noteSendError(name, unit, err, retry)
     local site = printable(br._G.debugstack and br._G.debugstack(3, 1, 0) or "?"):gsub("%s+$", "")
     local seen = (sendErrors[site] or 0) + 1
     sendErrors[site] = seen
     if seen > 3 and seen % 100 ~= 0 then return end
-    castWrite(("SEND ERROR #%d from %s: name %s (%s), unit %s (%s), exists %s | %s"):format(
-        seen, site, printable(name), type(name), printable(unit), type(unit),
-        tostring(unit ~= nil and br._G.UnitExists(unit) or nil), printable(err)))
+    local usable = br.functions.misc:canUseValue(unit)
+    local retryText = retry == nil and "not tried (no flagged argument BR may use)"
+        or retry.ok and "accepted" or ("refused too | " .. printable(retry.err))
+    castWrite(("SEND ERROR #%d from %s: name %s (%s, %s), unit %s (%s, %s), exists %s, combat %s | %s | retry with plain copies: %s"):format(
+        seen, site, printable(name), type(name), argumentState(name), printable(unit), type(unit), argumentState(unit),
+        tostring(unit ~= nil and usable and br._G.UnitExists(unit) or nil), tostring(br._G.InCombatLockdown()),
+        printable(err), retryText))
 end
 
 local inProgressText = br._G.SPELL_FAILED_SPELL_IN_PROGRESS or "Another action is in progress"
