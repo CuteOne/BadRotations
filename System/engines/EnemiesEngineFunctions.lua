@@ -16,6 +16,14 @@ local partitionCache = {
 	units = nil,  -- populated when checkNoCombat=true  and thisUnit="player"
 }
 
+-- How far a unit is from an AoE centred on centreUnit, as the AoE sees it (range:getAoEDistance): an
+-- AoE of radius R hits it when this is under R. The height difference counts too, so the larger of the two.
+local function aoeDistance(centreUnit, unit)
+	local d, dz = br.functions.range:getAoEDistance(centreUnit, unit)
+	if d == nil then return 999 end
+	return math.max(d, math.abs(dz))
+end
+
 -- Lifted from getEnemies (was a per-call closure). Module scope eliminates the
 -- per-call allocation that AUDIT.md L21 flagged. targetIsDummy is passed in
 -- because it's the only enclosing-scope value the original closure captured;
@@ -24,8 +32,7 @@ local function dummyAllowed(u, targetIsDummy)
 	if not u or not br.functions.unit:isDummy(u) then return true end
 	if br.functions.unit:GetUnitIsUnit(u, "target") then return true end
 	if targetIsDummy then
-		local d = br.functions.range:getDistance(u, "target")
-		if d and d <= 8 then return true end
+		if aoeDistance("target", u) <= 8 then return true end
 	end
 	return false
 end
@@ -52,7 +59,7 @@ local function isPartitionCacheValid(pCache, radius, now, inCombat, inRaid)
 	return true
 end
 
--- Iterate the source table once, annotate each in-range entry with (range,
+-- Iterate the source table once, annotate each in-range entry with (aoe,
 -- facing, dummyOk), and store the result. The annotations are computed once
 -- per entry per tick; subsequent partition derivations read them directly.
 -- Facing is computed during rebuild (Option B from the L18 plan) — cheaper
@@ -64,21 +71,16 @@ end
 -- filter behavior at the old L441 / current L445; derivePartitionResult uses
 -- the same strict form. See AUDIT.md L18 for the preservation note.
 --
--- Writes back v.range and v.timestamp on source entries (preserved from
--- original behavior) — this is a load-bearing dependency for L26's due-queue
--- work: the partition cache rebuild is one of the primary places .range gets
--- refreshed. The partition cache is both a .range reader and writer, not just
--- a reader; surface this when L26 is planned.
--- Distance from the player to an engine entry: the stored range while it's under 0.25 s old,
--- otherwise measured and stored back on the entry.
-local function entryDistanceFromPlayer(v, now, rangeFuncs)
-	if v.range ~= nil and v.timestamp ~= nil and (now - v.timestamp) <= 0.25 then
-		return v.range
-	end
-	local d = rangeFuncs:getDistance("player", v.unit)
-	v.range = d
-	v.timestamp = now
-	return d
+-- Counts by the AoE rule (aoeDistance), kept on each source entry as v.aoeRange
+-- for 0.25 s. The entry's .range (getDistance) is refreshed by the engine's own
+-- unit update, not here.
+
+-- aoeDistance from the player to an engine entry, kept on the entry for 0.25 s like its range
+local function entryAoEFromPlayer(v, now)
+	if v.aoeRange ~= nil and v.aoeAt ~= nil and (now - v.aoeAt) <= 0.25 then return v.aoeRange end
+	v.aoeRange = aoeDistance("player", v.unit)
+	v.aoeAt = now
+	return v.aoeRange
 end
 
 local function rebuildPartitionCache(sourceKey, targetRadius, unitFuncs, rangeFuncs, targetIsDummy)
@@ -90,11 +92,11 @@ local function rebuildPartitionCache(sourceKey, targetRadius, unitFuncs, rangeFu
 	for _, v in pairs(sourceTable) do
 		local vUnit = v and v.unit
 		if vUnit and not unitFuncs:GetUnitIsDeadOrGhost(vUnit) then
-			local d = entryDistanceFromPlayer(v, now, rangeFuncs)
-			if d and d < targetRadius then
+			local d = entryAoEFromPlayer(v, now)
+			if d < targetRadius then
 				entries[#entries + 1] = {
 					unit    = vUnit,
-					range   = d,
+					aoe     = d,
 					facing  = unitFuncs:getFacing("player", vUnit),
 					dummyOk = dummyAllowed(vUnit, targetIsDummy),
 				}
@@ -131,7 +133,7 @@ local function derivePartitionResult(pCache, radius, facing)
 		local entry = pCache.entries[i]
 		local vUnit = entry.unit
 		if vUnit and entry.dummyOk and not addedSet[vUnit] then
-			if entry.range < radius and (not facing or entry.facing) then
+			if entry.aoe < radius and (not facing or entry.facing) then
 				tinsert(result, vUnit)
 				addedSet[vUnit] = true
 			end
@@ -255,7 +257,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	-- FIXED: Improved fallback to include enemies not yet in validated tables
 	-- Check for target if we have one and it's valid
 	if #enemiesTable == 0 and br.functions.unit:GetUnitExists("target")
-		and br.functions.range:getDistance("target", "player") < radius
+		and aoeDistance(thisUnit, "target") < radius
 		and br.functions.misc:isValidUnit("target")
 		and (not facing or br.functions.unit:getFacing("player", "target")) then
 		br._G.tinsert(enemiesTable, "target")
@@ -283,8 +285,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 			if dummyAllowed(thisEnemy, targetIsDummy)
 				and br.functions.unit:GetUnitExists(thisEnemy)
 				and not br.functions.unit:GetUnitIsDeadOrGhost(thisEnemy) then
-				local distance = thisUnit == "player" and entryDistanceFromPlayer(v, now, br.functions.range)
-					or br.functions.range:getDistance(thisUnit, thisEnemy)
+				local distance = thisUnit == "player" and entryAoEFromPlayer(v, now) or aoeDistance(thisUnit, thisEnemy)
 				if distance < radius and (not facing or br.functions.unit:getFacing("player", thisEnemy)) then
 					-- Check if this enemy has threat on us or is targeting us
 					if br.functions.combat:hasThreat(thisEnemy) or br.functions.misc:isTargeting(thisEnemy) then
