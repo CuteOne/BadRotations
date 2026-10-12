@@ -247,7 +247,16 @@ local function measure()
     return m
 end
 
-local function say(text) br._G.print("|cffFFDD11[BR range]|r " .. text) end
+-- Every line also goes to BRRange.log in the unlocker's folder (GetWoWDirectory), since chat copy
+-- windows show <SECRET> on Forever.
+local rangeLog = {}
+local function say(text)
+    br._G.print("|cffFFDD11[BR range]|r " .. text)
+    if br._G.WriteFile == nil or br._G.GetWoWDirectory == nil or isFlagged(text) then return end
+    rangeLog[#rangeLog + 1] = ("%.1f "):format(br._G.GetTime()) .. text:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
+    if #rangeLog > 500 then table.remove(rangeLog, 1) end
+    pcall(br._G.WriteFile, br._G.GetWoWDirectory() .. "\\BRRange.log", table.concat(rangeLog, "\n") .. "\n", false)
+end
 
 local function snapshot()
     local m = measure()
@@ -283,8 +292,8 @@ function br.debug.range:probe(arg)
         if key == last then return end
         last = key
         local agree = (m.meleeGame == nil or m.meleeBR == m.meleeGame) and (m.spellGame == nil or m.spellBR == m.spellGame)
-        say(("%s melee BR %s/game %s | %s BR %s/game %s | centre %.2f edge %.2f%s"):format(agree and "|cff00FF00ok|r" or "|cffFF4040DIFFER|r",
-            inOut(m.meleeBR), inOut(m.meleeGame), printable(m.spell), inOut(m.spellBR), inOut(m.spellGame), m.centre, m.edge,
+        say(("%s melee BR %s/game (%s) %s | %s BR %s/game %s | centre %.2f edge %.2f%s"):format(agree and "|cff00FF00ok|r" or "|cffFF4040DIFFER|r",
+            inOut(m.meleeBR), printable(m.meleeSpell), inOut(m.meleeGame), printable(m.spell), inOut(m.spellBR), inOut(m.spellGame), m.centre, m.edge,
             m.leeway > 0 and " (running)" or ""))
     end)
 end
