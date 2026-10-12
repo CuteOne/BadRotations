@@ -33,6 +33,7 @@ local KIND_COLOR = {
     rare   = { 0.55, 0.8, 1.0 },
     custom = { 0.2, 1.0, 0.2 },
 }
+local Z_FAR_COLOR = { 1, 0.15, 0.15 }
 
 ----------------------------------------------------------------------------------------------------
 -- Interaction helpers
@@ -247,14 +248,7 @@ local function scan()
                         e.dist = dist
                         e.zFar = dz > Z_FAR or dz < -Z_FAR
                         e.colorKey = kind .. (e.zFar and "z" or "")
-                        local label
-                        local shownName = e.name ~= "" and e.name or (kind == "quest" and "Quest object" or "Object")
-                        if opts.extra then
-                            label = shownName .. "  [" .. e.id .. "] \n" .. e.guid .. "  [ZDiff: " .. floor(dz) .. "]  " .. floor(dist) .. "y"
-                        else
-                            label = shownName .. "  [" .. floor(dist) .. "y]"
-                        end
-                        e.label = label
+                        e.dz = dz
                         tracked[#tracked + 1] = e
                     end
                 end
@@ -269,6 +263,17 @@ local function scan()
 
     table.sort(tracked, byDistance)
     for i = #tracked, MAX_DRAWN + 1, -1 do tracked[i] = nil end
+
+    -- Labels only for the markers that get drawn
+    for i = 1, #tracked do
+        local e = tracked[i]
+        local shownName = e.name ~= "" and e.name or (e.kind == "quest" and "Quest object" or "Object")
+        if opts.extra then
+            e.label = shownName .. "  [" .. e.id .. "] \n" .. e.guid .. "  [ZDiff: " .. floor(e.dz) .. "]  " .. floor(e.dist) .. "y"
+        else
+            e.label = shownName .. "  [" .. floor(e.dist) .. "y]"
+        end
+    end
 
     -- Auto-interact is for game objects (chests, herbs, quest items), never NPCs: take the nearest one
     if not inCombat and opts.autoInteract then
@@ -391,7 +396,7 @@ local function render()
             local item = getItem(used, host)
             if item.colorKey ~= e.colorKey then
                 item.colorKey = e.colorKey
-                local c = e.zFar and { 1, 0.15, 0.15 } or KIND_COLOR[e.kind]
+                local c = e.zFar and Z_FAR_COLOR or KIND_COLOR[e.kind]
                 for k = 1, LINES do item.lines[k]:SetColorTexture(c[1], c[2], c[3], 0.95) end
                 item.label:SetTextColor(c[1], c[2], c[3], 1)
                 item.playerLine:SetColorTexture(c[1], c[2], c[3], 0.35)
