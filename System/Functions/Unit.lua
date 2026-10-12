@@ -593,10 +593,26 @@ end
 
 --- True while a form cancel BR sent is still on its way (sent within a round trip, form still on).
 --- Records a CHAT_MSG_MONSTER_EMOTE: the flee emote (br.lists.fleeEmotes) marks the mob as fleeing.
-function unit:noteFleeEmote(text, guid)
-	if text and guid and br.lists.fleeEmotes[text] then
-		fleeEmoteAt[guid] = br._G.GetTime()
+--- guid: the emote's sender GUID. Forever's client leaves it empty, so
+--- the mob is then found by name: an enemy in the enemies engine with that name, the player's target
+--- first, otherwise the one lowest on health (mobs flee at low health).
+function unit:noteFleeEmote(text, guid, name)
+	if not (text and br.lists.fleeEmotes[text]) then return end
+	if guid == nil and name ~= nil then
+		local best, bestHP
+		for pointer, record in pairs(br.engines.enemiesEngine.units) do
+			if record.name == name then
+				if br.functions.unit:GetUnitIsUnit(pointer, "target") then
+					best = pointer
+					break
+				end
+				local hp = unit:getHP(pointer)
+				if bestHP == nil or hp < bestHP then best, bestHP = pointer, hp end
+			end
+		end
+		guid = best and br._G.UnitGUID(best)
 	end
+	if guid then fleeEmoteAt[guid] = br._G.GetTime() end
 end
 
 function unit:isFormCancelPending()

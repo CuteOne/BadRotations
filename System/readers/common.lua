@@ -310,8 +310,8 @@ function common:commonReaders()
 		-- A mob's flee emote ("%s attempts to run away in fear!"): unit:isFleeing. The text can be
 		-- secret, and a secret string can't index a table, hence the pcall
 		if event == "CHAT_MSG_MONSTER_EMOTE" then
-			local text = ...
-			pcall(br.functions.unit.noteFleeEmote, br.functions.unit, text, (select(12, ...)))
+			local text, name = ...
+			pcall(br.functions.unit.noteFleeEmote, br.functions.unit, text, (select(12, ...)), name)
 		end
 		-- Azerite Essence
 		if event == "AZERITE_ESSENCE_ACTIVATED" and br.player then

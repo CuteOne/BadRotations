@@ -479,7 +479,8 @@ meleeEvents:SetScript("OnEvent", function(_, event, a, b, c, ...)
         local known = ok and entry and true or false
         local fromTarget = guid ~= nil and guid == br._G.UnitGUID("target")
         meleeWrite("emote: \"" .. printable(a) .. "\" from " .. printable(b) .. (fromTarget and " (target)" or "")
-            .. " | flee text known: " .. tostring(known) .. " | guid " .. (guid and "yes" or "none"))
+            .. " | flee text known: " .. tostring(known) .. " | guid " .. (guid and "yes" or "none")
+            .. " | args " .. (3 + select("#", ...)) .. " | target fleeing now " .. tostring(br.functions.unit:isFleeing("target")))
         return
     end
     if not episode then return end
