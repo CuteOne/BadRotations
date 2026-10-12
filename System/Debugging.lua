@@ -555,11 +555,12 @@ function br.debug.melee:watch(player)
             local misc = br.functions.misc
             local valid, reason = misc:isValidUnit("target")
             local form = br.functions.unit:getFormSpellID()
-            meleeWrite("=== Target out of melee, " .. #inMelee .. " enemy in melee ===")
+            -- getEnemies counts by the AoE rule; a unit listed here can still be out of melee reach
+            meleeWrite("=== Target out of melee, " .. #inMelee .. " enemy within 5 yd (AoE rule) ===")
             meleeWrite("  form " .. (form and printable(br.functions.spell:getName(form)) or "none")
                 .. " | target fleeing " .. tostring(br.functions.unit:isFleeing("target") and true or false)
                 .. " | target valid " .. tostring(valid and true or false) .. (reason and (" (" .. reason .. ")") or ""))
-            for i = 1, math.min(3, #inMelee) do meleeWrite("  in melee: " .. meleeUnit(inMelee[i])) end
+            for i = 1, math.min(3, #inMelee) do meleeWrite("  within 5 yd: " .. meleeUnit(inMelee[i])) end
             meleeWrite("  settings: Targeting Mode " .. tostring(misc:getValue("Targeting Mode"))
                 .. " (1 Off, 2 Assist, 3 Full), Only In Combat " .. tostring(misc:isChecked("Targeting Only In Combat"))
                 .. ", Don't break CCs " .. tostring(misc:isChecked("Don't break CCs")))
@@ -601,6 +602,7 @@ br.debug.idle = br.debug.idle or {}
 local idleLine = fileLog("BRIdle.log")
 local IDLE_AFTER = 4
 local lastActionAt, idleLogged, idleInCombat = 0, false, false
+local idleRuns = 0 -- ticks the rotation ran (not paused) since the last action
 local idleErrors = {}
 
 local idleEvents = br._G.CreateFrame("Frame")
@@ -612,7 +614,7 @@ idleEvents:SetScript("OnEvent", function(_, event, a, b)
     if event == "UI_ERROR_MESSAGE" then
         if #idleErrors < 10 then idleErrors[#idleErrors + 1] = printable(b) end
     elseif a == "player" then
-        lastActionAt, idleLogged = br._G.GetTime(), false
+        lastActionAt, idleLogged, idleRuns = br._G.GetTime(), false, 0
         br._G.wipe(idleErrors)
     end
 end)
@@ -623,16 +625,13 @@ function br.debug.idle:watch(player, paused)
         idleInCombat = false
         return
     end
-    -- a paused rotation isn't idle: the clock starts again when the pause ends
-    if paused then
-        idleInCombat, lastActionAt, idleLogged = true, now, false
+    -- the clock starts when the fight does (also after a /reload mid-fight), and again when a
+    -- pause ends: a paused rotation isn't idle
+    if not idleInCombat or paused then
+        idleInCombat, lastActionAt, idleLogged, idleRuns = true, now, false, 0
         return
     end
-    -- the clock starts when the fight does (also after a /reload mid-fight)
-    if not idleInCombat then
-        idleInCombat, lastActionAt, idleLogged = true, now, false
-        return
-    end
+    idleRuns = idleRuns + 1
     if idleLogged or now - lastActionAt < IDLE_AFTER then return end
     if #br.engines.enemiesEngineFunctions:getEnemies("player", 8) == 0 then return end
     -- swinging at a target in melee isn't idle
@@ -654,6 +653,19 @@ function br.debug.idle:watch(player, paused)
     end) end
     idleLine("  BR since the last action: " .. (#decisions > 0 and table.concat(decisions, ", ") or "nothing tried"))
     if #idleErrors > 0 then idleLine("  game errors: " .. table.concat(idleErrors, ", ")) end
+    -- "nothing tried" with runs > 0: the profile ran but stopped itself (its own halt, a toggle) or
+    -- reached no cast line
+    local toggleParts = {}
+    if spec and type(spec.toggles) == "table" then
+        for name, value in pairs(spec.toggles) do toggleParts[#toggleParts + 1] = printable(name) .. " " .. tostring(value) end
+        table.sort(toggleParts)
+    end
+    local form = br.functions.unit:getFormSpellID()
+    idleLine(("  rotation ran %d ticks | form %s | health %d%% | mana %d | rage %d | energy %d"):format(idleRuns,
+        form and printable(br.functions.spell:getName(form)) or "none", plainNumber(br.functions.unit:getHP("player") or 0),
+        plainNumber(br._G.UnitPower("player", 0) or 0), plainNumber(br._G.UnitPower("player", 1) or 0),
+        plainNumber(br._G.UnitPower("player", 3) or 0)))
+    idleLine("  toggles: " .. (#toggleParts > 0 and table.concat(toggleParts, ", ") or "none"))
     if br.engines.targeting then
         local focus, list = br.engines.targeting:explain()
         idleLine("  focus " .. (focus and printable(br._G.UnitName(focus)) or "none") .. ", candidates:")
