@@ -56,7 +56,7 @@ range.meleeSpells = {
 	HUNTER      = { "wingClip" },
 	DEMONHUNTER = { "chaosStrike", "soulCleave" },
 	DRUID_CAT   = { "shred", "claw", "mangle" },
-	DRUID_BEAR  = { "mangle" },
+	DRUID_BEAR  = { "mangle", "swipe" },
 }
 
 -- Projectiles, for cast.inFlight: speed in yards per second by spell list key, or a fixed travel time
