@@ -118,8 +118,8 @@ local function unitTooltipHandler(tooltip)
 	end
 end
 
--- Target Validation Debug: why the hovered unit is or isn't a valid target (misc:isValidUnit), and when
--- it isn't in the enemies list, why it doesn't pass misc:enemyListCheck
+-- Target Validation Debug: why the hovered unit isn't a valid target. When it isn't in the enemies list
+-- and fails misc:enemyListCheck, that reason (the root cause); otherwise misc:isValidUnit's reason
 function tooltips:targetValidationDebugHandler(tooltip)
 	if not br.functions.misc:isChecked("Target Validation Debug") then
 		return
@@ -143,13 +143,20 @@ function tooltips:targetValidationDebugHandler(tooltip)
 	local valid, reason = br.functions.misc:isValidUnit(unitGUID)
 	if valid then
 		tooltip:AddLine("Unit is Valid", 0, 1, 0)
-	else
-		tooltip:AddLine(reason or "Not valid", 1, 0, 0)
+		return
 	end
+	-- Not in the enemies list: why it fails the list check is the root cause, when it does
 	if br.engines.enemiesEngine.units[unitGUID] == nil then
 		local listed, listReason = br.functions.misc:enemyListCheck(unitGUID)
-		tooltip:AddLine(listed and "Enemies list: passes (not listed yet)" or ("Enemies list: " .. listReason), 1, 0.5, 0)
+		if not listed then
+			tooltip:AddLine(listReason, 1, 0, 0)
+			return
+		end
+		tooltip:AddLine(reason or "Not valid", 1, 0, 0)
+		tooltip:AddLine("Enemies list: passes (not listed yet)", 1, 0.5, 0)
+		return
 	end
+	tooltip:AddLine(reason or "Not valid", 1, 0, 0)
 end
 
 -- Register tooltip hook (uses compatibility wrapper for Retail vs Classic)
