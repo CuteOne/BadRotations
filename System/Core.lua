@@ -20,14 +20,32 @@ local function recordTickCost(part, ms)
     costs[part] = costs[part] * 0.8 + ms * 0.2
 end
 
+-- Worked out once per frame: the OnUpdate engines ask every frame
+local updateRateAt, updateRateValue
 function engines:getUpdateRate()
+    local now = br._G.GetTime()
+    if updateRateAt == now then return updateRateValue end
     local updateRate = br.functions.misc:getOptionValue("Bot Update Rate") or 0.1
 
     if br.functions.misc:isChecked("Auto Delay") then
         local costSeconds = (engines.tickCost.rotation + engines.tickCost.enemies) / 1000
         updateRate = math.max(updateRate, math.min(AUTO_DELAY_MAX, costSeconds / AUTO_DELAY_SHARE))
     end
+    updateRateAt, updateRateValue = now, updateRate
     return updateRate
+end
+
+-- Which boss mod is loaded ("DBM", "BigWigs" or false): checked once, then again when an addon loads
+local bossMod
+local bossModFrame = br._G.CreateFrame("Frame")
+bossModFrame:RegisterEvent("ADDON_LOADED")
+bossModFrame:SetScript("OnEvent", function() bossMod = nil end)
+local function loadedBossMod()
+    if bossMod == nil then
+        local loaded = br._G.C_AddOns.IsAddOnLoaded
+        bossMod = loaded("DBM-Core") and "DBM" or loaded("BigWigs") and "BigWigs" or false
+    end
+    return bossMod
 end
 
 -- Returns true when BR is unlocked and the Power toggle is on.
@@ -158,13 +176,9 @@ function engines.Update(frame, elapsed)
                 return false
             elseif br.debug.timer:useTimer("playerUpdate", br.engines:getUpdateRate()) then
                 local tickStarted = br._G.debugprofilestop()
-                -- Quaking helper
-                if br.functions.misc:getOptionCheck("Quaking Helper") then
-                    local quakingID = br.functions.spell:getHighestSpellID("quaking")
-                    if (br._G.UnitChannelInfo("player") or br._G.UnitCastingInfo("player")) and
-                        br.functions.aura:getDebuffRemain("player", quakingID) < 0.5 and br.functions.aura:getDebuffRemain("player", quakingID) > 0 then
-                        br._G.RunMacroText("/stopcasting")
-                    end
+                -- Expansion work each tick (Expansions/<Name>: br.api.pulseHooks, e.g. Retail's Quaking helper)
+                if br.api.pulseHooks then
+                    for _, hook in ipairs(br.api.pulseHooks) do hook() end
                 end
                 -- Queue Casting
                 if br.functions.misc:isChecked("Queue Casting") and br.player ~= nil and #br.player.queue > 0
@@ -221,9 +235,10 @@ function engines.Update(frame, elapsed)
                 end
                 -- Get DBM/BigWigs Timer/Bars
                 -- global -> br.functions.DBM.Timer
-                if br._G.C_AddOns.IsAddOnLoaded("DBM-Core") then
+                local boss = loadedBossMod()
+                if boss == "DBM" then
                     br.functions.DBM:getBars()
-                elseif br._G.C_AddOns.IsAddOnLoaded("BigWigs") then
+                elseif boss == "BigWigs" then
                     if not br.functions.DBM.BigWigs then
                         br.functions.custom:BWInit()
                     else

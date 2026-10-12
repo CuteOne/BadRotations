@@ -49,6 +49,7 @@ Expansions\wowapi.lua
 Expansions\shared.lua
 Expansions\Retail\Functions.lua
 Expansions\Retail\Options.lua
+Expansions\Retail\Pulse.lua
 Expansions\MOP\Functions.lua
 Expansions\TBC\Functions.lua
 Expansions\Classic\Functions.lua
