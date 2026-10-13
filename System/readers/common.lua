@@ -134,9 +134,7 @@ function common:commonReaders()
 			-- here we should manage stats snapshots
 			br.AgiSnap = br.functions.misc:getAgility()
 
-			if br.data.settings ~= nil then
-				br.data.settings[br.loader.selectedSpec]["Combat Started"] = br._G.GetTime()
-			end
+			br.functions.combat:setInCombat(true)
 			br.ui.chatOverlay:Show("|cffFF0000Entering Combat")
 		end
 	end
@@ -156,12 +154,9 @@ function common:commonReaders()
 			br.potionReuse = true
 			br.AgiSnap = 0
 			br.usePot = true
-			br.leftCombat = br._G.GetTime()
 			br.data.successCasts = 0
 			br.data.failCasts = 0
-			if br.data.settings ~= nil then
-				br.data.settings[br.loader.selectedSpec]["Combat Started"] = 0
-			end
+			br.functions.combat:setInCombat(false)
 			br.ui.chatOverlay:Show("|cff00FF00Leaving Combat")
 			-- clean up out of combat
 			br.Rip_sDamage = {}

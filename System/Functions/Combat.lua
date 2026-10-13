@@ -151,23 +151,17 @@ function combat:canRegainControl(spellID, controlEvent)
 	return false
 end
 
+-- When the player entered and last left combat (GetTime). Runtime state, set from the combat events
+-- (readers/common.lua); it used to live in the saved settings, which aren't there before a spec loads.
+local combatStartedAt, combatEndedAt = nil, nil
+
+-- Seconds in combat (to the millisecond), 0 out of combat.
 -- if br.functions.combat:getCombatTime() <= 5 then
 function combat:getCombatTime()
-	local combatStarted = br.data.settings[br.loader.selectedSpec]["Combat Started"]
-	local combatTime = br.data.settings[br.loader.selectedSpec]["Combat Time"]
-	if combatStarted == nil then
-		return 0
-	end
-	if combatTime == nil then
-		combatTime = 0
-	end
-	if br._G.UnitAffectingCombat("player") == true then
-		combatTime = (br._G.GetTime() - combatStarted)
-	else
-		combatTime = 0
-	end
-	br.data.settings[br.loader.selectedSpec]["Combat Time"] = combatTime
-	return (math.floor(combatTime * 1000) / 1000)
+	if not br._G.UnitAffectingCombat("player") then return 0 end
+	-- In combat without the event (a reload mid-fight): count from now
+	if combatStartedAt == nil then combatStartedAt = br._G.GetTime() end
+	return math.floor((br._G.GetTime() - combatStartedAt) * 1000) / 1000
 end
 
 -- if getLowAlliesInTable(60, nNove) > 3 then
@@ -181,18 +175,12 @@ function combat:getLowAlliesInTable(Value, unitTable)
 	return lowAllies
 end
 
+-- Seconds since leaving combat (to the millisecond), 0 in combat; with no combat yet this session,
+-- the game's uptime (GetTime), i.e. "a long time".
 function combat:getOoCTime()
-	local combatStarted = br.data.settings[br.loader.selectedSpec]["Combat Started"]
-	local combatTime
-	if combatStarted ~= nil then
-		return br._G.GetTime()
-	end
-	if br._G.UnitAffectingCombat("player") == false then
-		combatTime = (br._G.GetTime() - combatStarted)
-	else
-		combatTime = 0
-	end
-	return (math.floor(combatTime * 1000) / 1000)
+	if br._G.UnitAffectingCombat("player") then return 0 end
+	if combatEndedAt == nil then return br._G.GetTime() end
+	return math.floor((br._G.GetTime() - combatEndedAt) * 1000) / 1000
 end
 
 -- Returns true if the player is under a "hard" loss-of-control effect (typically prevents casting/attacking).
@@ -515,4 +503,13 @@ end
 
 function combat:isTanking(unit)
 	return br._G.UnitThreatSituation("player", unit) ~= nil and br._G.UnitThreatSituation("player", unit) >= 2
+end
+
+-- The combat events call this: true on entering combat, false on leaving it.
+function combat:setInCombat(inCombat)
+	if inCombat then
+		combatStartedAt = br._G.GetTime()
+	else
+		combatStartedAt, combatEndedAt = nil, br._G.GetTime()
+	end
 end
