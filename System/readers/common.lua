@@ -334,11 +334,22 @@ function common:commonReaders()
 				and not autoAttackTargetDied()
 			then
 				local unit, misc = br.functions.unit, br.functions.misc
+				-- A part built from a flagged value can't print (2026-10-12 the whole line came out as "a debug
+				-- line holding a secret value"): each value goes in as a plain copy, and the line names the
+				-- flagged ones, or "?" for one BR may not use.
+				local flaggedParts = {}
+				local function plainPart(label, value)
+					if not misc:isFlagged(value) then return value end
+					flaggedParts[#flaggedParts + 1] = label
+					if not misc:canUseValue(value) then return "?" end
+					if type(value) == "number" then return misc:plainNumber(value) end
+					return misc:plainText(value)
+				end
 				local target = "no target"
 				if unit:GetUnitExists("target") then
-					local name = br._G.UnitName("target")
-					target = (misc:canUseValue(name) and not (br._G.issecretvalue and br._G.issecretvalue(name)) and name or "target")
-						.. string.format(" %.1f yds", br.functions.range:getDistance("target") or -1)
+					local distance = plainPart("distance", br.functions.range:getDistance("target") or -1)
+					target = tostring(plainPart("target name", br._G.UnitName("target")) or "target")
+						.. (type(distance) == "number" and string.format(" %.1f yds", distance) or " ? yds")
 						.. (unit:GetUnitIsDeadOrGhost("target") and ", dead" or "")
 					if autoAttackGUID ~= nil and targetGUID ~= nil and targetGUID ~= autoAttackGUID then
 						target = target .. " (not the unit auto attack started on)"
@@ -346,11 +357,13 @@ function common:commonReaders()
 				end
 				local lastCast = ""
 				if br.botSpell and br.botCastTime then
-					lastCast = string.format(", BR's last cast %s %.1fs ago", tostring(br.api.wow.GetSpellInfo(br.botSpell)),
-						br._G.GetTime() - br.botCastTime)
+					local ago = plainPart("time since the cast", br._G.GetTime() - br.botCastTime)
+					lastCast = ", BR's last cast " .. tostring(plainPart("spell name", br.api.wow.GetSpellInfo(br.botSpell)))
+						.. (type(ago) == "number" and string.format(" %.1fs ago", ago) or " ? ago")
 				end
 				local controlled = br.functions.combat.hasHardControl and br.functions.combat:hasHardControl() and ", you're crowd controlled" or ""
-				br.player.ui.debug("[AUTO ATTACK OFF] mid-fight: " .. target .. lastCast .. controlled)
+				local flaggedNote = #flaggedParts > 0 and (" [flagged: " .. table.concat(flaggedParts, ", ") .. "]") or ""
+				br.player.ui.debug("[AUTO ATTACK OFF] mid-fight: " .. target .. lastCast .. controlled .. flaggedNote)
 			end
 			return
 		end
