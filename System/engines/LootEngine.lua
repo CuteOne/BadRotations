@@ -17,13 +17,17 @@ if not lootEngine.metaTable then
 	                           -- unique/quest/already-owned item we can't take, and skipping it.
 	local WINDOW_TIMEOUT = 1.0 -- Seconds to wait for LOOT_OPENED after an interact before
 	                           -- releasing the in-flight state and retrying (was an implicit 3s stall).
+	local REINTERACT_GAP = 1.0 -- Seconds after an interact or a window close before the same corpse
+	                           -- is interacted again. Right at LOOT_CLOSED, CanLootUnit can still say
+	                           -- loot is left (fast-loot addons): BRLoot.log 2026-10-12 had re-interacts
+	                           -- 0.1 s after a close, on corpses with nothing left.
 
 	-- Note: lootable table is managed by EnemiesEngine (br.engines.enemiesEngine.lootable)
 	lootEngine.lootUnit = nil         -- Current unit to loot
 	lootEngine.lootGUID = nil         -- GUID of the unit we last fired an interact on
 	lootEngine.oldMessage = nil       -- For debug message tracking
 	lootEngine.lastBagWarning = 0     -- Throttle bag full warnings
-	lootEngine.lootAttempts = {}      -- Last interact time per GUID (paces re-interacts)
+	lootEngine.lootAttempts = {}      -- Last interact or window close per GUID (paces re-interacts)
 	lootEngine.lootOpenCount = {}     -- Times the loot window opened per GUID (unique-item detection)
 	lootEngine.lootSkipList = {}      -- GUIDs to skip this session (loot that can't be taken)
 	lootEngine.isLooting = false      -- Interact fired, awaiting loot window
@@ -118,6 +122,19 @@ if not lootEngine.metaTable then
 		return lootCount
 	end
 
+	-- An interact whose loot window never opened within WINDOW_TIMEOUT is released so it can be
+	-- retried: a window that fails to open is a range/LoS/timing miss, NOT a blocked item, so it
+	-- never counts toward the skip logic. Checked on every auto-loot pass, not only when a corpse is
+	-- picked: BRLoot.log 2026-10-12 had one held for 315 s while no corpse was lootable, and windows
+	-- the player opened meanwhile were counted as BR's.
+	function lootEngine:releaseStaleInteract(now)
+		if not self.isLooting or self.lootWindowOpen or (now - self.lootStartTime) <= WINDOW_TIMEOUT then return end
+		self:debug("Interact on " .. lootEngine:tag(self.lootGUID) .. " produced no loot window in "
+			.. ("%.1f"):format(now - self.lootStartTime) .. "s - will retry")
+		self.isLooting = false
+		self.lootGUID = nil
+	end
+
 	-- Main looting logic
 	function lootEngine:getLoot(lootUnit)
 		if not lootUnit then
@@ -138,20 +155,9 @@ if not lootEngine.metaTable then
 		-- interacted with the same corpse again and counted a second open toward MAX_LOOT_OPENS.
 		if self.lootWindowOpen then return end
 
-		-- Resolve any in-flight interact. If we fired an interact and the loot window
-		-- never opened within WINDOW_TIMEOUT, release the state so we can retry — a
-		-- window that fails to open is a range/LoS/timing miss, NOT a blocked item, so
-		-- it must never count toward the skip logic. While still waiting on (or showing)
-		-- a window, do nothing.
-		if self.isLooting then
-			if not self.lootWindowOpen and (now - self.lootStartTime) > WINDOW_TIMEOUT then
-				self:debug("Interact on " .. lootEngine:tag(self.lootGUID) .. " produced no loot window in "
-					.. ("%.1f"):format(now - self.lootStartTime) .. "s - will retry")
-				self.isLooting = false
-			else
-				return
-			end
-		end
+		-- While still waiting on a window, do nothing.
+		self:releaseStaleInteract(now)
+		if self.isLooting then return end
 
 		local unitGUID = br._G.UnitGUID(lootUnit)
 		if not unitGUID then
@@ -190,6 +196,13 @@ if not lootEngine.metaTable then
 				br.engines.enemiesEngine.lootable[lootUnit] = nil
 			end
 			self.lootUnit = nil
+			return
+		end
+
+		-- Just interacted, or its window just closed: let CanLootUnit catch up first.
+		if now - (self.lootAttempts[unitGUID] or -REINTERACT_GAP) < REINTERACT_GAP then
+			self:debug("Waiting on " .. lootEngine:tag(unitGUID) .. ": interacted or closed under "
+				.. REINTERACT_GAP .. "s ago")
 			return
 		end
 
@@ -235,6 +248,7 @@ if not lootEngine.metaTable then
 		local delay = br.functions.misc:getOptionValue("Auto Loot")
 		if not delay or delay <= 0 then delay = 0.5 end
 		if not br.debug.timer:useTimer("autoLoot", delay) then return end
+		self:releaseStaleInteract(GetTime())
 
 		-- Combat policy: loot out of combat, or in combat only when no enemies are within
 		-- 10y (e.g. AoE farming where the mobs we're looting are already dead). getLoot no
@@ -435,6 +449,7 @@ if not lootEngine.metaTable then
 				if lootEngine.lootGUID and not lootLeft then
 					lootEngine.lootOpenCount[lootEngine.lootGUID] = nil
 				end
+				if lootEngine.lootGUID then lootEngine.lootAttempts[lootEngine.lootGUID] = GetTime() end
 				lootEngine:debug("Loot window closed" .. (lootEngine.lootGUID
 					and (", " .. lootEngine:tag(lootEngine.lootGUID) .. (lootLeft and " still has loot" or " emptied")) or ""))
 				lootEngine.lootGUID = nil
