@@ -293,6 +293,15 @@ function E.promiseCosts(spellID, untilTime, swing)
 	end
 end
 
+-- Power of one type promised to casts other than spellID (call after prunePromised)
+local function promisedPower(powerType, spellID)
+	local promised = 0
+	for _, entry in ipairs(E.promised) do
+		if entry.type == powerType and entry.spellID ~= spellID then promised = promised + entry.amount end
+	end
+	return promised
+end
+
 -- Can the player pay for spellID after what earlier casts have been promised? Returns true, or
 -- false and a description. Free when nothing is promised (the usual case).
 function E.affordableAfterPromised(spellID)
@@ -302,10 +311,7 @@ function E.affordableAfterPromised(spellID)
 	local costs = br.functions.power:getSpellCosts(spellID)
 	for i = 1, #costs do
 		local cost = costs[i]
-		local promised = 0
-		for _, entry in ipairs(E.promised) do
-			if entry.type == cost.type and entry.spellID ~= spellID then promised = promised + entry.amount end
-		end
+		local promised = promisedPower(cost.type, spellID)
 		if promised > 0 then
 			local current = br._G.UnitPower("player", cost.type)
 			if type(current) == "number" and br.functions.misc:canUseValue(current) and current - promised < cost.amount then
@@ -316,6 +322,63 @@ function E.affordableAfterPromised(spellID)
 		end
 	end
 	return true
+end
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- SECTION: Mana kept to shift back into a form left in combat
+--
+-- Leaving a form to cast (unit.cancelFormFor) is only worth it with the mana to shift back. That is
+-- checked when the form is left, but once out of form further casts (another heal) could spend that
+-- mana and strand the player in Caster Form (2026-10-12, Druid-Forever). So while a shift back is
+-- owed, every other mana cast leaves the form's cost: the spell the form was left for (already
+-- budgeted, or an emergency) and the form spell itself may use it. Owed until a form is up again
+-- or combat ends.
+-- ─────────────────────────────────────────────────────────────────────────────
+E.reshift = nil -- { formSpellID, formName, forName }: the form to shift back into, the spell it was left for
+
+-- unit.cancelFormFor calls this when it leaves a form in combat to cast forSpellID
+function cast:setReshiftOwed(formSpellID, forSpellID)
+	if formSpellID == nil or not br._G.UnitAffectingCombat("player") then return end
+	E.reshift = { formSpellID = formSpellID, formName = br.functions.spell:getName(formSpellID),
+		forName = forSpellID and br.functions.spell:getName(forSpellID) }
+end
+
+-- The form a shift back is owed into (its spell ID), or nil; ends the debt once a form is up again
+-- (not the one still on its way out) or combat is over.
+function cast:getReshiftOwed()
+	local owed = E.reshift
+	if owed == nil then return nil end
+	local backInForm = (br._G.GetShapeshiftForm() or 0) ~= 0 and not br.functions.unit:isFormCancelPending()
+	if backInForm or not br._G.UnitAffectingCombat("player") then
+		E.reshift = nil
+		return nil
+	end
+	return owed.formSpellID
+end
+
+-- A sent spell: the one the form was left for has had its turn
+function E.noteReshiftSpellSent(spellName)
+	if E.reshift and E.reshift.forName ~= nil and spellName == E.reshift.forName then E.reshift.forName = nil end
+end
+
+-- Can the player pay for spellID's mana and still shift back into the form left? Returns true, or
+-- false and a description. Free when no shift back is owed (the usual case).
+function E.affordableWithReshift(spellID, spellName)
+	if E.reshift == nil or cast:getReshiftOwed() == nil then return true end
+	local owed = E.reshift
+	if spellID == owed.formSpellID or spellName == owed.formName or spellName == owed.forName then return true end
+	local power = br.functions.power
+	local cost = power:getManaCostFromRef(spellID, false)
+	local reserve = power:getManaCostFromRef(owed.formSpellID, false)
+	if cost <= 0 or reserve <= 0 then return true end
+	local current = br._G.UnitPower("player", 0)
+	if type(current) ~= "number" or not br.functions.misc:canUseValue(current) then return true end
+	prunePromised(br._G.GetTime())
+	local promised = promisedPower(0, spellID)
+	if current - promised - reserve >= cost then return true end
+	local plain = function(v) return br.functions.misc:plainNumber(v) end
+	return false, string.format("mana %d, %d kept to shift back into %s, cost %d", plain(current - promised),
+		plain(reserve), br.functions.misc:plainText(tostring(owed.formName)), plain(cost))
 end
 
 -- The two debug options:

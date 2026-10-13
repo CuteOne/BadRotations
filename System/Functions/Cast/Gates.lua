@@ -313,6 +313,9 @@ local function gateUsable(ctx, thisUnit, castType, allTalents, allSpells) -- lua
 		if freeCast then return true end
 		-- Power earlier casts have taken but the client hasn't charged yet isn't available
 		local affordable, detail = E.affordableAfterPromised(ctx.spellID)
+		if not affordable then return false, "NOT_USABLE", detail end
+		-- Nor is the mana kept to shift back into a form left in combat
+		affordable, detail = E.affordableWithReshift(ctx.spellID, ctx.spellName)
 		if affordable then return true end
 		return false, "NOT_USABLE", detail
 	end

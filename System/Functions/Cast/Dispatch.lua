@@ -205,6 +205,8 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 		E.queuedBehindCast = castBeforeKey
 	end
 
+	if castSucceeded or (details and details.inconclusive) then E.noteReshiftSpellSent(castName) end
+
 	-- Sent: its costs are promised until the client charges them (see E.promiseCosts)
 	if (castSucceeded or (details and details.inconclusive))
 		and not (br.player and br.player.buff and br.player.buff.clearcasting and br.player.buff.clearcasting.exists())

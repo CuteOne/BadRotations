@@ -120,7 +120,8 @@ br.api.unit = function(self)
     --- Leave the current shapeshift form to cast a spell, when a player would: not while stealthed,
     -- not while tanking in a bear form, and only with the mana to cast it and shift back. In an
     -- emergency it leaves regardless. Shows "Cancel Form [<spell>]" in profile debug once, when the
-    -- cancel is sent.
+    -- cancel is sent. In combat, until a form is up again, casts other than that spell leave the mana
+    -- to shift back into the form left.
     -- @function unit.cancelFormFor
     -- @param outOfFormSpell Spell to cast once out of form (id/name/spell table).
     -- @param treatOutSpellAsFree If true, that spell costs nothing this time (e.g. Clearcasting).
@@ -132,8 +133,11 @@ br.api.unit = function(self)
         if not br.functions.unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency) then
             return false
         end
+        local formSpellID = br.functions.unit:getFormSpellID()
         if not unit.cancelForm() then return false end
         local spellRef = br.functions.spell:getSpellIdFromRef(outOfFormSpell)
+        -- Until a form is up again, other casts leave the mana to shift back (see cast:getReshiftOwed)
+        br.functions.cast:setReshiftOwed(formSpellID, spellRef)
         br.functions.misc:addonDebug("Cancel Form [" .. tostring(spellRef and br.api.wow.GetSpellInfo(spellRef) or spellRef) .. "]")
         return true
     end
