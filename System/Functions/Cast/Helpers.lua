@@ -5,11 +5,21 @@ local E = cast.internal
 -- Public cast helpers: ground casts, openers, cast-time and casting queries, the public
 -- throttle setters and the pet action bar cache.
 
+-- The game refuses flagged (secret) text it takes as a plain copy: BRCast.log 2026-10-12, every
+-- "Usage: CastSpellByName(name[, target])" refusal had a flagged spell name, and each plain copy
+-- of the same arguments was accepted. Unflagged text, and text BR may not use, pass as they are.
+local function plainArg(value)
+	local misc = br.functions.misc
+	if type(value) ~= "string" or not misc:isFlagged(value) or not misc:canUseValue(value) then return value end
+	return misc:plainText(value)
+end
+
 -- Every cast by name goes through here. The game answers a bad argument with a Lua error, and on
 -- clients with secret values its stack can't be read, so the caller can't be found from the error
 -- report. A refused call is written to BRCast.log with its call site and arguments instead, and
 -- the rotation carries on. Returns true when the game accepted the call.
 function cast:castByName(name, unit)
+	name, unit = plainArg(name), plainArg(unit)
 	local ok, err
 	if unit == nil then
 		ok, err = pcall(br._G.CastSpellByName, name)
