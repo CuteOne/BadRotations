@@ -540,7 +540,11 @@ actionList.Utility = function()
         end
     end
     -- Hibernate: a Beast or Dragonkin add while you fight your target (Caster/Moonkin Form only)
-    if ui.checked("Hibernate") and not inForm and not unit.moving() and debuff.hibernate.count() == 0 and #enemies.yards30 > 1 then
+    -- not while a Hibernate is still casting: its debuff isn't there yet, so a second one went out
+    -- behind it (BRCast.log 2026-10-12)
+    if ui.checked("Hibernate") and not inForm and not unit.moving() and debuff.hibernate.count() == 0
+        and not cast.current.hibernate() and #enemies.yards30 > 1
+    then
         local thisUnit = enemies.first(enemies.yards30, hibernateTarget)
         if thisUnit and cast.hibernate(thisUnit) then
             ui.debug("Casting Hibernate on " .. unit.name(thisUnit))
