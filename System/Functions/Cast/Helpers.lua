@@ -14,19 +14,31 @@ local function plainArg(value)
 	return misc:plainText(value)
 end
 
--- Every cast by name goes through here. The game answers a bad argument with a Lua error, and on
--- clients with secret values its stack can't be read, so the caller can't be found from the error
--- report. A refused call is written to BRCast.log with its call site and arguments instead, and
--- the rotation carries on. Returns true when the game accepted the call.
-function cast:castByName(name, unit)
-	name, unit = plainArg(name), plainArg(unit)
+-- Every cast by name or ID goes through here. The game answers a bad argument with a Lua error, and
+-- on clients with secret values its stack can't be read, so the caller can't be found from the
+-- error report. A refused call is written to BRCast.log with its call site and arguments instead,
+-- and the rotation carries on. Returns true when the game accepted the call.
+local function send(fn, spell, unit)
+	spell, unit = plainArg(spell), plainArg(unit)
 	local ok, err
 	if unit == nil then
-		ok, err = pcall(br._G.CastSpellByName, name)
+		ok, err = pcall(fn, spell)
 	else
-		ok, err = pcall(br._G.CastSpellByName, name, unit)
+		ok, err = pcall(fn, spell, unit)
 	end
-	if not ok and br.debug.cast and br.debug.cast.noteSendError then br.debug.cast:noteSendError(name, unit, err) end
+	-- noteSendError reads its call site 4 levels up: itself, send, castByName/castByID, the caller
+	if not ok and br.debug.cast and br.debug.cast.noteSendError then br.debug.cast:noteSendError(spell, unit, err) end
+	return ok
+end
+
+function cast:castByName(name, unit)
+	local ok = send(br._G.CastSpellByName, name, unit)
+	return ok
+end
+
+-- By ID: a lower rank than the best known one (casting by name sends the highest known rank).
+function cast:castByID(spellID, unit)
+	local ok = send(br._G.CastSpellByID, spellID, unit)
 	return ok
 end
 

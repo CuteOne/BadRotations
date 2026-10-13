@@ -734,7 +734,7 @@ function br.debug.cast:noteSend(spellID)
     end
 end
 
--- A cast by name the game refused with a Lua error (cast:castByName). The error report's stack is
+-- A cast by name or ID the game refused with a Lua error (cast:castByName, cast:castByID). The error report's stack is
 -- secret on Forever, so the call site and arguments are written here instead: the first few per
 -- call site, then a count every 100th. "flagged" and "usable" tell whether the game marked the
 -- argument secret and whether BR may use it (2026-10-12: every cast by name was refused for a
@@ -747,7 +747,7 @@ local function argumentState(value)
 end
 
 function br.debug.cast:noteSendError(name, unit, err)
-    local site = printable(br._G.debugstack and br._G.debugstack(3, 1, 0) or "?"):gsub("%s+$", "")
+    local site = printable(br._G.debugstack and br._G.debugstack(4, 1, 0) or "?"):gsub("%s+$", "")
     local seen = (sendErrors[site] or 0) + 1
     sendErrors[site] = seen
     if seen > 3 and seen % 100 ~= 0 then return end

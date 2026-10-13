@@ -187,7 +187,7 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 	-- clients casting by name sends the highest known rank.
 	local bestRankID = br.api.hasSpellRanks and castName == ctx.spellName and select(7, br.api.wow.GetSpellInfo(castName))
 	if bestRankID and bestRankID ~= ctx.spellID then
-		br._G.CastSpellByID(ctx.spellID, thisUnit)
+		cast:castByID(ctx.spellID, thisUnit)
 	else
 		cast:castByName(castName, thisUnit)
 	end
