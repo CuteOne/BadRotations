@@ -277,6 +277,9 @@ flushEvents:RegisterEvent("PLAYER_REGEN_ENABLED") -- a fight's lines, right when
 flushEvents:RegisterEvent("PLAYER_LOGOUT")        -- also on /reload
 flushEvents:SetScript("OnEvent", function() log:flush() end)
 
--- Lines from files that load before BR's chat exists (Expansions/shared.lua)
-for _, message in ipairs(br.earlyMessages or {}) do br._G.print(message) end
-br.earlyMessages = nil
+-- Lines from files that load before BR's chat exists (Expansions/shared.lua), printed once every
+-- file has loaded: the tag's class color (System/UI/Colors.lua) isn't set until later in the TOC
+br._G.C_Timer.After(0, function()
+	for _, message in ipairs(br.earlyMessages or {}) do br._G.print(message) end
+	br.earlyMessages = nil
+end)
