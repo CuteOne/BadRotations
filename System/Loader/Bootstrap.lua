@@ -14,15 +14,9 @@ local bootstrap = br.loader.bootstrap
 bootstrap.stage = "WAITING_FOR_WORLD"
 bootstrap.settingsLoaded = false   -- true once the current spec/profile's settings are in memory
 
-local function debug(message)
-	if br.functions and br.functions.misc and br.functions.misc.addonDebug then
-		br.functions.misc:addonDebug(message, true)
-	end
-end
-
 local function setStage(stage)
 	if bootstrap.stage ~= stage then
-		debug("stage: " .. tostring(bootstrap.stage) .. " -> " .. stage)
+		br.log:systemDebug("stage: " .. tostring(bootstrap.stage) .. " -> " .. stage)
 		bootstrap.stage = stage
 	end
 end

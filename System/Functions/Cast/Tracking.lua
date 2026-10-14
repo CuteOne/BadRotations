@@ -153,8 +153,8 @@ function cast:handleCastError(message)
 			local spellID = failed.lastFailedSpellID
 			local expected = E.expectedRefusal(message, lastCastGUID)
 			if not E.showRefusal(expected ~= nil) then return end
-			br.functions.misc:addonDebug("[CAST FAIL][SERVER] " .. tostring(br.functions.spell:getName(spellID)) .. " — game said: " .. message
-				.. (expected and (" (expected: " .. expected .. ")") or ""), true)
+			br.log:systemDebug("[CAST FAIL][SERVER] " .. tostring(br.functions.spell:getName(spellID)) .. " — game said: " .. message
+				.. (expected and (" (expected: " .. expected .. ")") or ""))
 		end)
 	end
 	local kind = rejectionKindForError(message)

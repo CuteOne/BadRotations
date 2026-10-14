@@ -37,43 +37,6 @@ function misc:plainText(text)
 	return table.concat(bytes)
 end
 
--- Addon Debug Messages, shown by the option's choice (1 System Only, 2 Profile Only, 3 All):
---   Profile Debug  what the rotation did: its casts and item uses, opener steps, combat start/end
---                  (ui.debug, also from shared modules acting for the profile)
---   System Debug   BR's own reasoning and state: cast gates and refusals, the loader's stages,
---                  engines (system = true)
--- The same line again within REPEAT_GAP seconds isn't repeated ("Casting" lines within 0.05 s: a
--- spell cast twice in a row is shown twice).
-local REPEAT_GAP, CAST_REPEAT_GAP = 0.1, 0.05
-local lastShown, lastShownCount = {}, 0 -- full line -> GetTime it was shown; cleared when it grows
-
-function misc:addonDebug(msg, system)
-	if msg == nil or not misc:isChecked("Addon Debug Messages") then return end
-	local choice = misc:getValue("Addon Debug Messages")
-	if system then
-		if choice ~= 1 and choice ~= 3 then return end
-	elseif choice ~= 2 and choice ~= 3 then
-		return
-	end
-	local text = tostring(msg)
-	-- Flagged text BR may use prints as plain text; text BR can't read says where it came from
-	if not misc:canUseValue(text) then
-		local where = br.ui.elementOptions and br.ui.elementOptions.rotationLine(true) or ""
-		text = "(a debug line holding a secret value, from " .. (where ~= "" and where:gsub(":%s*$", "") or "BR") .. ")"
-	else
-		text = misc:plainText(text)
-	end
-	local label = system and "System Debug" or "Profile Debug"
-	local key = label .. text
-	local now = br._G.GetTime()
-	local gap = (not system and text:find("Casting", 1, true)) and CAST_REPEAT_GAP or REPEAT_GAP
-	if lastShown[key] and now - lastShown[key] < gap then return end
-	if lastShownCount >= 200 then br._G.wipe(lastShown); lastShownCount = 0 end
-	if not lastShown[key] then lastShownCount = lastShownCount + 1 end
-	lastShown[key] = now
-	br.log:say(label, br.log.colors.text .. text, br.ui.colors.class)
-end
-
 function misc:devMode()
 	if br.functions.misc:isChecked("Dev Mode") then
 		if _G.br == nil then

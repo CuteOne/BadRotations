@@ -363,7 +363,7 @@ function common:commonReaders()
 				end
 				local controlled = br.functions.combat.hasHardControl and br.functions.combat:hasHardControl() and ", you're crowd controlled" or ""
 				local flaggedNote = #flaggedParts > 0 and (" [flagged: " .. table.concat(flaggedParts, ", ") .. "]") or ""
-				br.functions.misc:addonDebug("[AUTO ATTACK OFF] mid-fight: " .. target .. lastCast .. controlled .. flaggedNote, true)
+				br.log:systemDebug("[AUTO ATTACK OFF] mid-fight: " .. target .. lastCast .. controlled .. flaggedNote)
 			end
 			return
 		end

@@ -123,7 +123,7 @@ br.api.ui = function(self)
         -- @string text - The message to show in chat.
         -- @return nil
         ui.debug = function(text)
-            return br.functions.misc:addonDebug(text)
+            return br.log:debug(text)
         end
     end
 

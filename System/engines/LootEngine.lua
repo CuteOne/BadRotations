@@ -50,7 +50,7 @@ if not lootEngine.metaTable then
 		if message and self.oldMessage ~= message then
 			self.oldMessage = message
 			if br.debug.loot then br.debug.loot:line(message) end
-			if chat then br.functions.misc:addonDebug("<LootEngine> " .. (chat == true and message or chat), true) end
+			if chat then br.log:systemDebug("<LootEngine> " .. (chat == true and message or chat)) end
 		end
 	end
 

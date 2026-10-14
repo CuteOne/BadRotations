@@ -56,45 +56,45 @@ function E.printReport(ctx, debugOnly, debugReason, thisCount)
 	-- show with Cast Debug only; the rest (cast failed, not dead, ...) with Display Failcasts too
 	if E.showRefusal(debugOnly or EXPECTED_REPORTS[debugReason] == true) then
 		if debugReason == "No Unit" then
-			br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — no unit found in " .. ctx.maxRange .. " yrds.", true)
+			br.log:systemDebug(prefix .. ctx.spellName .. " — no unit found in " .. ctx.maxRange .. " yrds.")
 		elseif debugReason == "Below Min Units" then
-			br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
-				" enemies in " .. ctx.maxRange .. " yrds, need " .. minUnits .. ".", true)
+			br.log:systemDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
+				" enemies in " .. ctx.maxRange .. " yrds, need " .. minUnits .. ".")
 		elseif debugReason == "Below Min Units Facing" then
-			br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
-				" facing enemies in " .. ctx.maxRange .. " yrds, need " .. minUnits .. ".", true)
+			br.log:systemDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
+				" facing enemies in " .. ctx.maxRange .. " yrds, need " .. minUnits .. ".")
 		elseif debugReason == "Below Min Units Cone" then
-			br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
-				" enemies in " .. effectRng .. "° cone/" .. ctx.maxRange .. " yrds, need " .. minUnits .. ".", true)
+			br.log:systemDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
+				" enemies in " .. effectRng .. "° cone/" .. ctx.maxRange .. " yrds, need " .. minUnits .. ".")
 		elseif debugReason == "Below Min Units Rect" then
-			br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
-				" enemies in " .. ctx.maxRange .. "×" .. effectRng .. " yrd rect, need " .. minUnits .. ".", true)
+			br.log:systemDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
+				" enemies in " .. ctx.maxRange .. "×" .. effectRng .. " yrd rect, need " .. minUnits .. ".")
 		elseif debugReason == "Not Dead" then
-			br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — unit is not dead.", true)
+			br.log:systemDebug(prefix .. ctx.spellName .. " — unit is not dead.")
 		elseif debugReason == "No Range" then
-			br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — unit not in range"
-				.. (type(thisCount) == "string" and (" (" .. thisCount .. ")") or "") .. ".", true)
+			br.log:systemDebug(prefix .. ctx.spellName .. " — unit not in range"
+				.. (type(thisCount) == "string" and (" (" .. thisCount .. ")") or "") .. ".")
 		elseif debugReason == "Not Safe" then
-			br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — not safe to AoE.", true)
+			br.log:systemDebug(prefix .. ctx.spellName .. " — not safe to AoE.")
 		elseif debugReason == "Invalid Unit" then
 			if cast:isRejected("los", nil, thisUnit) then
-				br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — game reported unit out of line of sight.", true)
+				br.log:systemDebug(prefix .. ctx.spellName .. " — game reported unit out of line of sight.")
 			elseif not br.functions.misc:canSee(thisUnit) then
-				br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — unit out of line of sight.", true)
+				br.log:systemDebug(prefix .. ctx.spellName .. " — unit out of line of sight.")
 			else
-				br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — unit invalid (unknown reason).", true)
+				br.log:systemDebug(prefix .. ctx.spellName .. " — unit invalid (unknown reason).")
 			end
 		elseif debugReason == "No Control" then
-			br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — player is crowd controlled.", true)
+			br.log:systemDebug(prefix .. ctx.spellName .. " — player is crowd controlled.")
 		elseif debugReason == "Cast Failed" then
 			local wowReason = br.functions.lastCast
 				and br.functions.lastCast.lastCastTable
 				and br.functions.lastCast.lastCastTable.lastFailedReason
 				and br.functions.lastCast.lastCastTable.lastFailedReason[ctx.spellID]
 			if wowReason and wowReason ~= "" then
-				br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — WoW rejected: " .. wowReason, true)
+				br.log:systemDebug(prefix .. ctx.spellName .. " — WoW rejected: " .. wowReason)
 			else
-				br.functions.misc:addonDebug(prefix .. ctx.spellName .. " — no GCD/cast/channel signal after cast attempt.", true)
+				br.log:systemDebug(prefix .. ctx.spellName .. " — no GCD/cast/channel signal after cast attempt.")
 			end
 		else
 			br.log:error(prefix ..

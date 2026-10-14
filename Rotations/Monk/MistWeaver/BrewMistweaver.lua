@@ -1345,7 +1345,7 @@ local actionList = {
                         tx = tx + math.random(-2, 2)
                         ty = ty + math.random(-2, 2)
                         if br.engines.healingEngineFunctions:castGroundAtLocation({ x = tx, y = ty, z = tz }, spell.summonJadeSerpentStatue) then
-                            br.functions.misc:addonDebug(colors.yellow ..
+                            br.log:debug(colors.yellow ..
                             "[?]:5P | Jade Serpent Statue - distance to statue: " ..
                             distanceToStatue .. ", old totem duration: " .. totemInfo.jadeSerpentStatueDuration)
                             return true
@@ -1427,7 +1427,7 @@ local actionList = {
                     tx = tx + math.random(-2, 2)
                     ty = ty + math.random(-2, 2)
                     if br.engines.healingEngineFunctions:castGroundAtLocation({ x = tx, y = ty, z = tz }, spell.summonJadeSerpentStatue) then
-                        br.functions.misc:addonDebug(colors.yellow ..
+                        br.log:debug(colors.yellow ..
                         "[?]:20P | Jade Serpent Statue - distance to statue: " ..
                         distanceToStatue .. ", old totem duration: " .. totemInfo.jadeSerpentStatueDuration)
                         return true

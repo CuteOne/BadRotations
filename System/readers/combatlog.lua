@@ -1018,7 +1018,7 @@ function combatLog:Priest(...)
             -- Mindflay Ticks
             if source == guid and spellName == br.api.wow.GetSpellInfo(15407) then
                 br.mfTicks = br.mfTicks + 1
-                br.functions.misc:addonDebug("Mindflay + 1 tick" .. "Total Ticks: " .. br.mfTicks, true)
+                br.log:systemDebug("Mindflay + 1 tick" .. "Total Ticks: " .. br.mfTicks)
             end
         end
         -- Corruption was removed.
@@ -1028,7 +1028,7 @@ function combatLog:Priest(...)
                 if spellName == br.api.wow.GetSpellInfo(15407) then
                     br.mfTicks = 0
                     br.maxmfTicks = 6
-                    br.functions.misc:addonDebug("Mindflay ticks reset", true)
+                    br.log:systemDebug("Mindflay ticks reset")
                 end
             end
         end
@@ -1041,7 +1041,7 @@ function combatLog:Priest(...)
             -- Mind Sear Ticks
             if source == guid and spellName == br.api.wow.GetSpellInfo(48045) and destination == br._G.UnitGUID("target") then
                 br.msTicks = br.msTicks + 1
-                br.functions.misc:addonDebug("Mind Sear + 1 tick" .. "Total Ticks: " .. br.msTicks, true)
+                br.log:systemDebug("Mind Sear + 1 tick" .. "Total Ticks: " .. br.msTicks)
             end
         end
         -- Corruption was removed.
@@ -1051,7 +1051,7 @@ function combatLog:Priest(...)
                 if spellName == br.api.wow.GetSpellInfo(48045) then
                     br.msTicks = 0
                     br.maxmsTicks = 6
-                    br.functions.misc:addonDebug("Mind Sear ticks reset", true)
+                    br.log:systemDebug("Mind Sear ticks reset")
                 end
             end
         end
@@ -1345,7 +1345,7 @@ function combatLog:Warlock(...) -- 9
             -- Drain Soul Ticks
             if source == guid and spellName == br.api.wow.GetSpellInfo(198590) then
                 br.dsTicks = br.dsTicks + 1
-                br.functions.misc:addonDebug("Drain Soul + 1 tick" .. "Total Ticks: " .. br.dsTicks, true)
+                br.log:systemDebug("Drain Soul + 1 tick" .. "Total Ticks: " .. br.dsTicks)
             end
         end
         -- Corruption was removed.
@@ -1355,7 +1355,7 @@ function combatLog:Warlock(...) -- 9
                 if spellName == br.api.wow.GetSpellInfo(198590) then
                     br.dsTicks = 1
                     br.maxdsTicks = 5
-                    br.functions.misc:addonDebug("Drain Soul ticks reset", true)
+                    br.log:systemDebug("Drain Soul ticks reset")
                 end
             end
         end

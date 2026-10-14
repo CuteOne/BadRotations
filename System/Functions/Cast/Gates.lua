@@ -83,7 +83,7 @@ local function emitGateDebug(spellID, spellName, reason, detail)
 	-- Detail numbers are made printable where they're built (plain); anything still flagged would
 	-- hide the whole line, so only the detail is left out
 	if detail then msg = msg .. " — " .. (br.functions.misc:isFlagged(detail) and "(detail holds a secret value)" or detail) end
-	br.functions.misc:addonDebug(msg, true)
+	br.log:systemDebug(msg)
 end
 
 -- Facts about a spell that only change when the character's spells or talents do. Kept until

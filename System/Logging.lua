@@ -129,7 +129,7 @@ end
 -- Every BR line in chat looks the same: the class-colored [BadRotations] tag, then an optional
 -- label, then the text. Levels: info (br._G.print, no label), warning, error. Tools label their
 -- lines (br.log:say("Range", ...)); debug lines are labelled System Debug / Profile Debug
--- (misc:addonDebug). Names and values in the text use one highlight color (log.highlight).
+-- (br.log:systemDebug, br.log:debug). Names and values in the text use one highlight color (log.highlight).
 log.colors = {
 	error = "|cffFF4040",
 	warning = "|cffFF8800",
@@ -167,6 +167,50 @@ function log:error(text) log:say("Error", text, log.colors.error) end
 
 --- Something is off but BR carries on (a fallback was used, something was skipped)
 function log:warning(text) log:say("Warning", text, log.colors.warning) end
+
+-- Addon Debug Messages, shown by the option's choice (1 System Only, 2 Profile Only, 3 All):
+--   br.log:debug        Profile Debug: what the rotation did (its casts and item uses, opener
+--                       steps, combat start/end); ui.debug and shared modules acting for a profile
+--   br.log:systemDebug  System Debug: BR's own reasoning and state (cast gates and refusals, the
+--                       loader's stages, engines)
+-- The same line again within REPEAT_GAP seconds isn't repeated ("Casting" lines within 0.05 s: a
+-- spell cast twice in a row is shown twice).
+local REPEAT_GAP, CAST_REPEAT_GAP = 0.1, 0.05
+local lastShown, lastShownCount = {}, 0 -- full line -> GetTime it was shown; cleared when it grows
+
+local function debugLine(msg, system)
+	local misc = br.functions and br.functions.misc
+	if msg == nil or misc == nil or misc.isChecked == nil or not misc:isChecked("Addon Debug Messages") then return end
+	local choice = misc:getValue("Addon Debug Messages")
+	if system then
+		if choice ~= 1 and choice ~= 3 then return end
+	elseif choice ~= 2 and choice ~= 3 then
+		return
+	end
+	local text = tostring(msg)
+	-- Flagged text BR may use prints as plain text; text BR can't read says where it came from
+	if not misc:canUseValue(text) then
+		local where = br.ui.elementOptions and br.ui.elementOptions.rotationLine(true) or ""
+		text = "(a debug line holding a secret value, from " .. (where ~= "" and where:gsub(":%s*$", "") or "BR") .. ")"
+	else
+		text = misc:plainText(text)
+	end
+	local label = system and "System Debug" or "Profile Debug"
+	local key = label .. text
+	local now = GetTime()
+	local gap = (not system and text:find("Casting", 1, true)) and CAST_REPEAT_GAP or REPEAT_GAP
+	if lastShown[key] and now - lastShown[key] < gap then return end
+	if lastShownCount >= 200 then wipe(lastShown); lastShownCount = 0 end
+	if not lastShown[key] then lastShownCount = lastShownCount + 1 end
+	lastShown[key] = now
+	log:say(label, log.colors.text .. text, br.ui.colors.class)
+end
+
+--- A Profile Debug line: what the rotation did
+function log:debug(text) debugLine(text, false) end
+
+--- A System Debug line: BR's own reasoning and state
+function log:systemDebug(text) debugLine(text, true) end
 
 ---------------------------------------------------------------------------------------------------
 -- Chat record

@@ -132,14 +132,14 @@ actionList.PreCombat = function()
             -- Smite
             if cast.able.smite("target") and not unit.moving() then
                 if cast.smite("target") then
-                    br.functions.misc:addonDebug("Casting Smite [Precombat]")
+                    br.log:debug("Casting Smite [Precombat]")
                     return true
                 end
             end
             -- Shadow Word: Pain
             if cast.able.shadowWordPain("target") and debuff.shadowWordPain.refresh("target") then
                 if cast.shadowWordPain("target") then
-                    br.functions.misc:addonDebug("Casting Shadow Word: Pain [Precombat]")
+                    br.log:debug("Casting Shadow Word: Pain [Precombat]")
                     return true
                 end
             end
@@ -171,7 +171,7 @@ actionList.Combat = function()
             -- Shadow Word: Pain
             if cast.able.shadowWordPain(units.dyn40) and debuff.shadowWordPain.refresh(units.dyn40) then
                 if cast.shadowWordPain(units.dyn40) then
-                    br.functions.misc:addonDebug("Casting Shadow Word: Pain")
+                    br.log:debug("Casting Shadow Word: Pain")
                     return true
                 end
             end
@@ -185,7 +185,7 @@ actionList.Combat = function()
             -- Smite
             if cast.able.smite() and not unit.moving() then
                 if cast.smite() then
-                    br.functions.misc:addonDebug("Casting Smite")
+                    br.log:debug("Casting Smite")
                     return true
                 end
             end

@@ -187,13 +187,13 @@ actionList.Extras = function()
                 if br.lists.tankBuster[select(9, br._G.UnitCastingInfo("target"))] ~= nil then
                     if cd.demonSpikes.ready() and not debuff.fieryBrand.exists(thisUnit) then
                         if cast.demonSpikes() then
-                            br.functions.misc:addonDebug("[TANKBUST] Demon Spike")
+                            br.log:debug("[TANKBUST] Demon Spike")
                             return true
                         end
                     end
                     if cast.able.fieryBrand() and not buff.demonSpikes.exists() then
                         if cast.fieryBrand(thisUnit) then
-                            br.functions.misc:addonDebug("[TANKBUST] Fiery Brand")
+                            br.log:debug("[TANKBUST] Fiery Brand")
                             return true
                         end
                     end

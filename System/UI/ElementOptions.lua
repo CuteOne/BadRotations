@@ -61,7 +61,7 @@ end
 --- Reports something cosmetic (e.g. a toggle icon that isn't in the spell list) at the rotation
 -- file's line, only when Addon Debug Messages shows profile messages.
 function elementOptions.notice(message)
-    br.functions.misc:addonDebug(rotationLine() .. message)
+    br.log:debug(rotationLine() .. message)
 end
 
 local function fieldList(fields)
