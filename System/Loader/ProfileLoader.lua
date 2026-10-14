@@ -37,6 +37,7 @@ local function loadFile(profile, file)
         return false
     end
     br._G.setfenv(func, custom_env)
+    br.log.rotation:registerSource(file, profile) -- names where a cast came from (System/RotationLog.lua)
 
     -- Capture the actual error in the error handler
     local actualError = nil

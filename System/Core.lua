@@ -249,8 +249,6 @@ function engines.Update(frame, elapsed)
                 br.functions.misc:AcceptQueues()
                 -- Profession Helper
                 br.misc.ProfessionHelper:ProfessionHelper()
-                -- Rotation Log
-                br.ui:toggleDebugWindow()
                 recordTickCost("rotation", br._G.debugprofilestop() - tickStarted)
             end -- End Update Check
         end -- End Settings Loaded Check

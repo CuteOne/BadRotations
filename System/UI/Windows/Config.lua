@@ -201,7 +201,8 @@ function br.ui:createConfigWindow()
     local function callDebugOptions()
         -- Debug and Developer Options
         section = br.ui:section("Debug Options", { window = br.ui.window.config })
-        br.ui.rotationLog = br.ui:checkbox(section, "Rotation Log", { tip = "Display Rotation Log." })
+        br.ui.rotationLog = br.ui:checkbox(section, "Rotation Log", { tip = "Shows what the rotation cast, from where in the profile, and what the game answered (also in BRRotation.log).",
+            onChange = function(checked) br.ui:showRotationLog(checked) end })
         br.ui:dropdown(section, "Addon Debug Messages", { choices = { "System Only", "Profile Only", "All" }, value = "All",
             tip = "Check this to display developer debug messages." })
         br.ui:checkbox(section, "Target Validation Debug", { tip = "Check this to display current target's validation." })

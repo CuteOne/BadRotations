@@ -167,6 +167,7 @@ function Player:startRotation()
 		self.rotation.run()
 		br.functions.cast:openerEndPass()
 	end
+	br.log.rotation:endTick()
 	br.debug.melee:watch(self)
 	br.debug.target:watch()
 	br.debug.idle:watch(self, reason ~= nil)

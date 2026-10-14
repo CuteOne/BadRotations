@@ -1,47 +1,39 @@
 local _, br = ...
--- TODO: create new debug frame
+-- The Rotation Log window (System/RotationLog.lua): shown while the Bot Options "Rotation Log"
+-- checkbox is ticked; closing the window unticks it. Its text can be selected and copied.
 br.ui.window.debug = {}
-function br.ui:createDebugWindow()
-    -- br.ui.window.debug = br.ui:createMessageWindow("debug",300,250,"Rotation Log")
-    br.ui.window.debug = br.ui:createWindow("debug", 300, 250, "Rotation Log", nil, true)
-    br.ui.window.debug.parent.closeButton:SetScript(
-        "OnClick",
-        function()
-            -- "Rotation Log" is a Bot Options checkbox on the "Bot Options/Debug Options" page
-            local profileSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-            if profileSettings ~= nil and profileSettings["Bot Options/Debug Options"] ~= nil then
-                profileSettings["Bot Options/Debug Options"]["Rotation Log Check"] = false
-                if br.data.ui ~= nil and br.data.ui["Bot Options/Debug Options"] ~= nil then
-                    br.data.ui["Bot Options/Debug Options"]["Rotation Log Check"] = false
-                end
-            end
-            if br.ui.rotationLog ~= nil then
-                br.ui.rotationLog:SetChecked(false)
-            end
-            if br.data.settings[br.loader.selectedSpec].debug == nil then
-                br.data.settings[br.loader.selectedSpec].debug = {}
-            end
-            br.data.settings[br.loader.selectedSpec].debug["active"] = false
-            br.ui.window.debug.parent:Hide()
-        end
-    )
-    br.ui:checkWindowStatus("debug")
+
+local OPTION_PAGE = "Bot Options/Debug Options"
+
+local function setOption(checked)
+	local profileSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+	if profileSettings ~= nil and profileSettings[OPTION_PAGE] ~= nil then
+		profileSettings[OPTION_PAGE]["Rotation Log Check"] = checked
+		if br.data.ui ~= nil and br.data.ui[OPTION_PAGE] ~= nil then
+			br.data.ui[OPTION_PAGE]["Rotation Log Check"] = checked
+		end
+	end
+	if br.ui.rotationLog ~= nil then br.ui.rotationLog:SetChecked(checked) end
 end
 
-function br.ui:toggleDebugWindow()
-    if not br.ui.window["debug"]["parent"] then
-        br.ui:createDebugWindow()
-        br.ui:closeWindow("debug")
-    end
-    if br.functions.misc:getOptionCheck("Rotation Log") then
-        if not br.ui.window["debug"]["parent"] then
-            br.ui:createDebugWindow()
-        end
-        br.ui:showWindow("debug")
-    elseif br.data.settings[br.loader.selectedSpec]["debug"] == nil then
-        br.data.settings[br.loader.selectedSpec]["debug"] = {}
-        br.data.settings[br.loader.selectedSpec]["debug"].active = false
-    elseif br.data.settings[br.loader.selectedSpec]["debug"].active == true then
-        br.ui:closeWindow("debug")
-    end
+function br.ui:createDebugWindow()
+	br.ui.window.debug = br.ui:createWindow("debug", 520, 260, "Rotation Log - Ctrl+C copies", nil, "copy")
+	br.ui.window.debug.parent.closeButton:SetScript("OnClick", function()
+		br.ui:savePosition("debug")
+		setOption(false)
+		br.ui.window.debug.parent:Hide()
+	end)
+	br.ui:showRotationLog(br.functions.misc:isChecked("Rotation Log"))
+end
+
+--- Shows or hides the Rotation Log window (the checkbox calls this when it changes)
+function br.ui:showRotationLog(shown)
+	local box = br.ui.window.debug
+	if box == nil or box.parent == nil then return end
+	if shown then
+		box.parent:Show()
+		br.log.rotation:refreshWindow()
+	else
+		box.parent:Hide()
+	end
 end

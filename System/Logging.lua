@@ -206,8 +206,12 @@ local function debugLine(msg, system)
 	log:say(label, log.colors.text .. text, br.ui.colors.class)
 end
 
---- A Profile Debug line: what the rotation did
-function log:debug(text) debugLine(text, false) end
+--- A Profile Debug line: what the rotation did. "Casting ..." also labels the cast the profile just
+-- sent (System/RotationLog.lua), shown or not.
+function log:debug(text)
+	if log.rotation then log.rotation:label(text) end
+	debugLine(text, false)
+end
 
 --- A System Debug line: BR's own reasoning and state
 function log:systemDebug(text) debugLine(text, true) end
@@ -236,36 +240,21 @@ function log:recentChat()
 	return lines
 end
 
--- /br log: the recorded chat lines in a window, selected, ready for Ctrl+C
-local copyWindow, copyBox
+-- /br log: the recorded chat lines in a window (br.ui:createWindow's copy box), selected, ready for Ctrl+C
 function log:showRecent()
-	local DiesalGUI = _G.LibStub and _G.LibStub("DiesalGUI-1.0", true)
-	if DiesalGUI == nil then return end
-	if copyWindow == nil then
-		copyWindow = DiesalGUI:Create("Window")
-		copyWindow:SetTitle(((br.ui and br.ui.colors and br.ui.colors.class) or "") .. "BadRotations", "Chat log - Ctrl+C copies")
-		copyWindow.settings.width = 640
-		copyWindow.settings.height = 420
-		copyWindow.settings.header = true
-		copyWindow.settings.footer = true
-		copyWindow.frame:SetClampedToScreen(true)
-		copyWindow:ApplySettings()
-		copyBox = DiesalGUI:Create("ScrollingEditBox")
-		copyWindow:AddChild(copyBox)
-		copyBox:SetParent(copyWindow.content)
-		copyBox:SetAllPoints(copyWindow.content)
-		copyBox.settings.contentPadding = { 4, 4, 4, 4 }
-		copyBox:ApplySettings()
-		copyBox:SetEventListener("OnEscapePressed", function() copyBox.editBox:ClearFocus() end)
+	local box = br.ui.window.chatlog
+	if box == nil or box.parent == nil then
+		box = br.ui:createWindow("chatlog", 640, 420, "Chat log - Ctrl+C copies", nil, "copy")
+		br.ui.window.chatlog = box
 	end
 	local lines = log:recentChat()
 	local text = #lines > 0 and tconcat(lines, "\n") or "Nothing printed yet this session."
 	-- The box puts this text back when it loses focus, so typing in it changes nothing
-	copyBox.settings.text = text
-	copyBox:SetText(text)
-	copyWindow:Show()
-	copyBox.editBox:SetFocus()
-	copyBox.editBox:HighlightText()
+	box.settings.text = text
+	box:SetText(text)
+	br.ui:showWindow("chatlog")
+	box.editBox:SetFocus()
+	box.editBox:HighlightText()
 end
 
 ---------------------------------------------------------------------------------------------------

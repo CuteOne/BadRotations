@@ -2,7 +2,8 @@ local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local _, br = ...
 br.ui.window = {}
 
--- Window creators
+-- Window creators. messageWindow: nil/false a scroll frame, true a message frame, "copy" a text box
+-- whose text can be selected and copied (Ctrl+C); returns the content, its window as .parent
 function br.ui:createWindow(name, width, height, title, color, messageWindow)
     if title == nil then
         title = name
@@ -36,6 +37,11 @@ function br.ui:createWindow(name, width, height, title, color, messageWindow)
     elseif messageWindow == true then
         scrollFrame = DiesalGUI:Create("ScrollingMessageFrame")
         scrollFrame:SetStylesheet(br.ui.messageStylesheet)
+    elseif messageWindow == "copy" then
+        scrollFrame = DiesalGUI:Create("ScrollingEditBox")
+        scrollFrame.settings.contentPadding = { 4, 4, 4, 4 }
+        scrollFrame:ApplySettings()
+        scrollFrame:SetEventListener("OnEscapePressed", function() scrollFrame.editBox:ClearFocus() end)
     end
     window:AddChild(scrollFrame)
     scrollFrame:SetParent(window.content)
@@ -207,7 +213,8 @@ function br.ui:recreateWindows()
     -- Close only config and debug windows, not profile window
     -- Profile window is created by br.player:createOptions() and should not be destroyed here
     br.ui:closeWindow("config")
-    br.ui:closeWindow("debug")
+    -- Hidden, not closed: closing the Rotation Log unticks its option
+    if br.ui.window.debug and br.ui.window.debug.parent then br.ui.window.debug.parent:Hide() end
     br.ui:createConfigWindow()
     br.ui:createDebugWindow()
 end

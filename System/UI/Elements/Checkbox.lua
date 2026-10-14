@@ -65,6 +65,7 @@ function br.ui:createCheckbox(parent, text, tooltip, checked, layoutOnly)
         function(this, event, checked)
             data[value] = checked
             elementOptions.mirror(activePage, value, checked)
+            if checkBox.onChange then checkBox.onChange(checked) end
             -- Create Chat Overlay
             if checked then
                 DiesalStyle:StyleTexture(checkBox.check, classColor)
@@ -100,7 +101,8 @@ end
 ---@class br.ui.CheckboxOptions
 ---@field checked? boolean Starts ticked for new settings (false)
 ---@field tip? string Tooltip
-local CHECKBOX_FIELDS = { checked = "boolean", tip = "string" }
+---@field onChange? fun(checked: boolean) Called when the player ticks or unticks it
+local CHECKBOX_FIELDS = { checked = "boolean", tip = "string", onChange = "function" }
 
 --- Adds a checkbox. Read it in the rotation with ui.checked(name).
 ---@param section table The section from br.ui:section
@@ -111,5 +113,7 @@ function br.ui:checkbox(section, name, options)
     if not elementOptions.ready("checkbox", section, name) then return end
     options = elementOptions.check("checkbox \"" .. name .. "\"", options, CHECKBOX_FIELDS)
     if options == nil then return end
-    return br.ui:createCheckbox(section, name, elementOptions.white(options.tip), options.checked)
+    local checkBox = br.ui:createCheckbox(section, name, elementOptions.white(options.tip), options.checked)
+    if checkBox and options.onChange then checkBox.onChange = options.onChange end
+    return checkBox
 end

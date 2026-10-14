@@ -154,8 +154,6 @@ function common:commonReaders()
 			br.potionReuse = true
 			br.AgiSnap = 0
 			br.usePot = true
-			br.data.successCasts = 0
-			br.data.failCasts = 0
 			br.functions.combat:setInCombat(false)
 			br.ui.chatOverlay:Show("|cff00FF00Leaving Combat")
 			-- clean up out of combat

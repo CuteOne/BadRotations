@@ -159,6 +159,7 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 		local slot = E.getPetBarSlot(castName, true)
 		if slot then
 			br._G.CastPetAction(slot)
+			br.log.rotation:sent(ctx.spellID, castName, thisUnit)
 			-- Read the cooldown the game just applied to the bar slot.
 			-- GetPetActionCooldown is updated synchronously after CastPetAction,
 			-- so cdDuration reflects the real ability cooldown on TBC Classic.
