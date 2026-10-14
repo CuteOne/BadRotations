@@ -55,9 +55,10 @@ function E.recordRefusal(spellID, reason, detail)
 	local entry = refusalEntry(spellID)
 	if not entry then return end
 	entry.reason, entry.detail, entry.refusedAt = reason, detail, br._G.GetTime()
-	-- With Cast Debug on, the Rotation Log shows the refusal (cast.able's too: profiles ask that first)
-	if not WAITING_REASONS[reason] and br.log.rotation and E.castDebugOn() then
-		br.log.rotation:refused(entry.name, reason, detail)
+	-- The Rotation Log shows the refusal (cast.able's too: profiles ask that first), always, so
+	-- Rotation.log has it when a user reports a problem they can't reproduce
+	if not WAITING_REASONS[reason] and br.log.rotation then
+		br.log.rotation:refused(spellID, entry.name, reason, detail)
 	end
 end
 

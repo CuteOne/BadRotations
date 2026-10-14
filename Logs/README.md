@@ -16,7 +16,7 @@ clean it. Deleting the files is safe at any time, even while the game is running
 | Session.log | Read this first: BadRotations' version, the game client, the unlocker, your character's class and level, the other addons, every setting of the loaded profile, and each setting or toggle you changed while playing |
 | Errors.log | BadRotations' Lua errors with where they happened (a repeated one is counted) |
 | Chat.log | Every line BadRotations printed in chat |
-| Rotation.log | Every spell BadRotations sent, where in the profile it came from, and the game's answer; refused casts (with Cast Debug on); a summary per fight |
+| Rotation.log | Every spell BadRotations sent, where in the profile it came from, and the game's answer; refused casts and why; a summary per fight |
 | Idle.log | A snapshot whenever you stood idle in combat with an enemy close by: what was refused and why |
 | Target.log | Why BadRotations picked the enemy it picked, when that changes in combat |
 | Cast.log | Spells sent while another cast was still going, and casts the game refused |

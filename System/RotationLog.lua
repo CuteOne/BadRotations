@@ -11,7 +11,7 @@ local _, br = ...
 --   Rows           once the game answers (the cast succeeded, failed, was interrupted, or nothing
 --                  came within ANSWER_WAIT), a row goes to Rotation.log and to the Rotation Log
 --                  window (Bot Options > Debug Options). Spells the player casts are rows too.
---   Refusals       with Cast Debug on, a spell the cast system refused is a row (Gates.lua
+--   Refusals       a spell the cast system refused is a row (Gates.lua
 --                  recordRefusal; "not yet" reasons like cooldowns and the GCD are left out). The
 --                  same refusal shows once, until that spell is sent or refused for another reason.
 --   Fights         a divider when combat starts, and when it ends (ANSWER_WAIT later, so the last
@@ -107,7 +107,7 @@ local awaiting = {} -- sends waiting for the game's answer
 local sent = 0      -- sends this session (the row number)
 local announcing = false
 local lastError, lastErrorAt = nil, 0
-local refusedShown = {} -- spell name -> the refusal reason its last row showed
+local refusedShown = {} -- spell ID -> { reason, name } of its last refusal row
 local fight, fights = nil, 0 -- the fight going on (or just ended, until its summary), and how many so far
 
 -- Counts a fight's casts: "sent" (BR's sends) and the results ("done", "failed", ...), for the
@@ -156,7 +156,14 @@ function rotation:sent(spellID, spellName, unit)
 	pending[#pending + 1] = entry
 	awaiting[#awaiting + 1] = entry
 	tally(fight, "sent", entry)
-	refusedShown[entry.name] = nil
+	-- the spell's refusals show again (a send by name has no ID: found by name)
+	if spellID then
+		refusedShown[spellID] = nil
+	else
+		for id, shown in pairs(refusedShown) do
+			if shown.name == entry.name then refusedShown[id] = nil end
+		end
+	end
 end
 
 --- A Profile Debug line (br.log:debug): "Casting <spell>..." in the tick that spell was sent is
@@ -205,12 +212,14 @@ local function divider(text)
 	addLine("── " .. text .. " ──", log.colors.muted .. "── |r" .. log.colors.text .. text .. "|r" .. log.colors.muted .. " ──|r")
 end
 
---- A spell the cast system refused (Gates.lua recordRefusal, Cast Debug on). One row per spell and
--- reason: again only after the spell was sent or refused for something else.
-function rotation:refused(spellName, reason, detail)
+--- A spell the cast system refused (Gates.lua recordRefusal). One row per spell and reason: again
+-- only after the spell was sent or refused for something else. Called for every refusal, so the
+-- repeat check comes first and is cheap.
+function rotation:refused(spellID, spellName, reason, detail)
+	local shown = refusedShown[spellID]
+	if shown and shown.reason == reason then return end
 	local name = log.printable(spellName)
-	if refusedShown[name] == reason then return end
-	refusedShown[name] = reason
+	refusedShown[spellID] = { reason = reason, name = name }
 	addRow({ who = "BR", name = name, combat = combatTime(), site = rotation.site() },
 		"refused " .. reason .. (detail and (": " .. log.plain(detail)) or ""), "muted", "refused", reason)
 end
