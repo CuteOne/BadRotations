@@ -6,7 +6,7 @@ function br.ui:createConfigWindow()
     br.ui.window.config = br.ui:createWindow("config", 275, 400, "Configuration")
 
     if not br.ui.window.config then
-        br._G.print("Error: Failed to create config window")
+        br.log:error("Failed to create config window")
         return
     end
 

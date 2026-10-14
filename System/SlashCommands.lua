@@ -17,7 +17,7 @@ function slashCommands:SlashCommandHelp(cmd, msg)
 			if i == 1 then
 				br._G.print(tostring(command))
 			else
-				print(tostring(command))
+				br.log:more(tostring(command))
 			end
 		end
 		return
@@ -170,18 +170,18 @@ local function handler(message, editbox)
 	elseif msg1 == "blacklist" then
 		-- Blacklist
 		if msg2 == "dump" then
-			br._G.print("|cffFF0000Blacklist:")
+			br.log:say("Blacklist", "current entries:")
 			if br.data.blackList == nil or #br.data.blackList == 0 then
-				br._G.print("|cffFFDD11Empty")
+				br.log:more("  empty")
 			end
 			if br.data.blackList then
 				for i = 1, #br.data.blackList do
-					br._G.print("|cffFFDD11- " .. br.data.blackList[i].name)
+					br.log:more("  - " .. br.log.highlight(br.data.blackList[i].name))
 				end
 			end
 		elseif msg2 == "clear" then
 			br.data.blackList = {}
-			br._G.print("|cffFF0000Blacklist Cleared")
+			br.log:say("Blacklist", "cleared")
 		elseif msg2 == "mouseover" then
 			if not br.data.blackList then
 				br.data.blackList = {}
@@ -195,19 +195,18 @@ local function handler(message, editbox)
 					-- Now we're trying to find that unit in the Cache table to remove
 					if br._G.UnitGUID("mouseover") == v.guid then
 						br._G.tremove(br.data.blackList, k)
-						br._G.print("|cffFFDD11" .. mouseoverName .. "|cffFF0000 Removed from Blacklist")
+						br.log:say("Blacklist", br.log.highlight(mouseoverName) .. " removed")
 						found = true
 						--blackList[k] = nil
 					end
 				end
 				if not found then
-					br._G.print("|cffFFDD11" .. mouseoverName .. "|cffFF0000 Added to Blacklist")
+					br.log:say("Blacklist", br.log.highlight(mouseoverName) .. " added")
 					br._G.tinsert(br.data.blackList, { guid = mouseoverGUID, name = mouseoverName })
 				end
 			end
 		else
-			br._G.print("Invalid Option for: |cFFFF0000" ..
-				msg1 .. "|r try |cffFFDD11 /br help |r for available options.")
+			br.log:warning("Invalid option for " .. br.log.highlight(msg1) .. ", try /br help for available options.")
 		end
 	elseif msg1 == "pause" then
 		-- Pause
@@ -218,11 +217,11 @@ local function handler(message, editbox)
 		if msg2 == "toggle" then
 			if br.data.settings[br.loader.selectedSpec].toggles["Pause"] ~= 1 then
 				br.ui.chatOverlay:Show("\124cFFED0000 -- Paused -- ")
-				br._G.print("|cFFFF0000Paused")
+				br.log:say("Pause", "on")
 				br.data.settings[br.loader.selectedSpec].toggles["Pause"] = 1
 			else
 				br.ui.chatOverlay:Show("\124cFF3BB0FF -- Pause Removed -- ")
-				br._G.print("|cFF3BB0FFPause Removed")
+				br.log:say("Pause", "off")
 				br.data.settings[br.loader.selectedSpec].toggles["Pause"] = 0
 			end
 		else
@@ -239,12 +238,12 @@ local function handler(message, editbox)
 			if toggle(msg2, msg3, true) then
 				toggle(msg2, msg3)
 			else
-				br._G.print("Invalid Toggle: |cFFFF0000" .. msg2 .. "|r try |cffFFDD11 /br help |r for list of toggles.")
+				br.log:warning("Invalid toggle " .. br.log.highlight(msg2) .. ", try /br help for the list of toggles.")
 			end
 		elseif msg2 ~= nil and msg4 ~= nil then
 			toggleRange(msg2, msg3, msg4)
 		else
-			br._G.print("No Toggle Specified: Try |cffFFDD11 /br help |r for list of toggles.")
+			br.log:warning("No toggle specified, try /br help for the list of toggles.")
 		end
 	elseif msg1 == "queue" then
 		-- Queue
@@ -294,9 +293,9 @@ local function handler(message, editbox)
 					range = tonumber(msg7)
 				end
 				if spellName == nil then
-					br._G.print("Invalid Spell ID: |cffFFDD11 Unable to add.")
+					br.log:warning("Invalid spell ID: unable to add.")
 				elseif not notOnCD then
-					br._G.print("Spell |cFFFF0000" .. spellName .. "|r not added, cooldown greater than gcd.")
+					br.log:say("Queue", br.log.highlight(spellName) .. " not added, cooldown greater than gcd")
 				else
 					if #br.player.queue == 0 and notOnCD then
 						br._G.tinsert(
@@ -310,11 +309,11 @@ local function handler(message, editbox)
 								effectRng = range
 							}
 						)
-						br._G.print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
+						br.log:say("Queue", "Added " .. br.log.highlight(spellName))
 					elseif #br.player.queue ~= 0 then
 						for i = 1, #br.player.queue do
 							if spellId == br.player.queue[i].id then
-								br._G.print("|cFFFF0000" .. spellName .. "|r is already queued.")
+								br.log:say("Queue", br.log.highlight(spellName) .. " is already queued")
 								break
 							elseif notOnCD then
 								br._G.tinsert(
@@ -328,7 +327,7 @@ local function handler(message, editbox)
 										effectRng = range
 									}
 								)
-								br._G.print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
+								br.log:say("Queue", "Added " .. br.log.highlight(spellName))
 								break
 							end
 						end
@@ -345,7 +344,7 @@ local function handler(message, editbox)
 					for i = 1, #br.player.queue do
 						if spellId == br.player.queue[i].id then
 							br._G.tremove(br.player.queue, i)
-							br._G.print("Removed |cFFFF0000" .. spellName .. "|r from the queue.")
+							br.log:say("Queue", "Removed " .. br.log.highlight(spellName))
 							removedSpell = true
 							break
 						end
@@ -353,18 +352,15 @@ local function handler(message, editbox)
 				end
 				if not removedSpell then
 					if spellName == nil then
-						br._G.print("Invalid Spell ID: |cffFFDD11 Unable to remove.")
+						br.log:warning("Invalid spell ID: unable to remove.")
 					else
-						br._G.print("Spell Not Found: Failed to remove |cFFFF0000" .. spellName .. "|r from the queue. ")
+						br.log:say("Queue", br.log.highlight(spellName) .. " not found in the queue")
 					end
 				end
 			end
 		elseif msg2 == nil then
-			br._G.print(
-				"Invalid Option for: |cFFFF0000" ..
-				msg1 ..
-				"|r try |cffFFDD11 /br queue clear |r - Clears the Queue list or |cffFFDD11 /br queue add (spell)|r - Adds specified spell to Queue list or |cffFFDD11 /br queue remove (spell) |r - Removes specifid from Queue list."
-			)
+			br.log:warning("Invalid option for " .. br.log.highlight(msg1) .. ", try /br queue clear (clears the queue),"
+				.. " /br queue add (spell) or /br queue remove (spell).")
 		end
 	elseif msg == "updaterate" then
 		-- Show Update Rate
@@ -384,9 +380,9 @@ local function handler(message, editbox)
 			local unitGUID = br._G.UnitGUID(unit)
 			if br.engines.healingEngineCollections.SpecialHealUnitList[unitGUID] ~= nil then
 				br.engines.healingEngineCollections.SpecialHealUnitList[unitGUID] = nil
-				br._G.print("|cffFFDD11" .. unitName .. "|cffFF0000 Removed from Special Heal List")
+				br.log:say("Healing", br.log.highlight(unitName) .. " removed from the special heal list")
 			else
-				br._G.print("|cffFFDD11" .. unitName .. "|cffFF0000 Added to Special Heal List")
+				br.log:say("Healing", br.log.highlight(unitName) .. " added to the special heal list")
 				br.engines.healingEngineCollections.SpecialHealUnitList[unitGUID] = unitName
 			end
 		else
@@ -399,13 +395,13 @@ local function handler(message, editbox)
 		else
 			local spellName, _, _, _, _, _, spellId = br.api.wow.GetSpellInfo(msg2)
 			if spellName == nil then
-				br._G.print("Invalid Spell ID: |cffFFDD11 Unable to add.")
+				br.log:warning("Invalid spell ID: unable to add.")
 			else
 				if br.engines.healingEngineCollections.BadDebuffList[spellId] ~= nil then
 					br.engines.healingEngineCollections.BadDebuffList[spellId] = nil
-					br._G.print("|cffFFDD11" .. spellName .. "|cffFF0000 Removed from Debuff List")
+					br.log:say("Healing", br.log.highlight(spellName) .. " removed from the debuff list")
 				else
-					br._G.print("|cffFFDD11" .. spellName .. "|cffFF0000 Added to Debuff List")
+					br.log:say("Healing", br.log.highlight(spellName) .. " added to the debuff list")
 					br.engines.healingEngineCollections.BadDebuffList[spellId] = spellName
 				end
 			end
@@ -466,7 +462,7 @@ local function handler(message, editbox)
 		-- Why did BR last refuse this spell? Covers cast.able checks, which never print.
 		local spellText = message:match("^%s*%S+%s+(.-)%s*$")
 		if spellText == nil or spellText == "" then
-			br._G.print("|cffFFDD11[BadRotations]|r Usage: /br why <spell>, IE: /br why maul")
+			br.log:say("Why", "Usage: /br why <spell>, IE: /br why maul")
 			return
 		end
 		-- Slash handlers run outside BR's protected scripts, where Forever hides values
@@ -475,8 +471,8 @@ local function handler(message, editbox)
 		br._G.C_Timer.After(0, function()
 			local entry = br.functions.cast:getRefusal(spellText)
 			if entry == nil then
-				br._G.print("|cffFFDD11[BadRotations]|r No cast checks recorded for |cFFFF0000" .. spellText ..
-					"|r yet. The profile hasn't asked about it, or the name doesn't match.")
+				br.log:say("Why", "No cast checks recorded for " .. br.log.highlight(spellText) ..
+					" yet. The profile hasn't asked about it, or the name doesn't match.")
 				return
 			end
 			local now = br._G.GetTime()
@@ -487,18 +483,18 @@ local function handler(message, editbox)
 				if br._G.issecretvalue and (br._G.issecretvalue(entry.detail) or br._G.issecretvalue(detail)) then
 					detail = ": (details are a value the game keeps secret)"
 				end
-				br._G.print(string.format("|cffFFDD11[BadRotations]|r %s last refused %.1fs ago — |cFFFF0000%s|r%s",
-					label, now - entry.refusedAt, tostring(entry.reason), detail))
+				br.log:say("Why", string.format("%s last refused %.1fs ago — %s%s",
+					label, now - entry.refusedAt, br.log.highlight(tostring(entry.reason)), detail))
 			else
-				br._G.print("|cffFFDD11[BadRotations]|r " .. label .. " has not been refused.")
+				br.log:say("Why", label .. " has not been refused.")
 			end
 			if entry.passedAt then
-				br._G.print(string.format("  Last passed every check %.1fs ago%s", now - entry.passedAt,
+				br.log:more(string.format("  Last passed every check %.1fs ago%s", now - entry.passedAt,
 					(entry.refusedAt == nil or entry.passedAt > entry.refusedAt)
 						and " (more recently than any refusal: if it still isn't cast, a profile condition or a higher line is stopping it)"
 						or ""))
 			else
-				br._G.print("  Has never passed every check.")
+				br.log:more("  Has never passed every check.")
 			end
 			-- BR's view of the target and the profile's dynamic units, since profile
 			-- lines are often gated on these rather than on the cast checks.
@@ -510,7 +506,7 @@ local function handler(message, editbox)
 					tostring(br.functions.unit:getFacing("player", thisUnit)),
 					tostring(br.functions.cast:isUnitVisible(thisUnit)))
 			end
-			br._G.print("  target: " .. describe("target"))
+			br.log:more("  target: " .. describe("target"))
 			-- The pieces of misc:isValidUnit, which dynamicTarget needs before it will
 			-- hand the target to units.dynN.
 			if br.functions.unit:GetUnitExists("target") then
@@ -533,7 +529,7 @@ local function handler(message, editbox)
 					if not okText or (isSecret and isSecret(text)) then return "<secret>" end
 					return text
 				end
-				br._G.print("  target valid: " .. try(function() return misc:isValidUnit("target") end)
+				br.log:more("  target valid: " .. try(function() return misc:isValidUnit("target") end)
 					.. " | enemyList " .. try(function() return misc:enemyListCheck("target") end)
 					.. " | threat " .. try(function() return br.functions.combat:hasThreat("target") end)
 					.. " | safe " .. try(function() return br.engines.enemiesEngineFunctions:isSafeToAttack("target") end)
@@ -550,19 +546,19 @@ local function handler(message, editbox)
 				for key in pairs(requested) do dynKeys[#dynKeys + 1] = key end
 				table.sort(dynKeys)
 				for _, key in ipairs(dynKeys) do
-					br._G.print("  units." .. key .. ": " .. describe(units[key]))
+					br.log:more("  units." .. key .. ": " .. describe(units[key]))
 				end
 			end
 		end)
 	elseif msg1 == "clean" or msg1 == "cleansettings" then
 		if br.ui and br.ui.settingsManagement then
-			br._G.print("|cffFFDD11[BadRotations]|r Manually cleaning orphaned settings...")
+			br._G.print("Manually cleaning orphaned settings...")
 			br.ui.settingsManagement:cleanSettings()
 		else
-			br._G.print("|cffFF0000[BadRotations]|r Settings management not available")
+			br.log:error("Settings management not available")
 		end
 	else
-		br._G.print("Invalid Command: |cFFFF0000" .. msg .. "|r try |cffFFDD11 /br help")
+		br.log:warning("Invalid command " .. br.log.highlight(msg) .. ", try /br help")
 	end
 end
 

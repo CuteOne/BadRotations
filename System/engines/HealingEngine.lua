@@ -250,7 +250,7 @@ if not healingEngine.metaTable1 then
 			end
 			local elapsedDebugTime = GetTime() - debugTimerStartTime
 			if elapsedDebugTime > 0.5 then
-				br._G.print("WARNING: Debuff Scan took a long time: " .. elapsedDebugTime .. " Seconds")
+				br.log:warning("Debuff scan took a long time: " .. elapsedDebugTime .. " seconds")
 			end
 			if br.functions.misc:getOptionCheck("Blacklist") == true and br.data.blackList ~= nil then
 				for i = 1, #br.data.blackList do

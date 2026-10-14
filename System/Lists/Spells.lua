@@ -51,7 +51,7 @@ function br.lists:loadExpansionSpells()
     local expansion = br.api.expansion
     if not expansion or expansion == "Unknown" then
         local label = expansion or "Unknown"
-        br._G.print("|cffFFFF00Warning:|r " .. label .. " spell lists not yet implemented!")
+        br.log:warning(label .. " spell lists not yet implemented!")
         return
     end
 
@@ -62,14 +62,14 @@ function br.lists:loadExpansionSpells()
     local globalPath = expBase .. sep .. "Global.lua"
     if not loadFile(globalPath, expansion .. " Global") then
         -- Fallback to legacy monolithic Spells.lua
-        br._G.print("|cffFFFF00Warning:|r " .. expansion .. " Global.lua not found; falling back to Spells.lua")
+        br.log:warning(expansion .. " Global.lua not found; falling back to Spells.lua")
         local legacy = br._G.ReadFile(expBase .. sep .. "Spells.lua")
         if legacy then
             local func = assert(loadstring(legacy, expansion .. " Spells"))
             setfenv(func, setmetatable({}, {__index = br._G}))
             func(nil, br)
         else
-            br._G.print("|cffFF0000Error:|r " .. expansion .. " spell lists not found!")
+            br.log:error(expansion .. " spell lists not found!")
         end
         return
     end
@@ -81,7 +81,7 @@ function br.lists:loadExpansionSpells()
     if class then
         local classPath = expBase .. sep .. class .. sep .. "Class.lua"
         if not loadFile(classPath, expansion .. " " .. class .. " Class") then
-            br._G.print("|cffFFFF00Warning:|r " .. class .. " Class.lua not found for " .. expansion)
+            br.log:warning(class .. " Class.lua not found for " .. expansion)
         end
     end
 
@@ -111,6 +111,6 @@ function br.lists:loadSpecSpells(specName)
     if loadFile(specPath, br.api.expansion .. " " .. class .. " " .. specName) then
         br.lists._loadedSpecs[specName] = true
     else
-        br._G.print("|cffFFFF00Warning:|r " .. specName .. ".lua not found for " .. class .. " in " .. br.api.expansion)
+        br.log:warning(specName .. ".lua not found for " .. class .. " in " .. br.api.expansion)
     end
 end

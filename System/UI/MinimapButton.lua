@@ -124,7 +124,7 @@ function br.ui:MinimapButton()
 
 	local function handleOnClick(self, button)
 		if not br.unlocked then
-			print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
+			br.log:error("Cannot start: BR can not complete loading. Please check requirements.")
 		end
 		if button == "LeftButton" then
 			if br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() then

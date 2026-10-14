@@ -32,8 +32,7 @@ local function loadFile(profile, file)
     local custom_env = setmetatable({ br = br }, { __index = br._G })
     local func, errorMessage = br._G.loadstring(profile, file);
     if not func then
-        br._G.print("Error: " .. file .. " Cannot Load.  Please inform devs!")
-        br._G.print("Load Error Message: " .. tostring(errorMessage))
+        br.log:error(file .. " cannot load. Please inform devs! " .. tostring(errorMessage))
         errorhandler(errorMessage)
         return false
     end
@@ -48,8 +47,7 @@ local function loadFile(profile, file)
 
     local success = xpcall(func, captureError);
     if not success then
-        br._G.print('Error: ' .. file .. ' Cannot Run.  Please inform devs!')
-        br._G.print("Run Error Message: " .. tostring(actualError))
+        br.log:error(file .. " cannot run. Please inform devs! " .. tostring(actualError))
         return false
     end
     return true
@@ -62,7 +60,7 @@ local METADATA_FIELDS = { "author", "patch", "coverage", "status", "readiness" }
 local loading = { file = nil, seen = {} }
 
 local function warn(message)
-    br._G.print("|cffFF0000BadRotations:|r " .. message)
+    br.log:warning(message)
 end
 
 -- value may be a single item or a list; returns true if any item equals wanted

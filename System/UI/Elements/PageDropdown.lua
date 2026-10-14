@@ -10,7 +10,7 @@ end
 -- Dropdown for pages. Each window remembers the page it was on (br.data.settings[spec][window].page).
 function br.ui:createPagesDropdown(window, menuPages)
     if br.loader.selectedSpec == nil or br.loader.selectedProfile == nil then
-        br._G.print("Error: selectedSpec or selectedProfile is nil")
+        br.log:error("selectedSpec or selectedProfile is nil")
         return
     end
 

@@ -32,7 +32,7 @@ local function checkDirectory(dir)
 		br._G.CreateDirectory(dir)
 		if not br._G.DirectoryExists(dir) then
 			-- Return Path
-			br._G.print("Creating Directory " .. dir .. " failed!")
+			br.log:error("Creating directory " .. dir .. " failed!")
 			return nil
 		end
 	end
@@ -247,7 +247,7 @@ function settingsManagement:checkDirectories(folder, class, spec, profile, insta
 		checkDirectory(instanceDir)
 		return instanceDir
 	end
-	br._G.print("Unknown Error Creating Directories")
+	br.log:error("Unknown error creating directories")
 	return nil
 end
 
@@ -287,8 +287,8 @@ function settingsManagement:registerAllOptions()
 		end
 	end
 	if #failedPages > 0 then
-		br._G.print("|cffFF8800[registerAllOptions] " .. #failedPages .. " pages failed to load - settings clean-up skipped|r")
-		for _, failMsg in ipairs(failedPages) do br._G.print("|cffFF8800  - " .. failMsg .. "|r") end
+		br.log:warning(#failedPages .. " option pages failed to load, settings clean-up skipped:")
+		for _, failMsg in ipairs(failedPages) do br.log:more("  - " .. failMsg) end
 		return false
 	end
 	if pagesRun > 0 then br.functions.misc:checkKeyClashes() end
@@ -303,14 +303,14 @@ function settingsManagement:cleanSettings()
 		-- Check if Power toggle is off - if so, skip cleaning as UI was never built
 		if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec].toggles and
 			br.data.settings[br.loader.selectedSpec].toggles["Power"] ~= 1 then
-			br._G.print("|cffFF8800[cleanSettings] System toggled off - skipping cleanup|r")
+			br.log:warning("Settings clean-up skipped: BR is toggled off")
 			return
 		end
 
 		-- Check if br.data.ui exists and has actual page data before attempting cleanup
 		-- This prevents cleaning when UI hasn't been fully initialized yet
 		if not br.data.ui then
-			br._G.print("|cffFF8800[cleanSettings] br.data.ui is nil - skipping cleanup|r")
+			br.log:warning("Settings clean-up skipped: no option pages are built yet")
 			return
 		end
 
@@ -324,7 +324,7 @@ function settingsManagement:cleanSettings()
 
 		-- If no actual pages exist in br.data.ui, skip cleaning
 		if uiPageCount == 0 then
-			br._G.print("|cffFF8800[cleanSettings] No UI pages found (count: " .. uiPageCount .. ") - skipping cleanup|r")
+			br.log:warning("Settings clean-up skipped: no option pages found (" .. uiPageCount .. ")")
 			return
 		end
 
@@ -374,7 +374,7 @@ function settingsManagement:cleanSettings()
 				end
 			end
 		else
-			br._G.print("|cffFFDD00[cleanSettings] Skipping duplicate check - only " .. uiPageCount .. " pages built (need 3+)|r")
+			br.log:say("Settings", "Duplicate check skipped: only " .. uiPageCount .. " option pages built (needs 3+)")
 		end
 
 		if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] then
@@ -421,12 +421,12 @@ function settingsManagement:cleanSettings()
 			-- A real clean-up removes a handful of leftovers; this many means options failed to register
 			if #removedItems > CLEANUP_MAX_REMOVED then
 				br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] = slotBefore
-				br._G.print("|cffFF0000Settings Cleanup skipped:|r it would have removed " .. #removedItems
+				br.log:warning("Settings clean-up skipped: it would have removed " .. #removedItems
 					.. " settings, which looks like a problem rather than leftovers. Nothing was changed.")
 				return
 			end
 			if #removedItems > 0 then
-				br._G.print("|cffFFDD00Settings Cleanup: Removed " .. #removedItems .. " duplicate/orphaned setting(s)|r")
+				br.log:say("Settings", "Clean-up removed " .. #removedItems .. " duplicate/orphaned setting(s)")
 				-- Save immediately so cleaned settings persist
 				br.data.collectGarbage = false -- Prevent re-running cleanup
 				settingsManagement:saveSettings()
@@ -678,14 +678,14 @@ local function writeSettingsFile(path, data, label, allowEmpty)
 		local onDisk = parse(current, path)
 		local reverted, customised = countReverted(data.pages, onDisk and onDisk.pages)
 		if reverted >= GUARD_MIN_REVERTED and reverted >= customised / 2 then
-			br._G.print("|cffFF0000Settings not saved (" .. label .. "):|r " .. reverted .. " of your " .. customised
+			br.log:error("Settings not saved (" .. label .. "): " .. reverted .. " of your " .. customised
 				.. " customised options are back at their defaults, which looks like settings were lost. Use Reset Options to reset on purpose.")
 			return false
 		end
 		local diskCount = countValues(onDisk)
 		local newCount = countValues(data)
 		if diskCount >= GUARD_MIN_VALUES and newCount < diskCount / 2 then
-			br._G.print("|cffFF0000Settings not saved (" .. label .. "):|r the current settings (" .. newCount
+			br.log:error("Settings not saved (" .. label .. "): the current settings (" .. newCount
 				.. " values) look emptied compared with the saved file (" .. diskCount .. " values).")
 			return false
 		end
@@ -744,7 +744,7 @@ local function loadBotFile()
 	if source then
 		file = tableLoad(botOptionsPath(source))
 		if file then
-			br._G.print("|cffFFDD00New character: copied Bot Options from " .. source .. ".|r")
+			br.log:say("Settings", "New character: copied Bot Options from " .. br.log.highlight(source) .. ".")
 			return file
 		end
 	end
@@ -765,7 +765,7 @@ local function loadBaseFile(specKey)
 		if bestSpec then
 			file = tableLoad(baseOptionsPath(bestSpec))
 			if file then
-				br._G.print("|cffFFDD00New spec: copied Base Options from your " .. bestSpec .. " settings.|r")
+				br.log:say("Settings", "New spec: copied Base Options from your " .. br.log.highlight(bestSpec) .. " settings.")
 				return file
 			end
 		end
@@ -784,7 +784,7 @@ local function loadBaseFile(specKey)
 		if sourceSpec then
 			file = tableLoad(baseOptionsPath(sourceSpec, source))
 			if file then
-				br._G.print("|cffFFDD00New character: copied Base Options from " .. source .. ".|r")
+				br.log:say("Settings", "New character: copied Base Options from " .. br.log.highlight(source) .. ".")
 				return file
 			end
 		end
@@ -830,7 +830,7 @@ local function migrateProfileFolder(profileDir, specKey)
 	if not tableLoad(botOptionsPath()) then tableSave(files.bot, botOptionsPath()) end
 	local basePath = baseOptionsPath(specKey)
 	if not tableLoad(basePath) then tableSave(files.base, basePath) end
-	br._G.print("|cffFFDD00Settings for this profile were converted to the new format (old savedSettings.lua kept).|r")
+	br.log:say("Settings", "Settings for this profile were converted to the new format (old savedSettings.lua kept).")
 end
 
 --- Loads a profile's settings (and this character's Bot/Base Options) into memory.
@@ -847,7 +847,7 @@ function settingsManagement:loadSettings(profile)
 	settingsManagement._lastLoadedProfile = profile
 	local profileDir = settingsManagement:checkDirectories(nil, nil, spec, profile)
 	if not profileDir then
-		br._G.print("No settings directory found for " .. tostring(profile) .. "!")
+		br.log:warning("No settings directory found for " .. br.log.highlight(tostring(profile)) .. "!")
 		return
 	end
 	local specKey = br.loader.selectedSpec
@@ -889,12 +889,12 @@ function settingsManagement:saveSettings(wipe, quiet)
 	local profile = br.loader.selectedProfileName
 	-- "None" means no rotation is loaded; saving it would only store defaults (and create a folder)
 	if profile == nil or profile == "" or profile == "None" then
-		br._G.print("|cffFFDD00Settings not saved: no rotation profile is loaded.|r")
+		br.log:warning("Settings not saved: no rotation profile is loaded.")
 		return
 	end
 	local profileDir = settingsManagement:checkDirectories(nil, nil, br.loader.selectedSpec, profile)
 	if not profileDir then
-		br._G.print("No settings directory found for " .. profile .. "!")
+		br.log:warning("No settings directory found for " .. br.log.highlight(profile) .. "!")
 		return
 	end
 	local specKey = br.loader.selectedSpec
@@ -975,7 +975,7 @@ function settingsManagement:loadSnapshot(dir, parts, label, legacyDir)
 		end
 	end
 	if next(files) == nil then
-		br._G.print("|cffFFDD00No saved " .. label .. " found.|r")
+		br.log:warning("No saved " .. label .. " found.")
 		return false
 	end
 	local profileDir = settingsManagement:checkDirectories(nil, nil, specKey, br.loader.selectedProfileName)
@@ -1011,7 +1011,7 @@ function settingsManagement:loadSelection()
 	end
 	if index == nil then
 		if name ~= nil and name ~= "" then
-			br._G.print("Last used rotation \"" .. tostring(name) .. "\" not found, defaulting to " .. rotations[1].name)
+			br.log:warning("Last used rotation \"" .. tostring(name) .. "\" not found, defaulting to " .. br.log.highlight(rotations[1].name))
 		end
 		index = 1
 	end

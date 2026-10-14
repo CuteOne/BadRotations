@@ -50,7 +50,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 	-- without a damage racial): not castable, and not an error worth printing.
 	if spellID == 0 then return false end
 	if spellID == nil or br.functions.spell:getName(spellID) == nil then
-		br._G.print("Invalid Spell ID: " .. tostring(spellID) .. " for key: " .. tostring(index))
+		br.log:error("Invalid spell ID " .. br.log.highlight(tostring(spellID)) .. " for key " .. br.log.highlight(tostring(index)))
 		return false
 	end
 
@@ -254,7 +254,7 @@ function cast:castQueue()
 				if entry.queuedAt and (now - entry.queuedAt) > ttl then
 					br._G.tremove(br.player.queue, i)
 					if not br.functions.misc:isChecked("Mute Queue") then
-						br._G.print("Queue entry expired: |cFFFF0000" .. tostring(entry.name) .. "|r")
+						br.log:say("Queue", br.log.highlight(tostring(entry.name)) .. " expired")
 					end
 				else
 					i = i + 1

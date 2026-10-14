@@ -2,7 +2,9 @@ local _, br = ...
 ---------------------------------------------------------------------------------------------------
 -- Logging
 ---------------------------------------------------------------------------------------------------
--- Where BR's output goes besides the game's chat window:
+-- All of BR's output:
+--   Chat          br._G.print (info), br.log:warning, br.log:error, br.log:say (a labelled line),
+--                 br.log:more (a continuation line); see "Chat" below for the look.
 --   Log files     br.log:file(name, cap) gives a function that adds a line to <WoW folder>\<name>
 --                 (BRLoot.log, ...), written for reading between sessions. Lines are buffered and
 --                 written once a second, when combat ends and on logout/reload: writing a line used
@@ -29,17 +31,26 @@ local tconcat, wipe = table.concat, br._G.wipe
 local sessionHeader = ("=== session %s, loaded at game time %.1f ==="):format(
 	date and date("%Y-%m-%d %H:%M:%S") or "?", GetTime())
 
---- Text as it can be printed and written: flagged text rebuilt (misc:plainText), color codes and
--- link markup reduced to the text. A line holding a value BR can't read says so instead.
-function log.plain(text)
-	local ok, plain = pcall(function()
-		local value = tostring(text)
+local UNREADABLE = "(a line holding a value BR can't read)"
+
+--- Text as chat can show it: flagged text rebuilt (misc:plainText). A line holding a value BR
+-- can't read says so instead.
+function log.printable(text)
+	local ok, value = pcall(function()
 		local misc = br.functions and br.functions.misc
+		local value = tostring(text)
 		if misc and misc.plainText then value = misc:plainText(value) end
-		value = value:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""):gsub("|H.-|h(.-)|h", "%1"):gsub("|T.-|t", "")
-		return value
+		return value .. "" -- fails here on a value BR can't use
 	end)
-	return ok and plain or "(a line holding a value BR can't read)"
+	return ok and value or UNREADABLE
+end
+
+--- Text as it is written to a file: printable, with color codes and link markup reduced to the text
+function log.plain(text)
+	local ok, value = pcall(function()
+		return (log.printable(text):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""):gsub("|H.-|h(.-)|h", "%1"):gsub("|T.-|t", ""))
+	end)
+	return ok and value or UNREADABLE
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -113,6 +124,51 @@ function log:flush()
 end
 
 ---------------------------------------------------------------------------------------------------
+-- Chat
+---------------------------------------------------------------------------------------------------
+-- Every BR line in chat looks the same: the class-colored [BadRotations] tag, then an optional
+-- label, then the text. Levels: info (br._G.print, no label), warning, error. Tools label their
+-- lines (br.log:say("Range", ...)); debug lines are labelled System Debug / Profile Debug
+-- (misc:addonDebug). Names and values in the text use one highlight color (log.highlight).
+log.colors = {
+	error = "|cffFF4040",
+	warning = "|cffFF8800",
+	label = "|cffFFDD11",
+	highlight = "|cffFFDD11",
+	text = "|cffFFFFFF",
+}
+
+--- text in the highlight color, for names and values inside a line
+function log.highlight(text)
+	return log.colors.highlight .. tostring(text) .. "|r"
+end
+
+--- The one chat print: the tag, then msg; recorded (BRChat.log, /br log) without the tag.
+function br._G.print(msg)
+	if msg == nil then return end
+	local color = (br.ui and br.ui.colors and br.ui.colors.class) or ""
+	print(color .. "[BadRotations] |r" .. log.printable(msg))
+	log:chat(msg)
+end
+
+--- A line that continues the one before it (a list, help), without the tag
+function log:more(text)
+	print(log.printable(text))
+	log:chat(text)
+end
+
+--- A line with a label ("Range: ...", "Error: ...") in labelColor (gold when nil)
+function log:say(label, text, labelColor)
+	br._G.print((labelColor or log.colors.label) .. label .. ":|r " .. tostring(text))
+end
+
+--- Something went wrong (a file that can't load, a setting that can't be saved, a mistake in a profile)
+function log:error(text) log:say("Error", text, log.colors.error) end
+
+--- Something is off but BR carries on (a fallback was used, something was skipped)
+function log:warning(text) log:say("Warning", text, log.colors.warning) end
+
+---------------------------------------------------------------------------------------------------
 -- Chat record
 ---------------------------------------------------------------------------------------------------
 local chatLine = log:file("BRChat.log", CHAT_CAP)
@@ -176,3 +232,7 @@ local flushEvents = br._G.CreateFrame("Frame")
 flushEvents:RegisterEvent("PLAYER_REGEN_ENABLED") -- a fight's lines, right when it ends
 flushEvents:RegisterEvent("PLAYER_LOGOUT")        -- also on /reload
 flushEvents:SetScript("OnEvent", function() log:flush() end)
+
+-- Lines from files that load before BR's chat exists (Expansions/shared.lua)
+for _, message in ipairs(br.earlyMessages or {}) do br._G.print(message) end
+br.earlyMessages = nil

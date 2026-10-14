@@ -99,8 +99,8 @@ function profileUI:rotationPages(options)
                 if not ok then error(result, 0) end
                 -- The old createOptions style returned its pages instead of building one
                 if type(result) == "table" then
-                    br._G.print("|cffFF0000" .. tostring(br.loader.selectedProfileName) .. ": options should build the page"
-                        .. " (br.ui:section, br.ui:checkbox, ...) or be a list of pages, not return pages - see Rotations/sample rotation.lua|r")
+                    br.log:error(tostring(br.loader.selectedProfileName) .. ": options should build the page"
+                        .. " (br.ui:section, br.ui:checkbox, ...) or be a list of pages, not return pages - see Rotations/sample rotation.lua")
                 end
             end,
         }

@@ -16,7 +16,7 @@ bootstrap.settingsLoaded = false   -- true once the current spec/profile's setti
 
 local function debug(message)
 	if br.functions and br.functions.misc and br.functions.misc.addonDebug then
-		br.functions.misc:addonDebug(message)
+		br.functions.misc:addonDebug(message, true)
 	end
 end
 

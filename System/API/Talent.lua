@@ -48,10 +48,8 @@ br.api.talent = function(talent, name, id, allTalents, spellList)
         if br._G.GetSpecialization then
             local spec = br._G.GetSpecializationInfo(br._G.GetSpecialization()) or 0
             if spec < 1400 then
-                br._G.print("|cffff0000No talent found for: |r" ..
-                    name ..
-                    " (" ..
-                    id .. ") |cffff0000in the talent spell list, please notify profile developer to remove from the list.")
+                br.log:warning("No talent found for " .. br.log.highlight(name .. " (" .. id .. ")")
+                    .. " in the talent spell list, please notify the profile developer to remove it from the list.")
             end
         end
         return nil

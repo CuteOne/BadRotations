@@ -207,17 +207,17 @@ function common:commonReaders()
 			br.functions.unit.isDisarmed = true
 		end
 		if param == "ERR_SPELL_FAILED_S" and br.pickPocketing then --"SPELL_FAILED_TARGET_NO_POCKETS"
-			br._G.print("|cffFF0000NO POCKETS")
+			br.log:say("Pick Pocket", "no pockets")
 			br.unpickable = true
 			br.pickPocketing = false
 		end
 		if param == "ERR_ALREADY_PICKPOCKETED" then
-			br._G.print("|cffFF0000ALREADY PICKPOCKETED")
+			br.log:say("Pick Pocket", "already pickpocketed")
 			br.unpickable = true
 			br.pickPocketing = false
 		end
 		if errorType == "ERR_NO_LOOT" and br.pickPocketing then
-			br._G.print("|cffFF0000NO LOOT")
+			br.log:say("Pick Pocket", "no loot")
 			br.unpickable = true
 			br.pickPocketing = false
 		end
@@ -329,7 +329,7 @@ function common:commonReaders()
 			-- Cast Debug: when auto attack stops mid-fight (a queued Maul / Heroic Strike goes with it,
 			-- "Interrupted"), say what was going on, so the cause can be told from the log. Not when the
 			-- unit it started on died: the game drops a dead target, the fight's normal end.
-			if event == "PLAYER_LEAVE_COMBAT" and br._G.UnitAffectingCombat("player") and br.player and br.player.ui
+			if event == "PLAYER_LEAVE_COMBAT" and br._G.UnitAffectingCombat("player")
 				and br.functions.misc:isChecked("Cast Debug") -- a diagnostic: Cast Debug only
 				and not autoAttackTargetDied()
 			then
@@ -363,7 +363,7 @@ function common:commonReaders()
 				end
 				local controlled = br.functions.combat.hasHardControl and br.functions.combat:hasHardControl() and ", you're crowd controlled" or ""
 				local flaggedNote = #flaggedParts > 0 and (" [flagged: " .. table.concat(flaggedParts, ", ") .. "]") or ""
-				br.player.ui.debug("[AUTO ATTACK OFF] mid-fight: " .. target .. lastCast .. controlled .. flaggedNote)
+				br.functions.misc:addonDebug("[AUTO ATTACK OFF] mid-fight: " .. target .. lastCast .. controlled .. flaggedNote, true)
 			end
 			return
 		end
@@ -415,8 +415,7 @@ function common:commonReaders()
 							br._G.SpellStopTargeting()
 						end
 						if not br.functions.misc:isChecked("Mute Queue") then
-							br._G.print("Cast Success! - Removed |cFFFF0000" ..
-							br.api.wow.GetSpellInfo(queuedID) .. "|r from the queue.")
+							br.log:say("Queue", "Cast " .. br.log.highlight(br.api.wow.GetSpellInfo(queuedID)) .. ", removed from the queue")
 						end
 						break
 					end

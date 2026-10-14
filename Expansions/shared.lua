@@ -601,13 +601,13 @@ api.GetGCDSpellID = function()
     return class and GCDSpells[class] or GCDSpells.DRUID
 end
 
--- Print the standard compatibility-layer banner. Called at the end of each
--- expansion's Functions.lua once br.api.expansion has been set.
--- Uses raw _G.print directly: br._G and br._G.print are not yet initialised
--- at expansion-file load time (BadRotations.lua runs later in the TOC).
+-- The standard compatibility-layer banner. Called at the end of each expansion's Functions.lua
+-- once br.api.expansion has been set. BR's chat (System/Logging.lua) loads later in the TOC, so the
+-- line waits in br.earlyMessages and Logging.lua prints it.
 br.api.printCompatLoaded = function()
     if br.api.compat and br.api.compat.getVersionInfo then
         local versionInfo = br.api.compat:getVersionInfo()
-        print("|cffA330C9[BadRotations] |r API: " .. br.api.expansion .. " compatibility layer loaded (Build: " .. versionInfo.build .. ")")
+        br.earlyMessages = br.earlyMessages or {}
+        br.earlyMessages[#br.earlyMessages + 1] = "API: " .. br.api.expansion .. " compatibility layer loaded (Build: " .. versionInfo.build .. ")"
     end
 end

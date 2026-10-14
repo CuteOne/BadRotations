@@ -38,15 +38,6 @@ local loadedIn = false
 local _br_loaded = false
 br._G = setmetatable({}, { __index = _G })
 
--- br._G.print: tagged chat print used throughout BR, also recorded by System/Logging.lua
--- (BRChat.log, /br log). Defined immediately after br._G so every subsequent file can use it.
-function br._G.print(msg)
-	if msg == nil then return end
-	local color = (br.ui and br.ui.colors and br.ui.colors.class) or ""
-	print(color .. "[BadRotations] |r" .. tostring(msg))
-	if br.log then br.log:chat(msg) end
-end
-
 -- WoW API Compatibility Layer
 -- Expansion-specific API wrappers are loaded via Expansions/wowapi.lua -> Expansions/<name>/Functions.lua
 -- This allows all API differences to be managed in one place per expansion

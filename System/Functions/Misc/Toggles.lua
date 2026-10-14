@@ -51,6 +51,6 @@ function misc:warnMissingToggle(toggleName, purpose, apiCall)
 	local key = profile .. "|" .. toggleName
 	if warnedMissingToggles[key] then return end
 	warnedMissingToggles[key] = true
-	br._G.print("|cffFF8800" .. profile .. " uses " .. purpose .. " (" .. apiCall .. ") but has no \"" .. toggleName
-		.. "\" toggle, so " .. purpose .. " will never be used. Add a " .. toggleName .. " toggle to the profile.|r")
+	br.log:warning(profile .. " uses " .. purpose .. " (" .. apiCall .. ") but has no \"" .. toggleName
+		.. "\" toggle, so " .. purpose .. " will never be used. Add a " .. toggleName .. " toggle to the profile.")
 end

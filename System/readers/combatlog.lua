@@ -391,26 +391,26 @@ function combatLog:common(...)
                     if br.player ~= nil and #br.player.queue == 0 and notOnCD then
                         br._G.tinsert(br.player.queue, { id = spell, name = spellName, target = br.queueDest, queuedAt = br._G.GetTime() })
                         if not br.functions.misc:isChecked("Mute Queue") then
-                            br._G.print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
+                            br.log:say("Queue", "Added " .. br.log.highlight(spellName))
                         end
                     elseif br.player ~= nil and #br.player.queue ~= 0 then
                         for i = 1, #br.player.queue do
                             if spell == br.player.queue[i].id then
                                 br._G.tremove(br.player.queue, i)
                                 if not br.functions.misc:isChecked("Mute Queue") then
-                                    br._G.print("Removed |cFFFF0000" .. spellName .. "|r  from the queue.")
+                                    br.log:say("Queue", "Removed " .. br.log.highlight(spellName))
                                 end
                                 break
                             elseif notOnCD then
                                 br._G.tinsert(br.player.queue, { id = spell, name = spellName, target = br.queueDest, queuedAt = br._G.GetTime() })
                                 if not br.functions.misc:isChecked("Mute Queue") then
-                                    br._G.print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
+                                    br.log:say("Queue", "Added " .. br.log.highlight(spellName))
                                 end
                                 break
                             end
                         end
                     elseif not br.functions.misc:isChecked("Mute Queue") and not notOnCD then
-                        br._G.print("Spell |cFFFF0000" .. spellName .. "|r not added, cooldown greater than gcd.")
+                        br.log:say("Queue", br.log.highlight(spellName) .. " not added, cooldown greater than gcd")
                     end
                 end
             end
@@ -432,9 +432,7 @@ function combatLog:common(...)
                             if spell == br.player.queue[i].id then
                                 br._G.tremove(br.player.queue, i)
                                 if not br.functions.misc:isChecked("Mute Queue") then
-                                    br._G.print(
-                                        "Cast Success! - Removed |cFFFF0000" .. spellName .. "|r from the queue."
-                                    )
+                                    br.log:say("Queue", "Cast " .. br.log.highlight(spellName) .. ", removed from the queue")
                                 end
                                 break
                             end
@@ -1020,7 +1018,7 @@ function combatLog:Priest(...)
             -- Mindflay Ticks
             if source == guid and spellName == br.api.wow.GetSpellInfo(15407) then
                 br.mfTicks = br.mfTicks + 1
-                br.functions.misc:addonDebug("Mindflay + 1 tick" .. "Total Ticks: " .. br.mfTicks)
+                br.functions.misc:addonDebug("Mindflay + 1 tick" .. "Total Ticks: " .. br.mfTicks, true)
             end
         end
         -- Corruption was removed.
@@ -1030,7 +1028,7 @@ function combatLog:Priest(...)
                 if spellName == br.api.wow.GetSpellInfo(15407) then
                     br.mfTicks = 0
                     br.maxmfTicks = 6
-                    br.functions.misc:addonDebug("Mindflay ticks reset")
+                    br.functions.misc:addonDebug("Mindflay ticks reset", true)
                 end
             end
         end
@@ -1043,7 +1041,7 @@ function combatLog:Priest(...)
             -- Mind Sear Ticks
             if source == guid and spellName == br.api.wow.GetSpellInfo(48045) and destination == br._G.UnitGUID("target") then
                 br.msTicks = br.msTicks + 1
-                br.functions.misc:addonDebug("Mind Sear + 1 tick" .. "Total Ticks: " .. br.msTicks)
+                br.functions.misc:addonDebug("Mind Sear + 1 tick" .. "Total Ticks: " .. br.msTicks, true)
             end
         end
         -- Corruption was removed.
@@ -1053,7 +1051,7 @@ function combatLog:Priest(...)
                 if spellName == br.api.wow.GetSpellInfo(48045) then
                     br.msTicks = 0
                     br.maxmsTicks = 6
-                    br.functions.misc:addonDebug("Mind Sear ticks reset")
+                    br.functions.misc:addonDebug("Mind Sear ticks reset", true)
                 end
             end
         end
@@ -1347,7 +1345,7 @@ function combatLog:Warlock(...) -- 9
             -- Drain Soul Ticks
             if source == guid and spellName == br.api.wow.GetSpellInfo(198590) then
                 br.dsTicks = br.dsTicks + 1
-                br.functions.misc:addonDebug("Drain Soul + 1 tick" .. "Total Ticks: " .. br.dsTicks)
+                br.functions.misc:addonDebug("Drain Soul + 1 tick" .. "Total Ticks: " .. br.dsTicks, true)
             end
         end
         -- Corruption was removed.
@@ -1357,7 +1355,7 @@ function combatLog:Warlock(...) -- 9
                 if spellName == br.api.wow.GetSpellInfo(198590) then
                     br.dsTicks = 1
                     br.maxdsTicks = 5
-                    br.functions.misc:addonDebug("Drain Soul ticks reset")
+                    br.functions.misc:addonDebug("Drain Soul ticks reset", true)
                 end
             end
         end

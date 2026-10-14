@@ -102,7 +102,7 @@ end
 --- Adds a toggle (its modes) and its button at column col, row row of the toggle bar.
 function br.ui:createToggle(modes, name, col, row)
 	if type(name) ~= "string" then
-		return br._G.print("Invalid toggle name " .. tostring(name) .. ". Please let devs know!")
+		return br.log:error("Invalid toggle name " .. tostring(name) .. ". Please let devs know!")
 	end
 	toggles.modes[name] = modes
 	br.ui:CreateButton(name, col, row)
@@ -148,13 +148,13 @@ end
 function br.ui:ToggleToValue(name, index)
 	local found = findToggle(name)
 	if found == nil then
-		return br._G.print("No toggle named " .. tostring(name) .. ".")
+		return br.log:warning("No toggle named " .. br.log.highlight(tostring(name)) .. ".")
 	end
 	local modesCount = #toggles.modes[found]
 	index = tonumber(index)
 	if index == nil or index < 1 or index > modesCount then
-		return br._G.print("Invalid Toggle Index for |cffFFDD11" .. found .. ": |cFFFF0000 Index ( |r" .. tostring(index)
-			.. "|cFFFF0000) must be 1 to |r" .. modesCount .. "|cFFFF0000.|r")
+		return br.log:error("Invalid toggle index for " .. br.log.highlight(found) .. ": " .. tostring(index)
+			.. " (must be 1 to " .. modesCount .. ")")
 	end
 	if index ~= currentIndex(found) then setToggle(found, index) end
 end
@@ -163,7 +163,7 @@ end
 function br.ui:ToggleValue(name)
 	local found = findToggle(name)
 	if found == nil then
-		return br._G.print("No toggle named " .. tostring(name) .. ".")
+		return br.log:warning("No toggle named " .. br.log.highlight(tostring(name)) .. ".")
 	end
 	setToggle(found, currentIndex(found) % #toggles.modes[found] + 1)
 end
@@ -172,7 +172,7 @@ end
 function br.ui:ToggleMinus(name)
 	local found = findToggle(name)
 	if found == nil then
-		return br._G.print("No toggle named " .. tostring(name) .. ".")
+		return br.log:warning("No toggle named " .. br.log.highlight(tostring(name)) .. ".")
 	end
 	setToggle(found, (currentIndex(found) - 2) % #toggles.modes[found] + 1)
 end

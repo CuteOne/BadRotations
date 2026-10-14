@@ -108,7 +108,7 @@ local profiling = false
 
 function br.debug.cpu:profile(seconds)
     if profiling then
-        br._G.print("|cffFFDD11[BadRotations]|r A profile run is already going.")
+        br.log:say("CPU", "A profile run is already going.")
         return
     end
     seconds = tonumber(seconds) or 30
@@ -140,24 +140,24 @@ function br.debug.cpu:profile(seconds)
         br._G.C_Timer.After(1, sampleFPS)
     end
     sampleFPS()
-    br._G.print(("|cffFFDD11[BadRotations]|r Profiling for %d s..."):format(seconds))
+    br.log:say("CPU", ("Profiling for %d s..."):format(seconds))
     br._G.C_Timer.After(seconds, function()
         for _, r in ipairs(restore) do r[1][r[2]] = r[3] end
         profiling = false
         local function count(t) local n = 0 for _ in pairs(t or {}) do n = n + 1 end return n end
         local engine = br.engines.enemiesEngine
-        br._G.print(("|cffFFDD11[BadRotations]|r CPU over %d s | FPS avg %.0f | objects %d | tracked units %d | candidates %d | enemies %d"):format(
+        br.log:say("CPU", ("over %d s | FPS avg %.0f | objects %d | tracked units %d | candidates %d | enemies %d"):format(
             seconds, fpsSamples > 0 and fpsTotal / fpsSamples or 0, br._G.GetObjectCount and br._G.GetObjectCount() or 0,
             #(engine.recordList or {}), count(engine.units), count(engine.enemy)))
         local costs = br.engines.tickCost
         if costs then
-            br._G.print(("  BR tick cost (running average): rotation %.2f ms + enemies engine %.2f ms -> %.2f s between ticks%s"):format(
+            br.log:more(("  BR tick cost (running average): rotation %.2f ms + enemies engine %.2f ms -> %.2f s between ticks%s"):format(
                 costs.rotation, costs.enemies, br.engines:getUpdateRate(),
                 br.functions.misc:isChecked("Auto Delay") and " (Auto Delay)" or ""))
         end
         for _, stats in ipairs(results) do
             if stats.calls > 0 then
-                br._G.print(("  %-30s %7.2f ms/s  %6.0f calls/s  %6.3f ms/call"):format(
+                br.log:more(("  %-30s %7.2f ms/s  %6.0f calls/s  %6.3f ms/call"):format(
                     stats.label, stats.time / seconds, stats.calls / seconds, stats.time / stats.calls))
             end
         end
@@ -249,7 +249,7 @@ end
 -- sessions. Every line /br range prints also goes to BRRange.log.
 local rangeLine = br.log:file("BRRange.log")
 local function say(text)
-    br._G.print("|cffFFDD11[BR range]|r " .. text)
+    br.log:say("Range", text)
     rangeLine(text)
 end
 
@@ -339,7 +339,7 @@ local TARGET_REPORT_UNITS = 6
 function br.debug.target:report(reason, units)
     units = units or TARGET_REPORT_UNITS
     local function say(text)
-        if reason == nil then br._G.print("|cffFFDD11[BR target]|r " .. text) end
+        if reason == nil then br.log:say("Target", text) end
         targetLine(text)
     end
     if reason then say("--- " .. reason .. " ---") end

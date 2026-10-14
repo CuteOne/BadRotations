@@ -41,7 +41,7 @@ function lootEngine:dumpGreys(numToDump)
 		if greyTable[i] ~= nil then
 			br._G.C_Container.PickupContainerItem(greyTable[i].Bag, greyTable[i].Slot)
 			br._G.DeleteCursorItem()
-			br._G.print("|cffFF0000Removed Grey Item: " .. greyTable[i].Item)
+			br.log:say("Loot", "Removed grey item " .. greyTable[i].Item)
 		end
 	end
 end
@@ -66,26 +66,24 @@ SLASH_LootStats1 = "/lootstats"
 SLASH_LootStats2 = "/ls"
 function br._G.SlashCmdList.LootStats(msg, editbox)
 	if not br.engines.lootEngine or not br.engines.lootEngine.getStats then
-		br._G.print("|cffFF0000Loot Engine not initialized!")
+		br.log:error("Loot Engine not initialized!")
 		return
 	end
 
 	local stats = br.engines.lootEngine:getStats()
-	br._G.print("|cff00FF00=== Loot Engine Stats ===")
-	br._G.print("|cffFFFFFFLootable Units: " .. (stats.lootableCount or 0))
-	br._G.print("|cffFFFFFFFree Bag Slots: " .. (stats.freeSlots or 0))
-	br._G.print("|cffFFFFFFCurrent Target: " .. (stats.currentTarget or "None"))
-	br._G.print("|cffFFFFFFTracked Attempts: " .. (stats.attemptsTracked or 0))
-	br._G.print("|cffFFFFFFIs Looting: " .. tostring(br.engines.lootEngine.isLooting or false))
-	br._G.print("|cffFFFFFFLoot Window Open: " .. tostring(br.engines.lootEngine.lootWindowOpen or false))
+	local say = function(text) br.log:say("Loot", text) end
+	say("Lootable units " .. (stats.lootableCount or 0) .. " | free bag slots " .. (stats.freeSlots or 0)
+		.. " | current target " .. tostring(stats.currentTarget or "none") .. " | tracked attempts " .. (stats.attemptsTracked or 0))
+	say("Looting " .. tostring(br.engines.lootEngine.isLooting or false) .. " | loot window open "
+		.. tostring(br.engines.lootEngine.lootWindowOpen or false))
 
 	-- List all lootable units
 	if stats.lootableCount > 0 then
-		br._G.print("|cff00FF00Lootable Units:")
+		say("Lootable units:")
 		for k, v in pairs(br.engines.enemiesEngine.lootable) do
 			if v and v.unit and v.name then
 				local distance = br.functions.range:getDistance(v.unit) or 999
-				br._G.print("  - " .. v.name .. " (" .. k .. ") at " .. math.floor(distance) .. " yards")
+				say("  - " .. v.name .. " (" .. k .. ") at " .. math.floor(distance) .. " yards")
 			end
 		end
 	end

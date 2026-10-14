@@ -82,8 +82,8 @@ function misc:checkKeyClashes()
 			local text = key .. ": " .. table.concat(names, ", ")
 			if not warnedKeyClashes[text] then
 				warnedKeyClashes[text] = true
-				br._G.print("|cffFF0000Key " .. key .. " is set for " .. table.concat(names, " and ")
-					.. ". Holding it does all of them; give one a different key.|r")
+				br.log:warning("Key " .. br.log.highlight(key) .. " is set for " .. table.concat(names, " and ")
+					.. ". Holding it does all of them; give one a different key.")
 			end
 		end
 	end
@@ -197,8 +197,8 @@ function misc:registerOption(page, key, default)
 		optionIndex[key] = page
 	elseif known ~= page and not warnedDuplicates[key] then
 		warnedDuplicates[key] = true
-		br._G.print("|cffFF8800Option \"" .. key .. "\" exists on pages \"" .. known .. "\" and \"" .. page
-			.. "\"; using \"" .. known .. "\". Rename one of them.|r")
+		br.log:warning("Option \"" .. key .. "\" exists on pages \"" .. known .. "\" and \"" .. page
+			.. "\"; using \"" .. known .. "\". Rename one of them.")
 	end
 end
 
