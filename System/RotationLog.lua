@@ -117,8 +117,8 @@ end
 -- spellID is nil for a send by name.
 function rotation:sent(spellID, spellName, unit)
 	sent = sent + 1
-	-- no target shown for spells sent at the player (self buffs, roars and other self-centred casts)
-	local target = unit ~= "player" and unitName(unit) or nil
+	-- spells sent at the player (self buffs, roars and other self-centred casts) say "self"
+	local target = unit == "player" and "self" or unitName(unit)
 	local entry = { n = sent, spellID = spellID, name = log.printable(spellName), target = target,
 		at = GetTime(), combat = combatTime(), site = rotation.site() }
 	pending[#pending + 1] = entry
