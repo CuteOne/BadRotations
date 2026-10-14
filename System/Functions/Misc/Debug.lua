@@ -37,6 +37,12 @@ function misc:plainText(text)
 	return table.concat(bytes)
 end
 
+-- A debug line in chat, also recorded by System/Logging.lua (BRChat.log, /br log)
+local function debugPrint(label, text)
+	print(br.ui.colors.class .. "[BadRotations] " .. label .. ": |cffFFFFFF" .. text)
+	br.log:chat(label .. ": " .. text)
+end
+
 function misc:addonDebug(msg, system)
 	if msg == nil then
 		return
@@ -69,7 +75,7 @@ function misc:addonDebug(msg, system)
 		if showProfile and system ~= true and string.find(msgText, "Casting") then
 			local castKey = "Casting Immediate:" .. msgKey
 			if br.debug.timer:useTimer(castKey, 0.05) then
-				print(br.ui.colors.class .. "[BadRotations] Profile Debug: |cffFFFFFF" .. msgText)
+				debugPrint("Profile Debug", msgText)
 			end
 			return
 		end
@@ -77,12 +83,12 @@ function misc:addonDebug(msg, system)
 		if system == true and showSystem then
 			local timerKey = "System Delay:" .. msgKey
 			if br.debug.timer:useTimer(timerKey, 0.1) then
-				print(br.ui.colors.class .. "[BadRotations] System Debug: |cffFFFFFF" .. msgText)
+				debugPrint("System Debug", msgText)
 			end
 		elseif system ~= true and showProfile then
 			local timerKey = "Profile Delay:" .. msgKey
 			if br.debug.timer:useTimer(timerKey, 0.1) then
-				print(br.ui.colors.class .. "[BadRotations] Profile Debug: |cffFFFFFF" .. msgText)
+				debugPrint("Profile Debug", msgText)
 			end
 		end
 	end

@@ -245,35 +245,9 @@ local function measure()
     return m
 end
 
--- Logs in the unlocker's folder (GetWoWDirectory), e.g. BRMelee.log: written for Claude to read
--- between sessions, since chat copy windows show <SECRET> on Forever. A line is added to what the
--- file holds now (read afresh each time, so lines removed from the file while the game runs stay
--- removed; unlockers' WriteFile can't append), and the file keeps its newest LOG_MAX_BYTES.
--- Each session's first line in a file is a dated header. Returns the function that adds a line.
-local LOG_MAX_BYTES = 262144
-local function fileLog(fileName)
-    local sessionStarted = false
-    return function(text)
-        if br._G.WriteFile == nil or br._G.ReadFile == nil or br._G.GetWoWDirectory == nil then return end
-        local path = br._G.GetWoWDirectory() .. "\\" .. fileName
-        local line = ("%.1f "):format(br._G.GetTime()) .. plainText(text):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
-        if not sessionStarted then
-            sessionStarted = true
-            line = "=== session " .. (br._G.date and br._G.date("%Y-%m-%d %H:%M") or "?") .. " ===\n" .. line
-        end
-        local ok, current = pcall(br._G.ReadFile, path)
-        if not ok or type(current) ~= "string" then current = "" end
-        local content = current .. line .. "\n"
-        if #content > LOG_MAX_BYTES then
-            local cut = content:find("\n", #content - LOG_MAX_BYTES / 2, true)
-            content = content:sub((cut or 0) + 1)
-        end
-        pcall(br._G.WriteFile, path, content, false)
-    end
-end
-
--- Every line also goes to BRRange.log
-local rangeLine = fileLog("BRRange.log")
+-- The recorders below write to log files in the WoW folder (System/Logging.lua), read between
+-- sessions. Every line /br range prints also goes to BRRange.log.
+local rangeLine = br.log:file("BRRange.log")
 local function say(text)
     br._G.print("|cffFFDD11[BR range]|r " .. text)
     rangeLine(text)
@@ -357,7 +331,7 @@ end--]]
 -- /br target: the enemy BR focuses on and why (br.engines.targeting:explain), in chat and BRTarget.log
 ----------------------------------------------------------------------------------------------------
 br.debug.target = br.debug.target or {}
-local targetLine = fileLog("BRTarget.log")
+local targetLine = br.log:file("BRTarget.log")
 local TARGET_REPORT_UNITS = 6
 
 -- reason (optional): why an automatic report was made (written to the log only, not chat); units:
@@ -418,7 +392,7 @@ end
 -- the target fled while a second mob stayed in melee.
 ----------------------------------------------------------------------------------------------------
 br.debug.melee = br.debug.melee or {}
-local meleeLine = fileLog("BRMelee.log")
+local meleeLine = br.log:file("BRMelee.log")
 local MELEE_EPISODE_LINES = 40 -- lines kept per episode
 local episode                   -- { started, lastSeen, lastSnap, lines, events }
 
@@ -580,7 +554,7 @@ end
 -- Called by Player:startRotation after the rotation.
 ----------------------------------------------------------------------------------------------------
 br.debug.idle = br.debug.idle or {}
-local idleLine = fileLog("BRIdle.log")
+local idleLine = br.log:file("BRIdle.log")
 local IDLE_AFTER = 4
 local lastActionAt, idleLogged, idleInCombat = 0, false, false
 local idleRuns = 0 -- ticks the rotation ran (not paused) since the last action
@@ -697,17 +671,9 @@ end
 -- BR's previous send. Called by the cast dispatcher (noteSend) just before each send.
 ----------------------------------------------------------------------------------------------------
 br.debug.cast = br.debug.cast or {}
-local castLine = fileLog("BRCast.log")
-local CAST_LOG_CAP = 150 -- lines per session
-local castLogged = 0
+local castWrite = br.log:file("BRCast.log", 150)
 local lastSend, previousSend -- { name, at, behind, remain, window, gcd, pushbacks }
 local pushbacks = 0          -- UNIT_SPELLCAST_DELAYED on the player's current cast
-
-local function castWrite(text)
-    if castLogged >= CAST_LOG_CAP then return end
-    castLogged = castLogged + 1
-    castLine(text)
-end
 
 -- The player's cast or channel: name, seconds left
 local function currentCast(now)
@@ -787,13 +753,9 @@ end)
 -- br.debug.loot:tag(guid) gives the short corpse tag the lines use.
 ----------------------------------------------------------------------------------------------------
 br.debug.loot = br.debug.loot or {}
-local lootLine = fileLog("BRLoot.log")
-local LOOT_LOG_CAP = 300 -- lines per session
-local lootLogged = 0
+local lootLine = br.log:file("BRLoot.log")
 
 function br.debug.loot:line(text)
-    if lootLogged >= LOOT_LOG_CAP then return end
-    lootLogged = lootLogged + 1
     lootLine(text)
 end
 

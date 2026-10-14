@@ -132,6 +132,7 @@ function slashCommands:slashHelpList()
 	slashCommands:SlashCommandHelp("br why spell", "Shows why BR last refused a spell, IE: /br why maul")
 	slashCommands:SlashCommandHelp("br cpu seconds", "Measures how much time BR's engines and profile take, IE: /br cpu 30")
 	slashCommands:SlashCommandHelp("br target", "Shows the enemy BR focuses on and why: each candidate's score by part (also written to BRTarget.log)")
+	slashCommands:SlashCommandHelp("br log", "Shows BR's recent chat lines in a window to copy from (also in BRChat.log)")
 	slashCommands:SlashCommandHelp("br range [watch|stop]", "Checks BR's range rules against the game's for your target; watch prints each time they change")
 	if select(2, br._G.UnitClass("player")) == "HUNTER" then
 		slashCommands:SlashCommandHelp("br disengage", "Assign to macro to Forward Disengage.")
@@ -456,6 +457,8 @@ local function handler(message, editbox)
 		br.debug.cpu:profile(msg2)
 	elseif msg1 == "range" then
 		br.debug.range:probe(msg2)
+	elseif msg1 == "log" then
+		br.log:showRecent()
 	elseif msg1 == "target" then
 		-- Slash handlers run tainted; timer callbacks run protected (secret values readable), as /br why
 		br._G.C_Timer.After(0, function() br.debug.target:report() end)
