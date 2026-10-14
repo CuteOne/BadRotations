@@ -79,7 +79,6 @@ br.loader.selectedSpecID = 0
 br.loader.selectedProfile = 1
 br.loader.selectedProfileName = "None"
 br.loader.settingsFile = "None.lua"
--- developers debug, use /run br.data.settings[br.loader.selectedSpec].toggles["isDebugging"] = true
 
 -- Run
 function br.Run()

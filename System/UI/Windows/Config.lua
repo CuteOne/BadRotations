@@ -129,8 +129,6 @@ function br.ui:createConfigWindow()
         br.ui:checkbox(section, "Incoming Heals", { tip = "If checked, it will add incoming health from other healers to hp. Check this if you want to prevent overhealing units." })
         br.ui:spinner(section, "Overhealing Cancel", { value = 95,
             tip = "Set Desired Threshold at which you want to prevent your own casts. CURRENTLY NOT IMPLEMENTED!" })
-        --br.healingDebug = br.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
-        --br.ui:createSpinner(section, "Debug Refresh", 500, 0, 1000, 25, "Set desired Healing Engine Debug Table refresh for rate in ms.")
         br.ui:spinner(section, "Dispel delay", { value = 1.5, min = 0.5, max = 5, step = 0.1,
             tip = "Set desired dispel delay in seconds of debuff duration.\n|cffFF0000Will randomise around the value you set." })
         br.ui:checkbox(section, "Healer Line of Sight Indicator", { tip = "Draws a line to healers. Green In Line of Sight / Red Not In Line of Sight" })

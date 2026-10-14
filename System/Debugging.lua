@@ -1,13 +1,6 @@
 local _, br = ...
 -- Provides functions to help debugging and profiling
 
--- Custom Debug Print
-function br.debug:print(message)
-	if br.data.settings[br.loader.selectedSpec].toggles["isDebugging"] == true then
-		br._G.print(message)
-	end
-end
-
 -- CPU Debug
 br.debug.cpu = {}
 br.debug.cpu.healingEngine = {
@@ -193,15 +186,10 @@ end
 local function isFlagged(value) return br.functions.misc:isFlagged(value) end
 local function plainInteger(value, max) return br.functions.misc:plainInteger(value, max) end
 local function plainNumber(value) return br.functions.misc:plainNumber(value) end
-local function plainText(text) return br.functions.misc:plainText(text) end
 
 local function printable(value)
     if value == nil then return "?" end
-    if type(value) == "string" then
-        if not br.functions.misc:canUseValue(value) then return "<unusable secret>" end
-        return plainText(value)
-    end
-    return tostring(value)
+    return br.log.printable(value)
 end
 
 -- Branching on a flagged boolean gives plain strings

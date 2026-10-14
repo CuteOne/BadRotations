@@ -221,9 +221,6 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 			validRequest = br.functions.misc:isValidUnit(unitToCheck)
 		end
 		if not validRequest then
-			if br.functions.misc:isChecked("Enemy List Debug") then
-				br._G.print("[enemiesEngine.getEnemies] Early exit: non-combat and no valid unit for: " .. tostring(unitToCheck))
-			end
 			br.debug.cpu:updateDebug(startTime, "enemiesEngine.getEnemies_quickguard")
 			return {}
 		end

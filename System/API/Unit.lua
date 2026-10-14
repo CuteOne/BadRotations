@@ -521,12 +521,7 @@ br.api.unit = function(self)
         if otherUnit == nil then otherUnit = "player" end
 
         local facing = br.functions.unit:getFacing(thisUnit, otherUnit, degrees)
-        if facing == nil then
-            if br and br.ui and br.ui.debug then
-                br.ui.debug("isBehind: facing=nil | thisUnit="..tostring(thisUnit).." | otherUnit="..tostring(otherUnit).." | degrees="..tostring(degrees))
-            end
-            return false
-        end
+        if facing == nil then return false end
         return not facing
     end
 
