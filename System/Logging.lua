@@ -133,9 +133,11 @@ end
 log.colors = {
 	error = "|cffFF4040",
 	warning = "|cffFF8800",
+	success = "|cff40FF40",
 	label = "|cffFFDD11",
 	highlight = "|cffFFDD11",
 	text = "|cffFFFFFF",
+	muted = "|cff8C8C8C", -- detail a line can do without: row numbers, times, where it came from
 }
 
 --- text in the highlight color, for names and values inside a line

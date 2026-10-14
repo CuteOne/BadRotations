@@ -117,7 +117,9 @@ end
 -- spellID is nil for a send by name.
 function rotation:sent(spellID, spellName, unit)
 	sent = sent + 1
-	local entry = { n = sent, spellID = spellID, name = log.printable(spellName), target = unitName(unit),
+	-- no target shown for spells sent at the player (self buffs, roars and other self-centred casts)
+	local target = unit ~= "player" and unitName(unit) or nil
+	local entry = { n = sent, spellID = spellID, name = log.printable(spellName), target = target,
 		at = GetTime(), combat = combatTime(), site = rotation.site() }
 	pending[#pending + 1] = entry
 	awaiting[#awaiting + 1] = entry
@@ -138,14 +140,22 @@ function rotation:label(text)
 	end
 end
 
--- The row for a send (or a cast of the player's) and how it ended
+-- The row for a send (or a cast of the player's) and how it ended. kind picks the result's color:
+-- "success", "error" or "warning" (log.colors). Kept plain (the file, copying) and colored (the window).
 local rows, rowNext = {}, 1
-local function addRow(entry, result)
-	local row = ("%s %6.1fs  %s%s  %s%s"):format(entry.n and ("#" .. entry.n) or "you", entry.combat or 0,
-		entry.label or entry.name, entry.target and (" → " .. entry.target) or "", result,
-		entry.site and ("  (" .. entry.site .. ")") or "")
-	rowLine(row)
-	rows[rowNext] = row
+local function addRow(entry, result, kind)
+	local c = log.colors
+	local who = entry.n and ("#" .. entry.n) or "you"
+	local time = ("%6.1fs"):format(entry.combat or 0)
+	local spell = entry.label or entry.name
+	local plain = ("%s %s  %s%s  %s%s"):format(who, time, spell, entry.target and (" → " .. entry.target) or "",
+		result, entry.site and ("  (" .. entry.site .. ")") or "")
+	local colored = ("%s %s  %s%s  %s%s"):format(
+		(entry.n and c.muted or br.ui.colors.class) .. who .. "|r", c.muted .. time .. "|r",
+		c.text .. spell .. "|r", entry.target and (c.muted .. " → |r" .. log.highlight(entry.target)) or "",
+		c[kind] .. result .. "|r", entry.site and (c.muted .. "  (" .. entry.site .. ")|r") or "")
+	rowLine(plain)
+	rows[rowNext] = { plain = plain, colored = colored }
 	rowNext = rowNext % WINDOW_ROWS + 1
 	rotation:refreshWindow()
 end
@@ -168,7 +178,7 @@ function rotation:endTick()
 		local entry = awaiting[i]
 		if now - entry.at > ANSWER_WAIT then
 			tremove(awaiting, i)
-			addRow(entry, "no answer")
+			addRow(entry, "no answer", "warning")
 		end
 	end
 end
@@ -224,22 +234,26 @@ events:SetScript("OnEvent", function(_, event, a, b, c)
 			entry = { name = log.printable(br.functions.spell:getName(spellID) or tostring(spellID)),
 				target = unitName("target"), combat = combatTime() }
 		end
-		addRow(entry, event == "UNIT_SPELLCAST_CHANNEL_START" and "channelling" or "done")
+		addRow(entry, event == "UNIT_SPELLCAST_CHANNEL_START" and "channelling" or "done", "success")
 	elseif entry ~= nil then
 		local reason = (lastError and GetTime() - lastErrorAt <= ERROR_WAIT) and (": " .. lastError) or ""
-		addRow(entry, (event == "UNIT_SPELLCAST_INTERRUPTED" and "interrupted" or "failed") .. reason)
+		if event == "UNIT_SPELLCAST_INTERRUPTED" then
+			addRow(entry, "interrupted" .. reason, "warning")
+		else
+			addRow(entry, "failed" .. reason, "error")
+		end
 	end
 end)
 
 ---------------------------------------------------------------------------------------------------
 -- The window
 ---------------------------------------------------------------------------------------------------
---- The rows, oldest first
-function rotation:rows()
+--- The rows, oldest first, as plain text (colored: as the window shows them)
+function rotation:rows(colored)
 	local list = {}
 	for i = 0, WINDOW_ROWS - 1 do
 		local row = rows[(rowNext + i - 1) % WINDOW_ROWS + 1]
-		if row then list[#list + 1] = row end
+		if row then list[#list + 1] = colored and row.colored or row.plain end
 	end
 	return list
 end
@@ -253,9 +267,11 @@ end
 function rotation:refreshWindow()
 	local box = windowBox()
 	if box == nil then return end
-	local list = rotation:rows()
-	local text = #list > 0 and table.concat(list, "\n") or "Nothing cast yet this session."
-	-- the box puts this text back when it loses focus, so typing in it changes nothing
-	box.settings.text = text
-	box:SetText(text)
+	local colored = rotation:rows(true)
+	if #colored == 0 then colored = { "Nothing cast yet this session." } end
+	-- shown colored; clicking in to copy shows the plain text (br.ui:createWindow's copy box)
+	box.settings.text = table.concat(colored, "\n")
+	box.plainText = table.concat(rotation:rows(), "\n")
+	-- while the player is selecting text to copy, the new rows wait until they click out
+	if not box.editBox:HasFocus() then box:SetText(box.settings.text) end
 end

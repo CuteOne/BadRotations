@@ -42,6 +42,12 @@ function br.ui:createWindow(name, width, height, title, color, messageWindow)
         scrollFrame.settings.contentPadding = { 4, 4, 4, 4 }
         scrollFrame:ApplySettings()
         scrollFrame:SetEventListener("OnEscapePressed", function() scrollFrame.editBox:ClearFocus() end)
+        -- Shown with colors (settings.text); clicking in to copy swaps in plainText when the owner
+        -- set one, selected, so Ctrl+C copies no color codes. Losing focus puts settings.text back.
+        scrollFrame:SetEventListener("OnEditFocusGained", function()
+            if scrollFrame.plainText then scrollFrame.editBox:SetText(scrollFrame.plainText) end
+            scrollFrame.editBox:HighlightText()
+        end)
     end
     window:AddChild(scrollFrame)
     scrollFrame:SetParent(window.content)
