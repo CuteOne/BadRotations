@@ -25,6 +25,7 @@ if not lootEngine.metaTable then
 	-- Note: lootable table is managed by EnemiesEngine (br.engines.enemiesEngine.lootable)
 	lootEngine.lootUnit = nil         -- Current unit to loot
 	lootEngine.lootGUID = nil         -- GUID of the unit we last fired an interact on
+	lootEngine.windowGUID = nil       -- Corpse the open loot window belongs to (BR's or the player's)
 	lootEngine.oldMessage = nil       -- For debug message tracking
 	lootEngine.lastBagWarning = 0     -- Throttle bag full warnings
 	lootEngine.lootAttempts = {}      -- Last interact or window close per GUID (paces re-interacts)
@@ -133,6 +134,19 @@ if not lootEngine.metaTable then
 			.. ("%.1f"):format(now - self.lootStartTime) .. "s - will retry")
 		self.isLooting = false
 		self.lootGUID = nil
+	end
+
+	-- The corpse a loot window belongs to: BR's interact, else the game's loot source (a window the
+	-- player opened, e.g. skinning). Nil when the client can't say (no GetLootSourceInfo, or a
+	-- fast-loot addon already emptied the slots).
+	function lootEngine:windowSource()
+		if self.lootGUID then return self.lootGUID end
+		local getSource, numItems = br._G.GetLootSourceInfo, br._G.GetNumLootItems
+		if not getSource or not numItems then return nil end
+		for slot = 1, numItems() or 0 do
+			local guid = getSource(slot)
+			if guid and br.functions.misc:canUseValue(guid) then return guid end
+		end
 	end
 
 	-- Main looting logic
@@ -401,6 +415,7 @@ if not lootEngine.metaTable then
 			lootEngine.isLooting = false
 			if lootEngine.lootShown then return end
 			lootEngine.lootShown = true
+			lootEngine.windowGUID = lootEngine:windowSource()
 			-- Count this successful open against the GUID we interacted with. Repeated
 			-- opens with loot still remaining are how getLoot detects unlootable
 			-- (unique/quest/already-owned) items — see MAX_LOOT_OPENS.
@@ -408,7 +423,8 @@ if not lootEngine.metaTable then
 				lootEngine.lootOpenCount[lootEngine.lootGUID] = (lootEngine.lootOpenCount[lootEngine.lootGUID] or 0) + 1
 			end
 			lootEngine:debug("Loot window opened" .. (lootEngine.lootGUID
-				and (" (BR's interact on " .. lootEngine:tag(lootEngine.lootGUID) .. ")") or " (not BR's interact)"))
+				and (" (BR's interact on " .. lootEngine:tag(lootEngine.lootGUID) .. ")")
+				or (" (not BR's interact) on " .. (lootEngine.windowGUID and lootEngine:tag(lootEngine.windowGUID) or "an unknown corpse"))))
 
 			-- Remove the unit from lootable table now that loot window opened successfully
 			if lootEngine.lootUnit then
@@ -449,7 +465,11 @@ if not lootEngine.metaTable then
 				if lootEngine.lootGUID and not lootLeft then
 					lootEngine.lootOpenCount[lootEngine.lootGUID] = nil
 				end
-				if lootEngine.lootGUID then lootEngine.lootAttempts[lootEngine.lootGUID] = GetTime() end
+				-- The re-interact gap starts at every close, the player's windows too: right after a
+				-- skinning window closed, CanLootUnit still said loot was left and BR interacted 0.2-0.5 s
+				-- later for no window (BRLoot.log 2026-10-13).
+				if lootEngine.windowGUID then lootEngine.lootAttempts[lootEngine.windowGUID] = GetTime() end
+				lootEngine.windowGUID = nil
 				lootEngine:debug("Loot window closed" .. (lootEngine.lootGUID
 					and (", " .. lootEngine:tag(lootEngine.lootGUID) .. (lootLeft and " still has loot" or " emptied")) or ""))
 				lootEngine.lootGUID = nil
