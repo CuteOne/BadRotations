@@ -501,7 +501,8 @@ function br.debug.melee:watch(player)
         meleeEnvironmentLogged = true
         meleeWrite("client: locale " .. tostring(br._G.GetLocale and br._G.GetLocale())
             .. " | AuraUtil.UnpackAuraData " .. tostring(_G.AuraUtil ~= nil and _G.AuraUtil.UnpackAuraData ~= nil)
-            .. " | unlocker UnitFlags " .. tostring(br._G.UnitFlags ~= nil))
+            .. " | unlocker UnitFlags " .. tostring(br._G.UnitFlags ~= nil)
+            .. " | protected call " .. tostring(br.unlockers.protect ~= nil))
         -- Names in the unlocker's own API that could read unit flags (so an adapter can map
         -- br._G.UnitFlags) or run code protected / handle secret values (br.unlockers.protect)
         local raw = br.unlockers.raw
@@ -516,8 +517,7 @@ function br.debug.melee:watch(player)
                 end
             end)
             table.sort(names)
-            meleeWrite("unlocker " .. tostring(br.unlockers.selected) .. " API: " .. (#names > 0 and table.concat(names, ", ") or "no flag/field/protect names listed")
-                .. " | protected call " .. tostring(br.unlockers.protect ~= nil))
+            meleeWrite("unlocker " .. tostring(br.unlockers.selected) .. " API: " .. (#names > 0 and table.concat(names, ", ") or "no flag/field/protect names listed"))
         end
     end
     local active = false
