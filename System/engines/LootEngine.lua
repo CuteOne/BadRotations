@@ -43,13 +43,14 @@ if not lootEngine.metaTable then
 
 	setmetatable(lootEngine, lootEngine.metaTable)
 
-	-- Debug function: a system line under Addon Debug Messages (a message isn't repeated in a row).
-	-- It was keyed to an "isDebugging" toggle that nothing makes, so it never showed.
-	function lootEngine:debug(message)
+	-- Debug function: every line goes to BRLoot.log; only lines given chat text (true: the same text)
+	-- also show as a system line under Addon Debug Messages. Each step in chat was spam. A message
+	-- isn't repeated in a row.
+	function lootEngine:debug(message, chat)
 		if message and self.oldMessage ~= message then
-			br.functions.misc:addonDebug("<LootEngine> " .. (math.floor(GetTime() * 1000) / 1000) .. " " .. message, true)
 			self.oldMessage = message
 			if br.debug.loot then br.debug.loot:line(message) end
+			if chat then br.functions.misc:addonDebug("<LootEngine> " .. (chat == true and message or chat), true) end
 		end
 	end
 
@@ -131,7 +132,7 @@ if not lootEngine.metaTable then
 	function lootEngine:releaseStaleInteract(now)
 		if not self.isLooting or self.lootWindowOpen or (now - self.lootStartTime) <= WINDOW_TIMEOUT then return end
 		self:debug("Interact on " .. lootEngine:tag(self.lootGUID) .. " produced no loot window in "
-			.. ("%.1f"):format(now - self.lootStartTime) .. "s - will retry")
+			.. ("%.1f"):format(now - self.lootStartTime) .. "s - will retry", true)
 		self.isLooting = false
 		self.lootGUID = nil
 	end
@@ -204,7 +205,7 @@ if not lootEngine.metaTable then
 		-- rather than being wrongly blacklisted (the old attempt-count bug).
 		if (self.lootOpenCount[unitGUID] or 0) >= MAX_LOOT_OPENS and self:emptySlots() > 0 then
 			self:debug("Skipping " .. (br._G.UnitName(lootUnit) or "unknown") .. " - loot remained after "
-				.. MAX_LOOT_OPENS .. " window opens (likely a unique/quest item)")
+				.. MAX_LOOT_OPENS .. " window opens (likely a unique/quest item)", true)
 			self.lootSkipList[unitGUID] = true
 			if br.engines.enemiesEngine.lootable[lootUnit] then
 				br.engines.enemiesEngine.lootable[lootUnit] = nil
@@ -237,12 +238,13 @@ if not lootEngine.metaTable then
 		-- never change the player's target to loot (no ClearTarget cleanup needed).
 		local interactFunc = br._G.InteractUnit or br._G.ObjectInteract
 		if not interactFunc then
-			self:debug("ERROR: No interact function available (InteractUnit or ObjectInteract)")
+			self:debug("ERROR: No interact function available (InteractUnit or ObjectInteract)", true)
 			return
 		end
 
-		self:debug("Looting " .. (br._G.UnitName(lootUnit) or "unknown") .. " " .. lootEngine:tag(unitGUID)
-			.. " at " .. lootEngine:edgeText(lootUnit))
+		local name = br._G.UnitName(lootUnit) or "unknown"
+		self:debug("Looting " .. name .. " " .. lootEngine:tag(unitGUID) .. " at " .. lootEngine:edgeText(lootUnit),
+			"Looting " .. name)
 		self.lootGUID = unitGUID
 		self.lootShown = false
 		self.lootAttempts[unitGUID] = now
@@ -381,9 +383,9 @@ if not lootEngine.metaTable then
 		-- Get info about the item being looted
 		local itemLink = br._G.GetLootSlotLink(slot)
 		if itemLink then
-			self:debug("Auto-confirming BoP loot: " .. itemLink)
+			self:debug("Auto-confirming BoP loot: " .. itemLink, true)
 		else
-			self:debug("Auto-confirming BoP loot at slot " .. slot)
+			self:debug("Auto-confirming BoP loot at slot " .. slot, true)
 		end
 
 		-- Confirm the binding
@@ -479,7 +481,6 @@ if not lootEngine.metaTable then
 				-- Auto-confirm Bind on Pickup items when program Auto Loot is enabled
 				local slot = ...
 				if slot and br.functions.misc:getOptionCheck("Auto Loot") then
-					lootEngine:debug("Auto-confirming BoP item at slot " .. slot)
 					lootEngine:confirmBindOnPickup(slot)
 				end
 			end
