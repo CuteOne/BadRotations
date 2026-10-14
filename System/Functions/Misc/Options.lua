@@ -27,7 +27,7 @@ local function findOption(Value, Page, Type)
 	local notFound = 0
 	if Type == " Check" then notFound = false end
 	-- A nil or secret option name can't be a real option
-	if Value == nil or (issecretvalue and issecretvalue(Value)) then return notFound end
+	if Value == nil or misc:isFlagged(Value) then return notFound end
 	local specSettings = br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
 	local settings = specSettings and specSettings[br.loader.selectedProfile]
 	if settings == nil then return notFound end
