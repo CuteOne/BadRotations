@@ -4,6 +4,10 @@ BadRotations writes what it does and sees to the files in this folder while you 
 help with a problem, zip this folder and send it along with a short note of what went wrong and
 roughly when. The logs often show the cause without you having to reproduce it.
 
+No one is named in these files: your character is "Me", other players get a stand-in such as
+`Party2[PRIEST]` or `Player5[ROGUE]`, and realms, player IDs and the user name in folder paths are
+left out. Creatures and NPCs keep their names. (Chat in the game shows the real names as usual.)
+
 Each file trims itself when a session starts, so the folder stays small without you having to
 clean it. Deleting the files is safe at any time, even while the game is running.
 

@@ -54,6 +54,120 @@ function log.plain(text)
 end
 
 ---------------------------------------------------------------------------------------------------
+-- Privacy
+---------------------------------------------------------------------------------------------------
+-- The log files may be sent to whoever helps a user, so nothing in them names a person: the player
+-- is "Me", every other player a stand-in kept for the session ("Party2[PRIEST]", "Player5[ROGUE]"),
+-- and realms, player GUIDs and the user name in file paths are left out. NPCs keep their names
+-- (what was fought matters). Chat and the /br log window are the user's own: real names there.
+-- Players are known from the group, and from log:notePlayer, which code writing a unit's name to
+-- a file calls first.
+local standIns = {}  -- player name -> what the files say instead
+local names = {}     -- the names in standIns, longest first (so "Ann" doesn't cut into "Anna")
+local realms = {}    -- realm names, left out once the names are replaced
+local counts = {}    -- stand-ins handed out per kind (Party, Raid, Player)
+
+local function usableText(value)
+	local misc = br.functions and br.functions.misc
+	return type(value) == "string" and value ~= "" and (misc == nil or misc.canUseValue == nil or misc:canUseValue(value))
+end
+
+local function standIn(name, replacement)
+	if not usableText(name) or standIns[name] then return end
+	standIns[name] = replacement
+	names[#names + 1] = name
+	table.sort(names, function(a, b) return #a > #b end)
+end
+
+local function noteRealm(realm)
+	if not usableText(realm) then return end
+	for i = 1, #realms do if realms[i] == realm then return end end
+	realms[#realms + 1] = realm
+	table.sort(realms, function(a, b) return #a > #b end)
+end
+
+--- Notes a unit that is a player, so the log files show its stand-in instead of its name. Returns
+-- the stand-in (nil for an NPC or a unit that can't be read).
+function log:notePlayer(unit)
+	local G = br._G
+	local ok, result = pcall(function()
+		if unit == nil or not G.UnitIsPlayer or not G.UnitIsPlayer(unit) then return nil end
+		local name, realm = G.UnitName(unit)
+		if not usableText(name) then return nil end
+		noteRealm(realm)
+		if standIns[name] then return standIns[name] end
+		if G.UnitIsUnit(unit, "player") then
+			standIn(name, "Me")
+			return "Me"
+		end
+		local kind = (G.UnitInRaid and G.UnitInRaid(unit) and "Raid")
+			or (G.UnitInParty and G.UnitInParty(unit) and "Party") or "Player"
+		counts[kind] = (counts[kind] or 0) + 1
+		local _, class = G.UnitClass(unit)
+		local replacement = kind .. counts[kind] .. (usableText(class) and ("[" .. class .. "]") or "")
+		standIn(name, replacement)
+		return replacement
+	end)
+	return ok and result or nil
+end
+
+-- The player, their realm and the group, as it changes
+local function noteGroup()
+	log:notePlayer("player")
+	if br._G.GetRealmName then noteRealm(br._G.GetRealmName()) end
+	local raid = br._G.IsInRaid and br._G.IsInRaid()
+	for i = 1, raid and 40 or 4 do log:notePlayer((raid and "raid" or "party") .. i) end
+end
+
+-- A letter or digit (any byte of a non-ASCII letter counts), for whole-word matches
+local function wordByte(b)
+	return b ~= nil and (b >= 128 or (b >= 48 and b <= 57) or (b >= 65 and b <= 90) or (b >= 97 and b <= 122))
+end
+
+-- Every whole-word name in text replaced (withRealm: a "-Realm" after it too)
+local function replaceName(text, name, replacement, withRealm)
+	local parts, from = {}, 1
+	while true do
+		local first, last = text:find(name, from, true)
+		if not first then break end
+		if wordByte(text:byte(first - 1)) or wordByte(text:byte(last + 1)) then
+			parts[#parts + 1] = text:sub(from, last)
+		else
+			if withRealm and text:sub(last + 1, last + 1) == "-" and wordByte(text:byte(last + 2)) then
+				last = last + 1
+				while wordByte(text:byte(last + 1)) do last = last + 1 end
+			end
+			parts[#parts + 1] = text:sub(from, first - 1) .. replacement
+		end
+		from = last + 1
+	end
+	if from == 1 then return text end
+	parts[#parts + 1] = text:sub(from)
+	return tconcat(parts)
+end
+
+local groupNoted = false
+--- A file line with the people taken out (see above)
+function log.private(text)
+	if not groupNoted then
+		groupNoted = true
+		noteGroup()
+	end
+	for i = 1, #names do
+		local name = names[i]
+		if text:find(name, 1, true) then text = replaceName(text, name, standIns[name], true) end
+	end
+	for i = 1, #realms do
+		local realm = realms[i]
+		if text:find(realm, 1, true) then text = replaceName(text, realm, "<realm>") end
+	end
+	return (text:gsub("Player%-%d+%-%x+", "Player-<guid>")
+		:gsub("([A-Za-z]:[\\/][Uu]sers[\\/])[^\\/]+", "%1<user>")
+		:gsub("(/home/)[^/]+", "%1<user>")
+		:gsub("(/Users/)[^/]+", "%1<user>"))
+end
+
+---------------------------------------------------------------------------------------------------
 -- Log files
 ---------------------------------------------------------------------------------------------------
 local files = {} -- name -> { cap, lines (this session), pending = {}, started, capped }
@@ -121,7 +235,7 @@ function log:flush()
 	for name, state in pairs(files) do
 		if #state.pending > 0 then
 			local path = dir .. sep .. name
-			local added = tconcat(state.pending, "\n") .. "\n"
+			local added = log.private(tconcat(state.pending, "\n")) .. "\n"
 			if not state.started then
 				state.started = true
 				local ok, current = pcall(readFile, path)
@@ -282,7 +396,11 @@ br._G.C_Timer.NewTicker(FLUSH_EVERY, function() log:flush() end)
 local flushEvents = br._G.CreateFrame("Frame")
 flushEvents:RegisterEvent("PLAYER_REGEN_ENABLED") -- a fight's lines, right when it ends
 flushEvents:RegisterEvent("PLAYER_LOGOUT")        -- also on /reload
-flushEvents:SetScript("OnEvent", function() log:flush() end)
+flushEvents:RegisterEvent("GROUP_ROSTER_UPDATE")  -- new group members get their stand-ins
+flushEvents:SetScript("OnEvent", function(_, event)
+	if event == "GROUP_ROSTER_UPDATE" then return noteGroup() end
+	log:flush()
+end)
 
 -- Lines from files that load before BR's chat exists (Expansions/shared.lua), printed once every
 -- file has loaded: the tag's class color (System/UI/Colors.lua) isn't set until later in the TOC

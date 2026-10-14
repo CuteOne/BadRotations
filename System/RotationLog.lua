@@ -135,6 +135,7 @@ end
 
 local function unitName(unit)
 	if unit == nil then return nil end
+	log:notePlayer(unit) -- a player's name becomes a stand-in in Rotation.log
 	local name = br._G.UnitName(unit)
 	return name and log.printable(name) or tostring(unit)
 end

@@ -192,6 +192,12 @@ local function printable(value)
     return br.log.printable(value)
 end
 
+-- A unit's name for a log file; a player's becomes a stand-in there (System/Logging.lua: Privacy)
+local function unitName(unit)
+    br.log:notePlayer(unit)
+    return printable(br._G.UnitName(unit))
+end
+
 -- Branching on a flagged boolean gives plain strings
 local function inOut(value)
     if value == nil then return "--" end
@@ -244,7 +250,7 @@ end
 local function snapshot()
     local m = measure()
     if m == nil then return say("Target something first.") end
-    say("Target: " .. printable(br._G.UnitName("target")) .. (m.leeway > 0 and "  (both running: +2.67 melee leeway)" or ""))
+    say("Target: " .. unitName("target") .. (m.leeway > 0 and "  (both running: +2.67 melee leeway)" or ""))
     if #m.flagged > 0 then say("  flagged secret by the game (still usable): " .. table.concat(m.flagged, ", ")) end
     say(("  speed: you %.2f, target %.2f yd/s"):format(m.speedPlayer or 0, m.speedTarget or 0))
     say(("  centre %.2f yd (2D %.2f, height %.2f) | combat reach: you %.2f, target %.2f"):format(m.centre, m.flat, m.dz, m.reachPlayer, m.reachTarget))
@@ -335,14 +341,14 @@ function br.debug.target:report(reason, units)
     local misc = br.functions.misc
     local focus, list = br.engines.targeting:explain()
     say(("Targeting Mode %s (1 Off, 2 Assist, 3 Full) | your target: %s"):format(tostring(misc:getValue("Targeting Mode")),
-        br._G.UnitExists("target") and printable(br._G.UnitName("target")) or "none"))
+        br._G.UnitExists("target") and unitName("target") or "none"))
     if #list == 0 then return say("No enemy BR may attack.") end
-    say("Focus: " .. (focus and printable(br._G.UnitName(focus)) or "none"))
+    say("Focus: " .. (focus and unitName(focus) or "none"))
     for i = 1, math.min(units, #list) do
         local entry = list[i]
         local parts = {}
         for _, part in ipairs(entry.parts) do parts[#parts + 1] = ("%s %.1f"):format(part[1], plainNumber(part[2])) end
-        say(("%d. %s %.1fyd: %.1f = %s"):format(i, printable(br._G.UnitName(entry.unit)), plainNumber(entry.distance or 0),
+        say(("%d. %s %.1fyd: %.1f = %s"):format(i, unitName(entry.unit), plainNumber(entry.distance or 0),
             plainNumber(entry.score), #parts > 0 and table.concat(parts, ", ") or "nothing"))
     end
     if #list > units then say(("... %d more"):format(#list - units)) end
@@ -397,7 +403,7 @@ local function meleeUnit(u)
     if u == nil then return "none" end
     local unitFns = br.functions.unit
     local d = br.functions.range:getDistance(u)
-    local text = ("%s %.1fyd %s"):format(printable(br._G.UnitName(u)), plainNumber(d or 99),
+    local text = ("%s %.1fyd %s"):format(unitName(u), plainNumber(d or 99),
         unitFns:getFacing("player", u) and "in front" or "not in front")
     if unitFns:GetUnitIsUnit(u, "target") then text = text .. " (target)" end
     return text
@@ -584,8 +590,8 @@ function br.debug.idle:watch(player, paused)
     local units = player and player.units
     local spec = br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
     idleLine(("=== idle %.1fs in combat ==="):format(now - lastActionAt))
-    idleLine("  target " .. (br._G.UnitExists("target") and (printable(br._G.UnitName("target")) .. (" %.1fyd"):format(plainNumber(targetDist))) or "none")
-        .. " | dyn5 " .. (units and units.dyn5 and printable(br._G.UnitName(units.dyn5)) or "none")
+    idleLine("  target " .. (br._G.UnitExists("target") and (unitName("target") .. (" %.1fyd"):format(plainNumber(targetDist))) or "none")
+        .. " | dyn5 " .. (units and units.dyn5 and unitName(units.dyn5) or "none")
         .. " | auto attack " .. (br.functions.unit:isAutoAttacking() and "on" or "off")
         .. " | paused toggle " .. tostring(spec and spec.toggles and spec.toggles["Pause"]))
     local decisions = {}
@@ -611,11 +617,11 @@ function br.debug.idle:watch(player, paused)
     idleLine("  toggles: " .. (#toggleParts > 0 and table.concat(toggleParts, ", ") or "none"))
     if br.engines.targeting then
         local focus, list = br.engines.targeting:explain()
-        idleLine("  focus " .. (focus and printable(br._G.UnitName(focus)) or "none") .. ", candidates:")
+        idleLine("  focus " .. (focus and unitName(focus) or "none") .. ", candidates:")
         for i = 1, math.min(3, #list) do
             local parts = {}
             for _, part in ipairs(list[i].parts) do parts[#parts + 1] = ("%s %.1f"):format(part[1], plainNumber(part[2])) end
-            idleLine(("    %s %.1fyd: %.1f = %s"):format(printable(br._G.UnitName(list[i].unit)), plainNumber(list[i].distance or 0),
+            idleLine(("    %s %.1fyd: %.1f = %s"):format(unitName(list[i].unit), plainNumber(list[i].distance or 0),
                 plainNumber(list[i].score), table.concat(parts, ", ")))
         end
     end
