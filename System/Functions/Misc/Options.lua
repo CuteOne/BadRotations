@@ -22,10 +22,12 @@ local keyOptions = {}       -- [option name] = true for options whose value is a
 
 local warnedKeyClashes = {}
 
-local function findOption(Value, Page, Type)
+-- missing (optional): what to return for an option not found (0, or false for a checkbox)
+local function findOption(Value, Page, Type, missing)
 	if Type == nil then Type = " Check" end
 	local notFound = 0
 	if Type == " Check" then notFound = false end
+	if missing ~= nil then notFound = missing end
 	-- A nil or secret option name can't be a real option
 	if Value == nil or misc:isFlagged(Value) then return notFound end
 	local specSettings = br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
@@ -173,6 +175,14 @@ end
 function misc:isChecked(Value, Page)
 	if Value == nil then return false end
 	return findOption(Value, Page, " Check")
+end
+
+--- Whether an option's checkbox was unticked: false for an option not made or loaded yet, so an
+-- option that starts ticked counts as ticked until the player's settings say otherwise.
+function misc:isUnchecked(Value, Page)
+	if Value == nil then return false end
+	local value = findOption(Value, Page, " Check", "missing")
+	return value == false or value == 0
 end
 
 function misc:isKeyOption(name)

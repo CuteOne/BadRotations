@@ -199,6 +199,8 @@ function br.ui:createConfigWindow()
     local function callDebugOptions()
         -- Debug and Developer Options
         section = br.ui:section("Debug Options", { window = br.ui.window.config })
+        br.ui:checkbox(section, "Write Log Files", { checked = true,
+            tip = "Keeps a record of what BadRotations did in BadRotations\\Logs, so a problem can be looked into later. The files stay on this computer: nothing is sent anywhere. Players' names are left out (see Logs\\README.md). Untick to write no log files." })
         br.ui.rotationLog = br.ui:checkbox(section, "Rotation Log", { tip = "Shows what the rotation cast, from where in the profile, and what the game answered (also in Rotation.log).",
             onChange = function(checked) br.ui:showRotationLog(checked) end })
         br.ui:dropdown(section, "Addon Debug Messages", { choices = { "System Only", "Profile Only", "All" }, value = "All",

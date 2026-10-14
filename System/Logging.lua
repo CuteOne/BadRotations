@@ -232,7 +232,16 @@ function log:flush()
 	local writeFile, readFile = br._G.WriteFile, br._G.ReadFile
 	local dir, sep = logFolder()
 	if writeFile == nil or readFile == nil or dir == nil then return end
+	-- Nothing is written before the player's settings are loaded, and nothing at all with
+	-- Write Log Files unticked (Bot Options > Debug Options): the lines are dropped
+	local specSettings = br.data and br.data.settings and br.loader and br.data.settings[br.loader.selectedSpec]
+	if not (specSettings and specSettings[br.loader.selectedProfile]) then return end
 	dirty = false
+	local misc = br.functions and br.functions.misc
+	if misc and misc.isUnchecked and misc:isUnchecked("Write Log Files") then
+		for _, state in pairs(files) do wipe(state.pending) end
+		return
+	end
 	for name, state in pairs(files) do
 		if #state.pending > 0 then
 			local path = dir .. sep .. name
