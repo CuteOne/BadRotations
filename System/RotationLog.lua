@@ -15,7 +15,8 @@ local _, br = ...
 --                  recordRefusal; "not yet" reasons like cooldowns and the GCD are left out). The
 --                  same refusal shows once, until that spell is sent or refused for another reason.
 --   Fights         a divider when combat starts, and when it ends (ANSWER_WAIT later, so the last
---                  casts are answered) one with its length and what came of the fight's casts.
+--                  casts are answered) one with its length and what came of the fight's casts,
+--                  then a line per spell and call site: sent, results, failure and refusal reasons.
 br.log.rotation = br.log.rotation or {}
 local rotation = br.log.rotation
 local log = br.log
@@ -109,9 +110,27 @@ local lastError, lastErrorAt = nil, 0
 local refusedShown = {} -- spell name -> the refusal reason its last row showed
 local fight, fights = nil, 0 -- the fight going on (or just ended, until its summary), and how many so far
 
--- Counts a fight's casts: "sent" (BR's sends) and the results ("done", "failed", ...)
-local function tally(entryFight, key)
-	if entryFight then entryFight[key] = (entryFight[key] or 0) + 1 end
+-- Counts a fight's casts: "sent" (BR's sends) and the results ("done", "failed", ...), for the
+-- fight and, for BR's own rows, per spell and call site with the reasons given (why: the text after
+-- "failed: ", or a refusal's reason)
+local function tally(entryFight, key, entry, why)
+	if entryFight == nil then return end
+	entryFight[key] = (entryFight[key] or 0) + 1
+	if entry == nil or not (entry.n or entry.who) then return end
+	local siteKey = entry.name .. "|" .. (entry.site or "")
+	local site = entryFight.sites[siteKey]
+	if site == nil then
+		site = { name = entry.name, site = entry.site, order = #entryFight.siteOrder + 1, why = {} }
+		entryFight.sites[siteKey] = site
+		entryFight.siteOrder[site.order] = site
+	end
+	site[key] = (site[key] or 0) + 1
+	if why then
+		local list = site.why[key] or {}
+		site.why[key] = list
+		for _, seen in ipairs(list) do if seen == why then return end end
+		list[#list + 1] = why
+	end
 end
 
 local function unitName(unit)
@@ -135,7 +154,7 @@ function rotation:sent(spellID, spellName, unit)
 		at = GetTime(), combat = combatTime(), site = rotation.site(), fight = fight }
 	pending[#pending + 1] = entry
 	awaiting[#awaiting + 1] = entry
-	tally(fight, "sent")
+	tally(fight, "sent", entry)
 	refusedShown[entry.name] = nil
 end
 
@@ -164,8 +183,9 @@ local function addLine(plain, colored)
 	rotation:refreshWindow()
 end
 
--- countAs: what the row counts as in its fight's summary ("done", "failed", "you", ...)
-local function addRow(entry, result, kind, countAs)
+-- countAs: what the row counts as in its fight's summary ("done", "failed", "you", ...); why: the
+-- reason, for the per-site summary
+local function addRow(entry, result, kind, countAs, why)
 	local c = log.colors
 	local who = entry.who or (entry.n and ("#" .. entry.n)) or "you"
 	local time = ("%6.1fs"):format(entry.combat or 0)
@@ -176,7 +196,7 @@ local function addRow(entry, result, kind, countAs)
 		((entry.n or entry.who) and c.muted or br.ui.colors.class) .. who .. "|r", c.muted .. time .. "|r",
 		c.text .. spell .. "|r", entry.target and (c.muted .. " → |r" .. log.highlight(entry.target)) or "",
 		c[kind] .. result .. "|r", entry.site and (c.muted .. "  (" .. entry.site .. ")|r") or "")
-	tally(entry.fight or fight, countAs)
+	tally(entry.fight or fight, countAs, entry, why)
 	addLine(plain, colored)
 end
 
@@ -191,7 +211,7 @@ function rotation:refused(spellName, reason, detail)
 	if refusedShown[name] == reason then return end
 	refusedShown[name] = reason
 	addRow({ who = "BR", name = name, combat = combatTime(), site = rotation.site() },
-		"refused " .. reason .. (detail and (": " .. log.plain(detail)) or ""), "muted", "refused")
+		"refused " .. reason .. (detail and (": " .. log.plain(detail)) or ""), "muted", "refused", reason)
 end
 
 -- Sends that waited longer than ANSWER_WAIT get their "no answer" row
@@ -208,28 +228,64 @@ end
 local SUMMARY_PARTS = { { "done", "done" }, { "channelling", "channelling" }, { "failed", "failed" },
 	{ "interrupted", "interrupted" }, { "noAnswer", "no answer" } }
 
+-- "2 done, 1 failed (Not enough rage)": the results counted in a fight's or a site's tally
+local function resultsText(counts)
+	local results = {}
+	for _, part in ipairs(SUMMARY_PARTS) do
+		local n = counts[part[1]]
+		if n then
+			local why = counts.why and counts.why[part[1]]
+			results[#results + 1] = n .. " " .. part[2] .. (why and (" (" .. table.concat(why, ", ") .. ")") or "")
+		end
+	end
+	return table.concat(results, ", ")
+end
+
+-- One line per spell and call site under the fight's summary, the most sent first
+local function siteLines(ended)
+	local list = {}
+	for i, site in ipairs(ended.siteOrder) do list[i] = site end
+	table.sort(list, function(a, b)
+		if (a.sent or 0) ~= (b.sent or 0) then return (a.sent or 0) > (b.sent or 0) end
+		return a.order < b.order
+	end)
+	local c = log.colors
+	for _, site in ipairs(list) do
+		local parts = {}
+		if site.sent then
+			local results = resultsText(site)
+			parts[#parts + 1] = "sent " .. site.sent .. (results ~= "" and (": " .. results) or "")
+		end
+		if site.refused then
+			parts[#parts + 1] = "refused " .. site.refused .. " (" .. table.concat(site.why.refused, ", ") .. ")"
+		end
+		local text = table.concat(parts, " · ")
+		local where = site.site and ("  (" .. site.site .. ")") or ""
+		addLine("    " .. site.name .. "  " .. text .. where,
+			"    " .. c.text .. site.name .. "|r  " .. c.muted .. text .. where .. "|r")
+	end
+end
+
 -- The fight's closing divider: how long it lasted and what came of its casts
 local function closeFight()
 	local ended = fight
 	if ended == nil or ended.closed then return end
 	ended.closed = true
 	expireAnswers(GetTime())
-	local results = {}
-	for _, part in ipairs(SUMMARY_PARTS) do
-		if ended[part[1]] then results[#results + 1] = ended[part[1]] .. " " .. part[2] end
-	end
+	local results = resultsText(ended)
 	local text = ("fight %d ended %.1fs · BR sent %d"):format(ended.n, ended.duration or 0, ended.sent or 0)
-	if #results > 0 then text = text .. ": " .. table.concat(results, ", ") end
+	if results ~= "" then text = text .. ": " .. results end
 	if ended.you then text = text .. " · you " .. ended.you end
 	if ended.refused then text = text .. " · refused " .. ended.refused end
 	divider(text)
+	siteLines(ended)
 	if fight == ended then fight = nil end
 end
 
 local function startFight()
 	closeFight() -- a fight that ended moments ago gets its summary first
 	fights = fights + 1
-	fight = { n = fights, startedAt = GetTime() }
+	fight = { n = fights, startedAt = GetTime(), sites = {}, siteOrder = {} }
 	wipe(refusedShown)
 	local target = br._G.UnitExists("target") and unitName("target")
 	divider(("fight %d%s"):format(fights, target and (" · " .. target) or ""))
@@ -319,11 +375,12 @@ events:SetScript("OnEvent", function(_, event, a, b, c)
 		local result = event == "UNIT_SPELLCAST_CHANNEL_START" and "channelling" or "done"
 		addRow(entry, result, "success", entry.n and result or "you")
 	elseif entry ~= nil then
-		local reason = (lastError and GetTime() - lastErrorAt <= ERROR_WAIT) and (": " .. lastError) or ""
+		local why = lastError and GetTime() - lastErrorAt <= ERROR_WAIT and lastError or nil
+		local reason = why and (": " .. why) or ""
 		if event == "UNIT_SPELLCAST_INTERRUPTED" then
-			addRow(entry, "interrupted" .. reason, "warning", "interrupted")
+			addRow(entry, "interrupted" .. reason, "warning", "interrupted", why)
 		else
-			addRow(entry, "failed" .. reason, "error", "failed")
+			addRow(entry, "failed" .. reason, "error", "failed", why)
 		end
 	end
 end)
