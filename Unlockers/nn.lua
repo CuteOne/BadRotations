@@ -279,6 +279,11 @@ for i = 1, #globalCacheList do
 	globalFuncCopies[func] = _G[func]
 end
 
+-- NN's protected call, if it has one under the name other unlockers use (not documented for NN)
+if C_Timer.Nn and type(C_Timer.Nn.CallProtected) == "function" then
+	br.unlockers.protect = C_Timer.Nn.CallProtected
+end
+
 -- print("NN File Called")
 function br.unlockers:NNUnlock()
 	if not C_Timer.Nn then return false end

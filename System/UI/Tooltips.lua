@@ -63,8 +63,8 @@ local function onSetHyperlink(self, link)
 		addLine(self, id, types.item)
 	end
 end
-hooksecurefunc(_G.ItemRefTooltip, "SetHyperlink", onSetHyperlink)
-hooksecurefunc(GameTooltip, "SetHyperlink", onSetHyperlink)
+hooksecurefunc(br._G.ItemRefTooltip, "SetHyperlink", onSetHyperlink)
+hooksecurefunc(br._G.GameTooltip, "SetHyperlink", onSetHyperlink)
 -- The spell ID of an aura tooltip (getData: a br.api.wow aura reader), or nil when there's no aura
 -- or the ID isn't a value BR may use
 local function auraSpellID(getData, ...)

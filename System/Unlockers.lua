@@ -5,6 +5,11 @@ local unlockers = br.unlockers
 br.unlockers.selected = "None"
 -- The unlocker's own API table, set by its adapter (diagnostics list names from it)
 br.unlockers.raw = nil
+-- The unlocker's protected call, protect(fn, ...), on clients with secret values: BR's scripts,
+-- timers and hooks run inside it so they may use those values (System/Secrets.lua). An adapter sets
+-- it when its unlocker has one, as soon as its file loads (BR's frames get events before the first
+-- pulse picks the adapter; Unlockers/daemonic.lua loads before this file, so it isn't reset here).
+-- Without it, BR pauses on values it can't use.
 
 -- Unlocker adapters, in priority order. Each adapter file (Unlockers/*.lua)
 -- defines br.unlockers:<fn>(): it sets up br._G and returns true only when its

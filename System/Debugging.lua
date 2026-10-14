@@ -502,20 +502,22 @@ function br.debug.melee:watch(player)
         meleeWrite("client: locale " .. tostring(br._G.GetLocale and br._G.GetLocale())
             .. " | AuraUtil.UnpackAuraData " .. tostring(_G.AuraUtil ~= nil and _G.AuraUtil.UnpackAuraData ~= nil)
             .. " | unlocker UnitFlags " .. tostring(br._G.UnitFlags ~= nil))
-        -- Names in the unlocker's own API that could read unit flags, so an adapter can map
-        -- br._G.UnitFlags
+        -- Names in the unlocker's own API that could read unit flags (so an adapter can map
+        -- br._G.UnitFlags) or run code protected / handle secret values (br.unlockers.protect)
         local raw = br.unlockers.raw
         if type(raw) == "table" then
             local names = {}
             pcall(function()
                 for name in pairs(raw) do
-                    if type(name) == "string" and (name:find("[Ff]lag") or name:find("[Ff]ield") or name:find("[Dd]escriptor")) then
+                    if type(name) == "string" and (name:find("[Ff]lag") or name:find("[Ff]ield") or name:find("[Dd]escriptor")
+                        or name:find("[Pp]rotect") or name:find("[Ss]ecure") or name:find("[Ss]ecret") or name:find("[Uu]nwrap")) then
                         names[#names + 1] = name
                     end
                 end
             end)
             table.sort(names)
-            meleeWrite("unlocker " .. tostring(br.unlockers.selected) .. " API: " .. (#names > 0 and table.concat(names, ", ") or "no flag/field names listed"))
+            meleeWrite("unlocker " .. tostring(br.unlockers.selected) .. " API: " .. (#names > 0 and table.concat(names, ", ") or "no flag/field/protect names listed")
+                .. " | protected call " .. tostring(br.unlockers.protect ~= nil))
         end
     end
     local active = false

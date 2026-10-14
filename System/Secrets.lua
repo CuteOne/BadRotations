@@ -12,6 +12,11 @@ local _, br = ...
 -- BR can't use pauses BR (br.api.canPulse, checked by System/Core.lua); the calls that returned
 -- such values are re-checked every 2 seconds, and BR resumes once they all return usable values.
 -- BR is either fully working or paused, never running on values it can't read.
+--
+-- Unlockers with a protected call set br.unlockers.protect (System/Unlockers.lua). BR's frame
+-- scripts (OnUpdate, OnEvent), timer callbacks and hooks then run inside it, so the whole handler
+-- may use secret values, not just each call. Those are set up through br._G (CreateFrame, C_Timer,
+-- hooksecurefunc, TooltipDataProcessor), which profiles read too.
 -- Clients without secret values get nothing installed here.
 br.secrets = br.secrets or {}
 local secrets = br.secrets
@@ -83,6 +88,8 @@ end
 ---------------------------------------------------------------------------------------------------
 local MAX_PROBES = 16
 local probes, probeCount, nextCheck = {}, 0, 0
+-- How many of BR's protected scripts are running (see Protected scripts)
+local protectedDepth = 0
 
 -- The first three BR files and lines on the stack, innermost first, so the pause names the code
 -- that made the call. Tail calls and C frames carry no location, so they're skipped.
@@ -127,8 +134,12 @@ local function record(name, fn, n, a1, a2, a3)
 	if probeCount == 1 then
 		local site = callSite()
 		local restrictions = activeRestrictions()
+		local where = ""
+		if br.unlockers.protect then
+			where = (protectedDepth > 0 and " inside" or " outside") .. " BR's protected scripts"
+		end
 		say("Paused: " .. name .. "(" .. printable(a1) .. ") returned values BR can't use (secret)"
-			.. (site and (", called from " .. site) or "")
+			.. (site and (", called from " .. site) or "") .. where
 			.. (restrictions and (". Game restrictions active: " .. restrictions) or "")
 			.. ". Resumes automatically once they're readable.")
 	end
@@ -179,6 +190,99 @@ local function checked(fn, name)
 	return wrapper
 end
 
+---------------------------------------------------------------------------------------------------
+-- Protected scripts
+---------------------------------------------------------------------------------------------------
+-- Whether BR is inside one of its protected scripts (the unlocker's protected call)
+function secrets.isProtected() return protectedDepth > 0 end
+
+local function reportError(err)
+	local handler = br._G.geterrorhandler()
+	if handler then handler(err) end
+end
+
+-- Errors still reach the game's error handler (BugSack), as from a normal script.
+local function runProtected(fn, ...)
+	protectedDepth = protectedDepth + 1
+	xpcall(fn, reportError, ...)
+	protectedDepth = protectedDepth - 1
+end
+
+-- The unlocker's protected call is looked up each run: BR's frames and timers exist before the
+-- unlocker adapter is picked.
+local protectedScripts = setmetatable({}, { __mode = "k" })
+local function protected(fn)
+	if type(fn) ~= "function" then return fn end
+	local wrapper = protectedScripts[fn]
+	if not wrapper then
+		wrapper = function(...)
+			local protect = br.unlockers.protect
+			if protect then return protect(runProtected, fn, ...) end
+			return fn(...)
+		end
+		protectedScripts[fn] = wrapper
+	end
+	return wrapper
+end
+
+local PROTECTED_SCRIPTS = { OnUpdate = true, OnEvent = true }
+local function protectFrame(frame)
+	if type(frame) ~= "table" then return frame end
+	local setScript, hookScript = frame.SetScript, frame.HookScript
+	frame.SetScript = function(self, event, fn, ...)
+		if PROTECTED_SCRIPTS[event] then fn = protected(fn) end
+		return setScript(self, event, fn, ...)
+	end
+	frame.HookScript = function(self, event, fn, ...)
+		if PROTECTED_SCRIPTS[event] then fn = protected(fn) end
+		return hookScript(self, event, fn, ...)
+	end
+	return frame
+end
+
+-- Functions whose callback argument is protected: [function] = wrapper
+local callbackTakers = setmetatable({}, { __mode = "k" })
+-- callbackAt: which argument is the callback (nil: the last one)
+local function takesCallback(fn, callbackAt)
+	local wrapper = callbackTakers[fn]
+	if not wrapper then
+		if callbackAt then
+			wrapper = function(...)
+				local n = select("#", ...)
+				local args = { ... }
+				args[callbackAt] = protected(args[callbackAt])
+				return fn(unpack(args, 1, n > callbackAt and n or callbackAt))
+			end
+		else
+			wrapper = function(...)
+				local n = select("#", ...)
+				local args = { ... }
+				args[n] = protected(args[n])
+				return fn(unpack(args, 1, n))
+			end
+		end
+		callbackTakers[fn] = wrapper
+	end
+	return wrapper
+end
+
+-- C_Timer.After / NewTimer / NewTicker(duration, callback, ...)
+local TIMER_FUNCTIONS = { After = true, NewTimer = true, NewTicker = true }
+
+-- Globals BR sees replaced (not checked): [name] = function(value) -> replacement
+local replaced = {
+	CreateFrame = function(createFrame)
+		return function(...) return protectFrame(createFrame(...)) end
+	end,
+	hooksecurefunc = function(hook) return takesCallback(hook) end,
+	-- BR's own copy: Blizzard's table is never modified
+	TooltipDataProcessor = function(processor)
+		if type(processor) ~= "table" or not processor.AddTooltipPostCall then return processor end
+		return setmetatable({ AddTooltipPostCall = takesCallback(processor.AddTooltipPostCall, 2) },
+			{ __index = processor })
+	end,
+}
+
 -- C_* namespaces: BR sees each through a proxy whose functions are checked. Reads and writes go
 -- to the real table (or the expansion's proxy in br.api.wow), which is never modified by this.
 local namespaceProxies = setmetatable({}, { __mode = "k" })
@@ -188,8 +292,9 @@ local function namespace(real, name)
 		proxy = setmetatable({}, {
 			__index = function(_, key)
 				local value = real[key]
-				if type(value) == "function" then return checked(value, name .. "." .. tostring(key)) end
-				return value
+				if type(value) ~= "function" then return value end
+				if name == "C_Timer" and TIMER_FUNCTIONS[key] then return takesCallback(value, 2) end
+				return checked(value, name .. "." .. tostring(key))
 			end,
 			__newindex = function(_, key, value) real[key] = value end,
 		})
@@ -230,7 +335,12 @@ mt.__index = function(t, key)
 	if value == nil then return nil end
 	local last = lastRead[key]
 	if last and last[1] == value then return last[2] end
-	local result = guardable(key, value) and guard(key, value) or value
+	local result
+	if replaced[key] then
+		result = replaced[key](value)
+	else
+		result = guardable(key, value) and guard(key, value) or value
+	end
 	lastRead[key] = { value, result }
 	return result
 end

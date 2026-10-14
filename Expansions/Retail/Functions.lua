@@ -128,8 +128,8 @@ end
 -- Tooltip Hook Compatibility
 -- Retail: Use TooltipDataProcessor instead of OnTooltipSetSpell
 api.HookTooltipSetSpell = function(callback)
-    if _G.TooltipDataProcessor and _G.TooltipDataProcessor.AddTooltipPostCall then
-        _G.TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Spell, function(tooltip, data)
+    if br._G.TooltipDataProcessor and br._G.TooltipDataProcessor.AddTooltipPostCall then
+        br._G.TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Spell, function(tooltip, data)
             if data and data.id then
                 callback(tooltip, data.id)
             end
@@ -139,8 +139,8 @@ end
 
 -- Retail: Use TooltipDataProcessor for unit tooltips
 api.HookTooltipSetUnit = function(callback)
-    if _G.TooltipDataProcessor and _G.TooltipDataProcessor.AddTooltipPostCall then
-        _G.TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(tooltip)
+    if br._G.TooltipDataProcessor and br._G.TooltipDataProcessor.AddTooltipPostCall then
+        br._G.TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(tooltip)
             callback(tooltip)
         end)
     end
@@ -148,8 +148,8 @@ end
 
 -- Retail: Use TooltipDataProcessor for item tooltips
 api.HookTooltipSetItem = function(tooltip, callback)
-    if _G.TooltipDataProcessor and _G.TooltipDataProcessor.AddTooltipPostCall then
-        _G.TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(tooltipFrame)
+    if br._G.TooltipDataProcessor and br._G.TooltipDataProcessor.AddTooltipPostCall then
+        br._G.TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(tooltipFrame)
             if tooltipFrame == tooltip or not tooltip then
                 callback(tooltipFrame)
             end

@@ -36,8 +36,8 @@ end
 -- onlyThisTooltip limits the modern hook to one tooltip frame (item hooks);
 -- spell/unit hooks fire for every tooltip, as on Retail.
 local function hookTooltip(dataType, scriptName, tooltip, callback, onlyThisTooltip)
-    if _G.TooltipDataProcessor and _G.TooltipDataProcessor.AddTooltipPostCall then
-        _G.TooltipDataProcessor.AddTooltipPostCall(dataType, function(tooltipFrame, data)
+    if br._G.TooltipDataProcessor and br._G.TooltipDataProcessor.AddTooltipPostCall then
+        br._G.TooltipDataProcessor.AddTooltipPostCall(dataType, function(tooltipFrame, data)
             if not onlyThisTooltip or not tooltip or tooltipFrame == tooltip then
                 callback(tooltipFrame, data)
             end
