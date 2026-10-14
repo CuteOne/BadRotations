@@ -288,13 +288,15 @@ function br.unlockers:NNUnlock()
 	--------------------------------
 	-- secret unwrap helpers
 	--------------------------------
+	-- Clients without secret values, or without secretunwrap (removed on some clients, e.g. WoW
+	-- Forever), get the results unchanged.
 	local issecretvalue = issecretvalue
 	local secretunwrap  = secretunwrap
+	local canUnwrap     = issecretvalue ~= nil and secretunwrap ~= nil
 
 	-- Unwrap each return value if it is a secret-wrapped scalar.
-	-- Safe no-op when secrets are not present (classic/non-midnight envs).
 	local function unwrap(...)
-		if not issecretvalue then return ... end
+		if not canUnwrap then return ... end
 		local n = select('#', ...)
 		local t = {...}
 		for i = 1, n do
@@ -307,7 +309,7 @@ function br.unlockers:NNUnlock()
 
 	-- Unwrap every field of a returned table in-place.
 	local function UnwrapTable(t)
-		if not issecretvalue or type(t) ~= "table" then return t end
+		if not canUnwrap or type(t) ~= "table" then return t end
 		for k, v in pairs(t) do
 			if issecretvalue(v) then
 				t[k] = secretunwrap(v)
@@ -320,7 +322,7 @@ function br.unlockers:NNUnlock()
 	-- so non-secret aura tables (vanilla/non-midnight builds) are untouched.
 	local function UnwrapAuraTable(t)
 		if not t then return end
-		if not issecretvalue or not issecretvalue(t.spellId) then return t end
+		if not canUnwrap or not issecretvalue(t.spellId) then return t end
 		for k, v in pairs(t) do
 			t[k] = secretunwrap(v)
 		end
@@ -357,9 +359,16 @@ function br.unlockers:NNUnlock()
 	-- API copy/rename/unlock
 	--------------------------------
 	-- C_Spell proxy: intercepts all method calls and unwraps any secret-wrapped
-	-- return values. Table returns have fields unwrapped via UnwrapTable; scalar
-	-- returns have each value unwrapped via unwrap(). Method wrappers are cached
+	-- return values. A table first return has its fields unwrapped via UnwrapTable;
+	-- every other return is unwrapped via unwrap(). All returns are kept
+	-- (IsSpellUsable's second one is insufficientPower). Method wrappers are cached
 	-- on the proxy with rawset so they are only built once per method name.
+	local function unwrapResults(first, ...)
+		if type(first) == "table" then
+			return UnwrapTable(first), unwrap(...)
+		end
+		return unwrap(first, ...)
+	end
 	if C_Spell then
 		local _NN_C_Spell = C_Spell
 		b.C_Spell = setmetatable({}, {
@@ -367,11 +376,7 @@ function br.unlockers:NNUnlock()
 				local fn = _NN_C_Spell[k]
 				if type(fn) ~= "function" then return fn end
 				local wrapper = function(...)
-					local result = fn(...)
-					if type(result) == "table" then
-						return UnwrapTable(result)
-					end
-					return unwrap(result)
+					return unwrapResults(fn(...))
 				end
 				rawset(t, k, wrapper)
 				return wrapper
