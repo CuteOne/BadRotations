@@ -164,20 +164,27 @@ function unit:getFacing(Unit1, Unit2, Degrees)
 		return result == true
 	end
 
-	-- Fallback: compute shortest angle between Unit1 facing and the vector Unit1->Unit2.
+	local angle = br.functions.unit:getFacingAngle(Unit1, Unit2)
+	if angle == nil then return nil end
+	return angle < Degrees
+end
+
+--- How far Unit2 is off Unit1's facing, in degrees (0 = straight ahead, 180 = right behind), and the
+-- distance between their centres (the angle means little when the centres nearly meet). nil when
+-- the positions or the facing can't be read.
+function unit:getFacingAngle(Unit1, Unit2)
 	local facing = br.functions.unit:GetObjectFacing(Unit1)
-	local x1, y1, z1 = br.functions.unit:GetObjectPosition(Unit1)
-	local x2, y2, z2 = br.functions.unit:GetObjectPosition(Unit2)
+	local x1, y1 = br.functions.unit:GetObjectPosition(Unit1)
+	local x2, y2 = br.functions.unit:GetObjectPosition(Unit2)
 	if facing == nil or x1 == nil or y1 == nil or x2 == nil or y2 == nil then
 		return nil
 	end
-
 	local angleTo = math.atan2(y2 - y1, x2 - x1) % (math.pi * 2)
 	local diff = math.abs(facing - angleTo)
 	if diff > math.pi then
 		diff = (math.pi * 2) - diff
 	end
-	return diff < math.rad(Degrees)
+	return math.deg(diff), math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
 end
 
 --- The spell ID of the player's current shapeshift form, or nil when not in one.

@@ -43,10 +43,22 @@ local function refusalEntry(spellID)
 	return entry
 end
 
+-- Refusals that only mean "not yet" (a cooldown, the GCD, a cast just sent or still going, an
+-- opener step first): left out of the Rotation Log, or every spell would get a row every GCD
+local WAITING_REASONS = {
+	ON_COOLDOWN = true, GCD_BLOCKED = true, CAST_TIMER = true, PET_CAST_TIMER = true, PET_ON_COOLDOWN = true,
+	CURRENT_SPELL = true, DOUBLE_CAST = true, EMPOWER_LOCKED = true, ALREADY_CASTING = true,
+	INTENT_LOCK = true, OPENER = true,
+}
+
 function E.recordRefusal(spellID, reason, detail)
 	local entry = refusalEntry(spellID)
 	if not entry then return end
 	entry.reason, entry.detail, entry.refusedAt = reason, detail, br._G.GetTime()
+	-- With Cast Debug on, the Rotation Log shows the refusal (cast.able's too: profiles ask that first)
+	if not WAITING_REASONS[reason] and br.log.rotation and E.castDebugOn() then
+		br.log.rotation:refused(entry.name, reason, detail)
+	end
 end
 
 function E.recordPass(spellID)

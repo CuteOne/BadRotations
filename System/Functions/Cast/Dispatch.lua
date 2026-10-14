@@ -393,6 +393,24 @@ function E.dispatchAoE(ctx, thisUnit, castType, minUnits, effectRng, enemies, de
 	return E.printReport(ctx, false, "Below Min Units", enemyCount)
 end
 
+-- Why a unit counts as not faced, for the refusal record: the game's own "wrong way" error, and
+-- how far off the facing the unit stands (from the positions, whichever check decided)
+local function plain(value) return br.functions.misc:plainNumber(value) end
+local function facingDetail(ctx, thisUnit, castType)
+	local who = castType == "pet" and "pet" or "player"
+	local parts = { "unit " .. tostring(thisUnit) }
+	if castType ~= "pet" and cast:isRejected("facing", ctx.spellID, thisUnit) then
+		parts[#parts + 1] = "the game said wrong way"
+	end
+	local angle, centres = br.functions.unit:getFacingAngle(who, thisUnit)
+	if angle then
+		parts[#parts + 1] = ("%d° off, centres %.1fyd apart, edge %.1fyd"):format(plain(angle), plain(centres),
+			plain(br.functions.range:getEdgeDistance(who, thisUnit) or 0))
+	end
+	if br._G.ObjectIsFacing ~= nil then parts[#parts + 1] = "unlocker facing check" end
+	return table.concat(parts, ", ")
+end
+
 function E.dispatchST(ctx, thisUnit, castType, minUnits, enemies, debug)
 	-- A harmful spell with no range, cast on the player, hits everything around the player
 	-- (Demoralizing Roar, Thunder Clap): it gets the AoE safety check, so it doesn't pull neutral or
@@ -411,7 +429,7 @@ function E.dispatchST(ctx, thisUnit, castType, minUnits, enemies, debug)
 		or ctx.spellType == "Helpful"
 		or ctx.spellType == "Unknown"
 	if not facingOk then
-		E.recordRefusal(ctx.spellID, "NOT_FACING", "unit " .. tostring(thisUnit))
+		E.recordRefusal(ctx.spellID, "NOT_FACING", facingDetail(ctx, thisUnit, castType))
 		return false
 	end
 	if minUnits == 1 or ctx.spellType == "Helpful" or ctx.spellType == "Unknown" then

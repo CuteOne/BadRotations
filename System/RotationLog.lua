@@ -11,6 +11,11 @@ local _, br = ...
 --   Rows           once the game answers (the cast succeeded, failed, was interrupted, or nothing
 --                  came within ANSWER_WAIT), a row goes to BRRotation.log and to the Rotation Log
 --                  window (Bot Options > Debug Options). Spells the player casts are rows too.
+--   Refusals       with Cast Debug on, a spell the cast system refused is a row (Gates.lua
+--                  recordRefusal; "not yet" reasons like cooldowns and the GCD are left out). The
+--                  same refusal shows once, until that spell is sent or refused for another reason.
+--   Fights         a divider when combat starts, and when it ends (ANSWER_WAIT later, so the last
+--                  casts are answered) one with its length and what came of the fight's casts.
 br.log.rotation = br.log.rotation or {}
 local rotation = br.log.rotation
 local log = br.log
@@ -101,6 +106,13 @@ local awaiting = {} -- sends waiting for the game's answer
 local sent = 0      -- sends this session (the row number)
 local announcing = false
 local lastError, lastErrorAt = nil, 0
+local refusedShown = {} -- spell name -> the refusal reason its last row showed
+local fight, fights = nil, 0 -- the fight going on (or just ended, until its summary), and how many so far
+
+-- Counts a fight's casts: "sent" (BR's sends) and the results ("done", "failed", ...)
+local function tally(entryFight, key)
+	if entryFight then entryFight[key] = (entryFight[key] or 0) + 1 end
+end
 
 local function unitName(unit)
 	if unit == nil then return nil end
@@ -120,9 +132,11 @@ function rotation:sent(spellID, spellName, unit)
 	-- spells sent at the player (self buffs, roars and other self-centred casts) say "self"
 	local target = unit == "player" and "self" or unitName(unit)
 	local entry = { n = sent, spellID = spellID, name = log.printable(spellName), target = target,
-		at = GetTime(), combat = combatTime(), site = rotation.site() }
+		at = GetTime(), combat = combatTime(), site = rotation.site(), fight = fight }
 	pending[#pending + 1] = entry
 	awaiting[#awaiting + 1] = entry
+	tally(fight, "sent")
+	refusedShown[entry.name] = nil
 end
 
 --- A Profile Debug line (br.log:debug): "Casting <spell>..." in the tick that spell was sent is
@@ -143,21 +157,92 @@ end
 -- The row for a send (or a cast of the player's) and how it ended. kind picks the result's color:
 -- "success", "error" or "warning" (log.colors). Kept plain (the file, copying) and colored (the window).
 local rows, rowNext = {}, 1
-local function addRow(entry, result, kind)
+local function addLine(plain, colored)
+	rowLine(plain)
+	rows[rowNext] = { plain = plain, colored = colored }
+	rowNext = rowNext % WINDOW_ROWS + 1
+	rotation:refreshWindow()
+end
+
+-- countAs: what the row counts as in its fight's summary ("done", "failed", "you", ...)
+local function addRow(entry, result, kind, countAs)
 	local c = log.colors
-	local who = entry.n and ("#" .. entry.n) or "you"
+	local who = entry.who or (entry.n and ("#" .. entry.n)) or "you"
 	local time = ("%6.1fs"):format(entry.combat or 0)
 	local spell = entry.label or entry.name
 	local plain = ("%s %s  %s%s  %s%s"):format(who, time, spell, entry.target and (" → " .. entry.target) or "",
 		result, entry.site and ("  (" .. entry.site .. ")") or "")
 	local colored = ("%s %s  %s%s  %s%s"):format(
-		(entry.n and c.muted or br.ui.colors.class) .. who .. "|r", c.muted .. time .. "|r",
+		((entry.n or entry.who) and c.muted or br.ui.colors.class) .. who .. "|r", c.muted .. time .. "|r",
 		c.text .. spell .. "|r", entry.target and (c.muted .. " → |r" .. log.highlight(entry.target)) or "",
 		c[kind] .. result .. "|r", entry.site and (c.muted .. "  (" .. entry.site .. ")|r") or "")
-	rowLine(plain)
-	rows[rowNext] = { plain = plain, colored = colored }
-	rowNext = rowNext % WINDOW_ROWS + 1
-	rotation:refreshWindow()
+	tally(entry.fight or fight, countAs)
+	addLine(plain, colored)
+end
+
+local function divider(text)
+	addLine("── " .. text .. " ──", log.colors.muted .. "── |r" .. log.colors.text .. text .. "|r" .. log.colors.muted .. " ──|r")
+end
+
+--- A spell the cast system refused (Gates.lua recordRefusal, Cast Debug on). One row per spell and
+-- reason: again only after the spell was sent or refused for something else.
+function rotation:refused(spellName, reason, detail)
+	local name = log.printable(spellName)
+	if refusedShown[name] == reason then return end
+	refusedShown[name] = reason
+	addRow({ who = "BR", name = name, combat = combatTime(), site = rotation.site() },
+		"refused " .. reason .. (detail and (": " .. log.plain(detail)) or ""), "muted", "refused")
+end
+
+-- Sends that waited longer than ANSWER_WAIT get their "no answer" row
+local function expireAnswers(now)
+	for i = #awaiting, 1, -1 do
+		local entry = awaiting[i]
+		if now - entry.at > ANSWER_WAIT then
+			tremove(awaiting, i)
+			addRow(entry, "no answer", "warning", "noAnswer")
+		end
+	end
+end
+
+local SUMMARY_PARTS = { { "done", "done" }, { "channelling", "channelling" }, { "failed", "failed" },
+	{ "interrupted", "interrupted" }, { "noAnswer", "no answer" } }
+
+-- The fight's closing divider: how long it lasted and what came of its casts
+local function closeFight()
+	local ended = fight
+	if ended == nil or ended.closed then return end
+	ended.closed = true
+	expireAnswers(GetTime())
+	local results = {}
+	for _, part in ipairs(SUMMARY_PARTS) do
+		if ended[part[1]] then results[#results + 1] = ended[part[1]] .. " " .. part[2] end
+	end
+	local text = ("fight %d ended %.1fs · BR sent %d"):format(ended.n, ended.duration or 0, ended.sent or 0)
+	if #results > 0 then text = text .. ": " .. table.concat(results, ", ") end
+	if ended.you then text = text .. " · you " .. ended.you end
+	if ended.refused then text = text .. " · refused " .. ended.refused end
+	divider(text)
+	if fight == ended then fight = nil end
+end
+
+local function startFight()
+	closeFight() -- a fight that ended moments ago gets its summary first
+	fights = fights + 1
+	fight = { n = fights, startedAt = GetTime() }
+	wipe(refusedShown)
+	local target = br._G.UnitExists("target") and unitName("target")
+	divider(("fight %d%s"):format(fights, target and (" · " .. target) or ""))
+end
+
+local function endFight()
+	if fight == nil or fight.duration then return end
+	fight.duration = GetTime() - fight.startedAt
+	local ended = fight
+	-- the summary waits for the last casts' answers
+	br._G.C_Timer.After(ANSWER_WAIT + 0.1, function()
+		if fight == ended then closeFight() end
+	end)
 end
 
 --- End of a rotation tick (Player:startRotation): announces the sends the profile didn't, and
@@ -173,14 +258,7 @@ function rotation:endTick()
 		announcing = false
 		wipe(pending)
 	end
-	local now = GetTime()
-	for i = #awaiting, 1, -1 do
-		local entry = awaiting[i]
-		if now - entry.at > ANSWER_WAIT then
-			tremove(awaiting, i)
-			addRow(entry, "no answer", "warning")
-		end
-	end
+	expireAnswers(GetTime())
 end
 
 -- The send a cast event is about: the oldest waiting one for that spell, by ID or by name (a send by
@@ -210,8 +288,12 @@ events:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 events:RegisterEvent("UNIT_SPELLCAST_FAILED")
 events:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 events:RegisterEvent("UI_ERROR_MESSAGE")
+events:RegisterEvent("PLAYER_REGEN_DISABLED")
+events:RegisterEvent("PLAYER_REGEN_ENABLED")
 -- UNIT_SPELLCAST_*: unit, castGUID, spellID; UI_ERROR_MESSAGE: errorType, message
 events:SetScript("OnEvent", function(_, event, a, b, c)
+	if event == "PLAYER_REGEN_DISABLED" then return startFight() end
+	if event == "PLAYER_REGEN_ENABLED" then return endFight() end
 	if event == "UI_ERROR_MESSAGE" then
 		lastError, lastErrorAt = b ~= nil and log.plain(b) or nil, GetTime()
 		return
@@ -234,13 +316,14 @@ events:SetScript("OnEvent", function(_, event, a, b, c)
 			entry = { name = log.printable(br.functions.spell:getName(spellID) or tostring(spellID)),
 				target = unitName("target"), combat = combatTime() }
 		end
-		addRow(entry, event == "UNIT_SPELLCAST_CHANNEL_START" and "channelling" or "done", "success")
+		local result = event == "UNIT_SPELLCAST_CHANNEL_START" and "channelling" or "done"
+		addRow(entry, result, "success", entry.n and result or "you")
 	elseif entry ~= nil then
 		local reason = (lastError and GetTime() - lastErrorAt <= ERROR_WAIT) and (": " .. lastError) or ""
 		if event == "UNIT_SPELLCAST_INTERRUPTED" then
-			addRow(entry, "interrupted" .. reason, "warning")
+			addRow(entry, "interrupted" .. reason, "warning", "interrupted")
 		else
-			addRow(entry, "failed" .. reason, "error")
+			addRow(entry, "failed" .. reason, "error", "failed")
 		end
 	end
 end)
