@@ -37,10 +37,9 @@ function misc:plainText(text)
 	return table.concat(bytes)
 end
 
--- A debug line in chat, also recorded by System/Logging.lua (BRChat.log, /br log)
+-- A debug line in chat: the label in the class color, the text white
 local function debugPrint(label, text)
-	print(br.ui.colors.class .. "[BadRotations] " .. label .. ": |cffFFFFFF" .. text)
-	br.log:chat(label .. ": " .. text)
+	br._G.print(br.ui.colors.class .. label .. ": |cffFFFFFF" .. text)
 end
 
 function misc:addonDebug(msg, system)
