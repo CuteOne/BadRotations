@@ -9,7 +9,7 @@ local _, br = ...
 --                  the profile says it itself with ui.debug("Casting ...") in the same tick, its
 --                  line is the announcement ("Casting Faerie Fire [Filler]").
 --   Rows           once the game answers (the cast succeeded, failed, was interrupted, or nothing
---                  came within ANSWER_WAIT), a row goes to BRRotation.log and to the Rotation Log
+--                  came within ANSWER_WAIT), a row goes to Rotation.log and to the Rotation Log
 --                  window (Bot Options > Debug Options). Spells the player casts are rows too.
 --   Refusals       with Cast Debug on, a spell the cast system refused is a row (Gates.lua
 --                  recordRefusal; "not yet" reasons like cooldowns and the GCD are left out). The
@@ -26,7 +26,7 @@ local ERROR_WAIT = 0.5   -- a red error this soon before a failed cast is its re
 local WINDOW_ROWS = 300  -- rows the window keeps
 
 local GetTime, wipe, tremove = br._G.GetTime, br._G.wipe, table.remove
-local rowLine = log:file("BRRotation.log")
+local rowLine = log:file("Rotation.log")
 
 ---------------------------------------------------------------------------------------------------
 -- Where in the profile: function ranges per profile file

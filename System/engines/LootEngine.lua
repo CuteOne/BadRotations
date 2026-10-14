@@ -43,7 +43,7 @@ if not lootEngine.metaTable then
 
 	setmetatable(lootEngine, lootEngine.metaTable)
 
-	-- Debug function: every line goes to BRLoot.log; only lines given chat text (true: the same text)
+	-- Debug function: every line goes to Loot.log; only lines given chat text (true: the same text)
 	-- also show as a system line under Addon Debug Messages. Each step in chat was spam. A message
 	-- isn't repeated in a row.
 	function lootEngine:debug(message, chat)

@@ -35,3 +35,5 @@ Unlockers/daemonic.lua
 Unlockers/icc.lua
 Rotations/Rogue/Outlaw/OutlawRavens\.lua
 Deprecated/*
+Logs/*
+!Logs/README.md

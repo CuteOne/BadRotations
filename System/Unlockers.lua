@@ -29,6 +29,30 @@ function unlockers:registerAdapter(name, unlock)
     table.insert(adapters, 1, { name = name, unlock = unlock })
 end
 
+-- What BR expects from an adapter's file functions (in br._G). Unlockers/ewt.txt is the API BR was
+-- first built on; this is the part of it BR relies on now:
+--   ReadFile(path)                    the file's text, or nil when it doesn't exist
+--   WriteFile(path, text, append)     writes the file; append adds the text to its end
+--   CreateDirectory(path)             makes the folder
+--   DirectoryExists(path)             whether the folder exists
+--   GetDirectoryFiles(pattern)        the names of the files matching "folder\*.lua"
+--   GetWoWDirectory()                 the folder BR's own folder is found from (misc:getAddonPath)
+-- An adapter whose unlocker appends by itself sets unlockers.nativeAppend; for the others append
+-- is done here, by reading the file and writing it back with the text added.
+unlockers.nativeAppend = false
+-- Once, when the adapter is picked (loadUnlockerAPI runs until one is)
+local function emulateAppend()
+    local write, read = br._G.WriteFile, br._G.ReadFile
+    if unlockers.nativeAppend or write == nil or read == nil then return end
+    br._G.WriteFile = function(path, text, append, ...)
+        if append then
+            local ok, current = pcall(read, path)
+            if ok and type(current) == "string" then text = current .. text end
+        end
+        return write(path, text, false, ...)
+    end
+end
+
 function unlockers:loadUnlockerAPI()
     local unlocked = false
     for _, adapter in ipairs(adapters) do
@@ -39,6 +63,7 @@ function unlockers:loadUnlockerAPI()
             break
         end
     end
+    if unlocked then emulateAppend() end
 
     -- Called every pulse until an unlocker is found, so report only once.
     if not unlocked and not reportedNoUnlocker then

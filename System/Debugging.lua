@@ -233,9 +233,9 @@ local function measure()
     return m
 end
 
--- The recorders below write to log files in the WoW folder (System/Logging.lua), read between
--- sessions. Every line /br range prints also goes to BRRange.log.
-local rangeLine = br.log:file("BRRange.log")
+-- The recorders below write to log files in BR's Logs folder (System/Logging.lua), read between
+-- sessions. Every line /br range prints also goes to Range.log.
+local rangeLine = br.log:file("Range.log")
 local function say(text)
     br.log:say("Range", text)
     rangeLine(text)
@@ -316,10 +316,10 @@ function br.debug.timer:useTimer(timerName, interval, randomPercent)
 end--]]
 
 ----------------------------------------------------------------------------------------------------
--- /br target: the enemy BR focuses on and why (br.engines.targeting:explain), in chat and BRTarget.log
+-- /br target: the enemy BR focuses on and why (br.engines.targeting:explain), in chat and Target.log
 ----------------------------------------------------------------------------------------------------
 br.debug.target = br.debug.target or {}
-local targetLine = br.log:file("BRTarget.log")
+local targetLine = br.log:file("Target.log")
 local TARGET_REPORT_UNITS = 6
 
 -- reason (optional): why an automatic report was made (written to the log only, not chat); units:
@@ -375,12 +375,12 @@ end
 
 ----------------------------------------------------------------------------------------------------
 -- Melee recorder (diagnostic, temporary): in combat, when the target is out of melee while another
--- enemy is in melee, writes what BR saw and did to BRMelee.log, with nothing to switch on. Called by
+-- enemy is in melee, writes what BR saw and did to Melee.log, with nothing to switch on. Called by
 -- Player:startRotation after the rotation runs. Looks into the 2026-10-12 report of standing idle when
 -- the target fled while a second mob stayed in melee.
 ----------------------------------------------------------------------------------------------------
 br.debug.melee = br.debug.melee or {}
-local meleeLine = br.log:file("BRMelee.log")
+local meleeLine = br.log:file("Melee.log")
 local MELEE_EPISODE_LINES = 40 -- lines kept per episode
 local episode                   -- { started, lastSeen, lastSnap, lines, events }
 
@@ -538,11 +538,11 @@ end
 ----------------------------------------------------------------------------------------------------
 -- Idle recorder (diagnostic): in combat with an enemy within 8 yd, when the player has cast nothing
 -- and isn't auto-attacking anything in melee for IDLE_AFTER seconds, writes one snapshot of the moment
--- to BRIdle.log: target, BR's picks and scores, what the cast engine passed or refused, game errors.
+-- to Idle.log: target, BR's picks and scores, what the cast engine passed or refused, game errors.
 -- Called by Player:startRotation after the rotation.
 ----------------------------------------------------------------------------------------------------
 br.debug.idle = br.debug.idle or {}
-local idleLine = br.log:file("BRIdle.log")
+local idleLine = br.log:file("Idle.log")
 local IDLE_AFTER = 4
 local lastActionAt, idleLogged, idleInCombat = 0, false, false
 local idleRuns = 0 -- ticks the rotation ran (not paused) since the last action
@@ -624,7 +624,7 @@ end
 ----------------------------------------------------------------------------------------------------
 -- Combo point probe (diagnostic): are combo points kept on the target (Classic) or on the player
 -- (Retail since 6.0.2)? Forever's tooltips list them as a cost like Retail's, unconfirmed. When the
--- target changes while the player has combo points, BRMelee.log gets the points before and after,
+-- target changes while the player has combo points, Melee.log gets the points before and after,
 -- read both ways (GetComboPoints on the target, and the player's ComboPoints power, type 4).
 -- br.api.comboPointsOnTarget (Expansions/<Name>) follows the answer.
 ----------------------------------------------------------------------------------------------------
@@ -659,7 +659,7 @@ end
 -- BR's previous send. Called by the cast dispatcher (noteSend) just before each send.
 ----------------------------------------------------------------------------------------------------
 br.debug.cast = br.debug.cast or {}
-local castWrite = br.log:file("BRCast.log", 150)
+local castWrite = br.log:file("Cast.log", 150)
 local lastSend, previousSend -- { name, at, behind, remain, window, gcd, pushbacks }
 local pushbacks = 0          -- UNIT_SPELLCAST_DELAYED on the player's current cast
 
@@ -735,13 +735,13 @@ castEvents:SetScript("OnEvent", function(_, event, a, b)
 end)
 
 ----------------------------------------------------------------------------------------------------
--- Loot recorder (diagnostic): the loot engine's lines, also in BRLoot.log, so a corpse looted twice
+-- Loot recorder (diagnostic): the loot engine's lines, also in Loot.log, so a corpse looted twice
 -- or a window BR didn't open can be read without Addon Debug Messages or a chat paste (2026-10-12:
 -- "Looting Moonstalker" again 5 s after it was removed, with two Moonstalker corpses about).
 -- br.debug.loot:tag(guid) gives the short corpse tag the lines use.
 ----------------------------------------------------------------------------------------------------
 br.debug.loot = br.debug.loot or {}
-local lootLine = br.log:file("BRLoot.log")
+local lootLine = br.log:file("Loot.log")
 
 function br.debug.loot:line(text)
     lootLine(text)

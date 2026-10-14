@@ -5,11 +5,11 @@ local _, br = ...
 -- All of BR's output:
 --   Chat          br._G.print (info), br.log:warning, br.log:error, br.log:say (a labelled line),
 --                 br.log:more (a continuation line); see "Chat" below for the look.
---   Log files     br.log:file(name, cap) gives a function that adds a line to <WoW folder>\<name>
---                 (BRLoot.log, ...), written for reading between sessions. Lines are buffered and
---                 written once a second, when combat ends and on logout/reload: writing a line used
---                 to read and rewrite the whole file (up to 256 KB) on the game's thread.
---   Chat record   br.log:chat(text) keeps every line BR prints in chat: in BRChat.log and in the
+--   Log files     br.log:file(name, cap) gives a function that adds a line to BadRotations\Logs\<name>
+--                 (Loot.log, ...), written for reading between sessions (a user can send the folder
+--                 to whoever helps them). Lines are buffered and added to the file once a second,
+--                 when combat ends and on logout/reload.
+--   Chat record   br.log:chat(text) keeps every line BR prints in chat: in Chat.log and in the
 --                 last RECENT_LINES lines, which /br log shows in a window to copy from, so copying
 --                 out of chat doesn't depend on a chat addon.
 -- Every line is made printable here (a value the game flags secret prints as <SECRET> and can't be
@@ -17,10 +17,10 @@ local _, br = ...
 br.log = br.log or {}
 local log = br.log
 
-local LOG_MAX_BYTES = 262144 -- a file keeps its newest lines up to this size
+local LOG_MAX_BYTES = 262144 -- a file bigger than this when a session starts keeps its newest half
 local FLUSH_EVERY = 1        -- seconds between writes
 local DEFAULT_CAP = 2000     -- lines per file per session, unless the file asks for another (a runaway guard)
-local CHAT_CAP = 3000        -- BRChat.log lines per session
+local CHAT_CAP = 3000        -- Chat.log lines per session
 local RECENT_LINES = 500     -- chat lines /br log shows
 
 local GetTime, date = br._G.GetTime, br._G.date
@@ -87,37 +87,53 @@ function log:write(name, text)
 	dirty = true
 end
 
---- The function that adds a line to <WoW folder>\<name>. cap: lines per session (DEFAULT_CAP).
+--- The function that adds a line to BadRotations\Logs\<name>. cap: lines per session (DEFAULT_CAP).
 function log:file(name, cap)
 	fileState(name, cap)
 	return function(text) log:write(name, text) end
 end
 
---- Writes the buffered lines. Each file is read afresh first (unlockers' WriteFile can't append),
--- so lines removed from it while the game runs stay removed. Without the unlocker's file functions
--- the lines wait (each file's cap bounds them).
+-- BR's Logs folder (next to its Settings folder: misc:getAddonPath), made if it's missing
+local folder, separator
+local function logFolder()
+	if folder then return folder, separator end
+	local misc = br.functions and br.functions.misc
+	if not (misc and misc.getAddonPath) or br._G.GetWoWDirectory == nil then return nil end
+	local base, sep = misc:getAddonPath()
+	local dir = base .. sep .. "Logs"
+	if br._G.DirectoryExists and br._G.CreateDirectory and not br._G.DirectoryExists(dir) then
+		pcall(br._G.CreateDirectory, dir)
+	end
+	folder, separator = dir, sep
+	return folder, separator
+end
+
+--- Writes the buffered lines, added to the end of each file (System/Unlockers.lua: WriteFile's
+-- append). A file's first write in a session trims it if it grew past LOG_MAX_BYTES, so the
+-- folder stays small without anyone emptying it; each file's line cap bounds one session. Without
+-- the unlocker's file functions the lines wait.
 function log:flush()
 	if not dirty then return end
-	local writeFile, readFile, wowDirectory = br._G.WriteFile, br._G.ReadFile, br._G.GetWoWDirectory
-	if writeFile == nil or readFile == nil or wowDirectory == nil then return end
+	local writeFile, readFile = br._G.WriteFile, br._G.ReadFile
+	local dir, sep = logFolder()
+	if writeFile == nil or readFile == nil or dir == nil then return end
 	dirty = false
-	local folder = wowDirectory()
 	for name, state in pairs(files) do
 		if #state.pending > 0 then
-			local path = folder .. "\\" .. name
-			local ok, current = pcall(readFile, path)
-			if not ok or type(current) ~= "string" then current = "" end
+			local path = dir .. sep .. name
 			local added = tconcat(state.pending, "\n") .. "\n"
 			if not state.started then
 				state.started = true
-				added = sessionHeader .. "\n" .. added
+				local ok, current = pcall(readFile, path)
+				if not ok or type(current) ~= "string" then current = "" end
+				if #current > LOG_MAX_BYTES then
+					local cut = current:find("\n", #current - LOG_MAX_BYTES / 2, true)
+					current = current:sub((cut or 0) + 1)
+				end
+				pcall(writeFile, path, current .. sessionHeader .. "\n" .. added, false)
+			else
+				pcall(writeFile, path, added, true)
 			end
-			local content = current .. added
-			if #content > LOG_MAX_BYTES then
-				local cut = content:find("\n", #content - LOG_MAX_BYTES / 2, true)
-				content = content:sub((cut or 0) + 1)
-			end
-			pcall(writeFile, path, content, false)
 			wipe(state.pending)
 		end
 	end
@@ -145,7 +161,7 @@ function log.highlight(text)
 	return log.colors.highlight .. tostring(text) .. "|r"
 end
 
---- The one chat print: the tag, then msg; recorded (BRChat.log, /br log) without the tag.
+--- The one chat print: the tag, then msg; recorded (Chat.log, /br log) without the tag.
 function br._G.print(msg)
 	if msg == nil then return end
 	local color = (br.ui and br.ui.colors and br.ui.colors.class) or ""
@@ -221,7 +237,7 @@ function log:systemDebug(text) debugLine(text, true) end
 ---------------------------------------------------------------------------------------------------
 -- Chat record
 ---------------------------------------------------------------------------------------------------
-local chatLine = log:file("BRChat.log", CHAT_CAP)
+local chatLine = log:file("Chat.log", CHAT_CAP)
 local recent, recentNext = {}, 1 -- ring of the last RECENT_LINES chat lines
 
 --- Records a line BR printed in chat (as shown, without the [BadRotations] tag).

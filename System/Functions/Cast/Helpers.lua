@@ -16,7 +16,7 @@ end
 
 -- Every cast by name or ID goes through here. The game answers a bad argument with a Lua error, and
 -- on clients with secret values its stack can't be read, so the caller can't be found from the
--- error report. A refused call is written to BRCast.log with its call site and arguments instead,
+-- error report. A refused call is written to Cast.log with its call site and arguments instead,
 -- and the rotation carries on. Returns true when the game accepted the call. An accepted call is in
 -- the Rotation Log (System/RotationLog.lua): every BR send passes here, ground casts included.
 local function send(fn, spell, unit)

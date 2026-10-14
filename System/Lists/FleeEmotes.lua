@@ -4,7 +4,7 @@ if br.lists == nil then br.lists = {} end
 -- low health "attempts to run away in fear!". CHAT_MSG_MONSTER_EMOTE carries this template (with %s
 -- for the name) and the mob's GUID, so unit:isFleeing can tell a real flee from a mob moving away.
 -- Male and female forms; texts from AzerothCore's broadcast_text(_locale) data (the 3.3.5 client's).
--- itIT and ptBR aren't known yet: BRMelee.log records the emote texts seen in fights.
+-- itIT and ptBR aren't known yet: Melee.log records the emote texts seen in fights.
 br.lists.fleeEmotes = {
 	["%s attempts to run away in fear!"] = true,                                   -- enUS / enGB
 	["%s versucht zu flüchten!"] = true,                                           -- deDE
