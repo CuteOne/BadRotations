@@ -13,6 +13,8 @@ clean it. Deleting the files is safe at any time, even while the game is running
 
 | File | What it holds |
 | --- | --- |
+| Session.log | Read this first: BadRotations' version, the game client, the unlocker, your character's class and level, the other addons, every setting of the loaded profile, and each setting or toggle you changed while playing |
+| Errors.log | BadRotations' Lua errors with where they happened (a repeated one is counted) |
 | Chat.log | Every line BadRotations printed in chat |
 | Rotation.log | Every spell BadRotations sent, where in the profile it came from, and the game's answer; refused casts (with Cast Debug on); a summary per fight |
 | Idle.log | A snapshot whenever you stood idle in combat with an enemy close by: what was refused and why |
@@ -25,7 +27,7 @@ clean it. Deleting the files is safe at any time, even while the game is running
 ## Reading the files
 
 - Each session starts with `=== session <date time>, loaded at game time N ===`. Every line after
-  it starts with the game time in seconds, so the clock time is the session's time plus
-  (line time - N).
+  it starts with the clock time and the game time in seconds (`21:42:50 12183.1 ...`): the clock
+  time matches what you remember, the game time matches timings inside the lines.
 - A value the game hides from addons (a "secret" value) is written as `<SECRET>` or left out with
   a note, never guessed.

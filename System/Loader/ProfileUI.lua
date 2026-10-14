@@ -15,7 +15,7 @@ function profileUI:createBaseOptions(player)
     br.ui.sectionStoragePrefix = "Base Options/"
     local ok, err = pcall(profileUI.buildBaseOptionsPage, profileUI, player)
     br.ui.sectionStoragePrefix = nil
-    if not ok then br._G.geterrorhandler()(err) end
+    if not ok then br.log:reportError(err) end
 end
 
 function profileUI:buildBaseOptionsPage(player)

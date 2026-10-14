@@ -22,8 +22,9 @@ local function getClassRotationsPath()
     return base .. sep .. 'Rotations' .. sep .. br.functions.misc:getClassFolderName(class) .. sep, sep
 end
 
+-- A profile file's error: Errors.log, then the game's error handler
 local function errorhandler(err)
-    return br._G.geterrorhandler()(err)
+    return br.log:reportError(err, br._G.debugstack and br._G.debugstack(2))
 end
 
 -- Compiles and runs one rotation/support file. Its environment sees br, and reads globals through

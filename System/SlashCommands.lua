@@ -219,10 +219,12 @@ local function handler(message, editbox)
 				br.ui.chatOverlay:Show("\124cFFED0000 -- Paused -- ")
 				br.log:say("Pause", "on")
 				br.data.settings[br.loader.selectedSpec].toggles["Pause"] = 1
+				br.log.session:toggleChanged("Pause", 1)
 			else
 				br.ui.chatOverlay:Show("\124cFF3BB0FF -- Pause Removed -- ")
 				br.log:say("Pause", "off")
 				br.data.settings[br.loader.selectedSpec].toggles["Pause"] = 0
+				br.log.session:toggleChanged("Pause", 0)
 			end
 		else
 			br._G.print(

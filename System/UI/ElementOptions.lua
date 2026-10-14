@@ -161,6 +161,12 @@ function elementOptions.mirror(page, key, value)
     br.data.ui[page][key] = value
 end
 
+--- The player changed an option: the mirror, and Session.log (System/SessionLog.lua)
+function elementOptions.changed(page, key, value)
+    elementOptions.mirror(page, key, value)
+    br.log.session:optionChanged(page, key, value)
+end
+
 --- Shows text in a tooltip by the cursor while the mouse is on widget (a DiesalGUI object).
 function elementOptions.cursorTooltip(widget, text)
     widget:SetEventListener("OnEnter", function()

@@ -47,6 +47,7 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
         "OnValueChanged",
         function(this, event, choice)
             data[key] = choice
+            elementOptions.changed(activePage, key, choice)
             if br.functions.misc:isKeyOption(text) then br.functions.misc:checkKeyClashes() end
         end
     )

@@ -196,15 +196,23 @@ end
 -- Whether BR is inside one of its protected scripts (the unlocker's protected call)
 function secrets.isProtected() return protectedDepth > 0 end
 
+-- An error in one of BR's scripts: Errors.log (System/Logging.lua), then the game's error handler
+-- (BugSack), as from a normal script
 local function reportError(err)
+	if br.log and br.log.reportError then
+		return br.log:reportError(err, br._G.debugstack and br._G.debugstack(2))
+	end
 	local handler = br._G.geterrorhandler()
 	if handler then handler(err) end
 end
 
--- Errors still reach the game's error handler (BugSack), as from a normal script.
+local function runCaught(fn, ...)
+	xpcall(fn, reportError, ...)
+end
+
 local function runProtected(fn, ...)
 	protectedDepth = protectedDepth + 1
-	xpcall(fn, reportError, ...)
+	runCaught(fn, ...)
 	protectedDepth = protectedDepth - 1
 end
 
@@ -218,7 +226,7 @@ local function protected(fn)
 		wrapper = function(...)
 			local protect = br.unlockers.protect
 			if protect then return protect(runProtected, fn, ...) end
-			return fn(...)
+			return runCaught(fn, ...)
 		end
 		protectedScripts[fn] = wrapper
 	end

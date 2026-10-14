@@ -881,6 +881,7 @@ function settingsManagement:loadSettings(profile)
 	-- The UI mirror is rebuilt as pages are created
 	br.data.ui = nil
 	br._G.print("Loaded Settings for Profile " .. tostring(profile))
+	br.log.session:profileLoaded(profile)
 end
 
 --- Saves the current settings: the character's Bot/Base Options files and the profile's settings

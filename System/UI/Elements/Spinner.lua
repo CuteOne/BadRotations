@@ -36,6 +36,7 @@ local function addSpinner(parent, page, data, key, number, min, max, step, x, Y,
         "OnValueChanged",
         function()
             data[key] = spinner:GetNumber()
+            elementOptions.changed(page, key, data[key])
         end
     )
     if tooltip then elementOptions.cursorTooltip(spinner, tooltip) end

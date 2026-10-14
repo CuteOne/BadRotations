@@ -97,6 +97,7 @@ local function setToggle(name, index)
 	savedToggles()[name] = index
 	drawToggle(name)
 	br.ui.chatOverlay:Show("\124cFF3BB0FF" .. toggles.modes[name][index].overlay)
+	br.log.session:toggleChanged(name, index .. " (" .. br.log.plain(toggles.modes[name][index].overlay) .. ")")
 end
 
 --- Adds a toggle (its modes) and its button at column col, row row of the toggle bar.

@@ -68,6 +68,7 @@ function toggles:TogglesFrame()
 		specSettings.toggles = specSettings.toggles or {}
 		local saved = specSettings.toggles
 		saved["Power"] = turnOn and 1 or 0
+		br.log.session:toggleChanged("Power", saved["Power"])
 		-- on/off switch
 		if specSettings["Start/Stop BadRotationsCheck"] ~= saved["Power"] then
 			specSettings["Start/Stop BadRotationsCheck"] = saved["Power"]

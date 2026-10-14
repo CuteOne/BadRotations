@@ -64,7 +64,7 @@ function br.ui:createCheckbox(parent, text, tooltip, checked, layoutOnly)
         "OnValueChanged",
         function(this, event, checked)
             data[value] = checked
-            elementOptions.mirror(activePage, value, checked)
+            elementOptions.changed(activePage, value, checked)
             if checkBox.onChange then checkBox.onChange(checked) end
             -- Create Chat Overlay
             if checked then

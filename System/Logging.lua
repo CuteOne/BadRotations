@@ -197,7 +197,8 @@ function log:write(name, text)
 		return
 	end
 	state.lines = state.lines + 1
-	state.pending[#state.pending + 1] = ("%.1f "):format(GetTime()) .. log.plain(text)
+	-- clock time (to match what the user remembers) and game time (to match other BR timings)
+	state.pending[#state.pending + 1] = (date and date("%H:%M:%S ") or "") .. ("%.1f "):format(GetTime()) .. log.plain(text)
 	dirty = true
 end
 
@@ -347,6 +348,36 @@ end
 
 --- A System Debug line: BR's own reasoning and state
 function log:systemDebug(text) debugLine(text, true) end
+
+---------------------------------------------------------------------------------------------------
+-- Errors
+---------------------------------------------------------------------------------------------------
+-- BR's Lua errors (its scripts, timers, profile loading) are written to Errors.log with their stack,
+-- then go on to the game's error handler (BugSack) as before. A repeated error is written in full
+-- ERROR_FULL times, then counted every ERROR_EVERY.
+local ERROR_FULL, ERROR_EVERY = 3, 100
+local errorLine = log:file("Errors.log")
+local errorCounts = {}
+
+--- Reports a Lua error from BR's code: Errors.log, then the game's error handler. stack: where it
+-- happened (debugstack from the error handler); nil leaves the stack out.
+function log:reportError(err, stack)
+	local text = log.plain(err)
+	local count = (errorCounts[text] or 0) + 1
+	errorCounts[text] = count
+	if count <= ERROR_FULL then
+		errorLine(("error #%d: %s"):format(count, text))
+		if stack then
+			for stackLine in (log.plain(stack) .. "\n"):gmatch("([^\n]*)\n") do
+				if stackLine ~= "" then errorLine("    " .. stackLine) end
+			end
+		end
+	elseif count % ERROR_EVERY == 0 then
+		errorLine(("error x%d this session: %s"):format(count, text))
+	end
+	local handler = br._G.geterrorhandler and br._G.geterrorhandler()
+	if handler then return handler(err) end
+end
 
 ---------------------------------------------------------------------------------------------------
 -- Chat record

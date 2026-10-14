@@ -75,7 +75,7 @@ function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, hei
         function()
             local typed = input.editBox:GetText()
             data[key] = typed
-            elementOptions.mirror(activePage, key, typed)
+            elementOptions.changed(activePage, key, typed)
             input.settings.text = typed
         end
     )
