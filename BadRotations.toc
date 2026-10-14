@@ -57,6 +57,7 @@ Expansions\Classic\Functions.lua
 Expansions\Forever\Functions.lua
 
 BadRotations.lua
+System\Secrets.lua
 System\UI\UI.lua
 System\UI\MinimapButton.lua
 System\Readers\combatlog.lua

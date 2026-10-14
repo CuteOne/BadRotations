@@ -345,8 +345,8 @@ function br.debug.timer:useTimer(timerName, interval, randomPercent)
         interval = interval - randomRange + math.random(0, randomRange * 2)
     end
     if self[timerName] == nil then self[timerName] = 0 end
-    if GetTime()-self[timerName] >= interval then
-        self[timerName] = GetTime()
+    if br._G.GetTime()-self[timerName] >= interval then
+        self[timerName] = br._G.GetTime()
         return true
     else
         return false

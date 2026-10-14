@@ -53,7 +53,7 @@ end
 -- condition as the main pulse engine.
 local function isPowerEnabled()
     if not br.unlocked then return false end
-    -- The unlocker can pause BR while the game hides values from it (secret values).
+    -- Paused while the game hides values from BR (secret values, System/Secrets.lua).
     if br.api.canPulse and not br.api.canPulse() then return false end
     local toggles = br.data and br.data.settings
         and br.data.settings[br.loader.selectedSpec]
@@ -172,7 +172,7 @@ function engines.Update(frame, elapsed)
                 LibDraw.clearCanvas()
                 return false
             elseif br.api.canPulse and not br.api.canPulse() then
-                -- Paused by the unlocker while the game hides values from BR (secret values).
+                -- Paused while the game hides values from BR (secret values, System/Secrets.lua).
                 return false
             elseif br.debug.timer:useTimer("playerUpdate", br.engines:getUpdateRate()) then
                 local tickStarted = br._G.debugprofilestop()
