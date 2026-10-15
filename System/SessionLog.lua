@@ -57,10 +57,20 @@ local function loadedAddons()
 	return names
 end
 
+-- BR's version: from the game, or from BR's .toc when an unlocker loads BR without the game
+-- knowing it as an addon
+local function brVersion()
+	local addons = br._G.C_AddOns or br._G
+	local version = addons.GetAddOnMetadata and addons.GetAddOnMetadata(br.loader.addonName, "Version")
+	if version then return version end
+	local base, sep = br.functions.misc:getAddonPath()
+	local ok, toc = pcall(br._G.ReadFile, base .. sep .. br.loader.addonName .. ".toc")
+	return ok and type(toc) == "string" and toc:match("##%s*Version:%s*([^\r\n]+)") or "unknown"
+end
+
 local function writeEnvironment()
 	local G = br._G
-	local addons = G.C_AddOns or G
-	local version = addons.GetAddOnMetadata and addons.GetAddOnMetadata(br.loader.addonName, "Version")
+	local version = brVersion()
 	local clientVersion, build, buildDate, interface = G.GetBuildInfo()
 	line(("BadRotations %s on %s: client %s, build %s (%s), interface %s, locale %s"):format(tostring(version),
 		flavorName(), tostring(clientVersion), tostring(build), tostring(buildDate), tostring(interface),
@@ -97,7 +107,7 @@ function session:profileLoaded(profile)
 			for _, key in ipairs(sortedKeys(options)) do
 				line(("  %s | %s = %s"):format(tostring(page), tostring(key), valueText(options[key])))
 			end
-		else
+		elseif not tostring(page):find(" Section$") then -- a section's open/closed state isn't a setting
 			line(("  %s = %s"):format(tostring(page), valueText(options)))
 		end
 	end

@@ -215,11 +215,13 @@ end
 --- A spell the cast system refused (Gates.lua recordRefusal). One row per spell and reason: again
 -- only after the spell was sent or refused for something else. Called for every refusal, so the
 -- repeat check comes first and is cheap.
-function rotation:refused(spellID, spellName, reason, detail)
+-- lasting: a refusal that holds until the character learns something (not known yet): shown once
+-- a session rather than again every fight
+function rotation:refused(spellID, spellName, reason, detail, lasting)
 	local shown = refusedShown[spellID]
 	if shown and shown.reason == reason then return end
 	local name = log.printable(spellName)
-	refusedShown[spellID] = { reason = reason, name = name }
+	refusedShown[spellID] = { reason = reason, name = name, lasting = lasting }
 	addRow({ who = "BR", name = name, combat = combatTime(), site = rotation.site() },
 		"refused " .. reason .. (detail and (": " .. log.plain(detail)) or ""), "muted", "refused", reason)
 end
@@ -296,7 +298,9 @@ local function startFight()
 	closeFight() -- a fight that ended moments ago gets its summary first
 	fights = fights + 1
 	fight = { n = fights, startedAt = GetTime(), sites = {}, siteOrder = {} }
-	wipe(refusedShown)
+	for id, shown in pairs(refusedShown) do
+		if not shown.lasting then refusedShown[id] = nil end
+	end
 	local target = br._G.UnitExists("target") and unitName("target")
 	divider(("fight %d%s"):format(fights, target and (" · " .. target) or ""))
 end

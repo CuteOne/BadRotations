@@ -51,6 +51,10 @@ local WAITING_REASONS = {
 	INTENT_LOCK = true, OPENER = true,
 }
 
+-- Refusals that last until the character learns something (a spell, a talent): shown once a
+-- session in the Rotation Log, not again every fight
+local LASTING_REASONS = { NOT_KNOWN = true, NO_TALENT = true }
+
 function E.recordRefusal(spellID, reason, detail)
 	local entry = refusalEntry(spellID)
 	if not entry then return end
@@ -58,7 +62,7 @@ function E.recordRefusal(spellID, reason, detail)
 	-- The Rotation Log shows the refusal (cast.able's too: profiles ask that first), always, so
 	-- Rotation.log has it when a user reports a problem they can't reproduce
 	if not WAITING_REASONS[reason] and br.log.rotation then
-		br.log.rotation:refused(spellID, entry.name, reason, detail)
+		br.log.rotation:refused(spellID, entry.name, reason, detail, LASTING_REASONS[reason])
 	end
 end
 
