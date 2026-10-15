@@ -68,9 +68,35 @@ local function brVersion()
 	return ok and type(toc) == "string" and toc:match("##%s*Version:%s*([^\r\n]+)") or "unknown"
 end
 
+-- The commit this copy comes from: written into System/Version.lua by GitHub's Download ZIP, or
+-- read from the .git folder of a git clone (HEAD, then the branch's ref, loose or packed). Returns
+-- the text for Session.log ("commit 4b8d33772 on master, a git clone"); nothing about who made it.
+local function brCommit()
+	local build = br.build
+	if build and build.commit and not build.commit:find("^%$Format") then
+		return ("commit %s from %s, a GitHub download"):format(build.commit:sub(1, 9), tostring(build.date))
+	end
+	local base, sep = br.functions.misc:getAddonPath()
+	local gitDir = base .. sep .. ".git" .. sep
+	local function read(name)
+		local ok, text = pcall(br._G.ReadFile, gitDir .. name)
+		return ok and type(text) == "string" and text or nil
+	end
+	local head = read("HEAD")
+	if head == nil then return "commit unknown (not a git clone, and not a GitHub download)" end
+	local branch = head:match("^ref:%s*refs/heads/(%S+)")
+	if branch == nil then
+		local detached = head:match("^(%x+)")
+		return detached and ("commit %s (no branch), a git clone"):format(detached:sub(1, 9)) or "commit unknown"
+	end
+	local hash = (read("refs" .. sep .. "heads" .. sep .. branch:gsub("/", sep)) or ""):match("^(%x+)")
+		or (read("packed-refs") or ""):match("(%x+) refs/heads/" .. branch:gsub("%p", "%%%0") .. "%f[%s]")
+	return ("commit %s on %s, a git clone"):format(hash and hash:sub(1, 9) or "unknown", branch)
+end
+
 local function writeEnvironment()
 	local G = br._G
-	local version = brVersion()
+	local version = brVersion() .. " (" .. brCommit() .. ")"
 	local clientVersion, build, buildDate, interface = G.GetBuildInfo()
 	line(("BadRotations %s on %s: client %s, build %s (%s), interface %s, locale %s"):format(tostring(version),
 		flavorName(), tostring(clientVersion), tostring(build), tostring(buildDate), tostring(interface),

@@ -57,6 +57,7 @@ Expansions\Classic\Functions.lua
 Expansions\Forever\Functions.lua
 
 BadRotations.lua
+System\Version.lua
 System\Secrets.lua
 System\Logging.lua
 System\RotationLog.lua
