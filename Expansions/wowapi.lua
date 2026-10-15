@@ -15,6 +15,11 @@ br.isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)    -- detected but no
 br.isBC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
 br.isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 
+-- Whether this client hands out secret values (Retail since Midnight, Forever). Other clients
+-- built on the same engine (Anniversary build 70006) carry issecretvalue/canaccessvalue too but
+-- never produce a secret, so the functions existing doesn't mean the client uses them.
+br.hasSecretValues = (issecretvalue ~= nil or canaccessvalue ~= nil) and (br.isRetail or br.isForever)
+
 -- br.api.expansion is set by each Expansions/<name>/Functions.lua to its short key ("Retail", "MOP", "TBC", "Classic", "Forever").
 -- Defaults to "Unknown" for unsupported clients (Cata, Wrath, etc.).
 br.api.expansion = "Unknown"

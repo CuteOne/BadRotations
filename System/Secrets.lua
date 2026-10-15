@@ -32,7 +32,7 @@ function secrets.canUse(value)
 	return true
 end
 
-if not issecretvalue then return end
+if not br.hasSecretValues or not issecretvalue then return end
 
 local canUse = secrets.canUse
 local type, select, pairs, pcall, tostring = type, select, pairs, pcall, tostring

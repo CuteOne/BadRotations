@@ -103,7 +103,7 @@ local function writeEnvironment()
 		tostring(G.GetLocale and G.GetLocale())))
 	line(("unlocker %s: protected call %s, appends to files %s, secret values on this client %s"):format(
 		tostring(br.unlockers.selected), yesNo(br.unlockers.protect ~= nil), yesNo(br.unlockers.nativeAppend),
-		yesNo(G.issecretvalue ~= nil or G.canaccessvalue ~= nil)))
+		yesNo(br.hasSecretValues)))
 	local base, sep = br.functions.misc:getAddonPath()
 	line("BadRotations folder " .. base .. ", logs in " .. base .. sep .. "Logs")
 	log:notePlayer("player")
