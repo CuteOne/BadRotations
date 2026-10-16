@@ -17,25 +17,25 @@ br.lists.spells.HUNTER.Shared = {
         -- Utility / Threat
         misdirection      = 34477,   -- TBC new (single rank)
         huntersMark       = {1130, 14323, 14324, 14325},                                   -- R1-R4 (lv1/10/20/30)
-        distractingShot   = 27020,   -- High-threat shot; used for tank support on pull
+        distractingShot   = {20736, 14274, 15629, 15630, 15631, 15632, 27020},   -- High-threat shot; used for tank support on pull
         concussiveShot    = 5116,    -- Slows target; CC/utility (single rank)
         -- Melee
-        raptorStrike      = {2973, 14260, 14261, 14262, 14263, 14264, 14265, 27014},       -- R1-R8 (lv1-66)
-        wingClip          = {2974, 14268},                                               -- R1-R2 (lv10/30); R3 not present in TBC
+        raptorStrike      = {2973, 14260, 14261, 14262, 14263, 14264, 14265, 14266, 27014},       -- R1-R8 (lv1-66)
+        wingClip          = {2974, 14267, 14268},                                               -- R1-R2 (lv10/30); R3 not present in TBC
         mongooseBite      = {1495, 14269, 14270, 14271, 14272, 36916},                    -- R1-R6 (lv16-66); usable after dodging
-        counterattack     = {19306, 20909, 27067},                                         -- R1-R3 (lv20/30/40); SV talent, usable after parrying
+        counterattack     = {19306, 20909, 20910, 27067},                                         -- R1-R3 (lv20/30/40); SV talent, usable after parrying
         -- Survival / Defensive
         feignDeath        = 5384,
-        disengage         = 781,    -- Drops combat/threat; escape and re-range tool (single rank, lv6)
+        disengage         = {781, 14272, 14273, 27015},    -- Drops combat/threat; escape and re-range tool (single rank, lv6)
         -- AoE
         volley            = {1510, 14294, 14295, 27022},                                   -- R1-R4 (lv40/50/58/67)
         -- Stings
         serpentSting      = {1978, 13549, 13550, 13551, 13552, 13553, 13554, 13555, 25295, 27016}, -- R1-R10 (lv4-67)
         scorpidSting      = 3043,    -- Reduces target AP; utility (keep max rank only)
-        viperSting        = 3034,    -- Drains mana; PvP/utility (keep max rank only)
+        viperSting        = {3034, 14279, 14280, 27018},    -- Drains mana; PvP/utility (keep max rank only)
         -- Traps
         explosiveTrap     = {13813, 14316, 14317, 27025},                                  -- R1-R4 (lv34/44/54/61)
-        immolationTrap    = {13795, 14302, 14303, 14304, 27023},                           -- R1-R5 (lv16/26/36/46/60)
+        immolationTrap    = {13795, 14302, 14303, 14304, 14305, 27023},                           -- R1-R5 (lv16/26/36/46/60)
         freezingTrap      = {1499, 14310, 14311},                                          -- R1-R3 (lv20/38/56)
         frostTrap         = 13809,   -- AoE slow field (single rank)
         flare             = 1543,    -- Reveals stealth/traps (single rank)
@@ -108,7 +108,7 @@ br.lists.spells.HUNTER.Shared = {
         huntersMark   = {1130, 14323, 14324, 14325},
         serpentSting  = {1978, 13549, 13550, 13551, 13552, 13553, 13554, 13555, 25295, 27016},
         scorpidSting  = 3043,
-        viperSting    = 3034,
+        viperSting    = {3034, 14279, 14280, 27018},
         concussiveShot = 5116,
         wyvernSting   = {19386, 24131, 24132, 27068},
         screech       = {24423, 24577, 24578, 24579, 27051}, -- Carrion Bird/Bat/Owl melee-AP debuff (any rank)
