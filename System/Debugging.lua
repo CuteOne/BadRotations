@@ -759,6 +759,68 @@ castEvents:SetScript("OnEvent", function(_, event, a, b)
 end)
 
 ----------------------------------------------------------------------------------------------------
+-- Form recorder (diagnostic, 2026-10-15): before cast.<spell>() leaves a shapeshift form by itself,
+-- the game's own signal that a form is what blocks a spell has to be confirmed. Form.log gets, once
+-- per spell and form: a spell IsSpellUsable calls unusable in a form while power isn't the reason,
+-- with whether it was usable out of form earlier this session (and a line when it is seen usable
+-- out of form later); and each red error within 1 s of a BR send while in a form, with its error
+-- type and whether its text is the game's SPELL_FAILED_NOT_SHAPESHIFT.
+----------------------------------------------------------------------------------------------------
+br.debug.form = br.debug.form or {}
+local formWrite = br.log:file("Form.log", 300)
+local usableOutOfForm = {} -- spell ID -> true: seen usable out of any form this session
+local blockedInForm = {}   -- spell ID -> true: noted unusable in a form
+local formNoted = {}       -- what has a line already
+
+local function formName(form)
+    if form == nil or form == 0 then return "no form" end
+    local _, _, _, formSpellID = br._G.GetShapeshiftFormInfo(form)
+    return ("%s (form %d)"):format(printable(formSpellID and br.functions.spell:getName(formSpellID)), form)
+end
+
+local function formContext()
+    return ("flying %s, stealthed %s, combat %s"):format(tostring(br._G.IsFlying() and true or false),
+        tostring(br._G.IsStealthed() and true or false), tostring(br._G.InCombatLockdown() and true or false))
+end
+
+-- Gates.lua, each time a spell's usability is read
+function br.debug.form:noteUsable(spellID, isUsable, insufficientPower)
+    local form = br._G.GetShapeshiftForm() or 0
+    if form == 0 then
+        if isUsable and not usableOutOfForm[spellID] then
+            usableOutOfForm[spellID] = true
+            if blockedInForm[spellID] then
+                formWrite(("now usable out of form: %s %d"):format(printable(br.functions.spell:getName(spellID)), spellID))
+            end
+        end
+        return
+    end
+    if isUsable ~= false or insufficientPower then return end
+    local key = spellID .. ":" .. form
+    if formNoted[key] then return end
+    formNoted[key], blockedInForm[spellID] = true, true
+    formWrite(("in %s: %s %d unusable, power fine | usable out of form earlier: %s | %s"):format(formName(form),
+        printable(br.functions.spell:getName(spellID)), spellID, usableOutOfForm[spellID] and "yes" or "no", formContext()))
+end
+
+local notShapeshiftText = br._G.SPELL_FAILED_NOT_SHAPESHIFT
+local formEvents = br._G.CreateFrame("Frame")
+formEvents:RegisterEvent("UI_ERROR_MESSAGE")
+formEvents:SetScript("OnEvent", function(_, _, errorType, message)
+    local form = br._G.GetShapeshiftForm() or 0
+    if form == 0 or lastSend == nil then return end
+    local since = br._G.GetTime() - lastSend.at
+    if since > 1 then return end
+    local text = printable(message)
+    local key = "error:" .. tostring(errorType) .. ":" .. lastSend.name .. ":" .. form
+    if formNoted[key] then return end
+    formNoted[key] = true
+    formWrite(("error in %s %.2fs after BR sent %s: type %s, \"%s\" (%s SPELL_FAILED_NOT_SHAPESHIFT \"%s\") | %s"):format(
+        formName(form), since, lastSend.name, printable(errorType), text,
+        notShapeshiftText ~= nil and text == notShapeshiftText and "is" or "is not", printable(notShapeshiftText), formContext()))
+end)
+
+----------------------------------------------------------------------------------------------------
 -- Loot recorder (diagnostic): the loot engine's lines, also in Loot.log, so a corpse looted twice
 -- or a window BR didn't open can be read without Addon Debug Messages or a chat paste (2026-10-12:
 -- "Looting Moonstalker" again 5 s after it was removed, with two Moonstalker corpses about).

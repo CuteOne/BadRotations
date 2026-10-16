@@ -212,6 +212,7 @@ defineGroup({ "isUsable", "insufficientPower" }, function(ctx)
 	local isUsable, insufficientPower = br._G.C_Spell.IsSpellUsable(ctx.spellID)
 	rawset(ctx, "isUsable", isUsable)
 	rawset(ctx, "insufficientPower", insufficientPower)
+	if br.debug.form then br.debug.form:noteUsable(ctx.spellID, isUsable, insufficientPower) end
 end)
 
 defineGroup({ "gcdMax", "updateRate", "latency" }, function(ctx)
