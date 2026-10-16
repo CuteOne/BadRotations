@@ -19,7 +19,8 @@ end
 -- error report. A refused call is written to Cast.log with its call site and arguments instead,
 -- and the rotation carries on. Returns true when the game accepted the call. An accepted call is in
 -- the Rotation Log (System/RotationLog.lua): every BR send passes here, ground casts included.
-local function send(fn, spell, unit)
+-- spellID: the spell a send by name is (the row then follows that ID); how: see rotation:sent.
+local function send(fn, spell, unit, spellID, how)
 	spell, unit = plainArg(spell), plainArg(unit)
 	local ok, err
 	if unit == nil then
@@ -30,14 +31,40 @@ local function send(fn, spell, unit)
 	-- noteSendError reads its call site 4 levels up: itself, send, castByName/castByID, the caller
 	if not ok and br.debug.cast and br.debug.cast.noteSendError then br.debug.cast:noteSendError(spell, unit, err) end
 	if ok then
-		if type(spell) == "number" then
-			br.log.rotation:sent(spell, br.functions.spell:getName(spell), unit)
+		local id = spellID or (type(spell) == "number" and spell) or nil
+		if id then
+			br.log.rotation:sent(id, br.functions.spell:getName(id), unit, how)
 		else
-			br.log.rotation:sent(nil, spell, unit)
+			br.log.rotation:sent(nil, spell, unit, how)
 		end
 	end
 	return ok
 end
+
+-- Ranks sent by ID that the game never answered: no cast event, no error (Anniversary 2026-10-15,
+-- CastSpellByID(9910, "player"), Thorns rank 6, every 0.3 s). Why is unknown, so this is a
+-- diagnostic: Cast.log gets what BR saw, and that rank's later sends go by name with the game's own
+-- rank text ("Thorns(Rank 6)", in the client's language). Its Rotation Log rows then show whether
+-- the game answers that.
+local silentByID = {}
+
+-- "Thorns(Rank 6)": the spell's name and its rank text as the game gives them; nil without rank text
+local function rankedName(spellID)
+	local name = br.functions.spell:getName(spellID)
+	local C = br._G.C_Spell
+	local rank = (C and C.GetSpellSubtext and C.GetSpellSubtext(spellID))
+		or (br._G.GetSpellSubtext and br._G.GetSpellSubtext(spellID))
+	if name == nil or rank == nil or rank == "" then return nil end
+	return name .. "(" .. rank .. ")"
+end
+
+br.log.rotation:onNoAnswer(function(entry)
+	if entry.spellID == nil or (entry.how ~= "by ID" and entry.how ~= "by name with rank") then return end
+	if entry.how == "by ID" then silentByID[entry.spellID] = true end
+	if br.debug.cast and br.debug.cast.noteNoAnswer then
+		br.debug.cast:noteNoAnswer(entry, entry.how == "by ID" and rankedName(entry.spellID) or nil)
+	end
+end)
 
 function cast:castByName(name, unit)
 	local ok = send(br._G.CastSpellByName, name, unit)
@@ -46,8 +73,9 @@ end
 
 -- By ID: a lower rank than the best known one (casting by name sends the highest known rank).
 function cast:castByID(spellID, unit)
-	local ok = send(br._G.CastSpellByID, spellID, unit)
-	return ok
+	local text = silentByID[spellID] and rankedName(spellID)
+	if text then return send(br._G.CastSpellByName, text, unit, spellID, "by name with rank") end
+	return send(br._G.CastSpellByID, spellID, unit, nil, "by ID")
 end
 
 --cast spell on position x,y,z

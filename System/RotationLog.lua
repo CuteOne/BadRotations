@@ -146,13 +146,14 @@ local function combatTime()
 end
 
 --- A spell BR just sent (System/Functions/Cast/Helpers.lua; Dispatch.lua for pet abilities).
--- spellID is nil for a send by name.
-function rotation:sent(spellID, spellName, unit)
+-- spellID is nil for a send by name. how: the way it was sent when that isn't the usual one
+-- ("by ID", "by name with rank"), shown on its row.
+function rotation:sent(spellID, spellName, unit, how)
 	sent = sent + 1
 	-- spells sent at the player (self buffs, roars and other self-centred casts) say "self"
 	local target = unit == "player" and "self" or unitName(unit)
 	local entry = { n = sent, spellID = spellID, name = log.printable(spellName), target = target,
-		at = GetTime(), combat = combatTime(), site = rotation.site(), fight = fight }
+		at = GetTime(), combat = combatTime(), site = rotation.site(), fight = fight, how = how }
 	pending[#pending + 1] = entry
 	awaiting[#awaiting + 1] = entry
 	tally(fight, "sent", entry)
@@ -197,7 +198,7 @@ local function addRow(entry, result, kind, countAs, why)
 	local c = log.colors
 	local who = entry.who or (entry.n and ("#" .. entry.n)) or "you"
 	local time = ("%6.1fs"):format(entry.combat or 0)
-	local spell = entry.label or entry.name
+	local spell = (entry.label or entry.name) .. (entry.how and (" (" .. entry.how .. ")") or "")
 	local plain = ("%s %s  %s%s  %s%s"):format(who, time, spell, entry.target and (" → " .. entry.target) or "",
 		result, entry.site and ("  (" .. entry.site .. ")") or "")
 	local colored = ("%s %s  %s%s  %s%s"):format(
@@ -226,6 +227,12 @@ function rotation:refused(spellID, spellName, reason, detail, lasting)
 		"refused " .. reason .. (detail and (": " .. log.plain(detail)) or ""), "muted", "refused", reason)
 end
 
+-- Called with a send's entry (spellID, name, target, how) when the game never answered it
+local noAnswerListeners = {}
+function rotation:onNoAnswer(fn)
+	noAnswerListeners[#noAnswerListeners + 1] = fn
+end
+
 -- Sends that waited longer than ANSWER_WAIT get their "no answer" row
 local function expireAnswers(now)
 	for i = #awaiting, 1, -1 do
@@ -233,6 +240,7 @@ local function expireAnswers(now)
 		if now - entry.at > ANSWER_WAIT then
 			tremove(awaiting, i)
 			addRow(entry, "no answer", "warning", "noAnswer")
+			for _, fn in ipairs(noAnswerListeners) do fn(entry) end
 		end
 	end
 end

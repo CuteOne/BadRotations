@@ -720,6 +720,24 @@ function br.debug.cast:noteSendError(name, unit, err)
         printable(err)))
 end
 
+-- A send by ID (or by name with rank, after a silent one) the game never answered
+-- (cast:castByID, System/Functions/Cast/Helpers.lua): what BR saw of the spell, so the cause can be
+-- read. nextText: how that rank is sent from now on.
+function br.debug.cast:noteNoAnswer(entry, nextText)
+    local id, C = entry.spellID, br._G.C_Spell
+    local usable, noPower = C.IsSpellUsable(id)
+    local cd = C.GetSpellCooldown and C.GetSpellCooldown(id)
+    if type(cd) ~= "table" then cd = nil end
+    local casting = currentCast(br._G.GetTime())
+    castWrite(("NO ANSWER %s: %s %d → %s (%s)%s | IsPlayerSpell %s, IsSpellKnown %s, usable %s%s, cooldown %s, GCD %.2fs, casting %s, form %s, combat %s"):format(
+        entry.how, printable(entry.name), id, printable(entry.target), printable(entry.site),
+        nextText and (" | next sends: " .. printable(nextText)) or "",
+        tostring(br._G.IsPlayerSpell(id)), tostring(br._G.IsSpellKnown(id)), tostring(usable and true or false),
+        noPower and " (power)" or "", cd and ("%.1f/%.1f"):format(plainNumber(cd.startTime or 0), plainNumber(cd.duration or 0)) or "?",
+        br.functions.spell:getGlobalCD() or 0, casting or "nothing", tostring(br._G.GetShapeshiftForm()),
+        tostring(br._G.InCombatLockdown())))
+end
+
 local inProgressText = br._G.SPELL_FAILED_SPELL_IN_PROGRESS or "Another action is in progress"
 local castEvents = br._G.CreateFrame("Frame")
 castEvents:RegisterEvent("UNIT_SPELLCAST_START")
