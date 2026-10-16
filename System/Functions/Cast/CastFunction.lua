@@ -240,6 +240,21 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 	return false
 end
 
+-- cast.able (debug = true) only asks: E.asking tells the refusal records (Gates.lua recordRefusal)
+-- that a refusal now isn't one of a cast the profile wanted. Kept for nested calls.
+local runCastFunction = cast.createCastFunction
+local function finishAsking(was, ...)
+	E.asking = was
+	return ...
+end
+function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, index, predict, predictPad, enemies,
+								 debug)
+	local was = E.asking
+	E.asking = debug == true
+	return finishAsking(was, runCastFunction(self, thisUnit, castType, minUnits, effectRng, spellID, index, predict,
+		predictPad, enemies, debug))
+end
+
 -- Cast Spell Queue
 function cast:castQueue()
 	-- Catch for spells not registering on Combat log

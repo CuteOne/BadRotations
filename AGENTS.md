@@ -160,6 +160,8 @@ At the end of startup BR runs every options page once without building frames (`
 | `ui` | `System/API/UI.lua` | `ui.checked("option")`, `.value("option")`, `.mode[]` |
 | `units` | `System/API/Unit.lua` | `units.get(5)` → `units.dyn5[i]` |
 
+**Casting:** write the profile's own conditions, then `cast.<spell>()`. The cast system runs every check itself (known, usable, power, cooldown, unit, range, sight, facing) and the Rotation Log records why a cast it refused didn't go out, so `cast.able.<spell>()` isn't needed before it. Use `cast.able` only to ask without casting (choosing between spells, or deciding to leave a form first); its refusals are only counted in a fight's summary, never logged as rows.
+
 ---
 
 ## Lua Conventions

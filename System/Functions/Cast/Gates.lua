@@ -59,10 +59,15 @@ function E.recordRefusal(spellID, reason, detail)
 	local entry = refusalEntry(spellID)
 	if not entry then return end
 	entry.reason, entry.detail, entry.refusedAt = reason, detail, br._G.GetTime()
-	-- The Rotation Log shows the refusal (cast.able's too: profiles ask that first), always, so
-	-- Rotation.log has it when a user reports a problem they can't reproduce
+	-- The Rotation Log shows a refusal of a cast the profile asked for, always, so Rotation.log has it
+	-- when a user reports a problem they can't reproduce. cast.able only asks (profiles often ask
+	-- before their own conditions, every tick): those count toward the fight's summary instead.
 	if not WAITING_REASONS[reason] and br.log.rotation then
-		br.log.rotation:refused(spellID, entry.name, reason, detail, LASTING_REASONS[reason])
+		if E.asking then
+			br.log.rotation:checked(entry.name, reason)
+		else
+			br.log.rotation:refused(spellID, entry.name, reason, detail, LASTING_REASONS[reason])
+		end
 	end
 end
 

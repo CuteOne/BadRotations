@@ -11,9 +11,11 @@ local _, br = ...
 --   Rows           once the game answers (the cast succeeded, failed, was interrupted, or nothing
 --                  came within ANSWER_WAIT), a row goes to Rotation.log and to the Rotation Log
 --                  window (Bot Options > Debug Options). Spells the player casts are rows too.
---   Refusals       a spell the cast system refused is a row (Gates.lua
+--   Refusals       a spell the cast system refused when the profile cast it is a row (Gates.lua
 --                  recordRefusal; "not yet" reasons like cooldowns and the GCD are left out). The
 --                  same refusal shows once, until that spell is sent or refused for another reason.
+--                  cast.able only asks, so its refusals aren't rows: a fight's summary lists the
+--                  spells it turned away that the fight never sent ("checked only").
 --   Fights         a divider when combat starts, and when it ends (ANSWER_WAIT later, so the last
 --                  casts are answered) one with its length and what came of the fight's casts,
 --                  then a line per spell and call site: sent, results, failure and refusal reasons.
@@ -157,6 +159,7 @@ function rotation:sent(spellID, spellName, unit, how)
 	pending[#pending + 1] = entry
 	awaiting[#awaiting + 1] = entry
 	tally(fight, "sent", entry)
+	if fight then fight.sentNames[entry.name] = true end
 	-- the spell's refusals show again (a send by name has no ID: found by name)
 	if spellID then
 		refusedShown[spellID] = nil
@@ -207,6 +210,23 @@ local function addRow(entry, result, kind, countAs, why)
 		c[kind] .. result .. "|r", entry.site and (c.muted .. "  (" .. entry.site .. ")|r") or "")
 	tally(entry.fight or fight, countAs, entry, why)
 	addLine(plain, colored)
+end
+
+--- A spell cast.able turned away (Gates.lua recordRefusal). Only counted during a fight: its summary
+-- lists the ones the fight never sent, with the reasons.
+function rotation:checked(spellName, reason)
+	if fight == nil or fight.duration then return end
+	local name = log.printable(spellName)
+	local reasons = fight.checked[name]
+	if reasons == nil then
+		reasons = {}
+		fight.checked[name] = reasons
+		fight.checkedOrder[#fight.checkedOrder + 1] = name
+	end
+	if not reasons[reason] then
+		reasons[reason] = true
+		reasons[#reasons + 1] = reason
+	end
 end
 
 local function divider(text)
@@ -299,13 +319,24 @@ local function closeFight()
 	if ended.refused then text = text .. " · refused " .. ended.refused end
 	divider(text)
 	siteLines(ended)
+	-- cast.able's refusals of spells the fight never sent
+	local checked = {}
+	for _, name in ipairs(ended.checkedOrder) do
+		if not ended.sentNames[name] then
+			checked[#checked + 1] = name .. " (" .. table.concat(ended.checked[name], ", ") .. ")"
+		end
+	end
+	if #checked > 0 then
+		local text = "checked only: " .. table.concat(checked, ", ")
+		addLine("    " .. text, "    " .. log.colors.muted .. text .. "|r")
+	end
 	if fight == ended then fight = nil end
 end
 
 local function startFight()
 	closeFight() -- a fight that ended moments ago gets its summary first
 	fights = fights + 1
-	fight = { n = fights, startedAt = GetTime(), sites = {}, siteOrder = {} }
+	fight = { n = fights, startedAt = GetTime(), sites = {}, siteOrder = {}, checked = {}, checkedOrder = {}, sentNames = {} }
 	for id, shown in pairs(refusedShown) do
 		if not shown.lasting then refusedShown[id] = nil end
 	end

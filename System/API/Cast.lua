@@ -7,6 +7,8 @@ local _, br = ...
 
 if br.api == nil then br.api = {} end
 
+-- cast.<spell>() runs every check itself, so a profile needs no cast.able.<spell>() before it;
+-- cast.able only asks whether the spell could go out now, without casting it.
 -- Callable spells. cast.<spell>, cast.able.<spell> and cast.opener.<spell> are called like
 -- functions with the full argument list (unit, castType, minUnits, effectRng, predict, predictPad,
 -- enemies), and also offer short forms for the cast types, with the arguments that type needs:
