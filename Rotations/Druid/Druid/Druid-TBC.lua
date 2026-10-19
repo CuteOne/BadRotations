@@ -883,10 +883,30 @@ actionList.BearForm = function()
     end
 end -- End Action List - Bear Form
 
+-- Ravage from Prowl is worth waiting for only while it can still happen: Ravage known, the target not
+-- attacking you (it faces you on the server, so you can't get behind it), the energy there or one tick
+-- away, and for at most RAVAGE_WAIT sec since reaching melee range (time to step behind it). Standing
+-- still in front of it for over a second means opening from there. Then the opener falls back.
+local RAVAGE_WAIT = 3
+local function waitForRavage(behind)
+    if not spell.ravage.known() or unit.isUnit("targettarget", "player") then return false end
+    local cost = cast.cost.ravage()
+    if energy() < cost and (energy() + 20 < cost or timeToNextEnergyTick() > 1) then return false end
+    local guid = unit.guid("target")
+    if var.ravageWait == nil or var.ravageWait.guid ~= guid then
+        var.ravageWait = { guid = guid, since = br._G.GetTime() }
+    end
+    if br._G.GetTime() - var.ravageWait.since > RAVAGE_WAIT then return false end
+    return behind or unit.standingTime() <= 1
+end
+
 -- Action List - Cat Opener (Stealth + Non-Stealth)
 actionList.CatOpener = function()
     if not buff.catForm.exists() then return false end
-    if not unit.valid("target") or unit.deadOrGhost("target") or unit.distance("target") >= 5 then return false end
+    if not unit.valid("target") or unit.deadOrGhost("target") or unit.distance("target") >= 5 then
+        var.ravageWait = nil -- the wait starts again on reaching melee range
+        return false
+    end
     if unit.player("target") then return false end
 
     -- Tiger's Fury pre-opener: buff Ravage/opener damage if TF is ready (costs 30 energy;
@@ -907,48 +927,31 @@ actionList.CatOpener = function()
 
     -- Stealth Opener
     if isStealth then
-        if behindTarget then
-            -- Behind: fire the best available ability immediately; no need to hold
-            -- Ravage: best stealth ability, requires being behind
-            if cast.able.ravage("target") then
-                if cast.ravage("target") then
-                    ui.debug("Casting Ravage [Stealth Opener]")
-                    return true
-                end
-            end
-            -- Mangle: apply debuff to improve Shred damage; skip if Ravage known or debuff already up
-            if cast.able.mangleCat("target") and not spell.ravage.known() and not mangleDebuffUp and unit.standingTime() > 1 then
-                if cast.mangleCat("target") then
-                    ui.debug("Casting Mangle [Stealth Opener]")
-                    return true
-                end
-            end
-            -- Shred: Ravage not known, and debuff is already up or Mangle not known
-            if cast.able.shred("target") and not spell.ravage.known()
-                and (mangleDebuffUp or not spell.mangleCat.known())
-            then
-                if cast.shred("target") then
-                    ui.debug("Casting Shred [Stealth Opener]")
-                    return true
-                end
-            end
-        else
-            -- Facing the target. Only hold Mangle back for Ravage when BOTH:
-            --   1) currently prowling (already guaranteed by this block), AND
-            --   2) Ravage is known
-            -- If either condition fails, use Mangle immediately.
-            if isStealth and spell.ravage.known() and unit.standingTime() <= 1 then return false end
-            -- Positioning window closed, or Ravage not known; commit from the front
-            -- Only cast Mangle if the debuff isn't already present
-            if cast.able.mangleCat("target") and not mangleDebuffUp then
-                if cast.mangleCat("target") then
-                    ui.debug("Casting Mangle [Stealth Opener]")
-                    return true
-                end
+        -- Ravage: the best stealth attack, from behind
+        if behindTarget and cast.able.ravage("target") then
+            if cast.ravage("target") then
+                ui.debug("Casting Ravage [Stealth Opener]")
+                return true
             end
         end
-        -- Claw: ultimate fallback — only if Mangle and Shred are not known
-        if cast.able.claw("target") and not spell.mangleCat.known() and not spell.shred.known() then
+        -- Hold for Ravage while it can still happen (refused for range or facing, energy a tick away,
+        -- stepping behind)
+        if waitForRavage(behindTarget) then return false end
+        -- Otherwise open with the best other attack: Shred from behind (Mangle's debuff up, or no Mangle),
+        -- else Mangle, else Claw
+        if behindTarget and cast.able.shred("target") and (mangleDebuffUp or not spell.mangleCat.known()) then
+            if cast.shred("target") then
+                ui.debug("Casting Shred [Stealth Opener]")
+                return true
+            end
+        end
+        if cast.able.mangleCat("target") then
+            if cast.mangleCat("target") then
+                ui.debug("Casting Mangle [Stealth Opener]")
+                return true
+            end
+        end
+        if cast.able.claw("target") and not spell.mangleCat.known() then
             if cast.claw("target") then
                 ui.debug("Casting Claw [Stealth Opener]")
                 return true
