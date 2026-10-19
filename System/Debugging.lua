@@ -748,9 +748,17 @@ function br.debug.cast:noteNotBehind(spellID, guid)
     local unitFns = br.functions.unit
     local facing = unitFns:getFacing(unit, "player")
     local angle, centres = unitFns:getFacingAngle(unit, "player")
-    castWrite(("NOT BEHIND %s → %s: BR's check said %s | you stand %s off its facing, centres %s apart, edge %.1fyd%s"):format(
+    -- A mob fighting you turns to face you unless it can't (stunned, confused): is its target you, and
+    -- its unit flags (stunned 0x40000, confused 0x400000, fleeing 0x800000). UnitTarget comes back as
+    -- a pointer, GUID or token depending on the unlocker, so it's compared with UnitIsUnit.
+    local victim = br._G.UnitTarget and br._G.UnitTarget(unit)
+    local targetsYou = victim ~= nil and br._G.UnitIsUnit(victim, "player")
+    local flags = br._G.UnitFlags and br._G.UnitFlags(unit)
+    castWrite(("NOT BEHIND %s → %s: BR's check said %s | its target %s, unit flags %s | you stand %s off its facing, centres %s apart, edge %.1fyd%s"):format(
         printable(br.functions.spell:getName(spellID)), unitName(unit),
         facing == false and "behind" or facing == true and "in front" or "unknown",
+        targetsYou and "you" or (victim == nil and "none" or "not you"),
+        type(flags) == "number" and ("0x%08X"):format(plainNumber(flags)) or "?",
         angle and ("%d°"):format(plainNumber(angle)) or "?", centres and ("%.2fyd"):format(plainNumber(centres)) or "?",
         plainNumber(br.functions.range:getEdgeDistance("player", unit) or 0),
         br._G.ObjectIsFacing ~= nil and ", unlocker facing check" or ""))

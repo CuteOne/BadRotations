@@ -176,7 +176,7 @@ local function loadLive(path)
 	if file then return file end
 	local oldPath = legacyPathOf(path)
 	file = oldPath and tableLoad(oldPath)
-	if file then
+	if file and not tookOver[path] then
 		tookOver[path] = true
 		br.log:say("Settings", "Took over " .. br.log.highlight(oldPath) .. " for " .. tostring(br.api.expansion)
 			.. " (the old file is kept).")
