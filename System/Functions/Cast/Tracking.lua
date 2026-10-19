@@ -20,10 +20,11 @@ local castIntentLocks = {} -- Tracks cast intent to prevent multiple cast.able()
 --   aura   - "A more powerful spell is already active": this spell, this unit.
 --   los    - "Target not in line of sight": every spell on this unit.
 --   facing - "Target needs to be in front of you": harmful spells on this unit.
---   behind - "You must be behind your target": unit.isBehind says no for this unit.
+--   behind - "You must be behind your target": unit.isBehind says no for this unit, only while
+--            nothing that decides it has changed (see behindChanged), at most 3 sec.
 --   range  - "Out of range": this spell, this unit.
 -- ─────────────────────────────────────────────────────────────────────────────
-local REJECT_DURATION = { aura = 30, los = 1.0, facing = 0.5, behind = 2.0, range = 0.5 }
+local REJECT_DURATION = { aura = 30, los = 1.0, facing = 0.5, behind = 3.0, range = 0.5 }
 local UNIT_WIDE_REJECT = { los = true, facing = true, behind = true }
 -- Only attribute an error to BR's last cast if that cast was this recent; older
 -- errors most likely came from the player's own button presses.
@@ -60,14 +61,53 @@ local function strongerAuraRemaining(spellID, guid)
 	return remaining > 0 and remaining or nil
 end
 
+-- "Not behind" holds only while the things that decide it stay as they were at the refusal: where
+-- you and the unit stand and face, who it targets, and its unit flags (a stun or a fear). Moving
+-- half a yard or turning 10 degrees, on either side, asks the behind check again, so stepping
+-- behind the unit right after a refusal doesn't wait out the block.
+local BEHIND_MOVE, BEHIND_TURN = 0.5, math.rad(10)
+local behindAtRefusal = {} -- unit GUID -> what decided the refusal
+
+local function behindState(thisUnit)
+	local unitFns = br.functions.unit
+	local px, py = unitFns:GetObjectPosition("player")
+	local ux, uy = unitFns:GetObjectPosition(thisUnit)
+	local victim = br._G.UnitTarget and br._G.UnitTarget(thisUnit)
+	return {
+		px = px or 0, py = py or 0, pf = unitFns:GetObjectFacing("player") or 0,
+		ux = ux or 0, uy = uy or 0, uf = unitFns:GetObjectFacing(thisUnit) or 0,
+		victim = victim and br._G.UnitGUID(victim),
+		flags = br._G.UnitFlags and br._G.UnitFlags(thisUnit),
+	}
+end
+
+local function turned(a, b)
+	local d = math.abs(a - b) % (2 * math.pi)
+	return math.min(d, 2 * math.pi - d) >= BEHIND_TURN
+end
+
+local function behindChanged(guid, thisUnit)
+	local was = behindAtRefusal[guid]
+	if was == nil then return false end
+	local now = behindState(thisUnit)
+	return (now.px - was.px) ^ 2 + (now.py - was.py) ^ 2 >= BEHIND_MOVE ^ 2
+		or (now.ux - was.ux) ^ 2 + (now.uy - was.uy) ^ 2 >= BEHIND_MOVE ^ 2
+		or turned(now.pf, was.pf) or turned(now.uf, was.uf)
+		or now.victim ~= was.victim or now.flags ~= was.flags
+end
+
 -- True while a recent cast of spellID on thisUnit was refused for this reason.
 function cast:isRejected(kind, spellID, thisUnit)
 	if next(rejections) == nil then return false end -- the usual case: nothing refused lately
-	local key = rejectionKey(kind, spellID, thisUnit and br._G.UnitGUID(thisUnit))
+	local guid = thisUnit and br._G.UnitGUID(thisUnit)
+	local key = rejectionKey(kind, spellID, guid)
 	if not key then return false end
 	local expires = rejections[key]
-	if expires and br._G.GetTime() < expires then return true end
+	if expires and br._G.GetTime() < expires and not (kind == "behind" and behindChanged(guid, thisUnit)) then
+		return true
+	end
 	rejections[key] = nil
+	if kind == "behind" then behindAtRefusal[guid] = nil end
 	return false
 end
 
@@ -170,7 +210,11 @@ function cast:handleCastError(message)
 		local remaining = strongerAuraRemaining(br.botSpell, br.botGUID)
 		duration = remaining and math.max(REJECT_DURATION.aura, remaining) or nil
 	end
-	if kind == "behind" then br.debug.cast:noteNotBehind(br.botSpell, br.botGUID) end
+	if kind == "behind" then
+		br.debug.cast:noteNotBehind(br.botSpell, br.botGUID)
+		local refusedUnit = br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(br.botGUID)
+		behindAtRefusal[br.botGUID] = refusedUnit and behindState(refusedUnit) or nil
+	end
 	cast:setRejected(kind, br.botSpell, br.botGUID, duration)
 	if E.castTimers then E.castTimers[br.botSpell] = nil end
 	castIntentLocks[br.botSpell] = nil
