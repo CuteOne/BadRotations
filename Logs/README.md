@@ -38,6 +38,7 @@ clean it.
 | Idle.log | A snapshot whenever you stood idle in combat with an enemy close by: what was refused and why |
 | Target.log | Why BadRotations picked the enemy it picked, when that changes in combat |
 | Cast.log | Spells sent while another cast was still going, and casts the game refused |
+| Gate.log | With Cast Debug on: the cast gates' routine "not yet" answers (GCD, cooldown, not enough power, ...) |
 | Loot.log | What the loot engine did, corpse by corpse |
 | Melee.log | Melee range episodes and client facts |
 | Range.log | Results of the /br range command |

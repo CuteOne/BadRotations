@@ -94,8 +94,11 @@ end
 -- A number for a debug detail: flagged values print as <SECRET> and hide the whole line
 local function plain(value) return br.functions.misc:plainNumber(value) end
 
+-- Gate refusals (on cooldown, GCD, not enough power, ...) are routine waits, so with Cast Debug on they
+-- go to Logs\Gate.log, not chat (chat shows outcomes and problems)
+local gateWrite = br.log:file("Gate.log", 300)
 local function emitGateDebug(spellID, spellName, reason, detail)
-	if not E.castDebugOn() then return end -- gate refusals (on cooldown, GCD, ...) are routine
+	if not E.castDebugOn() then return end
 	local now = br._G.GetTime()
 	if now < E.gateDebugSilentUntil then return end
 	local key = spellID .. reason
@@ -105,7 +108,7 @@ local function emitGateDebug(spellID, spellName, reason, detail)
 	-- Detail numbers are made printable where they're built (plain); anything still flagged would
 	-- hide the whole line, so only the detail is left out
 	if detail then msg = msg .. " — " .. (br.functions.misc:isFlagged(detail) and "(detail holds a secret value)" or detail) end
-	br.log:systemDebug(msg)
+	gateWrite(msg)
 end
 
 -- Facts about a spell that only change when the character's spells or talents do. Kept until
@@ -386,6 +389,12 @@ local function gateCooldownTimer(ctx, thisUnit, castType, allTalents, allSpells)
 	local t = E.castTimers[ctx.spellID]
 	if t == nil or t < br._G.GetTime() then
 		if ctx.spellCD <= ctx.updateRate then return true end
+		-- The game reports the GCD as the cooldown of every spell on it: no longer than the GCD left
+		-- is the GCD, not the spell's own cooldown
+		local gcd = plain(br.functions.spell:getGlobalCD() or 0)
+		if plain(ctx.spellCD) <= gcd + 0.01 then
+			return false, "GCD_BLOCKED", string.format("GCD %.2fs", gcd)
+		end
 		return false, "ON_COOLDOWN",
 			string.format("spellCD=%.2fs updateRate=%.3fs", plain(ctx.spellCD), plain(ctx.updateRate))
 	end
@@ -426,7 +435,7 @@ local function gateGCD(ctx, thisUnit, castType, allTalents, allSpells) -- luache
 	end
 	return false, "GCD_BLOCKED",
 		string.format("globalCD=%.2fs spellCD=%.2fs baseCooldown=%d",
-			ctx.globalCD, ctx.spellCD, ctx.baseCooldown)
+			plain(ctx.globalCD), plain(ctx.spellCD), plain(ctx.baseCooldown))
 end
 
 local function gateKnownTalent(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
