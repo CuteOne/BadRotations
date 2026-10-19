@@ -172,7 +172,7 @@ function br.ui:createConfigWindow()
         -- Every settings file (Bot, Base and Rotation Options) for moving or sharing them
         section = br.ui:section("Export/Import from Settings Folder", { window = br.ui.window.config })
         br.ui:text(section, "Export/Import all settings for this profile:")
-        br.ui:text(section, "Settings/Exported Settings/<Class>/<Spec>/" .. tostring(br.loader.selectedProfileName))
+        br.ui:text(section, "Settings/" .. tostring(br.api.expansion) .. "/Exported Settings/<Class>/<Spec>/" .. tostring(br.loader.selectedProfileName))
         y = br.ui.elementOptions.nextRowY(section)
         br.ui:createButton(section, "Export", 10, y, function()
             settings:cleanSettings()

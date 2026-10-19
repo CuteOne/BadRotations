@@ -132,12 +132,14 @@ BR writes these itself (`System/UI/SettingsManagement.lua`); rotations never cre
 
 | File | Holds | Shared by |
 |------|-------|-----------|
-| `Settings/Characters/<Realm>-<Name>/BotOptions.lua` | Bot Options window, window layout | that character |
-| `Settings/Characters/<Realm>-<Name>/<Spec>/BaseOptions.lua` | Base Options page | that character + spec |
-| `Settings/<Class>/<Spec>/<Profile>/settings.lua` | Rotation Options pages + toggle states | every character of that class |
-| `Settings/<Class>/<Spec>/selection.lua` | The selected profile | that class + spec |
-| `Settings/<Class>/<Spec>/<Profile>/Snapshots/<Name>/` | "Load Saved Profiles" sets (Solo, Dungeon, M+ Dungeon, Raid): Base + Rotation Options | every character of that class |
-| `Settings/Exported Settings/<Class>/<Spec>/<Profile>/` | Export/Import: copies of all three files | — |
+| `Settings/<Flavour>/Characters/<Realm>-<Name>/BotOptions.lua` | Bot Options window, window layout | that character |
+| `Settings/<Flavour>/Characters/<Realm>-<Name>/<Spec>/BaseOptions.lua` | Base Options page | that character + spec |
+| `Settings/<Flavour>/<Class>/<Spec>/<Profile>/settings.lua` | Rotation Options pages + toggle states | every character of that class |
+| `Settings/<Flavour>/<Class>/<Spec>/selection.lua` | The selected profile | that class + spec |
+| `Settings/<Flavour>/<Class>/<Spec>/<Profile>/Snapshots/<Name>/` | "Load Saved Profiles" sets (Solo, Dungeon, M+ Dungeon, Raid): Base + Rotation Options | every character of that class |
+| `Settings/<Flavour>/Exported Settings/<Class>/<Spec>/<Profile>/` | Export/Import: copies of all three files | — |
+
+Each WoW flavour keeps its own settings under `Settings/<Flavour>/`, named by `br.api.expansion` (Retail, Classic, TBC, MOP, Forever), so profiles of the same name in different flavours never share a file. Files from before the split (directly under `Settings/`) are read until the flavour has its own copy and are left in place; new characters are only seeded from characters of the same flavour.
 
 In memory they are merged into `br.data.settings[spec][slot][page][option .. " Check" / " Status" / " Drop"]`, where `page` is the section's storage name. Each save keeps `.bak1`–`.bak3` backups and refuses saves that look like lost settings (mostly empty, or most customised options back at their defaults). Loading a snapshot or an import replaces the live files (the replaced ones become `.bak1`); snapshots and exports in the old single-file format (`savedSettings.lua`) are converted when loaded.
 

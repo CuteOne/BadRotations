@@ -39,6 +39,22 @@ local function checkDirectory(dir)
 	knownDirs[dir] = true
 end
 
+-- Settings/, where every flavour's settings lived before they were split per WoW flavour
+local function legacyRoot()
+	local base, s = br.functions.misc:getAddonPath()
+	return base .. s .. "Settings" .. s, s
+end
+
+-- Settings/<Flavour>/: each WoW flavour (br.api.expansion: Retail, Classic, TBC, MOP, Forever) keeps
+-- its own settings, so profiles and characters of one flavour never read another's
+local function settingsRoot()
+	local legacy, s = legacyRoot()
+	checkDirectory(legacy)
+	local root = legacy .. (br.api.expansion or "Unknown") .. s
+	checkDirectory(root)
+	return root, s
+end
+
 --------------------------------------------------------------------------
 -- Table Save/Load code from: http://lua-users.org/wiki/SaveTableToFile --
 --------------------------------------------------------------------------
@@ -142,6 +158,32 @@ local function tableLoad(sfile)
     return parse(br._G.ReadFile(sfile), sfile)
 end
 
+-- Live settings files taken over this session from the root before the flavour split (path -> true)
+local tookOver = {}
+
+-- The same file at the root before the flavour split, or nil for a path outside this flavour's root
+local function legacyPathOf(path)
+	local root = settingsRoot()
+	if path:sub(1, #root) ~= root then return nil end
+	return legacyRoot() .. path:sub(#root + 1)
+end
+
+-- A live settings file's table. While this flavour's folder doesn't have the file yet, the same file
+-- at the old root (Settings/ before the split) is read instead; the next save writes it into the
+-- flavour's folder and the old file stays as it was.
+local function loadLive(path)
+	local file = tableLoad(path)
+	if file then return file end
+	local oldPath = legacyPathOf(path)
+	file = oldPath and tableLoad(oldPath)
+	if file then
+		tookOver[path] = true
+		br.log:say("Settings", "Took over " .. br.log.highlight(oldPath) .. " for " .. tostring(br.api.expansion)
+			.. " (the old file is kept).")
+	end
+	return file
+end
+
 -- Default Settings
 function settingsManagement:defaultSettings()
 	-- Settings Per Spec
@@ -185,15 +227,10 @@ function settingsManagement:defaultSettings()
 end
 
 -- Check Directories
-function settingsManagement:checkDirectories(folder, class, spec, profile, instance)
+-- root (optional): the settings root to build under; this flavour's (Settings/<Flavour>/) by default
+function settingsManagement:checkDirectories(folder, class, spec, profile, instance, root)
 	-- Set Settings Directory
-	local wowDir = br._G.GetWoWDirectory() or ""
-	local mainDir = ""
-	if wowDir:match('_retail_') then
-		mainDir = wowDir .. sep .. "Interface" .. sep .. "AddOns" .. sep .. br.loader.addonName .. sep .. "Settings" .. sep
-	else
-		mainDir = wowDir .. sep .. br.loader.addonName .. sep .. "Settings" .. sep
-	end
+	local mainDir = root or settingsRoot()
 
 	-- Set Folder to Specified Folder if any
 	if folder == nil then
@@ -425,8 +462,10 @@ function settingsManagement:cleanSettings()
 				end
 			end
 
-			-- A real clean-up removes a handful of leftovers; this many means options failed to register
-			if #removedItems > CLEANUP_MAX_REMOVED then
+			-- A real clean-up removes a handful of leftovers; this many means options failed to register.
+			-- Except right after a file was taken over from before the flavour split: it can hold another
+			-- flavour's options (profiles of the same name shared one file), removed here once.
+			if #removedItems > CLEANUP_MAX_REMOVED and next(tookOver) == nil then
 				br.log:warning("Settings clean-up skipped: it would have removed " .. #removedItems
 					.. " settings, which looks like a problem rather than leftovers. Nothing was changed.")
 				return
@@ -481,11 +520,14 @@ end
 --
 -- In memory BR keeps one table per spec/profile slot (br.data.settings[spec][slot]) holding every
 -- options page. On disk that table is split by owner:
---   Settings/Characters/<Realm>-<Name>/BotOptions.lua            Bot Options pages, window layout, buttons
---   Settings/Characters/<Realm>-<Name>/<Spec>/BaseOptions.lua    Base Options pages
---   Settings/<Class>/<Spec>/<Profile>/settings.lua               Rotation pages + toggles
---   Settings/<Class>/<Spec>/selection.lua                        selected profile
---   Settings/Characters/index.lua                                class/specs/last use per character
+--   Characters/<Realm>-<Name>/BotOptions.lua            Bot Options pages, window layout, buttons
+--   Characters/<Realm>-<Name>/<Spec>/BaseOptions.lua    Base Options pages
+--   <Class>/<Spec>/<Profile>/settings.lua               Rotation pages + toggles
+--   <Class>/<Spec>/selection.lua                        selected profile
+--   Characters/index.lua                                class/specs/last use per character
+-- all under Settings/<Flavour>/ (settingsRoot). Files from before the flavour split (directly under
+-- Settings/) are read by loadLive until the flavour has its own; the index starts fresh per flavour,
+-- so new characters are only seeded from the same flavour.
 -- Pages are routed by their storage name: "Bot Options/..." and "Base Options/..." prefixes
 -- (set by br.ui:createSection), everything else belongs to the rotation profile.
 --------------------------------------------------------------------------
@@ -529,13 +571,6 @@ local WINDOW_KEYS = { "config", "profile", "debug" }
 -- Per-spec keys that belong to the selection / profile rather than to a page
 local SPEC_RESERVED = { toggles = true, RotationDrop = true, RotationDropValue = true, config = true, profile = true, debug = true }
 
-local function settingsRoot()
-	local base, s = br.functions.misc:getAddonPath()
-	local root = base .. s .. "Settings" .. s
-	checkDirectory(root)
-	return root, s
-end
-
 -- "<Realm>-<Name>" folder key for the current character
 local function characterKey()
 	local name = br._G.UnitName("player") or "Unknown"
@@ -569,7 +604,7 @@ local function indexPath()
 	return root .. "Characters" .. s .. "index.lua"
 end
 
--- Settings/<Class>/<Spec>/ folder for the current class and spec
+-- Settings/<Flavour>/<Class>/<Spec>/ folder for the current class and spec
 local function specDir()
 	local profileDir = settingsManagement:checkDirectories(nil, nil, nil, "Tracker") -- returns the class folder
 	local spec = br.loader.selectedSpec
@@ -745,7 +780,7 @@ end
 
 local function loadBotFile()
 	local path = botOptionsPath()
-	local file = tableLoad(path)
+	local file = loadLive(path)
 	if file then return file end
 	local source = pickSeedCharacter()
 	if source then
@@ -759,7 +794,7 @@ local function loadBotFile()
 end
 
 local function loadBaseFile(specKey)
-	local file = tableLoad(baseOptionsPath(specKey))
+	local file = loadLive(baseOptionsPath(specKey))
 	if file then return file end
 	-- This character's most recently used other spec
 	local index = tableLoad(indexPath()) or {}
@@ -829,14 +864,14 @@ end
 -- doesn't have them yet.
 local function migrateProfileFolder(profileDir, specKey)
 	local newPath = profileDir .. "settings.lua"
-	if tableLoad(newPath) then return end
-	local old = tableLoad(profileDir .. "savedSettings.lua")
+	if loadLive(newPath) then return end
+	local old = loadLive(profileDir .. "savedSettings.lua")
 	if not old or not old.settings then return end
 	local files = legacyFiles(old, specKey)
 	tableSave(files.profile, newPath)
-	if not tableLoad(botOptionsPath()) then tableSave(files.bot, botOptionsPath()) end
+	if not loadLive(botOptionsPath()) then tableSave(files.bot, botOptionsPath()) end
 	local basePath = baseOptionsPath(specKey)
-	if not tableLoad(basePath) then tableSave(files.base, basePath) end
+	if not loadLive(basePath) then tableSave(files.base, basePath) end
 	br.log:say("Settings", "Settings for this profile were converted to the new format (old savedSettings.lua kept).")
 end
 
@@ -862,7 +897,7 @@ function settingsManagement:loadSettings(profile)
 
 	local botFile = loadBotFile() or {}
 	local baseFile = loadBaseFile(specKey) or {}
-	local profileFile = tableLoad(profileDir .. "settings.lua") or {}
+	local profileFile = loadLive(profileDir .. "settings.lua") or {}
 
 	br.ui:closeWindow("all")
 	br.data.settings = br.data.settings or {}
@@ -935,7 +970,7 @@ local function ensureDir(dir)
 end
 
 --- Folder for one of this profile's named snapshots ("Solo", "Raid", ...):
--- Settings/<Class>/<Spec>/<Profile>/Snapshots/<name>/
+-- Settings/<Flavour>/<Class>/<Spec>/<Profile>/Snapshots/<name>/
 function settingsManagement:snapshotDir(name)
 	local profileDir = settingsManagement:checkDirectories(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
 	return ensureDir(ensureDir(profileDir .. "Snapshots" .. sep) .. name .. sep)
@@ -944,11 +979,12 @@ end
 --- Where a snapshot saved before the settings rework would be (Settings/Profile Settings/...), or nil
 -- when there are none (so no folders are created for it).
 function settingsManagement:legacySnapshotDir(name)
-	if not br._G.DirectoryExists(settingsRoot() .. "Profile Settings") then return nil end
-	return settingsManagement:checkDirectories("Profile Settings", nil, br.loader.selectedSpec, br.loader.selectedProfileName, name)
+	if not br._G.DirectoryExists(legacyRoot() .. "Profile Settings") then return nil end
+	return settingsManagement:checkDirectories("Profile Settings", nil, br.loader.selectedSpec, br.loader.selectedProfileName, name,
+		legacyRoot())
 end
 
---- Folder Export writes to and Import reads from: Settings/Exported Settings/<Class>/<Spec>/<Profile>/
+--- Folder Export writes to and Import reads from: Settings/<Flavour>/Exported Settings/<Class>/<Spec>/<Profile>/
 function settingsManagement:exportDir()
 	return settingsManagement:checkDirectories("Exported Settings", nil, br.loader.selectedSpec, br.loader.selectedProfileName)
 end
@@ -974,9 +1010,9 @@ end
 function settingsManagement:loadSnapshot(dir, parts, label, legacyDir)
 	local specKey = br.loader.selectedSpec
 	local files = {}
-	for _, part in ipairs(parts) do files[part] = tableLoad(dir .. SNAPSHOT_FILES[part]) end
+	for _, part in ipairs(parts) do files[part] = loadLive(dir .. SNAPSHOT_FILES[part]) end
 	if next(files) == nil then
-		local old = tableLoad(dir .. "savedSettings.lua") or (legacyDir and tableLoad(legacyDir .. "savedSettings.lua"))
+		local old = loadLive(dir .. "savedSettings.lua") or (legacyDir and tableLoad(legacyDir .. "savedSettings.lua"))
 		if old and old.settings then
 			local converted = legacyFiles(old, specKey)
 			for _, part in ipairs(parts) do files[part] = converted[part] end
@@ -996,7 +1032,7 @@ function settingsManagement:loadSnapshot(dir, parts, label, legacyDir)
 	return true
 end
 
---- Reads which profile is selected for this spec (Settings/<Class>/<Spec>/selection.lua) and sets
+--- Reads which profile is selected for this spec (Settings/<Flavour>/<Class>/<Spec>/selection.lua) and sets
 -- br.loader.selectedProfileName plus the in-memory RotationDrop/RotationDropValue. Falls back to the
 -- pre-S2 class tracker once, then to the first rotation.
 function settingsManagement:loadSelection()
@@ -1007,10 +1043,10 @@ function settingsManagement:loadSelection()
 	br.data.settings[specKey] = br.data.settings[specKey] or {}
 	local specSettings = br.data.settings[specKey]
 
-	local selection = tableLoad(specDir() .. "selection.lua")
+	local selection = loadLive(specDir() .. "selection.lua")
 	local name = selection and selection.profile
 	if name == nil then
-		local tracker = tableLoad(settingsManagement:checkDirectories(nil, nil, nil, "Tracker") .. "lastProfileTracker.lua")
+		local tracker = loadLive(settingsManagement:checkDirectories(nil, nil, nil, "Tracker") .. "lastProfileTracker.lua")
 		name = tracker and tracker[specKey] and tracker[specKey]["RotationDropValue"]
 	end
 	local index
