@@ -44,7 +44,6 @@ local function options()
     section = br.ui:section("General")
     br.ui:spinner(section, "Shift Wait Time", { value = 2, max = 5, step = 1, checkbox = false,
         tip = "Time in seconds the profile will wait while moving to shift. Combat is instant!" })
-    br.ui:checkbox(section, "Behind Debug", { tip = "Debug behind/facing checks for Shred/Ravage." })
     -- Powershifting
     br.ui:checkbox(section, "Powershifting", { tip = "Feral DPS In-Form Shifting for Energy" })
     -- Cower
@@ -200,23 +199,12 @@ local function timeToNextEnergyTick()
 end
 
 
--- Time Moving
-
--- Behind check (nil-safe)
--- Prefer the engine API so all profiles share the same fix/behavior.
-local function isBehind(thisUnit, otherUnit, degrees)
-    if unit == nil or unit.isBehind == nil then return false end
-    local result = unit.isBehind(thisUnit, otherUnit, degrees)
-    if result == nil or result == false then
-        if ui and ui.checked and ui.checked("Behind Debug") then
-            ui.debug(string.format(
-                "isBehind: FALSE (angle missing or not behind) | thisUnit=%s | otherUnit=%s | degrees=%s",
-                tostring(thisUnit), tostring(otherUnit), tostring(degrees)
-            ))
-        end
-        return false
-    end
-    return true
+-- Leaving Cat or Bear Form for a caster spell. In combat Cat Form is never left: powershifting is
+-- the only form change worth its energy there. Otherwise unit.cancelFormFor leaves the form only
+-- with the mana to shift back, and keeps that mana until a form is up again.
+local function leaveFormFor(spellRef, free)
+    if buff.catForm.exists() and unit.inCombat() then return false end
+    return unit.cancelFormFor(spellRef, free)
 end
 
 -- True when a party/raid member (not us) is in combat and currently targeting thisUnit —
@@ -315,7 +303,7 @@ actionList.Extra = function()
                 -- Cancel form if needed to buff
                 local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
                 if needsCancel then
-                    if unit.cancelFormFor(spell.giftOfTheWild) then
+                    if leaveFormFor(spell.giftOfTheWild) then
                         return true
                     end
                 else
@@ -337,7 +325,7 @@ actionList.Extra = function()
                 -- Cancel form if needed to buff
                 local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
                 if needsCancel then
-                    if unit.cancelFormFor(spell.markOfTheWild) then
+                    if leaveFormFor(spell.markOfTheWild) then
                         return true
                     end
                 else
@@ -359,7 +347,7 @@ actionList.Extra = function()
             -- Cancel form if needed to buff
             local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
             if needsCancel then
-                if unit.cancelFormFor(spell.thorns) then
+                if leaveFormFor(spell.thorns) then
                     return true
                 end
             else
@@ -378,7 +366,7 @@ actionList.Extra = function()
             -- Cancel form if needed to buff
             local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
             if needsCancel then
-                if unit.cancelFormFor(spell.omenOfClarity) then
+                if leaveFormFor(spell.omenOfClarity) then
                     return true
                 end
             else
@@ -400,7 +388,7 @@ actionList.Defensive = function()
             and mana() > cast.cost.abolishPoison() + var.formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if unit.cancelFormFor(spell.abolishPoison) then
+                if leaveFormFor(spell.abolishPoison) then
                     return true
                 end
             else
@@ -416,7 +404,7 @@ actionList.Defensive = function()
             and mana() > cast.cost.curePoison() + var.formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if unit.cancelFormFor(spell.curePoison) then
+                if leaveFormFor(spell.curePoison) then
                     return true
                 end
             else
@@ -432,7 +420,7 @@ actionList.Defensive = function()
             and mana() > cast.cost.removeCurse() + var.formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if unit.cancelFormFor(spell.removeCurse) then
+                if leaveFormFor(spell.removeCurse) then
                     return true
                 end
             else
@@ -469,7 +457,7 @@ actionList.Defensive = function()
             and mana() > cast.cost.entanglingRoots() + var.formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if unit.cancelFormFor(spell.entanglingRoots, buff.clearcasting.exists()) then
+                if leaveFormFor(spell.entanglingRoots, buff.clearcasting.exists()) then
                     return true
                 end
             else
@@ -496,7 +484,7 @@ actionList.Defensive = function()
             and #enemies.yards10 > 0 and mana() > cast.cost.naturesGrasp() + var.formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if unit.cancelFormFor(spell.naturesGrasp, buff.clearcasting.exists()) then
+                if leaveFormFor(spell.naturesGrasp, buff.clearcasting.exists()) then
                     return true
                 end
             else
@@ -513,7 +501,7 @@ actionList.Defensive = function()
             and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if unit.cancelFormFor(spell.regrowth, buff.clearcasting.exists()) then
+                if leaveFormFor(spell.regrowth, buff.clearcasting.exists()) then
                     return true
                 end
             else
@@ -529,7 +517,7 @@ actionList.Defensive = function()
                 and unit.player("target") and buff.rejuvenation.refresh("target")
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if unit.cancelFormFor(spell.rejuvenation, buff.clearcasting.exists()) then
+                    if leaveFormFor(spell.rejuvenation, buff.clearcasting.exists()) then
                         return true
                     end
                 else
@@ -544,7 +532,7 @@ actionList.Defensive = function()
                 and (unit.solo() or ui.checked("Self Heal In Group"))
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if unit.cancelFormFor(spell.rejuvenation, buff.clearcasting.exists()) then
+                    if leaveFormFor(spell.rejuvenation, buff.clearcasting.exists()) then
                         return true
                     end
                 else
@@ -562,7 +550,7 @@ actionList.Defensive = function()
         then
             if cast.able.healingTouch("target") and unit.friend("target") and unit.hp("target") <= ui.value("Healing Touch") and unit.player("target") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if unit.cancelFormFor(spell.healingTouch, buff.clearcasting.exists()) then
+                    if leaveFormFor(spell.healingTouch, buff.clearcasting.exists()) then
                         return true
                     end
                 else
@@ -576,7 +564,7 @@ actionList.Defensive = function()
                 and (not unit.inGroup() or ui.checked("Self Heal In Group"))
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if unit.cancelFormFor(spell.healingTouch, buff.clearcasting.exists()) then
+                    if leaveFormFor(spell.healingTouch, buff.clearcasting.exists()) then
                         return true
                     end
                 else
@@ -673,12 +661,12 @@ actionList.Cooldowns = function()
         -- * Module- Basic Trinkets
         -- use_items
         module.BasicTrinkets()
-        -- Innervate (caster form only, so it leaves Cat/Bear Form for it)
+        -- Innervate (caster form only, so it leaves Bear Form for it; never Cat Form in combat)
         if ui.checked("Self-Innervate") and ui.useCDs() and mana.percent() < 30
             and cd.innervate.remain() == 0 and spell.innervate.known()
         then
             if buff.catForm.exists() or buff.bearForm.exists() or buff.direBearForm.exists() then
-                if unit.cancelFormFor(spell.innervate) then
+                if leaveFormFor(spell.innervate) then
                     return true
                 end
             elseif cast.able.innervate("player") and cast.innervate("player") then
@@ -697,7 +685,7 @@ actionList.FormManagement = function()
         and unit.moving() and unit.movingTime() > 2 and not inAggroRange()
     then
         if buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() then
-            if unit.cancelFormFor(spell.aquaticForm) then
+            if leaveFormFor(spell.aquaticForm) then
                 return true
             end
         end
@@ -714,7 +702,7 @@ actionList.FormManagement = function()
         and unit.moving() and unit.movingTime() > 2 and not inAggroRange()
     then
         if buff.catForm.exists() or buff.bearForm.exists() then
-            if unit.cancelFormFor(spell.travelForm) then
+            if leaveFormFor(spell.travelForm) then
                 return true
             end
         end
@@ -914,7 +902,7 @@ actionList.CatOpener = function()
     end
 
     local isStealth = buff.prowl.exists()
-    local behindTarget = isBehind("target", "player")
+    local behindTarget = unit.isBehind("target", "player")
     local mangleDebuffUp = debuff.mangleCat.exists("target","any") or debuff.mangleBear.exists("target","any")
 
     -- Stealth Opener
@@ -1176,7 +1164,7 @@ actionList.CatForm = function()
             -- Mangle Trick, and Shred. Previously declared twice (once as behindRavage
             -- for Ravage, once as behindDyn5 for the rest); the duplicate isBehind call
             -- was an incomplete hoist. See AUDIT.md L22 fold-in note.
-            local behindDyn5 = isBehind(units.dyn5, "player")
+            local behindDyn5 = unit.isBehind(units.dyn5, "player")
             -- Ravage (from Prowl)
             if cast.able.ravage(units.dyn5) and buff.prowl.exists() and behindDyn5 then
                 if cast.ravage(units.dyn5) then
