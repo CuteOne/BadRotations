@@ -54,7 +54,10 @@ local function options()
     -- Rake/Bite Tricks
     br.ui:checkbox(section, "Rake/Bite Tricks", { tip = "With Wolfshead at 35-39 energy and tick >1s away, cast Rake (no debuff) or Ferocious Bite (2+ CPs) instead of powershifting (advanced)." })
     -- Biteweave
-    br.ui:checkbox(section, "Biteweave", { tip = "|cffFF4444[TBC sub-optimal]|cffFFFFFF FB bonus energy converts at ~1-5 dmg/energy vs a wasted-CP Shred's ~35-45 dmg/energy. Enabling this intercepts and replaces what would otherwise be a Shred, for a net DPS loss. Enable only for personal preference." })
+    br.ui:checkbox(section, "Biteweave", { checked = true, tip = "While Rip is up, spend finisher combo points on Ferocious Bite instead of building past them (wowsims default). Shred still comes first when energy is high." })
+    -- Finisher Combo Points
+    br.ui:spinner(section, "Finisher Combo Points", { value = 5, min = 1, max = 5, step = 1, checkbox = false,
+        tip = "Combo points for Rip and Ferocious Bite (wowsims: 4 in its full rotation, 5 in its simple one)" })
     --------------------------
     --- FORM MANAGEMENT ---
     --------------------------
@@ -95,6 +98,15 @@ local function options()
         tip = "Set how to use Thorns" })
     -- Tiger's Fury
     br.ui:checkbox(section, "Tiger's Fury", { tip = "Enable/Disable Using Tiger's Fury" })
+    -----------------
+    --- BEAR FORM ---
+    -----------------
+    section = br.ui:section("Bear Form")
+    br.ui:checkbox(section, "Bear Opener", { tip = "Open a Bear Form pull with Enrage, Demoralizing Roar, then Maul, in that order" })
+    br.ui:checkbox(section, "Feral Charge - Engage", { checked = true, tip = "Charge your target from 8-25 yards in Bear Form" })
+    br.ui:checkbox(section, "Growl", { tip = "In a group, taunt an enemy in melee range that is attacking someone else" })
+    br.ui:spinner(section, "Challenging Roar", { value = 3, min = 2, max = 10, step = 1,
+        tip = "In a group, Challenging Roar when at least this many enemies within 10 yards are attacking others" })
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
@@ -109,6 +121,8 @@ local function options()
     br.ui:spinner(section, "Rejuvenation", { value = 80, tip = "Health Percent to Cast At" })
     -- Barkskin
     br.ui:spinner(section, "Barkskin", { value = 50, tip = "Health Percent to Cast At" })
+    -- Frenzied Regeneration
+    br.ui:spinner(section, "Frenzied Regeneration", { value = 45, checked = true, tip = "Health Percent to Cast At (Bear Form)" })
     -- Abolish Poison
     br.ui:checkbox(section, "Abolish Poison", { tip = "Enable/Disable Using Abolish Poison" })
     -- Cure Poison
@@ -131,6 +145,8 @@ local function options()
     --- Interrupt Options ---
     -------------------------
     section = br.ui:section("Interrupts")
+    -- Feral Charge
+    br.ui:checkbox(section, "Feral Charge - Int", { checked = true, tip = "Interrupt with Feral Charge (Bear) from 8-25 yards" })
     -- Bash
     br.ui:checkbox(section, "Bash - Int")
     -- Maim
@@ -436,6 +452,15 @@ actionList.Defensive = function()
                 return true
             end
         end
+        -- Frenzied Regeneration (spends Rage, so only with some to spend)
+        if ui.checked("Frenzied Regeneration") and (buff.bearForm.exists() or buff.direBearForm.exists())
+            and cast.able.frenziedRegeneration() and unit.hp() <= ui.value("Frenzied Regeneration") and rage() >= 10
+        then
+            if cast.frenziedRegeneration() then
+                ui.debug("Casting Frenzied Regeneration")
+                return true
+            end
+        end
         -- Entangling Roots (fleeing enemies)
         if ui.checked("Entangling Roots") and cast.able.entanglingRoots("target")
             and unit.exists("target") and not unit.facing("target", "player") and unit.moving("target")
@@ -605,41 +630,41 @@ end -- End Action List - Defensive
 
 -- * Action List - Interrupts
 actionList.Interrupts = function()
-    if ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true))
-        -- and not (buff.prowl.exists() or buff.shadowmeld.exists())
-    then
-        -- Outer-guards hoisted to function-top: these are per-call decisions, not
-        -- per-iteration. Merging the two parallel yards5f loops into one shares
-        -- the interruptable check across both spells. See AUDIT.md L24.
-        --
-        -- USER-FACING BEHAVIOR CHANGE: Interrupt threshold (ui.value) is read once
-        -- per call instead of per enemy. UI value changes mid-pulse now apply on
-        -- the next pulse rather than mid-loop. Same category as L01's accurate
-        -- counts and L08's cast-gate behavior on Classic-era — small, defensible,
-        -- documented so a future user report can find the change.
-        local bashEnabled = ui.checked("Bash - Int")
-        local maimEnabled = ui.checked("Maim") and buff.catForm.exists() and comboPoints() > 0 and energy() >= 35
-        if not bashEnabled and not maimEnabled then return end
-        local interruptAt = ui.value("Interrupt At")
-        local isBearForm  = buff.bearForm.exists() or buff.direBearForm.exists()
-
-        for i = 1, #enemies.yards5f do
-            local thisUnit = enemies.yards5f[i]
-            if unit.interruptable(thisUnit, interruptAt) then
-                if bashEnabled and isBearForm and cast.able.bash(thisUnit) then
-                    if cast.bash(thisUnit) then
-                        ui.debug("Casting Bash on " .. unit.name(thisUnit))
-                        return true
-                    end
-                elseif maimEnabled and cast.able.maim(thisUnit) then
-                    if cast.maim(thisUnit) then
-                        ui.debug("Casting Maim on " .. unit.name(thisUnit))
-                        return true
-                    end
+    if not (ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true))) then return false end
+    local interruptAt = ui.value("Interrupt At")
+    local isBearForm  = buff.bearForm.exists() or buff.direBearForm.exists()
+    -- Feral Charge (Bear): a caster 8-25 yards away
+    if ui.checked("Feral Charge - Int") and isBearForm and cast.able.feralCharge() then
+        enemies.get(25)
+        local thisUnit = enemies.first(enemies.yards25, function(thisUnit)
+            return unit.distance(thisUnit) >= 8 and unit.interruptable(thisUnit, interruptAt)
+                and cast.able.feralCharge(thisUnit)
+        end)
+        if thisUnit and cast.feralCharge(thisUnit) then
+            ui.debug("Casting Feral Charge on " .. unit.name(thisUnit))
+            return true
+        end
+    end
+    -- Bash (Bear) or Maim (Cat) in melee
+    local bashEnabled = ui.checked("Bash - Int") and isBearForm
+    local maimEnabled = ui.checked("Maim") and buff.catForm.exists() and comboPoints() > 0 and energy() >= 35
+    if not bashEnabled and not maimEnabled then return false end
+    for i = 1, #enemies.yards5f do
+        local thisUnit = enemies.yards5f[i]
+        if unit.interruptable(thisUnit, interruptAt) then
+            if bashEnabled and cast.able.bash(thisUnit) then
+                if cast.bash(thisUnit) then
+                    ui.debug("Casting Bash on " .. unit.name(thisUnit))
+                    return true
+                end
+            elseif maimEnabled and cast.able.maim(thisUnit) then
+                if cast.maim(thisUnit) then
+                    ui.debug("Casting Maim on " .. unit.name(thisUnit))
+                    return true
                 end
             end
         end
-    end -- End useInterrupts check
+    end
 end -- End Action List - Interrupts
 
 -- Action List - Cooldowns
@@ -648,11 +673,15 @@ actionList.Cooldowns = function()
         -- * Module- Basic Trinkets
         -- use_items
         module.BasicTrinkets()
-        -- Innervate
-        if ui.checked("Self-Innervate") and ui.useCDs()
-            and cast.able.innervate() and mana.percent() < 30
+        -- Innervate (caster form only, so it leaves Cat/Bear Form for it)
+        if ui.checked("Self-Innervate") and ui.useCDs() and mana.percent() < 30
+            and cd.innervate.remain() == 0 and spell.innervate.known()
         then
-            if cast.innervate("player") then
+            if buff.catForm.exists() or buff.bearForm.exists() or buff.direBearForm.exists() then
+                if unit.cancelFormFor(spell.innervate) then
+                    return true
+                end
+            elseif cast.able.innervate("player") and cast.innervate("player") then
                 ui.debug("Casting Innervate")
                 return true
             end
@@ -717,8 +746,7 @@ actionList.FormManagement = function()
             end
         end
         -- Cat Form
-        if (var.formValue == 2 or (var.formValue == 3 and unit.level() < 8)) and unit.level() >= 5
-            -- and not unit.inCombat()
+        if var.formValue == 2
             and cast.able.catForm() and not buff.catForm.exists()
             and not (buff.aquaticForm.exists() or buff.travelForm.exists() or buff.flightForm.exists() or buff.swiftFlightForm.exists())
         then
@@ -729,45 +757,104 @@ actionList.FormManagement = function()
         end
         -- Caster Form
         if var.formValue == 1 and (buff.bearForm.exists() or buff.direBearForm.exists() or buff.catForm.exists()) then
-            if unit and unit.cancelForm then
-                unit.cancelForm()
-            else
-                br._G.RunMacroText("/CancelForm")
+            if unit.cancelForm() then
+                ui.debug("Casting Caster Form")
+                return true
             end
-            ui.debug("Casting Caster Form")
-            return true
         end
     end
 end -- End Action List - Form Management
 
--- Action List - Bear Form
-actionList.BearForm = function()
-    -- -- Bear Form
-    -- if ((cast.able.bearForm() and not spell.direBearForm.known()) or cast.able.direBearForm())
-    --     and not buff.bearForm.exists() and not buff.direBearForm.exists()
-    --     and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
-    --     and not (buff.thorns.refresh() and ui.checked("Thorns"))
-    -- then
-    --     if spell.direBearForm.known() then
-    --         if cast.direBearForm() then
-    --             ui.debug("Casting Dire Bear Form")
-    --             return true
-    --         end
-    --     else
-    --         if cast.bearForm() then
-    --             ui.debug("Casting Bear Form")
-    --             return true
-    --         end
-    --     end
-    -- end
+-- Action List - Bear Opener
+actionList.BearOpener = function()
+    if not (buff.bearForm.exists() or buff.direBearForm.exists()) then return false end
+    if not unit.valid("target") or unit.deadOrGhost("target") or unit.distance("target") >= 5 then return false end
     -- Enrage
-    if cast.able.enrage() and not unit.deadOrGhost("target") and not buff.enrage.exists() and rage() < 10 and unit.hp() > 80 then
+    if not buff.enrage.exists() and rage() < 10 then
+        if cast.opener.enrage() then
+            ui.debug("Casting Enrage [Opener]")
+            return true
+        end
+    end
+    -- Demoralizing Roar
+    if debuff.demoralizingRoar.refreshCount(10) > 0 then
+        if cast.opener.demoralizingRoar.aoe(10) then
+            ui.debug("Casting Demoralizing Roar [Opener]")
+            return true
+        end
+    end
+    -- Maul
+    if cast.opener.maul("target") then
+        ui.debug("Casting Maul [Opener]")
+        return true
+    end
+end -- End Action List - Bear Opener
+
+-- Rage Maul leaves for the abilities due before its swing lands: Mangle when it is (nearly) off
+-- cooldown, Lacerate while it's wanted, Swipe in AoE. Only known spells count, so at low levels
+-- (no Mangle or Lacerate yet) Maul is the rage dump as soon as it is affordable.
+local function maulReserve(thisUnit)
+    local reserve = 0
+    if spell.mangleBear.known() and cd.mangleBear.remain() < unit.gcd(true) then
+        reserve = reserve + cast.cost.mangleBear()
+    end
+    if spell.lacerate.known() and unit.ttd(thisUnit) > 6 then
+        reserve = reserve + cast.cost.lacerate()
+    end
+    if spell.swipe.known() and ui.useAOE(8, 3) then
+        reserve = reserve + cast.cost.swipe()
+    end
+    return reserve
+end
+
+-- Action List - Bear Form
+-- Order follows wowsims' TBC bear rotation; spells not learned yet are skipped by cast.able.
+actionList.BearForm = function()
+    local thisUnit = units.dyn5
+    -- Growl: an enemy in melee range attacking someone else
+    if ui.checked("Growl") and unit.inGroup() and cast.able.growl() then
+        enemies.get(5)
+        local tauntUnit = enemies.first(enemies.yards5, unit.attackingOthers)
+        if tauntUnit and cast.growl(tauntUnit) then
+            ui.debug("Casting Growl on " .. unit.name(tauntUnit))
+            return true
+        end
+    end
+    -- Challenging Roar: several enemies around you attacking others
+    if ui.checked("Challenging Roar") and unit.inGroup() and cast.able.challengingRoar()
+        and enemies.count(enemies.yards10, unit.attackingOthers) >= ui.value("Challenging Roar")
+    then
+        if cast.challengingRoar() then
+            ui.debug("Casting Challenging Roar")
+            return true
+        end
+    end
+    -- Enrage: Rage when starved (costs armor, so not at low health)
+    if cast.able.enrage() and not buff.enrage.exists() and rage() < 10 and unit.hp() > 80 then
         if cast.enrage() then
             ui.debug("Casting Enrage")
             return true
         end
     end
-    -- Demoralizing Roar
+    if thisUnit == nil then return false end
+    local lacerateStacks = debuff.lacerate.stack(thisUnit)
+    -- Lacerate: keep a full stack from falling off (it restarts at 1 stack once it drops)
+    if cast.able.lacerate(thisUnit) and lacerateStacks == 5 and debuff.lacerate.remain(thisUnit) <= 1.5 then
+        if cast.lacerate(thisUnit) then
+            ui.debug("Casting Lacerate [Keep Stack]")
+            return true
+        end
+    end
+    -- Faerie Fire (Feral): free armor debuff; anyone's Faerie Fire counts
+    if ui.checked("Faerie Fire") and cast.able.faerieFireFeral(thisUnit)
+        and not debuff.faerieFireFeral.exists(thisUnit, "any") and not debuff.faerieFire.exists(thisUnit, "any")
+        and not unit.isElemental(thisUnit) and unit.ttd(thisUnit) > cd.global.remain()
+    then
+        if cast.faerieFireFeral(thisUnit) then
+            ui.debug("Casting Faerie Fire (Feral)")
+            return true
+        end
+    end
     -- Demoralizing Roar: an AoE around the player (10 yards), when any enemy in reach needs it, not
     -- just the target. As an "aoe" cast it won't go off while a mob that isn't fighting us is in reach.
     if cast.able.demoralizingRoar("player", "aoe", 1, 10) and debuff.demoralizingRoar.refreshCount(10) > 0 then
@@ -776,23 +863,32 @@ actionList.BearForm = function()
             return true
         end
     end
-    -- Mangle (highest priority — applies +30% bleed debuff, highest threat/DPS)
-    if cast.able.mangleBear("target") then--and not debuff.mangleBear.exists("target") then
-        if cast.mangleBear("target") then
+    -- Mangle (Bear) on cooldown: damage, threat and the +30% bleed debuff
+    if cast.able.mangleBear(thisUnit) then
+        if cast.mangleBear(thisUnit) then
             ui.debug("Casting Mangle")
             return true
         end
     end
-    -- Swipe (multi-target)
-    if cast.able.swipe() and ui.useAOE(8,3) then
+    -- Swipe (hits 3)
+    if cast.able.swipe() and ui.useAOE(8, 3) then
         if cast.swipe() then
             ui.debug("Casting Swipe")
             return true
         end
     end
-    -- Maul
-    if cast.able.maul("target") and (ui.useST(8,3) or not spell.swipe.known()) then
-        if cast.maul("target") then
+    -- Lacerate: build to 5 stacks, then it's the filler (a target dying soon isn't worth stacking)
+    if cast.able.lacerate(thisUnit) and (lacerateStacks < 5 and unit.ttd(thisUnit) > 6 or lacerateStacks == 5) then
+        if cast.lacerate(thisUnit) then
+            ui.debug("Casting Lacerate")
+            return true
+        end
+    end
+    -- Maul (next swing): with the rage the abilities above still need left over
+    if cast.able.maul(thisUnit) and rage() >= cast.cost.maul() + maulReserve(thisUnit)
+        and (ui.useST(8, 3) or not spell.swipe.known() or rage() >= 40)
+    then
+        if cast.maul(thisUnit) then
             ui.debug("Casting Maul")
             return true
         end
@@ -916,6 +1012,7 @@ actionList.CatForm = function()
         local clearcasting = buff.clearcasting.exists()
         local ttd          = unit.ttd(units.dyn5)
         local mangleBearUp = debuff.mangleBear.exists(units.dyn5, "any")
+        local finisherCP   = ui.value("Finisher Combo Points")
         -- Cower (threat reduction)
         -- Only drop threat if a Warrior or Paladin is alive and nearby — in TBC these are the
         -- only reliable tanks. If none is present (dead or out of range) it is safer to keep
@@ -928,12 +1025,10 @@ actionList.CatForm = function()
                 return true
             end
         end
-        -- Tiger's Fury — use on cooldown at <= 35 energy (at or below Rake cost).
-        -- TF costs 30 energy and adds flat physical damage per hit for 6s (rank-based,
-        -- e.g. +40 at max rank in 2.5.x; it is NOT an energy return — that's WotLK).
-        -- At 36-39 energy Rake is preferred (bleed+CP > TF flat bonus per wowsims), and
-        -- at 36-39 with Wolfshead the powershift fires instead (shift gives 60 energy).
-        -- Gate on !clearcasting: don't burn 30 energy when a free OoC proc is available.
+        -- Tiger's Fury (option, off by default): 30 energy for +40 damage per hit for 6 sec at max rank
+        -- (not an energy return; that's WotLK). TBC gives it no real cooldown, so it goes out whenever
+        -- the buff is down at <= 35 energy; wowsims never uses it. Not on Clearcasting: the free proc
+        -- goes to an attack.
         if ui.checked("Tiger's Fury") and cast.able.tigersFury() and buff.catForm.exists()
             and not buff.tigersFury.exists() and energy() <= 35 and not clearcasting
         then
@@ -945,9 +1040,9 @@ actionList.CatForm = function()
 
         -- Pre-compute flags reused by multiple checks below.
         local finish    = spell.ferociousBite.kills(units.dyn5)
-        -- biteAtEnd: target dies before Rip completes all ticks — skip Rip, use FB instead.
-        -- No energy cap on this path: a dying target should receive excess energy as FB bonus damage.
-        local biteAtEnd = cp >= 5 and ttd < 6
+        -- biteAtEnd: the target dies before most of Rip would tick (wowsims: under 10 sec left) —
+        -- skip Rip, use FB instead. No energy cap: a dying target gets excess energy as FB damage.
+        local biteAtEnd = cp >= finisherCP and ttd < 10
         -- tickIn: seconds until the next 2-second energy tick; reused by tricks and powershift gate.
         local tickIn    = timeToNextEnergyTick()
         -- Ferocious Bite - Finish Him! (execute: min damage >= target HP, any CP count)
@@ -961,9 +1056,9 @@ actionList.CatForm = function()
             end
         end
 
-        -- 5 Combo Points - Finishers
-        if cp >= 5 and not clearcasting and not finish then
-            -- biteAtEnd: target dying (<6s TTD) — skip Rip (ticks won't complete) and dump
+        -- Finishers (at the "Finisher Combo Points" option, default 5)
+        if cp >= finisherCP and not clearcasting and not finish then
+            -- biteAtEnd: target dying (<10s TTD) — skip Rip (ticks won't complete) and dump
             -- excess energy into FB bonus damage. No energy cap on this path.
             if biteAtEnd and cast.able.ferociousBite(units.dyn5) and energy() >= 35 then
                 if cast.ferociousBite(units.dyn5) then
@@ -971,11 +1066,11 @@ actionList.CatForm = function()
                     return true
                 end
             end
-            -- Rip: apply when missing, or refresh at <= 2s remaining before it falls off entirely.
-            -- Gate on ttd > 6 (matches biteAtEnd threshold) and energy >= 30 so we never apply
-            -- Rip and be immediately stuck unable to cast a single builder.
-            if ui.checked("Rip") and cast.able.rip(units.dyn5) and ttd > 6
-                and (not debuff.rip.exists(units.dyn5) or debuff.rip.remain(units.dyn5) <= 2)
+            -- Rip: only once it has dropped off. TBC has no Pandemic: re-casting restarts Rip and the
+            -- ticks left on the old one are lost (its last tick lands as it expires). Needs the target
+            -- to live 10 sec (wowsims) and energy >= 30.
+            if ui.checked("Rip") and cast.able.rip(units.dyn5) and ttd >= 10
+                and not debuff.rip.exists(units.dyn5)
                 and not biteAtEnd and energy() >= 30
             then
                 if cast.rip(units.dyn5) then
@@ -983,13 +1078,10 @@ actionList.CatForm = function()
                     return true
                 end
             end
-            -- Ferocious Bite (Rip not learned, or target dying at TTD <= 6).
-            -- Do NOT include "Rip is running" as a trigger: FB bonus energy converts at
-            -- ~1-5 dmg/energy in TBC vs a wasted-CP Shred's ~35-45 dmg/energy. When Rip is
-            -- running and energy >= 40 the builder block already fires a wasted-CP Shred, which
-            -- is strictly better. This path only covers early levels (no Rip) or execute windows.
+            -- Ferocious Bite (Rip not learned, or the target dying within 10 sec). With Rip running,
+            -- Biteweave below handles Bite.
             if cast.able.ferociousBite(units.dyn5) and energy() >= 35 and energy() < 40
-                and (not spell.rip.known() or ttd <= 6)
+                and (not spell.rip.known() or ttd < 10)
             then
                 if cast.ferociousBite(units.dyn5) then
                     ui.debug("Casting Ferocious Bite")
@@ -998,11 +1090,11 @@ actionList.CatForm = function()
             end
         end
 
-        -- Biteweave: while Rip is active at 5 CPs, use Ferocious Bite at 35-56 energy to
-        -- spend energy productively rather than letting it cap out.
-        -- At energy >= 57+cutoffMod (cutoffMod=20 when tick >1s), Shred is more efficient;
+        -- Biteweave (wowsims default): while Rip is up, spend the finisher combo points on Ferocious
+        -- Bite at 35-56 energy instead of building past them.
+        -- At energy >= 57+cutoffMod (cutoffMod=20 when tick >1s), Shred comes first (wowsims);
         -- fall through to the builder block which handles it naturally.
-        if ui.checked("Biteweave") and debuff.rip.exists(units.dyn5) and cp >= 5
+        if ui.checked("Biteweave") and debuff.rip.exists(units.dyn5) and cp >= finisherCP
             and not finish and not biteAtEnd and cast.able.ferociousBite(units.dyn5)
             and energy() >= 35
         then
@@ -1018,7 +1110,8 @@ actionList.CatForm = function()
 
         -- Rake/Bite Tricks: when energy is 35-39 and the next tick is >1s away (would
         -- otherwise powershift with Wolfshead threshold=40), spend it on a useful action.
-        if ui.checked("Rake/Bite Tricks") and tickIn > 1.0 and energy() >= 35 and energy() <= 39 then
+        -- Neither on Clearcasting: the free proc goes to Shred (wowsims).
+        if ui.checked("Rake/Bite Tricks") and tickIn > 1.0 and energy() >= 35 and energy() <= 39 and not clearcasting then
             -- Rake Trick: apply Rake if the debuff is missing (35 energy)
             if ui.checked("Rake") and cast.able.rake(units.dyn5) and not debuff.rake.exists(units.dyn5) then
                 if cast.rake(units.dyn5) then
@@ -1027,7 +1120,7 @@ actionList.CatForm = function()
                 end
             end
             -- Bite Trick: Ferocious Bite at 2+ CPs instead of shifting
-            if cast.able.ferociousBite(units.dyn5) and cp >= 2 and not clearcasting then
+            if cast.able.ferociousBite(units.dyn5) and cp >= 2 then
                 if cast.ferociousBite(units.dyn5) then
                     ui.debug("Casting Ferocious Bite [Bite Trick]")
                     return true
@@ -1106,10 +1199,14 @@ actionList.CatForm = function()
                     return true
                 end
             end
-            -- Rake
+            -- Rake as a builder: from the front, or while Shred is expensive. wowsims (max level,
+            -- Shredding Attacks talented: Shred 42 energy) uses Rake only as the trick above, since
+            -- Shred from behind is worth more. While leveling, Shred costs up to 60 and Rake's combo
+            -- point for 35-40 energy keeps the finishers coming, so Rake stays in.
             if ui.checked("Rake") and cast.able.rake(units.dyn5) and debuff.rake.refresh(units.dyn5)
                 and (ttd > 9 or not spell.ferociousBite.known())
                 and not clearcasting
+                and (not behindDyn5 or not spell.shred.known() or cast.cost.shred() > 45)
             then
                 if cast.rake(units.dyn5) then
                     ui.debug("Casting Rake")
@@ -1119,7 +1216,7 @@ actionList.CatForm = function()
             -- Mangle Trick: at energy 60-61 with tick <=1s, cast Mangle instead of Shred to
             -- enable a double-Mangle cycle (Mangle → tick → Mangle) for higher combo point rate.
             if ui.checked("Mangle Trick") and cast.able.mangleCat(units.dyn5) and behindDyn5 and spell.shred.known()
-                and not mangleBearUp then
+                and not mangleBearUp and not clearcasting then
                 local mangleCost = (cast.cost.mangleCat and cast.cost.mangleCat()) or 40
                 if energy() >= (2 * mangleCost - 20) and energy() < (22 + mangleCost) and tickIn <= 1.0 then
                     if cast.mangleCat(units.dyn5) then
@@ -1172,7 +1269,7 @@ actionList.CasterForm = function()
         end
     end
     -- Starfire (if available)
-    if cast.able.starfire() and not unit.moving() and cast.able.starfire() and unit.level() >= 20
+    if cast.able.starfire() and not unit.moving() and unit.level() >= 20
         and (debuff.moonfire.exists(units.dyn40AOE) or not spell.moonfire.known())
         and (not cast.last.starfire() or cast.timeSinceLast.starfire() > unit.gcd(true) + 0.5)
     then
@@ -1236,6 +1333,15 @@ actionList.PreCombat = function()
                     end
                 end
             end
+            -- Feral Charge (Bear) to engage
+            if ui.checked("Feral Charge - Engage") and (buff.bearForm.exists() or buff.direBearForm.exists())
+                and thisDistance >= 8 and thisDistance < 25 and cast.able.feralCharge("target")
+            then
+                if cast.feralCharge("target") then
+                    ui.debug("Casting Feral Charge [Precombat]")
+                    return true
+                end
+            end
             if thisDistance < 5 then
                 -- Cat Opener (Stealth + Non-Stealth)
                 if var.formValue == 2 then
@@ -1261,6 +1367,8 @@ actionList.PreCombat = function()
                             end
                         end
                     end
+                    -- Bear Opener
+                    if ui.checked("Bear Opener") and actionList.BearOpener() then return true end
                     if (buff.bearForm.exists() or buff.direBearForm.exists()) then
                         -- Enrage
                         if cast.able.enrage() and not unit.deadOrGhost("target") and not buff.enrage.exists() and rage() < 10 then
@@ -1315,33 +1423,19 @@ actionList.Combat = function()
         -- Call Action List - Interrupts
         if actionList.Interrupts() then return true end
 
-        -- Wait for melee swing before spending energy on abilities in Cat/Bear form.
-        -- Ensures the auto-attack isn't clipped by cast GCD, maximising physical DPS.
-        if unit.exists("target") and unit.distance("target") < 5 and
-            (var.formValue == 2 and buff.catForm.exists()
-            or var.formValue == 3 and (buff.bearForm.exists() or buff.direBearForm.exists()))
+        -- Feral Charge (Bear) to engage
+        if ui.checked("Feral Charge - Engage") and (buff.bearForm.exists() or buff.direBearForm.exists())
+            and unit.distance("target") >= 8 and unit.distance("target") < 25 and cast.able.feralCharge("target")
         then
-            local sw = br.player.swing and br.player.swing.mh
-            local swing = sw and sw.timer or 0
-            local waitThreshold = 0.20  -- 200ms window covers typical latency
-            if swing > 0 and swing < waitThreshold then
-                -- Arm a safety timeout so we never stall indefinitely
-                if not sw.waiting then
-                    sw.waiting     = true
-                    sw.waitTimeout = br._G.GetTime() + 1.5
-                end
-                -- Release once the swing lands or the timeout expires
-                if sw.timer == 0 or (sw.waitTimeout and br._G.GetTime() >= sw.waitTimeout) then
-                    sw.waiting     = false
-                    sw.waitTimeout = nil
-                else
-                    return true
-                end
+            if cast.feralCharge("target") then
+                ui.debug("Casting Feral Charge")
+                return true
             end
         end
 
         -- Call Action List - Bear Form
         if var.formValue == 3 and (buff.bearForm.exists() or buff.direBearForm.exists()) and unit.exists("target") and unit.distance("target") < 5 then
+            if ui.checked("Bear Opener") and actionList.BearOpener() then return true end
             if actionList.BearForm() then return true end
         end
 
@@ -1389,7 +1483,7 @@ local function runRotation()
     spell       = br.player.spell
     -- General Locals
     var.profileStop = var.profileStop or false
-    var.haltProfile = (unit.inCombat() and var.profileStop) or ui.pause() or ui.mode.rotation == 4 or unit.id("target") == 156716
+    var.haltProfile = (unit.inCombat() and var.profileStop) or ui.pause() or ui.mode.rotation == 4
     var.formValue = ui.mode.forms
     var.formCost = 0
     if not br.player.localTrinkets then br.player.localTrinkets = true end
