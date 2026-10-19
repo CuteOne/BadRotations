@@ -768,7 +768,13 @@ function unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency)
 	if formSpellID == nil then return false, "not in a form" end
 	if emergency then return true end
 	if br._G.IsStealthed and br._G.IsStealthed() then return false, "stealthed" end
-	if br.functions.spell:isTankForm(formSpellID) and br.functions.combat:isTanking() then return false, "tanking" end
+	-- A tank in a group keeps its form while it holds threat (dropping it risks the group); solo there's
+	-- no one else to heal it, so it may leave the form like any other
+	if br.functions.spell:isTankForm(formSpellID) and br.functions.combat:isTanking()
+		and br._G.IsInGroup and br._G.IsInGroup()
+	then
+		return false, "tanking for the group"
+	end
 	local power = br.functions.power
 	local needed = power:getManaCostFromRef(outOfFormSpell, treatOutSpellAsFree) + power:getManaCostFromRef(formSpellID, false)
 	if needed > 0 and (br._G.UnitPower("player", 0) or 0) < needed then return false, "not enough mana to shift back" end
