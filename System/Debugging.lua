@@ -829,6 +829,37 @@ function br.debug.form:noteUsable(spellID, isUsable, insufficientPower)
         printable(br.functions.spell:getName(spellID)), spellID, usableOutOfForm[spellID] and "yes" or "no", formContext()))
 end
 
+-- A form left for a spell (unit.cancelFormFor) that isn't what BR sends next (2026-10-19: Cat Form
+-- left for Abolish Poison, then Cat Form cast again without it): what BR knew of that spell when
+-- something else went out instead. Profile conditions (the poison still there, ...) aren't visible here.
+local leftFormFor -- { spellID, at, form }
+function br.debug.form:noteLeftFormFor(spellID)
+    if spellID == nil then return end
+    leftFormFor = { spellID = spellID, at = br._G.GetTime(), form = formName(br._G.GetShapeshiftForm()) }
+end
+
+-- Dispatch, just before each send
+function br.debug.form:noteSendAfterLeaving(spellID)
+    local left = leftFormFor
+    if left == nil then return end
+    leftFormFor = nil
+    local spellFns = br.functions.spell
+    local name = spellFns:getName(left.spellID)
+    local after = br._G.GetTime() - left.at
+    if after > 5 or name == nil or name == spellFns:getName(spellID) then return end
+    local usable, noPower = br._G.C_Spell.IsSpellUsable(left.spellID)
+    local cd = br._G.C_Spell.GetSpellCooldown and br._G.C_Spell.GetSpellCooldown(left.spellID)
+    if type(cd) ~= "table" then cd = nil end
+    local refusal = br.functions.cast:getRefusal(name)
+    formWrite(("left %s for %s, then BR sent %s %.2fs later instead | %s then: usable %s%s, cooldown %s, GCD %.2fs, mana %d, form %s, last refusal %s"):format(
+        left.form, printable(name), printable(spellFns:getName(spellID)), after, printable(name),
+        tostring(usable and true or false), noPower and " (power)" or "",
+        cd and ("%.1f/%.1f"):format(plainNumber(cd.startTime or 0), plainNumber(cd.duration or 0)) or "?",
+        spellFns:getGlobalCD() or 0, plainNumber(br._G.UnitPower("player", 0) or 0), formName(br._G.GetShapeshiftForm()),
+        refusal and ("%s %s, %.1fs ago"):format(tostring(refusal.reason), printable(refusal.detail or ""),
+            br._G.GetTime() - (refusal.refusedAt or 0)) or "none"))
+end
+
 local notShapeshiftText = br._G.SPELL_FAILED_NOT_SHAPESHIFT
 local formEvents = br._G.CreateFrame("Frame")
 formEvents:RegisterEvent("UI_ERROR_MESSAGE")
