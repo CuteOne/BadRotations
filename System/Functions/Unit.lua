@@ -156,9 +156,11 @@ function unit:getFacing(Unit1, Unit2, Degrees)
 		return nil
 	end
 
-	-- Prefer unlocker-provided implementation when present.
+	-- A unit facing its target (see getServerFacing) is worked out here; otherwise the unlocker's own
+	-- check is preferred when present.
 	-- Note: our Degrees parameter is treated as a HALF-angle (e.g. 90 == 180deg front hemisphere).
-	if br._G.ObjectIsFacing ~= nil then
+	local _, fromTarget = br.functions.unit:getServerFacing(Unit1)
+	if br._G.ObjectIsFacing ~= nil and not fromTarget then
 		local ok, result = pcall(br._G.ObjectIsFacing, Unit1, Unit2, Degrees * 2)
 		if not ok then return nil end
 		return result == true
@@ -169,11 +171,32 @@ function unit:getFacing(Unit1, Unit2, Degrees)
 	return angle < Degrees
 end
 
---- How far Unit2 is off Unit1's facing, in degrees (0 = straight ahead, 180 = right behind), and the
--- distance between their centres (the angle means little when the centres nearly meet). nil when
--- the positions or the facing can't be read.
+--- Which way Unit faces as the server has it, in radians, and whether that came from its target.
+-- The server turns a unit to face the unit it attacks or casts at without telling the client
+-- (CMaNGOS Unit::SelectHostileTarget -> SetInFront), so the client's facing for it can be far off
+-- (2026-10-19: read 125 degrees away while the server refused Shred as "not behind"). For any unit
+-- but the player that has a target, that's the direction to its target. A stun or fear clears its
+-- target and sends the real facing (Unit::SetStunned), so without a target the client's is right.
+function unit:getServerFacing(Unit)
+	if Unit ~= "player" and br._G.UnitTarget and not br.functions.unit:GetUnitIsUnit(Unit, "player") then
+		local victim = br._G.UnitTarget(Unit)
+		if victim ~= nil and not br._G.UnitIsUnit(victim, Unit) then
+			if br._G.UnitIsUnit(victim, "player") then victim = "player" end
+			local x1, y1 = br.functions.unit:GetObjectPosition(Unit)
+			local x2, y2 = br.functions.unit:GetObjectPosition(victim)
+			if x1 and y1 and x2 and y2 and (x1 ~= x2 or y1 ~= y2) then
+				return math.atan2(y2 - y1, x2 - x1) % (math.pi * 2), true
+			end
+		end
+	end
+	return br.functions.unit:GetObjectFacing(Unit), false
+end
+
+--- How far Unit2 is off Unit1's facing (as the server has it, see getServerFacing), in degrees
+-- (0 = straight ahead, 180 = right behind), and the distance between their centres (the angle means
+-- little when the centres nearly meet). nil when the positions or the facing can't be read.
 function unit:getFacingAngle(Unit1, Unit2)
-	local facing = br.functions.unit:GetObjectFacing(Unit1)
+	local facing = br.functions.unit:getServerFacing(Unit1)
 	local x1, y1 = br.functions.unit:GetObjectPosition(Unit1)
 	local x2, y2 = br.functions.unit:GetObjectPosition(Unit2)
 	if facing == nil or x1 == nil or y1 == nil or x2 == nil or y2 == nil then
