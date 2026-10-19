@@ -469,14 +469,18 @@ local function gateKnownTalent(ctx, thisUnit, castType, allTalents, allSpells) -
 end
 
 local function gateHardCC(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
+	-- The detail names the loss-of-control type (2026-10-19, Forever: HARD_CC refusals in Bear fights
+	-- with no visible crowd control; which effect was it?)
 	if br.functions.combat
 		and br.functions.combat.cannotCast
 		and br.functions.combat:cannotCast(ctx.spellID)
 	then
-		return false, "HARD_CC", "cannotCast=true"
+		local event = br.functions.combat.hasHardControl and select(2, br.functions.combat:hasHardControl())
+		return false, "HARD_CC", "cannotCast=true, " .. tostring(event and event.locType)
 	end
-	if br.functions.combat:isIncapacitated(ctx.spellID) then
-		return false, "HARD_CC", "isIncapacitated=true"
+	local incapacitated, locType = br.functions.combat:isIncapacitated(ctx.spellID)
+	if incapacitated then
+		return false, "HARD_CC", "isIncapacitated=true, " .. tostring(locType)
 	end
 	return true
 end
@@ -565,7 +569,8 @@ function E.runGates(ctx, thisUnit, castType, isAbleCheck)
 		local pass, reason, detail = gateFn(ctx, thisUnit, castType, allTalents, allSpells)
 		if not pass then
 			E.recordRefusal(ctx.spellID, reason, detail)
-			if not isAbleCheck then
+			-- cast.able asks aren't written, except HARD_CC: rare, and its detail names the effect
+			if not isAbleCheck or reason == "HARD_CC" then
 				emitGateDebug(ctx.spellID, ctx.spellName, reason, detail)
 			end
 			return false, reason

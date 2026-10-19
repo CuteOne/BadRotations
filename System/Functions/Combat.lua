@@ -421,9 +421,9 @@ function combat:isIncapacitated(spellID)
 					-- You can adjust this value or make it configurable
 					local reactionDelay = 0.15 + math.random() * 0.3
 
-					-- Only return true (we are incapacitated) if enough time has passed
+					-- Only return true (we are incapacitated) if enough time has passed, with the effect's type
 					if timeSinceStart >= reactionDelay then
-						return true
+						return true, eventType
 					else
 						-- Still within reaction time, pretend we haven't noticed yet
 						return false
