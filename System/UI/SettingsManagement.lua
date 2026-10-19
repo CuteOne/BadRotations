@@ -333,9 +333,19 @@ function settingsManagement:cleanSettings()
 		-- local, so Phase 1's entries died at Block A's `end` and were silently
 		-- dropped before the length check + save-back at the end of Block B —
 		-- misplaced-only cleanups never persisted.
+		-- Nothing is removed until the whole list is known: a clean-up that looks like a malfunction
+		-- then changes nothing. (Putting back a copy instead left the built option windows writing to
+		-- the replaced tables, so no change made in them was saved.)
 		local removedItems = {}
-		-- Kept to put everything back if the clean-up looks like a malfunction (see below)
-		local slotBefore = br.data.settings[br.loader.selectedSpec] and settingsManagement:deepcopy(br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile])
+		local removals = {} -- { table, key } pairs, removed only if the clean-up goes ahead
+		local marked = {}   -- table -> { key = true }: each entry listed once
+		local function markRemoved(t, key, label)
+			marked[t] = marked[t] or {}
+			if marked[t][key] then return end
+			marked[t][key] = true
+			removals[#removals + 1] = { t, key }
+			table.insert(removedItems, label)
+		end
 
 		if uiPageCount >= 3 then
 			local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
@@ -365,9 +375,8 @@ function settingsManagement:cleanSettings()
 							-- If this option exists in UI but on a DIFFERENT page, remove it from here
 							-- Only if we actually found where it should be
 							if correctPage and type(correctPage) == "string" and correctPage ~= page then
-								settings[page][option] = nil
 								local cleanName = option:gsub(" Check", ""):gsub(" Drop", ""):gsub(" Status", "")
-								table.insert(removedItems, cleanName .. " (misplaced on " .. page .. ", should be on " .. correctPage .. ")")
+								markRemoved(pageData, option, cleanName .. " (misplaced on " .. page .. ", should be on " .. correctPage .. ")")
 							end
 						end
 					end
@@ -399,9 +408,8 @@ function settingsManagement:cleanSettings()
 								if not option:match("Section$") then
 									-- Check if this option exists in br.data.ui for THIS specific page
 									if br.data.ui[page][option] == nil then
-										settings[page][option] = nil
 										local cleanName = option:gsub(" Check", ""):gsub(" Drop", ""):gsub(" Status", "")
-										table.insert(removedItems, cleanName .. " (orphaned from " .. page .. ")")
+										markRemoved(pageData, option, cleanName .. " (orphaned from " .. page .. ")")
 									end
 								end
 							end
@@ -412,19 +420,18 @@ function settingsManagement:cleanSettings()
 					local option = page
 					-- Skip sections - they're UI elements, not settings
 					if not option:match("Section$") and br.data.ui[option] == nil then
-						settings[option] = nil
-						table.insert(removedItems, option)
+						markRemoved(settings, option, option)
 					end
 				end
 			end
 
 			-- A real clean-up removes a handful of leftovers; this many means options failed to register
 			if #removedItems > CLEANUP_MAX_REMOVED then
-				br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] = slotBefore
 				br.log:warning("Settings clean-up skipped: it would have removed " .. #removedItems
 					.. " settings, which looks like a problem rather than leftovers. Nothing was changed.")
 				return
 			end
+			for _, removal in ipairs(removals) do removal[1][removal[2]] = nil end
 			if #removedItems > 0 then
 				br.log:say("Settings", "Clean-up removed " .. #removedItems .. " duplicate/orphaned setting(s)")
 				-- Save immediately so cleaned settings persist
