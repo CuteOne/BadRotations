@@ -210,6 +210,7 @@ function cast:handleCastError(message)
 		local remaining = strongerAuraRemaining(br.botSpell, br.botGUID)
 		duration = remaining and math.max(REJECT_DURATION.aura, remaining) or nil
 	end
+	if kind == "range" and br.debug.cast then br.debug.cast:noteOutOfRange(br.botSpell, br.botGUID) end
 	if kind == "behind" then
 		br.debug.cast:noteNotBehind(br.botSpell, br.botGUID)
 		local refusedUnit = br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(br.botGUID)

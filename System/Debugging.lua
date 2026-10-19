@@ -683,8 +683,20 @@ local function describeSend(send, now)
         send.behind and (" behind %s with %.2fs left"):format(send.behind, send.remain or -1) or "")
 end
 
-function br.debug.cast:noteSend(spellID)
+-- Where the player and the unit were at each send, for an "Out of range" refusal of it (noteOutOfRange)
+local function rangeState(unit)
+    local rangeFns = br.functions.range
+    return ("edge %.2fyd, BR distance %.2fyd, you moving %.1f yd/s, it moving %.1f yd/s"):format(
+        plainNumber(rangeFns:getEdgeDistance("player", unit) or -1), plainNumber(rangeFns:getDistance(unit) or -1),
+        plainNumber(br._G.GetUnitSpeed("player") or 0), plainNumber(br._G.GetUnitSpeed(unit) or 0))
+end
+local sentRange -- { guid, at, state }: the last send at a unit other than the player
+
+function br.debug.cast:noteSend(spellID, thisUnit)
     local now = br._G.GetTime()
+    if thisUnit ~= nil and thisUnit ~= "player" and br._G.UnitExists(thisUnit) then
+        sentRange = { guid = br._G.UnitGUID(thisUnit), at = now, state = rangeState(thisUnit) }
+    end
     local behind, remain = currentCast(now)
     previousSend = lastSend
     lastSend = { name = printable(br.functions.spell:getName(spellID)), at = now, behind = behind, remain = remain,
@@ -736,6 +748,18 @@ function br.debug.cast:noteNoAnswer(entry, nextText)
         noPower and " (power)" or "", cd and ("%.1f/%.1f"):format(plainNumber(cd.startTime or 0), plainNumber(cd.duration or 0)) or "?",
         br.functions.spell:getGlobalCD() or 0, casting or "nothing", tostring(br._G.GetShapeshiftForm()),
         tostring(br._G.InCombatLockdown())))
+end
+
+-- The game refused a BR cast with "Out of range" (2026-10-19: Ravage from Prowl refused in 4 of 6
+-- openers while moving in, sent again 0.5 s later and accepted): where both were at the send and now.
+function br.debug.cast:noteOutOfRange(spellID, guid)
+    local unit = guid and br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(guid)
+    if unit == nil then return end
+    local sent = sentRange and sentRange.guid == guid and sentRange or nil
+    castWrite(("OUT OF RANGE %s → %s: at the send%s %s | now %s"):format(
+        printable(br.functions.spell:getName(spellID)), unitName(unit),
+        sent and (" (%.2fs before)"):format(br._G.GetTime() - sent.at) or "", sent and sent.state or "?",
+        rangeState(unit)))
 end
 
 -- The game refused a BR cast with "You must be behind your target" (2026-10-19, TBC Anniversary: Shred
