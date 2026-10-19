@@ -327,10 +327,12 @@ function common:commonReaders()
 			-- Cast Debug: when auto attack stops mid-fight (a queued Maul / Heroic Strike goes with it,
 			-- "Interrupted"), say what was going on, so the cause can be told from the log. Not when the
 			-- unit it started on died: the game drops a dead target, the fight's normal end.
+			-- Checked half a second later: when the attacked unit dies, auto attack stops before the game
+			-- marks it dead and before combat ends (2026-10-19: "no target" right before looting each kill)
 			if event == "PLAYER_LEAVE_COMBAT" and br._G.UnitAffectingCombat("player")
 				and br.functions.misc:isChecked("Cast Debug") -- a diagnostic: Cast Debug only
-				and not autoAttackTargetDied()
-			then
+			then br._G.C_Timer.After(0.5, function()
+				if autoAttackTargetDied() or not br._G.UnitAffectingCombat("player") then return end
 				local unit, misc = br.functions.unit, br.functions.misc
 				-- A part built from a flagged value can't print (2026-10-12 the whole line came out as "a debug
 				-- line holding a secret value"): each value goes in as a plain copy, and the line names the
@@ -362,7 +364,7 @@ function common:commonReaders()
 				local controlled = br.functions.combat.hasHardControl and br.functions.combat:hasHardControl() and ", you're crowd controlled" or ""
 				local flaggedNote = #flaggedParts > 0 and (" [flagged: " .. table.concat(flaggedParts, ", ") .. "]") or ""
 				br.log:systemDebug("[AUTO ATTACK OFF] mid-fight: " .. target .. lastCast .. controlled .. flaggedNote)
-			end
+			end) end
 			return
 		end
 		-- Player moving
