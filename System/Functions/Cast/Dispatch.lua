@@ -325,6 +325,14 @@ function E.checkRange(ctx, thisUnit, castType)
 				br.functions.range:getDistance(thisUnit) or -1)
 		end
 		if spellInRange == true then
+			-- A melee spell while either unit moves: the client's answer can count the running leeway
+			-- the server only gives when both run (2026-10-19, TBC: Ravage sent at 4.4-5.1 yd edge to
+			-- edge onto a walking mob, refused). getDistance applies the melee rule then.
+			if ctx.maxRange <= 5 and ((br._G.GetUnitSpeed("player") or 0) > 0 or (br._G.GetUnitSpeed(thisUnit) or 0) > 0)
+				and br.functions.range:getDistance(thisUnit) >= 5
+			then
+				return false, "moving: the game says in range, the melee rule doesn't"
+			end
 			if br.functions.misc:isMoving("player") and ctx.maxRange > 0 then
 				local now      = br._G.GetTime()
 				-- Entries are keyed per spell + unit GUID and were only ever cleared on

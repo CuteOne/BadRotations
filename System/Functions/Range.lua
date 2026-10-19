@@ -213,7 +213,10 @@ function measureDistance(Unit1, Unit2, option)
         local meleeSpell = range:getMeleeSpellName()
         if meleeSpell then inMelee = br._G.C_Spell.IsSpellInRange(meleeSpell, other) end
     end
-    if inMelee == nil then
+    -- While either unit moves, the client's "in melee" can count the running leeway the server only
+    -- gives when both run (2026-10-19, TBC: Shred "in range" at 4.4-5.1 yd edge to edge while the mob
+    -- walked; the server refused Ravage as out of range). Then the melee rule decides.
+    if inMelee == nil or (inMelee and ((br._G.GetUnitSpeed(Unit1) or 0) > 0 or (br._G.GetUnitSpeed(Unit2) or 0) > 0)) then
         local reach = range:getMeleeReach(Unit1, Unit2)
         if talent and talent.acrobaticStrikes then reach = reach + ACROBATIC_STRIKES end
         inMelee = centre <= reach
