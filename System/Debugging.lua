@@ -738,6 +738,24 @@ function br.debug.cast:noteNoAnswer(entry, nextText)
         tostring(br._G.InCombatLockdown())))
 end
 
+-- The game refused a BR cast with "You must be behind your target" (2026-10-19, TBC Anniversary: Shred
+-- refused 6 times with the mob at 0.0 yd, both facing each other, while BR's check said behind).
+-- What BR's behind check saw at that moment: how far the player stands off the unit's facing,
+-- the centre and edge distances, and whether the unlocker's facing check decided.
+function br.debug.cast:noteNotBehind(spellID, guid)
+    local unit = guid and br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(guid)
+    if unit == nil then return end
+    local unitFns = br.functions.unit
+    local facing = unitFns:getFacing(unit, "player")
+    local angle, centres = unitFns:getFacingAngle(unit, "player")
+    castWrite(("NOT BEHIND %s → %s: BR's check said %s | you stand %s off its facing, centres %s apart, edge %.1fyd%s"):format(
+        printable(br.functions.spell:getName(spellID)), unitName(unit),
+        facing == false and "behind" or facing == true and "in front" or "unknown",
+        angle and ("%d°"):format(plainNumber(angle)) or "?", centres and ("%.2fyd"):format(plainNumber(centres)) or "?",
+        plainNumber(br.functions.range:getEdgeDistance("player", unit) or 0),
+        br._G.ObjectIsFacing ~= nil and ", unlocker facing check" or ""))
+end
+
 local inProgressText = br._G.SPELL_FAILED_SPELL_IN_PROGRESS or "Another action is in progress"
 local castEvents = br._G.CreateFrame("Frame")
 castEvents:RegisterEvent("UNIT_SPELLCAST_START")

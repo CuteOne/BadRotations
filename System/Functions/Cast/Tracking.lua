@@ -20,10 +20,11 @@ local castIntentLocks = {} -- Tracks cast intent to prevent multiple cast.able()
 --   aura   - "A more powerful spell is already active": this spell, this unit.
 --   los    - "Target not in line of sight": every spell on this unit.
 --   facing - "Target needs to be in front of you": harmful spells on this unit.
+--   behind - "You must be behind your target": unit.isBehind says no for this unit.
 --   range  - "Out of range": this spell, this unit.
 -- ─────────────────────────────────────────────────────────────────────────────
-local REJECT_DURATION = { aura = 30, los = 1.0, facing = 0.5, range = 0.5 }
-local UNIT_WIDE_REJECT = { los = true, facing = true }
+local REJECT_DURATION = { aura = 30, los = 1.0, facing = 0.5, behind = 2.0, range = 0.5 }
+local UNIT_WIDE_REJECT = { los = true, facing = true, behind = true }
 -- Only attribute an error to BR's last cast if that cast was this recent; older
 -- errors most likely came from the player's own button presses.
 local REJECT_ATTRIBUTION_WINDOW = 1.0
@@ -102,6 +103,7 @@ local function rejectionKindForError(message)
 	then
 		return "facing"
 	end
+	if message == errorText("SPELL_FAILED_NOT_BEHIND", "You must be behind your target.") then return "behind" end
 	if message == errorText("SPELL_FAILED_OUT_OF_RANGE", "Out of range.")
 		or message == errorText("ERR_OUT_OF_RANGE", "Out of range.")
 	then
@@ -119,6 +121,7 @@ function E.expectedRefusal(message, castGUID)
 	if kind == "aura" then return "a stronger aura is active; BR leaves the spell until it ends" end
 	if kind == "los" then return "out of sight; BR waits until the unit is back in view" end
 	if kind == "facing" then return "not facing; BR turns to other units meanwhile" end
+	if kind == "behind" then return "not behind; BR uses attacks that work from the front meanwhile" end
 	if kind == "range" then return "out of range" end
 	if message == errorText("SPELL_FAILED_INTERRUPTED", "Interrupted") then
 		-- An on-next-swing attack is dropped when the target dies or changes, or auto attack stops
@@ -167,6 +170,7 @@ function cast:handleCastError(message)
 		local remaining = strongerAuraRemaining(br.botSpell, br.botGUID)
 		duration = remaining and math.max(REJECT_DURATION.aura, remaining) or nil
 	end
+	if kind == "behind" then br.debug.cast:noteNotBehind(br.botSpell, br.botGUID) end
 	cast:setRejected(kind, br.botSpell, br.botGUID, duration)
 	if E.castTimers then E.castTimers[br.botSpell] = nil end
 	castIntentLocks[br.botSpell] = nil

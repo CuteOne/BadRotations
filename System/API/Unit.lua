@@ -515,10 +515,15 @@ br.api.unit = function(self)
     -- @param thisUnit The unit being checked for facing (typically the target), defaults to "target" if nil
     -- @param otherUnit The reference unit (typically "player"), defaults to "player" if nil
     -- @param degrees Optional angle in degrees for the facing cone, defaults to normal game value
-    -- @return boolean True if thisUnit is NOT facing otherUnit within the given degrees
+    -- @return boolean True if thisUnit is NOT facing otherUnit within the given degrees; false while the
+    -- game has just refused a cast on thisUnit with "You must be behind your target"
     unit.isBehind = function(thisUnit, otherUnit, degrees)
         if thisUnit == nil then thisUnit = "target" end
         if otherUnit == nil then otherUnit = "player" end
+        if br.functions.unit:GetUnitIsUnit(otherUnit, "player")
+            and br.functions.cast:isRejected("behind", nil, thisUnit) then
+            return false
+        end
 
         local facing = br.functions.unit:getFacing(thisUnit, otherUnit, degrees)
         if facing == nil then return false end
