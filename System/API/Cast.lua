@@ -76,7 +76,6 @@ br.api.cast = function(self, spell, id)
     if cast.inFlightRemain == nil then cast.inFlightRemain = {} end
     if cast.last == nil then cast.last = {} end
     if cast.last.time == nil then cast.last.time = {} end
-    if cast.macro == nil then cast.macro = {} end
     if cast.noControl == nil then cast.noControl = {} end
     if cast.pool == nil then cast.pool = {} end
     if cast.range == nil then cast.range = {} end
