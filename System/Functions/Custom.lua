@@ -319,7 +319,8 @@ function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, mi
 end
 
 function custom:castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellType, unit)
-    local _, _, _, _, spellMinRange, spellMaxRange = br.api.wow.GetSpellInfo(spellID)
+    local info = br._G.C_Spell.GetSpellInfo(spellID)
+    local spellMinRange, spellMaxRange = info and info.minRange, info and info.maxRange
     minRange                                       = minRange or spellMinRange or 0
     maxRange                                       = maxRange or spellMaxRange or 5
     radius                                         = radius or maxRange
@@ -357,7 +358,8 @@ function custom:castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, 
 end
 
 function custom:findGroundLocation(spellID, radius, minUnits, maxRange, minRange, helpful)
-    local _, _, _, _, spellMinRange, spellMaxRange = br.api.wow.GetSpellInfo(spellID)
+    local info = br._G.C_Spell.GetSpellInfo(spellID)
+    local spellMinRange, spellMaxRange = info and info.minRange, info and info.maxRange
     minRange = minRange or spellMinRange or 0
     maxRange = maxRange or spellMaxRange or 5
     radius = radius or maxRange

@@ -173,7 +173,8 @@ local function rangedTestSpell()
     for _, key in ipairs(keys) do
         local spellID = br.functions.spell:currentRank(abilities[key])
         if type(spellID) == "number" and br.functions.spell:isKnown(spellID) then
-            local name, _, _, _, _, maxRange = br.api.wow.GetSpellInfo(spellID)
+            local info = br._G.C_Spell.GetSpellInfo(spellID)
+            local name, maxRange = info and info.name, info and info.maxRange
             if name and maxRange and maxRange >= 20 and maxRange <= 45 and br.functions.spell:getSpellType(name) == "Harmful" then
                 return name, maxRange
             end

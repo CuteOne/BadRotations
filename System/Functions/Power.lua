@@ -161,7 +161,7 @@ function power:getSpellCost(spell)
 	local t = br._G.C_Spell.GetSpellPowerCost(spellKey)
 	if (not t or not t[1]) and type(spellKey) == "number" then
 		-- Fallback for older clients/APIs that may prefer spellName.
-		local spellName = br.api.wow.GetSpellInfo(spellKey)
+		local spellName = br.functions.spell:getName(spellKey)
 		if spellName then
 			t = br._G.C_Spell.GetSpellPowerCost(spellName)
 		end

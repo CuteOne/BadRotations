@@ -76,7 +76,7 @@ local _UnitDebuffID_lock = false
 
 local function findDebuff(unit, spellID, filter)
         local thisUnit = br._G["ObjectPointer"](unit)
-        local spellName = br.api.wow.GetSpellInfo(spellID)
+        local spellName = br.functions.spell:getName(spellID)
         -- Check Cache
         if br.functions.misc:isChecked("Cache Debuffs") then
             if thisUnit and br.engines.enemiesEngine.enemy[thisUnit] ~= nil then
@@ -248,7 +248,7 @@ function aura:canDispel(Unit, spellID)
 	end
 	-- Arcane Torrent (Blood Elf)
 	if br.player.race == "BloodElf" and (isSpell("arcaneTorrent")
-		or spellID == select(7, br.api.wow.GetSpellInfo(br.lists.racials and br.lists.racials._bloodElfBase)))
+		or spellID == br.functions.spell:getSpellID(br.lists.racials and br.lists.racials._bloodElfBase))
 	then
 		typesList = { "Magic" }
 	end
@@ -396,7 +396,7 @@ function aura:cleanBleedSnapshots(debuff, spec)
 end
 
 function aura:findBuff(unit, spellID, filter)
-	local spellName = br.api.wow.GetSpellInfo(spellID)
+	local spellName = br.functions.spell:getName(spellID)
 	if not spellName then return nil end
 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
  	if unit == "player" then
@@ -451,7 +451,7 @@ end
 
 -- function aura:UnitDebuffID(unit, spellID, filter)
 -- 	local thisUnit = br._G["ObjectPointer"](unit)
--- 	local spellName = br.api.wow.GetSpellInfo(spellID)
+-- 	local spellName = br.functions.spell:getName(spellID)
 -- 	-- Check Cache
 -- 	if br.functions.misc:isChecked("Cache Debuffs") then
 -- 		if br.engines.enemiesEngine.enemy[thisUnit] ~= nil then

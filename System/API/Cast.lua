@@ -132,7 +132,7 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean
     if cast.able.name == nil then
         cast.able.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-            local _, _, _, _, _, _, spellID = br.api.wow.GetSpellInfo(spellName)
+            local spellID = br.functions.spell:getSpellID(spellName)
             return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spellName, predict,
                 predictPad, enemies, true)
         end
@@ -176,7 +176,7 @@ br.api.cast = function(self, spell, id)
         -- Auto attack: the game's own on/off events, since the Attack spell stops being "current"
         -- while Maul / Heroic Strike is queued (profiles then restarted attacking mid-fight)
         if spell == "autoAttack" and br.functions.unit:isAutoAttacking() then return true end
-        return br._G.C_Spell.IsAutoRepeatSpell(br.api.wow.GetSpellInfo(currentRank())) or br._G.C_Spell.IsCurrentSpell(currentRank())
+        return br._G.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(currentRank())) or br._G.C_Spell.IsCurrentSpell(currentRank())
     end
 
     --- Cancels the current spell being cast if it matches the specified spell.
@@ -343,7 +343,7 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean
     if cast.name == nil then
         cast.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-            local _, _, _, _, _, _, spellID = br.api.wow.GetSpellInfo(spellName)
+            local spellID = br.functions.spell:getSpellID(spellName)
             return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spellName, predict,
                 predictPad, enemies)
         end

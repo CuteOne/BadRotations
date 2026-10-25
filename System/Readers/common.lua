@@ -348,7 +348,7 @@ function common:commonReaders()
 				local lastCast = ""
 				if br.botSpell and br.botCastTime then
 					local ago = plainPart("time since the cast", br._G.GetTime() - br.botCastTime)
-					lastCast = ", BR's last cast " .. tostring(plainPart("spell name", br.api.wow.GetSpellInfo(br.botSpell)))
+					lastCast = ", BR's last cast " .. tostring(plainPart("spell name", br.functions.spell:getName(br.botSpell)))
 						.. (type(ago) == "number" and string.format(" %.1fs ago", ago) or " ? ago")
 				end
 				local controlled = br.functions.combat.hasHardControl and br.functions.combat:hasHardControl() and ", you're crowd controlled" or ""
@@ -399,13 +399,13 @@ function common:commonReaders()
 					elseif type(queuedID) == "table" then
 						queuedID = queuedID[1]
 					end
-					if br.api.wow.GetSpellInfo(SpellID) == br.api.wow.GetSpellInfo(queuedID) then
+					if br.functions.spell:getName(SpellID) == br.functions.spell:getName(queuedID) then
 						br._G.tremove(br.player.queue, i)
 						if br._G.IsAoEPending() then
 							br._G.SpellStopTargeting()
 						end
 						if not br.functions.misc:isChecked("Mute Queue") then
-							br.log:say("Queue", "Cast " .. br.log.highlight(br.api.wow.GetSpellInfo(queuedID)) .. ", removed from the queue")
+							br.log:say("Queue", "Cast " .. br.log.highlight(br.functions.spell:getName(queuedID)) .. ", removed from the queue")
 						end
 						break
 					end
@@ -420,7 +420,7 @@ function common:commonReaders()
 			-- 203 = "Cannot attack while dead"
 			-- 278 = "Your Pet is not Dead" / "Your pet is dead. Use Revive Pet"
 			if errorMsg == 278 then
-				local revive = br.api.wow.GetSpellInfo(50769) -- Used for string matching error messasge.
+				local revive = br.functions.spell:getName(50769) -- Used for string matching error messasge.
 				local match = string.find(messageErr, revive) ~= nil
 				if match then
 					br.readers.combatLog.deadPet = true

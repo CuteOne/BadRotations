@@ -86,8 +86,8 @@ local function validateList(spellTable)
     if validated[spellTable] then return end
     validated[spellTable] = true
     local function check(spellType, spellRef, id)
-        local name, _, _, _, _, _, gsiSpellID = br.api.wow.GetSpellInfo(id)
-        if not name or gsiSpellID ~= id then
+        local info = br._G.C_Spell.GetSpellInfo(id)
+        if not info or info.spellID ~= id then
             warnOnce(spellType .. "_" .. spellRef .. "_" .. tostring(id),
                 "|cffff0000" .. spellType .. ": |r" .. spellRef .. "|cffff0000 with ID: |r" .. id
                 .. "|cffff0000 is not valid in the list of " .. spellType .. " Spell List.")
@@ -147,7 +147,7 @@ local function validateTalents(allTalents, spec)
 
     for talentID, talentData in pairs(allTalents) do
         if talentData.active then
-            local spellName = br.api.wow.GetSpellInfo(talentID)
+            local spellName = br.functions.spell:getName(talentID)
             if spellName then
                 local talentName = br.functions.misc:convertName(spellName)
                 if sharedTalents[talentName] == nil and specTalents[talentName] == nil and heroicTalents[talentName] == nil then

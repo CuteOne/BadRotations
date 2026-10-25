@@ -19,8 +19,8 @@ br.api.spell = function(self, k, v)
     -- @return number
     spell[k].castTime = function()
         local spellID = br.functions.spell:currentRank(v)
-        local _, _, _, castTime = br.api.wow.GetSpellInfo(spellID)
-        return castTime or 0
+        local info = br._G.C_Spell.GetSpellInfo(spellID)
+        return info and info.castTime or 0
     end
 
     --- Returns the spell's ID.
@@ -28,8 +28,7 @@ br.api.spell = function(self, k, v)
     -- @return number
     spell[k].id = function()
         local spellID = br.functions.spell:currentRank(v)
-        local _, _, _, _, _, _, realID = br.api.wow.GetSpellInfo(spellID)
-        return realID or 0
+        return br.functions.spell:getSpellID(spellID) or 0
     end
 
     --- For a combo point finisher (Ferocious Bite, Eviscerate, ...): true when it's sure to kill the unit
@@ -54,8 +53,8 @@ br.api.spell = function(self, k, v)
     -- @return number
     spell[k].maxRange = function()
         local spellID = br.functions.spell:currentRank(v)
-        local _, _, _, _, _, maxRange = br.api.wow.GetSpellInfo(spellID)
-        return maxRange or 0
+        local info = br._G.C_Spell.GetSpellInfo(spellID)
+        return info and info.maxRange or 0
     end
 
     --- Returns the spell's min range.
@@ -63,8 +62,8 @@ br.api.spell = function(self, k, v)
     -- @return number
     spell[k].minRange = function()
         local spellID = br.functions.spell:currentRank(v)
-        local _, _, _, _, minRange = br.api.wow.GetSpellInfo(spellID)
-        return minRange or 0
+        local info = br._G.C_Spell.GetSpellInfo(spellID)
+        return info and info.minRange or 0
     end
 
     --- Returns the spell's name (localized).
@@ -72,17 +71,15 @@ br.api.spell = function(self, k, v)
     -- @return string
     spell[k].name = function()
         local spellID = br.functions.spell:currentRank(v)
-        local name = br.api.wow.GetSpellInfo(spellID)
-        return name or ""
+        return br.functions.spell:getName(spellID) or ""
     end
 
-    --- Returns the spell's rank.
+    --- Returns the highest rank of the spell the player knows (0 when it isn't known; 1 on clients
+    -- without ranks).
     -- @function spell.k.rank
     -- @return number
     spell[k].rank = function()
-        local spellID = br.functions.spell:currentRank(v)
-        local _, rank = br.api.wow.GetSpellInfo(spellID)
-        return rank or 0
+        return br.functions.spell:getKnownRank(v)
     end
 
     --- Returns the spell's icon texture.

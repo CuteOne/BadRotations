@@ -161,10 +161,13 @@ local function defineGroup(fields, loader)
 end
 
 defineGroup({ "spellName", "icon", "rawCastTime", "castTime", "minRange", "maxRange", "hasNoRange" }, function(ctx)
-	local spellName, _, icon, rawCastTime, minRange, maxRange = br.api.wow.GetSpellInfo(ctx.spellID)
+	local info = br._G.C_Spell.GetSpellInfo(ctx.spellID)
+	local spellName, icon, rawCastTime = info and info.name, info and info.iconID, info and info.castTime
+	local minRange, maxRange = info and info.minRange, info and info.maxRange
 	-- Some spells return 0 for maxRange on the override; fall back to the base spell.
 	if (not maxRange or maxRange == 0) and ctx.baseSpellID and ctx.baseSpellID ~= ctx.spellID then
-		_, _, _, _, minRange, maxRange = br.api.wow.GetSpellInfo(ctx.baseSpellID)
+		local baseInfo = br._G.C_Spell.GetSpellInfo(ctx.baseSpellID)
+		minRange, maxRange = baseInfo and baseInfo.minRange, baseInfo and baseInfo.maxRange
 	end
 	-- Cast time in seconds, only when prediction was asked for, plus any padding.
 	local castTime = ctx.predict and (rawCastTime or 0) / 1000 or 0
@@ -192,7 +195,7 @@ end)
 
 defineGroup({ "baseSpellName" }, function(ctx)
 	local baseSpellID = ctx.baseSpellID
-	rawset(ctx, "baseSpellName", baseSpellID == ctx.spellID and ctx.spellName or br.api.wow.GetSpellInfo(baseSpellID))
+	rawset(ctx, "baseSpellName", baseSpellID == ctx.spellID and ctx.spellName or br.functions.spell:getName(baseSpellID))
 end)
 
 defineGroup({ "spellType", "baseCooldown" }, function(ctx)

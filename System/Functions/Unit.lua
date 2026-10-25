@@ -342,7 +342,7 @@ function unit:getPrimaryStat()
 end
 
 function unit:getSpellUnit(spellCast, aoe, minRange, maxRange, spellType)
-	local spellName = br.api.wow.GetSpellInfo(spellCast)
+	local spellName = br.functions.spell:getName(spellCast)
 	if aoe == nil then aoe = false end
 	local hasRange = br._G.C_Spell.SpellHasRange(spellName) and true or false
 	local facing = not aoe

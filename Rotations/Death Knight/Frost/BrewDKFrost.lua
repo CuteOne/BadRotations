@@ -145,7 +145,7 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             -- actions=auto_attack
-            if not br._G.C_Spell.IsAutoRepeatSpell(br.api.wow.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+            if not br._G.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 br._G.StartAttack(units.dyn5)
             end
         end

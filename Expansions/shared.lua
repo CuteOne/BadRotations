@@ -21,27 +21,6 @@ api.IsPassiveSpell = function(spellID)
     return false
 end
 
--- GetSpellInfo: C_Spell.GetSpellInfo → base.GetSpellInfo fallback.
--- Returns: name, rank, iconID, castTime, minRange, maxRange, spellID, originalIconID
--- br.api.spellRangeSwapped: the Classic and TBC clients fill minRange and maxRange the other way round.
-api.GetSpellInfo = function(spellIdentifier)
-    if not spellIdentifier then return nil end
-    if type(spellIdentifier) == "table" then return nil end
-    if base.C_Spell and base.C_Spell.GetSpellInfo then
-        local spellInfo = base.C_Spell.GetSpellInfo(spellIdentifier)
-        if spellInfo and type(spellInfo) == "table" then
-            local minRange, maxRange = spellInfo.minRange, spellInfo.maxRange
-            if br.api.spellRangeSwapped then minRange, maxRange = maxRange, minRange end
-            return spellInfo.name, nil, spellInfo.iconID, spellInfo.castTime,
-                   minRange, maxRange, spellInfo.spellID, spellInfo.originalIconID
-        end
-    end
-    if base.GetSpellInfo then
-        return base.GetSpellInfo(spellIdentifier)
-    end
-    return nil
-end
-
 -- UnitInPhase: the old global, else UnitPhaseReason (nil = same phase), else "in phase if it exists".
 api.UnitInPhase = function(unit)
     if base.UnitInPhase then return base.UnitInPhase(unit) end
@@ -225,6 +204,27 @@ end
 -- installed when the native method is absent; safe to run on all clients.
 do
     local cs = br.api.wow.C_Spell
+
+    -- GetSpellInfo: the SpellInfo table (name, iconID, originalIconID, castTime, minRange, maxRange,
+    -- spellID). Built from the old multi-return where the client lacks it; where the client gives
+    -- minRange and maxRange the other way round (br.api.spellRangeSwapped: Classic, TBC) they are
+    -- swapped back. Elsewhere the client's own is used as it is.
+    if not (base.C_Spell and base.C_Spell.GetSpellInfo) then
+        cs.GetSpellInfo = function(spell)
+            if not base.GetSpellInfo then return nil end
+            local name, _, icon, castTime, minRange, maxRange, spellID, originalIcon = base.GetSpellInfo(spell)
+            if name == nil then return nil end
+            return { name = name, iconID = icon, originalIconID = originalIcon or icon, castTime = castTime,
+                minRange = minRange, maxRange = maxRange, spellID = spellID }
+        end
+    elseif br.api.spellRangeSwapped then
+        cs.GetSpellInfo = function(spell)
+            local info = base.C_Spell.GetSpellInfo(spell)
+            if info == nil then return nil end
+            return { name = info.name, iconID = info.iconID, originalIconID = info.originalIconID,
+                castTime = info.castTime, minRange = info.maxRange, maxRange = info.minRange, spellID = info.spellID }
+        end
+    end
 
     -- GetSpellLevelLearned: Retail-only. Return 1 so CD.lua level-gate checks always pass.
     if not (base.C_Spell and base.C_Spell.GetSpellLevelLearned) then

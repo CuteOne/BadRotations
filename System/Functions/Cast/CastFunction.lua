@@ -31,7 +31,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 			-- IsSpellKnown.  Scan the pet action bar by name to find which rank the
 			-- pet knows: GetPetActionInfo always exposes the pet's current learned rank.
 			for i = #spellID, 1, -1 do
-				local name = br.api.wow.GetSpellInfo(spellID[i])
+				local name = br.functions.spell:getName(spellID[i])
 				if name and E.getPetBarSlot(name) then
 					spellID = spellID[i]
 					break

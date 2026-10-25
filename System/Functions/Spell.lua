@@ -436,7 +436,7 @@ end
 function spell:getGCDSpellID()
 	local list = br.lists.globalCooldown
 	if hasGCDSpell == nil then
-		hasGCDSpell = br.api.wow.GetSpellInfo(list.spell) ~= nil
+		hasGCDSpell = br._G.C_Spell.GetSpellInfo(list.spell) ~= nil
 	end
 	if hasGCDSpell then return list.spell end
 	local _, class = br._G.UnitClass("player")
@@ -519,10 +519,11 @@ end
 -- A spell's name by ID. Names don't change, so each is asked for once (unknown IDs aren't kept).
 -- local name = br.functions.spell:getName(5176)
 function spell:getName(spellID)
-	if spellID == nil then return nil end
+	if spellID == nil or type(spellID) == "table" then return nil end -- a rank list isn't one spell
 	local name = spellNames[spellID]
 	if name == nil then
-		name = br.api.wow.GetSpellInfo(spellID)
+		local info = br._G.C_Spell.GetSpellInfo(spellID)
+		name = info and info.name
 		spellNames[spellID] = name
 	end
 	return name
@@ -548,15 +549,15 @@ function spell:getRacial(thisRace)
     local BloodElfRacial, DraeneiRacial, OrcRacial
     if race == "BloodElf" or race == thisRace then
         local baseID = r._bloodElfBase
-        BloodElfRacial = select(7, br.api.wow.GetSpellInfo(baseID))
+        BloodElfRacial = spell:getSpellID(baseID)
     end
     if race == "Draenei" or race == thisRace then
         local baseID = r._draeneiBase
-        DraeneiRacial = select(7, br.api.wow.GetSpellInfo(baseID))
+        DraeneiRacial = spell:getSpellID(baseID)
     end
     if race == "Orc" or race == thisRace then
         local baseID = r._orcBase
-        OrcRacial = select(7, br.api.wow.GetSpellInfo(baseID))
+        OrcRacial = spell:getSpellID(baseID)
     end
 
     local racialSpells = {
@@ -636,6 +637,14 @@ end
 
 -- Resolve a spell reference (id, name, or BR spell table with .id) to an id or name.
 -- local id = br.functions.spell:getSpellIdFromRef(br.player.spell.regrowth)
+-- The spell ID the client answers for an ID or a name (by name: the highest rank the player knows)
+-- local id = br.functions.spell:getSpellID("Wrath")
+function spell:getSpellID(spellIDOrName)
+	if spellIDOrName == nil or type(spellIDOrName) == "table" then return nil end
+	local info = br._G.C_Spell.GetSpellInfo(spellIDOrName)
+	return info and info.spellID
+end
+
 function spell:getSpellIdFromRef(spellRef)
 	if spellRef == nil then return nil end
 	local refType = type(spellRef)
@@ -660,7 +669,8 @@ function spell:getSpellIdFromRef(spellRef)
 end
 
 function spell:getSpellRange(spellID, option)
-	local _, _, _, _, _, maxRange = br.api.wow.GetSpellInfo(spellID)
+	local info = br._G.C_Spell.GetSpellInfo(spellID)
+	local maxRange = info and info.maxRange
 	if maxRange == nil or maxRange == 0 then maxRange = 5 else maxRange = tonumber(maxRange) end
 	-- Modifiers
 	local rangeMod = 0
@@ -710,7 +720,7 @@ function spell:isKnown(spellID)
 	end
 
 	-- For non-Classic, use the existing logic
-	local spellName = br.api.wow.GetSpellInfo(spellID)
+	local spellName = spell:getName(spellID)
 	local inBook = false
 	if br._G.GetSpellBookItemInfo then
 		inBook = br._G.GetSpellBookItemInfo(tostring(spellName)) ~= nil

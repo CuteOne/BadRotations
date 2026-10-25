@@ -150,7 +150,7 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 	if br.player and br.player.spells
 		and (ctx.spellID == br.player.spells.condemn or ctx.spellID == br.player.spells.condemnMassacre)
 	then
-		castName = br.api.wow.GetSpellInfo(br.player.spells.execute)
+		castName = br.functions.spell:getName(br.player.spells.execute)
 	end
 
 	-- Pet ability dispatch: CastSpellByName cannot activate pet action bar abilities.
@@ -187,7 +187,7 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 
 	-- A lower rank than the best one known (cast.<spell>.rank(n)) has to be sent by ID: on ranked
 	-- clients casting by name sends the highest known rank.
-	local bestRankID = br.api.hasSpellRanks and castName == ctx.spellName and select(7, br.api.wow.GetSpellInfo(castName))
+	local bestRankID = br.api.hasSpellRanks and castName == ctx.spellName and br.functions.spell:getSpellID(castName)
 	if bestRankID and bestRankID ~= ctx.spellID then
 		cast:castByID(ctx.spellID, thisUnit)
 	else

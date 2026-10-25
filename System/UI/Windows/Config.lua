@@ -243,7 +243,7 @@ function br.ui:createConfigWindow()
         if br.player ~= nil and br.player.spells ~= nil and br.player.spells.abilities ~= nil then
             for _, v in pairsByKeys(br.player.spells.abilities) do
                 local id = type(v) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(v) or v[1]) or v
-                local spellName = br.api.wow.GetSpellInfo(id)
+                local spellName = br.functions.spell:getName(id)
                 if id ~= br.functions.spell:getGCDSpellID() and spellName ~= nil then
                     br.ui:dropdown(section, spellName .. " (Queue)", { choices = { "Normal", "Cursor", "Cursor (No Cast)", "Mouseover" }, value = "Normal",
                         tip = "Active Queueing Of " .. spellName .. " (ID: " .. id .. ")", boxTip = "Select cast mode" })

@@ -266,7 +266,8 @@ end
 function range:isSafeToAoE(spellID, Unit, effectRng, minUnits, aoeType, enemies)
     if not br.functions.misc:isChecked("Safe Damage Check") then return true end
     local enemiesValid, enemiesAll
-    local maxRange = select(6, br.api.wow.GetSpellInfo(spellID))
+    local info = br._G.C_Spell.GetSpellInfo(spellID)
+    local maxRange = info and info.maxRange
     if effectRng == nil then effectRng = 5 end
     if maxRange == nil or maxRange == 0 then
         -- No range: an AoE around the unit, the call's radius (at least 8 yards). It used to be 8

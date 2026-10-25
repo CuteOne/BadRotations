@@ -7,13 +7,13 @@ local function resolveCandidateName(candidate)
     if not candidate then return nil end
 
     if type(candidate) == "number" then
-        return br.api.wow.GetSpellInfo(candidate)
+        return br.functions.spell:getName(candidate)
     end
 
     if type(candidate) == "string" then
         local idFromKey = br.player and br.player.spells and br.player.spells[candidate]
         if type(idFromKey) == "number" then
-            return br.api.wow.GetSpellInfo(idFromKey)
+            return br.functions.spell:getName(idFromKey)
         end
         return candidate
     end

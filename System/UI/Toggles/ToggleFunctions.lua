@@ -37,8 +37,8 @@ local function modeIcon(mode)
 		icon = br.functions.spell:getHighestKnownRank(icon) or icon[1]
 	end
 	if type(icon) == "number" then
-		local spellName, _, spellIcon = br.api.wow.GetSpellInfo(icon)
-		icon = spellName and spellIcon or br._G.C_Item.GetItemIconByID(icon)
+		local info = br._G.C_Spell.GetSpellInfo(icon)
+		icon = info and info.iconID or br._G.C_Item.GetItemIconByID(icon)
 	end
 	return icon or toggles.emptyIcon
 end

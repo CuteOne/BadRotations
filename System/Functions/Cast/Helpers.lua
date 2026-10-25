@@ -164,7 +164,8 @@ end
 -- if br.functions.cast:getCastTime(br.player.spells.healingTouch) < 3 then
 function cast:getCastTime(spellID)
 	spellID = br._G.FindSpellOverrideByID(spellID) or spellID
-	return (select(4, br.api.wow.GetSpellInfo(spellID)) or 0) / 1000
+	local info = br._G.C_Spell.GetSpellInfo(spellID)
+	return (info and info.castTime or 0) / 1000
 end
 
 function cast:getCastTimeRemain(unit)
@@ -196,7 +197,7 @@ end
 -- if isCasting(12345,"target") then
 function cast:isCasting(SpellID, Unit)
 	if br.functions.unit:GetUnitIsVisible(Unit) and br._G.UnitCastingInfo(Unit) then
-		if br._G.UnitCastingInfo(Unit) == br.api.wow.GetSpellInfo(SpellID) then
+		if br._G.UnitCastingInfo(Unit) == br.functions.spell:getName(SpellID) then
 			return true
 		end
 	else

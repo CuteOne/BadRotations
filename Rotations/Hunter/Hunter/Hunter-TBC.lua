@@ -970,7 +970,7 @@ actionList.Ranged = function()
             -- Toggle Auto Shot off.  gateAutoRepeat is bypassed here intentionally:
             -- IsAutoRepeatSpell=true even though nothing is firing.  On the next tick
             -- IsAutoRepeatSpell will be false and cast.autoShot restarts it normally.
-            local autoName = br.api.wow.GetSpellInfo(spell.autoShot)
+            local autoName = br.functions.spell:getName(spell.autoShot)
             if autoName then
                 br._G.CastSpellByName(autoName)
                 ui.debug("Auto Shot [Re-engage toggle — stuck after melee]")

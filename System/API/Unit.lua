@@ -139,7 +139,7 @@ br.api.unit = function(self)
         -- Until a form is up again, other casts leave the mana to shift back (see cast:getReshiftOwed)
         br.functions.cast:setReshiftOwed(formSpellID, spellRef)
         if br.debug.form then br.debug.form:noteLeftFormFor(spellRef) end
-        br.log:debug("Cancel Form [" .. tostring(spellRef and br.api.wow.GetSpellInfo(spellRef) or spellRef) .. "]")
+        br.log:debug("Cancel Form [" .. tostring(spellRef and br.functions.spell:getName(spellRef) or spellRef) .. "]")
         return true
     end
 
@@ -162,7 +162,7 @@ br.api.unit = function(self)
             spellCasting = br._G.UnitChannelInfo(thisUnit)
         end
         if spellID == nil then return spellCasting ~= nil end
-        local spellName = br.api.wow.GetSpellInfo(spellID)
+        local spellName = br.functions.spell:getName(spellID)
         return tostring(spellCasting) == tostring(spellName)
     end
 
@@ -1019,6 +1019,6 @@ br.api.unit = function(self)
     -- @return string The localised spell name, or the key as a fallback
     unit.weaponImbue.spellName = function(spellKey)
         local spellID = br.player.spells and br.player.spells[spellKey]
-        return (spellID and br.api.wow.GetSpellInfo(spellID)) or spellKey
+        return (spellID and br.functions.spell:getName(spellID)) or spellKey
     end
 end

@@ -419,7 +419,8 @@ function combatLog:common(...)
         --[[Queue Casted]]
         if sourceName ~= nil then
             if br.functions.misc:isInCombat("player") and br.functions.unit:GetUnitIsUnit(sourceName, "player") then
-                local castTime = select(4, br.api.wow.GetSpellInfo(spell)) or 0
+                local info = br._G.C_Spell.GetSpellInfo(spell)
+                local castTime = info and info.castTime or 0
                 if
                     (param == "SPELL_CAST_SUCCESS" and castTime == 0) or (param == "SPELL_CAST_START" and castTime > 0) or
                     spell == br.lastCast
@@ -923,7 +924,7 @@ function combatLog:Priest(...)
                 br.mfTicks = 0
             end
             -- Mindflay Ticks
-            if source == guid and spellName == br.api.wow.GetSpellInfo(15407) then
+            if source == guid and spellName == br.functions.spell:getName(15407) then
                 br.mfTicks = br.mfTicks + 1
                 br.log:systemDebug("Mindflay + 1 tick" .. "Total Ticks: " .. br.mfTicks)
             end
@@ -932,7 +933,7 @@ function combatLog:Priest(...)
         if param == "SPELL_AURA_REMOVED" then
             if source == guid then
                 -- Mindflay
-                if spellName == br.api.wow.GetSpellInfo(15407) then
+                if spellName == br.functions.spell:getName(15407) then
                     br.mfTicks = 0
                     br.maxmfTicks = 6
                     br.log:systemDebug("Mindflay ticks reset")
@@ -946,7 +947,7 @@ function combatLog:Priest(...)
                 br.msTicks = 0
             end
             -- Mind Sear Ticks
-            if source == guid and spellName == br.api.wow.GetSpellInfo(48045) and destination == br._G.UnitGUID("target") then
+            if source == guid and spellName == br.functions.spell:getName(48045) and destination == br._G.UnitGUID("target") then
                 br.msTicks = br.msTicks + 1
                 br.log:systemDebug("Mind Sear + 1 tick" .. "Total Ticks: " .. br.msTicks)
             end
@@ -955,7 +956,7 @@ function combatLog:Priest(...)
         if param == "SPELL_AURA_REMOVED" then
             if source == guid then
                 -- Mindflay
-                if spellName == br.api.wow.GetSpellInfo(48045) then
+                if spellName == br.functions.spell:getName(48045) then
                     br.msTicks = 0
                     br.maxmsTicks = 6
                     br.log:systemDebug("Mind Sear ticks reset")
@@ -1211,7 +1212,7 @@ function combatLog:Warlock(...) -- 9
     if br._G.C_SpecializationInfo.GetSpecialization() == 1 then
         if source == guid and param == "UNIT_SPELLCAST_CHANNEL_START" then
             -- Drain Soul counter
-            if br._G.UnitChannelInfo("player") == br.api.wow.GetSpellInfo(198590) then
+            if br._G.UnitChannelInfo("player") == br.functions.spell:getName(198590) then
                 br.dsTicks = 1
             end
         end
@@ -1232,7 +1233,7 @@ function combatLog:Warlock(...) -- 9
         -- Corruption was refreshed.
         if param == "SPELL_AURA_REFRESH" then
             -- Drain Soul
-            if source == guid and spellName == br.api.wow.GetSpellInfo(198590) then
+            if source == guid and spellName == br.functions.spell:getName(198590) then
                 br.dsTicks = 1
                 br.maxdsTicks = 5
             end
@@ -1250,7 +1251,7 @@ function combatLog:Warlock(...) -- 9
                 br.dsTicks = 0
             end
             -- Drain Soul Ticks
-            if source == guid and spellName == br.api.wow.GetSpellInfo(198590) then
+            if source == guid and spellName == br.functions.spell:getName(198590) then
                 br.dsTicks = br.dsTicks + 1
                 br.log:systemDebug("Drain Soul + 1 tick" .. "Total Ticks: " .. br.dsTicks)
             end
@@ -1259,7 +1260,7 @@ function combatLog:Warlock(...) -- 9
         if param == "SPELL_AURA_REMOVED" then
             if source == guid then
                 -- Drain Soul
-                if spellName == br.api.wow.GetSpellInfo(198590) then
+                if spellName == br.functions.spell:getName(198590) then
                     br.dsTicks = 1
                     br.maxdsTicks = 5
                     br.log:systemDebug("Drain Soul ticks reset")
