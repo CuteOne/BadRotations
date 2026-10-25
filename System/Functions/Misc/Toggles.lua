@@ -35,7 +35,7 @@ end
 --- Whether the key chosen in a key option (a br.ui.dropOptions.Toggle dropdown) is held: false for
 --- "None", nil when the option doesn't exist.
 function misc:SpecificToggle(toggle)
-	local held = KEY_HELD[misc:getOptionValue(toggle)]
+	local held = KEY_HELD[misc:getValue(toggle)]
 	if held == nil then return nil end
 	return held()
 end

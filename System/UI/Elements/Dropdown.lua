@@ -67,6 +67,9 @@ end
 ---@field checked? boolean The checkbox starts ticked for new settings (false)
 ---@field tip? string Tooltip
 ---@field boxTip? string Tooltip for the dropdown box alone (tip)
+
+-- The type each field takes, for elementOptions.check
+---@type table<string, string>
 local DROPDOWN_FIELDS = { choices = "table/string", value = "string/number", checkbox = "boolean",
     checked = "boolean", tip = "string", boxTip = "string" }
 

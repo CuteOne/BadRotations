@@ -25,9 +25,10 @@ local warnedKeyClashes = {}
 -- missing (optional): what to return for an option not found (0, or false for a checkbox)
 local function findOption(Value, Page, Type, missing)
 	if Type == nil then Type = " Check" end
-	local notFound = 0
-	if Type == " Check" then notFound = false end
-	if missing ~= nil then notFound = missing end
+	local notFound = missing
+	if notFound == nil then
+		if Type == " Check" then notFound = false else notFound = 0 end
+	end
 	-- A nil or secret option name can't be a real option
 	if Value == nil or misc:isFlagged(Value) then return notFound end
 	local specSettings = br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
@@ -72,7 +73,7 @@ function misc:checkKeyClashes()
 	if keys == nil then return end
 	local byKey = {}
 	for name in pairs(keyOptions) do
-		local key = keys[misc:getOptionValue(name)]
+		local key = keys[misc:getValue(name)]
 		if key ~= nil and key ~= "None" then
 			byKey[key] = byKey[key] or {}
 			byKey[key][#byKey[key] + 1] = name
@@ -98,7 +99,7 @@ function misc:getModuleOption(option, optionType)
 	local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
 	local page = (settings ~= nil and settings["Rotation Options"] ~= nil) and "Rotation Options" or "Base Options"
 	if optionType == "Check" then return misc:isChecked(option, page) end
-	if optionType == "Value" then return misc:getOptionValue(option, page) end
+	if optionType == "Value" then return misc:getValue(option, page) end
 end
 
 -- used to gather informations from the bot options frame
@@ -111,26 +112,6 @@ function misc:getOptionDefaults()
 	return optionDefaults
 end
 
-function misc:getOptionValue(Value)
-	return br.functions.misc:getValue(Value)
-end
-
--- if br.functions.misc:getValue("player") <= br.functions.misc:getValue("Eternal Flame") then
--- function misc:getValue(Value)
--- 	if br.data~=nil then
--- 		if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]~=nil then
--- 	        if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][Value.."Status"] ~= nil then
--- 	            return br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][Value.."Status"]
--- 	        elseif br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][Value.."Drop"] ~= nil then
--- 	            return br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][Value.."Drop"]
--- 	        else
--- 	            return 0
--- 	        end
--- 		end
--- 	else
--- 		return 0
--- 	end
--- end
 function misc:getValue(Value, Page)
 	local statusValue = findOption(Value, Page, " Status")
 	if statusValue and statusValue > 0 then
@@ -144,31 +125,7 @@ function misc:getValue(Value, Page)
 	if editBoxValue then
 		return editBoxValue
 	end
-	-- if br.data ~= nil and br.data.settings ~= nil then
-	-- 	local selectedProfile = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-	-- 	if selectedProfile ~= nil then
-	-- 		if selectedProfile[Value .. "EditBox"] ~= nil then
-	-- 			return selectedProfile[Value .. "EditBox"]
-	-- 		end
-	-- 	end
-	-- end
 	return 0
-	-- if br.data ~= nil and br.data.settings ~= nil then
-	-- 	local selectedProfile = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-	-- 	if selectedProfile ~= nil then
-	-- 		if selectedProfile[Value .. "Status"] ~= nil then
-	-- 			return selectedProfile[Value .. "Status"]
-	-- 		elseif selectedProfile[Value .. "Drop"] ~= nil then
-	-- 			return selectedProfile[Value .. "Drop"]
-	-- 		elseif selectedProfile[Value .. "EditBox"] ~= nil then
-	-- 			return selectedProfile[Value .. "EditBox"]
-	-- 		else
-	-- 			return 0
-	-- 		end
-	-- 	end
-	-- else
-	-- 	return 0
-	-- end
 end
 
 -- if br.functions.misc:isChecked("Debug") then

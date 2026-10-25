@@ -154,12 +154,12 @@ function spell:canInterrupt(unit, percentint)
 	-- M+ Affix: Beguiling (Prevents Interrupt) - Queen's Decree: Unstoppable buff
 	local queensDecreeID = br.functions.spell:getHighestSpellID("queensDecreeUnstoppable")
 	if br.functions.aura:UnitBuffID(unit, queensDecreeID) ~= nil then return false end
-	local interruptTarget = br.functions.misc:getOptionValue("Interrupt Target")
+	local interruptTarget = br.functions.misc:getValue("Interrupt Target")
 	if interruptTarget == 2 and not br.functions.unit:GetUnitIsUnit(unit, "target") then
 		return false
 	elseif interruptTarget == 3 and not br.functions.unit:GetUnitIsUnit(unit, "focus") then
 		return false
-	elseif interruptTarget == 4 and br.functions.misc:getOptionValue("Interrupt Mark") ~= br.game.GetRaidTargetIndex(unit) then
+	elseif interruptTarget == 4 and br.functions.misc:getValue("Interrupt Mark") ~= br.game.GetRaidTargetIndex(unit) then
 		return false
 	end
 	local castStartTime, castEndTime, interruptID, interruptable = 0, 0, 0, false
@@ -417,9 +417,9 @@ function spell:getFinisherDamage(spellID)
 	for cp, low in desc:gmatch("(%d) points?%s*:%s*([%d,]+)") do
 		damage[tonumber(cp)] = tonumber((low:gsub(",", "")))
 	end
-	if damage[1] == nil then damage = false end
-	finisherDamage[spellID] = damage
-	return damage
+	local found = damage[1] ~= nil and damage or false
+	finisherDamage[spellID] = found
+	return found
 end
 
 -- Full RechargeTime of a Spell/dump getFullRechargeTime(214579)
@@ -724,6 +724,13 @@ function spell:getSpellType(spellName)
 	if not helpful and not harmful then return "Unknown" end
 end
 
+-- The compiled talent state of a talent from the spell lists (by key, hero talents included)
+local function talentInfo(talentKey)
+	local rotation = br.rotation
+	local id = rotation and rotation.talentIDs and rotation.talentIDs[talentKey]
+	return id and rotation.talentInfo and rotation.talentInfo[id]
+end
+
 -- The talent's rank (by key), 0 when it isn't taken, as talent.rank.<key> answers
 function spell:getTalentRank(talentKey)
 	local info = talentInfo(talentKey)
@@ -732,13 +739,6 @@ end
 
 function spell:getTexture(spellID)
 	return br.game.C_Spell.GetSpellTexture(spellID)
-end
-
--- The compiled talent state of a talent from the spell lists (by key, hero talents included)
-local function talentInfo(talentKey)
-	local rotation = br.rotation
-	local id = rotation and rotation.talentIDs and rotation.talentIDs[talentKey]
-	return id and rotation.talentInfo and rotation.talentInfo[id]
 end
 
 -- True when the talent from the spell lists (by key) is active, as talent.<key> answers
@@ -814,8 +814,9 @@ function spell:isSpellInSpellbook(spellID, spellType)
 	if spellSlot then
 		-- Enum.SpellBookSpellBank does not exist on Classic-era clients (TBC, Classic).
 		-- Fall back to the WoW global string constants "PET" / "SPELL" in that case.
-		local petBank    = (Enum and Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet)    or "PET"
-		local playerBank = (Enum and Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player) or "SPELL"
+		local banks = br.game.Enum and br.game.Enum.SpellBookSpellBank
+		local petBank    = banks and banks.Pet or "PET"
+		local playerBank = banks and banks.Player or "SPELL"
 		local bank = (spellType == "pet") and petBank or playerBank
 
 		-- Try modern API first if available

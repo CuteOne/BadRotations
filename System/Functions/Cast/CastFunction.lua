@@ -25,8 +25,8 @@ cast.queue = cast.queue or {}
 --   9. checkUnitValidity + checkRange
 --  10. dispatchAoE or dispatchST → castingSpell
 -- ─────────────────────────────────────────────────────────────────────────────
-function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, index, predict, predictPad, enemies,
-							   debug)
+local function runCastFunction(self, thisUnit, castType, minUnits, effectRng, spellID, index, predict, predictPad,
+							   enemies, debug)
 	-- ── Step 1: Resolve spell ID table → single spellID ──────────────────────
 	if type(spellID) == "table" then
 		if castType == "pet" then
@@ -245,7 +245,6 @@ end
 
 -- cast.able (debug = true) only asks: E.asking tells the refusal records (Gates.lua recordRefusal)
 -- that a refusal now isn't one of a cast the profile wanted. Kept for nested calls.
-local runCastFunction = cast.createCastFunction
 local function finishAsking(was, ...)
 	E.asking = was
 	return ...
@@ -303,9 +302,9 @@ br.lifecycle:onTick(10, "queued casts", function()
 	if (not queueOn or dead or not inCombat) and #queue ~= 0 then
 		br.game.wipe(queue)
 		if not misc:isChecked("Mute Queue") then
-			if not queueOn then print("Queue System Disabled! - Queue Cleared.") end
-			if dead then print("Player Death Detected! - Queue Cleared.") end
-			if not inCombat then print("No Combat Detected! - Queue Cleared.") end
+			if not queueOn then br.log:say("Queue", "Cleared: queue system disabled") end
+			if dead then br.log:say("Queue", "Cleared: player death detected") end
+			if not inCombat then br.log:say("Queue", "Cleared: no combat detected") end
 		end
 	end
 end)
@@ -313,5 +312,5 @@ br.lifecycle:onPowerOff(10, "queued casts", function()
 	local queue = cast.queue
 	if queue == nil or #queue == 0 then return end
 	br.game.wipe(queue)
-	if not br.functions.misc:isChecked("Mute Queue") then print("BR Disabled! - Queue Cleared.") end
+	if not br.functions.misc:isChecked("Mute Queue") then br.log:say("Queue", "Cleared: BR disabled") end
 end)

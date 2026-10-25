@@ -28,13 +28,13 @@ local function checkKeys(self, key)
 		local spell = br.rotation.spells.bindings[pressedKey]
 		if spell ~= nil then
 			local cd = br.functions.spell:getSpellCD(spell)
-			if br.functions.spell:getName(br.functions.spell:getName(spell)) and cd <= br.functions.misc:getOptionValue("Smart Queue") and br.functions.misc:isChecked(br.functions.spell:getName(spell) .. " (Queue)") and (cd > 0 or br.game.C_Spell.IsSpellUsable(spell) == false or br.game.UnitCastingInfo("player")) then
+			if br.functions.spell:getName(br.functions.spell:getName(spell)) and cd <= br.functions.misc:getValue("Smart Queue") and br.functions.misc:isChecked(br.functions.spell:getName(spell) .. " (Queue)") and (cd > 0 or br.game.C_Spell.IsSpellUsable(spell) == false or br.game.UnitCastingInfo("player")) then
 				SmartQueue.queueSpell = spell
 				queueSpellTime = br.game.GetTime()
-				if br.functions.misc:getOptionValue(br.functions.spell:getName(SmartQueue.queueSpell) .. " (Queue)") == 2 then
+				if br.functions.misc:getValue(br.functions.spell:getName(SmartQueue.queueSpell) .. " (Queue)") == 2 then
 					local x, y = br.game.GetMousePosition()
 					queueSpellPos.x, queueSpellPos.y, queueSpellPos.z = br.game.ScreenToWorld(x, y)
-				elseif br.functions.misc:getOptionValue(br.functions.spell:getName(SmartQueue.queueSpell) .. " (Queue)") == 4 and br.game.UnitIsVisible("mouseover") then
+				elseif br.functions.misc:getValue(br.functions.spell:getName(SmartQueue.queueSpell) .. " (Queue)") == 4 and br.game.UnitIsVisible("mouseover") then
 					queueSpellTarget = br.game.ObjectPointer("mouseover")
 				else
 					queueSpellTarget = "target"
@@ -138,31 +138,31 @@ function SmartQueue:smartQueue()
 		end
 	end
 
-	if SmartQueue.queueSpell and (br.game.GetTime() - queueSpellTime) > br.functions.misc:getOptionValue("Smart Queue") then
+	if SmartQueue.queueSpell and (br.game.GetTime() - queueSpellTime) > br.functions.misc:getValue("Smart Queue") then
 		SmartQueue.queueSpell = false
 	end
 
-	if SmartQueue.queueSpell and br.functions.misc:isChecked("Smart Queue") and (((br.game.GetTime() - queueSpellTime) <= br.functions.misc:getOptionValue("Smart Queue") and not br.game.UnitChannelInfo("player")
-				and (br.game.UnitIsVisible(queueSpellTarget) or br.functions.misc:getOptionValue(br.functions.spell:getName(SmartQueue.queueSpell) .. " (Queue)") == 2) and br.game.UnitAffectingCombat("player"))
+	if SmartQueue.queueSpell and br.functions.misc:isChecked("Smart Queue") and (((br.game.GetTime() - queueSpellTime) <= br.functions.misc:getValue("Smart Queue") and not br.game.UnitChannelInfo("player")
+				and (br.game.UnitIsVisible(queueSpellTarget) or br.functions.misc:getValue(br.functions.spell:getName(SmartQueue.queueSpell) .. " (Queue)") == 2) and br.game.UnitAffectingCombat("player"))
 			or (br.game.IsAoEPending() and br.functions.misc:isChecked("Smart Queue") and br.functions.misc:isChecked(br.functions.spell:getName(SmartQueue.queueSpell) .. " (Queue)") and br.game.UnitAffectingCombat("player")))
 		-- Gouge only lands from in front of the target
 		and (SmartQueue.queueSpell ~= br.functions.spell:getHighestSpellID("gouge") or br.functions.unit:getFacing("target", "player"))
 	then
-		if br.game.IsAoEPending() and br.functions.misc:getOptionValue(br.functions.spell:getName(SmartQueue.queueSpell) .. " (Queue)") ~= 3 then
+		if br.game.IsAoEPending() and br.functions.misc:getValue(br.functions.spell:getName(SmartQueue.queueSpell) .. " (Queue)") ~= 3 then
 			local pendingSpell = SmartQueue.queueSpell
 			br.game.CancelPendingSpell()
 			br.functions.cast:castByName(br.functions.spell:getName(pendingSpell), "cursor")
 			return true
 		end
 		if SmartQueue.queueSpell and not br.game.UnitCastingInfo("player") then
-			if br.functions.misc:getOptionValue(br.functions.spell:getName(SmartQueue.queueSpell) .. " (Queue)") == 2 then
+			if br.functions.misc:getValue(br.functions.spell:getName(SmartQueue.queueSpell) .. " (Queue)") == 2 then
 				if br.functions.cast:createCastFunction("player", nil, nil, nil, SmartQueue.queueSpell, nil, nil, nil, nil, true) then
 					if br.functions.cast:castAtPosition(queueSpellPos.x, queueSpellPos.y, queueSpellPos.z, SmartQueue.queueSpell) then
 						br.ui.chatOverlay:Show("Casted Queued Spell: " .. br.functions.spell:getName(SmartQueue.queueSpell))
 						return true
 					end
 				end
-			elseif br.functions.misc:getOptionValue(br.functions.spell:getName(SmartQueue.queueSpell) .. " (Queue)") == 3 then
+			elseif br.functions.misc:getValue(br.functions.spell:getName(SmartQueue.queueSpell) .. " (Queue)") == 3 then
 				if br.functions.cast:createCastFunction("player", nil, nil, nil, SmartQueue.queueSpell, nil, nil, nil, nil, true) then
 					br.functions.cast:castByName(br.functions.spell:getName(SmartQueue.queueSpell))
 					br.ui.chatOverlay:Show("Casted Queued Spell: " .. br.functions.spell:getName(SmartQueue.queueSpell))

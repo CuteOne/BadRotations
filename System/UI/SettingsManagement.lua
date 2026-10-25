@@ -1,7 +1,7 @@
 local _, br = ...
 br.ui.settingsManagement = br.ui.settingsManagement or {}
 local settingsManagement = br.ui.settingsManagement
-local sep = IsMacClient() and "/" or "\\"
+local sep = br.game.IsMacClient() and "/" or "\\"
 
 local function getFolderClassName(class)
 	return br.functions.misc:getClassFolderName(class)
@@ -226,8 +226,14 @@ function settingsManagement:defaultSettings()
 	end
 end
 
--- Check Directories
--- root (optional): the settings root to build under; this flavour's (Settings/<Flavour>/) by default
+--- Makes the settings folders down to the one asked for and returns its path (ending in the separator).
+---@param folder? string A folder under the root (none)
+---@param class? string The class file name (the player's)
+---@param spec? string The spec folder (the selected spec; the class on clients without specs)
+---@param profile? string The profile folder (the selected profile); "Tracker" returns the class folder
+---@param instance? string A folder under the profile's
+---@param root? string The settings root to build under; this flavour's (Settings/<Flavour>/) by default
+---@return string
 function settingsManagement:checkDirectories(folder, class, spec, profile, instance, root)
 	-- Set Settings Directory
 	local mainDir = root or settingsRoot()
@@ -276,16 +282,10 @@ function settingsManagement:checkDirectories(folder, class, spec, profile, insta
 	end
 	local profileDir = specDir .. profile .. sep
 	checkDirectory(profileDir)
-	if not instance then
-		-- Return Path
-		return profileDir
-	elseif instance then
-		local instanceDir = profileDir .. instance .. sep
-		checkDirectory(instanceDir)
-		return instanceDir
-	end
-	br.log:error("Unknown error creating directories")
-	return nil
+	if not instance then return profileDir end
+	local instanceDir = profileDir .. instance .. sep
+	checkDirectory(instanceDir)
+	return instanceDir
 end
 
 function settingsManagement:deepcopy(orig)

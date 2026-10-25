@@ -77,9 +77,9 @@ stages.WAITING_FOR_UNLOCK = function()
 		br.ui.chatOverlay:Show("Unable To Load")
 	end
 	if br.functions.misc:isChecked("Notify Not Unlocked") and
-		br.debug.timer:useTimer("notLoaded", br.functions.misc:getOptionValue("Notify Not Unlocked"))
+		br.debug.timer:useTimer("notLoaded", br.functions.misc:getValue("Notify Not Unlocked"))
 	then
-		print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
+		br.log:error("Cannot start: BR can't finish loading. Please check requirements.")
 	end
 end
 

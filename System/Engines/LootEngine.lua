@@ -261,7 +261,7 @@ if not lootEngine.metaTable then
 		-- Single pacing throttle, driven by the "Auto Loot" spinner (delay in seconds). First, so the
 		-- checks below (stealth auras, a bag scan) run at that pace rather than every tick; the
 		-- in-flight isLooting/window state machine in getLoot prevents interact spam.
-		local delay = br.functions.misc:getOptionValue("Auto Loot")
+		local delay = br.functions.misc:getValue("Auto Loot")
 		if not delay or delay <= 0 then delay = 0.5 end
 		if not br.debug.timer:useTimer("autoLoot", delay) then return end
 		self:releaseStaleInteract(GetTime())

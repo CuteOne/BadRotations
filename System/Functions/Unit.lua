@@ -321,12 +321,12 @@ function unit:getFormSpellID()
 	return formSpellID
 end
 
-function unit:getGUID(unit)
+function unit:getGUID(thisUnit)
 	local nShortHand, targetGUID = "", ""
-	if br.functions.unit:GetObjectExists(unit) then
-		local guid = br.game.UnitGUID(unit)
+	if br.functions.unit:GetObjectExists(thisUnit) then
+		local guid = br.game.UnitGUID(thisUnit)
 		if guid ~= nil then
-			if br.game.UnitIsPlayer(unit) then
+			if br.game.UnitIsPlayer(thisUnit) then
 				targetGUID = guid
 				nShortHand = string.sub(guid, -5)
 			else
@@ -448,23 +448,13 @@ function unit:getSpellUnit(spellCast, aoe, minRange, maxRange, spellType)
 	if aoe == nil then aoe = false end
 	local hasRange = br.game.C_Spell.SpellHasRange(spellName) and true or false
 	local facing = not aoe
-	local unit = maxRange > 0 and br.engines.enemiesEngineFunctions:dynamicTarget(maxRange, facing) or nil
-
-	-- Handle nil from dynamicTarget
-	-- if not unit then
-	-- 	-- Fallback to player for non-ranged spells only
-	-- 	if not hasRange then
-	-- 		return "player"
-	-- 	end
-	-- 	return "None"
-	-- end
-
-	local distance = unit and br.functions.range:getDistance(unit) or 0
+	local thisUnit = maxRange > 0 and br.engines.enemiesEngineFunctions:dynamicTarget(maxRange, facing) or nil
+	local distance = thisUnit and br.functions.range:getDistance(thisUnit) or 0
 	if not distance then return "None" end
 
 	if (distance >= minRange and distance < maxRange) or (minRange > maxRange) then
 		if spellType == "Helpful" then return "player" end
-		if hasRange then return unit else return "player" end
+		if hasRange then return thisUnit else return "player" end
 	end
 	return "None"
 end
@@ -577,27 +567,27 @@ function unit:isBeast(Unit)
 end
 
 -- br.functions.unit:isBoss()
-function unit:isBoss(unit)
-	unit = unit or "target"
-	if not br.functions.unit:GetObjectExists(unit) or br.engines.enemiesEngineFunctions:isTotem(unit) then return false end
+function unit:isBoss(thisUnit)
+	thisUnit = thisUnit or "target"
+	if not br.functions.unit:GetObjectExists(thisUnit) or br.engines.enemiesEngineFunctions:isTotem(thisUnit) then return false end
 
 	-- Quick exact-match check using static boss ID list
 	if br.lists and br.lists.bossIds then
-		local id = br.functions.unit:getUnitID(unit)
+		local id = br.functions.unit:getUnitID(thisUnit)
 		if id and id > 0 and br.lists.bossIds[id] then
 			return true
 		end
 	end
 
-	local class = br.game.UnitClassification(unit)
-	local healthMax = br.game.UnitHealthMax(unit) or 0
+	local class = br.game.UnitClassification(thisUnit)
+	local healthMax = br.game.UnitHealthMax(thisUnit) or 0
 	local pHealthMax = br.game.UnitHealthMax("player") or 1
 	local instance = select(2, br.game.IsInInstance())
 
-	return br.functions.unit:isInstanceBoss(unit) or br.functions.unit:isDummy(unit)
-		or (not br.functions.misc:isChecked("Boss Detection Only In Instance") and not br.game.UnitIsTrivial(unit) and instance ~= "party"
+	return br.functions.unit:isInstanceBoss(thisUnit) or br.functions.unit:isDummy(thisUnit)
+		or (not br.functions.misc:isChecked("Boss Detection Only In Instance") and not br.game.UnitIsTrivial(thisUnit) and instance ~= "party"
 			and ((class == "rare" and healthMax > 4 * pHealthMax) or class == "rareelite" or class == "worldboss"
-				or (class == "elite" and ((healthMax > 4 * pHealthMax and instance ~= "raid") or instance == "scenario")) or (br.game.UnitLevel(unit) and br.game.UnitLevel(unit) < 0)))
+				or (class == "elite" and ((healthMax > 4 * pHealthMax and instance ~= "raid") or instance == "scenario")) or (br.game.UnitLevel(thisUnit) and br.game.UnitLevel(thisUnit) < 0)))
 end
 
 -- True while the unit casts a spell in the tank buster list (br.lists.tankBuster)
@@ -698,7 +688,7 @@ function unit:isFleeing(thisUnit)
 	local flag = br.client.fleeingUnitFlag
 	if flag and br.game.UnitFlags then
 		local flags = br.game.UnitFlags(thisUnit)
-		if type(flags) == "number" and bit.band(flags, flag) ~= 0 then return "flee" end
+		if type(flags) == "number" and br.game.bit.band(flags, flag) ~= 0 then return "flee" end
 	end
 	return false
 end
@@ -786,9 +776,9 @@ function unit:isInAggroRange(thisUnit, offset)
 	return distance ~= nil and distance < unit:getAggroRange(thisUnit) + (offset or 0)
 end
 
-function unit:isInstanceBoss(unit)
-	unit = unit or "target"
-	if not br.functions.unit:GetObjectExists(unit) then return false end
+function unit:isInstanceBoss(thisUnit)
+	thisUnit = thisUnit or "target"
+	if not br.functions.unit:GetObjectExists(thisUnit) then return false end
 
 	if br.game.IsInInstance and br.game.IsInInstance() then
 		-- Try modern instance API first (may exist on Retail or newer clients)
@@ -797,24 +787,24 @@ function unit:isInstanceBoss(unit)
 			if ok and type(encountersTotal) == "number" and encountersTotal > 0 then
 				for i = 1, encountersTotal do
 					local ok2, bossName = pcall(br.game.GetInstanceLockTimeRemainingEncounter, i)
-					if ok2 and bossName and br.functions.unit:GetObjectExists(unit) then
-						local targetName = br.game.UnitName(unit)
+					if ok2 and bossName and br.functions.unit:GetObjectExists(thisUnit) then
+						local targetName = br.game.UnitName(thisUnit)
 						if targetName == bossName then return true end
 					end
 				end
 			end
 		end
 
-		-- Always fall back to boss1..boss5 unit frames (works in Classic and Retail)
+		-- Always fall back to boss1..boss5 thisUnit frames (works in Classic and Retail)
 		for i = 1, 5 do
 			local bossNum = "boss" .. i
-			if br.functions.unit:GetUnitIsUnit(bossNum, unit) then return true end
+			if br.functions.unit:GetUnitIsUnit(bossNum, thisUnit) then return true end
 		end
 
 		-- Extra heuristics
-		local class = br.game.UnitClassification(unit)
+		local class = br.game.UnitClassification(thisUnit)
 		if class == "worldboss" then return true end
-		local level = br.game.UnitLevel(unit)
+		local level = br.game.UnitLevel(thisUnit)
 		if level and level < 0 then return true end
 	end
 	return false

@@ -102,6 +102,9 @@ end
 ---@field checked? boolean Starts ticked for new settings (false)
 ---@field tip? string Tooltip
 ---@field onChange? fun(checked: boolean) Called when the player ticks or unticks it
+
+-- The type each field takes, for elementOptions.check
+---@type table<string, string>
 local CHECKBOX_FIELDS = { checked = "boolean", tip = "string", onChange = "function" }
 
 --- Adds a checkbox. Read it in the rotation with ui.checked(name).

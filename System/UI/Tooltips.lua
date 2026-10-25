@@ -181,7 +181,7 @@ onTooltip("Unit", "OnTooltipSetUnit", br.game.GameTooltip, unitTooltipHandler)
 onTooltip("Unit", "OnTooltipSetUnit", br.game.GameTooltip, function(tooltip) pcall(tooltips.targetValidationDebugHandler, tooltips, tooltip) end)
 -- Items
 local function attachItemTooltip(self)
-	if (self == GameTooltip or self == _G.ItemRefTooltip) then
+	if (self == br.game.GameTooltip or self == br.game.ItemRefTooltip) then
 		local link = select(2, self:GetItem())
 		if link then
 			local id = select(3, strfind(link, "^|%x+|Hitem:(%-?%d+):(%d+):(%d+).*"))

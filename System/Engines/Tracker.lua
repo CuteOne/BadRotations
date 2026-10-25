@@ -96,14 +96,14 @@ local function readOptions()
     end
     opts.rare = misc:isChecked("Rare Tracker")
     opts.quest = misc:isChecked("Quest Tracker")
-    opts.questMode = misc:getOptionValue("Quest Tracker") or 3 -- 1 units, 2 objects, 3 both
+    opts.questMode = misc:getValue("Quest Tracker") or 3 -- 1 units, 2 objects, 3 both
     opts.lines = misc:isChecked("Draw Lines to Tracked Objects")
     opts.extra = misc:isChecked("Display Extra Info")
     opts.autoInteract = misc:isChecked("Auto Interact with Any Tracked Object")
 
     local custom = ""
     if misc:isChecked("Custom Tracker") then
-        custom = tostring(misc:getOptionValue("Custom Tracker") or "")
+        custom = tostring(misc:getValue("Custom Tracker") or "")
         if #custom < 3 then custom = "" end
     end
     local key = (opts.rare and "r" or "-") .. (opts.quest and ("q" .. opts.questMode) or "-") .. "|" .. custom

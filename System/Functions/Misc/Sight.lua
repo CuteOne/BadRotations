@@ -47,7 +47,7 @@ function misc:canSeePosition(X2, Y2, Z2)
 	if X2 == nil or Y2 == nil or Z2 == nil then return false end
 	local X1, Y1, Z1 = br.functions.unit:GetObjectPosition("player")
 	if X1 == nil then return false end
-	return br.game.TraceLine(X1, Y1, Z1 + 2.25, X2, Y2, Z2 + 2.25, bit.bor(0x10, 0x100)) == nil
+	return br.game.TraceLine(X1, Y1, Z1 + 2.25, X2, Y2, Z2 + 2.25, br.game.bit.bor(0x10, 0x100)) == nil
 end
 
 -- True when Unit1 can see Unit2 (one unit: the player and it). NPCs in br.lists.los are always seen.
@@ -77,6 +77,6 @@ function misc:getLineOfSight(Unit1, Unit2)
 	local X2, Y2, Z2 = br.functions.unit:GetObjectPosition(Unit2)
 	if X1 == nil or X2 == nil then return false end
 	-- TraceLine returns a hit position when something blocks the line
-	local trace = br.game.TraceLine(X1, Y1, Z1 + 2.25, X2, Y2, Z2 + 2.25, bit.bor(0x10, 0x100))
+	local trace = br.game.TraceLine(X1, Y1, Z1 + 2.25, X2, Y2, Z2 + 2.25, br.game.bit.bor(0x10, 0x100))
 	return trace == nil or trace == false
 end

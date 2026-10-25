@@ -79,7 +79,7 @@ local function refresh()
 	br.game.wipe(distances)
 	br.game.wipe(priority)
 	local misc, ef = br.functions.misc, br.engines.enemiesEngineFunctions
-	local mode = misc:getOptionValue("Target Preference") - 1
+	local mode = misc:getValue("Target Preference") - 1
 	local nearDeath = misc:isChecked("Prefer Near Death")
 	local dontBreakCC, safeCheck = misc:getOptionCheck("Don't break CCs"), misc:getOptionCheck("Safe Damage Check")
 	local skull, totems = misc:getOptionCheck("Skull First"), misc:isChecked("Prioritize Totems")

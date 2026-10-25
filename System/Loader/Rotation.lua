@@ -3,6 +3,7 @@ local _, br = ...
 -- br.rotation runs the selected rotation: it holds the spec's compiled spell lists and per-tick
 -- state, keeps the profile API (br.api.profile, ProfileAPI.lua) built, and each tick runs the shared
 -- modules and the rotation. Bootstrap creates it (Rotation:new) once the profiles are loaded.
+---@class br.loader.Rotation
 br.loader.Rotation = br.loader.Rotation or {}
 local Rotation = br.loader.Rotation
 Rotation.__index = Rotation

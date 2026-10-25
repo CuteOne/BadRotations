@@ -88,13 +88,16 @@ local openSection
 ---@class br.ui.SectionOptions
 ---@field tip? string Tooltip for the section's title
 ---@field window? table The window to add it to (br.ui.window.profile)
+
+-- The type each field takes, for elementOptions.check
+---@type table<string, string>
 local SECTION_FIELDS = { tip = "string", window = "table" }
 
 --- Adds a collapsible section and returns it, to pass to br.ui:checkbox, br.ui:spinner, ... and to
 --- module calls. The previous section's collapsed/expanded state is restored when this one starts.
 ---@param name string The section's title
 ---@param options? br.ui.SectionOptions
----@return table section
+---@return table? section Nil when the name or options are wrong
 function br.ui:section(name, options)
     local elementOptions = br.ui.elementOptions
     if type(name) ~= "string" or name == "" then

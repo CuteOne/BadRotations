@@ -410,7 +410,7 @@ br.api.build.ui = function(api)
         -- @return number - Returns the value of the specified option
         ui.value = function(thisOption, optionPage)
             if thisOption == nil then return 0 end
-            return br.functions.misc:getOptionValue(thisOption, optionPage)
+            return br.functions.misc:getValue(thisOption, optionPage)
         end
     end
 

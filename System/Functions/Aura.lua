@@ -127,13 +127,13 @@ end
 local function Dispel(unit, stacks, buffDuration, buffRemain, buffSpellID, buff)
 	if not buff then
 		if buffSpellID == (br.functions.spell:getHighestSpellID("reaping")) then
-			if stacks >= br.functions.misc:getOptionValue("Reaping") or not br.game.UnitAffectingCombat("player") then
+			if stacks >= br.functions.misc:getValue("Reaping") or not br.game.UnitAffectingCombat("player") then
 				return true
 			else
 				return false
 			end
 		elseif buffSpellID == (br.functions.spell:getHighestSpellID("promiseOfPower")) then
-			if stacks >= br.functions.misc:getOptionValue("Promise of Power") then
+			if stacks >= br.functions.misc:getValue("Promise of Power") then
 				return true
 			else
 				return false
@@ -285,7 +285,7 @@ function aura:canDispel(Unit, spellID)
 
 					local delay = br.dispelTracker[trackerKey]
 
-					if debuffInfo.spellId == (br.functions.spell:getHighestSpellID("bwonsamdiWrath")) and (br.GetHP(Unit) < br.functions.misc:getOptionValue("Bwonsamdi's Wrath HP")
+					if debuffInfo.spellId == (br.functions.spell:getHighestSpellID("bwonsamdiWrath")) and (br.GetHP(Unit) < br.functions.misc:getValue("Bwonsamdi's Wrath HP")
 							or (br.game.UnitGroupRolesAssigned(Unit) == "TANK" and (debuffInfo.duration - debuffRemain) > delay)) then
 						HasValidDispel = true
 						break

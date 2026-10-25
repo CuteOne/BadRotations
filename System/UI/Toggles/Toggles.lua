@@ -122,6 +122,6 @@ br.lifecycle:onTick(70, "main button", function()
 		toggles.mainButton:Show()
 	end
 	if toggles.mainButton ~= nil then
-		toggles.mainText:SetText(math.ceil(br.functions.range:getDistance("target") or 0))
+		toggles.mainText:SetText(tostring(math.ceil(br.functions.range:getDistance("target") or 0)))
 	end
 end)

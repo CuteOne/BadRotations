@@ -80,7 +80,7 @@ function unlockers:loadUnlockerAPI()
         -- MEDIA PATH: the client only loads textures and fonts from its own Interface folder (paths
         -- to BR's own folder fail with "file not found", measured on Forever). The "3rd Party Files/Media"
         -- folder is copied to Interface\AddOns\Media; BR installed as a normal addon has its own copy.
-        local DiesalStyle = LibStub("DiesalStyle-1.0")
+        local DiesalStyle = br.game.LibStub("DiesalStyle-1.0")
         if DiesalStyle.SetMediaPath then
             DiesalStyle:SetMediaPath("Interface\\AddOns\\Media\\", "Interface\\AddOns\\BadRotations\\Libs\\DiesalStyle-1.0\\Media\\")
             DiesalStyle:ReloadMedia()

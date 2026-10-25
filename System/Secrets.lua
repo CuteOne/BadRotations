@@ -120,7 +120,7 @@ local function activeRestrictions()
 		table.sort(list)
 		return list
 	end)
-	if not ok or names == nil then return nil end
+	if not ok or type(names) ~= "table" then return nil end
 	return #names > 0 and table.concat(names, ", ") or "none"
 end
 
@@ -207,6 +207,8 @@ local function reportError(err)
 end
 
 local function runCaught(fn, ...)
+	-- The game's xpcall passes the arguments on (plain Lua 5.1's doesn't)
+	---@diagnostic disable-next-line: redundant-parameter
 	xpcall(fn, reportError, ...)
 end
 

@@ -40,7 +40,7 @@ local updateRateAt, updateRateValue
 function core:getUpdateRate()
     local now = br.game.GetTime()
     if updateRateAt == now then return updateRateValue end
-    local updateRate = br.functions.misc:getOptionValue("Bot Update Rate") or 0.1
+    local updateRate = br.functions.misc:getValue("Bot Update Rate") or 0.1
     if br.functions.misc:isChecked("Auto Delay") then
         local costSeconds = (self.tickCost.rotation + self.tickCost.enemies) / 1000
         updateRate = math.max(updateRate, math.min(AUTO_DELAY_MAX, costSeconds / AUTO_DELAY_SHARE))

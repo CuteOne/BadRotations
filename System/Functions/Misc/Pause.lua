@@ -37,10 +37,10 @@ local function standingReason(now)
 	-- ── DPS Testing timer ──────────────────────────────────────────────────
 	if br.functions.misc:isChecked("DPS Testing") then
 		if br.functions.unit:GetObjectExists("target") and br.functions.misc:isInCombat("player") then
-			if br.functions.combat:getCombatTime() >= (tonumber(br.functions.misc:getOptionValue("DPS Testing")) * 60) and br.functions.unit:isDummy() then
+			if br.functions.combat:getCombatTime() >= (tonumber(br.functions.misc:getValue("DPS Testing")) * 60) and br.functions.unit:isDummy() then
 				br.game.StopAttack()
 				br.game.ClearTarget(); br.functions.range:clearDistanceMemo()
-				br.game.print(tonumber(br.functions.misc:getOptionValue("DPS Testing")) ..
+				br.game.print(tonumber(br.functions.misc:getValue("DPS Testing")) ..
 					" Minute Dummy Test Concluded - Profile Stopped")
 				br.profileStop = true
 			else

@@ -19,10 +19,7 @@ br.api.build.unit = function(api)
     --- Unit API ---
     ----------------
 
-    --- Get the distance the player has fallen
-    --- @function unit.fallDist
-
-    -- Weapon Imbue Fuctions
+    -- Weapon Imbue Functions
     unit.weaponImbue = unit.weaponImbue or {}
 
     ----------------------

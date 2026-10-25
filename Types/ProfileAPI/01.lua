@@ -9749,10 +9749,6 @@ function C86.spellName(spellKey) end
 ---@field weaponImbue BR.unit.weaponImbue
 local C87 = {}
 
---- How far the player has fallen
----@return number # Distance in yards the player has fallen
-function C87.fallDist() end
-
 --- Check if a unit is an Aberration
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@return boolean # True if the unit is an Aberration
@@ -9893,6 +9889,10 @@ function C87.facingAngle(thisUnit) end
 --- 1000 when either can't be seen)
 ---@return number # Yards
 function C87.facingDistance() end
+
+--- How far the player has fallen
+---@return number # Distance in yards the player has fallen
+function C87.fallDist() end
 
 --- Check if a unit is falling
 ---@return boolean # True if player is falling

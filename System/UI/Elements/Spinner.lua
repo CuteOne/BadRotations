@@ -97,6 +97,9 @@ end
 ---@field checked? boolean The checkbox starts ticked for new settings (false)
 ---@field tip? string Tooltip
 ---@field boxTip? string Tooltip for the number box alone (tip)
+
+-- The type each field takes, for elementOptions.check
+---@type table<string, string>
 local SPINNER_FIELDS = { value = "number", min = "number", max = "number", step = "number", checkbox = "boolean",
     checked = "boolean", tip = "string", boxTip = "string" }
 
@@ -122,6 +125,9 @@ end
 ---@field max? number Highest value (100)
 ---@field step? number Change per click (5)
 ---@field tip? string Tooltip for this spinner
+
+-- The type each field takes, for elementOptions.check
+---@type table<string, string>
 local PART_FIELDS = { value = "number", min = "number", max = "number", step = "number", tip = "string" }
 
 ---@class br.ui.DoubleSpinnerOptions
@@ -129,6 +135,9 @@ local PART_FIELDS = { value = "number", min = "number", max = "number", step = "
 ---@field second br.ui.DoubleSpinnerPart The right spinner
 ---@field checkbox? boolean false leaves out the checkbox in front of them (true)
 ---@field checked? boolean The checkbox starts ticked for new settings (false)
+
+-- The type each field takes, for elementOptions.check
+---@type table<string, string>
 local DOUBLE_FIELDS = { first = "table", second = "table", checkbox = "boolean", checked = "boolean" }
 
 --- Adds two number spinners on one line, with a checkbox unless checkbox = false.

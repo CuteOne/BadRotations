@@ -419,8 +419,8 @@ function enemiesEngineFunctions:isSafeToAttack(unit)
 					if br.functions.aura:UnitBuffID(unit, noTouch.buff) or br.functions.aura:UnitDebuffID(unit, noTouch.buff)
 						-- Bursting M+ Affix (stacks first: time to die is only needed when they're high). The
 						-- limit is a Retail option: 0 (no option) means the check doesn't apply
-						or (br.functions.misc:getOptionValue("Bursting Stack Limit") > 0
-							and br.functions.aura:getDebuffStacks("player", br.lists.unitRules.bursting) >= br.functions.misc:getOptionValue("Bursting Stack Limit")
+						or (br.functions.misc:getValue("Bursting Stack Limit") > 0
+							and br.functions.aura:getDebuffStacks("player", br.lists.unitRules.bursting) >= br.functions.misc:getValue("Bursting Stack Limit")
 							and (br.engines.ttdTable:getTTD(unit) or 0) <= br.functions.aura:getDebuffRemain("player", br.lists.unitRules.bursting) + (br.functions.spell:getGlobalCD(true) * 2))
 					then
 						return false
@@ -505,7 +505,7 @@ local function pickDynamicTarget(range, facing)
 	facing = facing or false
 	local inCombat = br.game.UnitAffectingCombat("player")
 	-- Targeting Mode: 1 Off, 2 Assist (the default), 3 Full
-	local mode = misc:getOptionValue("Targeting Mode")
+	local mode = misc:getValue("Targeting Mode")
 	if mode == 0 then mode = 2 end
 	local autoTargetDynamic = mode == 3
 	local usable = targetUsable(range, facing)

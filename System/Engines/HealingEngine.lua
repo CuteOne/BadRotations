@@ -146,14 +146,14 @@ if not healingEngine.metaTable1 then
 				if doNotHeal.buffs[buff.spellId] then return 250, 250, 250 end
 			end
 			if br.functions.misc:isChecked("Necrotic Rot") then
-				local necroRot = br.functions.misc:getOptionValue("Necrotic Rot")
+				local necroRot = br.functions.misc:getValue("Necrotic Rot")
 				if necroRot == 0 or necroRot == nil then necroRot = 40 end
 				local stacks = aura:getDebuffStacks(o.unit, doNotHeal.necroticRot)
 				if stacks > 0 and stacks >= necroRot then return 250, 250, 250 end
 			end
 			local encounter = br.readers.common.encounterID
 			if br.functions.misc:isChecked("Toxic Brand") and encounter and encounter == doNotHeal.toxicBrand.encounter then
-				local toxicBrand = br.functions.misc:getOptionValue("Toxic Brand")
+				local toxicBrand = br.functions.misc:getValue("Toxic Brand")
 				if toxicBrand == 0 or toxicBrand == nil then toxicBrand = 10 end
 				local stacks = aura:getDebuffStacks(o.unit, doNotHeal.toxicBrand.debuff)
 				if stacks > 0 and stacks >= toxicBrand then return 250, 250, 250 end
@@ -167,7 +167,7 @@ if not healingEngine.metaTable1 then
 			local decaying = doNotHeal.decayingStrike
 			if encounter == decaying.encounter then
 				local time_remain = br.functions.DBM:getPulltimer(nil, decaying.spell)
-				if time_remain < br.functions.misc:getOptionValue("Decaying Strike Timer") then
+				if time_remain < br.functions.misc:getValue("Decaying Strike Timer") then
 					for i = 1, br.game.GetObjectCount() do
 						local thisUnit = br.game.GetObjectWithIndex(i)
 						if br.functions.unit:GetObjectID(thisUnit) == decaying.caster and br.game.UnitTarget(thisUnit) ~= nil and br.game.UnitIsUnit(br.game.UnitTarget(thisUnit), o.unit) then
@@ -212,21 +212,21 @@ if not healingEngine.metaTable1 then
 			if br.functions.misc:getOptionCheck("Prioritize Tank") then
 				-- Using the group role assigned to the Unit
 				if o.role == "TANK" then
-					PercentWithIncoming = PercentWithIncoming - br.functions.misc:getOptionValue("Prioritize Tank")
+					PercentWithIncoming = PercentWithIncoming - br.functions.misc:getValue("Prioritize Tank")
 				end
 				-- Tank in Proving Grounds
 				if br.lists.unitRules.provingGrounds[br.functions.unit:GetObjectID(o.unit)] == "TANK" then
-					PercentWithIncoming = PercentWithIncoming - br.functions.misc:getOptionValue("Prioritize Tank")
+					PercentWithIncoming = PercentWithIncoming - br.functions.misc:getValue("Prioritize Tank")
 				end
 				-- Using threat to remove %hp from all tanking units
 				if o.threat == 3 then
-					PercentWithIncoming = PercentWithIncoming - br.functions.misc:getOptionValue("Prioritize Tank")
+					PercentWithIncoming = PercentWithIncoming - br.functions.misc:getValue("Prioritize Tank")
 				end
 			end
 			-- if br.functions.misc:getOptionCheck("Prioritize Debuff") then
 			-- 	-- Using Dispel Check to see if we should give bonus weight
 			-- 	if o.dispel then
-			-- 		PercentWithIncoming = PercentWithIncoming - br.functions.misc:getOptionValue("Prioritize Debuff")
+			-- 		PercentWithIncoming = PercentWithIncoming - br.functions.misc:getValue("Prioritize Debuff")
 			-- 	end
 			-- end
 			local ActualWithIncoming = (UnitHealthMax(o.unit) - (UnitHealth(o.unit) + incomingheals))
@@ -380,7 +380,7 @@ if not healingEngine.metaTable1 then
 		function br.engines.healingEngine.friend:Update()
 			-- Print("HEAL PULSE: "..GetTime())		-- debug Print to check update time
 			-- This is for special situations, IE world healing or NPC healing in encounters
-			local selectedMode, SpecialTargets = br.functions.misc:getOptionValue("Special Heal"), {}
+			local selectedMode, SpecialTargets = br.functions.misc:getValue("Special Heal"), {}
 			if br.functions.misc:getOptionCheck("Special Heal") == true then
 				if selectedMode == 1 then
 					SpecialTargets = {"target"}

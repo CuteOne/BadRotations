@@ -199,6 +199,9 @@ end
 ---@field overlay? string Shown in the middle of the screen when picked (name)
 ---@field tip? string Tooltip
 ---@field highlight? boolean Lights up the button's border (only the first mode)
+
+-- The type each field takes, for elementOptions.check
+---@type table<string, string>
 local MODE_FIELDS = { name = "string", icon = "string/number/table", overlay = "string", tip = "string",
     highlight = "boolean" }
 
@@ -207,6 +210,9 @@ local MODE_FIELDS = { name = "string", icon = "string/number/table", overlay = "
 ---@field key? string Keybind that cycles it, from br.ui.dropOptions.Toggle (None)
 ---@field row? number Button row (0)
 ---@field col? number Button column (the next free one in its row)
+
+-- The type each field takes, for elementOptions.check
+---@type table<string, string>
 local TOGGLE_FIELDS = { modes = "table", key = "string", row = "number", col = "number" }
 
 --- Adds a button to the toggle bar. Read it in the rotation with ui.mode.<name>, e.g.
