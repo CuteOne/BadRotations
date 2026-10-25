@@ -4,81 +4,11 @@ local _, br = ...
 
 if not br.isBC then return end
 
--- Capability flags for TBC
+br.api.expansion = "TBC"
 br.api.hasSpellRanks          = true   -- spells have rank-specific IDs
 br.api.hasSubSpecs            = false  -- no talent specialization subfolders
 br.api.comboPointsOnTarget    = true   -- combo points are stored on the target, lost on switch
-br.api.hasCharmBreakTracking  = false  -- C_LossOfControl not available on TBC clients
-br.api.expansion = "TBC"
-
-local api = br.api.wow
-
--- IsPassiveSpell, HookTooltipSet*, UnitInPhase, GetNumQuestLogEntries, GetQuestLogTitle,
--- FindBaseSpellByID, GCDSpells/GetGCDSpellID, and C_Spell shims are all provided by
--- shared.lua. GetSpellInfo is overridden below to fix the TBC field swap.
--- GetSpellInfo wrapper
--- TBC: C_Spell.GetSpellInfo returns a table (like Retail)
--- Returns: name, rank, iconID, castTime, minRange, maxRange, spellID, originalIconID
--- NOTE: TBC API has minRange/maxRange swapped in the table!
-api.GetSpellInfo = function(spellIdentifier)
-    if not spellIdentifier then return nil end
-
-    -- GetSpellInfo doesn't accept tables, only numbers or strings
-    if type(spellIdentifier) == "table" then return nil end
-
-    -- Try C_Spell first (TBC has this like Retail)
-    if _G.C_Spell and _G.C_Spell.GetSpellInfo then
-        local spellInfo = _G.C_Spell.GetSpellInfo(spellIdentifier)
-        if spellInfo and type(spellInfo) == "table" then
-            -- TBC BUG FIX: minRange and maxRange are swapped in the TBC API
-            -- spellInfo.minRange actually contains maxRange, and vice versa
-            return spellInfo.name,
-                   nil,
-                   spellInfo.iconID,
-                   spellInfo.castTime,
-                   spellInfo.maxRange,  -- Swapped: use maxRange field for minRange
-                   spellInfo.minRange,  -- Swapped: use minRange field for maxRange
-                   spellInfo.spellID,
-                   spellInfo.originalIconID
-        end
-    end
-
-    -- Fallback to global GetSpellInfo if C_Spell not available
-    if _G.GetSpellInfo then
-        return _G.GetSpellInfo(spellIdentifier)
-    end
-
-    return nil
-end
-
--- Talent System - TBC uses tier/column system
-api.getTalentInfo = function(spec, spellTalents)
-    local talents = {}
-
-    -- -- Initial profiles (spec > 1400) don't have talents
-    -- if spec > 1400 then return talents end
-
-    -- local activeSpecGroup = _G.C_SpecializationInfo and _G.C_SpecializationInfo.GetActiveSpecGroup and _G.C_SpecializationInfo.GetActiveSpecGroup()
-    -- if not activeSpecGroup then return talents end
-
-    -- -- TBC talents: 7 tiers x 3 columns
-    -- for tier = 1, 7 do
-    --     for column = 1, 3 do
-    --         local info = _G.C_SpecializationInfo and _G.C_SpecializationInfo.GetTalentInfo and
-    --                      _G.C_SpecializationInfo.GetTalentInfo({ tier = tier, column = column, specializationIndex = activeSpecGroup })
-    --         if info and info.spellID then
-    --             talents[info.spellID] = {
-    --                 active = info.selected and true or false,
-    --                 rank = 0, -- TBC talents don't expose rank
-    --                 tier = tier,
-    --                 column = column,
-    --             }
-    --         end
-    --     end
-    -- end
-
-    return talents
-end
+br.api.spellRangeSwapped      = true   -- C_Spell.GetSpellInfo has minRange and maxRange swapped
 
 -- C_Spell shim overrides for TBC.
 -- C_Spell does not exist natively in TBC Classic (it was introduced in Shadowlands).

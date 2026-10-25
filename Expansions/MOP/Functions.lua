@@ -4,16 +4,10 @@ local _, br = ...
 
 if not br.isMOP then return end
 
--- Capability flags for MoP Classic
-br.api.hasCharmBreakTracking  = false  -- C_LossOfControl not available on MOP clients
-br.api.comboPointsOnTarget    = true   -- combo points are stored on the target until 6.0.2 (Warlords of Draenor)
 br.api.expansion = "MOP"
+br.api.comboPointsOnTarget    = true   -- combo points are stored on the target until 6.0.2 (Warlords of Draenor)
 
 local api = br.api.wow
-
--- IsPassiveSpell, GetSpellInfo, HookTooltipSet*, UnitInPhase, GetNumQuestLogEntries,
--- GetQuestLogTitle, FindBaseSpellByID, GCDSpells/GetGCDSpellID, and C_Spell shims are
--- all provided by shared.lua. Only MoP-specific implementations follow.
 
 -- Talent System - MoP/Classic uses tier/column system
 api.getTalentInfo = function(spec, spellTalents)

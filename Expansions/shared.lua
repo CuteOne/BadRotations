@@ -1,28 +1,14 @@
 -- Shared API Compatibility Helpers
--- Installs common polyfills that apply to all Classic-era clients.
--- These are defaults; expansion files that need different behaviour
--- (e.g. Retail's tooltip hooks use TooltipDataProcessor) override them afterwards.
--- Load order in .toc: wowapi.lua → shared.lua → Retail/Functions.lua / MOP/Functions.lua / TBC/Functions.lua / Classic/Functions.lua
+-- The default br.api.wow functions for every client. Each one uses whichever API the client has
+-- (the old global where it's still there, so older clients keep their own behaviour), so a client
+-- only needs its own Expansions/<name>/Functions.lua for what differs in kind (talent systems,
+-- spec rules, client bugs).
+-- Load order in .toc: wowapi.lua → shared.lua → Retail / MOP / TBC / Classic / Forever Functions.lua
 local _, br = ...
 
 local api = br.api.wow
 
--- C_LossOfControl (loss-of-control / charm-break tracking) was introduced in WoD 6.0.
--- Not available on Classic, TBC, or MOP Classic clients.
--- Set true only in Retail/Functions.lua.
-br.api.hasCharmBreakTracking = false
-
--- BFA trinket/essence channels (Focused Azerite Beam, Cyclotronic Blast, Azshara's Font
--- of Power) require a follow-up channel lock after casting. Retail only.
-br.api.hasBFAItemChannels = false
--- The server's fleeing unit flag (UNIT_FLAG_FLEEING, the same bit in every version). unit:isFleeing
--- reads it where the unlocker provides UnitFlags (daemonic and tinkr per their docs; nn unknown; the
--- BRMelee.log client line lists its API names). Without it the flee emote is used. Confirmed in play on Forever 2026-10-12: fleeing mobs read 0x00880800
--- against 0x00080800.
-br.api.fleeingUnitFlag = 0x00800000
-
--- IsPassiveSpell: C_Spell.IsSpellPassive with _G.IsPassiveSpell fallback.
--- Retail overrides this (no _G fallback needed on modern clients).
+-- IsPassiveSpell: C_Spell.IsSpellPassive, else the old global.
 api.IsPassiveSpell = function(spellID)
     if _G.C_Spell and _G.C_Spell.IsSpellPassive then
         return _G.C_Spell.IsSpellPassive(spellID)
@@ -35,17 +21,17 @@ end
 
 -- GetSpellInfo: C_Spell.GetSpellInfo → _G.GetSpellInfo fallback.
 -- Returns: name, rank, iconID, castTime, minRange, maxRange, spellID, originalIconID
--- NOTE: TBC and Classic both have minRange/maxRange swapped in the table — those
---       expansion files override this function to fix the field order.
+-- br.api.spellRangeSwapped: the Classic and TBC clients fill minRange and maxRange the other way round.
 api.GetSpellInfo = function(spellIdentifier)
     if not spellIdentifier then return nil end
     if type(spellIdentifier) == "table" then return nil end
     if _G.C_Spell and _G.C_Spell.GetSpellInfo then
         local spellInfo = _G.C_Spell.GetSpellInfo(spellIdentifier)
         if spellInfo and type(spellInfo) == "table" then
+            local minRange, maxRange = spellInfo.minRange, spellInfo.maxRange
+            if br.api.spellRangeSwapped then minRange, maxRange = maxRange, minRange end
             return spellInfo.name, nil, spellInfo.iconID, spellInfo.castTime,
-                   spellInfo.minRange, spellInfo.maxRange, spellInfo.spellID,
-                   spellInfo.originalIconID
+                   minRange, maxRange, spellInfo.spellID, spellInfo.originalIconID
         end
     end
     if _G.GetSpellInfo then
@@ -54,52 +40,75 @@ api.GetSpellInfo = function(spellIdentifier)
     return nil
 end
 
--- Tooltip hooks: classic OnScript pattern.
--- Retail overrides these with TooltipDataProcessor.AddTooltipPostCall.
-api.HookTooltipSetSpell = function(callback)
-    if GameTooltip and GameTooltip.HookScript then
-        GameTooltip:HookScript("OnTooltipSetSpell", function(self)
-            local _, id = self:GetSpell()
-            if id then callback(self, id) end
+-- Tooltip hooks: the old OnTooltipSet* scripts where the tooltip still has them, else
+-- TooltipDataProcessor (newer clients drop the scripts, and hooking a missing script errors).
+-- onlyThisTooltip limits the modern hook to one tooltip frame (item hooks); spell and unit hooks
+-- fire for every tooltip.
+local function hookTooltip(dataType, scriptName, tooltip, callback, onlyThisTooltip)
+    local processor = br._G.TooltipDataProcessor
+    if tooltip and tooltip.HasScript and tooltip:HasScript(scriptName) then
+        tooltip:HookScript(scriptName, function(self) callback(self) end)
+    elseif processor and processor.AddTooltipPostCall and _G.Enum and _G.Enum.TooltipDataType then
+        processor.AddTooltipPostCall(_G.Enum.TooltipDataType[dataType], function(tooltipFrame, data)
+            if not onlyThisTooltip or not tooltip or tooltipFrame == tooltip then
+                callback(tooltipFrame, data)
+            end
         end)
     end
+end
+
+api.HookTooltipSetSpell = function(callback)
+    hookTooltip("Spell", "OnTooltipSetSpell", GameTooltip, function(tooltip, data)
+        local id = data and data.id
+        if not id and tooltip.GetSpell then id = select(2, tooltip:GetSpell()) end
+        if id then callback(tooltip, id) end
+    end)
 end
 
 api.HookTooltipSetUnit = function(callback)
-    if GameTooltip and GameTooltip.HookScript then
-        GameTooltip:HookScript("OnTooltipSetUnit", function(self)
-            callback(self)
-        end)
-    end
+    hookTooltip("Unit", "OnTooltipSetUnit", GameTooltip, function(tooltip)
+        callback(tooltip)
+    end)
 end
 
 api.HookTooltipSetItem = function(tooltip, callback)
-    if tooltip and tooltip.HookScript then
-        tooltip:HookScript("OnTooltipSetItem", function(self)
-            callback(self)
-        end)
-    end
+    hookTooltip("Item", "OnTooltipSetItem", tooltip, function(tooltipFrame)
+        callback(tooltipFrame)
+    end, true)
 end
 
--- UnitInPhase: _G.UnitInPhase fallback.
--- Retail overrides this with UnitPhaseReason.
+-- UnitInPhase: the old global, else UnitPhaseReason (nil = same phase), else "in phase if it exists".
 api.UnitInPhase = function(unit)
     if _G.UnitInPhase then return _G.UnitInPhase(unit) end
+    if _G.UnitPhaseReason then
+        local phaseReason = _G.UnitPhaseReason(unit)
+        return not phaseReason or phaseReason == 0
+    end
     if _G.UnitExists then return _G.UnitExists(unit) end
     return true
 end
 
--- GetNumQuestLogEntries: _G fallback.
--- Retail overrides this with C_QuestLog.GetNumQuestLogEntries.
+-- Quest log: the old globals, else C_QuestLog.
 api.GetNumQuestLogEntries = function()
     if _G.GetNumQuestLogEntries then return _G.GetNumQuestLogEntries() end
+    if _G.C_QuestLog and _G.C_QuestLog.GetNumQuestLogEntries then
+        return _G.C_QuestLog.GetNumQuestLogEntries()
+    end
     return 0
 end
 
--- GetQuestLogTitle: _G fallback.
--- Retail overrides this with C_QuestLog.GetInfo.
+-- GetQuestLogTitle in the old return order: title, level, suggestedGroup, isHeader, isCollapsed,
+-- isComplete, frequency, questID, ...
 api.GetQuestLogTitle = function(questLogIndex)
     if _G.GetQuestLogTitle then return _G.GetQuestLogTitle(questLogIndex) end
+    if _G.C_QuestLog and _G.C_QuestLog.GetInfo then
+        local info = _G.C_QuestLog.GetInfo(questLogIndex)
+        if info then
+            return info.title, info.level, info.suggestedGroup, info.isHeader, info.isCollapsed,
+                   info.isComplete, info.frequency, info.questID, nil, info.questID,
+                   info.isOnMap, info.hasLocalPOI, info.isTask, info.isStory
+        end
+    end
     return nil
 end
 
@@ -126,11 +135,9 @@ api.FindSpellOverrideByID = function(spellID)
     return spellID
 end
 
--- Aura polyfills.
--- Build a normalised aura record from the pre-Shadowlands multi-return UnitAura/Buff/Debuff
--- globals. Used as a fallback when the native C_UnitAuras methods are absent.
--- Retail's expansion file overwrites GetAuraDataByIndex/GetDebuffDataByIndex/GetBuffDataByIndex/
--- GetPlayerAuraBySpellID with direct C_UnitAuras calls (no fallback needed there).
+-- Aura readers: C_UnitAuras, else a record built from the pre-Shadowlands multi-return
+-- UnitAura/Buff/Debuff globals. The index readers go through br._G.C_UnitAuras, so an unlocker's
+-- own version (NN's proxy converts its unit objects) is used.
 do
     local function buildAuraRecord(rawGlobal, unit, index, filter, isHarmful)
         local fn = _G[rawGlobal]
@@ -166,22 +173,25 @@ do
     end
 
     api.GetAuraDataByIndex = function(unit, index, filter)
-        if _G.C_UnitAuras and _G.C_UnitAuras.GetAuraDataByIndex then
-            return _G.C_UnitAuras.GetAuraDataByIndex(unit, index, filter)
+        local cua = br._G.C_UnitAuras
+        if cua and cua.GetAuraDataByIndex then
+            return cua.GetAuraDataByIndex(unit, index, filter)
         end
         return buildAuraRecord("UnitAura", unit, index, filter, false)
     end
 
     api.GetDebuffDataByIndex = function(unit, index, filter)
-        if _G.C_UnitAuras and _G.C_UnitAuras.GetDebuffDataByIndex then
-            return _G.C_UnitAuras.GetDebuffDataByIndex(unit, index, filter)
+        local cua = br._G.C_UnitAuras
+        if cua and cua.GetDebuffDataByIndex then
+            return cua.GetDebuffDataByIndex(unit, index, filter)
         end
         return buildAuraRecord("UnitDebuff", unit, index, filter, true)
     end
 
     api.GetBuffDataByIndex = function(unit, index, filter)
-        if _G.C_UnitAuras and _G.C_UnitAuras.GetBuffDataByIndex then
-            return _G.C_UnitAuras.GetBuffDataByIndex(unit, index, filter)
+        local cua = br._G.C_UnitAuras
+        if cua and cua.GetBuffDataByIndex then
+            return cua.GetBuffDataByIndex(unit, index, filter)
         end
         return buildAuraRecord("UnitBuff", unit, index, filter, false)
     end
@@ -250,6 +260,44 @@ do
     end
 end
 
+-- IsCurrentSpell: the old global, else C_Spell.IsCurrentSpell (newer clients only have that one).
+-- Without it the cast pipeline can't see an on-next-swing ability (Maul) sitting in the swing
+-- queue, so it re-presses it every few ticks.
+api.IsCurrentSpell = function(spellIdentifier)
+    if _G.IsCurrentSpell then return _G.IsCurrentSpell(spellIdentifier) end
+    if _G.C_Spell and _G.C_Spell.IsCurrentSpell then
+        return _G.C_Spell.IsCurrentSpell(spellIdentifier)
+    end
+    return false
+end
+
+-- CombatLogGetCurrentEventInfo: whichever combat log reader the client has; nothing otherwise.
+api.CombatLogGetCurrentEventInfo = function()
+    if _G.CombatLogGetCurrentEventInfo then return _G.CombatLogGetCurrentEventInfo() end
+    if _G.C_CombatLog and _G.C_CombatLog.GetCurrentEventInfo then
+        return _G.C_CombatLog.GetCurrentEventInfo()
+    end
+end
+
+-- Items by their old global names: newer clients only have them in C_Item. The global when it
+-- exists, else the C_Item method, else the "no item" answer.
+do
+    local noItem = { IsEquippedItem = false, IsEquippableItem = false, IsUsableItem = false, GetItemCount = 0 }
+    for _, name in ipairs({ "IsEquippedItem", "IsEquippableItem", "IsUsableItem", "GetItemSpell", "GetItemInfo", "GetItemCount", "GetItemStats" }) do
+        api[name] = function(...)
+            if _G[name] then return _G[name](...) end
+            if _G.C_Item and _G.C_Item[name] then return _G.C_Item[name](...) end
+            return noItem[name]
+        end
+    end
+end
+
+-- Talents: no talent API is read by default; rotations gate talents through cast.able.* and known
+-- spells. Retail (C_Traits) and MOP (tiers) read theirs in their own files.
+api.getTalentInfo = function(spec, spellTalents)
+    return {}
+end
+
 -- C_Spell namespace shims.
 -- Polyfill methods missing on older clients. Guards ensure a shim is only
 -- installed when the native method is absent; safe to run on all clients.
@@ -312,21 +360,10 @@ do
     end
 end
 
--- C_AddOns namespace shims.
--- C_AddOns is the Retail 10.x+ namespace. Legacy globals IsAddOnLoaded /
--- GetAddOnMetadata exist on every Classic-era client; on Retail 11.x+ the
--- globals were removed but the native namespace covers us. Guards ensure the
--- shim is only installed when the native method is absent.
---
--- IsAddOnLoaded normalises the loaded flag to a boolean so callers see the
--- Retail contract (true/false) regardless of client — the legacy global
--- returns 1/nil.
---
--- Proxy snapshot: br.api.wow.C_AddOns's __index captures _G.C_AddOns by
--- reference at wowapi.lua load time, so later mutations to that table are
--- live. The only stale case is _G.C_AddOns being nil at load and being
--- created afterward (e.g. by an unlocker) — a grep of Unlockers/ rules this
--- out as of writing.
+-- C_AddOns namespace shims: the old globals where the client lacks the namespace methods.
+-- IsAddOnLoaded returns a boolean, as the namespace does (the old global returns 1/nil).
+-- The proxies (wowapi.lua) look up the client's namespace table as it was at load, so a namespace an
+-- unlocker created later wouldn't be seen; none does.
 do
     local ca = br.api.wow.C_AddOns
 
@@ -349,33 +386,11 @@ do
     end
 end
 
--- C_SpecializationInfo namespace shims.
--- C_SpecializationInfo is the Retail namespace; on Classic-era clients the
--- equivalents are top-level globals (GetSpecialization, GetActiveSpecGroup,
--- GetSpecializationInfo) that exist from MoP onward. Pre-MoP clients (original
--- Classic, TBC Classic) have no spec system at all — the shims fall through to
--- safe defaults that callers already tolerate.
---
--- Fallback semantics, verified against every non-Expansions/ callsite:
---   GetSpecialization   -> nil. All callers test the result with `== N`; nil
---                          ≠ N short-circuits Retail-spec-keyed branches,
---                          which is the correct behaviour on no-spec clients.
---                          Returning 1 would wrongly fire spec-1 branches
---                          (e.g. Holy Paladin code) for every class.
---   GetActiveSpecGroup  -> 1. Only live caller is misc:getTalent (Necrotic
---                          Plague handler, DK-only). DKs don't exist pre-Wrath
---                          so this fallback is never actually reached; on
---                          Wrath+ the legacy _G.GetActiveSpecGroup exists and
---                          the polyfill defers to it. The 1 is a defensive
---                          placeholder for any future caller, not a load-
---                          bearing value today.
---   GetSpecializationInfo -> nil. Callers `select(2, …)` for the spec name,
---                            which BadRotations.lua:124 already normalises
---                            (empty/nil → "Initial").
---
--- Proxy snapshot caveat is identical to C_AddOns above; no unlocker writes
--- _G.C_SpecializationInfo, so the "nil-at-load then created later" stale case
--- is ruled out by the same grep.
+-- C_SpecializationInfo namespace shims: the old globals (MoP on), else values callers handle on
+-- clients without specs (original Classic, TBC):
+--   GetSpecialization -> nil, so "== N" spec checks fail (1 would fire spec-1 branches for every class)
+--   GetActiveSpecGroup -> 1 (no dual spec)
+--   GetSpecializationInfo -> nil; the spec name then becomes "Initial" (System/Loader/Bootstrap.lua)
 do
     local cs = br.api.wow.C_SpecializationInfo
 
@@ -407,18 +422,8 @@ do
     end
 end
 
--- C_Container namespace shims.
--- C_Container is the Retail 10.x+ namespace. Most methods are pure namespace
--- moves with identical signatures; the only shape change is
--- GetContainerItemInfo, which returns a table on Retail and a flat multi-
--- return on every Classic-era client. The shim translates the multi-return
--- into the documented modern table-field names so callsite code reads the
--- same on every client.
---
--- Proxy already exists at wowapi.lua:51; this block only adds method shims.
--- Proxy snapshot caveat is identical to C_AddOns / C_SpecializationInfo
--- above; grep of Unlockers/ shows nothing rawsets _G.C_Container, so the
--- nil-at-load case is ruled out.
+-- C_Container namespace shims: the old globals under the namespace names. GetContainerItemInfo
+-- turns the old multi-return into the namespace's table (nil for an empty slot).
 do
     local cc = br.api.wow.C_Container
 
@@ -451,12 +456,6 @@ do
         end
     end
 
-    -- GetContainerItemInfo translates the legacy 11-value multi-return into the
-    -- modern table shape. Field names match the documented Retail return so
-    -- callers (LootEngineFunctions.lua reads `.stackCount`; Module.lua reads
-    -- `.itemID`) work identically on every client. Empty slots return nil to
-    -- match the modern contract; verified callsites either nil-check (Module.lua:93)
-    -- or are gated by an upstream GetContainerItemLink check (LootEngineFunctions.lua:11, 35).
     if not (_G.C_Container and _G.C_Container.GetContainerItemInfo) then
         cc.GetContainerItemInfo = function(bagID, slot)
             if not _G.GetContainerItemInfo then return nil end
@@ -500,23 +499,8 @@ do
     end
 end
 
--- C_Item namespace shims.
--- C_Item is the Retail 10.x+ namespace. All four methods used in the codebase
--- are pure namespace moves with identical signatures to their legacy globals,
--- except GetItemIconByID which is named GetItemIcon as a legacy global. Guards
--- ensure the shim is only installed when the native method is absent.
---
--- All four legacy globals (GetItemIcon, GetItemSpell, GetItemCount, GetItemInfo)
--- are formally deprecated on Retail in favour of the C_Item namespace; the
--- `---@diagnostic disable-next-line: deprecated` directives below silence the
--- language server warning, since these branches only run on Classic-era clients
--- where the globals aren't deprecated and are the only available form.
---
--- Proxy snapshot: br.api.wow.C_Item's __index captures _G.C_Item by reference
--- at wowapi.lua load time. The only stale case is _G.C_Item being nil at load
--- and being created afterward by an unlocker — daemonic.lua:249 reads
--- _G.C_Item["UseItemByName"] but doesn't rawset _G.C_Item, so the stale case
--- is ruled out by grep of Unlockers/.
+-- C_Item namespace shims: the old globals (GetItemIcon for GetItemIconByID) on clients without them.
+-- The old globals are deprecated on Retail, where these branches never run.
 do
     local ci = br.api.wow.C_Item
 
@@ -554,25 +538,9 @@ do
     end
 end
 
--- C_Map namespace shim.
--- C_Map is the Legion 7.0+ namespace using the uiMapID number space.
--- Categorically different from the other polyfills in this file: there is no
--- serviceable legacy fallback. Pre-Legion APIs (GetCurrentMapAreaID, GetMapInfo,
--- SetMapToCurrentZone) used a different mapID number space that doesn't align
--- with uiMapIDs, and they were removed in 7.0 anyway. Every zone referenced
--- in System/Lists/Maps.lua is Retail-only content (Draenor, Legion zones,
--- Shadowlands zones, Proving Grounds) — none can match a pre-Legion mapID
--- via any plausible translation because the zones don't exist on those clients.
---
--- Shape: "polyfill admits it can't translate; caller-tolerance verified."
--- Only GetBestMapForUnit is polyfilled; other C_Map methods aren't covered
--- here and would crash if called on a Classic-era client (the proxy provides
--- namespace-level access but not method-level safety). All 9 GetBestMapForUnit
--- callsites verified during L11 survey to tolerate a nil return — 7 tContains
--- predicates return false (correct: player isn't in a Retail zone on a
--- Classic-era client); 1 == 480 check returns false (correct: Proving Grounds
--- doesn't exist or has different ID); 1 if(mapId) guard skips the world-quest
--- scan block (correct: C_TaskQuest doesn't exist on those clients either).
+-- C_Map namespace shim: GetBestMapForUnit gives nil without C_Map (before Legion). The old map APIs
+-- numbered maps differently, so a translation would give a plausible but wrong map; every caller
+-- handles nil (the maps BR checks for are Retail zones).
 do
     local cm = br.api.wow.C_Map
 

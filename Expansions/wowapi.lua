@@ -40,13 +40,23 @@ end
 -- This will be populated by the expansion-specific file
 br.api.wow = {}
 
--- Capability flags — describe what the current expansion supports.
--- Defaults assume a modern expansion; Classic/TBC expansion files override as needed.
-br.api.hasSpellRanks        = false  -- true on Classic/TBC: spell IDs are rank-specific tables
-br.api.hasSubSpecs          = true   -- false on Classic/TBC: no talent specialization subfolders
-br.api.hasHeroTalentTrees   = false  -- true only on Retail (War Within+)
+-- Capability flags: what the current client supports. These are the defaults; each
+-- Expansions/<name>/Functions.lua sets only the ones that differ on its client.
+br.api.hasSpellRanks         = false  -- spells have rank-specific IDs (Classic, TBC, Forever)
+br.api.hasSubSpecs           = true   -- talent specialization subfolders (false on Classic, TBC, Forever)
+br.api.hasHeroTalentTrees    = false  -- hero talent trees (Retail)
+br.api.hasCharmBreakTracking = false  -- C_LossOfControl lets charm-break spells fire while charmed (Retail)
+br.api.hasBFAItemChannels    = false  -- BFA trinket/essence channels need a follow-up channel lock (Retail)
+br.api.comboPointsOnTarget   = false  -- combo points are kept on the target and lost on a switch (before 6.0.2)
+br.api.spellRangeSwapped     = false  -- C_Spell.GetSpellInfo gives minRange and maxRange the other way round
+br.api.questObjectFlag       = nil    -- game object dynamic flag the server sets for an active quest, where known
+-- The server's fleeing unit flag (UNIT_FLAG_FLEEING, the same bit in every version). unit:isFleeing reads
+-- it where the unlocker provides UnitFlags; without it the flee emote is used. Confirmed in play on
+-- Forever 2026-10-12: fleeing mobs read 0x00880800 against 0x00080800.
+br.api.fleeingUnitFlag       = 0x00800000
 
 -- Namespace proxy tables for br._G.C_Spell.X / C_Container.X / C_SpellBook.X / C_AddOns.X / C_SpecializationInfo.X / C_Item.X / C_Map.X calls.
+-- shared.lua adds the methods a client lacks to these proxies.
 -- br._G.__index returns br.api.wow[name] when a key is not rawset on br._G, so these
 -- proxies intercept every br._G.C_Spell.* call and check for an expansion shim first,
 -- then fall through to the real WoW global. Expansion files assign into br.api.wow.C_Spell
