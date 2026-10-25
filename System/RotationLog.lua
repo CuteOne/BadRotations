@@ -27,7 +27,7 @@ local ANSWER_WAIT = 3    -- seconds after a send (or after its cast ends) before
 local ERROR_WAIT = 0.5   -- a red error this soon before a failed cast is its reason
 local WINDOW_ROWS = 300  -- rows the window keeps
 
-local GetTime, wipe, tremove = br._G.GetTime, br._G.wipe, table.remove
+local GetTime, wipe, tremove = br.game.GetTime, br.game.wipe, table.remove
 local rowLine = log:file("Rotation.log")
 
 ---------------------------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ end
 local function unitName(unit)
 	if unit == nil then return nil end
 	log:notePlayer(unit) -- a player's name becomes a stand-in in Rotation.log
-	local name = br._G.UnitName(unit)
+	local name = br.game.UnitName(unit)
 	return name and log.printable(name) or tostring(unit)
 end
 
@@ -340,7 +340,7 @@ local function startFight()
 	for id, shown in pairs(refusedShown) do
 		if not shown.lasting then refusedShown[id] = nil end
 	end
-	local target = br._G.UnitExists("target") and unitName("target")
+	local target = br.game.UnitExists("target") and unitName("target")
 	divider(("fight %d%s"):format(fights, target and (" · " .. target) or ""))
 end
 
@@ -349,7 +349,7 @@ local function endFight()
 	fight.duration = GetTime() - fight.startedAt
 	local ended = fight
 	-- the summary waits for the last casts' answers
-	br._G.C_Timer.After(ANSWER_WAIT + 0.1, function()
+	br.game.C_Timer.After(ANSWER_WAIT + 0.1, function()
 		if fight == ended then closeFight() end
 	end)
 end
@@ -387,10 +387,10 @@ local function isAutomatic(spellID)
 	local autoAttack = br.functions.spell.getHighestSpellID and br.functions.spell:getHighestSpellID("autoAttack")
 	if autoAttack ~= nil and spellID == autoAttack then return true end
 	local name = br.functions.spell:getName(spellID)
-	return name ~= nil and br._G.C_Spell.IsAutoRepeatSpell and br._G.C_Spell.IsAutoRepeatSpell(name) or false
+	return name ~= nil and br.game.C_Spell.IsAutoRepeatSpell and br.game.C_Spell.IsAutoRepeatSpell(name) or false
 end
 
-local events = br._G.CreateFrame("Frame")
+local events = br.game.CreateFrame("Frame")
 events:RegisterEvent("UNIT_SPELLCAST_START")
 events:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 events:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
@@ -412,7 +412,7 @@ events:SetScript("OnEvent", function(_, event, a, b, c)
 	if event == "UNIT_SPELLCAST_START" then
 		-- a cast with a cast time answers when it ends: wait from then
 		local i = findAwaiting(spellID)
-		local endMS = i and select(5, br._G.UnitCastingInfo("player"))
+		local endMS = i and select(5, br.game.UnitCastingInfo("player"))
 		if endMS then awaiting[i].at = math.max(awaiting[i].at, br.functions.misc:plainNumber(endMS) / 1000) end
 		return
 	end
@@ -421,7 +421,7 @@ events:SetScript("OnEvent", function(_, event, a, b, c)
 	if event == "UNIT_SPELLCAST_SUCCEEDED" or event == "UNIT_SPELLCAST_CHANNEL_START" then
 		if entry == nil then
 			-- the player's own cast
-			if not br._G.IsPlayerSpell or not br._G.IsPlayerSpell(spellID) or isAutomatic(spellID) then return end
+			if not br.game.IsPlayerSpell or not br.game.IsPlayerSpell(spellID) or isAutomatic(spellID) then return end
 			entry = { name = log.printable(br.functions.spell:getName(spellID) or tostring(spellID)),
 				target = unitName("target"), combat = combatTime() }
 		end

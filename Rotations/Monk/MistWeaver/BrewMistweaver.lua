@@ -503,8 +503,8 @@ end
 local getRealHP = function(Unit)
     if Unit ~= nil then
         if br.functions.unit:GetObjectExists(Unit) and br.functions.unit:GetUnitIsVisible(Unit) and not br.functions.unit:GetUnitIsDeadOrGhost(Unit) then
-            return 100 * (br._G.UnitHealth(Unit) + br._G.UnitGetIncomingHeals(Unit, "player")) /
-            br._G.UnitHealthMax(Unit)
+            return 100 * (br.game.UnitHealth(Unit) + br.game.UnitGetIncomingHeals(Unit, "player")) /
+            br.game.UnitHealthMax(Unit)
         end
     else
         return 100
@@ -534,7 +534,7 @@ end
 local getHPDefecit = function(Unit)
     if Unit == nil then Unit = "player" end
     if br.functions.unit:GetObjectExists(Unit) and br.functions.unit:GetUnitIsVisible(Unit) and not br.functions.unit:GetUnitIsDeadOrGhost(Unit) then
-        return ((br._G.UnitHealthMax(Unit) - br._G.UnitHealth(Unit)) + br._G.UnitGetIncomingHeals(Unit, "player"))
+        return ((br.game.UnitHealthMax(Unit) - br.game.UnitHealth(Unit)) + br.game.UnitGetIncomingHeals(Unit, "player"))
     else
         return 0
     end
@@ -837,7 +837,7 @@ local actionList = {
                     end
                     if ui.mode.thunderFocusTea == 1 or ui.mode.thunderFocusTea == 5 then -- RSK
                         -- Thunder Focus Tea + Rising Sun Kick
-                        if ui.checked(text.heal.thunderFocusTea.risingSunKick) and cd.risingSunKick.ready() and dynamic.range5 ~= nil and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                        if ui.checked(text.heal.thunderFocusTea.risingSunKick) and cd.risingSunKick.ready() and dynamic.range5 ~= nil and br.game.ObjectIsFacing(player.unit, dynamic.range5) then
                             if cast.thunderFocusTea(player.unit) and cast.risingSunKick(friends.lowest.unit) then
                                 ui.debug("[TFT SUCCESS]: " .. text.heal.thunderFocusTea.risingSunKick)
                                 return true
@@ -890,7 +890,7 @@ local actionList = {
                     end
                     if ui.mode.thunderFocusTea == 1 or ui.mode.thunderFocusTea == 5 then -- RSK
                         -- Thunder Focus Tea + Rising Sun Kick
-                        if ui.checked(text2.heal2.thunderFocusTea2.risingSunKick2) and cd.risingSunKick.ready() and dynamic.range5 ~= nil and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                        if ui.checked(text2.heal2.thunderFocusTea2.risingSunKick2) and cd.risingSunKick.ready() and dynamic.range5 ~= nil and br.game.ObjectIsFacing(player.unit, dynamic.range5) then
                             if cast.thunderFocusTea(player.unit) and cast.risingSunKick(friends.lowest.unit) then
                                 ui.debug("[TFT SUCCESS]: " .. text2.heal2.thunderFocusTea2.risingSunKick2)
                                 return true
@@ -1356,7 +1356,7 @@ local actionList = {
             -- Arcane Torrent
             if ui.checked(text.utility.arcaneTorrent) and player.race == "BloodElf" and br.functions.spell:getSpellCD(129597) == 0 then
                 if player.mana <= ui.value(text.utility.arcaneTorrent) then
-                    br._G.CastSpellByName(br.functions.spell:getName(129597))
+                    br.game.CastSpellByName(br.functions.spell:getName(129597))
                     ui.debug("[?]: " .. text.utility.arcaneTorrent)
                     return true
                 end
@@ -1437,7 +1437,7 @@ local actionList = {
             -- Arcane Torrent
             if ui.checked(text2.utility2.arcaneTorren2t) and player.race == "BloodElf" and br.functions.spell:getSpellCD(129597) == 0 then
                 if player.mana <= ui.value(text2.utility2.arcaneTorrent2) then
-                    br._G.CastSpellByName(br.functions.spell:getName(129597))
+                    br.game.CastSpellByName(br.functions.spell:getName(129597))
                     ui.debug("[?]: " .. text2.utility2.arcaneTorrent2)
                     return true
                 end
@@ -1730,7 +1730,7 @@ local actionList = {
                     local touchOfDeathMode = ui.value(text.damage.touchOfDeath)
                     for i = 1, #enemies.range5 do
                         local thisUnit = enemies.range5[i]
-                        if br._G.ObjectIsFacing(player.unit, thisUnit) then
+                        if br.game.ObjectIsFacing(player.unit, thisUnit) then
                             if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and br.functions.unit:isBoss(thisUnit)) then
                                 if cast.able.touchOfDeath(thisUnit) then
                                     if cast.touchOfDeath(thisUnit) then
@@ -1747,7 +1747,7 @@ local actionList = {
                     local touchOfDeathMode = ui.value(text.damage.touchOfDeath)
                     for i = 1, #enemies.range5 do
                         local thisUnit = enemies.range5[i]
-                        if br._G.ObjectIsFacing(player.unit, thisUnit) then
+                        if br.game.ObjectIsFacing(player.unit, thisUnit) then
                             if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and br.functions.unit:isBoss(thisUnit)) then
                                 if unit.health(player.unit) > unit.health(thisUnit) or (br.functions.unit:isBoss(thisUnit) and unit.hp(thisUnit) <= 15) and cast.able.touchofDeath(thisUnit) then
                                     if cast.touchOfDeath(thisUnit) then
@@ -1769,7 +1769,7 @@ local actionList = {
             if br.player.ui.mode.content == 1 then
                 if #enemies.range8 >= 3 then
                     -- Rising Sun Kick
-                    if cast.able.risingSunKick("target") and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                    if cast.able.risingSunKick("target") and br.game.ObjectIsFacing(player.unit, dynamic.range5) then
                         if cast.risingSunKick("target") then
                             ui.debug("[SUCCESS]:5P | Rising Sun Kick AoE")
                             return true
@@ -1786,7 +1786,7 @@ local actionList = {
             elseif br.player.ui.mode.content == 2 then
                 if #enemies.range8 >= 3 then
                     -- Rising Sun Kick
-                    if cast.able.risingSunKick() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                    if cast.able.risingSunKick() and br.game.ObjectIsFacing(player.unit, dynamic.range5) then
                         if cast.risingSunKick(dynamic.range5) then
                             ui.debug("[SUCCESS]:20P | Rising Sun Kick AoE")
                             return true
@@ -1806,7 +1806,7 @@ local actionList = {
 
         singleTargetRotation = function()
             if br.player.ui.mode.content == 1 then
-                if dynamic.range5 ~= nil and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                if dynamic.range5 ~= nil and br.game.ObjectIsFacing(player.unit, dynamic.range5) then
                     -- Blackout Kick
                     -- if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and cast.able.blackoutKick(dynamic.range5) then
                     --     if cast.blackoutKick(dynamic.range5) then ui.debug("[SUCCESS]:5P | Blackout Kick ST [TOM]") return true else  end
@@ -1827,7 +1827,7 @@ local actionList = {
                     end
                 end
             elseif br.player.ui.mode.content == 2 then
-                if dynamic.range5 ~= nil and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                if dynamic.range5 ~= nil and br.game.ObjectIsFacing(player.unit, dynamic.range5) then
                     -- Rising Sun Kick
                     if cd.risingSunKick.ready() then
                         if cast.risingSunKick(dynamic.range5) then
@@ -1916,7 +1916,7 @@ local actionList = {
             if br.player.ui.mode.content == 1 then
                 if totemInfo.chiJiDuration > 0 and dynamic.range5 ~= nil and friends.lowest.hp >= ui.value(text.damage.chiJiDpsThreshold) then
                     -- Rising Sun Kick
-                    if cd.risingSunKick.ready() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                    if cd.risingSunKick.ready() and br.game.ObjectIsFacing(player.unit, dynamic.range5) then
                         if cast.risingSunKick(dynamic.range5) then
                             ui.debug("[SUCCESS]:5P | Rising Sun Kick Chi-Ji")
                             return true
@@ -1926,7 +1926,7 @@ local actionList = {
                         end
                     end
                     -- Blackout Kick on 3 stacks
-                    if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                    if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and br.game.ObjectIsFacing(player.unit, dynamic.range5) then
                         if cast.blackoutKick(dynamic.range5) then
                             ui.debug("[SUCCESS]:5P | Blackout Kick Chi-Ji")
                             return true
@@ -1948,7 +1948,7 @@ local actionList = {
                         end
                     else
                         -- Tiger Palm alternate with Spinning Crane Kick
-                        if cd.tigerPalm.ready() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                        if cd.tigerPalm.ready() and br.game.ObjectIsFacing(player.unit, dynamic.range5) then
                             if cast.tigerPalm(dynamic.range5) then
                                 ui.debug("[SUCCESS]:5P | Tiger Palm Chi-Ji")
                                 return true
@@ -1962,7 +1962,7 @@ local actionList = {
             elseif br.player.ui.mode.content == 2 then
                 if totemInfo.chiJiDuration > 0 and dynamic.range5 ~= nil and friends.lowest.hp >= ui.value(text2.damage2.chiJiDpsThreshold2) then
                     -- Rising Sun Kick
-                    if cd.risingSunKick.ready() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                    if cd.risingSunKick.ready() and br.game.ObjectIsFacing(player.unit, dynamic.range5) then
                         if cast.risingSunKick(dynamic.range5) then
                             ui.debug("[SUCCESS]:20P | Rising Sun Kick Chi-Ji")
                             return true
@@ -1972,7 +1972,7 @@ local actionList = {
                         end
                     end
                     -- Blackout Kick on 3 stacks
-                    if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                    if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and br.game.ObjectIsFacing(player.unit, dynamic.range5) then
                         if cast.blackoutKick(dynamic.range5) then
                             ui.debug("[SUCCESS]:20P | Blackout Kick Chi-Ji")
                             return true
@@ -1994,7 +1994,7 @@ local actionList = {
                         end
                     else
                         -- Tiger Palm alternate with Spinning Crane Kick
-                        if cd.tigerPalm.ready() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                        if cd.tigerPalm.ready() and br.game.ObjectIsFacing(player.unit, dynamic.range5) then
                             if cast.tigerPalm(dynamic.range5) then
                                 ui.debug("[SUCCESS]:20P | Tiger Palm Chi-Ji")
                                 return true
@@ -2172,15 +2172,15 @@ local function runRotation()
 
     if (br.player.ui.mode.content == 1 and ui.checked(text.utility.summonJadeSerpentStatue)) or
         (br.player.ui.mode.content == 2 and ui.checked(text2.utility2.summonJadeSerpentStatue2)) then
-        for i = 1, br._G.GetObjectCount() do
-            local objFound = br._G.GetObjectWithIndex(i)
+        for i = 1, br.game.GetObjectCount() do
+            local objFound = br.game.GetObjectWithIndex(i)
             if objFound ~= nil then
-                local name = br._G.ObjectName(objFound)
-                local creator = br._G.UnitCreator(objFound)
-                local objType = br._G.ObjectType(objFound)
-                if creator == br._G.UnitGUID("player") and objType == 5 and
+                local name = br.game.ObjectName(objFound)
+                local creator = br.game.UnitCreator(objFound)
+                local objType = br.game.ObjectType(objFound)
+                if creator == br.game.UnitGUID("player") and objType == 5 and
                     name == "Jade Serpent Statue" then
-                    local x, y, z = br._G.ObjectPosition(objFound)
+                    local x, y, z = br.game.ObjectPosition(objFound)
                     if x ~= nil then
                         summonJadeSerpentStatuePosition.x = x
                         summonJadeSerpentStatuePosition.y = y
@@ -2204,8 +2204,8 @@ local function runRotation()
 
 
     if player.inCombat then
-        if br._G.IsAoEPending() then
-            br._G.CancelPendingSpell()
+        if br.game.IsAoEPending() then
+            br.game.CancelPendingSpell()
             return true;
         end
         if ui.useCDs() then if actionList.healing.CDs() then return true; end; end

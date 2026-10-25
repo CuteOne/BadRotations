@@ -5,12 +5,12 @@ local lootEngine = br.engines.lootEngine
 -----------------------------------------Loot Engine--------------------------------------
 if not lootEngine.metaTable then
 	-- Localizing commonly used functions
-	local tinsert, tremove, GetTime = br._G.tinsert, br._G.tremove, br._G.GetTime
-	local UnitCastingInfo, UnitChannelInfo = br._G.UnitCastingInfo, br._G.UnitChannelInfo
-	local IsMounted, GetUnitSpeed = br._G.IsMounted, br._G.GetUnitSpeed
-	local UnitIsDeadOrGhost, CanLootUnit = br._G.UnitIsDeadOrGhost, br._G.CanLootUnit
-	local ClearTarget = br._G.ClearTarget
-	-- Note: InteractUnit is accessed via br._G dynamically to support late-loading unlockers
+	local tinsert, tremove, GetTime = br.game.tinsert, br.game.tremove, br.game.GetTime
+	local UnitCastingInfo, UnitChannelInfo = br.game.UnitCastingInfo, br.game.UnitChannelInfo
+	local IsMounted, GetUnitSpeed = br.game.IsMounted, br.game.GetUnitSpeed
+	local UnitIsDeadOrGhost, CanLootUnit = br.game.UnitIsDeadOrGhost, br.game.CanLootUnit
+	local ClearTarget = br.game.ClearTarget
+	-- Note: InteractUnit is accessed via br.game dynamically to support late-loading unlockers
 
 	local MAX_LOOT_OPENS = 3    -- Times we may OPEN a corpse's loot window while loot still
 	                           -- remains (with bag space) before treating the leftover as a
@@ -69,9 +69,9 @@ if not lootEngine.metaTable then
 	function lootEngine:emptySlots()
 		local openSlots = 0
 		for i = 0, 4 do -- Check each bag
-			local numBagSlots = br._G.C_Container.GetContainerNumSlots(i)
+			local numBagSlots = br.game.C_Container.GetContainerNumSlots(i)
 			if numBagSlots > 0 then -- Only look for slots if bag present
-				openSlots = openSlots + select(1, br._G.C_Container.GetContainerNumFreeSlots(i))
+				openSlots = openSlots + select(1, br.game.C_Container.GetContainerNumFreeSlots(i))
 			end
 		end
 		return openSlots
@@ -142,7 +142,7 @@ if not lootEngine.metaTable then
 	-- fast-loot addon already emptied the slots).
 	function lootEngine:windowSource()
 		if self.lootGUID then return self.lootGUID end
-		local getSource, numItems = br._G.GetLootSourceInfo, br._G.GetNumLootItems
+		local getSource, numItems = br.game.GetLootSourceInfo, br.game.GetNumLootItems
 		if not getSource or not numItems then return nil end
 		for slot = 1, numItems() or 0 do
 			local guid = getSource(slot)
@@ -174,7 +174,7 @@ if not lootEngine.metaTable then
 		self:releaseStaleInteract(now)
 		if self.isLooting then return end
 
-		local unitGUID = br._G.UnitGUID(lootUnit)
+		local unitGUID = br.game.UnitGUID(lootUnit)
 		if not unitGUID then
 			self:debug("Could not get GUID for loot unit")
 			return
@@ -204,7 +204,7 @@ if not lootEngine.metaTable then
 		-- interacts, so a corpse that is merely out of range is retried indefinitely
 		-- rather than being wrongly blacklisted (the old attempt-count bug).
 		if (self.lootOpenCount[unitGUID] or 0) >= MAX_LOOT_OPENS and self:emptySlots() > 0 then
-			self:debug("Skipping " .. (br._G.UnitName(lootUnit) or "unknown") .. " - loot remained after "
+			self:debug("Skipping " .. (br.game.UnitName(lootUnit) or "unknown") .. " - loot remained after "
 				.. MAX_LOOT_OPENS .. " window opens (likely a unique/quest item)", true)
 			self.lootSkipList[unitGUID] = true
 			if br.engines.enemiesEngine.lootable[lootUnit] then
@@ -236,13 +236,13 @@ if not lootEngine.metaTable then
 
 		-- Fire the interact. InteractUnit/ObjectInteract take the unit directly, so we
 		-- never change the player's target to loot (no ClearTarget cleanup needed).
-		local interactFunc = br._G.InteractUnit or br._G.ObjectInteract
+		local interactFunc = br.game.InteractUnit or br.game.ObjectInteract
 		if not interactFunc then
 			self:debug("ERROR: No interact function available (InteractUnit or ObjectInteract)", true)
 			return
 		end
 
-		local name = br._G.UnitName(lootUnit) or "unknown"
+		local name = br.game.UnitName(lootUnit) or "unknown"
 		self:debug("Looting " .. name .. " " .. lootEngine:tag(unitGUID) .. " at " .. lootEngine:edgeText(lootUnit),
 			"Looting " .. name)
 		self.lootGUID = unitGUID
@@ -360,28 +360,28 @@ if not lootEngine.metaTable then
 
 	-- Handle manual looting when Auto Loot game option is disabled
 	function lootEngine:manuallyLootAll()
-		if not br._G.LootFrame:IsShown() then return end
+		if not br.game.LootFrame:IsShown() then return end
 
-		local numItems = br._G.GetNumLootItems()
+		local numItems = br.game.GetNumLootItems()
 		if numItems == 0 then return end
 
 		self:debug("Manually looting " .. numItems .. " items")
 
 		-- Loot all items
 		for slot = 1, numItems do
-			if br._G.LootSlotHasItem(slot) then
-				br._G.LootSlot(slot)
+			if br.game.LootSlotHasItem(slot) then
+				br.game.LootSlot(slot)
 			end
 		end
 
 		-- Close loot window
-		br._G.CloseLoot()
+		br.game.CloseLoot()
 	end
 
 	-- Handle Bind on Pickup confirmation
 	function lootEngine:confirmBindOnPickup(slot)
 		-- Get info about the item being looted
-		local itemLink = br._G.GetLootSlotLink(slot)
+		local itemLink = br.game.GetLootSlotLink(slot)
 		if itemLink then
 			self:debug("Auto-confirming BoP loot: " .. itemLink, true)
 		else
@@ -389,12 +389,12 @@ if not lootEngine.metaTable then
 		end
 
 		-- Confirm the binding
-		br._G.ConfirmLootSlot(slot)
+		br.game.ConfirmLootSlot(slot)
 
 		-- After confirming BoP, check if we need to manually loot remaining items
-		if br._G.GetCVar("AutoLootDefault") == "0" then
+		if br.game.GetCVar("AutoLootDefault") == "0" then
 			-- Small delay to allow the confirmation to process
-			br._G.C_Timer.After(0.1, function()
+			br.game.C_Timer.After(0.1, function()
 				lootEngine:manuallyLootAll()
 			end)
 		end
@@ -405,7 +405,7 @@ if not lootEngine.metaTable then
 		self:debug("Loot Engine initialized")
 
 		-- Periodic cleanup, every 30 seconds
-		br._G.C_Timer.NewTicker(30, function() lootEngine:cleanupAttempts() end)
+		br.game.C_Timer.NewTicker(30, function() lootEngine:cleanupAttempts() end)
 
 		-- Register for loot events
 		-- The interact worked: loot is ready. LOOT_READY comes first, and with a fast-loot addon it
@@ -433,20 +433,20 @@ if not lootEngine.metaTable then
 				-- Find and remove the unit from the lootable table (indexed by unit token)
 				if br.engines.enemiesEngine.lootable[lootEngine.lootUnit] then
 					br.engines.enemiesEngine.lootable[lootEngine.lootUnit] = nil
-					lootEngine:debug("Removed " .. (br._G.UnitName(lootEngine.lootUnit) or "unknown") .. " from lootable table")
+					lootEngine:debug("Removed " .. (br.game.UnitName(lootEngine.lootUnit) or "unknown") .. " from lootable table")
 				end
 			end
 
 			-- If program Auto Loot is enabled and game Auto Loot is disabled, manually loot
-			if br.functions.misc:getOptionCheck("Auto Loot") and br._G.GetCVar("AutoLootDefault") == "0" then
+			if br.functions.misc:getOptionCheck("Auto Loot") and br.game.GetCVar("AutoLootDefault") == "0" then
 				-- Small delay to ensure loot frame is fully populated
-				br._G.C_Timer.After(0.1, function()
+				br.game.C_Timer.After(0.1, function()
 					lootEngine:manuallyLootAll()
 				end)
 			end
 		end
 
-		local eventFrame = br._G.CreateFrame("Frame")
+		local eventFrame = br.game.CreateFrame("Frame")
 		pcall(eventFrame.RegisterEvent, eventFrame, "LOOT_READY") -- not on every client
 		eventFrame:RegisterEvent("LOOT_OPENED")
 		eventFrame:RegisterEvent("LOOT_CLOSED")

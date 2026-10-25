@@ -191,11 +191,11 @@ local function timeToNextEnergyTick()
     local current = br.player.power.energy() or 0
     local energyJump = current - var.lastEnergyObserved
     if energyJump >= 15 and energyJump <= 25 then
-        var.lastEnergyTickTime = br._G.GetTime()
+        var.lastEnergyTickTime = br.game.GetTime()
     end
     var.lastEnergyObserved = current
     if var.lastEnergyTickTime == 0 then return 2.0 end
-    return math.max(0, (var.lastEnergyTickTime + 2.0) - br._G.GetTime())
+    return math.max(0, (var.lastEnergyTickTime + 2.0) - br.game.GetTime())
 end
 
 
@@ -213,7 +213,7 @@ end
 local function engagedByGroup(thisUnit)
     local n = unit.groupCount()
     if n <= 1 then return false end
-    local inRaid = br._G.IsInRaid()
+    local inRaid = br.game.IsInRaid()
     local prefix = inRaid and "raid" or "party"
     -- Raid tokens are raid1..raidN (include us, filtered out below); party tokens are
     -- party1..party(N-1) with the player addressed separately as "player".
@@ -221,7 +221,7 @@ local function engagedByGroup(thisUnit)
     for i = 1, last do
         local member = prefix .. i
         if not unit.isUnit(member, "player")
-            and br._G.UnitAffectingCombat(member)
+            and br.game.UnitAffectingCombat(member)
             and unit.isUnit(member .. "target", thisUnit)
         then
             return true
@@ -256,7 +256,7 @@ local function inAggroRange(offset)
     for i = 1, #enemies.yards20nc do
         local thisUnit = enemies.yards20nc[i]
         if unit.canAttack(thisUnit) and not unit.deadOrGhost(thisUnit) then
-            local freshHostile = unit.enemy(thisUnit) and not br._G.UnitAffectingCombat(thisUnit)
+            local freshHostile = unit.enemy(thisUnit) and not br.game.UnitAffectingCombat(thisUnit)
             if freshHostile or engagedByGroup(thisUnit) then
                 if unit.distance(thisUnit) < aggroRadius(thisUnit, offset) then
                     -- ui.debug("Prowl trigger: " .. unit.name(thisUnit) .. " at " .. tostring(unit.distance(thisUnit)) .. "y")
@@ -274,7 +274,7 @@ local function needsThorns(thisUnit) return buff.thorns.refresh(thisUnit) end
 -- Keep Aquatic Form while swimming unless danger/enemy target.
 var.keepAquatic = function()
     return ui.checked("Aquatic Form")
-        and br._G.IsSwimming()
+        and br.game.IsSwimming()
         and buff.aquaticForm.exists()
         and not inAggroRange()
         and (not unit.exists("target") or unit.friend("target"))
@@ -581,7 +581,7 @@ actionList.Defensive = function()
         --     and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         -- then
         --     if buff.catForm.exists() or buff.bearForm.exists() then
-        --         br._G.RunMacroText("/CancelForm")
+        --         br.game.RunMacroText("/CancelForm")
         --         ui.debug("Cancel Form for Health Potion")
         --         return true
         --     end
@@ -595,7 +595,7 @@ actionList.Defensive = function()
         --     and mana.percent() < 30
         -- then
         --     if buff.catForm.exists() or buff.bearForm.exists() then
-        --         br._G.RunMacroText("/CancelForm")
+        --         br.game.RunMacroText("/CancelForm")
         --         ui.debug("Cancel Form for Mana Potion")
         --         return true
         --     end
@@ -681,7 +681,7 @@ end -- End Action List - Cooldowns
 actionList.FormManagement = function()
     -- Aquatic Form
     if ui.checked("Aquatic Form") and not unit.inCombat() and cast.able.aquaticForm()
-        and br._G.IsSwimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
+        and br.game.IsSwimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
         and unit.moving() and unit.movingTime() > 2 and not inAggroRange()
     then
         if buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() then
@@ -696,8 +696,8 @@ actionList.FormManagement = function()
     end
 
     -- Travel Form
-    if ui.checked("Travel Form") and not unit.inCombat() and not br._G.IsMounted()
-        and not br._G.IsSwimming() and not br._G.IsFalling() and cast.able.travelForm()
+    if ui.checked("Travel Form") and not unit.inCombat() and not br.game.IsMounted()
+        and not br.game.IsSwimming() and not br.game.IsFalling() and cast.able.travelForm()
         and not buff.travelForm.exists() and not buff.prowl.exists()
         and unit.moving() and unit.movingTime() > 2 and not inAggroRange()
     then
@@ -894,9 +894,9 @@ local function waitForRavage(behind)
     if energy() < cost and (energy() + 20 < cost or timeToNextEnergyTick() > 1) then return false end
     local guid = unit.guid("target")
     if var.ravageWait == nil or var.ravageWait.guid ~= guid then
-        var.ravageWait = { guid = guid, since = br._G.GetTime() }
+        var.ravageWait = { guid = guid, since = br.game.GetTime() }
     end
-    if br._G.GetTime() - var.ravageWait.since > RAVAGE_WAIT then return false end
+    if br.game.GetTime() - var.ravageWait.since > RAVAGE_WAIT then return false end
     return behind or unit.standingTime() <= 1
 end
 
@@ -1481,7 +1481,7 @@ local function runRotation()
     if ui.mode.forms == 2 then var.formCost = cast.cost.catForm() end
     if ui.mode.forms == 3 then var.formCost = spell.direBearForm.known() and cast.cost.direBearForm() or cast.cost.bearForm() end
     -- Wolfshead Helm (item 8345) detection: shifts grant +60 energy instead of +40, raising the optimal shift threshold.
-    var.hasWolfshead = (br._G.GetInventoryItemID and br._G.GetInventoryItemID("player", 1) == 8345)
+    var.hasWolfshead = (br.game.GetInventoryItemID and br.game.GetInventoryItemID("player", 1) == 8345)
     -- Derive the effective powershift threshold.
     -- Default 35 covers the gap between post-Rip/post-Bite energy (~25) and the min builder cost (Rake=35, Mangle=40).
     -- With Wolfshead (post-shift=60 vs no-Wolfshead post-shift=40), the break-even threshold rises to 40.

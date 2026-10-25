@@ -176,14 +176,14 @@ br.api.cast = function(self, spell, id)
         -- Auto attack: the game's own on/off events, since the Attack spell stops being "current"
         -- while Maul / Heroic Strike is queued (profiles then restarted attacking mid-fight)
         if spell == "autoAttack" and br.functions.unit:isAutoAttacking() then return true end
-        return br._G.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(currentRank())) or br._G.C_Spell.IsCurrentSpell(currentRank())
+        return br.game.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(currentRank())) or br.game.C_Spell.IsCurrentSpell(currentRank())
     end
 
     --- Cancels the current spell being cast if it matches the specified spell.
     -- @function cast.cancel.spell
     -- @treturn boolean
     cast.cancel[spell] = function()
-        local SpellStopCasting = br._G["SpellStopCasting"]
+        local SpellStopCasting = br.game["SpellStopCasting"]
         if self.cast.current[spell]() then
             SpellStopCasting()
             return true
@@ -244,7 +244,7 @@ br.api.cast = function(self, spell, id)
     if cast.form == nil then
         cast.form = function(formIndex)
             if formIndex == nil then formIndex = 0 end
-            return br._G.CastShapeshiftForm(formIndex)
+            return br.game.CastShapeshiftForm(formIndex)
         end
     end
 
@@ -315,7 +315,7 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean Always true.
     if cast.macro == nil then
         cast.macro = function(macroText, associatedSpellID, lockDuration)
-            br._G.RunMacroText(macroText)
+            br.game.RunMacroText(macroText)
             if associatedSpellID then
                 local duration = lockDuration or 0.5
                 br.functions.cast:setCastTimer(associatedSpellID, duration)
@@ -398,7 +398,7 @@ br.api.cast = function(self, spell, id)
     -- @param multiplier number Set to specified power multiplier. Defaults to 1 if not provided.
     -- @return boolean
     cast.pool[spell] = function(altPower, specificAmt, multiplier)
-        local powerType = select(2, br._G.UnitPowerType("player")):lower()
+        local powerType = select(2, br.game.UnitPowerType("player")):lower()
         local power = br.player.power
         specificAmt = specificAmt or 0
         multiplier = multiplier or 1
@@ -484,7 +484,7 @@ br.api.cast = function(self, spell, id)
     -- @function cast.timeSinceLast.spell
     -- @treturn number
     cast.timeSinceLast[spell] = function()
-        return br._G.GetTime() - (br.functions.lastCast.lastCastTable.castTime[currentRank()] or 0)
+        return br.game.GetTime() - (br.functions.lastCast.lastCastTable.castTime[currentRank()] or 0)
     end
 
     --- Checks if the provided condition is true else it waits for 0.1sec.
@@ -494,7 +494,7 @@ br.api.cast = function(self, spell, id)
     if cast.wait == nil then
         cast.wait = function(condition, callback)
             if condition then
-                br._G.C_Timer.After(0.1, callback)
+                br.game.C_Timer.After(0.1, callback)
             else
                 return true
             end

@@ -94,7 +94,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 		-- Initialise shared tables on first use.
 		if E.castTimers == nil then
 			E.castTimers = {}
-			E.gateDebugSilentUntil = br._G.GetTime() + 5 -- suppress gate debug burst after reload
+			E.gateDebugSilentUntil = br.game.GetTime() + 5 -- suppress gate debug burst after reload
 		end
 		if E.castTimers[spellID] == nil then E.castTimers[spellID] = 0 end -- 0 so t < GetTime() is immediately true
 		if E.rangeDelayTimers == nil then E.rangeDelayTimers = {} end
@@ -113,7 +113,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 	-- ── Step 6: Quaking Helper (M+ affix) ────────────────────────────────────
 	if not gatesPassed and br.functions.misc:getOptionCheck("Quaking Helper") then
 		local channeledSpell = false
-		local costTable = br._G.C_Spell.GetSpellPowerCost(spellID) or {}
+		local costTable = br.game.C_Spell.GetSpellPowerCost(spellID) or {}
 		for _, costInfo in pairs(costTable) do
 			if costInfo.costPerSec > 0 then channeledSpell = true end
 		end
@@ -190,7 +190,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 		local targetUnit = (thisUnit == "playerGround") and "player" or "target"
 		if castType == "groundCC" then targetUnit = thisUnit end
 		if br.functions.range:getDistance(targetUnit) < ctx.maxRange
-			or br._G.C_Spell.IsSpellInRange(ctx.spellName, targetUnit) == true
+			or br.game.C_Spell.IsSpellInRange(ctx.spellName, targetUnit) == true
 		then
 			if debug then return true end
 			return br.functions.custom:castGroundAtUnit(spellID, effectRng, minUnits, ctx.maxRange, ctx.minRange, castType, targetUnit)
@@ -216,7 +216,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 
 	-- ── Step 15: Dead-friend cast type ────────────────────────────────────────
 	if castType == "dead" then
-		if br._G.UnitIsPlayer(thisUnit)
+		if br.game.UnitIsPlayer(thisUnit)
 			and br.functions.unit:GetUnitIsDeadOrGhost(thisUnit)
 			and br.functions.unit:GetUnitIsFriend(thisUnit, "player")
 		then
@@ -259,15 +259,15 @@ end
 function cast:castQueue()
 	-- Catch for spells not registering on Combat log
 	if br.player ~= nil then
-		if br.player.queue ~= nil and #br.player.queue > 0 and not br._G.IsAoEPending() then
-			local now = br._G.GetTime()
+		if br.player.queue ~= nil and #br.player.queue > 0 and not br.game.IsAoEPending() then
+			local now = br.game.GetTime()
 			-- TTL: expire queue entries older than 3 GCDs to prevent indefinite retry of stale spells
 			local ttl = (br.player.state.gcdMax or 1.5) * 3
 			local i = 1
 			while i <= #br.player.queue do
 				local entry = br.player.queue[i]
 				if entry.queuedAt and (now - entry.queuedAt) > ttl then
-					br._G.tremove(br.player.queue, i)
+					br.game.tremove(br.player.queue, i)
 					if not br.functions.misc:isChecked("Mute Queue") then
 						br.log:say("Queue", br.log.highlight(tostring(entry.name)) .. " expired")
 					end
@@ -293,13 +293,13 @@ br.lifecycle:onTick(10, "queued casts", function()
 	local misc, queue = br.functions.misc, br.player and br.player.queue
 	if queue == nil then return end
 	local queueOn = misc:isChecked("Queue Casting")
-	if queueOn and #queue > 0 and not br._G.UnitChannelInfo("player") then
+	if queueOn and #queue > 0 and not br.game.UnitChannelInfo("player") then
 		if cast:castQueue() then return true end
 	end
 	local dead = br.functions.unit:GetUnitIsDeadOrGhost("player")
-	local inCombat = br._G.UnitAffectingCombat("player")
+	local inCombat = br.game.UnitAffectingCombat("player")
 	if (not queueOn or dead or not inCombat) and #queue ~= 0 then
-		br._G.wipe(queue)
+		br.game.wipe(queue)
 		if not misc:isChecked("Mute Queue") then
 			if not queueOn then print("Queue System Disabled! - Queue Cleared.") end
 			if dead then print("Player Death Detected! - Queue Cleared.") end
@@ -310,6 +310,6 @@ end)
 br.lifecycle:onPowerOff(10, "queued casts", function()
 	local queue = br.player and br.player.queue
 	if queue == nil or #queue == 0 then return end
-	br._G.wipe(queue)
+	br.game.wipe(queue)
 	if not br.functions.misc:isChecked("Mute Queue") then print("BR Disabled! - Queue Cleared.") end
 end)

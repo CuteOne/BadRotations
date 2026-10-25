@@ -30,16 +30,16 @@ br.api.module = function(self)
         end
         if section == nil then
             if br.functions.misc:getModuleOption("Auto Mythic+ Keystone", "Check") and var.autoKeystone == nil then
-                var.autoKeystone = br._G.CreateFrame("Frame")
+                var.autoKeystone = br.game.CreateFrame("Frame")
                 var.autoKeystone:RegisterEvent("ADDON_LOADED")
                 var.autoKeystone:SetScript("OnEvent", function(self, event, addon)
                     if (addon == "Blizzard_ChallengesUI") then
-                        if br._G["ChallengesKeystoneFrame"] then
-                            br._G["ChallengesKeystoneFrame"]:HookScript("OnShow", function()
-                                for Bag = 0, br._G["NUM_BAG_SLOTS"] do
-                                    for Slot = 1, br._G.C_Container.GetContainerNumSlots(Bag) do
-                                        local ID = br._G.C_Container.GetContainerItemID(Bag, Slot)
-                                        if (ID and ID == 180653) then return br._G.UseContainerItem(Bag, Slot) end
+                        if br.game["ChallengesKeystoneFrame"] then
+                            br.game["ChallengesKeystoneFrame"]:HookScript("OnShow", function()
+                                for Bag = 0, br.game["NUM_BAG_SLOTS"] do
+                                    for Slot = 1, br.game.C_Container.GetContainerNumSlots(Bag) do
+                                        local ID = br.game.C_Container.GetContainerItemID(Bag, Slot)
+                                        if (ID and ID == 180653) then return br.game.UseContainerItem(Bag, Slot) end
                                     end
                                 end
                             end)
@@ -96,8 +96,8 @@ br.api.module = function(self)
             end
             -- Mana Potion
             if ui.checked("Mana Potion") and unit.inCombat() and br.functions.unit:usesMana() then
-                local maxMana = br._G.UnitPowerMax("player", 0)
-                if maxMana > 0 and br._G.UnitPower("player", 0) / maxMana * 100 <= ui.value("Mana Potion") then
+                local maxMana = br.game.UnitPowerMax("player", 0)
+                if maxMana > 0 and br.game.UnitPower("player", 0) / maxMana * 100 <= ui.value("Mana Potion") then
                     local manaPot = br.functions.item:getBestPotion("Mana")
                     if manaPot ~= nil and use.item(manaPot) then
                         ui.debug("Using Mana Potion")
@@ -328,9 +328,9 @@ br.api.module = function(self)
         if race == "BloodElf" then
             label = "Arcane Torrent"
             if unit.inCombat() then
-                local maxPower = br._G.UnitPowerMax("player")
+                local maxPower = br.game.UnitPowerMax("player")
                 shouldUse = maxPower > 0
-                    and (br._G.UnitPower("player") / maxPower * 100) <= br.functions.misc:getModuleOption("Use Racial Resource", "Value")
+                    and (br.game.UnitPower("player") / maxPower * 100) <= br.functions.misc:getModuleOption("Use Racial Resource", "Value")
                 local nearby = enemies.get(8)
                 for i = 1, #nearby do
                     if unit.interruptable(nearby[i]) then shouldUse = true break end

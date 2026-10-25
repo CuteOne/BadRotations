@@ -15,9 +15,9 @@ local meleeSpellNames = {}
 -- once per frame, since getDistance asks on every call.
 local druidKey, druidKeyAt = nil, nil
 local function meleeListKey()
-    if playerClass == nil then playerClass = select(2, br._G.UnitClass("player")) end
+    if playerClass == nil then playerClass = select(2, br.game.UnitClass("player")) end
     if playerClass ~= "DRUID" then return playerClass end
-    local now = br._G.GetTime()
+    local now = br.game.GetTime()
     if druidKeyAt == now then return druidKey end
     druidKeyAt = now
     local form = br.functions.unit:getFormSpellID()
@@ -70,7 +70,7 @@ end
 
 -- The unit's combat reach (hitbox radius) used in range checks.
 function range:getCombatReach(unit)
-    local reach = unit and br._G.UnitCombatReach(unit)
+    local reach = unit and br.game.UnitCombatReach(unit)
     return (reach and reach > 0) and reach or DEFAULT_COMBAT_REACH
 end
 
@@ -95,7 +95,7 @@ end
 
 -- The extra reach both units running gives: 8/3 yd when both move faster than a walk, else 0.
 function range:getLeeway(unit1, unit2)
-    local speed1, speed2 = br._G.GetUnitSpeed(unit1) or 0, br._G.GetUnitSpeed(unit2) or 0
+    local speed1, speed2 = br.game.GetUnitSpeed(unit1) or 0, br.game.GetUnitSpeed(unit2) or 0
     return (speed1 > LEEWAY_MIN_SPEED and speed2 > LEEWAY_MIN_SPEED) and LEEWAY or 0
 end
 
@@ -165,7 +165,7 @@ function range:getDistance(Unit1, Unit2, option)
         Unit1 = "player"
     end
     if Unit1 == nil or Unit2 == nil then return 100 end
-    local now = br._G.GetTime()
+    local now = br.game.GetTime()
     if distanceMemoAt ~= now then
         distanceMemoAt, distanceMemo = now, {}
     end
@@ -194,7 +194,7 @@ end
 -- The distance getDistance reports, measured
 function measureDistance(Unit1, Unit2, option)
     if Unit1 == Unit2 then return 0 end
-    local okSame, isSame = pcall(br._G.UnitIsUnit, Unit1, Unit2)
+    local okSame, isSame = pcall(br.game.UnitIsUnit, Unit1, Unit2)
     if okSame and isSame then return 0 end
     local unitFuncs = br.functions.unit
     local isPlayer1, isPlayer2 = unitFuncs:GetUnitIsUnit(Unit1, "player"), unitFuncs:GetUnitIsUnit(Unit2, "player")
@@ -211,12 +211,12 @@ function measureDistance(Unit1, Unit2, option)
     local other = (isPlayer1 and Unit2) or (isPlayer2 and Unit1) or nil
     if other then
         local meleeSpell = range:getMeleeSpellName()
-        if meleeSpell then inMelee = br._G.C_Spell.IsSpellInRange(meleeSpell, other) end
+        if meleeSpell then inMelee = br.game.C_Spell.IsSpellInRange(meleeSpell, other) end
     end
     -- While either unit moves, the client's "in melee" can count the running leeway the server only
     -- gives when both run (2026-10-19, TBC: Shred "in range" at 4.4-5.1 yd edge to edge while the mob
     -- walked; the server refused Ravage as out of range). Then the melee rule decides.
-    if inMelee == nil or (inMelee and ((br._G.GetUnitSpeed(Unit1) or 0) > 0 or (br._G.GetUnitSpeed(Unit2) or 0) > 0)) then
+    if inMelee == nil or (inMelee and ((br.game.GetUnitSpeed(Unit1) or 0) > 0 or (br.game.GetUnitSpeed(Unit2) or 0) > 0)) then
         local reach = range:getMeleeReach(Unit1, Unit2)
         if talent and talent.acrobaticStrikes then reach = reach + ACROBATIC_STRIKES end
         inMelee = centre <= reach
@@ -246,7 +246,7 @@ function range:getFacingDistance()
             angle2 = deg(atan(deltaY / deltaX) + (math.pi / 2))
         end
         local Dist = br.functions.misc:round2(math.tan(abs(angle2 - angle1) * math.pi / 180) * targetDistance * 10000) / 10000
-        if br._G.ObjectIsFacing("player", "target") then
+        if br.game.ObjectIsFacing("player", "target") then
             return Dist
         else
             return -(abs(Dist))
@@ -260,13 +260,13 @@ end
 -- Called after a spec change and when the spellbook changes.
 function range:invalidateMeleeSpellCache()
     playerClass = nil
-    br._G.wipe(meleeSpellNames)
+    br.game.wipe(meleeSpellNames)
 end
 
 function range:isSafeToAoE(spellID, Unit, effectRng, minUnits, aoeType, enemies)
     if not br.functions.misc:isChecked("Safe Damage Check") then return true end
     local enemiesValid, enemiesAll
-    local info = br._G.C_Spell.GetSpellInfo(spellID)
+    local info = br.game.C_Spell.GetSpellInfo(spellID)
     local maxRange = info and info.maxRange
     if effectRng == nil then effectRng = 5 end
     if maxRange == nil or maxRange == 0 then

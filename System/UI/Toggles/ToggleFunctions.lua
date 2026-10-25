@@ -37,14 +37,14 @@ local function modeIcon(mode)
 		icon = br.functions.spell:getHighestKnownRank(icon) or icon[1]
 	end
 	if type(icon) == "number" then
-		local info = br._G.C_Spell.GetSpellInfo(icon)
-		icon = info and info.iconID or br._G.C_Item.GetItemIconByID(icon)
+		local info = br.game.C_Spell.GetSpellInfo(icon)
+		icon = info and info.iconID or br.game.C_Item.GetItemIconByID(icon)
 	end
 	return icon or toggles.emptyIcon
 end
 
 local function showTip(name)
-	local tooltip = br._G.GameTooltip
+	local tooltip = br.game.GameTooltip
 	tooltip:SetOwner(toggles.bar[name].button, "ANCHOR_RIGHT")
 	tooltip:SetText(toggles.modes[name][currentIndex(name)].tip, 225 / 255, 225 / 255, 225 / 255, nil, true)
 	tooltip:Show()
@@ -57,7 +57,7 @@ local function drawToggle(name)
 	entry.button:SetNormalTexture(modeIcon(mode))
 	entry.glow.texture:SetTexture(mode.highlight == 0 and toggles.genericIconOff or toggles.genericIconOn)
 	-- Only while the mouse is on this button: a keybind changes the mode without a hover
-	if br._G.GameTooltip:IsOwned(entry.button) then showTip(name) end
+	if br.game.GameTooltip:IsOwned(entry.button) then showTip(name) end
 end
 
 -- Sizes and places a toggle button for the current button size
@@ -73,13 +73,13 @@ local function layoutButton(entry)
 end
 
 local function newButton(name)
-	local button = br._G.CreateFrame("Button", nil, toggles.mainButton)
+	local button = br.game.CreateFrame("Button", nil, toggles.mainButton)
 	button:RegisterForClicks("AnyUp")
 	local text = button:CreateFontString(nil, "OVERLAY")
 	text:SetFont(br.data.settings.font, br.data.settings.fontsize, "THICKOUTLINE")
 	text:SetJustifyH("CENTER")
 	text:SetTextColor(1, 1, 1, 1)
-	local glow = br._G.CreateFrame("Frame", nil, button)
+	local glow = br.game.CreateFrame("Frame", nil, button)
 	glow:SetPoint("CENTER")
 	glow.texture = glow:CreateTexture(nil, "OVERLAY")
 	glow.texture:SetAllPoints()
@@ -88,7 +88,7 @@ local function newButton(name)
 		if mouseButton == "RightButton" then br.ui:ToggleMinus(name) else br.ui:ToggleValue(name) end
 	end)
 	button:SetScript("OnEnter", function() showTip(name) end)
-	button:SetScript("OnLeave", function() br._G.GameTooltip:Hide() end)
+	button:SetScript("OnLeave", function() br.game.GameTooltip:Hide() end)
 	return { button = button, text = text, glow = glow }
 end
 

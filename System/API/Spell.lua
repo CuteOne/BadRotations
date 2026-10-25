@@ -19,7 +19,7 @@ br.api.spell = function(self, k, v)
     -- @return number
     spell[k].castTime = function()
         local spellID = br.functions.spell:currentRank(v)
-        local info = br._G.C_Spell.GetSpellInfo(spellID)
+        local info = br.game.C_Spell.GetSpellInfo(spellID)
         return info and info.castTime or 0
     end
 
@@ -53,7 +53,7 @@ br.api.spell = function(self, k, v)
     -- @return number
     spell[k].maxRange = function()
         local spellID = br.functions.spell:currentRank(v)
-        local info = br._G.C_Spell.GetSpellInfo(spellID)
+        local info = br.game.C_Spell.GetSpellInfo(spellID)
         return info and info.maxRange or 0
     end
 
@@ -62,7 +62,7 @@ br.api.spell = function(self, k, v)
     -- @return number
     spell[k].minRange = function()
         local spellID = br.functions.spell:currentRank(v)
-        local info = br._G.C_Spell.GetSpellInfo(spellID)
+        local info = br.game.C_Spell.GetSpellInfo(spellID)
         return info and info.minRange or 0
     end
 
@@ -87,6 +87,6 @@ br.api.spell = function(self, k, v)
     -- @return number
     spell[k].texture = function()
         local spellID = br.functions.spell:currentRank(v)
-        return br._G.C_Spell.GetSpellTexture(spellID)
+        return br.game.C_Spell.GetSpellTexture(spellID)
     end
 end

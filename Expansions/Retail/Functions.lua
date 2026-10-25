@@ -9,9 +9,9 @@ local base = br.api.base
 
 -- Returns the effective spec id for the player (forces Initial for all classes below level 10 in Retail)
 br.api.getEffectiveSpecID = function()
-    local class  = select(2, br._G.UnitClass("player"))
-    local level  = br._G.UnitLevel("player")
-    local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+    local class  = select(2, br.game.UnitClass("player"))
+    local level  = br.game.UnitLevel("player")
+    local specID = br.game.C_SpecializationInfo.GetSpecializationInfo(br.game.C_SpecializationInfo.GetSpecialization())
     if level and level < 10
         and class and br.lists and br.lists.spec
         and br.lists.spec[class] and br.lists.spec[class].Initial

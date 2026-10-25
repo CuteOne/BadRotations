@@ -58,7 +58,7 @@ local LASTING_REASONS = { NOT_KNOWN = true, NO_TALENT = true }
 function E.recordRefusal(spellID, reason, detail)
 	local entry = refusalEntry(spellID)
 	if not entry then return end
-	entry.reason, entry.detail, entry.refusedAt = reason, detail, br._G.GetTime()
+	entry.reason, entry.detail, entry.refusedAt = reason, detail, br.game.GetTime()
 	-- The Rotation Log shows a refusal of a cast the profile asked for, always, so Rotation.log has it
 	-- when a user reports a problem they can't reproduce. cast.able only asks (profiles often ask
 	-- before their own conditions, every tick): those count toward the fight's summary instead.
@@ -73,7 +73,7 @@ end
 
 function E.recordPass(spellID)
 	local entry = refusalEntry(spellID)
-	if entry then entry.passedAt = br._G.GetTime() end
+	if entry then entry.passedAt = br.game.GetTime() end
 end
 
 --- Calls fn(name, reason, detail) for every spell the engine refused since `since` (GetTime), and
@@ -99,7 +99,7 @@ local function plain(value) return br.functions.misc:plainNumber(value) end
 local gateWrite = br.log:file("Gate.log", 300)
 local function emitGateDebug(spellID, spellName, reason, detail)
 	if not E.castDebugOn() then return end
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	if now < E.gateDebugSilentUntil then return end
 	local key = spellID .. reason
 	if gateDebugThrottle[key] and now < gateDebugThrottle[key] then return end
@@ -120,7 +120,7 @@ local talentKeyBySpell = {} -- spellID -> talent key, built from talentKeySource
 local talentKeySource = nil
 
 function cast:clearSpellFacts()
-	br._G.wipe(spellFacts)
+	br.game.wipe(spellFacts)
 	talentKeySource = nil
 end
 
@@ -129,7 +129,7 @@ local function getSpellFacts(spellID, baseSpellName)
 	if facts == nil then
 		facts = {
 			spellType    = br.functions.spell:getSpellType(baseSpellName),
-			baseCooldown = select(2, br._G.GetSpellBaseCooldown(spellID)) or 0,
+			baseCooldown = select(2, br.game.GetSpellBaseCooldown(spellID)) or 0,
 		}
 		-- "Unknown" / "Invalid" can mean the spell isn't available right now; ask again next time
 		if facts.spellType ~= "Unknown" and facts.spellType ~= "Invalid" then spellFacts[spellID] = facts end
@@ -141,7 +141,7 @@ end
 local function getTalentKey(spellID, allTalents)
 	if talentKeySource ~= allTalents then
 		talentKeySource = allTalents
-		br._G.wipe(talentKeyBySpell)
+		br.game.wipe(talentKeyBySpell)
 		for key, id in pairs(allTalents) do
 			if talentKeyBySpell[id] == nil then talentKeyBySpell[id] = key end
 		end
@@ -161,12 +161,12 @@ local function defineGroup(fields, loader)
 end
 
 defineGroup({ "spellName", "icon", "rawCastTime", "castTime", "minRange", "maxRange", "hasNoRange" }, function(ctx)
-	local info = br._G.C_Spell.GetSpellInfo(ctx.spellID)
+	local info = br.game.C_Spell.GetSpellInfo(ctx.spellID)
 	local spellName, icon, rawCastTime = info and info.name, info and info.iconID, info and info.castTime
 	local minRange, maxRange = info and info.minRange, info and info.maxRange
 	-- Some spells return 0 for maxRange on the override; fall back to the base spell.
 	if (not maxRange or maxRange == 0) and ctx.baseSpellID and ctx.baseSpellID ~= ctx.spellID then
-		local baseInfo = br._G.C_Spell.GetSpellInfo(ctx.baseSpellID)
+		local baseInfo = br.game.C_Spell.GetSpellInfo(ctx.baseSpellID)
 		minRange, maxRange = baseInfo and baseInfo.minRange, baseInfo and baseInfo.maxRange
 	end
 	-- Cast time in seconds, only when prediction was asked for, plus any padding.
@@ -189,8 +189,8 @@ defineGroup({ "spellName", "icon", "rawCastTime", "castTime", "minRange", "maxRa
 end)
 
 defineGroup({ "baseSpellID", "overrideSpellID" }, function(ctx)
-	rawset(ctx, "baseSpellID", br._G.C_Spell.GetBaseSpell(ctx.spellID))
-	rawset(ctx, "overrideSpellID", br._G.C_Spell.GetOverrideSpell(ctx.spellID))
+	rawset(ctx, "baseSpellID", br.game.C_Spell.GetBaseSpell(ctx.spellID))
+	rawset(ctx, "overrideSpellID", br.game.C_Spell.GetOverrideSpell(ctx.spellID))
 end)
 
 defineGroup({ "baseSpellName" }, function(ctx)
@@ -215,7 +215,7 @@ end)
 -- IsSpellUsable returns (isUsable, insufficientPower); both are kept so gateUsable can tell a
 -- pure power shortfall apart from a wrong-form/other failure (clearcasting fix).
 defineGroup({ "isUsable", "insufficientPower" }, function(ctx)
-	local isUsable, insufficientPower = br._G.C_Spell.IsSpellUsable(ctx.spellID)
+	local isUsable, insufficientPower = br.game.C_Spell.IsSpellUsable(ctx.spellID)
 	rawset(ctx, "isUsable", isUsable)
 	rawset(ctx, "insufficientPower", insufficientPower)
 	if br.debug.form then br.debug.form:noteUsable(ctx.spellID, isUsable, insufficientPower) end
@@ -289,7 +289,7 @@ local function gateDoubleCast(ctx, thisUnit, castType, allTalents, allSpells) --
 	-- covered by the casting checks instead; measuring from when the last one landed
 	-- would block pre-casting the same spell behind itself.
 	if ctx.rawCastTime > 0 then return true end
-	local elapsed = br._G.GetTime() - ctx.lastCastTime
+	local elapsed = br.game.GetTime() - ctx.lastCastTime
 	local window  = ctx.gcdMax + ctx.latency
 	if elapsed > window then return true end
 	return false, "DOUBLE_CAST",
@@ -300,8 +300,8 @@ end
 local function gateDiesSoon(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
 	-- Self or friendly targets never fail this check.
 	if thisUnit == nil
-		or br._G.UnitIsUnit(thisUnit, "player")
-		or br._G.UnitIsFriend(thisUnit, "player")
+		or br.game.UnitIsUnit(thisUnit, "player")
+		or br.game.UnitIsFriend(thisUnit, "player")
 	then
 		return true
 	end
@@ -324,8 +324,8 @@ local function gateUsable(ctx, thisUnit, castType, allTalents, allSpells) -- lua
 		local minCost, _, powerType = br.functions.power:getSpellCost(ctx.spellID)
 		if minCost and minCost > 0 then
 			local petPower = powerType
-				and (br._G.UnitPower("pet", powerType) or 0)
-				or  (br._G.UnitPower("pet") or 0)
+				and (br.game.UnitPower("pet", powerType) or 0)
+				or  (br.game.UnitPower("pet") or 0)
 			if petPower < minCost then
 				return false, "NOT_USABLE",
 					string.format("pet focus %d < cost %d", plain(petPower), plain(minCost))
@@ -367,12 +367,12 @@ local function gateCooldownTimer(ctx, thisUnit, castType, allTalents, allSpells)
 	-- source of truth for per-ability cooldown state.
 	if castType == "pet" then
 		local slot = E.getPetBarSlot(ctx.spellName)
-		if slot and br._G.GetPetActionCooldown then
-			local cdStart, cdDuration = br._G.GetPetActionCooldown(slot)
+		if slot and br.game.GetPetActionCooldown then
+			local cdStart, cdDuration = br.game.GetPetActionCooldown(slot)
 			if cdStart and cdDuration and cdDuration > 0
-					and (cdStart + cdDuration) > br._G.GetTime() then
+					and (cdStart + cdDuration) > br.game.GetTime() then
 				return false, "PET_ON_COOLDOWN",
-					string.format("petCD=%.2fs remaining", plain((cdStart + cdDuration) - br._G.GetTime()))
+					string.format("petCD=%.2fs remaining", plain((cdStart + cdDuration) - br.game.GetTime()))
 			end
 		end
 		-- castTimers fallback: covers CastPetAction attempts where the game did not apply a
@@ -381,16 +381,16 @@ local function gateCooldownTimer(ctx, thisUnit, castType, allTalents, allSpells)
 		-- when GetPetActionCooldown still reports 0 on the same or next tick.
 		if E.castTimers then
 			local t = E.castTimers[ctx.spellID]
-			if t and t > br._G.GetTime() then
+			if t and t > br.game.GetTime() then
 				return false, "PET_CAST_TIMER",
-					string.format("pet cast timer expires in %.2fs", t - br._G.GetTime())
+					string.format("pet cast timer expires in %.2fs", t - br.game.GetTime())
 			end
 		end
 		return true
 	end
 	if E.castTimers == nil then return true end -- not yet initialised; pass
 	local t = E.castTimers[ctx.spellID]
-	if t == nil or t < br._G.GetTime() then
+	if t == nil or t < br.game.GetTime() then
 		if ctx.spellCD <= ctx.updateRate then return true end
 		-- The game reports the GCD as the cooldown of every spell on it: no longer than the GCD left
 		-- is the GCD, not the spell's own cooldown
@@ -402,7 +402,7 @@ local function gateCooldownTimer(ctx, thisUnit, castType, allTalents, allSpells)
 			string.format("spellCD=%.2fs updateRate=%.3fs", plain(ctx.spellCD), plain(ctx.updateRate))
 	end
 	return false, "CAST_TIMER",
-		string.format("castTimer expires in %.2fs", t - br._G.GetTime())
+		string.format("castTimer expires in %.2fs", t - br.game.GetTime())
 end
 
 -- Cheap refusal before the full spell context. The rotation runs every tick, also during the
@@ -495,14 +495,14 @@ end
 -- Cache is rebuilt whenever the form count changes (talent respec / level-up).
 local shapeshiftFormCache = nil
 local function isShapeshiftFormSpell(spellID)
-	if not br._G.GetNumShapeshiftForms or not br._G.GetShapeshiftFormInfo then
+	if not br.game.GetNumShapeshiftForms or not br.game.GetShapeshiftFormInfo then
 		return false
 	end
-	local count = br._G.GetNumShapeshiftForms()
+	local count = br.game.GetNumShapeshiftForms()
 	if not shapeshiftFormCache or shapeshiftFormCache.count ~= count then
 		shapeshiftFormCache = { count = count }
 		for i = 1, count do
-			local _, _, _, formSpellID = br._G.GetShapeshiftFormInfo(i)
+			local _, _, _, formSpellID = br.game.GetShapeshiftFormInfo(i)
 			if formSpellID then
 				shapeshiftFormCache[formSpellID] = true
 			end
@@ -513,7 +513,7 @@ end
 
 local function gateAutoRepeat(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
 	local spellName = ctx.spellName
-	if br._G.C_Spell.IsAutoRepeatSpell(spellName) then
+	if br.game.C_Spell.IsAutoRepeatSpell(spellName) then
 		return false, "AUTO_REPEAT", "IsAutoRepeatSpell=true"
 	end
 	-- Block any non-pet spell that IsCurrentSpell reports as already active/queued
@@ -525,7 +525,7 @@ local function gateAutoRepeat(ctx, thisUnit, castType, allTalents, allSpells) --
 	-- auto-cast enabled pet abilities could spuriously match on some clients.
 	-- Also not blocked: the spell we're casting right now, once it's inside the
 	-- queue window (pre-casting the next Wrath behind the current one).
-	if castType ~= "pet" and br._G.C_Spell.IsCurrentSpell(ctx.spellID) then
+	if castType ~= "pet" and br.game.C_Spell.IsCurrentSpell(ctx.spellID) then
 		local castingInWindow = E.getSameSpellCastRemain(ctx.spellID) > 0
 			and not E.isCastingOutsideQueueWindow(ctx.spellID)
 		if not isShapeshiftFormSpell(ctx.spellID) and not castingInWindow then
@@ -538,7 +538,7 @@ end
 local function gateDeadCheck(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
 	if castType ~= "dead" then return true end
 	if thisUnit == nil then return true end
-	if br._G.UnitIsDeadOrGhost(thisUnit) then return true end
+	if br.game.UnitIsDeadOrGhost(thisUnit) then return true end
 	return false, "NOT_DEAD_TARGET", "castType=dead but unit is alive"
 end
 
@@ -604,13 +604,13 @@ function E.gateCacheKey(spellID, castType, thisUnitArg)
 end
 
 function E.gateCacheStore(key, ctx)
-	gateCache[key] = { ctx = ctx, expiresAt = br._G.GetTime() + GATE_CACHE_TTL }
+	gateCache[key] = { ctx = ctx, expiresAt = br.game.GetTime() + GATE_CACHE_TTL }
 end
 
 -- Returns the cached ctx if valid, nil otherwise.
 function E.gateCacheGet(key)
 	local entry = gateCache[key]
-	if entry and br._G.GetTime() < entry.expiresAt then
+	if entry and br.game.GetTime() < entry.expiresAt then
 		return entry.ctx
 	end
 	gateCache[key] = nil -- expired; clear slot

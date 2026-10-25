@@ -23,7 +23,7 @@ br.debug.cpu.healingEngine = {
 -- Debug Timing - add local startTime = debugprofilestop() to start of function and call this at the end, pass a unique table name and the startTime variable.
 function br.debug.cpu:updateDebug(startTime, table)
     local startTime = startTime
-    local endTime = br._G.debugprofilestop()
+    local endTime = br.game.debugprofilestop()
     if br.debug.cpu[table] == nil then
         br.debug.cpu[table] = {
             totalIterations = 0,
@@ -48,10 +48,10 @@ end
 function br.debug.cpu:getHealingEngine()
     local usage, calls
 
-    usage, calls = br._G.GetFunctionCPUUsage(br.engines.healingEngine.friend.Update, true)
+    usage, calls = br.game.GetFunctionCPUUsage(br.engines.healingEngine.friend.Update, true)
     br.debug.cpu.healingEngine["br.engines.healingEngine.friend_Update"] = {usage = usage, calls = calls}
 
-    usage, calls = br._G.GetFunctionCPUUsage(br.engines.healingEngine.friend.UpdateUnit, true)
+    usage, calls = br.game.GetFunctionCPUUsage(br.engines.healingEngine.friend.UpdateUnit, true)
     br.debug.cpu.healingEngine["br.engines.healingEngine.friend_UpdateUnit"] = {usage = usage, calls = calls}
 
     --local tmpUsage, tmpCalls
@@ -68,15 +68,15 @@ end
 --- Get Execution Speed
 --  Prints the time needed to run a function X times
 function br.debug:getEXspeed(cycles, func)
-    local startTime = br._G.debugprofilestop()
+    local startTime = br.game.debugprofilestop()
 
     for i = 1, cycles do
         func()
     end
 
-    local duration = br._G.debugprofilestop() - startTime
+    local duration = br.game.debugprofilestop() - startTime
     local average = duration / cycles
-    br._G.print(br._G.format("Function %i times executed in %f ms (%f average)", cycles, duration, average))
+    br.game.print(br.game.format("Function %i times executed in %f ms (%f average)", cycles, duration, average))
 end
 
 --- Profile run ("/br cpu [seconds]")
@@ -105,7 +105,7 @@ function br.debug.cpu:profile(seconds)
         return
     end
     seconds = tonumber(seconds) or 30
-    local clock = br._G.debugprofilestop
+    local clock = br.game.debugprofilestop
     local results, restore = {}, {}
     for _, target in ipairs(PROFILE_TARGETS) do
         local owner = target[2]()
@@ -128,19 +128,19 @@ function br.debug.cpu:profile(seconds)
     local fpsTotal, fpsSamples = 0, 0
     local function sampleFPS()
         if not profiling then return end
-        fpsTotal = fpsTotal + (br._G.GetFramerate() or 0)
+        fpsTotal = fpsTotal + (br.game.GetFramerate() or 0)
         fpsSamples = fpsSamples + 1
-        br._G.C_Timer.After(1, sampleFPS)
+        br.game.C_Timer.After(1, sampleFPS)
     end
     sampleFPS()
     br.log:say("CPU", ("Profiling for %d s..."):format(seconds))
-    br._G.C_Timer.After(seconds, function()
+    br.game.C_Timer.After(seconds, function()
         for _, r in ipairs(restore) do r[1][r[2]] = r[3] end
         profiling = false
         local function count(t) local n = 0 for _ in pairs(t or {}) do n = n + 1 end return n end
         local engine = br.engines.enemiesEngine
         br.log:say("CPU", ("over %d s | FPS avg %.0f | objects %d | tracked units %d | candidates %d | enemies %d"):format(
-            seconds, fpsSamples > 0 and fpsTotal / fpsSamples or 0, br._G.GetObjectCount and br._G.GetObjectCount() or 0,
+            seconds, fpsSamples > 0 and fpsTotal / fpsSamples or 0, br.game.GetObjectCount and br.game.GetObjectCount() or 0,
             #(engine.recordList or {}), count(engine.units), count(engine.enemy)))
         local costs = br.core.tickCost
         if costs then
@@ -173,7 +173,7 @@ local function rangedTestSpell()
     for _, key in ipairs(keys) do
         local spellID = br.functions.spell:currentRank(abilities[key])
         if type(spellID) == "number" and br.functions.spell:isKnown(spellID) then
-            local info = br._G.C_Spell.GetSpellInfo(spellID)
+            local info = br.game.C_Spell.GetSpellInfo(spellID)
             local name, maxRange = info and info.name, info and info.maxRange
             if name and maxRange and maxRange >= 20 and maxRange <= 45 and br.functions.spell:getSpellType(name) == "Harmful" then
                 return name, maxRange
@@ -196,7 +196,7 @@ end
 -- A unit's name for a log file; a player's becomes a stand-in there (System/Logging.lua: Privacy)
 local function unitName(unit)
     br.log:notePlayer(unit)
-    return printable(br._G.UnitName(unit))
+    return printable(br.game.UnitName(unit))
 end
 
 -- Branching on a flagged boolean gives plain strings
@@ -209,7 +209,7 @@ end
 -- Everything one check needs, for the target. m.flagged names the values the game flagged secret.
 local function measure()
     local range = br.functions.range
-    if not br._G.UnitExists("target") then return nil end
+    if not br.game.UnitExists("target") then return nil end
     local m, flagged = {}, {}
     local function keep(name, value)
         if value ~= nil and isFlagged(value) then flagged[#flagged + 1] = name end
@@ -219,7 +219,7 @@ local function measure()
     if centre == nil then return nil end
     keep("centre", centre); keep("flat", flat); keep("dz", dz)
     keep("reachPlayer", range:getCombatReach("player")); keep("reachTarget", range:getCombatReach("target"))
-    keep("speedPlayer", br._G.GetUnitSpeed("player")); keep("speedTarget", br._G.GetUnitSpeed("target"))
+    keep("speedPlayer", br.game.GetUnitSpeed("player")); keep("speedTarget", br.game.GetUnitSpeed("target"))
     keep("edge", range:getEdgeDistance("player", "target")); keep("leeway", range:getLeeway("player", "target"))
     keep("meleeReach", range:getMeleeReach("player", "target")); keep("aoe", range:getAoEDistance("player", "target"))
     keep("old", range:getDistance("player", "target"))
@@ -227,14 +227,14 @@ local function measure()
     local meleeSpell, listKey = range:getMeleeSpellName()
     keep("meleeSpell", meleeSpell)
     m.listKey = listKey or "no melee list"
-    if m.meleeSpell then keep("meleeGame", br._G.C_Spell.IsSpellInRange(m.meleeSpell, "target")) end
+    if m.meleeSpell then keep("meleeGame", br.game.C_Spell.IsSpellInRange(m.meleeSpell, "target")) end
     -- Auto Attack's range is the melee check itself, in any form
     local autoAttack = br.functions.spell:getHighestSpellID("autoAttack")
-    if autoAttack then keep("autoGame", br._G.C_Spell.IsSpellInRange(autoAttack, "target")) end
+    if autoAttack then keep("autoGame", br.game.C_Spell.IsSpellInRange(autoAttack, "target")) end
     m.spell, m.spellRange = rangedTestSpell()
     if m.spell then
         m.spellBR = range:getEdgeDistance("player", "target") <= m.spellRange
-        keep("spellGame", br._G.C_Spell.IsSpellInRange(m.spell, "target"))
+        keep("spellGame", br.game.C_Spell.IsSpellInRange(m.spell, "target"))
     end
     m.flagged = flagged
     return m
@@ -271,12 +271,12 @@ function br.debug.range:probe(arg)
         return say("Stopped.")
     end
     -- Slash commands run outside BR's protected scripts; timer callbacks run inside them (Forever)
-    if arg ~= "watch" then return br._G.C_Timer.After(0, snapshot) end
+    if arg ~= "watch" then return br.game.C_Timer.After(0, snapshot) end
     if rangeWatch then rangeWatch:Cancel() end
-    local last, stopAt = nil, br._G.GetTime() + 120
+    local last, stopAt = nil, br.game.GetTime() + 120
     say("Watching the target for 2 minutes (/br range stop to end). Walk in and out of range.")
-    rangeWatch = br._G.C_Timer.NewTicker(0.1, function()
-        if br._G.GetTime() > stopAt then rangeWatch:Cancel(); rangeWatch = nil; return say("Stopped (2 minutes).") end
+    rangeWatch = br.game.C_Timer.NewTicker(0.1, function()
+        if br.game.GetTime() > stopAt then rangeWatch:Cancel(); rangeWatch = nil; return say("Stopped (2 minutes).") end
         local m = measure()
         if m == nil then return end
         local key = m.listKey .. inOut(m.meleeBR) .. inOut(m.autoGame) .. inOut(m.meleeGame) .. inOut(m.spellBR) .. inOut(m.spellGame)
@@ -298,8 +298,8 @@ function br.debug.timer:useTimer(timerName, interval)
     if self[timerName] == nil then
         self[timerName] = 0
     end
-    if br._G.GetTime() - self[timerName] >= interval then
-        self[timerName] = br._G.GetTime()
+    if br.game.GetTime() - self[timerName] >= interval then
+        self[timerName] = br.game.GetTime()
         return true
     else
         return false
@@ -314,8 +314,8 @@ function br.debug.timer:useTimer(timerName, interval, randomPercent)
         interval = interval - randomRange + math.random(0, randomRange * 2)
     end
     if self[timerName] == nil then self[timerName] = 0 end
-    if br._G.GetTime()-self[timerName] >= interval then
-        self[timerName] = br._G.GetTime()
+    if br.game.GetTime()-self[timerName] >= interval then
+        self[timerName] = br.game.GetTime()
         return true
     else
         return false
@@ -342,7 +342,7 @@ function br.debug.target:report(reason, units)
     local misc = br.functions.misc
     local focus, list = br.engines.targeting:explain()
     say(("Targeting Mode %s (1 Off, 2 Assist, 3 Full) | your target: %s"):format(tostring(misc:getValue("Targeting Mode")),
-        br._G.UnitExists("target") and unitName("target") or "none"))
+        br.game.UnitExists("target") and unitName("target") or "none"))
     if #list == 0 then return say("No enemy BR may attack.") end
     say("Focus: " .. (focus and unitName(focus) or "none"))
     for i = 1, math.min(units, #list) do
@@ -361,13 +361,13 @@ end
 local AUTO_GAP, AUTO_PER_COMBAT = 3, 30
 local autoLast, autoCount, lastFocus, lastTargetGUID = 0, 0, nil, nil
 function br.debug.target:watch()
-    if not br._G.UnitAffectingCombat("player") or not br.engines.targeting then
+    if not br.game.UnitAffectingCombat("player") or not br.engines.targeting then
         autoCount, lastFocus, lastTargetGUID = 0, nil, nil
         return
     end
-    local now = br._G.GetTime()
+    local now = br.game.GetTime()
     local focus = br.engines.targeting:getFocus()
-    local guid = br._G.UnitGUID("target")
+    local guid = br.game.UnitGUID("target")
     local reason
     if focus ~= lastFocus then reason = "BR's focus changed" end
     if guid ~= lastTargetGUID then
@@ -411,7 +411,7 @@ local function meleeUnit(u)
 end
 
 -- Game messages during an episode (spell failures, red error text)
-local meleeEvents = br._G.CreateFrame("Frame")
+local meleeEvents = br.game.CreateFrame("Frame")
 meleeEvents:RegisterEvent("UI_ERROR_MESSAGE")
 meleeEvents:RegisterEvent("UNIT_SPELLCAST_FAILED")
 meleeEvents:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
@@ -421,11 +421,11 @@ meleeEvents:SetScript("OnEvent", function(_, event, a, b, c, ...)
     -- Monster emotes in combat, episode or not: the flee emote's wording in this client's language
     -- (br.lists.fleeEmotes) and whether BR can read it
     if event == "CHAT_MSG_MONSTER_EMOTE" then
-        if not br._G.UnitAffectingCombat("player") then return end
+        if not br.game.UnitAffectingCombat("player") then return end
         local guid = select(9, ...) -- payload 12
         local ok, entry = pcall(function() return br.lists.fleeEmotes[a] end)
         local known = ok and entry and true or false
-        local fromTarget = guid ~= nil and guid == br._G.UnitGUID("target")
+        local fromTarget = guid ~= nil and guid == br.game.UnitGUID("target")
         meleeWrite("emote: \"" .. printable(a) .. "\" from " .. printable(b) .. (fromTarget and " (target)" or "")
             .. " | flee text known: " .. tostring(known) .. " | guid " .. (guid and "yes" or "none")
             .. " | args " .. (3 + select("#", ...)) .. " | target fleeing now " .. tostring(br.functions.unit:isFleeing("target")))
@@ -452,8 +452,8 @@ local function meleeState(player)
     }
     -- The target's unit flags where the unlocker reads them (to confirm the fleeing bit, 0x00800000
     -- on TrinityCore-era servers, before br.api.fleeingUnitFlag is set)
-    if br._G.UnitFlags then
-        local ok, flags = pcall(br._G.UnitFlags, "target")
+    if br.game.UnitFlags then
+        local ok, flags = pcall(br.game.UnitFlags, "target")
         if ok and type(flags) == "number" then
             if isFlagged(flags) then flags = plainInteger(flags, 4294967295) end
             parts[#parts + 1] = ("target flags 0x%08X"):format(flags)
@@ -464,16 +464,16 @@ end
 
 local meleeEnvironmentLogged = false
 function br.debug.melee:watch(player)
-    local now = br._G.GetTime()
+    local now = br.game.GetTime()
     -- Once a session: client facts the fleeing and eating checks depend on
     if not meleeEnvironmentLogged then
         meleeEnvironmentLogged = true
-        meleeWrite("client: locale " .. tostring(br._G.GetLocale and br._G.GetLocale())
+        meleeWrite("client: locale " .. tostring(br.game.GetLocale and br.game.GetLocale())
             .. " | AuraUtil.UnpackAuraData " .. tostring(_G.AuraUtil ~= nil and _G.AuraUtil.UnpackAuraData ~= nil)
-            .. " | unlocker UnitFlags " .. tostring(br._G.UnitFlags ~= nil)
+            .. " | unlocker UnitFlags " .. tostring(br.game.UnitFlags ~= nil)
             .. " | protected call " .. tostring(br.unlockers.protect ~= nil))
         -- Names in the unlocker's own API that could read unit flags (so an adapter can map
-        -- br._G.UnitFlags) or run code protected / handle secret values (br.unlockers.protect)
+        -- br.game.UnitFlags) or run code protected / handle secret values (br.unlockers.protect)
         local raw = br.unlockers.raw
         if type(raw) == "table" then
             local names = {}
@@ -491,7 +491,7 @@ function br.debug.melee:watch(player)
     end
     local active = false
     local inMelee
-    if br._G.UnitAffectingCombat("player") and br._G.UnitExists("target") then
+    if br.game.UnitAffectingCombat("player") and br.game.UnitExists("target") then
         local targetDist = br.functions.range:getDistance("target")
         if targetDist == nil or targetDist >= 5 then
             inMelee = br.engines.enemiesEngineFunctions:getEnemies("player", 5)
@@ -527,13 +527,13 @@ function br.debug.melee:watch(player)
             if #decisions > 0 then meleeWrite("    BR: " .. table.concat(decisions, ", ")) end
             if #episode.events > 0 then
                 meleeWrite("    game: " .. table.concat(episode.events, ", "))
-                br._G.wipe(episode.events)
+                br.game.wipe(episode.events)
             end
         end
     elseif episode and now - episode.lastSeen > 1.5 then
         local how
-        if not br._G.UnitAffectingCombat("player") then how = "combat ended"
-        elseif not br._G.UnitExists("target") then how = "no target"
+        if not br.game.UnitAffectingCombat("player") then how = "combat ended"
+        elseif not br.game.UnitExists("target") then how = "no target"
         else how = "target back in melee, or no enemy in melee" end
         local lasted = episode.lastSeen - episode.started
         episode.lines = 0
@@ -555,7 +555,7 @@ local lastActionAt, idleLogged, idleInCombat = 0, false, false
 local idleRuns = 0 -- ticks the rotation ran (not paused) since the last action
 local idleErrors = {}
 
-local idleEvents = br._G.CreateFrame("Frame")
+local idleEvents = br.game.CreateFrame("Frame")
 idleEvents:RegisterEvent("UNIT_SPELLCAST_START")
 idleEvents:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 idleEvents:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
@@ -564,14 +564,14 @@ idleEvents:SetScript("OnEvent", function(_, event, a, b)
     if event == "UI_ERROR_MESSAGE" then
         if #idleErrors < 10 then idleErrors[#idleErrors + 1] = printable(b) end
     elseif a == "player" then
-        lastActionAt, idleLogged, idleRuns = br._G.GetTime(), false, 0
-        br._G.wipe(idleErrors)
+        lastActionAt, idleLogged, idleRuns = br.game.GetTime(), false, 0
+        br.game.wipe(idleErrors)
     end
 end)
 
 function br.debug.idle:watch(player, paused)
-    local now = br._G.GetTime()
-    if not br._G.UnitAffectingCombat("player") then
+    local now = br.game.GetTime()
+    if not br.game.UnitAffectingCombat("player") then
         idleInCombat = false
         return
     end
@@ -585,13 +585,13 @@ function br.debug.idle:watch(player, paused)
     if idleLogged or now - lastActionAt < IDLE_AFTER then return end
     if #br.engines.enemiesEngineFunctions:getEnemies("player", 8) == 0 then return end
     -- swinging at a target in melee isn't idle
-    local targetDist = br._G.UnitExists("target") and br.functions.range:getDistance("target") or 99
+    local targetDist = br.game.UnitExists("target") and br.functions.range:getDistance("target") or 99
     if br.functions.unit:isAutoAttacking() and targetDist < 5 then return end
     idleLogged = true
     local units = player and player.units
     local spec = br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
     idleLine(("=== idle %.1fs in combat ==="):format(now - lastActionAt))
-    idleLine("  target " .. (br._G.UnitExists("target") and (unitName("target") .. (" %.1fyd"):format(plainNumber(targetDist))) or "none")
+    idleLine("  target " .. (br.game.UnitExists("target") and (unitName("target") .. (" %.1fyd"):format(plainNumber(targetDist))) or "none")
         .. " | dyn5 " .. (units and units.dyn5 and unitName(units.dyn5) or "none")
         .. " | auto attack " .. (br.functions.unit:isAutoAttacking() and "on" or "off")
         .. " | paused toggle " .. tostring(spec and spec.toggles and spec.toggles["Pause"]))
@@ -613,8 +613,8 @@ function br.debug.idle:watch(player, paused)
     local form = br.functions.unit:getFormSpellID()
     idleLine(("  rotation ran %d ticks | form %s | health %d%% | mana %d | rage %d | energy %d"):format(idleRuns,
         form and printable(br.functions.spell:getName(form)) or "none", plainNumber(br.functions.unit:getHP("player") or 0),
-        plainNumber(br._G.UnitPower("player", 0) or 0), plainNumber(br._G.UnitPower("player", 1) or 0),
-        plainNumber(br._G.UnitPower("player", 3) or 0)))
+        plainNumber(br.game.UnitPower("player", 0) or 0), plainNumber(br.game.UnitPower("player", 1) or 0),
+        plainNumber(br.game.UnitPower("player", 3) or 0)))
     idleLine("  toggles: " .. (#toggleParts > 0 and table.concat(toggleParts, ", ") or "none"))
     if br.engines.targeting then
         local focus, list = br.engines.targeting:explain()
@@ -638,11 +638,11 @@ end
 local comboBefore, comboPowerBefore = 0, 0
 local comboLogged = 0
 local function readCombo()
-    local onTarget = br._G.GetComboPoints and tonumber(br._G.GetComboPoints("player", "target")) or 0
-    local power = br._G.UnitPower and tonumber(br._G.UnitPower("player", 4)) or 0
+    local onTarget = br.game.GetComboPoints and tonumber(br.game.GetComboPoints("player", "target")) or 0
+    local power = br.game.UnitPower and tonumber(br.game.UnitPower("player", 4)) or 0
     return plainNumber(onTarget or 0), plainNumber(power or 0)
 end
-local comboFrame = br._G.CreateFrame("Frame")
+local comboFrame = br.game.CreateFrame("Frame")
 comboFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 comboFrame:SetScript("OnEvent", function()
     if comboLogged >= 20 or (comboBefore <= 0 and comboPowerBefore <= 0) then return end
@@ -672,8 +672,8 @@ local pushbacks = 0          -- UNIT_SPELLCAST_DELAYED on the player's current c
 
 -- The player's cast or channel: name, seconds left
 local function currentCast(now)
-    local name, _, _, _, endMS = br._G.UnitCastingInfo("player")
-    if name == nil then name, _, _, _, endMS = br._G.UnitChannelInfo("player") end
+    local name, _, _, _, endMS = br.game.UnitCastingInfo("player")
+    if name == nil then name, _, _, _, endMS = br.game.UnitChannelInfo("player") end
     if name == nil then return nil end
     return printable(name), endMS and (plainNumber(endMS) / 1000 - now) or nil
 end
@@ -689,14 +689,14 @@ local function rangeState(unit)
     local rangeFns = br.functions.range
     return ("edge %.2fyd, BR distance %.2fyd, you moving %.1f yd/s, it moving %.1f yd/s"):format(
         plainNumber(rangeFns:getEdgeDistance("player", unit) or -1), plainNumber(rangeFns:getDistance(unit) or -1),
-        plainNumber(br._G.GetUnitSpeed("player") or 0), plainNumber(br._G.GetUnitSpeed(unit) or 0))
+        plainNumber(br.game.GetUnitSpeed("player") or 0), plainNumber(br.game.GetUnitSpeed(unit) or 0))
 end
 local sentRange -- { guid, at, state }: the last send at a unit other than the player
 
 function br.debug.cast:noteSend(spellID, thisUnit)
-    local now = br._G.GetTime()
-    if thisUnit ~= nil and thisUnit ~= "player" and br._G.UnitExists(thisUnit) then
-        sentRange = { guid = br._G.UnitGUID(thisUnit), at = now, state = rangeState(thisUnit) }
+    local now = br.game.GetTime()
+    if thisUnit ~= nil and thisUnit ~= "player" and br.game.UnitExists(thisUnit) then
+        sentRange = { guid = br.game.UnitGUID(thisUnit), at = now, state = rangeState(thisUnit) }
     end
     local behind, remain = currentCast(now)
     previousSend = lastSend
@@ -722,14 +722,14 @@ local function argumentState(value)
 end
 
 function br.debug.cast:noteSendError(name, unit, err)
-    local site = printable(br._G.debugstack and br._G.debugstack(4, 1, 0) or "?"):gsub("%s+$", "")
+    local site = printable(br.game.debugstack and br.game.debugstack(4, 1, 0) or "?"):gsub("%s+$", "")
     local seen = (sendErrors[site] or 0) + 1
     sendErrors[site] = seen
     if seen > 3 and seen % 100 ~= 0 then return end
     local usable = br.functions.misc:canUseValue(unit)
     castWrite(("SEND ERROR #%d from %s: name %s (%s, %s), unit %s (%s, %s), exists %s, combat %s | %s"):format(
         seen, site, printable(name), type(name), argumentState(name), printable(unit), type(unit), argumentState(unit),
-        tostring(unit ~= nil and usable and br._G.UnitExists(unit) or nil), tostring(br._G.InCombatLockdown()),
+        tostring(unit ~= nil and usable and br.game.UnitExists(unit) or nil), tostring(br.game.InCombatLockdown()),
         printable(err)))
 end
 
@@ -737,29 +737,29 @@ end
 -- (cast:castByID, System/Functions/Cast/Helpers.lua): what BR saw of the spell, so the cause can be
 -- read. nextText: how that rank is sent from now on.
 function br.debug.cast:noteNoAnswer(entry, nextText)
-    local id, C = entry.spellID, br._G.C_Spell
+    local id, C = entry.spellID, br.game.C_Spell
     local usable, noPower = C.IsSpellUsable(id)
     local cd = C.GetSpellCooldown and C.GetSpellCooldown(id)
     if type(cd) ~= "table" then cd = nil end
-    local casting = currentCast(br._G.GetTime())
+    local casting = currentCast(br.game.GetTime())
     castWrite(("NO ANSWER %s: %s %d → %s (%s)%s | IsPlayerSpell %s, IsSpellKnown %s, usable %s%s, cooldown %s, GCD %.2fs, casting %s, form %s, combat %s"):format(
         entry.how, printable(entry.name), id, printable(entry.target), printable(entry.site),
         nextText and (" | next sends: " .. printable(nextText)) or "",
-        tostring(br._G.IsPlayerSpell(id)), tostring(br._G.IsSpellKnown(id)), tostring(usable and true or false),
+        tostring(br.game.IsPlayerSpell(id)), tostring(br.game.IsSpellKnown(id)), tostring(usable and true or false),
         noPower and " (power)" or "", cd and ("%.1f/%.1f"):format(plainNumber(cd.startTime or 0), plainNumber(cd.duration or 0)) or "?",
-        br.functions.spell:getGlobalCD() or 0, casting or "nothing", tostring(br._G.GetShapeshiftForm()),
-        tostring(br._G.InCombatLockdown())))
+        br.functions.spell:getGlobalCD() or 0, casting or "nothing", tostring(br.game.GetShapeshiftForm()),
+        tostring(br.game.InCombatLockdown())))
 end
 
 -- The game refused a BR cast with "Out of range" (2026-10-19: Ravage from Prowl refused in 4 of 6
 -- openers while moving in, sent again 0.5 s later and accepted): where both were at the send and now.
 function br.debug.cast:noteOutOfRange(spellID, guid)
-    local unit = guid and br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(guid)
+    local unit = guid and br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(guid)
     if unit == nil then return end
     local sent = sentRange and sentRange.guid == guid and sentRange or nil
     castWrite(("OUT OF RANGE %s → %s: at the send%s %s | now %s"):format(
         printable(br.functions.spell:getName(spellID)), unitName(unit),
-        sent and (" (%.2fs before)"):format(br._G.GetTime() - sent.at) or "", sent and sent.state or "?",
+        sent and (" (%.2fs before)"):format(br.game.GetTime() - sent.at) or "", sent and sent.state or "?",
         rangeState(unit)))
 end
 
@@ -768,7 +768,7 @@ end
 -- What BR's behind check saw at that moment: how far the player stands off the unit's facing,
 -- the centre and edge distances, and whether the unlocker's facing check decided.
 function br.debug.cast:noteNotBehind(spellID, guid)
-    local unit = guid and br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(guid)
+    local unit = guid and br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(guid)
     if unit == nil then return end
     local unitFns = br.functions.unit
     local facing = unitFns:getFacing(unit, "player")
@@ -777,9 +777,9 @@ function br.debug.cast:noteNotBehind(spellID, guid)
     -- A mob fighting you turns to face you unless it can't (stunned, confused): is its target you, and
     -- its unit flags (stunned 0x40000, confused 0x400000, fleeing 0x800000). UnitTarget comes back as
     -- a pointer, GUID or token depending on the unlocker, so it's compared with UnitIsUnit.
-    local victim = br._G.UnitTarget and br._G.UnitTarget(unit)
-    local targetsYou = victim ~= nil and br._G.UnitIsUnit(victim, "player")
-    local flags = br._G.UnitFlags and br._G.UnitFlags(unit)
+    local victim = br.game.UnitTarget and br.game.UnitTarget(unit)
+    local targetsYou = victim ~= nil and br.game.UnitIsUnit(victim, "player")
+    local flags = br.game.UnitFlags and br.game.UnitFlags(unit)
     castWrite(("NOT BEHIND %s → %s: BR's check said %s | its target %s, unit flags %s | you stand %s off its facing (%s), centres %s apart, edge %.1fyd%s"):format(
         printable(br.functions.spell:getName(spellID)), unitName(unit),
         facing == false and "behind" or facing == true and "in front" or "unknown",
@@ -787,11 +787,11 @@ function br.debug.cast:noteNotBehind(spellID, guid)
         type(flags) == "number" and ("0x%08X"):format(plainNumber(flags)) or "?",
         angle and ("%d°"):format(plainNumber(angle)) or "?", fromTarget and "towards its target" or "as the client has it", centres and ("%.2fyd"):format(plainNumber(centres)) or "?",
         plainNumber(br.functions.range:getEdgeDistance("player", unit) or 0),
-        br._G.ObjectIsFacing ~= nil and ", unlocker facing check" or ""))
+        br.game.ObjectIsFacing ~= nil and ", unlocker facing check" or ""))
 end
 
-local inProgressText = br._G.SPELL_FAILED_SPELL_IN_PROGRESS or "Another action is in progress"
-local castEvents = br._G.CreateFrame("Frame")
+local inProgressText = br.game.SPELL_FAILED_SPELL_IN_PROGRESS or "Another action is in progress"
+local castEvents = br.game.CreateFrame("Frame")
 castEvents:RegisterEvent("UNIT_SPELLCAST_START")
 castEvents:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 castEvents:RegisterEvent("UNIT_SPELLCAST_DELAYED")
@@ -799,7 +799,7 @@ castEvents:RegisterEvent("UI_ERROR_MESSAGE")
 castEvents:SetScript("OnEvent", function(_, event, a, b)
     if event == "UI_ERROR_MESSAGE" then
         if printable(b) ~= inProgressText then return end
-        local now = br._G.GetTime()
+        local now = br.game.GetTime()
         local casting, remain = currentCast(now)
         castWrite(("REFUSED (%s): casting %s | BR's last send %s, GCD then %.2fs, window %.2fs | send before that %s"):format(
             printable(b), casting and ("%s, %.2fs left"):format(casting, remain or -1) or "nothing",
@@ -826,18 +826,18 @@ local formNoted = {}       -- what has a line already
 
 local function formName(form)
     if form == nil or form == 0 then return "no form" end
-    local _, _, _, formSpellID = br._G.GetShapeshiftFormInfo(form)
+    local _, _, _, formSpellID = br.game.GetShapeshiftFormInfo(form)
     return ("%s (form %d)"):format(printable(formSpellID and br.functions.spell:getName(formSpellID)), form)
 end
 
 local function formContext()
-    return ("flying %s, stealthed %s, combat %s"):format(tostring(br._G.IsFlying() and true or false),
-        tostring(br._G.IsStealthed() and true or false), tostring(br._G.InCombatLockdown() and true or false))
+    return ("flying %s, stealthed %s, combat %s"):format(tostring(br.game.IsFlying() and true or false),
+        tostring(br.game.IsStealthed() and true or false), tostring(br.game.InCombatLockdown() and true or false))
 end
 
 -- Gates.lua, each time a spell's usability is read
 function br.debug.form:noteUsable(spellID, isUsable, insufficientPower)
-    local form = br._G.GetShapeshiftForm() or 0
+    local form = br.game.GetShapeshiftForm() or 0
     if form == 0 then
         if isUsable and not usableOutOfForm[spellID] then
             usableOutOfForm[spellID] = true
@@ -861,7 +861,7 @@ end
 local leftFormFor -- { spellID, at, form }
 function br.debug.form:noteLeftFormFor(spellID)
     if spellID == nil then return end
-    leftFormFor = { spellID = spellID, at = br._G.GetTime(), form = formName(br._G.GetShapeshiftForm()) }
+    leftFormFor = { spellID = spellID, at = br.game.GetTime(), form = formName(br.game.GetShapeshiftForm()) }
 end
 
 -- Dispatch, just before each send
@@ -871,28 +871,28 @@ function br.debug.form:noteSendAfterLeaving(spellID)
     leftFormFor = nil
     local spellFns = br.functions.spell
     local name = spellFns:getName(left.spellID)
-    local after = br._G.GetTime() - left.at
+    local after = br.game.GetTime() - left.at
     if after > 5 or name == nil or name == spellFns:getName(spellID) then return end
-    local usable, noPower = br._G.C_Spell.IsSpellUsable(left.spellID)
-    local cd = br._G.C_Spell.GetSpellCooldown and br._G.C_Spell.GetSpellCooldown(left.spellID)
+    local usable, noPower = br.game.C_Spell.IsSpellUsable(left.spellID)
+    local cd = br.game.C_Spell.GetSpellCooldown and br.game.C_Spell.GetSpellCooldown(left.spellID)
     if type(cd) ~= "table" then cd = nil end
     local refusal = br.functions.cast:getRefusal(name)
     formWrite(("left %s for %s, then BR sent %s %.2fs later instead | %s then: usable %s%s, cooldown %s, GCD %.2fs, mana %d, form %s, last refusal %s"):format(
         left.form, printable(name), printable(spellFns:getName(spellID)), after, printable(name),
         tostring(usable and true or false), noPower and " (power)" or "",
         cd and ("%.1f/%.1f"):format(plainNumber(cd.startTime or 0), plainNumber(cd.duration or 0)) or "?",
-        spellFns:getGlobalCD() or 0, plainNumber(br._G.UnitPower("player", 0) or 0), formName(br._G.GetShapeshiftForm()),
+        spellFns:getGlobalCD() or 0, plainNumber(br.game.UnitPower("player", 0) or 0), formName(br.game.GetShapeshiftForm()),
         refusal and ("%s %s, %.1fs ago"):format(tostring(refusal.reason), printable(refusal.detail or ""),
-            br._G.GetTime() - (refusal.refusedAt or 0)) or "none"))
+            br.game.GetTime() - (refusal.refusedAt or 0)) or "none"))
 end
 
-local notShapeshiftText = br._G.SPELL_FAILED_NOT_SHAPESHIFT
-local formEvents = br._G.CreateFrame("Frame")
+local notShapeshiftText = br.game.SPELL_FAILED_NOT_SHAPESHIFT
+local formEvents = br.game.CreateFrame("Frame")
 formEvents:RegisterEvent("UI_ERROR_MESSAGE")
 formEvents:SetScript("OnEvent", function(_, _, errorType, message)
-    local form = br._G.GetShapeshiftForm() or 0
+    local form = br.game.GetShapeshiftForm() or 0
     if form == 0 or lastSend == nil then return end
-    local since = br._G.GetTime() - lastSend.at
+    local since = br.game.GetTime() - lastSend.at
     if since > 1 then return end
     local text = printable(message)
     local key = "error:" .. tostring(errorType) .. ":" .. lastSend.name .. ":" .. form

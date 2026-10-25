@@ -28,7 +28,7 @@ br.api.buffs = function(buff, k, v)
             if v == 0 then return end
         end
         if br.functions.aura:UnitBuffID(thisUnit, v, sourceUnit) ~= nil then
-            br._G.RunMacroText("/cancelaura " .. br.functions.spell:getName(v))
+            br.game.RunMacroText("/cancelaura " .. br.functions.spell:getName(v))
         end
     end
 

@@ -8,21 +8,21 @@ local _, br = ...
 -- untainted code may, tainted code may not. Some unlockers let BR run untainted (a protected
 -- call), some unwrap the values; with neither, BR can't use them.
 --
--- On those clients every WoW function BR reads through br._G is checked here. The first result
+-- On those clients every WoW function BR reads through br.game is checked here. The first result
 -- BR can't use pauses BR (br.api.canPulse, checked by System/Core.lua); the calls that returned
 -- such values are re-checked every 2 seconds, and BR resumes once they all return usable values.
 -- BR is either fully working or paused, never running on values it can't read.
 --
 -- Unlockers with a protected call set br.unlockers.protect (System/Unlockers.lua). BR's frame
 -- scripts (OnUpdate, OnEvent), timer callbacks and hooks then run inside it, so the whole handler
--- may use secret values, not just each call. Those are set up through br._G (CreateFrame, C_Timer,
+-- may use secret values, not just each call. Those are set up through br.game (CreateFrame, C_Timer,
 -- hooksecurefunc, TooltipDataProcessor), which profiles read too.
 -- Clients without secret values get nothing installed here.
 br.secrets = br.secrets or {}
 local secrets = br.secrets
 
-local issecretvalue = br._G.issecretvalue
-local canaccessvalue = br._G.canaccessvalue
+local issecretvalue = br.game.issecretvalue
+local canaccessvalue = br.game.canaccessvalue
 
 -- Whether BR may use a value here: canaccessvalue answers for the code that is running.
 -- issecretvalue is only the flag, which is set even on values BR's protected code may use.
@@ -36,13 +36,13 @@ if not br.hasSecretValues or not issecretvalue then return end
 
 local canUse = secrets.canUse
 local type, select, pairs, pcall, tostring = type, select, pairs, pcall, tostring
-local unpack = br._G.unpack
+local unpack = br.game.unpack
 local strbyte, strsub, strfind, strmatch = string.byte, string.sub, string.find, string.match
 
-local mt = getmetatable(br._G)
+local mt = getmetatable(br.game)
 local baseIndex = mt.__index
 -- A global as BR saw it before this guard: used for the guard's own calls
-local function base(key) return baseIndex(br._G, key) end
+local function base(key) return baseIndex(br.game, key) end
 
 ---------------------------------------------------------------------------------------------------
 -- Finding values BR can't use
@@ -124,7 +124,7 @@ local function activeRestrictions()
 	return #names > 0 and table.concat(names, ", ") or "none"
 end
 
-local function say(text) br._G.print(text) end
+local function say(text) br.game.print(text) end
 
 local function record(name, fn, n, a1, a2, a3)
 	local key = name .. "|" .. n .. "|" .. printable(a1) .. "|" .. printable(a2) .. "|" .. printable(a3)
@@ -200,9 +200,9 @@ function secrets.isProtected() return protectedDepth > 0 end
 -- (BugSack), as from a normal script
 local function reportError(err)
 	if br.log and br.log.reportError then
-		return br.log:reportError(err, br._G.debugstack and br._G.debugstack(2))
+		return br.log:reportError(err, br.game.debugstack and br.game.debugstack(2))
 	end
-	local handler = br._G.geterrorhandler()
+	local handler = br.game.geterrorhandler()
 	if handler then handler(err) end
 end
 
@@ -333,7 +333,7 @@ end
 -- Last result per key, so a repeated read doesn't rebuild or re-test anything
 local lastRead = {}
 
--- Every read of br._G is checked here: whatever layer the name comes from (Expansions/Flavours.lua),
+-- Every read of br.game is checked here: whatever layer the name comes from (Expansions/Flavours.lua),
 -- writes included, since a write lands in a layer and is read back through this.
 mt.__index = function(t, key)
 	local value = baseIndex(t, key)

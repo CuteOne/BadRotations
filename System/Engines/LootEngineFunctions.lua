@@ -8,12 +8,12 @@ local lootEngine = br.engines.lootEngine
 local function greyItems()
 	local greys = {}
 	for bag = 0, 4 do
-		for slot = 1, br._G.C_Container.GetContainerNumSlots(bag) do
-			local item = br._G.C_Container.GetContainerItemLink(bag, slot)
+		for slot = 1, br.game.C_Container.GetContainerNumSlots(bag) do
+			local item = br.game.C_Container.GetContainerItemLink(bag, slot)
 			-- Grey quality items show in the grey link colour
 			if item and string.find(item, br.ui.colors.quality.grey) ~= nil then
-				local price = select(11, br._G.C_Item.GetItemInfo(item))
-				local containerItemInfo = br._G.C_Container.GetContainerItemInfo(bag, slot)
+				local price = select(11, br.game.C_Item.GetItemInfo(item))
+				local containerItemInfo = br.game.C_Container.GetContainerItemInfo(bag, slot)
 				if price and containerItemInfo and price * containerItemInfo.stackCount > 0 then
 					greys[#greys + 1] = { Bag = bag, Slot = slot, Price = price * containerItemInfo.stackCount, Item = item }
 				end
@@ -26,8 +26,8 @@ end
 -- Sell all grey quality items to vendor
 function lootEngine:sellGreys()
 	for _, grey in ipairs(greyItems()) do
-		br._G.C_Container.PickupContainerItem(grey.Bag, grey.Slot)
-		br._G.PickupMerchantItem()
+		br.game.C_Container.PickupContainerItem(grey.Bag, grey.Slot)
+		br.game.PickupMerchantItem()
 	end
 	br.ui.chatOverlay:Show("Sold Greys.")
 end
@@ -39,8 +39,8 @@ function lootEngine:dumpGreys(numToDump)
 	table.sort(greyTable, function(x, y) return x.Price < y.Price end)
 	for i = 1, numToDump do
 		if greyTable[i] ~= nil then
-			br._G.C_Container.PickupContainerItem(greyTable[i].Bag, greyTable[i].Slot)
-			br._G.DeleteCursorItem()
+			br.game.C_Container.PickupContainerItem(greyTable[i].Bag, greyTable[i].Slot)
+			br.game.DeleteCursorItem()
 			br.log:say("Loot", "Removed grey item " .. greyTable[i].Item)
 		end
 	end
@@ -50,21 +50,21 @@ end
 -- Sell Greys Commands
 SLASH_Greys1 = "/grey"
 SLASH_Greys2 = "/greys"
-function br._G.SlashCmdList.Greys(msg, editbox)
+function br.game.SlashCmdList.Greys(msg, editbox)
 	br.engines.lootEngine:sellGreys()
 end
 
 -- Dump Greys Commands
 SLASH_DumpGrey1 = "/dumpgreys"
 SLASH_DumpGrey2 = "/dg"
-function br._G.SlashCmdList.DumpGrey(msg, editbox)
+function br.game.SlashCmdList.DumpGrey(msg, editbox)
 	br.engines.lootEngine:dumpGreys(1)
 end
 
 -- Loot Stats Command
 SLASH_LootStats1 = "/lootstats"
 SLASH_LootStats2 = "/ls"
-function br._G.SlashCmdList.LootStats(msg, editbox)
+function br.game.SlashCmdList.LootStats(msg, editbox)
 	if not br.engines.lootEngine or not br.engines.lootEngine.getStats then
 		br.log:error("Loot Engine not initialized!")
 		return

@@ -701,7 +701,7 @@ actionList.Melee = function()
     if unit.valid(units.dyn5) and not unit.deadOrGhost(units.dyn5) then
         if not var.inMeleeRange then
             var.inMeleeRange  = true
-            var.lastMeleeTime = br._G.GetTime()
+            var.lastMeleeTime = br.game.GetTime()
             unit.startAttack()
         end
     end
@@ -958,21 +958,21 @@ actionList.Ranged = function()
         local sw           = br.player.swing and br.player.swing.ranged
         local rangedSpeed  = sw and sw.speed and sw.speed > 0 and sw.speed or 2.5
         local timeSinceShot = sw and sw.last and sw.last > 0
-            and (br._G.GetTime() - sw.last) or nil
+            and (br.game.GetTime() - sw.last) or nil
         -- Stuck: Auto Shot is "active" but hasn't fired for > one full cycle + 1.5 s
         -- after a recent melee engagement (var.lastMeleeTime set by Melee branch).
         local autoShotStuck = cast.auto.autoShot()
             and timeSinceShot ~= nil
             and timeSinceShot > (rangedSpeed + 1.5)
             and var.lastMeleeTime ~= nil
-            and (br._G.GetTime() - var.lastMeleeTime) <= 30
+            and (br.game.GetTime() - var.lastMeleeTime) <= 30
         if autoShotStuck then
             -- Toggle Auto Shot off.  gateAutoRepeat is bypassed here intentionally:
             -- IsAutoRepeatSpell=true even though nothing is firing.  On the next tick
             -- IsAutoRepeatSpell will be false and cast.autoShot restarts it normally.
             local autoName = br.functions.spell:getName(spell.autoShot)
             if autoName then
-                br._G.CastSpellByName(autoName)
+                br.game.CastSpellByName(autoName)
                 ui.debug("Auto Shot [Re-engage toggle — stuck after melee]")
                 return true
             end

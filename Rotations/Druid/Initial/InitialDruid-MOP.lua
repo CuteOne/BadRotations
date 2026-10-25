@@ -137,7 +137,7 @@ actionList.Extra = function()
         if (formValue == 1 or (unit.exists("target") and (unit.id("target") == 164577 or unit.id("target") == 166906) and unit.canAttack("player", "target")))
             and (buff.bearForm.exists() or buff.catForm.exists())
         then
-            br._G.RunMacroText("/CancelForm")
+            br.game.RunMacroText("/CancelForm")
             ui.debug("Casting Caster Form")
             return true
         end
@@ -171,11 +171,11 @@ actionList.Defensive = function()
         -- Rejuvenation
         if ui.checked("Rejuvenation") and not cast.current.rejuvenation() then
             if cast.able.rejuvenation("target") and unit.friend("target") and unit.hp("target") <= ui.value("Rejuvenation")
-                and br._G.UnitIsPlayer("target") and buff.rejuvenation.refresh("target")
+                and br.game.UnitIsPlayer("target") and buff.rejuvenation.refresh("target")
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     -- CancelShapeshiftForm()
-                    br._G.RunMacroText("/CancelForm")
+                    br.game.RunMacroText("/CancelForm")
                 else
                     ui.debug("Attempting to cast Rejuvenation on " .. unit.name("target"))
                     if cast.rejuvenation("target") then
@@ -186,7 +186,7 @@ actionList.Defensive = function()
             if cast.able.rejuvenation("player") and not unit.friend("target") and unit.hp() <= ui.value("Rejuvenation") and buff.rejuvenation.refresh("player") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     -- CancelShapeshiftForm()
-                    br._G.RunMacroText("/CancelForm")
+                    br.game.RunMacroText("/CancelForm")
                 else
                     if cast.rejuvenation("player") then
                         ui.debug("Casting Rejuvenation on " .. unit.name("player"))
@@ -197,10 +197,10 @@ actionList.Defensive = function()
         end
         -- Regrowth
         -- if ui.checked("Regrowth") and cast.able.regrowth() and not cast.current.regrowth() and not unit.moving() then
-        --     if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") and br._G.UnitIsPlayer("target") then
+        --     if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") and br.game.UnitIsPlayer("target") then
         --         if buff.catForm.exists() or buff.bearForm.exists() then
         --             -- CancelShapeshiftForm()
-        --             br._G.RunMacroText("/CancelForm")
+        --             br.game.RunMacroText("/CancelForm")
         --         else
         --             if cast.regrowth("target") then
         --                 ui.debug("Casting Regrowth on " .. unit.name("target"))
@@ -211,7 +211,7 @@ actionList.Defensive = function()
         --     if not unit.friend("target") and unit.hp() <= ui.value("Regrowth") then
         --         if buff.catForm.exists() or buff.bearForm.exists() then
         --             -- CancelShapeshiftForm()
-        --             br._G.RunMacroText("/CancelForm")
+        --             br.game.RunMacroText("/CancelForm")
         --         else
         --             if cast.regrowth("player") then
         --                 ui.debug("Casting Regrowth on " .. unit.name("player"))

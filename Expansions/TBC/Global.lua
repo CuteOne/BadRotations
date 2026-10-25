@@ -35,7 +35,7 @@ end
 
 -- Several TBC racials are a different spell per class (checked against Wowhead's TBC
 -- database, 2026-10-05).
-local playerClass = select(2, br._G.UnitClass("player"))
+local playerClass = select(2, br.game.UnitClass("player"))
 local berserkingID    = ({ WARRIOR = 26296, ROGUE = 26297 })[playerClass] or 20554
 local arcaneTorrentID = (playerClass == "ROGUE") and 25046 or 28730
 local bloodFuryID     = ({ SHAMAN = 33697, WARLOCK = 33702 })[playerClass] or 20572

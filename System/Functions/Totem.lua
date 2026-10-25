@@ -47,7 +47,7 @@ end
 function totem:getActiveObject(slot)
     local haveTotem, name = self:getSlotInfo(slot)
     if not haveTotem or not name or name == "" then return nil, nil, nil end
-    if not br.unlocked or not br._G.GetObjectCount or not br._G.GetObjectWithIndex then
+    if not br.unlocked or not br.game.GetObjectCount or not br.game.GetObjectWithIndex then
         return nil, nil, name
     end
 
@@ -55,15 +55,15 @@ function totem:getActiveObject(slot)
     if not pX or not pY or not pZ then return nil, nil, name end
 
     local bestObj, bestDist
-    for i = 1, br._G.GetObjectCount() do
-        local obj = br._G.GetObjectWithIndex(i)
+    for i = 1, br.game.GetObjectCount() do
+        local obj = br.game.GetObjectWithIndex(i)
         if obj and br.functions.unit:GetObjectExists(obj) then
-            local objName = br._G.UnitName(obj)
+            local objName = br.game.UnitName(obj)
             if objName == name then
-                local creator = br._G.UnitCreator and br._G.UnitCreator(obj) or nil
+                local creator = br.game.UnitCreator and br.game.UnitCreator(obj) or nil
                 local isMine = creator == "player" or creator == "Player"
-                if not isMine and creator and br._G.UnitIsUnit then
-                    isMine = br._G.UnitIsUnit(creator, "player")
+                if not isMine and creator and br.game.UnitIsUnit then
+                    isMine = br.game.UnitIsUnit(creator, "player")
                 end
 
                 if isMine then
@@ -86,7 +86,7 @@ end
 -- Returns the closest world object with the given localized name created by the player.
 function totem:getObjectByName(name)
     if not name or name == "" then return nil, nil end
-    if not br.unlocked or not br._G.GetObjectCount or not br._G.GetObjectWithIndex then
+    if not br.unlocked or not br.game.GetObjectCount or not br.game.GetObjectWithIndex then
         return nil, nil
     end
 
@@ -94,13 +94,13 @@ function totem:getObjectByName(name)
     if not pX or not pY or not pZ then return nil, nil end
 
     local bestObj, bestDist
-    for i = 1, br._G.GetObjectCount() do
-        local obj = br._G.GetObjectWithIndex(i)
-        if obj and br.functions.unit:GetObjectExists(obj) and br._G.UnitName(obj) == name then
-            local creator = br._G.UnitCreator and br._G.UnitCreator(obj) or nil
+    for i = 1, br.game.GetObjectCount() do
+        local obj = br.game.GetObjectWithIndex(i)
+        if obj and br.functions.unit:GetObjectExists(obj) and br.game.UnitName(obj) == name then
+            local creator = br.game.UnitCreator and br.game.UnitCreator(obj) or nil
             local isMine = creator == "player" or creator == "Player"
-            if not isMine and creator and br._G.UnitIsUnit then
-                isMine = br._G.UnitIsUnit(creator, "player")
+            if not isMine and creator and br.game.UnitIsUnit then
+                isMine = br.game.UnitIsUnit(creator, "player")
             end
 
             if isMine then
@@ -121,7 +121,7 @@ end
 
 function totem:getSlotInfo(slot)
     if not slot then return false, nil, 0, 0, nil end
-    local haveTotem, name, startTime, duration, icon = br._G.GetTotemInfo(slot)
+    local haveTotem, name, startTime, duration, icon = br.game.GetTotemInfo(slot)
     if not haveTotem then
         return false, nil, 0, 0, nil
     end
@@ -162,6 +162,6 @@ end
 function totem:slotRemains(slot)
     local haveTotem, _, startTime, duration = self:getSlotInfo(slot)
     if not haveTotem or duration <= 0 or startTime <= 0 then return 0 end
-    local remaining = (startTime + duration) - br._G.GetTime()
+    local remaining = (startTime + duration) - br.game.GetTime()
     return remaining > 0 and remaining or 0
 end

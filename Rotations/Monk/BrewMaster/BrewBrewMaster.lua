@@ -449,19 +449,19 @@ local function runRotation() -- This is the main profile loop, any below this po
     enemies.get(40,"player",false,true)
 
     var.MistBallsInWorld = 0
-    for i=1,br._G.GetObjectCount() do
-        local name = br._G.ObjectName(br._G.GetObjectWithIndex(i))
-        local creator = br._G.UnitCreator(br._G.GetObjectWithIndex(i))
-        if creator == br._G.UnitGUID("player") and br._G.ObjectType(br._G.GetObjectWithIndex(i)) ==11 then
+    for i=1,br.game.GetObjectCount() do
+        local name = br.game.ObjectName(br.game.GetObjectWithIndex(i))
+        local creator = br.game.UnitCreator(br.game.GetObjectWithIndex(i))
+        if creator == br.game.UnitGUID("player") and br.game.ObjectType(br.game.GetObjectWithIndex(i)) ==11 then
             var.MistBallsInWorld = var.MistBallsInWorld +1
-        -- elseif creator == br._G.UnitGUID("player") then
-        --     print("Unknown obj type: " .. br._G.ObjectType(br._G.GetObjectWithIndex(i)))
+        -- elseif creator == br.game.UnitGUID("player") then
+        --     print("Unknown obj type: " .. br.game.ObjectType(br.game.GetObjectWithIndex(i)))
         end
     end
 
     if ui.mode.debug==1 then
         for i=1,40 do
-            local auraInfo = br._G.C_UnitAuras.GetBuffDataByIndex("player", i)
+            local auraInfo = br.game.C_UnitAuras.GetBuffDataByIndex("player", i)
             local name, spellIdbuff = auraInfo and auraInfo.name, auraInfo and auraInfo.spellId
             if name then
                 if name=="Recent Purifies" then

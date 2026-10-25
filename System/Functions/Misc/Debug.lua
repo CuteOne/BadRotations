@@ -9,7 +9,7 @@ local misc = br.functions.misc
 -- from comparisons. Only for output: whether BR may use a value is misc:canUseValue.
 
 -- Whether a value would print as <SECRET>
-function misc:isFlagged(value) return br._G.issecretvalue ~= nil and br._G.issecretvalue(value) end
+function misc:isFlagged(value) return br.game.issecretvalue ~= nil and br.game.issecretvalue(value) end
 
 -- The whole number 0..max that value (scaled) rounds down to, found by halving
 function misc:plainInteger(value, max)
@@ -41,12 +41,12 @@ function misc:devMode()
 	if br.functions.misc:isChecked("Dev Mode") then
 		if _G.br == nil then
 			_G.br = br
-			br._G.print("<Dev Mode Enabled>")
+			br.game.print("<Dev Mode Enabled>")
 		end
 	else
 		if _G.br ~= nil then
 			_G.br = nil
-			br._G.print("<Dev Mode Disabled>")
+			br.game.print("<Dev Mode Disabled>")
 		end
 	end
 end

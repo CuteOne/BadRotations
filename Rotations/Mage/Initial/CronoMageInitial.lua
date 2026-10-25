@@ -140,14 +140,14 @@ local function runRotation()
     units       = br.player.units
     -- General Locals
     profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or br._G.IsMounted() or br.functions.misc:pause() or mode.rotation == 4
+    haltProfile = (unit.inCombat() and profileStop) or br.game.IsMounted() or br.functions.misc:pause() or mode.rotation == 4
     -- Units
     units.get(5)  -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
     units.get(40, true)
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = br._G.GetTime() end
+    if br.pauseTime == nil then br.pauseTime = br.game.GetTime() end
 
     ---------------------
     --- Begin Profile ---
@@ -156,7 +156,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        br.pauseTime = br._G.GetTime()
+        br.pauseTime = br.game.GetTime()
         return true
     else
         ---------------------------------
@@ -189,8 +189,8 @@ local function runRotation()
                 if actionList.Interrupt() then return true end
                 -- Start Attack
                 -- actions=auto_attack
-                if not br._G.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    br._G.StartAttack(units.dyn5)
+                if not br.game.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                    br.game.StartAttack(units.dyn5)
                 end
                 --Arcane Explosion
                 if cast.able.arcaneExplosion("player", "aoe", 1, 8) then

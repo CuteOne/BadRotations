@@ -58,7 +58,7 @@ br.api.charges = function(self, spell, id)
 
     charges.spellCount = function()
         local spellID = br.functions.spell:currentRank(id)
-        return br._G.C_Spell.GetSpellCastCount(spellID)
+        return br.game.C_Spell.GetSpellCastCount(spellID)
     end
 
     --- Gets the total time remaining until all charges are available.

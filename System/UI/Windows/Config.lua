@@ -2,7 +2,7 @@ local _, br = ...
 -- This creates the normal BadRotations Configuration Window
 br.ui.window.config = {}
 function br.ui:createConfigWindow()
-    -- br._G.print("Creating Config Window") -- Debug
+    -- br.game.print("Creating Config Window") -- Debug
     br.ui.window.config = br.ui:createWindow("config", 275, 400, "Configuration")
 
     if not br.ui.window.config then

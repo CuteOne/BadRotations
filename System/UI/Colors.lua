@@ -29,6 +29,6 @@ colors.quality = {
 
 function colors:getColor(unit)
     if unit == nil then unit = "player" end
-    return classColors[select(3, br._G.UnitClass(unit))] or { class = "Unknown", B = 1, G = 1, R = 1, hex = "ffffff" }
+    return classColors[select(3, br.game.UnitClass(unit))] or { class = "Unknown", B = 1, G = 1, R = 1, hex = "ffffff" }
 end
 colors.class = tostring("|cff" .. colors:getColor("player").hex)

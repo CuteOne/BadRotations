@@ -11,7 +11,7 @@ br.api.ui = function(self)
 
     -- if ui.print == nil then
     --     ui.print = function(text)
-    --         local Print = br._G["Print"]
+    --         local Print = br.game["Print"]
     --         return Print(text)
     --     end
     -- end
@@ -173,7 +173,7 @@ br.api.ui = function(self)
         -- @string[opt] mouseButton - Name of the mouse button.
         -- @return boolean - Returns true if the specified mouse button is down
         ui.isMouseDown = function(mouseButton)
-            local mouseDown = br._G.IsMouseButtonDown
+            local mouseDown = br.game.IsMouseButtonDown
             if mouseButton == nil then
                 return mouseDown("LeftButton") or mouseDown("RightButton") or mouseDown("MiddleButton") or
                     mouseDown("Button4") or mouseDown("Button5")
@@ -190,7 +190,7 @@ br.api.ui = function(self)
         -- @boolean[opt=false] ignoreChannel - Set to true to ignore pausing on channel casts
         -- @return boolean - Returns true if rotation should be paused
         ui.pause = function(ignoreChannel)
-            --local pause = br._G["pause"]
+            --local pause = br.game["pause"]
             if ignoreChannel == nil then ignoreChannel = false end
             return br.functions.misc:pause(ignoreChannel)
         end
@@ -202,7 +202,7 @@ br.api.ui = function(self)
         -- @string msg - The message to show in chat.
         -- @return nil
         ui.print = function(msg)
-            return br._G.print(msg)
+            return br.game.print(msg)
         end
     end
 
@@ -232,7 +232,7 @@ br.api.ui = function(self)
         -- @function ui.time
         -- @return number - Returns the current game time
         ui.time = function()
-            return br._G.GetTime()
+            return br.game.GetTime()
         end
     end
 
@@ -253,7 +253,7 @@ br.api.ui = function(self)
         -- @string thisToggle - Name of the toggle to check.
         -- @return boolean - Returns true if the toggle is active
         ui.toggle = function(thisToggle)
-            return not br._G.GetCurrentKeyBoardFocus() and br.functions.misc:SpecificToggle(thisToggle) or false
+            return not br.game.GetCurrentKeyBoardFocus() and br.functions.misc:SpecificToggle(thisToggle) or false
         end
     end
 
@@ -362,8 +362,8 @@ br.api.ui = function(self)
         -- @return boolean
         ui.fightStyle.dungeonRoute = function()
             return self.state.instance == "party"
-                and br._G.C_ChallengeMode ~= nil
-                and br._G.C_ChallengeMode.GetActiveChallengeMapID() ~= nil
+                and br.game.C_ChallengeMode ~= nil
+                and br.game.C_ChallengeMode.GetActiveChallengeMapID() ~= nil
         end
     end
 
@@ -373,8 +373,8 @@ br.api.ui = function(self)
         -- @return boolean
         ui.fightStyle.dungeonSlice = function()
             return self.state.instance == "party"
-                and not (br._G.C_ChallengeMode ~= nil
-                    and br._G.C_ChallengeMode.GetActiveChallengeMapID() ~= nil)
+                and not (br.game.C_ChallengeMode ~= nil
+                    and br.game.C_ChallengeMode.GetActiveChallengeMapID() ~= nil)
         end
     end
 

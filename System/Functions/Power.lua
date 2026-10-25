@@ -6,7 +6,7 @@ local power = br.functions.power
 -- if getCombo() >= 1 then
 function power:getCombo(thisUnit)
 	if thisUnit == nil then thisUnit = "target" end
-	return br._G.GetComboPoints("player", thisUnit) --GetComboPoints("player") - Legion Change
+	return br.game.GetComboPoints("player", thisUnit) --GetComboPoints("player") - Legion Change
 end
 
 -- Mana cost of a spell reference (id, name, or BR spell table); 0 if free, not mana, or treatAsFree.
@@ -36,17 +36,17 @@ end
 -- The unit's power of that type (index 4: the player's combo points on the unit), as the game reports it.
 -- Clearcasting and similar free casts are the cast engine's concern, not a different power value.
 function power:getPower(Unit, index)
-	if index == 4 then return br._G.GetComboPoints("player", Unit) end
-	return br._G.UnitPower(Unit, index)
+	if index == 4 then return br.game.GetComboPoints("player", Unit) end
+	return br.game.UnitPower(Unit, index)
 end
 
 function power:getPowerMax(Unit, index)
-	return br._G.UnitPowerMax(Unit, index)
+	return br.game.UnitPowerMax(Unit, index)
 end
 
 -- if br.functions.power:getRegen("player") > 15 then
 function power:getRegen(Unit)
-	return select(2, br._G.GetPowerRegen(Unit))
+	return select(2, br.game.GetPowerRegen(Unit))
 end
 
 -- Get Count of Specific Rune Time
@@ -74,7 +74,7 @@ end
 function power:getRuneObjects()
 	local runes = {}
 	for i = 1, 6 do
-		local rt = br._G.GetRuneType(i)
+		local rt = br.game.GetRuneType(i)
 		local is_death = (rt == 4)
 		local base
 		-- if i <= 2 then
@@ -91,7 +91,7 @@ function power:getRuneObjects()
 		elseif rt == 3 then
 			base = "unholy"
 		end
-		local start, duration, ready = br._G.GetRuneCooldown(i)
+		local start, duration, ready = br.game.GetRuneCooldown(i)
 		runes[i] = { base = base, is_death = is_death, ready = ready }
 	end
 	return runes
@@ -106,11 +106,11 @@ function power:getRunePercent(Type)
 	local include_death = (Type == "blood" or Type == "frost" or Type == "unholy")
 	local readyCount = 0
 	local maxCooldownPercent = 0
-	local timeNow = br._G.GetTime()
+	local timeNow = br.game.GetTime()
 
 	for i = 1, 6 do
-		local start, duration, ready = br._G.GetRuneCooldown(i)
-		local rt = br._G.GetRuneType(i)
+		local start, duration, ready = br.game.GetRuneCooldown(i)
+		local rt = br.game.GetRuneType(i)
 		local base = (rt == 1) and "blood" or (rt == 2) and "frost" or (rt == 3) and "unholy"
 		local is_match = false
 		if Type == "death" then
@@ -158,12 +158,12 @@ function power:getSpellCost(spell)
 		end
 	end
 
-	local t = br._G.C_Spell.GetSpellPowerCost(spellKey)
+	local t = br.game.C_Spell.GetSpellPowerCost(spellKey)
 	if (not t or not t[1]) and type(spellKey) == "number" then
 		-- Fallback for older clients/APIs that may prefer spellName.
 		local spellName = br.functions.spell:getName(spellKey)
 		if spellName then
-			t = br._G.C_Spell.GetSpellPowerCost(spellName)
+			t = br.game.C_Spell.GetSpellPowerCost(spellName)
 		end
 	end
 	if not t then
@@ -185,7 +185,7 @@ end
 -- (a spell can cost two, such as energy and combo points); costs of 0 are left out.
 function power:getSpellCosts(spellID)
 	local costs = {}
-	local list = br._G.C_Spell.GetSpellPowerCost(spellID)
+	local list = br.game.C_Spell.GetSpellPowerCost(spellID)
 	if type(list) ~= "table" then return costs end
 	for _, entry in ipairs(list) do
 		local amount = entry.minCost or entry.cost or 0
@@ -199,13 +199,13 @@ end
 -- if getTimeToMax("player") < 3 then
 function power:getTimeToMax(Unit, Limit)
 	local timeTill = 999
-	local max = Limit or br._G.UnitPowerMax(Unit)
-	local curr = br._G.UnitPower(Unit)
+	local max = Limit or br.game.UnitPowerMax(Unit)
+	local curr = br.game.UnitPower(Unit)
 	local curr2 = curr
-	local _, regen = br._G.GetPowerRegen(Unit)
+	local _, regen = br.game.GetPowerRegen(Unit)
 	-- Feral's Soul of the Forest gives energy back per combo point spent
 	local soulOfTheForest = br.player and br.player.spells and br.player.spells.soulOfTheForest
-	if select(3, br._G.UnitClass("player")) == 11 and br._G.C_SpecializationInfo.GetSpecialization() == 2
+	if select(3, br.game.UnitClass("player")) == 11 and br.game.C_SpecializationInfo.GetSpecialization() == 2
 		and soulOfTheForest and br.functions.spell:isKnown(soulOfTheForest)
 	then
 		curr2 = curr + 4 * br.functions.power:getCombo()
@@ -218,28 +218,28 @@ end
 function power:getTotalReadyRunes()
 	local total = 0
 	for i = 1, 6 do
-		local _, _, ready = br._G.GetRuneCooldown(i)
+		local _, _, ready = br.game.GetRuneCooldown(i)
 		if ready then total = total + 1 end
 	end
 	return total
 end
 
 function power:runeCDPercent(runeIndex)
-	local start, duration, ready = br._G.GetRuneCooldown(runeIndex)
+	local start, duration, ready = br.game.GetRuneCooldown(runeIndex)
 	if start == nil or duration == 0 then
 		return 0
 	end
 	if not ready then
-		return (br._G.GetTime() - start) / duration
+		return (br.game.GetTime() - start) / duration
 	else
 		return 0
 	end
 end
 
 function power:runeRecharge(runeIndex)
-	local start, duration, ready = br._G.GetRuneCooldown(runeIndex)
+	local start, duration, ready = br.game.GetRuneCooldown(runeIndex)
 	if not ready and duration and duration > 0 and start then
-		return duration - (br._G.GetTime() - start)
+		return duration - (br.game.GetTime() - start)
 	else
 		return 0
 	end
@@ -288,7 +288,7 @@ function power:runeTimeTill(runeIndex)
 	local runeCount = 0
 	local timeTill = 0
 	for i = 1, 6 do
-		local start, duration, ready = br._G.GetRuneCooldown(i)
+		local start, duration, ready = br.game.GetRuneCooldown(i)
 		if ready then
 			runeCount = runeCount + 1
 		else

@@ -28,8 +28,8 @@ end
 -- Current spec ID and settings key (class name on expansions without sub-specs)
 local function resolveSpec()
 	local specID = (br.api and br.api.getEffectiveSpecID and br.api.getEffectiveSpecID())
-		or br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
-	local specName = select(2, br._G.GetSpecializationInfoForSpecID(specID)) or "Initial"
+		or br.game.C_SpecializationInfo.GetSpecializationInfo(br.game.C_SpecializationInfo.GetSpecialization())
+	local specName = select(2, br.game.GetSpecializationInfoForSpecID(specID)) or "Initial"
 	if specName == "" then specName = "Initial" end
 	return specID, br.ui.settingsManagement:normalizeSpecKey(specName)
 end
@@ -46,10 +46,10 @@ local function buildMainButtons()
 	local pos = br.data.settings.minimapButton and br.data.settings.minimapButton.pos
 	if br.ui.minimapButton and br.ui.minimapButton.frame then
 		br.ui.minimapButton.frame:ClearAllPoints()
-		if pos and type(pos.x) == "number" and type(pos.y) == "number" and br._G.Minimap then
-			br.ui.minimapButton.frame:SetPoint("CENTER", br._G.Minimap, "CENTER", pos.x, pos.y)
+		if pos and type(pos.x) == "number" and type(pos.y) == "number" and br.game.Minimap then
+			br.ui.minimapButton.frame:SetPoint("CENTER", br.game.Minimap, "CENTER", pos.x, pos.y)
 		else
-			br.ui.minimapButton.frame:SetPoint("CENTER", br._G.Minimap or br._G.UIParent, "CENTER", 75.70, -6.63)
+			br.ui.minimapButton.frame:SetPoint("CENTER", br.game.Minimap or br.game.UIParent, "CENTER", 75.70, -6.63)
 		end
 	end
 end
@@ -63,7 +63,7 @@ stages.WAITING_FOR_WORLD = function() end -- bootstrap:start() moves on once the
 local UNLOCK_RETRY = 1
 local nextUnlockTry = 0
 stages.WAITING_FOR_UNLOCK = function()
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	if now < nextUnlockTry then return end
 	nextUnlockTry = now + UNLOCK_RETRY
 	br.unlocked = br.unlockers:loadUnlockerAPI()
@@ -126,7 +126,7 @@ stages.SETTINGS = function()
 	if not bootstrap.announced then
 		bootstrap.announced = true
 		br.ui.chatOverlay:Show("-= BadRotations Loaded =-")
-		br._G.print("Initialization Complete.")
+		br.game.print("Initialization Complete.")
 	end
 	setStage("PLAYER")
 end
@@ -148,13 +148,13 @@ end
 
 -- UI frames are created out of combat only; the rotation already runs during these stages.
 local function waitForCombat()
-	if not br._G.InCombatLockdown() then
+	if not br.game.InCombatLockdown() then
 		bootstrap.uiDeferredNotified = nil
 		return false
 	end
 	if not bootstrap.uiDeferredNotified then
 		bootstrap.uiDeferredNotified = true
-		br._G.print("Rotation loaded. Toggle bar setup deferred until after combat.")
+		br.game.print("Rotation loaded. Toggle bar setup deferred until after combat.")
 	end
 	return true
 end
@@ -166,7 +166,7 @@ stages.UI = function()
 	br.player:createToggles()
 	br.player:createOptions()
 	br.ui:recreateWindows()
-	br._G.print("Profile Load Complete")
+	br.game.print("Profile Load Complete")
 	setStage("UI_CLEANUP")
 end
 
@@ -193,7 +193,7 @@ stages.UI_CLEANUP = function()
 	else
 		br.ui:closeWindow("config")
 	end
-	br._G.print("UI Load Complete")
+	br.game.print("UI Load Complete")
 	setStage("RUNNING")
 end
 
@@ -213,7 +213,7 @@ end
 function bootstrap:isPlayerReady()
 	if br.player == nil then return false end
 	if self.stage == "RUNNING" then return true end
-	return (self.stage == "UI" or self.stage == "UI_CLEANUP") and br._G.InCombatLockdown()
+	return (self.stage == "UI" or self.stage == "UI_CLEANUP") and br.game.InCombatLockdown()
 end
 
 --- True when settings for the current spec/profile are loaded and may be saved.
@@ -225,14 +225,14 @@ end
 -- the stages. Only the first call does anything.
 function bootstrap:start()
 	if self.stage ~= "WAITING_FOR_WORLD" then return end
-	br._G.print("Initializing Please Wait...")
+	br.game.print("Initializing Please Wait...")
 	br.lifecycle:run("start")
 	setStage("WAITING_FOR_UNLOCK")
 end
 
 -- The client's lifecycle events. The frame is made (and its events registered) at load: some unlockers
 -- refuse frames registering events later (ADDON_ACTION_FORBIDDEN).
-local events = br._G.CreateFrame("Frame")
+local events = br.game.CreateFrame("Frame")
 events:RegisterEvent("PLAYER_ENTERING_WORLD")
 events:RegisterEvent("PLAYER_LOGOUT")
 events:SetScript("OnEvent", function(_, event)
@@ -244,8 +244,8 @@ events:SetScript("OnEvent", function(_, event)
 end)
 -- Loaded after login (injected): PLAYER_ENTERING_WORLD has already fired. Start on the next frame,
 -- once the rest of the TOC's files have run.
-if br._G.IsLoggedIn and br._G.IsLoggedIn() then
-	br._G.C_Timer.After(0, function() bootstrap:start() end)
+if br.game.IsLoggedIn and br.game.IsLoggedIn() then
+	br.game.C_Timer.After(0, function() bootstrap:start() end)
 end
 
 --- Re-selects and reloads the current profile (profile dropdown, profile buttons, settings import).
@@ -273,7 +273,7 @@ function bootstrap:checkSpecChange()
 		br.ui.settingsManagement:saveSettings()
 	end
 	self.settingsLoaded = false
-	br._G.wipe(br.slashCommands.commandHelp)
+	br.game.wipe(br.slashCommands.commandHelp)
 	br.slashCommands:slashHelpList()
 	-- Invalidate cached melee spell so getDistance picks up the new spec.
 	if br.functions.range.invalidateMeleeSpellCache then

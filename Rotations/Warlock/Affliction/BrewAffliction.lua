@@ -34,8 +34,8 @@ local function toggles()
 end
 
 local function PetId()
-    if br._G.UnitExists("pet") then
-        return tonumber(br._G.UnitGUID("pet"):match("-(%d+)-%x+$",10))
+    if br.game.UnitExists("pet") then
+        return tonumber(br.game.UnitGUID("pet"):match("-(%d+)-%x+$",10))
     else
         return nil
     end
@@ -145,7 +145,7 @@ end
 
 actionList.PreCombat = function()
     if not unit.moving() and unit.level() >= 3
-        and br._G.GetTime() - br.pauseTime > 0.5
+        and br.game.GetTime() - br.pauseTime > 0.5
         and br.debug.timer:useTimer("summonPet", 1) then
         if mode.petSummon == 1 and activePet ~= pets.imp and cast.able.summonImp() and not cast.last.summonImp() then
             if cast.summonImp("player") then return true end
@@ -225,7 +225,7 @@ local function runRotation()
     var.UnitNeedsAgony = nil
     var.AgonyCount = 0
     for i=1,#enemies.yards40f do
-        if not debuff.agony.exists(enemies.yards40f[i]) and br._G.UnitAffectingCombat(enemies.yards40f[i]) then
+        if not debuff.agony.exists(enemies.yards40f[i]) and br.game.UnitAffectingCombat(enemies.yards40f[i]) then
             var.UnitNeedsAgony = enemies.yards40f[i]
         else
             var.AgonyCount = var.AgonyCount + 1
@@ -234,7 +234,7 @@ local function runRotation()
     var.UnitsNeedCorruption = nil
     var.CorruptionCount = 0
     for i=1,#enemies.yards40f do
-        if not debuff.corruption.exists(enemies.yards40f[i]) and br._G.UnitAffectingCombat(enemies.yards40f[i]) then
+        if not debuff.corruption.exists(enemies.yards40f[i]) and br.game.UnitAffectingCombat(enemies.yards40f[i]) then
             var.UnitsNeedCorruption = enemies.yards40f[i]
         else
             var.CorruptionCount = var.CorruptionCount + 1
@@ -243,7 +243,7 @@ local function runRotation()
 
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = br._G.GetTime() end
+    if br.pauseTime == nil then br.pauseTime = br.game.GetTime() end
 
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false

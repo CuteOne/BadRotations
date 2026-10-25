@@ -12,7 +12,7 @@ br.unlockers.raw = nil
 -- Without it, BR pauses on values it can't use.
 
 -- Unlocker adapters, in priority order. Each adapter file (Unlockers/*.lua)
--- defines br.unlockers:<fn>(): it sets up its functions (written into br._G, they land in
+-- defines br.unlockers:<fn>(): it sets up its functions (written into br.game, they land in
 -- br.unlockers.api, Expansions/Flavours.lua) and returns true only when its
 -- unlocker is present, and returns false quietly otherwise. Detection and the
 -- "no unlocker" case are handled here, not by any adapter.
@@ -30,7 +30,7 @@ function unlockers:registerAdapter(name, unlock)
     table.insert(adapters, 1, { name = name, unlock = unlock })
 end
 
--- What BR expects from an adapter's file functions (in br._G). Unlockers/ewt.txt is the API BR was
+-- What BR expects from an adapter's file functions (in br.game). Unlockers/ewt.txt is the API BR was
 -- first built on; this is the part of it BR relies on now:
 --   ReadFile(path)                    the file's text, or nil when it doesn't exist
 --   WriteFile(path, text, append)     writes the file; append adds the text to its end
@@ -69,14 +69,14 @@ function unlockers:loadUnlockerAPI()
     -- Called every pulse until an unlocker is found, so report only once.
     if not unlocked and not reportedNoUnlocker then
         reportedNoUnlocker = true
-        br._G.print("No supported unlocker detected.")
+        br.game.print("No supported unlocker detected.")
     end
 
     if unlocked then
         -- Set Spell Queue Window to 400ms for smoother cast queueing.
         -- Save the player's original value first so we can restore it on logout.
-        br.unlockers.origQueueWindow = br._G.C_CVar and br._G.C_CVar.GetCVar("SpellQueueWindow")
-        br._G.RunMacroText("/console SpellQueueWindow 400")
+        br.unlockers.origQueueWindow = br.game.C_CVar and br.game.C_CVar.GetCVar("SpellQueueWindow")
+        br.game.RunMacroText("/console SpellQueueWindow 400")
         -- MEDIA PATH: the client only loads textures and fonts from its own Interface folder (paths
         -- to BR's own folder fail with "file not found", measured on Forever). The "3rd Party Files/Media"
         -- folder is copied to Interface\AddOns\Media; BR installed as a normal addon has its own copy.
@@ -92,6 +92,6 @@ end
 -- On logout (and /reload): give the player back the Spell Queue Window BR changed
 br.lifecycle:onLogout(10, "spell queue window", function()
     if unlockers.origQueueWindow then
-        br._G.RunMacroText("/console SpellQueueWindow " .. unlockers.origQueueWindow)
+        br.game.RunMacroText("/console SpellQueueWindow " .. unlockers.origQueueWindow)
     end
 end)

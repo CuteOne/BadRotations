@@ -118,9 +118,9 @@ local function round(number, digit_position)
 
 local function printStats(message)
     local rageString
-     rageString = colors.red .. "[" .. tostring(br._G.UnitPower("player")) .. "]"
+     rageString = colors.red .. "[" .. tostring(br.game.UnitPower("player")) .. "]"
      local lastTime = ui.time() - var.lastCast
-    br._G.print(colors.red.. date("%T") ..colors.aqua .."[+" .. string.format("%f2",round(lastTime,-2)) .. "] "  .. string.format("%f",unit.gcd())..colors.white .. rageString .. " : ".. message)
+    br.game.print(colors.red.. date("%T") ..colors.aqua .."[+" .. string.format("%f2",round(lastTime,-2)) .. "] "  .. string.format("%f",unit.gcd())..colors.white .. rageString .. " : ".. message)
 end
 
 local debugMessage = function(message)
@@ -144,7 +144,7 @@ end -- End Action List - Extra
 -- Action List - Defensive
 actionList.Defensive = function()
     -- for i=1, #enemies.yards5 do
-    --     local name,_,_,startTime,endTime,_,_,notInterruptable,spellId = br._G.UnitCastingInfo(enemies.yards5[i])
+    --     local name,_,_,startTime,endTime,_,_,notInterruptable,spellId = br.game.UnitCastingInfo(enemies.yards5[i])
     --     if name ~= nil then
     --         if notInterruptable or (not notInterruptable and )
     --     end
@@ -245,7 +245,7 @@ local function runRotation() -- This is the main profile loop, any below this po
     unit                                          = br.player.unit
     units                                         = br.player.units
     var                                           = br.player.variables
-    rage                                          = br._G.UnitPower("player")
+    rage                                          = br.game.UnitPower("player")
 
 
     if var.lastCast == nil then var.lastCast=ui.time() end

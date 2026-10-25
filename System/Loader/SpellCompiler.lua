@@ -16,7 +16,7 @@ local warnedOnce = {}
 local function warnOnce(key, message)
     if warnedOnce[key] then return end
     warnedOnce[key] = true
-    br._G.print(message)
+    br.game.print(message)
 end
 
 -- Spell list sources for the player's class and spec, in load order (later sources win
@@ -26,7 +26,7 @@ local function getSources(spec)
     if br.api.hasSubSpecs and br.lists and br.lists.loadSpecSpells then
         br.lists:loadSpecSpells(br.loader.selectedSpec)
     end
-    local playerClass = select(2, br._G.UnitClass('player'))
+    local playerClass = select(2, br.game.UnitClass('player'))
     local sources = {
         { list = br.lists.spells["Shared"]["Shared"], origin = "global" },
         { list = br.lists.spells[playerClass]["Shared"], origin = "sharedClass" },
@@ -65,7 +65,7 @@ local function compileList(player, spellTable, origin, spec)
             else
                 assign(player, spellType, spellRef, spellID, origin)
                 -- (imbues are never active: their values are enchant IDs, not spell IDs)
-                if isActiveType(spellType, spec) and type(spellID) ~= 'table' and not br._G.C_Spell.IsSpellPassive(spellID) then
+                if isActiveType(spellType, spec) and type(spellID) ~= 'table' and not br.game.C_Spell.IsSpellPassive(spellID) then
                     player.spells.abilities = player.spells.abilities or {}
                     player.spellSource["abilities"] = player.spellSource["abilities"] or {}
                     if assign(player, "abilities", spellRef, spellID, origin) then
@@ -86,7 +86,7 @@ local function validateList(spellTable)
     if validated[spellTable] then return end
     validated[spellTable] = true
     local function check(spellType, spellRef, id)
-        local info = br._G.C_Spell.GetSpellInfo(id)
+        local info = br.game.C_Spell.GetSpellInfo(id)
         if not info or info.spellID ~= id then
             warnOnce(spellType .. "_" .. spellRef .. "_" .. tostring(id),
                 "|cffff0000" .. spellType .. ": |r" .. spellRef .. "|cffff0000 with ID: |r" .. id
@@ -138,7 +138,7 @@ end
 -- Warn about active talents missing from the lists, or listed with the wrong ID.
 local function validateTalents(allTalents, spec)
     if isInitialSpec(spec) or not (br.lists and br.lists.spells) then return end
-    local playerClass = select(2, br._G.UnitClass('player'))
+    local playerClass = select(2, br.game.UnitClass('player'))
     local classLists = br.lists.spells[playerClass]
     if not (classLists and classLists["Shared"] and classLists[spec]) then return end
     local heroicTalents = classLists["Shared"]["talentsHeroic"] or {}
@@ -181,7 +181,7 @@ function spellCompiler:compileTalents(player, spec)
         local entry = allTalents[spellID]
         if entry then
             player.talent[name] = entry.active
-            if entry.active and not br._G.C_Spell.IsSpellPassive(spellID) then
+            if entry.active and not br.game.C_Spell.IsSpellPassive(spellID) then
                 player.spells.abilities[name] = spellID
                 player.spells[name] = spellID
             end
@@ -199,11 +199,11 @@ end
 -- @param player The br.player object being built
 function spellCompiler:compileHeroTree(player)
     if not br.api.hasHeroTalentTrees then return end
-    if not br._G.C_ClassTalents or not br._G.C_ClassTalents.GetActiveHeroTalentSpec then return end
+    if not br.game.C_ClassTalents or not br.game.C_ClassTalents.GetActiveHeroTalentSpec then return end
     if not br.lists or not br.lists.heroSpec then return end
 
-    local playerClass = select(2, br._G.UnitClass('player'))
-    local activeSpecID = br._G.C_ClassTalents.GetActiveHeroTalentSpec()
+    local playerClass = select(2, br.game.UnitClass('player'))
+    local activeSpecID = br.game.C_ClassTalents.GetActiveHeroTalentSpec()
     local specs = br.lists.heroSpec[playerClass]
     if specs == nil then return end
     player.heroTree = player.heroTree or {}

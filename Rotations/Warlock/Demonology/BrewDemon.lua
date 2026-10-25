@@ -34,8 +34,8 @@ local function toggles()
 end
 
 local function PetId()
-    if br._G.UnitExists("pet") then
-        return tonumber(br._G.UnitGUID("pet"):match("-(%d+)-%x+$",10))
+    if br.game.UnitExists("pet") then
+        return tonumber(br.game.UnitGUID("pet"):match("-(%d+)-%x+$",10))
     else
         return nil
     end
@@ -146,7 +146,7 @@ end
 
 actionList.PreCombat = function()
     if not unit.moving() and unit.level() >= 3
-        and br._G.GetTime() - br.pauseTime > 0.5
+        and br.game.GetTime() - br.pauseTime > 0.5
         and br.debug.timer:useTimer("summonPet", 1) then
         if mode.petSummon == 1 and activePet ~= pets.imp and cast.able.summonImp() and not cast.last.summonImp() then
             if cast.summonImp("player") then return true end
@@ -245,7 +245,7 @@ local function runRotation()
 
     var.UnitNeedsCurse = nil
     for i=1,#enemies.yards40f do
-        if not debuff.curseOfExhaustion.exists(enemies.yards40f[i]) and br._G.UnitAffectingCombat(enemies.yards40f[i]) then
+        if not debuff.curseOfExhaustion.exists(enemies.yards40f[i]) and br.game.UnitAffectingCombat(enemies.yards40f[i]) then
             var.UnitNeedsCurse = enemies.yards40f[i]
         end
     end
@@ -253,12 +253,12 @@ local function runRotation()
     var.impCount = 0
     var.wildImpCount = 0
     var.BossImpCount = 0
-    for i=1,br._G.GetObjectCount() do
-        local objFound = br._G.GetObjectWithIndex(i)
+    for i=1,br.game.GetObjectCount() do
+        local objFound = br.game.GetObjectWithIndex(i)
         if objFound ~= nil then
-        local creator = br._G.UnitCreator(objFound)
-        local objType = br._G.ObjectType(objFound)
-        local objName = br._G.ObjectName(objFound)
+        local creator = br.game.UnitCreator(objFound)
+        local objType = br.game.ObjectType(objFound)
+        local objName = br.game.ObjectName(objFound)
             if objName == "Wild Imp" then
                 var.impCount = var.impCount + 1
                 var.wildImpCount = var.wildImpCount + 1
@@ -287,7 +287,7 @@ local function runRotation()
 
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = br._G.GetTime() end
+    if br.pauseTime == nil then br.pauseTime = br.game.GetTime() end
 
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false

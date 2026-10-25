@@ -191,8 +191,8 @@ actionList.Extras = function()
             if unit.combatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and unit.isDummy() then
                 unit.stopAttack()
                 unit.clearTarget()
-                br._G.PetStopAttack()
-                br._G.PetFollow()
+                br.game.PetStopAttack()
+                br.game.PetFollow()
                 ui.print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
@@ -783,7 +783,7 @@ actionList.Combat = function()
         -- auto_shot
         if cast.able.autoShot("target") then
             if cast.autoShot("target") then
-                br._G.PetAttack()
+                br.game.PetAttack()
                 ui.debug("Casting Auto Shot [Combat]")
                 return true
             end

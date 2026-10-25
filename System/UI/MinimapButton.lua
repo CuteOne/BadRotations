@@ -34,8 +34,8 @@ function br.ui:MinimapButton()
 
 	-- Function to set the position of the minimap button based on calculations
 	local function setPosition(self, x, y, q, quad_table)
-		local w = (br._G.Minimap:GetWidth() / 2) + 5
-		local h = (br._G.Minimap:GetHeight() / 2) + 5
+		local w = (br.game.Minimap:GetWidth() / 2) + 5
+		local h = (br.game.Minimap:GetHeight() / 2) + 5
 		if quad_table[q] then
 			x, y = x * w, y * h
 		else
@@ -50,7 +50,7 @@ function br.ui:MinimapButton()
 		br.data.settings.minimapButton.pos.x = x
 		br.data.settings.minimapButton.pos.y = y
 		self:ClearAllPoints()
-		self:SetPoint("CENTER", br._G.Minimap, "CENTER", x, y)
+		self:SetPoint("CENTER", br.game.Minimap, "CENTER", x, y)
 	end
 
 	-- Define minimap shapes
@@ -60,15 +60,15 @@ function br.ui:MinimapButton()
 	local function update_position(self, position)
 		local angle = math.rad(position or 225)
 		local x, y, q = calculatePosition(angle)
-		local shape = br._G.GetMinimapShape and br._G.GetMinimapShape() or "ROUND"
+		local shape = br.game.GetMinimapShape and br.game.GetMinimapShape() or "ROUND"
 		local quad_table = minimap_shape_quads[shape]
 		setPosition(self, x, y, q, quad_table)
 	end
 
 	-- local dragMode = nil -- "free", nil
 	local function moveButton(self)
-		local centerX, centerY = br._G.Minimap:GetCenter()
-		local x, y = br._G.GetCursorPosition()
+		local centerX, centerY = br.game.Minimap:GetCenter()
+		local x, y = br.game.GetCursorPosition()
 		x, y = x / self:GetEffectiveScale(), y / self:GetEffectiveScale()
 		local pos = math.deg(math.atan2(y - centerY, x - centerX)) % 360
 		update_position(self, pos)
@@ -76,7 +76,7 @@ function br.ui:MinimapButton()
 
 	-- Function to create the MinimapButton and set its properties
 	local function createMinimapButton()
-		br.ui.minimapButton.frame = br._G.CreateFrame("Button", "BadRotationsButton", br._G.Minimap)
+		br.ui.minimapButton.frame = br.game.CreateFrame("Button", "BadRotationsButton", br.game.Minimap)
 		br.ui.minimapButton.frame:SetHeight(25)
 		br.ui.minimapButton.frame:SetWidth(25)
 		br.ui.minimapButton.frame:SetFrameStrata("MEDIUM")
@@ -90,10 +90,10 @@ function br.ui:MinimapButton()
 		end
 		-- Ensure explicit anchoring to the Minimap and validate x/y
 		br.ui.minimapButton.frame:ClearAllPoints()
-		if type(x) == "number" and type(y) == "number" and br._G.Minimap then
-			br.ui.minimapButton.frame:SetPoint("CENTER", br._G.Minimap, "CENTER", x, y)
+		if type(x) == "number" and type(y) == "number" and br.game.Minimap then
+			br.ui.minimapButton.frame:SetPoint("CENTER", br.game.Minimap, "CENTER", x, y)
 		else
-			br.ui.minimapButton.frame:SetPoint("CENTER", br._G.Minimap or br._G.UIParent, "CENTER", 75.70, -6.63)
+			br.ui.minimapButton.frame:SetPoint("CENTER", br.game.Minimap or br.game.UIParent, "CENTER", 75.70, -6.63)
 		end
 		br.ui.minimapButton.frame:SetMovable(true)
 		br.ui.minimapButton.frame:SetUserPlaced(true)
@@ -113,7 +113,7 @@ function br.ui:MinimapButton()
 				br.ui:toggleWindow("help")
 			end
 		end
-		if br._G.IsShiftKeyDown() and br._G.IsAltKeyDown() then
+		if br.game.IsShiftKeyDown() and br.game.IsAltKeyDown() then
 			self:SetScript("OnUpdate", moveButton)
 		end
 	end
@@ -127,7 +127,7 @@ function br.ui:MinimapButton()
 			br.log:error("Cannot start: BR can not complete loading. Please check requirements.")
 		end
 		if button == "LeftButton" then
-			if br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() then
+			if br.game.IsShiftKeyDown() and not br.game.IsAltKeyDown() then
 				if br.data.settings[br.loader.selectedSpec].toggles["Main"] == 1 then
 					br.data.settings[br.loader.selectedSpec].toggles["Main"] = 0
 					br.ui.toggles.mainButton:Hide()
@@ -135,26 +135,26 @@ function br.ui:MinimapButton()
 					br.data.settings[br.loader.selectedSpec].toggles["Main"] = 1
 					br.ui.toggles.mainButton:Show()
 				end
-			elseif not br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() then
+			elseif not br.game.IsShiftKeyDown() and not br.game.IsAltKeyDown() then
 				br.ui:toggleWindow("config")
 			end
 		end
 	end
 
 	local function handleOnEnter(self)
-		br._G.GameTooltip:SetOwner(br._G.Minimap, "ANCHOR_CURSOR", 50, 50)
-		br._G.GameTooltip:SetText("BadRotations", 214 / 255, 25 / 255, 25 / 255)
-		br._G.GameTooltip:AddLine("by CuteOne")
-		br._G.GameTooltip:AddLine("Left Click to toggle config frame.", 1, 1, 1, 1)
-		br._G.GameTooltip:AddLine("Shift+Left Click to toggle toggles frame.", 1, 1, 1, 1)
-		br._G.GameTooltip:AddLine("Alt+Shift+LeftButton to drag.", 1, 1, 1, 1)
-		br._G.GameTooltip:AddLine("Right Click to open profile options.", 1, 1, 1, 1)
-		br._G.GameTooltip:AddLine("Middle Click to open help frame.", 1, 1, 1, 1)
-		br._G.GameTooltip:Show()
+		br.game.GameTooltip:SetOwner(br.game.Minimap, "ANCHOR_CURSOR", 50, 50)
+		br.game.GameTooltip:SetText("BadRotations", 214 / 255, 25 / 255, 25 / 255)
+		br.game.GameTooltip:AddLine("by CuteOne")
+		br.game.GameTooltip:AddLine("Left Click to toggle config frame.", 1, 1, 1, 1)
+		br.game.GameTooltip:AddLine("Shift+Left Click to toggle toggles frame.", 1, 1, 1, 1)
+		br.game.GameTooltip:AddLine("Alt+Shift+LeftButton to drag.", 1, 1, 1, 1)
+		br.game.GameTooltip:AddLine("Right Click to open profile options.", 1, 1, 1, 1)
+		br.game.GameTooltip:AddLine("Middle Click to open help frame.", 1, 1, 1, 1)
+		br.game.GameTooltip:Show()
 	end
 
 	local function handleOnLeave(self)
-		br._G.GameTooltip:Hide()
+		br.game.GameTooltip:Hide()
 	end
 
 	createMinimapButton()

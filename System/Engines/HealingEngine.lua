@@ -7,23 +7,23 @@ local healingEngine = br.engines.healingEngine
 
 
 -----------------------------------------Bubba's Healing Engine--------------------------------------]]
--- local LGIST = br._G.LibStub("LibGroupInSpecT-1.1")
+-- local LGIST = br.game.LibStub("LibGroupInSpecT-1.1")
 if not healingEngine.metaTable1 then
 	-- localizing the commonly used functions while inside loops
-	local tinsert, tremove, UnitClass = br._G.tinsert, br._G.tremove, br._G.UnitClass
+	local tinsert, tremove, UnitClass = br.game.tinsert, br.game.tremove, br.game.UnitClass
 	-- These two are methods: stored as plain locals and called without self, every argument
 	-- shifted by one (getDistance(unit) always measured 0, GetUnitIsUnit("player", unit) was always false)
 	local function getDistance(...) return br.functions.range:getDistance(...) end
 	local function GetUnitIsUnit(...) return br.functions.unit:GetUnitIsUnit(...) end
-	local UnitHealth, UnitHealthMax = br._G.UnitHealth, br._G.UnitHealthMax
-	local GetTime = br._G.GetTime
+	local UnitHealth, UnitHealthMax = br.game.UnitHealth, br.game.UnitHealthMax
+	local GetTime = br.game.GetTime
 	local function UnitDebuffID(unit, spellID) return br.functions.aura:UnitDebuffID(unit, spellID) end
 	br.engines.healingEngine.friend = {} -- This is our main Table that the world will see
 	healingEngine.memberSetup = {} -- This is one of our MetaTables that will be the default user/contructor
 	healingEngine.memberSetup.cache = {} -- This is for the cache Table to check against
 	healingEngine.__call = function(_) -- (_, forceRetable, excludePets, onlyInRange) [Not Implemented]
-		local group = br._G.IsInRaid() and "raid" or "party" -- Determining if the UnitID will be raid or party based
-		local groupSize = br._G.IsInRaid() and br._G.GetNumGroupMembers() or br._G.GetNumGroupMembers() - 1 -- If in raid, we check the entire raid. If in party, we remove one from max to account for the player.
+		local group = br.game.IsInRaid() and "raid" or "party" -- Determining if the UnitID will be raid or party based
+		local groupSize = br.game.IsInRaid() and br.game.GetNumGroupMembers() or br.game.GetNumGroupMembers() - 1 -- If in raid, we check the entire raid. If in party, we remove one from max to account for the player.
 		if group == "party" then
 			tinsert(br.engines.healingEngine.friend, healingEngine.memberSetup:new("player"))
 		end -- We are creating a new User for player if in a Group
@@ -52,7 +52,7 @@ if not healingEngine.metaTable1 then
 		class = "NONE"
 	}
 	-- If ever somebody enters or leaves the raid, wipe the entire Table
-	local updateHealingTable = br._G.CreateFrame("frame", nil)
+	local updateHealingTable = br.game.CreateFrame("frame", nil)
 	updateHealingTable:RegisterEvent("GROUP_ROSTER_UPDATE")
 	updateHealingTable:SetScript(
 		"OnEvent",
@@ -60,7 +60,7 @@ if not healingEngine.metaTable1 then
 			-- Track group size changes for buff stability
 			healingEngine.lastGroupSize = healingEngine.currentGroupSize or 0
 			healingEngine.currentGroupSize = #br.engines.healingEngine.friend
-			healingEngine.groupSizeChangeTime = br._G.GetTime()
+			healingEngine.groupSizeChangeTime = br.game.GetTime()
 
 			_G.table.wipe(br.engines.healingEngine.friend)
 			_G.table.wipe(healingEngine.memberSetup.cache)
@@ -75,7 +75,7 @@ if not healingEngine.metaTable1 then
 		if not healingEngine.groupSizeChangeTime then
 			return true -- No changes recorded yet, assume stable
 		end
-		return (br._G.GetTime() - healingEngine.groupSizeChangeTime) >= seconds
+		return (br.game.GetTime() - healingEngine.groupSizeChangeTime) >= seconds
 	end
 	-- This is for those NPC units that need healing. Compare them against our list of Unit ID's
 	local function SpecialHealUnit(tar)
@@ -90,7 +90,7 @@ if not healingEngine.metaTable1 then
 		-- Debuff records have the same shape on every client; stop at the first empty slot
 		local badDebuffs = br.engines.healingEngineCollections.BadDebuffList
 		for i = 1, 40 do
-			local auraInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(tar, i, "HARMFUL")
+			local auraInfo = br.game.C_UnitAuras.GetDebuffDataByIndex(tar, i, "HARMFUL")
 			if not auraInfo then break end
 			if badDebuffs[auraInfo.spellId] ~= nil then
 				return false
@@ -113,9 +113,9 @@ if not healingEngine.metaTable1 then
 	function healingEngine:HealCheck(tar)
 		if
 			(br.functions.unit:GetUnitIsVisible(tar) and br.functions.unit:GetUnitReaction("player", tar) > 4 and not br.functions.unit:GetUnitIsDeadOrGhost(tar) and br.functions.misc:getLineOfSight("player", tar) and br.functions.unit:getCreatureType(tar) and
-				br._G.UnitPhaseReason(tar) == nil) and
-				((br.functions.misc:isPlayer(tar) and br._G.UnitIsConnected(tar) and CheckBadDebuff(tar) and not br._G.UnitIsCharmed(tar) and not br._G.UnitIsOtherPlayersPet(tar)) or
-					((GetUnitIsUnit(tar,"pet") or br._G.UnitIsOtherPlayersPet(tar)) and br.functions.misc:getOptionCheck("Heal Pets")) or
+				br.game.UnitPhaseReason(tar) == nil) and
+				((br.functions.misc:isPlayer(tar) and br.game.UnitIsConnected(tar) and CheckBadDebuff(tar) and not br.game.UnitIsCharmed(tar) and not br.game.UnitIsOtherPlayersPet(tar)) or
+					((GetUnitIsUnit(tar,"pet") or br.game.UnitIsOtherPlayersPet(tar)) and br.functions.misc:getOptionCheck("Heal Pets")) or
 					br.engines.healingEngineCollections.SpecialHealUnitList[tonumber(select(2, br.functions.unit:getGUID(tar)))] ~= nil)
 		 then
 			return true
@@ -141,7 +141,7 @@ if not healingEngine.metaTable1 then
 			local doNotHeal = br.engines.healingEngineCollections.doNotHeal
 			local aura = br.functions.aura
 			for i = 1, 40 do
-				local buff = br._G.C_UnitAuras.GetBuffDataByIndex(o.unit, i, "HELPFUL")
+				local buff = br.game.C_UnitAuras.GetBuffDataByIndex(o.unit, i, "HELPFUL")
 				if not buff then break end
 				if doNotHeal.buffs[buff.spellId] then return 250, 250, 250 end
 			end
@@ -159,7 +159,7 @@ if not healingEngine.metaTable1 then
 				if stacks > 0 and stacks >= toxicBrand then return 250, 250, 250 end
 			end
 			local darkness = doNotHeal.darkness
-			if select(9, br._G.GetInstanceInfo()) == darkness.instance and UnitDebuffID("player", darkness.debuff)
+			if select(9, br.game.GetInstanceInfo()) == darkness.instance and UnitDebuffID("player", darkness.debuff)
 				and not UnitDebuffID("player", darkness.unlessDebuff)
 			then
 				return 250, 250, 250
@@ -168,9 +168,9 @@ if not healingEngine.metaTable1 then
 			if encounter == decaying.encounter then
 				local time_remain = br.functions.DBM:getPulltimer(nil, decaying.spell)
 				if time_remain < br.functions.misc:getOptionValue("Decaying Strike Timer") then
-					for i = 1, br._G.GetObjectCount() do
-						local thisUnit = br._G.GetObjectWithIndex(i)
-						if br.functions.unit:GetObjectID(thisUnit) == decaying.caster and br._G.UnitTarget(thisUnit) ~= nil and br._G.UnitIsUnit(br._G.UnitTarget(thisUnit), o.unit) then
+					for i = 1, br.game.GetObjectCount() do
+						local thisUnit = br.game.GetObjectWithIndex(i)
+						if br.functions.unit:GetObjectID(thisUnit) == decaying.caster and br.game.UnitTarget(thisUnit) ~= nil and br.game.UnitIsUnit(br.game.UnitTarget(thisUnit), o.unit) then
 							return 250, 250, 250
 						end
 					end
@@ -181,29 +181,29 @@ if not healingEngine.metaTable1 then
 				return 250, 250, 250
 			end
 			-- Place out of range players at the end of the list -- replaced range to 40 as we should be using lib range
-			if not br._G.UnitInRange(o.unit) and getDistance(o.unit) > 40 and not GetUnitIsUnit("player", o.unit) then
+			if not br.game.UnitInRange(o.unit) and getDistance(o.unit) > 40 and not GetUnitIsUnit("player", o.unit) then
 				return 250, 250, 250
 			end
 			-- Place Dead players at the end of the list
 			if o.hcRefresh == nil or o.hcRefresh < GetTime() - 1 then
-				local startTime = br._G.debugprofilestop()
+				local startTime = br.game.debugprofilestop()
 				if healingEngine:HealCheck(o.unit) ~= true or UnitHealth(o.unit) == 0 then
 					return 250, 250, 250
 				end
-				br.debug.cpu.healingEngine.HealCheck = br._G.debugprofilestop() - startTime
+				br.debug.cpu.healingEngine.HealCheck = br.game.debugprofilestop() - startTime
 				o.hcRefresh = GetTime()
 			end
 			-- incoming heals
 			local incomingheals
-			if br.functions.misc:getOptionCheck("Incoming Heals") == true and br._G.UnitGetIncomingHeals(o.unit, "player") ~= nil then
-				incomingheals = br._G.UnitGetIncomingHeals(o.unit, "player")
+			if br.functions.misc:getOptionCheck("Incoming Heals") == true and br.game.UnitGetIncomingHeals(o.unit, "player") ~= nil then
+				incomingheals = br.game.UnitGetIncomingHeals(o.unit, "player")
 			else
 				incomingheals = 0
 			end
 			-- absorbs
 			local nAbsorbs
 			if br.functions.misc:getOptionCheck("Ignore Absorbs") ~= true then
-				nAbsorbs = (br._G.UnitGetTotalAbsorbs(o.unit) * 0.25)
+				nAbsorbs = (br.game.UnitGetTotalAbsorbs(o.unit) * 0.25)
 			else
 				nAbsorbs = 0
 			end
@@ -234,7 +234,7 @@ if not healingEngine.metaTable1 then
 			local debugTimerStartTime = GetTime()
 			local hpDebuffs = br.engines.healingEngineCollections.SpecificHPDebuffs
 			for i = 1, 40 do
-				local auraInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(o.unit, i, "HARMFUL")
+				local auraInfo = br.game.C_UnitAuras.GetDebuffDataByIndex(o.unit, i, "HARMFUL")
 				if not auraInfo then break end
 				local debuffID = hpDebuffs[auraInfo.spellId]
 				if debuffID ~= nil then
@@ -267,19 +267,19 @@ if not healingEngine.metaTable1 then
 			local nShortHand = ""
 			local targetGUID = ""
 			if br.functions.unit:GetUnitIsVisible(unit) then
-				targetGUID = br._G.UnitGUID(unit)
-				nShortHand = br._G.UnitGUID(unit):sub(-5)
+				targetGUID = br.game.UnitGUID(unit)
+				nShortHand = br.game.UnitGUID(unit):sub(-5)
 			end
 			return targetGUID, nShortHand
 		end
 		-- Returns unit class
 		function o:GetClass()
-			if br._G.UnitGroupRolesAssigned(o.unit) == "NONE" then
+			if br.game.UnitGroupRolesAssigned(o.unit) == "NONE" then
 				if GetUnitIsUnit("player", o.unit) then
 					return UnitClass("player")
 				end
-				if br.engines.healingEngineCollections.roleTable[br._G.UnitName(o.unit)] ~= nil then
-					return br.engines.healingEngineCollections.roleTable[br._G.UnitName(o.unit)].class
+				if br.engines.healingEngineCollections.roleTable[br.game.UnitName(o.unit)] ~= nil then
+					return br.engines.healingEngineCollections.roleTable[br.game.UnitName(o.unit)].class
 				end
 			else
 				return UnitClass(o.unit)
@@ -287,10 +287,10 @@ if not healingEngine.metaTable1 then
 		end
 		-- return unit role
 		function o:GetRole()
-			if br._G.UnitGroupRolesAssigned(o.unit) == "NONE" then
+			if br.game.UnitGroupRolesAssigned(o.unit) == "NONE" then
 				-- if we already have a role defined we dont scan
-				if br.engines.healingEngineCollections.roleTable[br._G.UnitName(o.unit)] ~= nil then
-					return br.engines.healingEngineCollections.roleTable[br._G.UnitName(o.unit)].role
+				if br.engines.healingEngineCollections.roleTable[br.game.UnitName(o.unit)] ~= nil then
+					return br.engines.healingEngineCollections.roleTable[br.game.UnitName(o.unit)].role
 				else
 ---@diagnostic disable-next-line: undefined-field
 					-- local info = LGIST:GetCachedInfo(br.functions.unit:getGUID(o.unit))
@@ -300,14 +300,14 @@ if not healingEngine.metaTable1 then
 					return ""
 				end
 			else
-				return br._G.UnitGroupRolesAssigned(o.unit)
+				return br.game.UnitGroupRolesAssigned(o.unit)
 			end
 		end
 		-- Position of the member, or 0, 0, 0 when out of sight. Line of sight is a trace, so it's
 		-- rechecked on its own timer (0.5 s in combat, 1 s out); the position is read every update.
 		function o:GetPosition()
 			local now = GetTime()
-			if o.losAt == nil or now > o.losAt + (br._G.UnitAffectingCombat("player") and 0.5 or 1.0) then
+			if o.losAt == nil or now > o.losAt + (br.game.UnitAffectingCombat("player") and 0.5 or 1.0) then
 				o.los = br.functions.misc:getLineOfSight("player", o.unit)
 				o.losAt = now
 			end
@@ -325,8 +325,8 @@ if not healingEngine.metaTable1 then
 		-- Group Number of Player: getUnitGroupNumber(1)
 		function o:getUnitGroupNumber()
 			-- check if in raid
-			if br._G.IsInRaid() and br._G.UnitInRaid(o.unit) ~= nil then
-				return select(3, br._G.GetRaidRosterInfo(br._G.UnitInRaid(o.unit)))
+			if br.game.IsInRaid() and br.game.UnitInRaid(o.unit) ~= nil then
+				return select(3, br.game.GetRaidRosterInfo(br.game.UnitInRaid(o.unit)))
 			end
 			return 0
 		end
@@ -339,23 +339,23 @@ if not healingEngine.metaTable1 then
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
-			local startTime = br._G.debugprofilestop()
+			local startTime = br.game.debugprofilestop()
 			local now = GetTime()
 			-- Facts that rarely change (name, GUID, role, group, class, player or not): once a second
 			if o.factsAt == nil or now - o.factsAt >= 1 or o.guidsh == "" then
 				o.factsAt = now
-				o.name = o.unit and br._G.UnitName(o.unit) or "None"
+				o.name = o.unit and br.game.UnitName(o.unit) or "None"
 				o.guid, o.guidsh = o:nGUID()
 				o.role = o:GetRole()
 				o.subgroup = o:getUnitGroupNumber()
 				o.class = o:GetClass()
-				o.isPlayer = br._G.UnitIsPlayer(o.unit)
+				o.isPlayer = br.game.UnitIsPlayer(o.unit)
 				o.target = tostring(o.unit) .. "target"
 			end
 			-- distance to player
 			o.distance = o:getUnitDistance()
 			-- Unit's threat situation(1-4)
-			o.threat = br._G.UnitThreatSituation(o.unit)
+			o.threat = br.game.UnitThreatSituation(o.unit)
 			-- Unit HP absolute and missing
 			o.hpabs = UnitHealth(o.unit)
 			o.hpmissing = UnitHealthMax(o.unit) - o.hpabs
@@ -421,7 +421,7 @@ if not healingEngine.metaTable1 then
 				local removedTarget = false
 				for j = 1, #br.engines.healingEngine.friend do
 					-- Trying to find a case of the unit inside the Main Table to remove
-					if br.engines.healingEngine.friend[j].unit == SpecialTargets[p] and (br.engines.healingEngine.friend[j].guid ~= 0 and br.engines.healingEngine.friend[j].guid ~= br._G.UnitGUID(SpecialTargets[p])) then
+					if br.engines.healingEngine.friend[j].unit == SpecialTargets[p] and (br.engines.healingEngine.friend[j].guid ~= 0 and br.engines.healingEngine.friend[j].guid ~= br.game.UnitGUID(SpecialTargets[p])) then
 						tremove(br.engines.healingEngine.friend, j)
 						removedTarget = true
 						break

@@ -17,16 +17,16 @@ function InFlight:Add(spellID, destinationGUID, sourceGUID)
     if InFlight.Tracker[spellID] == nil then
         InFlight.Tracker[spellID] = {}
     end
-    InFlight.Tracker[spellID].CastTime = br._G.GetTime()
-    InFlight.Tracker[spellID].HitTime = br._G.GetTime() + InFlight:Hit(spellID, destinationGUID, sourceGUID)
+    InFlight.Tracker[spellID].CastTime = br.game.GetTime()
+    InFlight.Tracker[spellID].HitTime = br.game.GetTime() + InFlight:Hit(spellID, destinationGUID, sourceGUID)
     if destinationGUID == nil then
         return
     end
-    InFlight.Tracker[spellID].Target = br._G.GetObjectWithGUID(destinationGUID)
+    InFlight.Tracker[spellID].Target = br.game.GetObjectWithGUID(destinationGUID)
 end
 
 function InFlight:Check(spellID, destination)
-    if InFlight.Tracker[spellID] and InFlight.Tracker[spellID].HitTime > br._G.GetTime() and (not destination or not InFlight.Tracker[spellID].Target or br.functions.unit:GetUnitIsUnit(InFlight.Tracker[spellID].Target, destination)) then
+    if InFlight.Tracker[spellID] and InFlight.Tracker[spellID].HitTime > br.game.GetTime() and (not destination or not InFlight.Tracker[spellID].Target or br.functions.unit:GetUnitIsUnit(InFlight.Tracker[spellID].Target, destination)) then
         return true
     end
     return false
@@ -37,17 +37,17 @@ function InFlight:Hit(spellID, destinationGUID, sourceGUID)
     if travelTime then return travelTime end
     local speed = listedFor(br.lists.range.projectileSpeed, spellID)
     if destinationGUID == nil or speed == nil then return 0 end
-    local source = sourceGUID and br._G.GetObjectWithGUID(sourceGUID) or "player"
-    local target = br._G.GetObjectWithGUID(destinationGUID)
-    local x1, y1, z1 = br._G.ObjectPosition(source)
-    local x2, y2, z2 = br._G.ObjectPosition(target)
+    local source = sourceGUID and br.game.GetObjectWithGUID(sourceGUID) or "player"
+    local target = br.game.GetObjectWithGUID(destinationGUID)
+    local x1, y1, z1 = br.game.ObjectPosition(source)
+    local x2, y2, z2 = br.game.ObjectPosition(target)
     if x1 == nil or x2 == nil then return 0 end
     return math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2 + (z2 - z1) ^ 2) / speed
 end
 
 function InFlight:Remain(spellID, destination)
     if InFlight:Check(spellID, destination) then
-        return InFlight.Tracker[spellID].HitTime - br._G.GetTime()
+        return InFlight.Tracker[spellID].HitTime - br.game.GetTime()
     end
     return 0
 end

@@ -35,9 +35,9 @@ br.api.talent = function(talent, name, id, allTalents, spellList)
 
     -- Check if ID is a talent and if active spell add to abilities and spell table if not preset.
     local talentFound = false
-    if br._G.IsPlayerSpell(id) or allTalents[id] then
+    if br.game.IsPlayerSpell(id) or allTalents[id] then
         talentFound = true
-        if not br._G.C_Spell.IsSpellPassive(id) and spellList['abilities'][name] == nil then
+        if not br.game.C_Spell.IsSpellPassive(id) and spellList['abilities'][name] == nil then
             spellList['abilities'][name] = id
             spellList[name] = id
         end
@@ -45,8 +45,8 @@ br.api.talent = function(talent, name, id, allTalents, spellList)
     -- No matching talent for listed talent id, report to dev (only for actual specs, not Initial profiles)
     if (not talentFound or allTalents[id] == nil) then
         -- GetSpecialization() only exists in Retail/MoP; guard against nil in TBC/Classic/Wrath
-        if br._G.GetSpecialization then
-            local spec = br._G.GetSpecializationInfo(br._G.GetSpecialization()) or 0
+        if br.game.GetSpecialization then
+            local spec = br.game.GetSpecializationInfo(br.game.GetSpecialization()) or 0
             if spec < 1400 then
                 br.log:warning("No talent found for " .. br.log.highlight(name .. " (" .. id .. ")")
                     .. " in the talent spell list, please notify the profile developer to remove it from the list.")

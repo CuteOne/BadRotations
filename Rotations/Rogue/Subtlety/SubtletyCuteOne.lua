@@ -169,7 +169,7 @@ local function canPickPocket(thisUnit)
     end
 
     -- Get unit GUID
-    local guid = br._G.UnitGUID(thisUnit)
+    local guid = br.game.UnitGUID(thisUnit)
     if not guid then
         return false
     end
@@ -203,7 +203,7 @@ local function canPickPocket(thisUnit)
 end
 
 local function markPickPocketResult(thisUnit, success, lootMsg, errorMsg)
-    local guid = br._G.UnitGUID(thisUnit)
+    local guid = br.game.UnitGUID(thisUnit)
     if not guid then return end
 
     if success then
@@ -241,17 +241,17 @@ local function markPickPocketResult(thisUnit, success, lootMsg, errorMsg)
 end
 
 -- Event handler for Pick Pocket detection
-local pickPocketFrame = br._G.CreateFrame("Frame")
+local pickPocketFrame = br.game.CreateFrame("Frame")
 pickPocketFrame:RegisterEvent("UI_ERROR_MESSAGE")
 pickPocketFrame:RegisterEvent("CHAT_MSG_LOOT")
 pickPocketFrame:RegisterEvent("CHAT_MSG_MONEY")
 pickPocketFrame:SetScript("OnEvent", function(self, event, ...)
     if event == "UI_ERROR_MESSAGE" then
         local errorType, msg = ...
-        local currentTime = br._G.GetTime()
+        local currentTime = br.game.GetTime()
 
         -- DEBUG: Log all errors to see what's coming through
-        local errorString = br._G.GetGameMessageInfo(errorType)
+        local errorString = br.game.GetGameMessageInfo(errorType)
 
         -- DEBUG: Try direct print to avoid br.player.ui issues
         -- pcall(function()
@@ -272,7 +272,7 @@ pickPocketFrame:SetScript("OnEvent", function(self, event, ...)
             -- end)
 
             -- Verify the target is still the same one we tried to Pick Pocket
-            local currentGUID = br._G.UnitGUID("target")
+            local currentGUID = br.game.UnitGUID("target")
             if currentGUID ~= var.pickPocketLastGUID then
                 -- Target changed, ignore this error
                 -- pcall(function()
@@ -306,7 +306,7 @@ pickPocketFrame:SetScript("OnEvent", function(self, event, ...)
         end
     elseif event == "CHAT_MSG_LOOT" or event == "CHAT_MSG_MONEY" then
         local msg = ...
-        local currentTime = br._G.GetTime()
+        local currentTime = br.game.GetTime()
 
         -- DEBUG: Print to see if we're catching money events
         -- pcall(print, "[PP Event] Loot/Money:", event, "Msg:", msg, "CastTime:", var.pickPocketCastTime, "GetTime:", currentTime)
@@ -361,7 +361,7 @@ actionList.PickPocket = function()
         end
 
         -- Get target GUID for tracking
-        local guid = br._G.UnitGUID("target")
+        local guid = br.game.UnitGUID("target")
         if not guid then
             return false
         end
@@ -373,7 +373,7 @@ actionList.PickPocket = function()
                 return true
             end
             -- Clear target and stop
-            br._G.ClearTarget()
+            br.game.ClearTarget()
             ui.debug("[Pick Pocket] Complete - Target cleared")
             return true
         end
@@ -425,7 +425,7 @@ actionList.PickPocket = function()
             if canPickPocket("target") then
                 if cast.able.pickPocket("target") then
                     -- Set timing BEFORE attempting cast so event handler can match the error
-                    var.pickPocketCastTime = br._G.GetTime()
+                    var.pickPocketCastTime = br.game.GetTime()
                     var.pickPocketLastGUID = guid
                     var.pickPocketAttempted[guid] = true
 
@@ -458,8 +458,8 @@ actionList.PickPocket = function()
 
         -- Check if we can and should Pick Pocket
         if canPickPocket("target") and cast.able.pickPocket("target") then
-            local targetGUID = br._G.UnitGUID("target")
-            var.pickPocketCastTime = br._G.GetTime()
+            local targetGUID = br.game.UnitGUID("target")
+            var.pickPocketCastTime = br.game.GetTime()
             var.pickPocketLastGUID = targetGUID
             var.pickPocketAttempted[targetGUID] = true
             if cast.pickPocket("target") then
@@ -1152,7 +1152,7 @@ local function runRotation()
     enemies.get(30)
 
     -- General Vars
-    var.getTime = br._G.GetTime()
+    var.getTime = br.game.GetTime()
     var.stealthed = isStealthed()
 
     -- Reset opener flag when out of combat

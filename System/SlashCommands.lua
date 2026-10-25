@@ -15,7 +15,7 @@ function slashCommands:SlashCommandHelp(cmd, msg)
 		for i = 1, #br.slashCommands.commandHelp do
 			local command = br.slashCommands.commandHelp[i]
 			if i == 1 then
-				br._G.print(tostring(command))
+				br.game.print(tostring(command))
 			else
 				br.log:more(tostring(command))
 			end
@@ -85,7 +85,7 @@ local function toggleRange(name, index1, index2)
 			end
 		end
 	end
-	br._G.print("No toggle found with name: " .. tostring(name))
+	br.game.print("No toggle found with name: " .. tostring(name))
 end
 
 local function getStringIndex(string, index)
@@ -101,16 +101,16 @@ local function getStringIndex(string, index)
 end
 
 local function updateRate()
-	br._G.print("Current Update Rate: " .. br.core:getUpdateRate())
+	br.game.print("Current Update Rate: " .. br.core:getUpdateRate())
 end
 
 local function forewardDisengage() -- from Stinky Twitch
-	local s = br._G.C_Spell.GetSpellCooldown(781)
+	local s = br.game.C_Spell.GetSpellCooldown(781)
 	if s and s.startTime == 0 then
-		br._G.FaceDirection(br._G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true)
-		br._G.CastSpellByID(781)
-		br._G.C_Timer.After(0.05,
-			function() br._G.FaceDirection(br._G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true) end)
+		br.game.FaceDirection(br.game.mod(br.game.ObjectFacing("player") + math.pi, math.pi * 2), true)
+		br.game.CastSpellByID(781)
+		br.game.C_Timer.After(0.05,
+			function() br.game.FaceDirection(br.game.mod(br.game.ObjectFacing("player") + math.pi, math.pi * 2), true) end)
 	end
 end
 
@@ -134,7 +134,7 @@ function slashCommands:slashHelpList()
 	slashCommands:SlashCommandHelp("br target", "Shows the enemy BR focuses on and why: each candidate's score by part (also written to Target.log)")
 	slashCommands:SlashCommandHelp("br log", "Shows BR's recent chat lines in a window to copy from (also in Chat.log)")
 	slashCommands:SlashCommandHelp("br range [watch|stop]", "Checks BR's range rules against the game's for your target; watch prints each time they change")
-	if select(2, br._G.UnitClass("player")) == "HUNTER" then
+	if select(2, br.game.UnitClass("player")) == "HUNTER" then
 		slashCommands:SlashCommandHelp("br disengage", "Assign to macro to Forward Disengage.")
 	end
 	slashCommands:SlashCommandHelp("br healing", "Adds/Removes Target from Healing List")
@@ -187,14 +187,14 @@ local function handler(message, editbox)
 				br.data.blackList = {}
 			end
 			if br.functions.unit:GetUnitExists("mouseover") then
-				local mouseoverName = br._G.UnitName("mouseover")
-				local mouseoverGUID = br._G.UnitGUID("mouseover")
+				local mouseoverName = br.game.UnitName("mouseover")
+				local mouseoverGUID = br.game.UnitGUID("mouseover")
 				-- Now we're trying to find that unit in the blackList table to remove
 				local found
 				for k, v in pairs(br.data.blackList) do
 					-- Now we're trying to find that unit in the Cache table to remove
-					if br._G.UnitGUID("mouseover") == v.guid then
-						br._G.tremove(br.data.blackList, k)
+					if br.game.UnitGUID("mouseover") == v.guid then
+						br.game.tremove(br.data.blackList, k)
 						br.log:say("Blacklist", br.log.highlight(mouseoverName) .. " removed")
 						found = true
 						--blackList[k] = nil
@@ -202,7 +202,7 @@ local function handler(message, editbox)
 				end
 				if not found then
 					br.log:say("Blacklist", br.log.highlight(mouseoverName) .. " added")
-					br._G.tinsert(br.data.blackList, { guid = mouseoverGUID, name = mouseoverName })
+					br.game.tinsert(br.data.blackList, { guid = mouseoverGUID, name = mouseoverName })
 				end
 			end
 		else
@@ -227,7 +227,7 @@ local function handler(message, editbox)
 				br.log.session:toggleChanged("Pause", 0)
 			end
 		else
-			br._G.print(
+			br.game.print(
 				"Invalid Option for: |cFFFF0000" ..
 				msg1 ..
 				"|r try " --[["|cffFFDD11 /br pause hold |r - Pauses while held (via macro) or ]] ..
@@ -250,23 +250,23 @@ local function handler(message, editbox)
 	elseif msg1 == "queue" then
 		-- Queue
 		if br.player == nil or br.player.queue == nil then
-			br._G.print("The queue is available once a rotation is loaded.")
+			br.game.print("The queue is available once a rotation is loaded.")
 		elseif msg2 == "clear" then
 			if br.player.queue == nil then
-				br._G.print("Queue Already Cleared")
+				br.game.print("Queue Already Cleared")
 			end
 			if #br.player.queue == 0 then
-				br._G.print("Queue Already Cleared")
+				br.game.print("Queue Already Cleared")
 			end
 			if #br.player.queue > 0 then
 				br.player.queue = {}
-				br._G.print("Cleared Queue")
+				br.game.print("Cleared Queue")
 			end
 		elseif msg2 == "add" then
 			if msg3 == nil then
-				br._G.print("No Spell Provided to add to Queue.")
+				br.game.print("No Spell Provided to add to Queue.")
 			elseif msg3 == "help" then
-				br._G.print(
+				br.game.print(
 					"Queue Add Conditions\n" ..
 					"Example: /br queue add 123456 player aoe 3 8\n\n" ..
 					"123456 = Spell ID, this is required for queue.\n" ..
@@ -300,7 +300,7 @@ local function handler(message, editbox)
 					br.log:say("Queue", br.log.highlight(spellName) .. " not added, cooldown greater than gcd")
 				else
 					if #br.player.queue == 0 and notOnCD then
-						br._G.tinsert(
+						br.game.tinsert(
 							br.player.queue,
 							{
 								id = spellId,
@@ -318,7 +318,7 @@ local function handler(message, editbox)
 								br.log:say("Queue", br.log.highlight(spellName) .. " is already queued")
 								break
 							elseif notOnCD then
-								br._G.tinsert(
+								br.game.tinsert(
 									br.player.queue,
 									{
 										id = spellId,
@@ -338,14 +338,14 @@ local function handler(message, editbox)
 			end
 		elseif msg2 == "remove" then
 			if msg3 == nil then
-				br._G.print("No Spell Provided to remove from Queue.")
+				br.game.print("No Spell Provided to remove from Queue.")
 			else
 				local spellName, spellId = br.functions.spell:getName(msg3), br.functions.spell:getSpellID(msg3)
 				local removedSpell = false
 				if #br.player.queue ~= 0 then
 					for i = 1, #br.player.queue do
 						if spellId == br.player.queue[i].id then
-							br._G.tremove(br.player.queue, i)
+							br.game.tremove(br.player.queue, i)
 							br.log:say("Queue", "Removed " .. br.log.highlight(spellName))
 							removedSpell = true
 							break
@@ -378,8 +378,8 @@ local function handler(message, editbox)
 			unit = "target"
 		end
 		if unit then
-			local unitName = br._G.UnitName(unit)
-			local unitGUID = br._G.UnitGUID(unit)
+			local unitName = br.game.UnitName(unit)
+			local unitGUID = br.game.UnitGUID(unit)
 			if br.engines.healingEngineCollections.SpecialHealUnitList[unitGUID] ~= nil then
 				br.engines.healingEngineCollections.SpecialHealUnitList[unitGUID] = nil
 				br.log:say("Healing", br.log.highlight(unitName) .. " removed from the special heal list")
@@ -388,12 +388,12 @@ local function handler(message, editbox)
 				br.engines.healingEngineCollections.SpecialHealUnitList[unitGUID] = unitName
 			end
 		else
-			br._G.print("No Target Found.  Please Select a Target Before Adding")
+			br.game.print("No Target Found.  Please Select a Target Before Adding")
 		end
 	elseif msg1 == "baddebuff" then
 		-- Do Not Heal debuff list
 		if msg2 == nil then
-			br._G.print("No Spell Provided to Add")
+			br.game.print("No Spell Provided to Add")
 		else
 			local spellName, spellId = br.functions.spell:getName(msg2), br.functions.spell:getSpellID(msg2)
 			if spellName == nil then
@@ -410,7 +410,7 @@ local function handler(message, editbox)
 		end
 	elseif msg == "disengage" then
 		-- Forward Disengage
-		if br._G.IsLeftShiftKeyDown() then
+		if br.game.IsLeftShiftKeyDown() then
 			br.functions.cast:castByName(br.functions.spell:getName(781))
 		else
 			forewardDisengage()
@@ -443,7 +443,7 @@ local function handler(message, editbox)
 			end
 		elseif msg2 == nil then
 			-- Show UI Options
-			br._G.print(
+			br.game.print(
 				"Please provide one of the following options with showUI\n" ..
 				"|cFFFF0000 main |r - Shows/Hides main bot options\n" ..
 				"|cFFFF0000 profile |r - Shows/Hides profile options\n" ..
@@ -459,7 +459,7 @@ local function handler(message, editbox)
 		br.log:showRecent()
 	elseif msg1 == "target" then
 		-- Slash handlers run tainted; timer callbacks run protected (secret values readable), as /br why
-		br._G.C_Timer.After(0, function() br.debug.target:report() end)
+		br.game.C_Timer.After(0, function() br.debug.target:report() end)
 	elseif msg1 == "why" then
 		-- Why did BR last refuse this spell? Covers cast.able checks, which never print.
 		local spellText = message:match("^%s*%S+%s+(.-)%s*$")
@@ -470,19 +470,19 @@ local function handler(message, editbox)
 		-- Slash handlers run outside BR's protected scripts, where Forever hides values
 		-- such as movement speed (which distance reads); timer callbacks run protected,
 		-- so report from one on the next frame.
-		br._G.C_Timer.After(0, function()
+		br.game.C_Timer.After(0, function()
 			local entry = br.functions.cast:getRefusal(spellText)
 			if entry == nil then
 				br.log:say("Why", "No cast checks recorded for " .. br.log.highlight(spellText) ..
 					" yet. The profile hasn't asked about it, or the name doesn't match.")
 				return
 			end
-			local now = br._G.GetTime()
+			local now = br.game.GetTime()
 			local label = tostring(entry.name) .. " (" .. tostring(entry.spellID) .. ")"
 			if entry.refusedAt then
 				local detail = entry.detail and (": " .. tostring(entry.detail)) or ""
 				-- A detail made from a secret value would hide the whole line when printed
-				if br._G.issecretvalue and (br._G.issecretvalue(entry.detail) or br._G.issecretvalue(detail)) then
+				if br.game.issecretvalue and (br.game.issecretvalue(entry.detail) or br.game.issecretvalue(detail)) then
 					detail = ": (details are a value the game keeps secret)"
 				end
 				br.log:say("Why", string.format("%s last refused %.1fs ago — %s%s",
@@ -503,7 +503,7 @@ local function handler(message, editbox)
 			local function describe(thisUnit)
 				if thisUnit == nil then return "none" end
 				if not br.functions.unit:GetUnitExists(thisUnit) then return tostring(thisUnit) .. " (gone)" end
-				return string.format("%s dist %.2f facing %s visible %s", tostring(br._G.UnitName(thisUnit)),
+				return string.format("%s dist %.2f facing %s visible %s", tostring(br.game.UnitName(thisUnit)),
 					br.functions.range:getDistance(thisUnit) or -1,
 					tostring(br.functions.unit:getFacing("player", thisUnit)),
 					tostring(br.functions.cast:isUnitVisible(thisUnit)))
@@ -515,7 +515,7 @@ local function handler(message, editbox)
 				local misc = br.functions.misc
 				-- One secret value (Forever hides some reads) makes the whole joined line secret, so
 				-- each value is checked on its own, before and after tostring, and shown as <secret>
-				local isSecret = br._G.issecretvalue
+				local isSecret = br.game.issecretvalue
 				local function try(fn)
 					local ok, value = pcall(fn)
 					if not ok then return "error" end
@@ -535,7 +535,7 @@ local function handler(message, editbox)
 					.. " | enemyList " .. try(function() return misc:enemyListCheck("target") end)
 					.. " | threat " .. try(function() return br.functions.combat:hasThreat("target") end)
 					.. " | safe " .. try(function() return br.engines.enemiesEngineFunctions:isSafeToAttack("target") end)
-					.. " | tapDenied " .. try(function() return br._G.UnitIsTapDenied("target") end)
+					.. " | tapDenied " .. try(function() return br.game.UnitIsTapDenied("target") end)
 					.. " | CC'd " .. try(function() return misc:isLongTimeCCed("target") end)
 					.. " | reaction " .. try(function() return br.functions.unit:GetUnitReaction("target", "player") end))
 			end
@@ -554,7 +554,7 @@ local function handler(message, editbox)
 		end)
 	elseif msg1 == "clean" or msg1 == "cleansettings" then
 		if br.ui and br.ui.settingsManagement then
-			br._G.print("Manually cleaning orphaned settings...")
+			br.game.print("Manually cleaning orphaned settings...")
 			br.ui.settingsManagement:cleanSettings()
 		else
 			br.log:error("Settings management not available")
@@ -569,12 +569,12 @@ SLASH_dumpInfo1 = "/dumpinfo"
 local function dumpInfo(msg, editbox)
 	-- find unit in our engines
 	for k, _ in pairs(br.engines.enemiesEngine.enemy) do
-		if br.engines.enemiesEngine.enemy[k].guid == br._G.UnitGUID("target") then
+		if br.engines.enemiesEngine.enemy[k].guid == br.game.UnitGUID("target") then
 			_G.targetInfo = {}
-			_G.targetInfo.name = br._G.UnitName("target")
+			_G.targetInfo.name = br.game.UnitName("target")
 			local thisUnit = br.engines.enemiesEngine.enemy[k].unit
 			_G.targetInfo.unitID = thisUnit.id
-			local auras = br._G.C_UnitAuras
+			local auras = br.game.C_UnitAuras
 			local function auraName(info) return info and info.name end
 			local buff1 = auraName(auras.GetBuffDataByIndex("target", 1))
 			local buff2 = auraName(auras.GetBuffDataByIndex("target", 2))
@@ -592,12 +592,12 @@ local function dumpInfo(msg, editbox)
 			if deBuff2 then
 				_G.targetInfo.deBuff2 = deBuff2
 			end
-			br._G.RunMacroText("/dump targetInfo")
+			br.game.RunMacroText("/dump targetInfo")
 			_G.targetInfo = {}
 			break
 		end
 	end
 end
 
-br._G.SlashCmdList["BR"] = handler
-br._G.SlashCmdList.dumpInfo = dumpInfo
+br.game.SlashCmdList["BR"] = handler
+br.game.SlashCmdList.dumpInfo = dumpInfo

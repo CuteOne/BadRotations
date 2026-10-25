@@ -5,19 +5,19 @@ local tooltips = br.ui.tooltips
 ------------------------------------------------------------------------------------------------------------------------
 -- idTip by Silverwind
 local hooksecurefunc, select, UnitGUID, tonumber, strfind =
-	br._G.hooksecurefunc,
-	br._G.select,
-	br._G.UnitGUID,
-	br._G.tonumber,
-	br._G.strfind
+	br.game.hooksecurefunc,
+	br.game.select,
+	br.game.UnitGUID,
+	br.game.tonumber,
+	br.game.strfind
 
 -- Runs callback(tooltip, data) whenever a tooltip of this kind is shown: through the tooltip's old
 -- OnTooltipSet* script where it still has it, else TooltipDataProcessor (newer clients drop the
 -- scripts, and hooking a missing script errors). onlyThisTooltip limits the TooltipDataProcessor
 -- hook to that one tooltip frame (item hooks); spell and unit hooks fire for every tooltip.
 local function onTooltip(dataType, scriptName, tooltip, callback, onlyThisTooltip)
-	local processor = br._G.TooltipDataProcessor
-	local dataTypes = br._G.Enum and br._G.Enum.TooltipDataType
+	local processor = br.game.TooltipDataProcessor
+	local dataTypes = br.game.Enum and br.game.Enum.TooltipDataType
 	if tooltip and tooltip.HasScript and tooltip:HasScript(scriptName) then
 		tooltip:HookScript(scriptName, function(self) callback(self) end)
 	elseif processor and processor.AddTooltipPostCall and dataTypes then
@@ -80,8 +80,8 @@ local function onSetHyperlink(self, link)
 		addLine(self, id, types.item)
 	end
 end
-hooksecurefunc(br._G.ItemRefTooltip, "SetHyperlink", onSetHyperlink)
-hooksecurefunc(br._G.GameTooltip, "SetHyperlink", onSetHyperlink)
+hooksecurefunc(br.game.ItemRefTooltip, "SetHyperlink", onSetHyperlink)
+hooksecurefunc(br.game.GameTooltip, "SetHyperlink", onSetHyperlink)
 -- The spell ID of an aura tooltip (getData: a br.api.wow aura reader), or nil when there's no aura
 -- or the ID isn't a value BR may use
 local function auraSpellID(getData, ...)
@@ -93,9 +93,9 @@ end
 for method, getData in pairs({ SetUnitBuff = "GetBuffDataByIndex", SetUnitDebuff = "GetDebuffDataByIndex",
 	SetUnitAura = "GetAuraDataByIndex" }) do
 	-- SetUnitAura is the Shadowlands-era script point; other clients only have SetUnitBuff/SetUnitDebuff
-	if br._G.GameTooltip[method] then
-		hooksecurefunc(br._G.GameTooltip, method, function(self, ...)
-			local id = auraSpellID(br._G.C_UnitAuras[getData], ...)
+	if br.game.GameTooltip[method] then
+		hooksecurefunc(br.game.GameTooltip, method, function(self, ...)
+			local id = auraSpellID(br.game.C_UnitAuras[getData], ...)
 			if id then
 				addLine(self, id, types.spell)
 			end
@@ -107,19 +107,19 @@ hooksecurefunc(
 	function(link, ...)
 		local id = tonumber(link:match("spell:(%d+)"))
 		if id then
-			addLine(br._G.ItemRefTooltip, id, types.spell)
+			addLine(br.game.ItemRefTooltip, id, types.spell)
 		end
 	end
 )
 -- Spell tooltips
-onTooltip("Spell", "OnTooltipSetSpell", br._G.GameTooltip, function(tooltip, data)
+onTooltip("Spell", "OnTooltipSetSpell", br.game.GameTooltip, function(tooltip, data)
 	local id = data and data.id
 	if not id and tooltip.GetSpell then id = select(2, tooltip:GetSpell()) end
 	if id then addLine(tooltip, id, types.spell) end
 end)
 -- NPCs
 local function unitTooltipHandler(tooltip)
-	if br._G.C_PetBattles and br._G.C_PetBattles.IsInBattle and br._G.C_PetBattles.IsInBattle() then
+	if br.game.C_PetBattles and br.game.C_PetBattles.IsInBattle and br.game.C_PetBattles.IsInBattle() then
 		return
 	end
 
@@ -141,11 +141,11 @@ function tooltips:targetValidationDebugHandler(tooltip)
 	if not br.functions.misc:isChecked("Target Validation Debug") then
 		return
 	end
-	if br._G.C_PetBattles and br._G.C_PetBattles.IsInBattle and br._G.C_PetBattles.IsInBattle() then
+	if br.game.C_PetBattles and br.game.C_PetBattles.IsInBattle and br.game.C_PetBattles.IsInBattle() then
 		return
 	end
 	-- Validation needs the unlocker's object functions
-	if not (br.unlocked and br._G.GetObjectCount ~= nil) then
+	if not (br.unlocked and br.game.GetObjectCount ~= nil) then
 		return
 	end
 	local unit = select(2, tooltip:GetUnit())
@@ -154,7 +154,7 @@ function tooltips:targetValidationDebugHandler(tooltip)
 		return
 	end
 	-- Only non-player units (or charmed/mind controlled players)
-	if unitGUID:match("%a+") == "Player" and not br._G.UnitIsCharmed(unit) then
+	if unitGUID:match("%a+") == "Player" and not br.game.UnitIsCharmed(unit) then
 		return
 	end
 	local valid, reason = br.functions.misc:isValidUnit(unitGUID)
@@ -177,8 +177,8 @@ function tooltips:targetValidationDebugHandler(tooltip)
 end
 
 -- Unit tooltips
-onTooltip("Unit", "OnTooltipSetUnit", br._G.GameTooltip, unitTooltipHandler)
-onTooltip("Unit", "OnTooltipSetUnit", br._G.GameTooltip, function(tooltip) pcall(tooltips.targetValidationDebugHandler, tooltips, tooltip) end)
+onTooltip("Unit", "OnTooltipSetUnit", br.game.GameTooltip, unitTooltipHandler)
+onTooltip("Unit", "OnTooltipSetUnit", br.game.GameTooltip, function(tooltip) pcall(tooltips.targetValidationDebugHandler, tooltips, tooltip) end)
 -- Items
 local function attachItemTooltip(self)
 	if (self == GameTooltip or self == _G.ItemRefTooltip) then
@@ -193,5 +193,5 @@ local function attachItemTooltip(self)
 end
 
 -- Item tooltips
-onTooltip("Item", "OnTooltipSetItem", br._G.GameTooltip, attachItemTooltip, true)
-onTooltip("Item", "OnTooltipSetItem", br._G.ItemRefTooltip, attachItemTooltip, true)
+onTooltip("Item", "OnTooltipSetItem", br.game.GameTooltip, attachItemTooltip, true)
+onTooltip("Item", "OnTooltipSetItem", br.game.ItemRefTooltip, attachItemTooltip, true)

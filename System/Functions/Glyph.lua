@@ -5,8 +5,8 @@ br.functions.glyph = br.functions.glyph or {}
 local glyph = br.functions.glyph
 
 function glyph:getSocketCount()
-    if type(br._G.GetNumGlyphSockets) == "function" then
-        local n = br._G.GetNumGlyphSockets()
+    if type(br.game.GetNumGlyphSockets) == "function" then
+        local n = br.game.GetNumGlyphSockets()
         if type(n) == "number" and n > 0 then
             return n
         end
@@ -23,7 +23,7 @@ function glyph:hasGlyph(glyphSpellId)
     local socketCount = self:getSocketCount()
     for i = 1, socketCount do
         -- Historically, socket info includes the current glyph spell ID in either the 4th or 6th return value.
-        local _, _, _, glyphId1, _, glyphId2 = br._G.GetGlyphSocketInfo(i)
+        local _, _, _, glyphId1, _, glyphId2 = br.game.GetGlyphSocketInfo(i)
         if glyphId1 == glyphSpellId or glyphId2 == glyphSpellId then
             return true
         end
@@ -34,5 +34,5 @@ end
 
 -- Defensive wrapper: retail clients may not support classic glyph APIs.
 function glyph:isAvailable()
-    return type(br._G.GetGlyphSocketInfo) == "function"
+    return type(br.game.GetGlyphSocketInfo) == "function"
 end

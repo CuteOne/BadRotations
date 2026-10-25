@@ -9,9 +9,9 @@ local lastIsValidUnitCleanup = 0
 
 -- True when an enemy other than Unit is in combat (with the player or their group)
 local function othersFighting(Unit)
-	local pointer = br._G.ObjectPointer(Unit)
+	local pointer = br.game.ObjectPointer(Unit)
 	for other, record in pairs(br.engines.enemiesEngine.enemy) do
-		if other ~= pointer and br._G.UnitAffectingCombat(record.unit or other) then return true end
+		if other ~= pointer and br.game.UnitAffectingCombat(record.unit or other) then return true end
 	end
 	return false
 end
@@ -19,7 +19,7 @@ end
 -- distance: the unit's distance from the player if the caller has just measured it
 -- Other players count as enemies while the player, or they, have one of the unitRules debuffs
 local function isAttackablePlayer(Unit)
-	if not br._G.UnitIsPlayer(Unit) then return false end
+	if not br.game.UnitIsPlayer(Unit) then return false end
 	local rules = br.lists.unitRules
 	for _, debuff in ipairs(rules.attackPlayersWhilePlayerHas) do
 		if br.functions.aura:UnitDebuffID("player", debuff) then return true end
@@ -41,19 +41,19 @@ function misc:enemyListCheck(Unit, distance)
 	distance = distance or br.functions.range:getDistance(Unit, "player")
 	if not unitFunctions:GetObjectExists(Unit) then return false, "Doesn't exist" end
 	if unitFunctions:GetUnitIsDeadOrGhost(Unit) then return false, "Dead or Ghost" end
-	if not br._G.UnitCanAttack("player", Unit) then return false, "Cannot Attack" end
-	if not (br._G.UnitHealth(Unit) > 0) then return false, "No Health" end
+	if not br.game.UnitCanAttack("player", Unit) then return false, "Cannot Attack" end
+	if not (br.game.UnitHealth(Unit) > 0) then return false, "No Health" end
 	if not (distance < 50) then return false, "Too Far (50 yd or more)" end
 	if unitFunctions:isCritter(Unit) then return false, "Is Critter" end
 	if unitFunctions:GetUnitIsFriend(Unit, "player")
-		and not (misc:isChecked("Attack MC Targets") and br._G.UnitIsCharmed(Unit))
+		and not (misc:isChecked("Attack MC Targets") and br.game.UnitIsCharmed(Unit))
 	then
 		return false, "Is Friendly (not charmed, or Attack MC Targets is off)"
 	end
 	if unitFunctions:GetUnitIsUnit(Unit, "pet") then return false, "Is Your Pet" end
 	-- Made by the player, except quest NPCs that turn hostile (like Peak of Serenity monks)
 	-- UnitReaction: 1=Hated, 2=Hostile, 3=Unfriendly, 4=Neutral, 5+=Friendly
-	if br._G.UnitCreator(Unit) == br._G.ObjectPointer("player") and (br._G.UnitReaction(Unit, "player") or 5) >= 4 then
+	if br.game.UnitCreator(Unit) == br.game.ObjectPointer("player") and (br.game.UnitReaction(Unit, "player") or 5) >= 4 then
 		return false, "Created/Summoned by You"
 	end
 	local ownPet = br.lists.unitRules.ownPets[unitFunctions:GetObjectID(Unit)]
@@ -61,10 +61,10 @@ function misc:enemyListCheck(Unit, distance)
 	-- Line of sight is checked last (expensive), and only for units 15 yd or more away that aren't
 	-- in combat: 15-40 yd always (pre-combat prowl/stealth decisions need it), beyond 40 yd only when
 	-- the unit was damaged or targets the player; any other unit beyond 40 yd doesn't count
-	if distance >= 15 and not br._G.UnitAffectingCombat(Unit) then
+	if distance >= 15 and not br.game.UnitAffectingCombat(Unit) then
 		if distance > 40 then
 			local damaged = br.engines.enemiesEngine.damaged
-			if not ((damaged and damaged[br._G.ObjectPointer(Unit)] ~= nil) or misc:isTargeting(Unit)) then
+			if not ((damaged and damaged[br.game.ObjectPointer(Unit)] ~= nil) or misc:isTargeting(Unit)) then
 				return false, "Over 40 yd, not in combat, not damaged or targeting you"
 			end
 		end
@@ -79,8 +79,8 @@ function misc:hasTank()
 	if #br.engines.healingEngine.friend == 1 then return false end
 	for i = 1, #br.engines.healingEngine.friend do
 		local thisUnit = br.engines.healingEngine.friend[i].unit
-		if br._G.UnitGroupRolesAssigned(thisUnit) == "TANK"
-			and br.functions.range:getDistance(thisUnit) < 40 and br._G.UnitIsPlayer(thisUnit)
+		if br.game.UnitGroupRolesAssigned(thisUnit) == "TANK"
+			and br.functions.range:getDistance(thisUnit) < 40 and br.game.UnitIsPlayer(thisUnit)
 		then
 			return true
 		end
@@ -117,7 +117,7 @@ function misc:isLongTimeCCed(Unit)
 	local longTimeCC = br.lists.longCC
 	local feared, rooted = false, false
 	for i = 1, 40 do
-		local auraInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(Unit, i)
+		local auraInfo = br.game.C_UnitAuras.GetDebuffDataByIndex(Unit, i)
 		if not auraInfo then break end
 		local kind = longTimeCC[tonumber(auraInfo.spellId)]
 		if kind == true then return "cc" end
@@ -131,10 +131,10 @@ function misc:isPlayer(Unit)
 	if br.functions.unit:GetUnitExists(Unit) ~= true then
 		return false
 	end
-	if br._G.UnitIsPlayer(Unit) == true then
+	if br.game.UnitIsPlayer(Unit) == true then
 		return true
-	elseif br._G.UnitIsPlayer(Unit) ~= true then
-		if br.lists.unitRules.provingGrounds[tonumber(string.match(br._G.UnitGUID(Unit), "-(%d+)-%x+$"))] ~= nil then
+	elseif br.game.UnitIsPlayer(Unit) ~= true then
+		if br.lists.unitRules.provingGrounds[tonumber(string.match(br.game.UnitGUID(Unit), "-(%d+)-%x+$"))] ~= nil then
 			return true
 		end
 	else
@@ -147,13 +147,13 @@ function misc:isTargeting(Unit, MatchUnit)
 	if thisUnit == nil then
 		return false
 	end
-	local unitTarget = br._G.UnitTarget(thisUnit)
+	local unitTarget = br.game.UnitTarget(thisUnit)
 	if unitTarget == nil then
 		return false
 	end
 	-- UnitIsUnit: unlockers hand UnitTarget back as a pointer, GUID or token, which doesn't always
 	-- equal ObjectPointer
-	return br._G.UnitIsUnit(unitTarget, MatchUnit or "player") and true or false
+	return br.game.UnitIsUnit(unitTarget, MatchUnit or "player") and true or false
 end
 
 -- Caches an isValidUnit answer by GUID and returns it
@@ -169,8 +169,8 @@ function misc:isValidUnit(Unit)
 		return false, "No unit"
 	end
 
-	local now = br._G.GetTime()
-	local guid = br._G.UnitGUID(Unit)
+	local now = br.game.GetTime()
+	local guid = br.game.UnitGUID(Unit)
 
 	-- PRIORITY: Units in damaged table bypass most validation checks
 	-- These are units actively in combat with our group (attacking or being attacked)
@@ -178,7 +178,7 @@ function misc:isValidUnit(Unit)
 	-- damaged table keys are pointers from GetObjectWithGUID()
 	-- damaged table values are unitSetup objects where .unit is also the pointer
 	if br.engines.enemiesEngine.damaged then
-		local unitPointer = br._G.ObjectPointer(Unit)
+		local unitPointer = br.game.ObjectPointer(Unit)
 		-- Direct pointer lookup - ObjectPointer() should match GetObjectWithGUID() for same unit
 		if unitPointer and br.engines.enemiesEngine.damaged[unitPointer] ~= nil then
 			return true
@@ -195,13 +195,13 @@ function misc:isValidUnit(Unit)
 		end
 		local cached = isValidUnitCache[guid]
 		if cached then
-			local ttl = br._G.UnitAffectingCombat("player") and 0.05 or 0.10
+			local ttl = br.game.UnitAffectingCombat("player") and 0.05 or 0.10
 			if now - cached.time < ttl then return cached.value, cached.reason end
 		end
 	end
 
 	-- Calculate all conditions once
-	local unitPointer = br._G.ObjectPointer(Unit)
+	local unitPointer = br.game.ObjectPointer(Unit)
 	local hostileOnly = misc:isChecked("Hostiles Only")
 	local playerTarget = br.functions.unit:GetUnitIsUnit(Unit, "target")
 	local reaction = br.functions.unit:GetUnitReaction(Unit, "player") or 10
@@ -227,7 +227,7 @@ function misc:isValidUnit(Unit)
 	end
 	local burnUnit = misc:getOptionCheck("Forced Burn") and br.engines.enemiesEngineFunctions:isBurnTarget(Unit) > 0
 	local isCC = misc:getOptionCheck("Don't break CCs") and misc:isCCProtected(Unit) or false
-	local mcCheck = (misc:isChecked("Attack MC Targets") and (not br.functions.unit:GetUnitIsFriend(Unit, "player") or (br._G.UnitIsCharmed(Unit) and br._G.UnitCanAttack("player", Unit))))
+	local mcCheck = (misc:isChecked("Attack MC Targets") and (not br.functions.unit:GetUnitIsFriend(Unit, "player") or (br.game.UnitIsCharmed(Unit) and br.game.UnitCanAttack("player", Unit))))
 		or not br.functions.unit:GetUnitIsFriend(Unit, "player")
 
 	-- Early exit for PvP debuffs (special case)
@@ -256,7 +256,7 @@ function misc:isValidUnit(Unit)
 	if dummyEligible or burnUnit then return rememberValid(guid, now, true) end
 
 	-- A tapped unit counts only once the group has damaged it, and then skips the safety and reaction checks
-	local isTapped = br._G.UnitIsTapDenied(Unit)
+	local isTapped = br.game.UnitIsTapDenied(Unit)
 	if not (isTapped and br.engines.enemiesEngine.damaged[unitPointer] ~= nil) then
 		if isTapped then return rememberValid(guid, now, false, "Tap Denied (you haven't damaged it)") end
 		if not br.engines.enemiesEngineFunctions:isSafeToAttack(Unit) then
@@ -300,6 +300,6 @@ function misc:setEnemiesVariable(self, unit, range, checkNoCombat, facing, type,
 	end
 	if checkNoCombat then insertTable = insertTable .. "nc" end -- Ex: enemies.yards8tnc (returns all units around target in 8yrds)
 	if facing then insertTable = insertTable .. "f" end         -- Ex: enemies.yards8tncf (returns all units the target is facing in 8yrds)
-	if self.enemies[insertTable] == nil then self.enemies[insertTable] = {} else br._G.wipe(self.enemies[insertTable]) end
+	if self.enemies[insertTable] == nil then self.enemies[insertTable] = {} else br.game.wipe(self.enemies[insertTable]) end
 	if count > 0 then br.functions.custom:insertTableIntoTable(self.enemies[insertTable], table) end
 end

@@ -30,7 +30,7 @@ if br.api == nil then br.api = {} end
 -- @field 19 = essence
 
 br.api.power = function(power,powerType,powerIndex)
-    local isDKRunes = select(2,br._G.UnitClass("player")) == "DEATHKNIGHT" and powerIndex == 5
+    local isDKRunes = select(2,br.game.UnitClass("player")) == "DEATHKNIGHT" and powerIndex == 5
     local isDestruction = br.loader.selectedSpecID == 267 and powerIndex == 7
 
     --- Gets the amount of specified power until max is reached
@@ -50,8 +50,8 @@ br.api.power = function(power,powerType,powerIndex)
         end
         -- Destruction Warlocks
         if isDestruction then
-            local shardPower = br._G.UnitPower("player", br._G.Enum.PowerType.SoulShards, true)
-            local shardModifier = br._G.UnitPowerDisplayMod(br._G.Enum.PowerType.SoulShards)
+            local shardPower = br.game.UnitPower("player", br.game.Enum.PowerType.SoulShards, true)
+            local shardModifier = br.game.UnitPowerDisplayMod(br.game.Enum.PowerType.SoulShards)
             local fragmentCount = (shardModifier ~= 0) and (shardPower / shardModifier) or 0
             return (shardPower + fragmentCount)/10
         end
@@ -98,7 +98,7 @@ br.api.power = function(power,powerType,powerIndex)
     -- --- Function to calculate or fetch power based on `isDKRunes`.
     -- -- This function serves a dual purpose. When `isDKRunes` is true,
     -- -- it counts the total number of 'runes' by executing a loop 6 times
-    -- -- and adding the result of `br._G.GetRuneCount(i)` to `runeCount` in each iteration.
+    -- -- and adding the result of `br.game.GetRuneCount(i)` to `runeCount` in each iteration.
     -- -- If `isDKRunes` is false, it simply retrieves the power of the player using `br.functions.power:getPower()`.
     -- -- @global
     -- -- @name power[powerType]
@@ -108,7 +108,7 @@ br.api.power = function(power,powerType,powerIndex)
     -- --     if isDKRunes then
     -- --         local runeCount = 0
     -- --         for i = 1, 6 do
-    -- --             runeCount = runeCount + br._G.GetRuneCount(i)
+    -- --             runeCount = runeCount + br.game.GetRuneCount(i)
     -- --         end
     -- --         return runeCount
     -- --     else

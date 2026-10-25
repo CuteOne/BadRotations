@@ -51,9 +51,9 @@ local silentByID = {}
 -- "Thorns(Rank 6)": the spell's name and its rank text as the game gives them; nil without rank text
 local function rankedName(spellID)
 	local name = br.functions.spell:getName(spellID)
-	local C = br._G.C_Spell
+	local C = br.game.C_Spell
 	local rank = (C and C.GetSpellSubtext and C.GetSpellSubtext(spellID))
-		or (br._G.GetSpellSubtext and br._G.GetSpellSubtext(spellID))
+		or (br.game.GetSpellSubtext and br.game.GetSpellSubtext(spellID))
 	if name == nil or rank == nil or rank == "" then return nil end
 	return name .. "(" .. rank .. ")"
 end
@@ -69,7 +69,7 @@ end)
 -- Both keep send's result in a local: "return send(...)" is a tail call, which drops this frame,
 -- and noteSendError would then name the wrong call site.
 function cast:castByName(name, unit)
-	local ok = send(br._G.CastSpellByName, name, unit)
+	local ok = send(br.game.CastSpellByName, name, unit)
 	return ok
 end
 
@@ -78,9 +78,9 @@ function cast:castByID(spellID, unit)
 	local text = silentByID[spellID] and rankedName(spellID)
 	local ok
 	if text then
-		ok = send(br._G.CastSpellByName, text, unit, spellID, "by name with rank")
+		ok = send(br.game.CastSpellByName, text, unit, spellID, "by name with rank")
 	else
-		ok = send(br._G.CastSpellByID, spellID, unit, nil, "by ID")
+		ok = send(br.game.CastSpellByID, spellID, unit, nil, "by ID")
 	end
 	return ok
 end
@@ -88,9 +88,9 @@ end
 --cast spell on position x,y,z
 function cast:castAtPosition(X, Y, Z, SpellID)
 	local mouselookActive = false
-	if br._G.IsMouselooking() then
+	if br.game.IsMouselooking() then
 		mouselookActive = true
-		br._G.MouselookStop()
+		br.game.MouselookStop()
 	end
 
 	-- Ground-targeted spells should not be cast "on" a unit token; doing so can force a self-cast.
@@ -104,7 +104,7 @@ function cast:castAtPosition(X, Y, Z, SpellID)
 	local maxAttempts = 21
 
 	-- Try the provided Z first, then probe around it if needed.
-	while br._G["IsAoEPending"]() and attempts < maxAttempts do
+	while br.game["IsAoEPending"]() and attempts < maxAttempts do
 		local offset
 		if attempts == 0 then
 			offset = 0
@@ -113,19 +113,19 @@ function cast:castAtPosition(X, Y, Z, SpellID)
 			offset = (attempts % 2 == 1) and step or -step
 		end
 
-		br._G["ClickPosition"](X, Y, baseZ + offset)
+		br.game["ClickPosition"](X, Y, baseZ + offset)
 		attempts = attempts + 1
 	end
 
 	-- No click landed: drop the targeting cursor. Left up, it pauses the whole rotation
 	-- (the pause check treats SpellIsTargeting as the player aiming a spell).
-	local stillPending = br._G["IsAoEPending"]()
-	if stillPending and br._G.SpellStopTargeting then
-		br._G.SpellStopTargeting()
+	local stillPending = br.game["IsAoEPending"]()
+	if stillPending and br.game.SpellStopTargeting then
+		br.game.SpellStopTargeting()
 	end
 
 	if mouselookActive then
-		br._G.MouselookStart()
+		br.game.MouselookStart()
 	end
 
 	return not stillPending
@@ -138,21 +138,21 @@ function cast:castGroundLocation(X, Y, SpellID, maxDistance, minDistance, radius
 	if minDistance == nil then minDistance = 0 end
 	--local groundDistance = br.functions.range:getDistance("player",Unit,"dist4")+1
 	local pX, pY, Z = br.functions.unit:GetObjectPosition("player")
-	local distance = br._G.sqrt(((X - pX) ^ 2) + ((Y - pY) ^ 2))
+	local distance = br.game.sqrt(((X - pX) ^ 2) + ((Y - pY) ^ 2))
 	local mouselookActive = false
 	if distance < maxDistance and distance >= minDistance and br.functions.misc:canSeePosition(X, Y, Z) then
-		if br._G.IsMouselooking() then
+		if br.game.IsMouselooking() then
 			mouselookActive = true
-			br._G.MouselookStop()
+			br.game.MouselookStop()
 		end
-		-- br._G.print("Casting Spell")
+		-- br.game.print("Casting Spell")
 		cast:castByName(br.functions.spell:getName(SpellID))
-		if br._G.IsAoEPending() then
-			-- br._G.print("Clicking Position")
-			br._G.ClickPosition((X + math.random() * 2), (Y + math.random() * 2), Z) --distanceToGround
+		if br.game.IsAoEPending() then
+			-- br.game.print("Clicking Position")
+			br.game.ClickPosition((X + math.random() * 2), (Y + math.random() * 2), Z) --distanceToGround
 		end
 		if mouselookActive then
-			br._G.MouselookStart()
+			br.game.MouselookStart()
 		end
 		return true
 	end
@@ -163,16 +163,16 @@ end
 -- New Moon's cycle, report the spell they've become); 0 for an instant or unknown spell.
 -- if br.functions.cast:getCastTime(br.player.spells.healingTouch) < 3 then
 function cast:getCastTime(spellID)
-	spellID = br._G.C_Spell.GetOverrideSpell(spellID) or spellID
-	local info = br._G.C_Spell.GetSpellInfo(spellID)
+	spellID = br.game.C_Spell.GetOverrideSpell(spellID) or spellID
+	local info = br.game.C_Spell.GetSpellInfo(spellID)
 	return (info and info.castTime or 0) / 1000
 end
 
 function cast:getCastTimeRemain(unit)
-	if br._G.UnitCastingInfo(unit) ~= nil then
-		return select(5, br._G.UnitCastingInfo(unit)) / 1000 - br._G.GetTime()
-	elseif br._G.UnitChannelInfo(unit) ~= nil then
-		return select(5, br._G.UnitChannelInfo(unit)) / 1000 - br._G.GetTime()
+	if br.game.UnitCastingInfo(unit) ~= nil then
+		return select(5, br.game.UnitCastingInfo(unit)) / 1000 - br.game.GetTime()
+	elseif br.game.UnitChannelInfo(unit) ~= nil then
+		return select(5, br.game.UnitChannelInfo(unit)) / 1000 - br.game.GetTime()
 	else
 		return 0
 	end
@@ -182,12 +182,12 @@ end
 function cast:isCastingSpell(spellID, unit)
 	if unit == nil then unit = "player" end
 	-- Check regular cast (UnitCastingInfo returns spellID as 9th value)
-	local _, _, _, _, _, _, _, _, castingSpellID = br._G.UnitCastingInfo(unit)
+	local _, _, _, _, _, _, _, _, castingSpellID = br.game.UnitCastingInfo(unit)
 	if castingSpellID == spellID then
 		return true
 	end
 	-- Check channel (UnitChannelInfo returns spellID as 8th value)
-	local _, _, _, _, _, _, _, channelingSpellID = br._G.UnitChannelInfo(unit)
+	local _, _, _, _, _, _, _, channelingSpellID = br.game.UnitChannelInfo(unit)
 	if channelingSpellID == spellID then
 		return true
 	end
@@ -196,8 +196,8 @@ end
 
 -- if isCasting(12345,"target") then
 function cast:isCasting(SpellID, Unit)
-	if br.functions.unit:GetUnitIsVisible(Unit) and br._G.UnitCastingInfo(Unit) then
-		if br._G.UnitCastingInfo(Unit) == br.functions.spell:getName(SpellID) then
+	if br.functions.unit:GetUnitIsVisible(Unit) and br.game.UnitCastingInfo(Unit) then
+		if br.game.UnitCastingInfo(Unit) == br.functions.spell:getName(SpellID) then
 			return true
 		end
 	else
@@ -208,9 +208,9 @@ end
 -- if br.functions.cast:isCastingSpell(12345) == true then
 function cast:isUnitCasting(unit)
 	if unit == nil then unit = "player" end
-	local spellCasting = br._G.UnitCastingInfo(unit)
+	local spellCasting = br.game.UnitCastingInfo(unit)
 	if spellCasting == nil then
-		spellCasting = br._G.UnitChannelInfo(unit)
+		spellCasting = br.game.UnitChannelInfo(unit)
 	end
 	if spellCasting ~= nil then
 		return true
@@ -269,7 +269,7 @@ function cast:setCastTimer(spellID, duration)
     if spellID == nil then return end
     if duration == nil then duration = 0.5 end
     if E.castTimers == nil then E.castTimers = {} end
-    E.castTimers[spellID] = br._G.GetTime() + duration
+    E.castTimers[spellID] = br.game.GetTime() + duration
 end
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -289,13 +289,13 @@ local petBarCacheTime = 0
 -- @param refresh true to re-read the bar now (before casting from a slot)
 function E.getPetBarSlot(spellName, refresh)
 	if not spellName then return nil end
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	if refresh or not petBarCache or now - petBarCacheTime > 5 then
 		petBarCache     = {}
 		petBarCacheTime = now
-		if br._G.NUM_PET_ACTION_SLOTS then
-			for i = 1, br._G.NUM_PET_ACTION_SLOTS do
-				local name = br._G.GetPetActionInfo(i)
+		if br.game.NUM_PET_ACTION_SLOTS then
+			for i = 1, br.game.NUM_PET_ACTION_SLOTS do
+				local name = br.game.GetPetActionInfo(i)
 				if name and not petBarCache[name] then petBarCache[name] = i end
 			end
 		end

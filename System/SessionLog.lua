@@ -37,7 +37,7 @@ local function yesNo(value) return value and "yes" or "no" end
 
 -- The other addons loaded, by folder name
 local function loadedAddons()
-	local G = br._G
+	local G = br.game
 	local addons = G.C_AddOns or G
 	local count = addons.GetNumAddOns and addons.GetNumAddOns() or 0
 	local names = {}
@@ -53,11 +53,11 @@ end
 -- BR's version: from the game, or from BR's .toc when an unlocker loads BR without the game
 -- knowing it as an addon
 local function brVersion()
-	local addons = br._G.C_AddOns or br._G
+	local addons = br.game.C_AddOns or br.game
 	local version = addons.GetAddOnMetadata and addons.GetAddOnMetadata(br.loader.addonName, "Version")
 	if version then return version end
 	local base, sep = br.functions.misc:getAddonPath()
-	local ok, toc = pcall(br._G.ReadFile, base .. sep .. br.loader.addonName .. ".toc")
+	local ok, toc = pcall(br.game.ReadFile, base .. sep .. br.loader.addonName .. ".toc")
 	return ok and type(toc) == "string" and toc:match("##%s*Version:%s*([^\r\n]+)") or "unknown"
 end
 
@@ -72,7 +72,7 @@ local function brCommit()
 	local base, sep = br.functions.misc:getAddonPath()
 	local gitDir = base .. sep .. ".git" .. sep
 	local function read(name)
-		local ok, text = pcall(br._G.ReadFile, gitDir .. name)
+		local ok, text = pcall(br.game.ReadFile, gitDir .. name)
 		return ok and type(text) == "string" and text or nil
 	end
 	local head = read("HEAD")
@@ -88,7 +88,7 @@ local function brCommit()
 end
 
 local function writeEnvironment()
-	local G = br._G
+	local G = br.game
 	local version = brVersion() .. " (" .. brCommit() .. ")"
 	local clientVersion, build, buildDate, interface = G.GetBuildInfo()
 	line(("BadRotations %s on %s: client %s, build %s (%s), interface %s, locale %s"):format(tostring(version),
@@ -139,21 +139,21 @@ end
 -- Changes waiting to settle: "page | key" -> { value, at }
 local unsettled = {}
 local function writeSettled()
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	for name, change in pairs(unsettled) do
 		if now - change.at >= SETTLE then
 			unsettled[name] = nil
 			line(("option changed: %s = %s"):format(name, valueText(change.value)))
 		end
 	end
-	if next(unsettled) then br._G.C_Timer.After(SETTLE, writeSettled) end
+	if next(unsettled) then br.game.C_Timer.After(SETTLE, writeSettled) end
 end
 
 --- The player changed an option (br.ui.elementOptions.changed)
 function session:optionChanged(page, key, value)
 	local waiting = next(unsettled) ~= nil
-	unsettled[tostring(page) .. " | " .. tostring(key)] = { value = value, at = br._G.GetTime() }
-	if not waiting then br._G.C_Timer.After(SETTLE, writeSettled) end
+	unsettled[tostring(page) .. " | " .. tostring(key)] = { value = value, at = br.game.GetTime() }
+	if not waiting then br.game.C_Timer.After(SETTLE, writeSettled) end
 end
 
 --- TEMP diagnostic (profile window dropdown text): a free-form line

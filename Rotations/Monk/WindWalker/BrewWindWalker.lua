@@ -158,7 +158,7 @@ local function printStats(message)
     end
 
     local lastTime = ui.time() - var.lastCast
-    br._G.print(colors.red.. date("%T") ..colors.aqua .."[+" .. string.sub(tostring(lastTime),0,4) .. "]" .. xuenString .. whiteStatueString .. serentityString .. colors.white .. chiString .. powerString .. colors.white .. " : ".. message)
+    br.game.print(colors.red.. date("%T") ..colors.aqua .."[+" .. string.sub(tostring(lastTime),0,4) .. "]" .. xuenString .. whiteStatueString .. serentityString .. colors.white .. chiString .. powerString .. colors.white .. " : ".. message)
 end
 
 local debugMessage = function(message)

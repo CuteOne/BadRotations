@@ -200,8 +200,8 @@ local function debugBehind(label, thisUnit)
 
     -- Raw unlocker-facing check (front 180 cone)
     local rawFacing180
-    if br and br._G and br._G.ObjectIsFacing then
-        local ok, res = pcall(br._G.ObjectIsFacing, thisUnit, "player", 180)
+    if br and br.game and br.game.ObjectIsFacing then
+        local ok, res = pcall(br.game.ObjectIsFacing, thisUnit, "player", 180)
         rawFacing180 = ok and res or nil
     end
 
@@ -236,12 +236,12 @@ end
 -- Powershift for Energy
 local function powershift()
     if cd.global.remain() == 0 and unit.combatTime() > 1 then
-        for i = 1, br._G.GetNumShapeshiftForms() do
-            local _, name, active = br._G.GetShapeshiftFormInfo(i)
+        for i = 1, br.game.GetNumShapeshiftForms() do
+            local _, name, active = br.game.GetShapeshiftFormInfo(i)
             if name and active then
-                br._G.CancelShapeshiftForm()
+                br.game.CancelShapeshiftForm()
                 ui.debug("Powershift - Canceling Form")
-                br._G.CastShapeshiftForm(i)
+                br.game.CastShapeshiftForm(i)
                 return true
             end
         end
@@ -360,16 +360,16 @@ actionList.Extra = function()
     -- if unit.exists("target") and unit.friend("target") and not unit.deadOrGhost("target") and not unit.player("target")
     --     and unit.distance("target") < 8 and (buff.catForm.exists() or buff.bearForm.exists())
     -- then
-    --     br._G.RunMacroText("/CancelForm")
+    --     br.game.RunMacroText("/CancelForm")
     --     ui.debug("Cancel Form [NPC]")
-    --     br._G.InteractUnit("target")
+    --     br.game.InteractUnit("target")
     --     ui.debug("Interacting [NPC]")
     --     return true
     -- end
 
     -- Aquatic Form
     if ui.checked("Aquatic Form") and not unit.inCombat() and cast.able.aquaticForm()
-        and br._G.IsSwimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
+        and br.game.IsSwimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
         and unit.moving() and unit.movingTime() > 2 and not unit.anyInAggroRange()
         and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
         and not (buff.thorns.refresh() and ui.checked("Thorns"))
@@ -386,8 +386,8 @@ actionList.Extra = function()
     end
 
     -- Travel Form
-    if ui.checked("Travel Form") and not unit.inCombat() and not br._G.IsMounted()
-        and not br._G.IsSwimming() and not br._G.IsFalling() and cast.able.travelForm()
+    if ui.checked("Travel Form") and not unit.inCombat() and not br.game.IsMounted()
+        and not br.game.IsSwimming() and not br.game.IsFalling() and cast.able.travelForm()
         and not buff.travelForm.exists() and not buff.prowl.exists()
         and unit.moving() and unit.movingTime() > 2 and not unit.anyInAggroRange()
         and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
@@ -416,7 +416,7 @@ actionList.Extra = function()
 
     -- Keep Aquatic Form while swimming unless danger/enemy target.
     local keepAquatic = ui.checked("Aquatic Form")
-        and br._G.IsSwimming()
+        and br.game.IsSwimming()
         and buff.aquaticForm.exists()
         and not unit.anyInAggroRange()
         and (not unit.exists("target") or unit.friend("target"))
@@ -441,7 +441,7 @@ actionList.Extra = function()
             if unit and unit.cancelForm then
                 unit.cancelForm()
             else
-                br._G.RunMacroText("/CancelForm")
+                br.game.RunMacroText("/CancelForm")
             end
             ui.debug("Casting Caster Form")
             return true
@@ -706,7 +706,7 @@ actionList.Defensive = function()
         --     and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         -- then
         --     if buff.catForm.exists() or buff.bearForm.exists() then
-        --         br._G.RunMacroText("/CancelForm")
+        --         br.game.RunMacroText("/CancelForm")
         --         ui.debug("Cancel Form for Health Potion")
         --         return true
         --     end
@@ -720,7 +720,7 @@ actionList.Defensive = function()
         --     and br.player.power.mana.percent() < 30
         -- then
         --     if buff.catForm.exists() or buff.bearForm.exists() then
-        --         br._G.RunMacroText("/CancelForm")
+        --         br.game.RunMacroText("/CancelForm")
         --         ui.debug("Cancel Form for Mana Potion")
         --         return true
         --     end

@@ -6,7 +6,7 @@ br.ui = br.ui or {}
 local Type = "UI"
 local BRFont = "DiesalFontNormal"
 do
-    local locale = br._G.GetLocale()
+    local locale = br.game.GetLocale()
     if locale == "koKR" or locale == "zhCN" or locale == "zhTW" then
         BRFont = "GameFontNormalSmall"
     end
@@ -17,7 +17,7 @@ DiesalGUI:RegisterObjectConstructor(
     "FontString",
     function()
         local self = DiesalGUI:CreateObjectBase(Type)
-        local frame = br._G.CreateFrame("Frame", nil, br._G.UIParent)
+        local frame = br.game.CreateFrame("Frame", nil, br.game.UIParent)
         local fontString = frame:CreateFontString(nil, "OVERLAY", BRFont)
         self.frame = frame
         self.fontString = fontString

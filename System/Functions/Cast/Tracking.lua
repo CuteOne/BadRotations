@@ -43,21 +43,21 @@ end
 -- usual time for this kind of refusal).
 function cast:setRejected(kind, spellID, guid, duration)
 	local key = rejectionKey(kind, spellID, guid)
-	if key then rejections[key] = br._G.GetTime() + (duration or REJECT_DURATION[kind] or 0.5) end
+	if key then rejections[key] = br.game.GetTime() + (duration or REJECT_DURATION[kind] or 0.5) end
 end
 
 -- "A more powerful spell is already active": how long that aura has left on the unit (found by the
 -- spell's name, from any caster), so the spell is left alone until it ends rather than retried
 -- every 30 s. nil when it can't be found or doesn't expire.
 local function strongerAuraRemaining(spellID, guid)
-	local unit = br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(guid)
+	local unit = br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(guid)
 	local name = br.functions.spell:getName(spellID)
 	if not unit or not name then return nil end
 	local filter = br.functions.spell:getSpellType(name) == "Harmful" and "HARMFUL" or "HELPFUL"
 	local aura = br.functions.aura:findByName(name, unit, filter)
 	local expires = aura and aura.expirationTime
 	if not expires or expires == 0 then return nil end
-	local remaining = expires - br._G.GetTime()
+	local remaining = expires - br.game.GetTime()
 	return remaining > 0 and remaining or nil
 end
 
@@ -72,12 +72,12 @@ local function behindState(thisUnit)
 	local unitFns = br.functions.unit
 	local px, py = unitFns:GetObjectPosition("player")
 	local ux, uy = unitFns:GetObjectPosition(thisUnit)
-	local victim = br._G.UnitTarget and br._G.UnitTarget(thisUnit)
+	local victim = br.game.UnitTarget and br.game.UnitTarget(thisUnit)
 	return {
 		px = px or 0, py = py or 0, pf = unitFns:GetObjectFacing("player") or 0,
 		ux = ux or 0, uy = uy or 0, uf = unitFns:GetObjectFacing(thisUnit) or 0,
-		victim = victim and br._G.UnitGUID(victim),
-		flags = br._G.UnitFlags and br._G.UnitFlags(thisUnit),
+		victim = victim and br.game.UnitGUID(victim),
+		flags = br.game.UnitFlags and br.game.UnitFlags(thisUnit),
 	}
 end
 
@@ -99,11 +99,11 @@ end
 -- True while a recent cast of spellID on thisUnit was refused for this reason.
 function cast:isRejected(kind, spellID, thisUnit)
 	if next(rejections) == nil then return false end -- the usual case: nothing refused lately
-	local guid = thisUnit and br._G.UnitGUID(thisUnit)
+	local guid = thisUnit and br.game.UnitGUID(thisUnit)
 	local key = rejectionKey(kind, spellID, guid)
 	if not key then return false end
 	local expires = rejections[key]
-	if expires and br._G.GetTime() < expires and not (kind == "behind" and behindChanged(guid, thisUnit)) then
+	if expires and br.game.GetTime() < expires and not (kind == "behind" and behindChanged(guid, thisUnit)) then
 		return true
 	end
 	rejections[key] = nil
@@ -119,12 +119,12 @@ function E.recordBotCast(spellID, thisUnit)
 	br.botCast     = true
 	br.botSpell    = spellID
 	br.botUnit     = thisUnit
-	br.botGUID     = br._G.UnitGUID(thisUnit)
-	br.botCastTime = br._G.GetTime()
+	br.botGUID     = br.game.UnitGUID(thisUnit)
+	br.botCastTime = br.game.GetTime()
 end
 
 local function errorText(globalName, fallback)
-	local text = br._G[globalName]
+	local text = br.game[globalName]
 	if type(text) == "string" and text ~= "" then return text end
 	return fallback
 end
@@ -165,9 +165,9 @@ function E.expectedRefusal(message, castGUID)
 	if kind == "range" then return "out of range" end
 	if message == errorText("SPELL_FAILED_INTERRUPTED", "Interrupted") then
 		-- An on-next-swing attack is dropped when the target dies or changes, or auto attack stops
-		local unit = castGUID and br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(castGUID)
+		local unit = castGUID and br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(castGUID)
 		if unit == nil or br.functions.unit:GetUnitIsDeadOrGhost(unit) then return "the target died" end
-		if br._G.UnitGUID("target") ~= castGUID then return "the target changed" end
+		if br.game.UnitGUID("target") ~= castGUID then return "the target changed" end
 		return "interrupted by movement or the fight"
 	end
 	return nil
@@ -185,10 +185,10 @@ function cast:handleCastError(message)
 	-- on-next-swing Maul failing at the swing, after BR has cast something else), so the line waits a
 	-- frame for it. Without one the error isn't about a cast at all (auto-loot's "There is no loot.",
 	-- a profession, ...) and isn't reported.
-	local errorAt = br._G.GetTime()
+	local errorAt = br.game.GetTime()
 	if (errorAt - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW and (E.castDebugOn() or E.showRefusal(false)) then
 		local lastCastGUID = br.botGUID
-		br._G.C_Timer.After(0, function()
+		br.game.C_Timer.After(0, function()
 			local failed = br.functions.lastCast and br.functions.lastCast.lastCastTable
 			if not (failed and failed.lastFailedSpellID and failed.lastFailedAt and math.abs(failed.lastFailedAt - errorAt) <= 0.1) then
 				return
@@ -203,8 +203,8 @@ function cast:handleCastError(message)
 	local kind = rejectionKindForError(message)
 	if not kind then return end
 	-- A cast on yourself can't be out of sight or facing the wrong way: never mark the player
-	if UNIT_WIDE_REJECT[kind] and br.botGUID == br._G.UnitGUID("player") then return end
-	if kind ~= "aura" and (br._G.GetTime() - br.botCastTime) > REJECT_ATTRIBUTION_WINDOW then return end
+	if UNIT_WIDE_REJECT[kind] and br.botGUID == br.game.UnitGUID("player") then return end
+	if kind ~= "aura" and (br.game.GetTime() - br.botCastTime) > REJECT_ATTRIBUTION_WINDOW then return end
 	local duration
 	if kind == "aura" then
 		local remaining = strongerAuraRemaining(br.botSpell, br.botGUID)
@@ -213,7 +213,7 @@ function cast:handleCastError(message)
 	if kind == "range" and br.debug.cast then br.debug.cast:noteOutOfRange(br.botSpell, br.botGUID) end
 	if kind == "behind" then
 		br.debug.cast:noteNotBehind(br.botSpell, br.botGUID)
-		local refusedUnit = br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(br.botGUID)
+		local refusedUnit = br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(br.botGUID)
 		behindAtRefusal[br.botGUID] = refusedUnit and behindState(refusedUnit) or nil
 	end
 	cast:setRejected(kind, br.botSpell, br.botGUID, duration)
@@ -253,7 +253,7 @@ end
 -- frame instead of once per cast attempt. The live GCD isn't one: a cast earlier in the frame starts it.
 local frameValues = {}
 function E.getFrameValues()
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	if frameValues.at ~= now then
 		frameValues.at         = now
 		frameValues.updateRate = br.core:getUpdateRate()
@@ -269,16 +269,16 @@ local SPELL_QUEUE_WINDOW_REFRESH = 5
 -- The client's effective queue window in seconds. C_Spell.GetSpellQueueWindow
 -- reports the value in effect (a CVar read may not be, on Forever).
 local function getSpellQueueWindow()
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	if spellQueueWindowReadAt == nil or now - spellQueueWindowReadAt > SPELL_QUEUE_WINDOW_REFRESH then
 		spellQueueWindowReadAt = now
 		local ms
-		if br._G.C_Spell and br._G.C_Spell.GetSpellQueueWindow then
-			ms = tonumber(br._G.C_Spell.GetSpellQueueWindow())
-		elseif br._G.GetSpellQueueWindow then
-			ms = tonumber(br._G.GetSpellQueueWindow())
-		elseif br._G.C_CVar and br._G.C_CVar.GetCVar then
-			ms = tonumber(br._G.C_CVar.GetCVar("SpellQueueWindow"))
+		if br.game.C_Spell and br.game.C_Spell.GetSpellQueueWindow then
+			ms = tonumber(br.game.C_Spell.GetSpellQueueWindow())
+		elseif br.game.GetSpellQueueWindow then
+			ms = tonumber(br.game.GetSpellQueueWindow())
+		elseif br.game.C_CVar and br.game.C_CVar.GetCVar then
+			ms = tonumber(br.game.C_CVar.GetCVar("SpellQueueWindow"))
 		end
 		if ms then spellQueueWindow = ms / 1000 end
 	end
@@ -297,7 +297,7 @@ end
 E.queuedBehindCast = nil -- castID (or end time) of the cast we've pre-cast behind
 
 function E.currentCastKey()
-	local name, _, _, _, endTime, _, castID = br._G.UnitCastingInfo("player")
+	local name, _, _, _, endTime, _, castID = br.game.UnitCastingInfo("player")
 	if name == nil then return nil end
 	return castID or endTime
 end
@@ -327,7 +327,7 @@ local function prunePromised(now)
 	for i = #promised, 1, -1 do
 		local entry = promised[i]
 		local done = now > entry.untilTime
-			or (entry.swing and not (br._G.C_Spell.IsCurrentSpell(entry.spellID)))
+			or (entry.swing and not (br.game.C_Spell.IsCurrentSpell(entry.spellID)))
 		if done then table.remove(promised, i) end
 	end
 end
@@ -355,14 +355,14 @@ end
 -- false and a description. Free when nothing is promised (the usual case).
 function E.affordableAfterPromised(spellID)
 	if #E.promised == 0 then return true end
-	prunePromised(br._G.GetTime())
+	prunePromised(br.game.GetTime())
 	if #E.promised == 0 then return true end
 	local costs = br.functions.power:getSpellCosts(spellID)
 	for i = 1, #costs do
 		local cost = costs[i]
 		local promised = promisedPower(cost.type, spellID)
 		if promised > 0 then
-			local current = br._G.UnitPower("player", cost.type)
+			local current = br.game.UnitPower("player", cost.type)
 			if type(current) == "number" and br.functions.misc:canUseValue(current) and current - promised < cost.amount then
 				return false, string.format("power %d, %d promised to earlier casts, cost %d",
 					br.functions.misc:plainNumber(current), br.functions.misc:plainNumber(promised),
@@ -387,7 +387,7 @@ E.reshift = nil -- { formSpellID, formName, forName }: the form to shift back in
 
 -- unit.cancelFormFor calls this when it leaves a form in combat to cast forSpellID
 function cast:setReshiftOwed(formSpellID, forSpellID)
-	if formSpellID == nil or not br._G.UnitAffectingCombat("player") then return end
+	if formSpellID == nil or not br.game.UnitAffectingCombat("player") then return end
 	E.reshift = { formSpellID = formSpellID, formName = br.functions.spell:getName(formSpellID),
 		forName = forSpellID and br.functions.spell:getName(forSpellID) }
 end
@@ -397,8 +397,8 @@ end
 function cast:getReshiftOwed()
 	local owed = E.reshift
 	if owed == nil then return nil end
-	local backInForm = (br._G.GetShapeshiftForm() or 0) ~= 0 and not br.functions.unit:isFormCancelPending()
-	if backInForm or not br._G.UnitAffectingCombat("player") then
+	local backInForm = (br.game.GetShapeshiftForm() or 0) ~= 0 and not br.functions.unit:isFormCancelPending()
+	if backInForm or not br.game.UnitAffectingCombat("player") then
 		E.reshift = nil
 		return nil
 	end
@@ -420,9 +420,9 @@ function E.affordableWithReshift(spellID, spellName)
 	local cost = power:getManaCostFromRef(spellID, false)
 	local reserve = power:getManaCostFromRef(owed.formSpellID, false)
 	if cost <= 0 or reserve <= 0 then return true end
-	local current = br._G.UnitPower("player", 0)
+	local current = br.game.UnitPower("player", 0)
 	if type(current) ~= "number" or not br.functions.misc:canUseValue(current) then return true end
-	prunePromised(br._G.GetTime())
+	prunePromised(br.game.GetTime())
 	local promised = promisedPower(0, spellID)
 	if current - promised - reserve >= cost then return true end
 	local plain = function(v) return br.functions.misc:plainNumber(v) end
@@ -445,24 +445,24 @@ end
 function E.setCastIntentLock(spellID, duration)
 	if spellID == nil then return end
 	if duration == nil then duration = 0.15 end
-	castIntentLocks[spellID] = br._G.GetTime() + duration
+	castIntentLocks[spellID] = br.game.GetTime() + duration
 end
 
 function E.isCastIntentLocked(spellID)
 	if spellID == nil then return false end
-	return castIntentLocks[spellID] ~= nil and br._G.GetTime() < castIntentLocks[spellID]
+	return castIntentLocks[spellID] ~= nil and br.game.GetTime() < castIntentLocks[spellID]
 end
 
 -- Time left on the player's cast or channel of spellID (0 when it isn't being cast), and
 -- whether that's a channel.
 local function sameSpellCastRemain(spellID)
-	local _, _, _, _, castEndTime, _, _, _, castingSpellID = br._G.UnitCastingInfo("player")
+	local _, _, _, _, castEndTime, _, _, _, castingSpellID = br.game.UnitCastingInfo("player")
 	if castingSpellID == spellID and castEndTime and castEndTime > 0 then
-		return math.max(0, (castEndTime / 1000) - br._G.GetTime()), false
+		return math.max(0, (castEndTime / 1000) - br.game.GetTime()), false
 	end
-	local _, _, _, _, channelEndTime, _, _, channelingSpellID = br._G.UnitChannelInfo("player")
+	local _, _, _, _, channelEndTime, _, _, channelingSpellID = br.game.UnitChannelInfo("player")
 	if channelingSpellID ~= nil and channelingSpellID == spellID then
-		local remain = (channelEndTime and channelEndTime > 0) and math.max(0, (channelEndTime / 1000) - br._G.GetTime()) or 0
+		local remain = (channelEndTime and channelEndTime > 0) and math.max(0, (channelEndTime / 1000) - br.game.GetTime()) or 0
 		return remain, true
 	end
 	return 0, false
@@ -486,16 +486,16 @@ function E.takeCastStartSnapshot(spellID)
 	if br.functions.spell and br.functions.spell.getSpellCD then
 		spellCdBefore = br.functions.spell:getSpellCD(spellID) or 0
 	end
-	local currentSpellBefore = br._G.C_Spell.IsCurrentSpell(spellID) == true
+	local currentSpellBefore = br.game.C_Spell.IsCurrentSpell(spellID) == true
 	local buffBefore = false
 	if br.functions.aura and br.functions.aura.UnitBuffID then
 		buffBefore = br.functions.aura:UnitBuffID("player", spellID) ~= nil
 	end
 	return {
-		timeNow = br._G.GetTime(),
+		timeNow = br.game.GetTime(),
 		gcdBefore = br.functions.spell:getGlobalCD(),
-		castingBefore = br._G.UnitCastingInfo("player") ~= nil,
-		channelingBefore = br._G.UnitChannelInfo("player") ~= nil,
+		castingBefore = br.game.UnitCastingInfo("player") ~= nil,
+		channelingBefore = br.game.UnitChannelInfo("player") ~= nil,
 		prevLastCastTime = (br.functions.lastCast and br.functions.lastCast.lastCastTable and br.functions.lastCast.lastCastTable.castTime and br.functions.lastCast.lastCastTable.castTime[spellID]) or 0,
 		spellCdBefore = spellCdBefore,
 		currentSpellBefore = currentSpellBefore,
@@ -519,15 +519,15 @@ end
 function E.verifyCastStarted(spellID, snapshot, expectedSpellName)
 	expectedSpellName = expectedSpellName or br.functions.spell:getName(spellID)
 	local gcdAfter = br.functions.spell:getGlobalCD()
-	local castNameAfter, _, _, _, _, _, _, _, castSpellIdAfter = br._G.UnitCastingInfo("player")
-	local channelNameAfter, _, _, _, _, _, _, _, channelSpellIdAfter = br._G.UnitChannelInfo("player")
+	local castNameAfter, _, _, _, _, _, _, _, castSpellIdAfter = br.game.UnitCastingInfo("player")
+	local channelNameAfter, _, _, _, _, _, _, _, channelSpellIdAfter = br.game.UnitChannelInfo("player")
 	local castingAfter = castNameAfter ~= nil
 	local channelingAfter = channelNameAfter ~= nil
 	local spellCdAfter = (br.functions.spell and br.functions.spell.getSpellCD) and (br.functions.spell:getSpellCD(spellID) or 0) or 0
-	local currentSpellAfter = br._G.C_Spell.IsCurrentSpell(spellID) == true
+	local currentSpellAfter = br.game.C_Spell.IsCurrentSpell(spellID) == true
 	local buffAfter = (br.functions.aura and br.functions.aura.UnitBuffID) and (br.functions.aura:UnitBuffID("player", spellID) ~= nil) or false
 	local failedAt = (br.functions.lastCast and br.functions.lastCast.lastCastTable and br.functions.lastCast.lastCastTable.failedTime and br.functions.lastCast.lastCastTable.failedTime[spellID]) or 0
-	local recentlyFailed = failedAt ~= 0 and (br._G.GetTime() - failedAt) < 0.20
+	local recentlyFailed = failedAt ~= 0 and (br.game.GetTime() - failedAt) < 0.20
 
 	local startedNewCast = castingAfter and not snapshot.castingBefore
 	local startedNewChannel = channelingAfter and not snapshot.channelingBefore
@@ -559,7 +559,7 @@ function E.verifyCastStarted(spellID, snapshot, expectedSpellName)
 	end
 
 	local newLastCastTime = (br.functions.lastCast and br.functions.lastCast.lastCastTable and br.functions.lastCast.lastCastTable.castTime and br.functions.lastCast.lastCastTable.castTime[spellID])
-	if not castSucceeded and newLastCastTime and newLastCastTime ~= 0 and newLastCastTime ~= snapshot.prevLastCastTime and (br._G.GetTime() - newLastCastTime) < 1 then
+	if not castSucceeded and newLastCastTime and newLastCastTime ~= 0 and newLastCastTime ~= snapshot.prevLastCastTime and (br.game.GetTime() - newLastCastTime) < 1 then
 		castSucceeded = true
 	end
 

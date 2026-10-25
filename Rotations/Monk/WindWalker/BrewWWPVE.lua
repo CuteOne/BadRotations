@@ -75,8 +75,8 @@ local chi
 local getRealHP = function(Unit)
     if Unit ~= nil then
         if br.functions.unit:GetObjectExists(Unit) and br.functions.unit:GetUnitIsVisible(Unit) and not br.functions.unit:GetUnitIsDeadOrGhost(Unit) then
-            return 100 * (br._G.UnitHealth(Unit) + br._G.UnitGetIncomingHeals(Unit, "player")) /
-            br._G.UnitHealthMax(Unit)
+            return 100 * (br.game.UnitHealth(Unit) + br.game.UnitGetIncomingHeals(Unit, "player")) /
+            br.game.UnitHealthMax(Unit)
         end
     else
         return 100
@@ -158,11 +158,11 @@ actionList.PreCombat = function()
         end                          -- End Pre-Pull
         if unit.valid("target") then -- Abilities below this only used when target is valid
             if br.unlockers.selected == "Tinkr" and not br.functions.unit:getFacing("player", "target") then
-                return br._G.FaceObject("target")
+                return br.game.FaceObject("target")
             end
 
             if br.unlockers.selected == "Tinkr" and unit.distance("target") > 5 then
-                return br._G.MoveToRaw(br._G.ObjectRawPosition("target"))
+                return br.game.MoveToRaw(br.game.ObjectRawPosition("target"))
             end
 
             -- Start Attack
@@ -243,7 +243,7 @@ local function runRotation() -- This is the main profile loop, any below this po
             --- Main ---
             ------------
             if br.unlockers.selected == "Tinkr" then
-                br._G.FaceObject("target")
+                br.game.FaceObject("target")
             end
 
             --- Priority PROCS

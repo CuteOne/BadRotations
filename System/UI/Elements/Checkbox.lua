@@ -79,15 +79,15 @@ function br.ui:createCheckbox(parent, text, tooltip, checked, layoutOnly)
         checkBox:SetEventListener(
             "OnEnter",
             function()
-                br._G.GameTooltip:SetOwner(checkBox.frame, "ANCHOR_TOPLEFT", 0, 2)
-                br._G.GameTooltip:AddLine(tooltip)
-                br._G.GameTooltip:Show()
+                br.game.GameTooltip:SetOwner(checkBox.frame, "ANCHOR_TOPLEFT", 0, 2)
+                br.game.GameTooltip:AddLine(tooltip)
+                br.game.GameTooltip:Show()
             end
         )
         checkBox:SetEventListener(
             "OnLeave",
             function()
-                br._G.GameTooltip:Hide()
+                br.game.GameTooltip:Hide()
             end
         )
     end

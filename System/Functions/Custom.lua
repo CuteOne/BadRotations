@@ -42,14 +42,14 @@ br.functions.DBM = {}
 
 --- Return: All current DBM Timer
 function br.functions.DBM:getBars()
-    if br._G.DBM then
+    if br.game.DBM then
         if not br.functions.DBM.Timer then
             br.functions.DBM.Timer = {}
         else
-            br._G.wipe(br.functions.DBM.Timer)
+            br.game.wipe(br.functions.DBM.Timer)
         end
-        if br._G.DBM.Bars ~= nil then
-            for bar in pairs(br._G.DBM.Bars.bars) do
+        if br.game.DBM.Bars ~= nil then
+            for bar in pairs(br.game.DBM.Bars.bars) do
                 local number = string.match(bar.id, "%d+")
                 table.insert(br.functions.DBM.Timer, { id = bar.id, timer = bar.timer, spellid = number })
             end
@@ -63,7 +63,7 @@ end
 -- specificID can be set if Pulltimer is NOT "Pull in"
 function br.functions.DBM:getPulltimer(time, specificID)
     if br.functions.DBM.Timer then
-        if br._G.C_AddOns.IsAddOnLoaded('DBM-Core') then
+        if br.game.C_AddOns.IsAddOnLoaded('DBM-Core') then
             local specificID = specificID or "Pull in"
             local hasPullTimer = false
             local isBelowTime = false
@@ -95,7 +95,7 @@ function br.functions.DBM:getPulltimer(time, specificID)
                     end
                 end
             end
-        elseif br._G.C_AddOns.IsAddOnLoaded("BigWigs") then
+        elseif br.game.C_AddOns.IsAddOnLoaded("BigWigs") then
             local hasTimer = false
             local isBelowTime = false
             local currentTimer = 0
@@ -104,7 +104,7 @@ function br.functions.DBM:getPulltimer(time, specificID)
                 -- Check if timer with spell id is present
                 if br.functions.DBM.Timer[i] ~= nil and br.functions.DBM.Timer[i].id == specificID then
                     hasTimer = true
-                    currentTimer = br.functions.DBM.Timer[i].exptime - br._G.GetTime()
+                    currentTimer = br.functions.DBM.Timer[i].exptime - br.game.GetTime()
                     -- if a time is given set var to true
                     if time then
                         if currentTimer <= time then
@@ -178,7 +178,7 @@ end
 -- 2 - br.functions.DBM:getTimer(spellID, time) -> return (boolean) TRUE if spellid is below given time else FALSE
 function br.functions.DBM:getTimer(spellID, time)
     if br.functions.DBM.Timer then
-        if br._G.C_AddOns.IsAddOnLoaded('DBM-Core') then
+        if br.game.C_AddOns.IsAddOnLoaded('DBM-Core') then
             local hasTimer = false
             local isBelowTime = false
             local currentTimer = 0
@@ -204,7 +204,7 @@ function br.functions.DBM:getTimer(spellID, time)
                     end
                 end
             end
-        elseif br._G.C_AddOns.IsAddOnLoaded("BigWigs") then
+        elseif br.game.C_AddOns.IsAddOnLoaded("BigWigs") then
             local hasTimer = false
             local isBelowTime = false
             local currentTimer = 0
@@ -212,7 +212,7 @@ function br.functions.DBM:getTimer(spellID, time)
                 -- Check if timer with spell id is present
                 if br.functions.DBM.Timer[i] ~= nil and br.functions.DBM.Timer[i].id == spellID then
                     hasTimer = true
-                    currentTimer = br.functions.DBM.Timer[i].exptime - br._G.GetTime()
+                    currentTimer = br.functions.DBM.Timer[i].exptime - br.game.GetTime()
                     -- if a time is given set var to true
                     if time then
                         if currentTimer <= time then
@@ -242,7 +242,7 @@ function custom:BWCheck()
     if #br.functions.DBM.Timer > 0 then
         for i = 1, #br.functions.DBM.Timer do
             if br.functions.DBM.Timer[i] ~= nil then
-                if br.functions.DBM.Timer[i].exptime < br._G.GetTime() then
+                if br.functions.DBM.Timer[i].exptime < br.game.GetTime() then
                     br.functions.DBM.Timer[i] = nil
                 end
             else
@@ -278,15 +278,15 @@ function custom:BWInit()
             for i = 1, #br.functions.DBM.Timer do
                 if br.functions.DBM.Timer[i] ~= nil and br.functions.DBM.Timer[i].id == spellId then
                     clone = true
-                    br.functions.DBM.Timer[i].exptime = br._G.GetTime() + duration
+                    br.functions.DBM.Timer[i].exptime = br.game.GetTime() + duration
                     break
                 end
             end
             if not clone then
                 local timer = {}
                 timer.id = spellId
-                timer.exptime = br._G.GetTime() + duration
-                br._G.tinsert(br.functions.DBM.Timer, timer)
+                timer.exptime = br.game.GetTime() + duration
+                br.game.tinsert(br.functions.DBM.Timer, timer)
                 clone = false
             end
         elseif (event == "BigWigs_StopBars"
@@ -302,12 +302,12 @@ function custom:BWInit()
             -- print("lalala")
         end
     end
-    if br._G.BigWigsLoader then
+    if br.game.BigWigsLoader then
         BigWigs.callback = {}
-        br._G.BigWigsLoader.RegisterMessage(callback, "BigWigs_StartBar", BigWigs.BigwigsCallback);
-        br._G.BigWigsLoader.RegisterMessage(callback, "BigWigs_StopBars", BigWigs.BigwigsCallback);
-        br._G.BigWigsLoader.RegisterMessage(callback, "BigWigs_OnBossDisable", BigWigs.BigwigsCallback);
-        br._G.BigWigsLoader.RegisterMessage(callback, "BigWigs_OnPluginDisable", BigWigs.BigwigsCallback);
+        br.game.BigWigsLoader.RegisterMessage(callback, "BigWigs_StartBar", BigWigs.BigwigsCallback);
+        br.game.BigWigsLoader.RegisterMessage(callback, "BigWigs_StopBars", BigWigs.BigwigsCallback);
+        br.game.BigWigsLoader.RegisterMessage(callback, "BigWigs_OnBossDisable", BigWigs.BigwigsCallback);
+        br.game.BigWigsLoader.RegisterMessage(callback, "BigWigs_OnPluginDisable", BigWigs.BigwigsCallback);
     end
 end
 
@@ -319,7 +319,7 @@ function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, mi
 end
 
 function custom:castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellType, unit)
-    local info = br._G.C_Spell.GetSpellInfo(spellID)
+    local info = br.game.C_Spell.GetSpellInfo(spellID)
     local spellMinRange, spellMaxRange = info and info.minRange, info and info.maxRange
     minRange                                       = minRange or spellMinRange or 0
     maxRange                                       = maxRange or spellMaxRange or 5
@@ -358,13 +358,13 @@ function custom:castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, 
 end
 
 function custom:findGroundLocation(spellID, radius, minUnits, maxRange, minRange, helpful)
-    local info = br._G.C_Spell.GetSpellInfo(spellID)
+    local info = br.game.C_Spell.GetSpellInfo(spellID)
     local spellMinRange, spellMaxRange = info and info.minRange, info and info.maxRange
     minRange = minRange or spellMinRange or 0
     maxRange = maxRange or spellMaxRange or 5
     radius = radius or maxRange
     minUnits = minUnits or 1
-    local now = br._G.GetTime()
+    local now = br.game.GetTime()
     local key = tostring(spellID) .. ":" .. radius .. ":" .. minUnits .. ":" .. maxRange .. ":" .. tostring(helpful)
     local cached = groundSearchCache[key]
     if cached and cached.at == now then
@@ -493,8 +493,8 @@ end
 
 -- get threat situation on player and return the number
 function custom:getThreat()
-    if br._G.UnitThreatSituation("player") ~= nil then
-        return br._G.UnitThreatSituation("player")
+    if br.game.UnitThreatSituation("player") ~= nil then
+        return br.game.UnitThreatSituation("player")
     end
     -- 0 - Unit has less than 100% raw threat (default UI shows no indicator)
     -- 1 - Unit has 100% or higher raw threat but isn't mobUnit's primary target (default UI shows yellow indicator)
@@ -564,12 +564,12 @@ end
 -- Boss mod timers (br.functions.DBM): which boss mod is loaded ("DBM", "BigWigs" or false) is checked
 -- once, then again whenever an addon loads
 local bossMod
-local bossModFrame = br._G.CreateFrame("Frame")
+local bossModFrame = br.game.CreateFrame("Frame")
 bossModFrame:RegisterEvent("ADDON_LOADED")
 bossModFrame:SetScript("OnEvent", function() bossMod = nil end)
 br.lifecycle:onTick(80, "boss mod timers", function()
 	if bossMod == nil then
-		local loaded = br._G.C_AddOns.IsAddOnLoaded
+		local loaded = br.game.C_AddOns.IsAddOnLoaded
 		bossMod = loaded("DBM-Core") and "DBM" or loaded("BigWigs") and "BigWigs" or false
 	end
 	if bossMod == "DBM" then

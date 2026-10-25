@@ -97,9 +97,9 @@ actionList.PreCombat = function()
         if unit.valid("target") then
             -- Start Attack
             if unit.distance("target") <= 40 then
-                br._G.PetAttack("target")
-                if not br._G.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(75)) and unit.exists("target") then
-                    br._G.StartAttack("target")
+                br.game.PetAttack("target")
+                if not br.game.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(75)) and unit.exists("target") then
+                    br.game.StartAttack("target")
                 end
             end
         end
@@ -174,8 +174,8 @@ local function runRotation() -- This is the main profile loop, any below this po
                     --- Interrupt ---
                     -----------------
                     if actionList.Interrupt() then return true end
-                    if not br._G.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(75)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
-                        br._G.StartAttack(units.dyn40)
+                    if not br.game.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(75)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
+                        br.game.StartAttack(units.dyn40)
                     end
 
                     if #enemies.yards40f >= 3 then

@@ -11,8 +11,8 @@ local function getEventBuffIDs()
 end
 
 local function flipRace()
-    local race = select(2, br._G.UnitRace("player"))
-    local class = select(3, br._G.UnitClass("player"))
+    local race = select(2, br.game.UnitRace("player"))
+    local class = select(3, br.game.UnitClass("player"))
     local forTheAllianceID, forTheHordeID = getEventBuffIDs()
     if br.functions.aura:UnitBuffID("player", forTheAllianceID) then
         if race == "Orc" then
@@ -159,7 +159,7 @@ function spell:canInterrupt(unit, percentint)
 		return false
 	elseif interruptTarget == 3 and not br.functions.unit:GetUnitIsUnit(unit, "focus") then
 		return false
-	elseif interruptTarget == 4 and br.functions.misc:getOptionValue("Interrupt Mark") ~= br._G.GetRaidTargetIndex(unit) then
+	elseif interruptTarget == 4 and br.functions.misc:getOptionValue("Interrupt Mark") ~= br.game.GetRaidTargetIndex(unit) then
 		return false
 	end
 	local castStartTime, castEndTime, interruptID, interruptable = 0, 0, 0, false
@@ -169,29 +169,29 @@ function spell:canInterrupt(unit, percentint)
 	local onWhitelist = false
 	local whitelistOnly = br.functions.misc:isChecked("Interrupt Only Whitelist")
 	if br.functions.unit:GetUnitExists(unit)
-		and br._G.UnitCanAttack("player", unit)
-		and not br._G.UnitIsDeadOrGhost(unit)
+		and br.game.UnitCanAttack("player", unit)
+		and not br.game.UnitIsDeadOrGhost(unit)
 	then
 		-- Get Cast/Channel Info
-		if select(5, br._G.UnitCastingInfo(unit)) and not select(8, br._G.UnitCastingInfo(unit)) then --Get spell cast time
-			_, _, _, castStartTime, castEndTime, _, _, _, interruptID = br._G.UnitCastingInfo(unit)
-			-- castStartTime = select(4, br._G.UnitCastingInfo(unit))
-			-- castEndTime = select(5, br._G.UnitCastingInfo(unit))
-			-- interruptID = select(9, br._G.UnitCastingInfo(unit))
+		if select(5, br.game.UnitCastingInfo(unit)) and not select(8, br.game.UnitCastingInfo(unit)) then --Get spell cast time
+			_, _, _, castStartTime, castEndTime, _, _, _, interruptID = br.game.UnitCastingInfo(unit)
+			-- castStartTime = select(4, br.game.UnitCastingInfo(unit))
+			-- castEndTime = select(5, br.game.UnitCastingInfo(unit))
+			-- interruptID = select(9, br.game.UnitCastingInfo(unit))
 			interruptable = true
 			castType = "spellcast"
-		elseif select(5, br._G.UnitChannelInfo(unit)) and not select(7, br._G.UnitChannelInfo(unit)) then -- Get spell channel time
-			_, _, _, castStartTime, castEndTime, _, _, interruptID = br._G.UnitChannelInfo(unit)
-			-- castStartTime = select(4, br._G.UnitChannelInfo(unit))
-			-- castEndTime = select(5, br._G.UnitChannelInfo(unit))
-			-- interruptID = select(8, br._G.UnitChannelInfo(unit))
+		elseif select(5, br.game.UnitChannelInfo(unit)) and not select(7, br.game.UnitChannelInfo(unit)) then -- Get spell channel time
+			_, _, _, castStartTime, castEndTime, _, _, interruptID = br.game.UnitChannelInfo(unit)
+			-- castStartTime = select(4, br.game.UnitChannelInfo(unit))
+			-- castEndTime = select(5, br.game.UnitChannelInfo(unit))
+			-- interruptID = select(8, br.game.UnitChannelInfo(unit))
 			interruptable = true
 			castType = "spellchannel"
 		end
 		-- Assign interrupt time
 		if castEndTime > 0 and castStartTime > 0 then
 			castDuration = (castEndTime - castStartTime) / 1000
-			castTimeRemain = ((castEndTime / 1000) - br._G.GetTime())
+			castTimeRemain = ((castEndTime / 1000) - br.game.GetTime())
 			if percentint == nil and castPercent == 0 then
 				if castType == "spellcast" then
 					castPercent = math.random(25, 75) --  I am not sure that this is working,we are doing this check every pulse so its different randoms each time
@@ -248,7 +248,7 @@ function spell:canInterrupt(unit, percentint)
 			end
 			if castType == "spellchannel" then
 				--if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
-				if (br._G.GetTime() - castStartTime / 1000) > (channelDelay - 0.2 + math.random() * 0.4)
+				if (br.game.GetTime() - castStartTime / 1000) > (channelDelay - 0.2 + math.random() * 0.4)
 					and (withinsCastPercent or castPercent == 100) and interruptable == true
 					and (willFinishCast or castPercent == 100)
 				then
@@ -261,8 +261,8 @@ function spell:canInterrupt(unit, percentint)
 end
 
 function spell:clearRankCache()
-	br._G.wipe(currentRanks)
-	br._G.wipe(highestSpellIDs)
+	br.game.wipe(currentRanks)
+	br.game.wipe(highestSpellIDs)
 end
 
 function spell:currentRank(ref)
@@ -307,14 +307,14 @@ function spell:finisherKills(spellID, thisUnit)
 	if not damage or not damage[comboPoints] then return false end
 	-- A free finisher (Clearcasting) converts no extra Energy that we can count on
 	local cost = br.functions.power:getSpellCost(spellID) or 0
-	local extraEnergy = cost > 0 and math.max(0, (br._G.UnitPower("player", 3) or 0) - cost) or 0
-	return damage[comboPoints] + extraEnergy * damage.perEnergy >= (br._G.UnitHealth(thisUnit) or 0)
+	local extraEnergy = cost > 0 and math.max(0, (br.game.UnitPower("player", 3) or 0) - cost) or 0
+	return damage[comboPoints] + extraEnergy * damage.perEnergy >= (br.game.UnitHealth(thisUnit) or 0)
 end
 
 function spell:getCastingRegen(spellID)
 	local regenRate = br.functions.power:getRegen("player")
 	local power = 0
-	local desc = br._G.C_Spell.GetSpellDescription(spellID)
+	local desc = br.game.C_Spell.GetSpellDescription(spellID)
 	local generates = desc:gsub("%D+", "")
 	local tooltip = tonumber(generates:sub(-2)) or 0
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
@@ -340,12 +340,12 @@ end
 
 -- if br.functions.spell:getCharges(115399) > 0 then
 function spell:getCharges(spellID)
-	local chargeInfo = br._G.C_Spell.GetSpellCharges(spellID)
+	local chargeInfo = br.game.C_Spell.GetSpellCharges(spellID)
 	return chargeInfo and chargeInfo.currentCharges or 0
 end
 
 function spell:getChargesFrac(spellID, chargeMax)
-	local chargeInfo = br._G.C_Spell.GetSpellCharges(spellID)
+	local chargeInfo = br.game.C_Spell.GetSpellCharges(spellID)
 	local charges, maxCharges, start, duration = chargeInfo.currentCharges, chargeInfo.maxCharges,
 		chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration
 	if chargeMax == nil then chargeMax = false end
@@ -353,9 +353,9 @@ function spell:getChargesFrac(spellID, chargeMax)
 		if chargeMax then
 			return maxCharges
 		else
-			if start <= br._G.GetTime() then
+			if start <= br.game.GetTime() then
 				local endTime = start + duration
-				local percentRemaining = 1 - (endTime - br._G.GetTime()) / duration
+				local percentRemaining = 1 - (endTime - br.game.GetTime()) / duration
 				return charges + percentRemaining
 			else
 				return charges
@@ -380,14 +380,14 @@ end
 function spell:getEmpoweredRank(spellID)
 	local stage = 0
 	if br.empowerID and spellID == br.empowerID then
-		local _, _, _, startTime, _, _, _, _, _, totalStages = br._G.UnitChannelInfo("player")
+		local _, _, _, startTime, _, _, _, _, _, totalStages = br.game.UnitChannelInfo("player")
 		if totalStages and totalStages > 0 then
 			maxStage = totalStages
 			startTime = startTime / 1000 -- Doing this here so we don't divide by 1000 every loop index
-			local currentTime = br._G.GetTime() -- If you really want to get time each loop, go for it. But the time difference will be miniscule for a single frame loop
+			local currentTime = br.game.GetTime() -- If you really want to get time each loop, go for it. But the time difference will be miniscule for a single frame loop
 			local stageDuration = 0
 			for i = 1, totalStages do
-				stageDuration = stageDuration + br._G.GetUnitEmpowerStageDuration("player", i - 1) / 1000
+				stageDuration = stageDuration + br.game.GetUnitEmpowerStageDuration("player", i - 1) / 1000
 				if startTime + stageDuration > currentTime then
 					break -- Break early so we don't keep checking, we haven't hit this stage yet
 				end
@@ -404,7 +404,7 @@ end
 function spell:getFinisherDamage(spellID)
 	local known = finisherDamage[spellID]
 	if known ~= nil then return known end
-	local desc = br._G.C_Spell.GetSpellDescription(spellID) or ""
+	local desc = br.game.C_Spell.GetSpellDescription(spellID) or ""
 	local damage = { perEnergy = tonumber(desc:match("into ([%d%.]+) additional damage")) or 0 }
 	for cp, low in desc:gmatch("(%d) points?%s*:%s*([%d,]+)") do
 		damage[tonumber(cp)] = tonumber((low:gsub(",", "")))
@@ -416,12 +416,12 @@ end
 
 -- Full RechargeTime of a Spell/dump getFullRechargeTime(214579)
 function spell:getFullRechargeTime(spellID)
-	local chargeInfo = br._G.C_Spell.GetSpellCharges(spellID)
+	local chargeInfo = br.game.C_Spell.GetSpellCharges(spellID)
 	local charges, maxCharges, chargeStart, chargeDuration = chargeInfo.currentCharges, chargeInfo.maxCharges,
 		chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration
 	if charges then
 		local currentChargeTime = (charges or 0) < (maxCharges or 0) and
-			chargeDuration - (br._G.GetTime() - (chargeStart or 0)) or 0
+			chargeDuration - (br.game.GetTime() - (chargeStart or 0)) or 0
 		local leftChargesTotalTime = (maxCharges - charges - 1) * chargeDuration
 		if charges ~= maxCharges then
 			return currentChargeTime + leftChargesTotalTime
@@ -436,10 +436,10 @@ end
 function spell:getGCDSpellID()
 	local list = br.lists.globalCooldown
 	if hasGCDSpell == nil then
-		hasGCDSpell = br._G.C_Spell.GetSpellInfo(list.spell) ~= nil
+		hasGCDSpell = br.game.C_Spell.GetSpellInfo(list.spell) ~= nil
 	end
 	if hasGCDSpell then return list.spell end
-	local _, class = br._G.UnitClass("player")
+	local _, class = br.game.UnitClass("player")
 	return class and list.byClass[class] or list.byClass.DRUID
 end
 
@@ -447,10 +447,10 @@ function spell:getGlobalCD(max)
 	local currentSpecName = br.loader.selectedSpec
 	if currentSpecName == "" then currentSpecName = "Initial" end
 	if max == true then
-		if currentSpecName == "Feral" or currentSpecName == "Brewmaster" or currentSpecName == "Windwalker" or br._G.UnitClass("player") == "Rogue" then
+		if currentSpecName == "Feral" or currentSpecName == "Brewmaster" or currentSpecName == "Windwalker" or br.game.UnitClass("player") == "Rogue" then
 			return 1
 		else
-			return math.max(math.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100)), 0.75)
+			return math.max(math.max(1, 1.5 / (1 + br.game.UnitSpellHaste("player") / 100)), 0.75)
 		end
 	end
 	return br.functions.spell:getSpellCD(spell:getGCDSpellID())
@@ -522,7 +522,7 @@ function spell:getName(spellID)
 	if spellID == nil or type(spellID) == "table" then return nil end -- a rank list isn't one spell
 	local name = spellNames[spellID]
 	if name == nil then
-		local info = br._G.C_Spell.GetSpellInfo(spellID)
+		local info = br.game.C_Spell.GetSpellInfo(spellID)
 		name = info and info.name
 		spellNames[spellID] = name
 	end
@@ -533,7 +533,7 @@ function spell:getRacial(thisRace)
     local forTheAllianceID, forTheHordeID = getEventBuffIDs()
     local forTheAlliance = br.functions.aura:UnitBuffID("player", forTheAllianceID) or false
     local forTheHorde    = br.functions.aura:UnitBuffID("player", forTheHordeID)    or false
-    local race = select(2, br._G.UnitRace("player"))
+    local race = select(2, br.game.UnitRace("player"))
     if forTheAlliance or forTheHorde then
         race = flipRace()
     end
@@ -608,14 +608,14 @@ function spell:getRacialKey(race)
 end
 
 function spell:getRecharge(spellID, chargeMax)
-	local chargeInfo = br._G.C_Spell.GetSpellCharges(spellID)
+	local chargeInfo = br.game.C_Spell.GetSpellCharges(spellID)
 	local charges, maxCharges, chargeStart, chargeDuration = chargeInfo.currentCharges, chargeInfo.maxCharges,
 		chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration
 	if chargeMax then return chargeDuration end
 	if charges then
 		if charges < maxCharges then
 			local chargeEnd = chargeStart + chargeDuration
-			return chargeEnd - br._G.GetTime()
+			return chargeEnd - br.game.GetTime()
 		end
 		return 0
 	end
@@ -624,11 +624,11 @@ end
 -- if br.functions.spell:getSpellCD(12345) <= 0.4 then
 function spell:getSpellCD(SpellID)
 	if SpellID == nil then return false end
-	local spellCD = br._G.C_Spell.GetSpellCooldown(SpellID)
+	local spellCD = br.game.C_Spell.GetSpellCooldown(SpellID)
 	if spellCD == nil or spellCD.startTime == 0 then
 		return 0
 	else
-		local MyCD = spellCD.startTime + spellCD.duration - br._G.GetTime()
+		local MyCD = spellCD.startTime + spellCD.duration - br.game.GetTime()
 		MyCD = MyCD or 0 -- br.functions.misc:getLatency()
 		if MyCD < 0 then MyCD = 0 end
 		return MyCD
@@ -641,7 +641,7 @@ end
 -- local id = br.functions.spell:getSpellID("Wrath")
 function spell:getSpellID(spellIDOrName)
 	if spellIDOrName == nil or type(spellIDOrName) == "table" then return nil end
-	local info = br._G.C_Spell.GetSpellInfo(spellIDOrName)
+	local info = br.game.C_Spell.GetSpellInfo(spellIDOrName)
 	return info and info.spellID
 end
 
@@ -669,7 +669,7 @@ function spell:getSpellIdFromRef(spellRef)
 end
 
 function spell:getSpellRange(spellID, option)
-	local info = br._G.C_Spell.GetSpellInfo(spellID)
+	local info = br.game.C_Spell.GetSpellInfo(spellID)
 	local maxRange = info and info.maxRange
 	if maxRange == nil or maxRange == 0 then maxRange = 5 else maxRange = tonumber(maxRange) end
 	-- Modifiers
@@ -702,8 +702,8 @@ end
 
 function spell:getSpellType(spellName)
 	if spellName == nil then return "Invalid" end
-	local helpful = br._G.C_Spell.IsSpellHelpful(spellName) or false
-	local harmful = br._G.C_Spell.IsSpellHarmful(spellName) or false
+	local helpful = br.game.C_Spell.IsSpellHelpful(spellName) or false
+	local harmful = br.game.C_Spell.IsSpellHarmful(spellName) or false
 	if helpful and not harmful then return "Helpful" end
 	if harmful and not helpful then return "Harmful" end
 	if helpful and harmful then return "Both" end
@@ -716,19 +716,19 @@ function spell:isKnown(spellID)
 	-- In Classic/TBC, spell ID is rank-specific so check by ID not by name
 	if br.api.hasSpellRanks then
 		-- Check if this specific spell ID is known
-		return br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID, "spell")
+		return br.game.IsPlayerSpell(tonumber(spellID)) or br.game.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID, "spell")
 	end
 
 	-- For non-Classic, use the existing logic
 	local spellName = spell:getName(spellID)
 	local inBook = false
-	if br._G.GetSpellBookItemInfo then
-		inBook = br._G.GetSpellBookItemInfo(tostring(spellName)) ~= nil
+	if br.game.GetSpellBookItemInfo then
+		inBook = br.game.GetSpellBookItemInfo(tostring(spellName)) ~= nil
 	else
 		-- Fallback to slot-based lookup if modern API missing
 		inBook = br.functions.spell:isSpellInSpellbook(spellID, "spell")
 	end
-	return inBook or br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID,"spell")
+	return inBook or br.game.IsPlayerSpell(tonumber(spellID)) or br.game.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID,"spell")
 end
 
 -- Check whether a spell ID is a spell list entry or one of its ranks
@@ -746,8 +746,8 @@ function spell:isRankOf(spellID, spellIDOrTable)
 end
 
 function spell:isSpellInSpellbook(spellID, spellType)
-	local spellSlot = br._G.FindSpellBookSlotBySpellID
-		and br._G.FindSpellBookSlotBySpellID(spellID, spellType == "pet" and true or false)
+	local spellSlot = br.game.FindSpellBookSlotBySpellID
+		and br.game.FindSpellBookSlotBySpellID(spellID, spellType == "pet" and true or false)
 	if spellSlot then
 		-- Enum.SpellBookSpellBank does not exist on Classic-era clients (TBC, Classic).
 		-- Fall back to the WoW global string constants "PET" / "SPELL" in that case.
@@ -756,15 +756,15 @@ function spell:isSpellInSpellbook(spellID, spellType)
 		local bank = (spellType == "pet") and petBank or playerBank
 
 		-- Try modern API first if available
-		if br._G.C_SpellBook and br._G.C_SpellBook.GetSpellBookItemInfo then
-			local spellBookItemInfo = br._G.C_SpellBook.GetSpellBookItemInfo(spellSlot, bank)
+		if br.game.C_SpellBook and br.game.C_SpellBook.GetSpellBookItemInfo then
+			local spellBookItemInfo = br.game.C_SpellBook.GetSpellBookItemInfo(spellSlot, bank)
 			if spellBookItemInfo and spellBookItemInfo.actionID then
 				return spellBookItemInfo.actionID == spellID
 			end
 		end
 		-- Older API fallback (TBC / Classic: GetSpellBookItemInfo(slot, "PET" | "SPELL"))
-		if br._G.GetSpellBookItemInfo then
-			local itemType, id = br._G.GetSpellBookItemInfo(spellSlot, bank)
+		if br.game.GetSpellBookItemInfo then
+			local itemType, id = br.game.GetSpellBookItemInfo(spellSlot, bank)
 			if id == spellID then return true end
 		end
 		-- FindSpellBookSlotBySpellID returned a slot for this exact spell ID, so the
@@ -779,8 +779,8 @@ end
 -- 	local baseSpellID = br.api.wow.FindBaseSpellByID(spellID)
 -- 	local _, _, spellInBookType = br.functions.spell:getSpellInSpellBook(spellID)
 -- 	return spellID ~= nil and spellInBookType ~= "Future Spell" and
--- 		( --[[spellInBookType ~= nil or]] br._G.IsPlayerSpell(tonumber(spellID))
--- 			or br._G.IsSpellKnown(spellID) or br._G.IsPlayerSpell(tonumber(baseSpellID) or br._G.IsSpellKnown(baseSpellID))) -- or spellInBookType == "Spell")
+-- 		( --[[spellInBookType ~= nil or]] br.game.IsPlayerSpell(tonumber(spellID))
+-- 			or br.game.IsSpellKnown(spellID) or br.game.IsPlayerSpell(tonumber(baseSpellID) or br.game.IsSpellKnown(baseSpellID))) -- or spellInBookType == "Spell")
 -- end
 
 -- Check whether a shapeshift form is a tanking form (Bear Form, Dire Bear Form or Defensive Stance

@@ -14,14 +14,14 @@ function Player:new(spec)
 	local self = setmetatable({}, Player)
 	self.specID = spec                                      -- Spec this object was built for
 	self.actionList = {}                                    -- Action Lists
-	self.class = select(2, br._G.UnitClass("player"))       -- Class (non-localised)
+	self.class = select(2, br.game.UnitClass("player"))       -- Class (non-localised)
 	self.glyph = {}                                         -- Glyphs
 	self.pandemic = {}                                      -- Base Duration per Unit/Debuff (combat log reader)
 	self.pet = {}                                           -- Pet Information Table
 	self.pet.list = {}                                      -- Table of Pets
 	self.specName = "None"                                  -- Spec name (settings key; the profile window title)
 	self.queue = {}                                         -- Queued Spells
-	self.race = select(2, br._G.UnitRace("player"))         -- Race (non-localised; Undead = Scourge)
+	self.race = select(2, br.game.UnitRace("player"))         -- Race (non-localised; Undead = Scourge)
 	self.rotation = {}                                      -- Selected Rotation
 	self.variables = {}                                     -- Custom Profile Variables
 	-- Per-tick runtime state, refreshed by baseUpdate()
@@ -31,7 +31,7 @@ function Player:new(spec)
 		health = 100,                                       -- Health Points in %
 		inCombat = false,                                   -- If BR considers the player in combat
 		inCombatPrevious = false,                           -- Previous combat state, for start/end messages
-		instance = select(2, br._G.IsInInstance()),         -- Instance type (none, party, raid, etc)
+		instance = select(2, br.game.IsInInstance()),         -- Instance type (none, party, raid, etc)
 		-- posX, posY, posZ: player position cache (Range.lua)
 		-- mounted, dismountTime: mount state and when the player last landed (getCharacterInfo)
 		-- pauseReason: why the rotation is paused this tick, nil when it runs (startRotation)
@@ -58,7 +58,7 @@ end
 -- Per-tick update, called by Core
 function Player:update()
 	if self.specID ~= br.loader.selectedSpecID then return end
-	if not br._G.UnitAffectingCombat("player") then self:updateOOC() end
+	if not br.game.UnitAffectingCombat("player") then self:updateOOC() end
 	self:baseUpdate()
 	br.functions.aura:cleanBleedSnapshots(self.debuff, self.specID)
 	if self.updatePlayer then self:rebuild() end
@@ -68,7 +68,7 @@ end
 
 -- Things which get updated for every class each tick
 function Player:baseUpdate()
-	local startTime = br._G.debugprofilestop()
+	local startTime = br.game.debugprofilestop()
 	self:getCharacterInfo()
 	self:getInCombat()
 	br.debug.cpu:updateDebug(startTime, "rotation.baseUpdate")
@@ -80,15 +80,15 @@ function Player:getCharacterInfo()
 	state.gcd = br.functions.spell:getGlobalCD()
 	state.gcdMax = br.functions.spell:getGlobalCD(true)
 	state.health = br.functions.unit:getHP("player")
-	state.instance = select(2, br._G.IsInInstance())
-	state.posX, state.posY, state.posZ = br._G.ObjectPosition("player")
+	state.instance = select(2, br.game.IsInInstance())
+	state.posX, state.posY, state.posZ = br.game.ObjectPosition("player")
 	-- When the player last landed from a mount (unit.timeSinceDismount). Kept here, not in the
 	-- profile, because the rotation doesn't run while mounted.
-	local mounted = br._G.IsMounted() == true
+	local mounted = br.game.IsMounted() == true
 	if mounted then
 		state.dismountTime = nil
 	elseif state.mounted then
-		state.dismountTime = br._G.GetTime()
+		state.dismountTime = br.game.GetTime()
 	end
 	state.mounted = mounted
 end
@@ -102,7 +102,7 @@ end
 function Player:baseUpdateOOC()
 	if #self.queue ~= 0 and br.functions.misc:getOptionCheck("Queue Casting") then
 		self.queue = {} -- Reset Queue Casting Table out of combat
-		br._G.print("Out of Combat - Queue List Cleared")
+		br.game.print("Out of Combat - Queue List Cleared")
 	end
 end
 
@@ -132,7 +132,7 @@ end
 -- modules nor the profile run. A rotation registered with actsWhileCasting keeps running while
 -- the player casts or channels.
 function Player:startRotation()
-	local startTime = br._G.debugprofilestop()
+	local startTime = br.game.debugprofilestop()
 	-- Not for a moment after a loading screen, so aura data has arrived (System/Core.lua)
 	if br.core:isSettling() then
 		return
@@ -218,7 +218,7 @@ end
 br.lifecycle:onTick(50, "player", function()
 	local player = br.player
 	if player == nil then return end
-	if not br._G.CanExitVehicle() or (br.functions.unit:GetUnitExists("target") and br.functions.range:getDistance("target") < 5) then
+	if not br.game.CanExitVehicle() or (br.functions.unit:GetUnitExists("target") and br.functions.range:getDistance("target") < 5) then
 		player:update()
 	end
 end)

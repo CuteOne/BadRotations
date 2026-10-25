@@ -52,7 +52,7 @@ function br.ui:createPagesDropdown(window, menuPages)
     for i = 1, #window.pages do
         local page = window.pages[i]
         local pageName = page[1]
-        br._G.tinsert(pageNames, page[1])
+        br.game.tinsert(pageNames, page[1])
         local foundPage = false
         for i = 1, #data["PageList"] do
             local thisPage = data["PageList"][i]
@@ -62,8 +62,8 @@ function br.ui:createPagesDropdown(window, menuPages)
             end
         end
         if not foundPage then
-            br._G.tinsert(data["PageList"], pageName)
-            br._G.tinsert(br.data.ui["PageList"], pageName)
+            br.game.tinsert(data["PageList"], pageName)
+            br.game.tinsert(br.data.ui["PageList"], pageName)
         end
         -- window.pageDD:SetValue(page - 1)
     end

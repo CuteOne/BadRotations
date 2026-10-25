@@ -13,7 +13,7 @@ local function setArrowIcon(button, column, gameIcons)
     icon:SetPoint("CENTER", 0, 0)
     -- DiesalStyle's current paths for the sheet (LibSharedMedia keeps the first path it was given,
     -- from before BR sets the media path)
-    local sheets = br._G.LibStub("DiesalStyle-1.0"):GetMedia("texture", "DiesalGUIcons")
+    local sheets = br.game.LibStub("DiesalStyle-1.0"):GetMedia("texture", "DiesalGUIcons")
     if type(sheets) ~= "table" then sheets = { sheets } end
     local loaded = false
     for _, sheet in ipairs(sheets) do
@@ -53,15 +53,15 @@ function br.ui:createRightArrow(window)
     rArr:SetEventListener(
         "OnEnter",
         function()
-            br._G.GameTooltip:SetOwner(rArr.frame, "ANCHOR_TOPLEFT", 0, 2)
-            br._G.GameTooltip:AddLine("Next")
-            br._G.GameTooltip:Show()
+            br.game.GameTooltip:SetOwner(rArr.frame, "ANCHOR_TOPLEFT", 0, 2)
+            br.game.GameTooltip:AddLine("Next")
+            br.game.GameTooltip:Show()
         end
     )
     rArr:SetEventListener(
         "OnLeave",
         function()
-            br._G.GameTooltip:Hide()
+            br.game.GameTooltip:Hide()
         end
     )
     rArr:SetEventListener(
@@ -99,15 +99,15 @@ function br.ui:createLeftArrow(window)
     lArr:SetEventListener(
         "OnEnter",
         function()
-            br._G.GameTooltip:SetOwner(lArr.frame, "ANCHOR_TOPLEFT", 0, 2)
-            br._G.GameTooltip:AddLine("Previous")
-            br._G.GameTooltip:Show()
+            br.game.GameTooltip:SetOwner(lArr.frame, "ANCHOR_TOPLEFT", 0, 2)
+            br.game.GameTooltip:AddLine("Previous")
+            br.game.GameTooltip:Show()
         end
     )
     lArr:SetEventListener(
         "OnLeave",
         function()
-            br._G.GameTooltip:Hide()
+            br.game.GameTooltip:Hide()
         end
     )
     lArr:SetEventListener(

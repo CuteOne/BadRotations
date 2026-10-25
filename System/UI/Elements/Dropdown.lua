@@ -27,10 +27,10 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
 
     -- The open list goes on the window (the top frame under UIParent) so the window doesn't clip it
     local main_window = parent.content
-    if main_window:GetParent() ~= br._G.UIParent then
+    if main_window:GetParent() ~= br.game.UIParent then
         repeat
             main_window = main_window:GetParent()
-        until main_window:GetParent() == nil or main_window:GetParent() == br._G.UIParent
+        until main_window:GetParent() == nil or main_window:GetParent() == br.game.UIParent
     end
     local strata = newDropdown.dropdown:GetFrameStrata()
     newDropdown:SetEventListener("OnClick", function(self)

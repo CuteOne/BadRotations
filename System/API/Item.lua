@@ -20,7 +20,7 @@ br.api.items = function(item,k,v,subtable)
         -- -- @treturn boolean
         -- cd[k].exists = function(itemID)
         --     if itemID == nil then itemID = v end
-        --     return br._G.C_Container.GetItemCooldown(itemID) > 0
+        --     return br.game.C_Container.GetItemCooldown(itemID) > 0
         -- end
 
         -- --- Gets the time remaining on item cooldown or 0 if not.
@@ -29,8 +29,8 @@ br.api.items = function(item,k,v,subtable)
         -- -- @treturn number
         -- cd[k].remain = function(itemID)
         --     if itemID == nil then itemID = v end
-        --     if br._G.C_Container.GetItemCooldown(itemID) ~= 0 then
-        --         return (br._G.C_Container.GetItemCooldown(itemID) + select(2,br._G.C_Container.GetItemCooldown(itemID)) - br._G.GetTime())
+        --     if br.game.C_Container.GetItemCooldown(itemID) ~= 0 then
+        --         return (br.game.C_Container.GetItemCooldown(itemID) + select(2,br.game.C_Container.GetItemCooldown(itemID)) - br.game.GetTime())
         --     end
         --     return 0
         -- end
@@ -41,7 +41,7 @@ br.api.items = function(item,k,v,subtable)
         -- -- @treturn number
         -- cd[k].duration = function(itemID)
         --     if itemID == nil then itemID = v end
-        --     return br._G.GetSpellBaseCooldown(select(2,br._G.GetItemSpell(itemID))) / 1000
+        --     return br.game.GetSpellBaseCooldown(select(2,br.game.GetItemSpell(itemID))) / 1000
         -- end
     end
 
@@ -85,8 +85,8 @@ br.api.items = function(item,k,v,subtable)
     --     -- @number gemID The ID of the gem to check for.
     --     -- @treturn boolean
     --     equiped.socket[k] = function(gemID)
-    --         local socketSpell = br._G.GetItemSpell(v)
-    --         local checkSpell = br._G.GetItemInfo(gemID)
+    --         local socketSpell = br.game.GetItemSpell(v)
+    --         local checkSpell = br.game.GetItemInfo(gemID)
     --         return socketSpell == checkSpell
     --     end
 
@@ -105,7 +105,7 @@ br.api.items = function(item,k,v,subtable)
     --         -- @string itemType The type of item to check for. (e.g. "Weapon" or "Trinket")
     --         -- @treturn boolean
     --         equiped.type = function(itemType)
-    --             local IsEquippedItemType = br._G["IsEquippedItemType"]
+    --             local IsEquippedItemType = br.game["IsEquippedItemType"]
     --             if itemType == nil then return false end
     --             return IsEquippedItemType(itemType)
     --         end

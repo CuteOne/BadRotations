@@ -237,7 +237,7 @@ local globalCacheList =
 -- functions exported to BadRotations
 --------------------------------------------------------------------------------------------------------------------------------
 local Nn, br = ...
-local b = br._G
+local b = br.game
 local funcCopies = {}
 local globalFuncCopies = {}
 

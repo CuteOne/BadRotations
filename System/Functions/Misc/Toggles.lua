@@ -7,15 +7,15 @@ local warnedMissingToggles = {}
 
 -- Whether each key choice is held, in br.ui.dropOptions.Toggle order
 local KEY_HELD = {
-	function() return br._G.IsLeftControlKeyDown() end,  -- LeftCtrl
-	function() return br._G.IsLeftShiftKeyDown() end,    -- LeftShift
-	function() return br._G.IsRightControlKeyDown() end, -- RightCtrl
-	function() return br._G.IsRightShiftKeyDown() end,   -- RightShift
-	function() return br._G.IsRightAltKeyDown() end,     -- RightAlt
+	function() return br.game.IsLeftControlKeyDown() end,  -- LeftCtrl
+	function() return br.game.IsLeftShiftKeyDown() end,    -- LeftShift
+	function() return br.game.IsRightControlKeyDown() end, -- RightCtrl
+	function() return br.game.IsRightShiftKeyDown() end,   -- RightShift
+	function() return br.game.IsRightAltKeyDown() end,     -- RightAlt
 	function() return false end,                         -- None
-	function() return br._G.GetKeyState(0x04) end,       -- MMouse
-	function() return br._G.GetKeyState(0x05) end,       -- Mouse4
-	function() return br._G.GetKeyState(0x06) end,       -- Mouse5
+	function() return br.game.GetKeyState(0x04) end,       -- MMouse
+	function() return br.game.GetKeyState(0x05) end,       -- Mouse4
+	function() return br.game.GetKeyState(0x06) end,       -- Mouse5
 }
 -- When each toggle's key last cycled it
 local lastCycled = {}
@@ -31,9 +31,9 @@ end
 --- Moves a toggle to its next mode while its key ("<toggle> Mode") is held, at most once per delay
 --- seconds.
 function misc:UpdateToggle(toggle, delay)
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	if now - (lastCycled[toggle] or 0) > delay and misc:SpecificToggle(toggle .. " Mode")
-		and not br._G.GetCurrentKeyBoardFocus()
+		and not br.game.GetCurrentKeyBoardFocus()
 	then
 		lastCycled[toggle] = now
 		br.ui:ToggleValue(toggle)

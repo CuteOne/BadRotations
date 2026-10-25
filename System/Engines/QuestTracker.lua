@@ -11,7 +11,7 @@ questTracker.completed = questTracker.completed or {} -- titles of finished ques
 local REBUILD_DELAY = 2 -- seconds; quest events arrive in bursts
 
 --Quest stuff
-local questTooltipScanQuest = br._G.CreateFrame("GameTooltip", "QuestPlateTooltipScanQuest", nil, "GameTooltipTemplate")
+local questTooltipScanQuest = br.game.CreateFrame("GameTooltip", "QuestPlateTooltipScanQuest", nil, "GameTooltipTemplate")
 local ScannedQuestTextCache = {}
 
 local ignoreQuest = {
@@ -154,7 +154,7 @@ end
 -- Units come in as GUIDs or object pointers, depending on the unlocker
 local function getGuid(pointer)
 	if type(pointer) == "string" and pointer:find("^%a+%-%d") then return pointer end
-	return br._G.UnitGUID(pointer)
+	return br.game.UnitGUID(pointer)
 end
 
 local function isAliveOrFriend(unit)
@@ -310,14 +310,14 @@ end
 
 -- Legacy tooltip scan, for clients without C_TooltipInfo (Classic/TBC/MOP)
 local function scanTooltipFrame(guid)
-	questTooltipScanQuest:SetOwner(br._G["WorldFrame"], 'ANCHOR_NONE')
+	questTooltipScanQuest:SetOwner(br.game["WorldFrame"], 'ANCHOR_NONE')
 	questTooltipScanQuest:SetHyperlink('unit:' .. guid)
 	local numLines = questTooltipScanQuest:NumLines()
 	if numLines == 0 then return false end
 
-	br._G.wipe(ScannedQuestTextCache)
+	br.game.wipe(ScannedQuestTextCache)
 	for i = 1, numLines do
-		ScannedQuestTextCache[i] = br._G["QuestPlateTooltipScanQuestTextLeft" .. i]
+		ScannedQuestTextCache[i] = br.game["QuestPlateTooltipScanQuestTextLeft" .. i]
 	end
 
 	for i = 1, numLines do
@@ -328,7 +328,7 @@ local function scanTooltipFrame(guid)
 			while ScannedQuestTextCache[j + 1] do
 				local nextLineText = ScannedQuestTextCache[j + 1]:GetText()
 				if nextLineText then
-					if nextLineText:match(br._G["THREAT_TOOLTIP"]) then
+					if nextLineText:match(br.game["THREAT_TOOLTIP"]) then
 						break -- saw threat% -> quest text is done
 					end
 					local p1, p2 = nextLineText:match("(%d+)/(%d+)")
@@ -351,11 +351,11 @@ end
 -- false = it only lists finished quests / finished objectives
 -- nil   = no quest lines we recognise (or unreadable), so ask something else
 local function scanTooltipData(guid)
-	local data = br._G.C_TooltipInfo.GetHyperlink("unit:" .. guid)
+	local data = br.game.C_TooltipInfo.GetHyperlink("unit:" .. guid)
 	if type(data) ~= "table" or type(data.lines) ~= "table" then return nil end
-	local lineTypes = br._G.Enum and br._G.Enum.TooltipDataLineType
+	local lineTypes = br.game.Enum and br.game.Enum.TooltipDataLineType
 	if not lineTypes or not lineTypes.QuestTitle or not lineTypes.QuestObjective then return nil end
-	local issecret = br._G.issecretvalue
+	local issecret = br.game.issecretvalue
 	local inQuest, found, sawCompleted, unfinished = false, false, false, false
 	for _, line in ipairs(data.lines) do
 		local text = line.leftText
@@ -389,7 +389,7 @@ function questTracker:isQuestUnit(unit)
 	local guid = getGuid(unit)
 	-- Players and their pets are never quest targets (hunter pets named "Cat" used to match)
 	if guid and (guid:find("^Pet%-") or guid:find("^Player%-")) then return false end
-	local hasTooltipData = br._G.C_TooltipInfo and br._G.C_TooltipInfo.GetHyperlink
+	local hasTooltipData = br.game.C_TooltipInfo and br.game.C_TooltipInfo.GetHyperlink
 
 	-- The tooltip names the quest and its progress, so it is the only check that knows a quest is done
 	if guid and hasTooltipData then
@@ -399,7 +399,7 @@ function questTracker:isQuestUnit(unit)
 
 	-- Native: the client's own quest check, which also covers the NPC you turn a finished quest in to.
 	-- It can't tell finished quests from open ones, so skip it when there are none of either.
-	local questLog = br._G.C_QuestLog
+	local questLog = br.game.C_QuestLog
 	if (questTracker.objectiveCount > 0 or questTracker.completedCount > 0)
 		and questLog and questLog.UnitIsRelatedToActiveQuest and questLog.UnitIsRelatedToActiveQuest(unit)
 	then
@@ -408,12 +408,12 @@ function questTracker:isQuestUnit(unit)
 
 	-- These two only know about open objectives
 	if questTracker.objectiveCount > 0 then
-		if br._G.UnitIsQuestBoss and br._G.UnitIsQuestBoss(unit) then
+		if br.game.UnitIsQuestBoss and br.game.UnitIsQuestBoss(unit) then
 			return true
 		end
 
 		-- Objective text names the unit ("Kill Murlocs")
-		local unitName = br._G.UnitName(unit)
+		local unitName = br.game.UnitName(unit)
 		if unitName and matchesObjective(unitName:lower()) then
 			return true
 		end
@@ -431,22 +431,22 @@ end
 ----------------------------------------------------------------------------------------------------
 
 function questTracker:isQuestObject(object)
-	local objectID = br._G.ObjectID(object)
+	local objectID = br.game.ObjectID(object)
 	if ignoreObjects[objectID] then return false end
 
 	-- The server's quest flag on the object, on clients where its bit is known (br.api.questObjectFlag,
 	-- set per expansion) and the unlocker can read it: it decides outright
 	local mask = br.api.questObjectFlag
-	if mask and br._G.ObjectDynamicFlags then
-		local flags = br._G.ObjectDynamicFlags(object)
+	if mask and br.game.ObjectDynamicFlags then
+		local flags = br.game.ObjectDynamicFlags(object)
 		if type(flags) == "number" then
-			return br._G.bit.band(flags, mask) ~= 0
+			return br.game.bit.band(flags, mask) ~= 0
 		end
 	end
 
 	if questObjectIDs[objectID] then return true end
 
-	local objectName = br._G.ObjectName(object)
+	local objectName = br.game.ObjectName(object)
 	if not objectName or nonQuestObjects[objectName] then return false end
 
 	-- Name-based cache (avoids repeated lookups for the same object name)
@@ -478,10 +478,10 @@ local function addObjective(questId, text, kind)
 end
 
 function questTracker:rebuild()
-	br._G.wipe(questTracker.cache)
-	br._G.wipe(questTracker.objectCheckCache)
-	br._G.wipe(questTracker.objectives)
-	br._G.wipe(questTracker.completed)
+	br.game.wipe(questTracker.cache)
+	br.game.wipe(questTracker.objectCheckCache)
+	br.game.wipe(questTracker.objectives)
+	br.game.wipe(questTracker.completed)
 	questTracker.objectiveCount = 0
 	questTracker.completedCount = 0
 
@@ -490,9 +490,9 @@ function questTracker:rebuild()
 	if tracker and tracker.invalidate then tracker:invalidate() end
 
 	-- do not update if inside an instance
-	if br._G.IsInInstance() then return end
+	if br.game.IsInInstance() then return end
 
-	local questLog = br._G.C_QuestLog
+	local questLog = br.game.C_QuestLog
 	local numEntries = questLog.GetNumQuestLogEntries()
 	for questIdx = 1, numEntries do
 		local info = questLog.GetInfo(questIdx)
@@ -512,8 +512,8 @@ function questTracker:rebuild()
 				end
 			else
 				addNameVariations(title, questTracker.cache)
-				for objIdx = 1, (br._G.GetNumQuestLeaderBoards(questIdx) or 0) do
-					local objectiveText, objectiveType, finished = br._G.GetQuestLogLeaderBoard(objIdx, questIdx)
+				for objIdx = 1, (br.game.GetNumQuestLeaderBoards(questIdx) or 0) do
+					local objectiveText, objectiveType, finished = br.game.GetQuestLogLeaderBoard(objIdx, questIdx)
 					if objectiveText and not finished then addObjective(questId, objectiveText, objectiveType) end
 				end
 			end
@@ -521,16 +521,16 @@ function questTracker:rebuild()
 	end
 
 	-- World quests in the current zone
-	local mapId = br._G.C_Map and br._G.C_Map.GetBestMapForUnit("player")
-	if mapId and br._G.C_TaskQuest and questLog and questLog.GetQuestObjectives then
-		local worldQuests = br._G.C_TaskQuest.GetQuestsForPlayerOnMap and
-			br._G.C_TaskQuest.GetQuestsForPlayerOnMap(mapId) or
-			br._G.C_TaskQuest.GetQuestsOnMap(mapId)
+	local mapId = br.game.C_Map and br.game.C_Map.GetBestMapForUnit("player")
+	if mapId and br.game.C_TaskQuest and questLog and questLog.GetQuestObjectives then
+		local worldQuests = br.game.C_TaskQuest.GetQuestsForPlayerOnMap and
+			br.game.C_TaskQuest.GetQuestsForPlayerOnMap(mapId) or
+			br.game.C_TaskQuest.GetQuestsOnMap(mapId)
 		if type(worldQuests) == "table" then
 			for _, questTable in ipairs(worldQuests) do
 				local questId = questTable.questId or questTable.questID
 				if type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil then
-					local questName = br._G.C_TaskQuest.GetQuestInfoByQuestID(questId)
+					local questName = br.game.C_TaskQuest.GetQuestInfoByQuestID(questId)
 					if questName then addNameVariations(questName, questTracker.cache) end
 					local objectives = questLog.GetQuestObjectives(questId)
 					if type(objectives) == "table" then
@@ -547,23 +547,23 @@ end
 local function scheduleRebuild()
 	local timer = questTracker.rebuildTimer
 	if timer and not timer["_cancelled"] then timer:Cancel() end
-	questTracker.rebuildTimer = br._G.C_Timer.NewTimer(REBUILD_DELAY, function() questTracker:rebuild() end)
+	questTracker.rebuildTimer = br.game.C_Timer.NewTimer(REBUILD_DELAY, function() questTracker:rebuild() end)
 end
 
 -- Debug function to print cache contents
 function questTracker:printCache()
-	br._G.print("=== Quest Tracker Cache Contents ===")
+	br.game.print("=== Quest Tracker Cache Contents ===")
 	for questId, objectives in pairs(questTracker.objectives) do
 		for _, o in ipairs(objectives) do
-			br._G.print(questId .. ": " .. o.text .. "  ->  " .. tostring(o.name))
+			br.game.print(questId .. ": " .. o.text .. "  ->  " .. tostring(o.name))
 		end
 	end
 	local count = 0
 	for _ in pairs(questTracker.cache) do count = count + 1 end
-	br._G.print("=== " .. questTracker.objectiveCount .. " objectives, " .. count .. " cached names ===")
+	br.game.print("=== " .. questTracker.objectiveCount .. " objectives, " .. count .. " cached names ===")
 end
 
-local f = br._G.CreateFrame("Frame", "QuestFrame", br._G.UIParent)
+local f = br.game.CreateFrame("Frame", "QuestFrame", br.game.UIParent)
 for _, event in ipairs({
 	"QUEST_ACCEPTED", "QUEST_REMOVED", "QUEST_ACCEPT_CONFIRM", "QUEST_COMPLETE", "QUEST_POI_UPDATE",
 	"QUEST_DETAIL", "QUEST_FINISHED", "QUEST_GREETING", "QUEST_LOG_UPDATE", "UNIT_QUEST_LOG_CHANGED",
@@ -575,4 +575,4 @@ end
 f:SetScript("OnEvent", scheduleRebuild)
 
 -- BR can load after the quest log events already fired
-br._G.C_Timer.After(1, function() questTracker:rebuild() end)
+br.game.C_Timer.After(1, function() questTracker:rebuild() end)

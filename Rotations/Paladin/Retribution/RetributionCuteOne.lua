@@ -129,7 +129,7 @@ local function options()
     br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
-local debugprofilestop = br._G["debugprofilestop"]
+local debugprofilestop = br.game["debugprofilestop"]
 
 --------------
 --- Locals ---

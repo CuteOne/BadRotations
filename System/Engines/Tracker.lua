@@ -1,5 +1,5 @@
 local _, br = ...
-local LibDraw = br._G.LibStub("LibDraw-BR")
+local LibDraw = br.game.LibStub("LibDraw-BR")
 br.engines.tracker = br.engines.tracker or {}
 local tracker = br.engines.tracker
 
@@ -43,17 +43,17 @@ local lastInteractTime = 0
 local nextInteractDelay = 0
 
 local function getCastTime(unit)
-    if br._G.UnitCastingInfo(unit) ~= nil then
-        return select(5, br._G.UnitCastingInfo(unit)) / 1000 - br._G.GetTime()
-    elseif br._G.UnitChannelInfo(unit) ~= nil then
-        return select(5, br._G.UnitChannelInfo(unit)) / 1000 - br._G.GetTime()
+    if br.game.UnitCastingInfo(unit) ~= nil then
+        return select(5, br.game.UnitCastingInfo(unit)) / 1000 - br.game.GetTime()
+    elseif br.game.UnitChannelInfo(unit) ~= nil then
+        return select(5, br.game.UnitChannelInfo(unit)) / 1000 - br.game.GetTime()
     else
         return 0
     end
 end
 
 local function isInteracting(unit)
-    local time = br._G.GetTime()
+    local time = br.game.GetTime()
     if interactTime == nil then interactTime = 0 end
     local castTime = getCastTime(unit)
     if castTime > 0 and interactTime == 0 then
@@ -68,13 +68,13 @@ local function tryInteract(e)
     if e.dist > INTERACT_RANGE then return end
     local misc = br.functions.misc
     if br.functions.cast:isUnitCasting("player") or misc:isMoving("player") or isInteracting("player") then return end
-    local now = br._G.GetTime()
+    local now = br.game.GetTime()
     -- Human-like delay: only interact if enough time has passed since last interaction
     if now >= lastInteractTime + nextInteractDelay then
-        br._G.ObjectInteract(e.obj)
+        br.game.ObjectInteract(e.obj)
         lastInteractTime = now
         -- 0.5 to 1.0 seconds between interactions
-        nextInteractDelay = 0.5 + (br._G.math.random() * 0.5)
+        nextInteractDelay = 0.5 + (br.game.math.random() * 0.5)
     end
 end
 
@@ -110,10 +110,10 @@ local function readOptions()
     if key ~= optsKey then
         optsKey = key
         generation = generation + 1
-        br._G.wipe(opts.terms)
+        br.game.wipe(opts.terms)
         for k in string.gmatch(custom, "([^,]+)") do
             local term = trim(k)
-            if #term >= 3 then opts.terms[#opts.terms + 1] = br._G.strupper(term) end
+            if #term >= 3 then opts.terms[#opts.terms + 1] = br.game.strupper(term) end
         end
     end
     active = opts.rare or opts.quest or #opts.terms > 0
@@ -125,30 +125,30 @@ end
 ----------------------------------------------------------------------------------------------------
 -- Returns an entry (ignore = true for things we never track), or nil when the object isn't readable yet.
 local function newEntry(obj)
-    local isUnit = br._G.ObjectIsUnit(obj)
+    local isUnit = br.game.ObjectIsUnit(obj)
     if isUnit then
-        if br._G.UnitIsPlayer(obj) then return { ignore = true, gen = 0 } end
-    elseif not br._G.ObjectIsGameObject(obj) then
+        if br.game.UnitIsPlayer(obj) then return { ignore = true, gen = 0 } end
+    elseif not br.game.ObjectIsGameObject(obj) then
         return { ignore = true, gen = 0 } -- players, corpses, dynamic objects...
     end
-    local name = isUnit and br._G.UnitName(obj) or br._G.ObjectName(obj)
+    local name = isUnit and br.game.UnitName(obj) or br.game.ObjectName(obj)
     if not name or name == "" then
         -- Units without a name aren't readable yet. Game objects can stay nameless (Forever's unlocker
         -- returns none), and can still be quest objects by their server flag.
         if isUnit then return nil end
         name = ""
     end
-    local x, y, z = br._G.ObjectPosition(obj)
+    local x, y, z = br.game.ObjectPosition(obj)
     if not x then return nil end
     return {
         obj = obj,
         unit = isUnit and true or false,
         name = name,
-        id = br._G.ObjectID(obj) or 0,
-        guid = br._G.UnitGUID(obj) or obj,
+        id = br.game.ObjectID(obj) or 0,
+        guid = br.game.UnitGUID(obj) or obj,
         x = x, y = y, z = z,
         -- the arrow spans the selection circle, whose size follows the model's bounding radius
-        radius = math.max(isUnit and (br._G.UnitBoundingRadius(obj) or br._G.UnitCombatReach(obj) or 0) or 0, 0.3),
+        radius = math.max(isUnit and (br.game.UnitBoundingRadius(obj) or br.game.UnitCombatReach(obj) or 0) or 0, 0.3),
         gen = 0,
         interact = true,
     }
@@ -172,7 +172,7 @@ local function classify(e, inInstance)
     end
 
     if opts.rare and e.unit then
-        local class = br._G.UnitClassification(obj)
+        local class = br.game.UnitClassification(obj)
         if class == "rare" or class == "rareelite" then
             e.kind = "rare"
             e.interact = false
@@ -181,7 +181,7 @@ local function classify(e, inInstance)
     end
 
     if #opts.terms > 0 then
-        local upperName = br._G.strupper(e.name)
+        local upperName = br.game.strupper(e.name)
         for i = 1, #opts.terms do
             if upperName:find(opts.terms[i], 1, true) then
                 e.kind = "custom"
@@ -195,7 +195,7 @@ end
 local function stillValid(e)
     if not e.unit then return true end
     if e.kind == "quest" then
-        if br._G.UnitIsTapDenied(e.obj) then return false end
+        if br.game.UnitIsTapDenied(e.obj) then return false end
         if br.functions.unit:GetUnitIsDeadOrGhost(e.obj) and not br.functions.unit:GetUnitIsFriend("player", e.obj) then
             return false
         end
@@ -209,21 +209,21 @@ local function byDistance(a, b) return a.dist < b.dist end
 
 local function scan()
     if not readOptions() then
-        br._G.wipe(tracked)
+        br.game.wipe(tracked)
         return
     end
-    local pX, pY, pZ = br._G.ObjectPosition("player")
+    local pX, pY, pZ = br.game.ObjectPosition("player")
     if not pX then return end
 
     local inCombat = br.functions.misc:isInCombat("player")
-    local inInstance = br._G.IsInInstance()
-    local GetObjectWithIndex = br._G.GetObjectWithIndex
-    local ObjectPosition = br._G.ObjectPosition
+    local inInstance = br.game.IsInInstance()
+    local GetObjectWithIndex = br.game.GetObjectWithIndex
+    local ObjectPosition = br.game.ObjectPosition
     local sqrt, floor = math.sqrt, math.floor
     scanStamp = scanStamp + 1
-    br._G.wipe(tracked)
+    br.game.wipe(tracked)
 
-    local count = br._G.GetObjectCount() or 0
+    local count = br.game.GetObjectCount() or 0
     for i = 1, count do
         local obj = GetObjectWithIndex(i)
         if obj then
@@ -353,7 +353,7 @@ local function hideFrom(first)
 end
 
 local function project(x, y, z)
-    local sx, sy = br._G.WorldToScreen(x, y, z)
+    local sx, sy = br.game.WorldToScreen(x, y, z)
     if not sx or sx == 0 then return nil end
     return sx, sy
 end
@@ -370,7 +370,7 @@ local function render()
         hideFrom(1)
         return
     end
-    local px, py, pz = br._G.ObjectPosition("player")
+    local px, py, pz = br.game.ObjectPosition("player")
     if not px then
         hideFrom(1)
         return
@@ -378,7 +378,7 @@ local function render()
     local width, height = host:GetWidth(), host:GetHeight()
     local psx, psy
     if opts.lines then psx, psy = project(px, py, pz) end
-    local ObjectPosition, UnitFacing = br._G.ObjectPosition, br._G.UnitFacing
+    local ObjectPosition, UnitFacing = br.game.ObjectPosition, br.game.UnitFacing
 
     local used = 0
     for i = 1, n do
@@ -485,7 +485,7 @@ end
 -- BR is off or paused: stop drawing, scan again as soon as it resumes
 function tracker:suspend()
     if shown > 0 then hideFrom(1) end
-    br._G.wipe(tracked)
+    br.game.wipe(tracked)
     scanElapsed = SCAN_INTERVAL
 end
 
@@ -501,28 +501,28 @@ function tracker:dump()
         total = total + 1
         if e.kind then kinds[e.kind] = (kinds[e.kind] or 0) + 1 end
     end
-    local say = br._G.print
+    local say = br.game.print
     say(("Tracker: %d objects known, %d drawn, generation %d"):format(total, #tracked, generation))
     say(("  facing offset %.2f, ring base %.2f scale %.2f"):format(tracker.facingOffset, tracker.ringBase, tracker.ringScale))
-    local px, py, pz = br._G.ObjectPosition("player")
-    say(("  player %.2f %.2f %.2f facing %s"):format(px or 0, py or 0, pz or 0, tostring(br._G.UnitFacing("player"))))
+    local px, py, pz = br.game.ObjectPosition("player")
+    say(("  player %.2f %.2f %.2f facing %s"):format(px or 0, py or 0, pz or 0, tostring(br.game.UnitFacing("player"))))
     for kind, n in pairs(kinds) do say("  " .. kind .. ": " .. n) end
     for _, e in ipairs(tracked) do
-        local x, y, z = br._G.ObjectPosition(e.obj)
+        local x, y, z = br.game.ObjectPosition(e.obj)
         say(("  %s [%s] %s %.1fy  pos %.2f %.2f %.2f  facing %s  radius %.2f (combat reach %s, height %s)"):format(
             e.kind, e.id, e.name, e.dist, x or 0, y or 0, z or 0,
-            e.unit and tostring(br._G.UnitFacing(e.obj)) or "-", e.radius,
-            e.unit and tostring(br._G.UnitCombatReach(e.obj)) or "-",
-            br._G.ObjectHeight and tostring(br._G.ObjectHeight(e.obj)) or "n/a"))
+            e.unit and tostring(br.game.UnitFacing(e.obj)) or "-", e.radius,
+            e.unit and tostring(br.game.UnitCombatReach(e.obj)) or "-",
+            br.game.ObjectHeight and tostring(br.game.ObjectHeight(e.obj)) or "n/a"))
         say("    guid " .. tostring(e.guid))
     end
 end
 
 SLASH_BRTRACK1 = "/brtrack"
-br._G.SlashCmdList["BRTRACK"] = function(msg)
+br.game.SlashCmdList["BRTRACK"] = function(msg)
     if msg and msg:lower():find("flip") then
         tracker.facingOffset = tracker.facingOffset == 0 and math.pi or 0
-        br._G.print("Tracker facing offset: " .. (tracker.facingOffset == 0 and "0" or "180 degrees"))
+        br.game.print("Tracker facing offset: " .. (tracker.facingOffset == 0 and "0" or "180 degrees"))
         return
     end
     local scale, base = nil, nil
@@ -533,7 +533,7 @@ br._G.SlashCmdList["BRTRACK"] = function(msg)
     if scale then
         tracker.ringScale = scale
         if base then tracker.ringBase = base end
-        br._G.print(("Tracker ring: base %.2f + radius * %.2f"):format(tracker.ringBase, tracker.ringScale))
+        br.game.print(("Tracker ring: base %.2f + radius * %.2f"):format(tracker.ringBase, tracker.ringScale))
         return
     end
     tracker:dump()

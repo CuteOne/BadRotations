@@ -6,16 +6,16 @@ local _, br = ...
 --[[
   API TIER HIERARCHY — call the highest tier that meets your need.
 
-  Tier 1 — br._G
+  Tier 1 — br.game
     The game's API as BR sees it: the client's globals with the unlocker's functions,
     the polyfills (the modern API where the client lacks it) and BR's own versions on
     top (layers: Expansions/Layers.lua). Use it for WoW API calls that have no
     higher-level wrapper. Write against the modern API; the polyfills cover older clients.
-    Example: br._G.UnitHealth("player")
+    Example: br.game.UnitHealth("player")
 
   Tier 2 — br.api.wow
-    The polyfill layer of br._G (Expansions/Polyfills.lua, Expansions/<name>/Functions.lua).
-    Call br._G, not this table: only Expansions/ writes here.
+    The polyfill layer of br.game (Expansions/Polyfills.lua, Expansions/<name>/Functions.lua).
+    Call br.game, not this table: only Expansions/ writes here.
 
   Tier 3 — br.functions
     Low-level manipulation helpers: range checks, aura scans, unit queries, etc.
@@ -28,7 +28,7 @@ local _, br = ...
     These wrap Tier 3 with per-spell/per-unit closures generated at load time.
     Example: cast.fireball()   buff.combustion.up()   cd.pyroblast.remain()
 
-  Rule: never call a lower tier from a higher tier (e.g. don't call br._G directly
+  Rule: never call a lower tier from a higher tier (e.g. don't call br.game directly
   from a rotation file — use br.player.* instead). Reach down only when the
   higher-tier wrapper does not exist yet.
 ]]

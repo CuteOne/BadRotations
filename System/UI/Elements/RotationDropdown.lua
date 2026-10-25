@@ -37,7 +37,7 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
     newDropdown:SetEventListener(
         "OnValueChanged",
         function(this, event, key, value, selection)
-            if br._G.UnitAffectingCombat("player") then
+            if br.game.UnitAffectingCombat("player") then
                 br.log:warning("Unable to change profile in combat. Please try again when combat ends.")
             else
                 -- Save the current profile before switching (saving after would write it into the new one)

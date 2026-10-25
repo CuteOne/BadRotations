@@ -20,7 +20,7 @@ local failedTime = lastCast.lastCastTable.failedTime
 
 local waitForSuccess
 
-local lastCastFrame = br._G.CreateFrame("Frame")
+local lastCastFrame = br.game.CreateFrame("Frame")
 
 -- Spells (spell list keys) whose casts aren't tracked at all
 local IGNORED = { "counterspell", "iceBarrier", "shimmer" }
@@ -66,7 +66,7 @@ end
 
 local function addSpell(spellID)
     if not isAbility(spellID) then return end
-    br._G.tinsert(tracker, 1, spellID)
+    br.game.tinsert(tracker, 1, spellID)
     if #tracker == 10 then
         tracker[10] = nil
     end
@@ -75,7 +75,7 @@ end
 
 local function addCastTime(spellID)
     if isAbility(spellID) then
-        castTime[spellID] = br._G.GetTime()
+        castTime[spellID] = br.game.GetTime()
     end
 end
 
@@ -86,10 +86,10 @@ local function eventTracker(_, event, ...)
         if event == "UNIT_SPELLCAST_SENT" or event == "UNIT_SPELLCAST_START"
             or event == "UNIT_SPELLCAST_CHANNEL_START" --or event == "UNIT_SPELLCAST_EMPOWER_START"
         then
-            -- if event == "UNIT_SPELLCAST_SENT" then br._G.print("Sent Cast Spell: " .. spellName) end
-            -- if event == "UNIT_SPELLCAST_START" then br._G.print("Start Cast Spell: " .. spellName) end
-            -- if event == "UNIT_SPELLCAST_CHANNEL_START" then br._G.print("Start Channel Spell: " .. spellName) end
-            -- if event == "UNIT_SPELLCAST_EMPOWER_START" then br._G.print("Sent Empower Spell: " .. spellName) end
+            -- if event == "UNIT_SPELLCAST_SENT" then br.game.print("Sent Cast Spell: " .. spellName) end
+            -- if event == "UNIT_SPELLCAST_START" then br.game.print("Start Cast Spell: " .. spellName) end
+            -- if event == "UNIT_SPELLCAST_CHANNEL_START" then br.game.print("Start Channel Spell: " .. spellName) end
+            -- if event == "UNIT_SPELLCAST_EMPOWER_START" then br.game.print("Sent Empower Spell: " .. spellName) end
             waitForSuccess = spellID
             -- Only add to tracker on SENT event to avoid duplicates
             if event == "UNIT_SPELLCAST_SENT" then
@@ -112,19 +112,19 @@ local function eventTracker(_, event, ...)
         if event == "UNIT_SPELLCAST_STOP" or event == "UNIT_SPELLCAST_CHANNEL_STOP" --or event == "UNIT_SPELLCAST_EMPOWER_STOP"
             or event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_FAILED_QUIET" or event == "UNIT_SPELLCAST_INTERRUPTED"
         then
-            -- if event == "UNIT_SPELLCAST_STOP" then br._G.print("Stop Cast Spell: " .. spellName) end
-            -- if event == "UNIT_SPELLCAST_CHANNEL_STOP" then br._G.print("Stop Channel Spell: " .. spellName) end
-            -- if event == "UNIT_SPELLCAST_EMPOWER_STOP" then br._G.print("Stop Empower Spell: " .. spellName) end
-            -- if event == "UNIT_SPELLCAST_FAILED" then br._G.print("Failed Cast Spell: " .. spellName) end
-            -- if event == "UNIT_SPELLCAST_FAILED_QUIET" then br._G.print("Failed Quiet Cast Spell: " .. spellName) end
-            -- if event == "UNIT_SPELLCAST_INTERRUPTED" then br._G.print("Interrupted Cast Spell: " .. spellName) end
+            -- if event == "UNIT_SPELLCAST_STOP" then br.game.print("Stop Cast Spell: " .. spellName) end
+            -- if event == "UNIT_SPELLCAST_CHANNEL_STOP" then br.game.print("Stop Channel Spell: " .. spellName) end
+            -- if event == "UNIT_SPELLCAST_EMPOWER_STOP" then br.game.print("Stop Empower Spell: " .. spellName) end
+            -- if event == "UNIT_SPELLCAST_FAILED" then br.game.print("Failed Cast Spell: " .. spellName) end
+            -- if event == "UNIT_SPELLCAST_FAILED_QUIET" then br.game.print("Failed Quiet Cast Spell: " .. spellName) end
+            -- if event == "UNIT_SPELLCAST_INTERRUPTED" then br.game.print("Interrupted Cast Spell: " .. spellName) end
             if waitForSuccess == spellID then
-                br._G.tremove(tracker, 1)
+                br.game.tremove(tracker, 1)
                 waitForSuccess = nil
                 lastCast.lastCast= tracker[1]
             end
             if event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_FAILED_QUIET" or event == "UNIT_SPELLCAST_INTERRUPTED" then
-                failedTime[spellID] = br._G.GetTime()
+                failedTime[spellID] = br.game.GetTime()
                 lastCast.lastCastTable.lastFailedSpellID = spellID
                 lastCast.lastCastTable.lastFailedAt = failedTime[spellID]
                 lastCast.lastCastTable.lastFailedEvent = event

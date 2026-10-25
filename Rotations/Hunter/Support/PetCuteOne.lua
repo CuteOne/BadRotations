@@ -18,11 +18,11 @@ local fetching = false
 local lootCount
 local paused = false
 local pausekey = false
-local petAppearTimer = br._G.GetTime()
+local petAppearTimer = br.game.GetTime()
 local petCalled = false
 local petDead = false
 local petRevived = false
-local targetSwitchTimer = br._G.GetTime()
+local targetSwitchTimer = br.game.GetTime()
 
 br.loader.rotations.support["PetCuteOne"] = {
     options = function()
@@ -67,8 +67,8 @@ br.loader.rotations.support["PetCuteOne"] = {
     run = function()
         local function getCurrentPetMode()
             local petMode = "None"
-            for i = 1, br._G["NUM_PET_ACTION_SLOTS"] do
-                local name, _, _, isActive = br._G.GetPetActionInfo(i)
+            for i = 1, br.game["NUM_PET_ACTION_SLOTS"] do
+                local name, _, _, isActive = br.game.GetPetActionInfo(i)
                 if isActive then
                     if name == "PET_MODE_ASSIST" then petMode = "Assist" end
                     if name == "PET_MODE_DEFENSIVEASSIST" then petMode = "Defensive" end
@@ -80,11 +80,11 @@ br.loader.rotations.support["PetCuteOne"] = {
 
         --Set Pause Key
         if br.player.ui.toggle("Pause Mode") or br.player.ui.value("Pause Mode") == 6 then
-            pausekey = br._G.IsLeftAltKeyDown()
+            pausekey = br.game.IsLeftAltKeyDown()
         else
             pausekey = br.player.ui.toggle("Pause Mode")
         end
-        paused             = pausekey and br._G.GetCurrentKeyBoardFocus() == nil and br.player.ui.checked("Pause Mode")
+        paused             = pausekey and br.game.GetCurrentKeyBoardFocus() == nil and br.player.ui.checked("Pause Mode")
 
         ---------------------
         --- Define Locals ---
@@ -104,13 +104,13 @@ br.loader.rotations.support["PetCuteOne"] = {
         units              = br.player.units
         var                = br.player.variables
         -- General Locals
-        var.haltPetProfile = br._G.UnitCastingInfo("pet") or br._G.UnitHasVehicleUI("player") or
-            br._G.CanExitVehicle("player") or br._G.UnitOnTaxi("player") or unit.mounted() or unit.flying()
+        var.haltPetProfile = br.game.UnitCastingInfo("pet") or br.game.UnitHasVehicleUI("player") or
+            br.game.CanExitVehicle("player") or br.game.UnitOnTaxi("player") or unit.mounted() or unit.flying()
             or paused or buff.feignDeath.exists() or buff.playDead.exists("pet") or
             (mode.rotation == 4 or (mode.rotation == 2 and br.loader.selectedSpec == "Initial"))
         -- Pet Specific Locals
         local callPet      = spells["callPet" .. mode.petSummon]
-        local callPetName  = mode.petSummon < 6 and select(2, br._G.GetCallPetSpellInfo(callPet)) or ""
+        local callPetName  = mode.petSummon < 6 and select(2, br.game.GetCallPetSpellInfo(callPet)) or ""
         local friendUnit   = br.engines.healingEngine.friend[1].unit
         local petActive    = pet.active.exists()
         local petDistance  = unit.distance(br.petTarget, "pet") or 99
@@ -179,7 +179,7 @@ br.loader.rotations.support["PetCuteOne"] = {
 
         -- Pet Summoning (Call, Dismiss, Revive)
         if not var.haltPetProfile and not ui.pause() and not unit.falling() then
-            if petAppearTimer < br._G.GetTime() - 2 then
+            if petAppearTimer < br.game.GetTime() - 2 then
                 -- Check for Pet
                 -- if (petCalled or petRevived) and petExists and petActive then petCalled = false; petRevived = false end
                 if petCalled and petExists and petActive then petCalled = false else petDead = true end
@@ -191,7 +191,7 @@ br.loader.rotations.support["PetCuteOne"] = {
                 if cast.able.dismissPet("player") and petExists and petActive and (callPet == nil or unit.name("pet") ~= callPetName) then
                     if cast.dismissPet("player") then
                         ui.debug("[Pet] Casting Dismiss Pet")
-                        petAppearTimer = br._G.GetTime(); return true
+                        petAppearTimer = br.game.GetTime(); return true
                     end
                 end
                 if mode.petSummon < 6 and callPetName ~= "" then
@@ -199,25 +199,25 @@ br.loader.rotations.support["PetCuteOne"] = {
                     if (not petExists or not petActive) and not buff.playDead.exists("pet") and not petCalled then
                         if cast["callPet" .. mode.petSummon]("player") then
                             ui.debug("[Pet] Casting Call Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]]
-                            petAppearTimer = br._G.GetTime(); petCalled = true; petRevived = false; return true
+                            petAppearTimer = br.game.GetTime(); petCalled = true; petRevived = false; return true
                         end
                     end
                     if (not petExists or not petActive or unit.hp("pet") == 0) and petDead then
                         if cast.able.revivePet("player") and cast.timeSinceLast.revivePet() > unit.gcd(true) then
                             if cast.revivePet("player") then
                                 ui.debug("[Pet] Casting Revive Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]]
-                                petAppearTimer = br._G.GetTime(); petRevived = true; petCalled = false; return true
+                                petAppearTimer = br.game.GetTime(); petRevived = true; petCalled = false; return true
                             end
                         end
                     end
                     -- -- Call Pet
                     -- if ((not br.readers.combatLog.deadPet and not petExists) or not petActive) and not buff.playDead.exists("pet") and not petCalled then
-                    --     if cast["callPet"..mode.petSummon]("player") then ui.debug("[Pet] Casting Call Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petCalled = true; petRevived = false; return true end
+                    --     if cast["callPet"..mode.petSummon]("player") then ui.debug("[Pet] Casting Call Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br.game.GetTime(); petCalled = true; petRevived = false; return true end
                     -- end
                     -- -- Revive Pet
                     -- if br.readers.combatLog.deadPet or (petExists and petHealth == 0) or petCalled == true then
                     --     if cast.able.revivePet("player") and cast.timeSinceLast.revivePet() > unit.gcd(true) then
-                    --         if cast.revivePet("player") then ui.debug("[Pet] Casting Revive Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petRevived = true; petCalled = false; return true end
+                    --         if cast.revivePet("player") then ui.debug("[Pet] Casting Revive Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br.game.GetTime(); petRevived = true; petCalled = false; return true end
                     --     end
                     -- end
                 end
@@ -225,22 +225,22 @@ br.loader.rotations.support["PetCuteOne"] = {
         end
 
         -- Pet Combat Modes
-        if ui.checked("Auto Attack/Passive") and petActive and petExists and not cast.last.dismissPet() and targetSwitchTimer < br._G.GetTime() - 1 then
+        if ui.checked("Auto Attack/Passive") and petActive and petExists and not cast.last.dismissPet() and targetSwitchTimer < br.game.GetTime() - 1 then
             -- Set Pet Modes
             if ui.value("Pet Target") == 4 and unit.inCombat() and (petMode == "Defensive" or petMode == "Passive") and not var.haltPetProfile and petMode ~= "Assist" then
                 ui.debug("[Pet] Pet is now Assisting")
-                br._G.PetAssistMode()
+                br.game.PetAssistMode()
             elseif (not unit.inCombat() or unit.valid(br.petTarget) or (unit.inCombat() and ui.value("Pet Target") ~= 4))
                 and (#enemies.yards20pnc > 0 or unit.valid(br.petTarget)) and not var.haltPetProfile and petMode ~= "Defensive"
                 and (petMode ~= "Assist" or not unit.inCombat("player"))
             then
                 ui.debug("[Pet] Pet is now Defending")
-                br._G.PetDefensiveAssistMode()
+                br.game.PetDefensiveAssistMode()
             elseif petMode ~= "Passive" and ((not unit.inCombat() and #enemies.yards20pnc == 0 and not unit.valid(br.petTarget)) or var.haltPetProfile)
                 and (not spell.fetch.known() or lootCount == 0)
             then
                 ui.debug("[Pet] Pet is now Passive")
-                br._G.PetPassiveMode()
+                br.game.PetPassiveMode()
             end
             -- Pet Attack / Retreat
             -- if br.petTarget == nil and unit.valid("target") then br.petTarget = "target" end
@@ -251,24 +251,24 @@ br.loader.rotations.support["PetCuteOne"] = {
                 and unit.distance("target") < 40 and not unit.friend("target")
             then
                 ui.debug("[Pet] Pet is now attacking " .. tostring(unit.name(br.petTarget)))
-                br._G.PetAttack(br.petTarget)
+                br.game.PetAttack(br.petTarget)
                 currentTarget = br.petTarget
-            elseif unit.exists("pettarget") and br._G.IsPetAttackActive()
+            elseif unit.exists("pettarget") and br.game.IsPetAttackActive()
                 and ((not unit.inCombat() and not unit.valid("target")) or (unit.inCombat() and not unit.valid(br.petTarget)) or var.haltPetProfile)
             then
                 ui.debug("[Pet] Pet stopped attacking!")
-                br._G.PetStopAttack()
+                br.game.PetStopAttack()
                 if petMode == "Passive" then
-                    br._G.PetDefensiveAssistMode()
+                    br.game.PetDefensiveAssistMode()
                 end
-                br._G.PetPassiveMode()
+                br.game.PetPassiveMode()
                 if (#enemies.yards40 == 0 and #enemies.yards40p == 0) or var.haltPetProfile then
                     ui.debug("[Pet] Pet is now following, Enemies40: " ..
                         #enemies.yards40 .. ", var.haltPetProfile : " .. tostring(var.haltPetProfile))
-                    br._G.PetFollow()
+                    br.game.PetFollow()
                 end
             end
-            targetSwitchTimer = br._G.GetTime()
+            targetSwitchTimer = br.game.GetTime()
         end
 
         -- Manage Pet Abilities
@@ -645,8 +645,8 @@ br.loader.rotations.support["PetCuteOne"] = {
         end
         -- Auto Growl
         if ui.checked("Auto Growl") and unit.inCombat() and cast.timeSinceLast.growl() > unit.gcd(true) and not buff.playDead.exists("pet") then
-            local _, autoCastEnabled = br._G.C_Spell.GetSpellAutoCast(spells.growl)
-            if autoCastEnabled then br._G.C_Spell.ToggleSpellAutoCast(spells.growl) end
+            local _, autoCastEnabled = br.game.C_Spell.GetSpellAutoCast(spells.growl)
+            if autoCastEnabled then br.game.C_Spell.ToggleSpellAutoCast(spells.growl) end
             if not unit.isTankInRange() and not buff.prowl.exists("pet") then
                 if ui.value("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
                     if cast.misdirection("pet") then

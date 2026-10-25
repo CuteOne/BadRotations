@@ -124,7 +124,7 @@ function elementOptions.nextRowY(section)
             y = y - child.frame:GetHeight() * 1.2
         end
     end
-    return br._G.LibStub("DiesalTools-1.0").Round(y)
+    return br.game.LibStub("DiesalTools-1.0").Round(y)
 end
 
 --- The name of the page a window's page dropdown shows ("" when there is none). Elements used to be
@@ -150,7 +150,7 @@ function elementOptions.pageData(section)
     for _, name in ipairs(profileSettings.PageList) do
         if name == page then listed = true break end
     end
-    if not listed then br._G.tinsert(profileSettings.PageList, page) end
+    if not listed then br.game.tinsert(profileSettings.PageList, page) end
     return page, profileSettings[page]
 end
 
@@ -170,12 +170,12 @@ end
 --- Shows text in a tooltip by the cursor while the mouse is on widget (a DiesalGUI object).
 function elementOptions.cursorTooltip(widget, text)
     widget:SetEventListener("OnEnter", function()
-        br._G.GameTooltip:SetOwner(br._G.Minimap, "ANCHOR_CURSOR", 50, 50)
-        br._G.GameTooltip:SetText(text, 214 / 255, 25 / 255, 25 / 255)
-        br._G.GameTooltip:Show()
+        br.game.GameTooltip:SetOwner(br.game.Minimap, "ANCHOR_CURSOR", 50, 50)
+        br.game.GameTooltip:SetText(text, 214 / 255, 25 / 255, 25 / 255)
+        br.game.GameTooltip:Show()
     end)
     widget:SetEventListener("OnLeave", function()
-        br._G.GameTooltip:Hide()
+        br.game.GameTooltip:Hide()
     end)
 end
 
@@ -183,7 +183,7 @@ end
 -- Get... methods return 0 (sizes the element code does arithmetic with), any other field reads as
 -- another stand-in and calling one does nothing, so the element code runs without building frames
 local function zero() return 0 end
-local function topParent() return br._G.UIParent end
+local function topParent() return br.game.UIParent end
 local inertMeta
 inertMeta = {
     __index = function(t, k)
@@ -208,8 +208,8 @@ end
 -- Options still register their page and default and fill in missing settings, exactly as when they
 -- are shown; nothing is drawn. Returns ok, error like pcall.
 function elementOptions.withoutFrames(fn)
-    local DiesalGUI = br._G.LibStub("DiesalGUI-1.0")
-    local DiesalStyle = br._G.LibStub("DiesalStyle-1.0")
+    local DiesalGUI = br.game.LibStub("DiesalGUI-1.0")
+    local DiesalStyle = br.game.LibStub("DiesalStyle-1.0")
     local create, styleTexture = DiesalGUI.Create, DiesalStyle.StyleTexture
     DiesalGUI.Create = function(_, kind) return inertWidget(kind) end
     -- Styling works on real textures; the stand-ins have none

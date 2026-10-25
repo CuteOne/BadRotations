@@ -21,7 +21,7 @@ local refreshStamp = 0
 -- Enemies are keyed by object, so a token never matched before.
 local function objectOf(unit)
 	if unit == nil then return nil end
-	return br._G.ObjectPointer(unit) or unit
+	return br.game.ObjectPointer(unit) or unit
 end
 
 --- Updates time to die for every enemy. The clock for a unit starts at the first damage seen (its
@@ -45,14 +45,14 @@ function br.engines.ttdTable:TTDRefresh(hpLimit)
 	local dps = enemyTable.dps
 	local health = enemyTable.health
 	local seen = enemyTable.seen
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	refreshStamp = refreshStamp + 1
 
 	if hpLimit == nil then hpLimit = 0 end
 
 	for _, record in pairs(br.engines.enemiesEngine.enemy) do
 		local object = record.unit
-		local currentHP = br._G.UnitHealth(object)
+		local currentHP = br.game.UnitHealth(object)
 		seen[object] = refreshStamp
 		if not units[object] then
 			enemyTable.totalUnits = enemyTable.totalUnits + 1
@@ -101,7 +101,7 @@ function br.engines.ttdTable:getTTD(unit, hp)
 	if br.functions.unit:isDummy() then return 99 end
 	-- TTDRefresh updates every enemy; values can't change within a frame, so do it once per frame.
 	-- It writes one shared table for its HP threshold, so a different threshold refreshes again.
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	if now ~= lastRefreshAt or hp ~= lastRefreshHP then
 		lastRefreshAt, lastRefreshHP = now, hp
 		ttdTable:TTDRefresh(hp)

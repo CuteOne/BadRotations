@@ -186,8 +186,8 @@ local function debugBehind(label, thisUnit)
 
     -- Raw unlocker-facing check (front 180 cone)
     local rawFacing180
-    if br and br._G and br._G.ObjectIsFacing then
-        local ok, res = pcall(br._G.ObjectIsFacing, thisUnit, "player", 180)
+    if br and br.game and br.game.ObjectIsFacing then
+        local ok, res = pcall(br.game.ObjectIsFacing, thisUnit, "player", 180)
         rawFacing180 = ok and res or nil
     end
 

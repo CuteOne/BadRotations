@@ -12,8 +12,8 @@ function misc:AcceptQueues()
 		-- Accept Queues
 		-- local randomReady = math.random(8, 15)
 		-- add some randomness
-		if misc.readyToAccept and misc.readyToAccept <= br._G.GetTime() - 5 then
-			br._G.AcceptProposal()
+		if misc.readyToAccept and misc.readyToAccept <= br.game.GetTime() - 5 then
+			br.game.AcceptProposal()
 			misc.readyToAccept = nil
 			-- randomReady = nil
 		end
@@ -22,7 +22,7 @@ end
 
 --Calculate Agility
 function misc:getAgility()
-	local AgiBase, _, AgiPos, AgiNeg = br._G.UnitStat("player", 2)
+	local AgiBase, _, AgiPos, AgiNeg = br.game.UnitStat("player", 2)
 	local Agi = AgiBase + AgiPos + AgiNeg
 	return Agi
 end
@@ -36,7 +36,7 @@ function misc:getFallDistance()
 	if zCoord == nil then
 		zCoord = position
 	end
-	if not br._G.IsFalling() or br._G.IsFlying() then
+	if not br.game.IsFalling() or br.game.IsFlying() then
 		zCoord = position
 	end
 	if position - zCoord < 0 then
@@ -56,15 +56,15 @@ function misc:getFallTime()
 	if br.fallTime == nil then
 		br.fallTime = 0
 	end
-	if br._G.IsFalling() and br.functions.misc:getFallDistance() < 0 then
+	if br.game.IsFalling() and br.functions.misc:getFallDistance() < 0 then
 		if br.fallStarted == 0 then
-			br.fallStarted = br._G.GetTime()
+			br.fallStarted = br.game.GetTime()
 		end
 		if br.fallStarted ~= 0 then
-			br.fallTime = (math.floor((br._G.GetTime() - br.fallStarted) * 1000) / 1000)
+			br.fallTime = (math.floor((br.game.GetTime() - br.fallStarted) * 1000) / 1000)
 		end
 	end
-	if not br._G.IsFalling() then
+	if not br.game.IsFalling() then
 		br.fallStarted = 0
 		br.fallTime = 0
 	end
@@ -73,13 +73,13 @@ end
 
 -- Home latency (to the realm server) in seconds, unclamped.
 function misc:getHomeLatency()
-	return (select(3, br._G.GetNetStats()) or 0) / 1000
+	return (select(3, br.game.GetNetStats()) or 0) / 1000
 end
 
 -- getLatency()
 function misc:getLatency()
 	-- local lag = ((select(3,GetNetStats()) + select(4,GetNetStats())) / 1000)
-	local lag = select(4, br._G.GetNetStats()) / 1000
+	local lag = select(4, br.game.GetNetStats()) / 1000
 	if lag < .05 then
 		lag = .05
 	elseif lag > .4 then
@@ -91,8 +91,8 @@ end
 -- Seconds the player has been moving (0 while standing still).
 -- if br.functions.misc:getMovingTime() > 2 then
 function misc:getMovingTime()
-	local now = br._G.GetTime()
-	if movingTimer == nil or br._G.GetUnitSpeed("player") == 0 then movingTimer = now end
+	local now = br.game.GetTime()
+	if movingTimer == nil or br.game.GetUnitSpeed("player") == 0 then movingTimer = now end
 	return now - movingTimer
 end
 
@@ -106,14 +106,14 @@ end
 -- Seconds the player has been standing still (0 while moving).
 -- if br.functions.misc:getStandingTime() > 2 then
 function misc:getStandingTime()
-	local now = br._G.GetTime()
-	if standingTimer == nil or br._G.GetUnitSpeed("player") > 0 then standingTimer = now end
+	local now = br.game.GetTime()
+	if standingTimer == nil or br.game.GetUnitSpeed("player") > 0 then standingTimer = now end
 	return now - standingTimer
 end
 
 -- if isInCombat("target") then
 function misc:isInCombat(Unit)
-	if br._G.UnitAffectingCombat(Unit) or br.functions.misc:isChecked("Ignore Combat") then
+	if br.game.UnitAffectingCombat(Unit) or br.functions.misc:isChecked("Ignore Combat") then
 		return true
 	else
 		return false
@@ -121,13 +121,13 @@ function misc:isInCombat(Unit)
 end
 
 function misc:isInProvingGround()
-	local currentMapID = br._G.C_Map.GetBestMapForUnit("player")
+	local currentMapID = br.game.C_Map.GetBestMapForUnit("player")
 	return currentMapID == 480
 end
 
 -- if isLooting() then
 function misc:isLooting()
-	return br._G.GetNumLootItems() > 0
+	return br.game.GetNumLootItems() > 0
 end
 
 -- if not isMoving("target") then
@@ -135,7 +135,7 @@ function misc:isMoving(Unit)
 	if Unit == nil then
 		return false
 	end
-	return br._G.GetUnitSpeed(Unit) > 0
+	return br.game.GetUnitSpeed(Unit) > 0
 end
 
 br.lifecycle:onTick(85, "dungeon queues", function() misc:AcceptQueues() end)

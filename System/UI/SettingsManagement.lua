@@ -10,7 +10,7 @@ end
 -- Returns the formatted class folder name for the current player (e.g. "Shaman", "Death Knight").
 -- Used by TBC/Classic where hasSubSpecs = false: settings are keyed by class, not spec.
 local function getClassFolderName()
-	return getFolderClassName(select(2, br._G.UnitClass("player")))
+	return getFolderClassName(select(2, br.game.UnitClass("player")))
 end
 
 -- Normalizes a raw spec name from C_SpecializationInfo for use as a settings key / folder.
@@ -28,9 +28,9 @@ end
 local knownDirs = {}
 local function checkDirectory(dir)
 	if knownDirs[dir] then return end
-	if not br._G.DirectoryExists(dir) then
-		br._G.CreateDirectory(dir)
-		if not br._G.DirectoryExists(dir) then
+	if not br.game.DirectoryExists(dir) then
+		br.game.CreateDirectory(dir)
+		if not br.game.DirectoryExists(dir) then
 			-- Return Path
 			br.log:error("Creating directory " .. dir .. " failed!")
 			return nil
@@ -120,7 +120,7 @@ end
 
 -- The Save Function
 local function tableSave(tbl, filename)
-    br._G.WriteFile(filename, serialize(tbl), false)
+    br.game.WriteFile(filename, serialize(tbl), false)
 end
 
 -- A table from file text written by serialize (nil for no text)
@@ -128,7 +128,7 @@ local function parse(file, name)
     if file == nil or file == "" then
         return
     end
-    local ftables = br._G.loadstring(file, name)
+    local ftables = br.game.loadstring(file, name)
     local tables
     if (ftables) then
         tables = ftables()
@@ -155,7 +155,7 @@ end
 
 -- The Load Function
 local function tableLoad(sfile)
-    return parse(br._G.ReadFile(sfile), sfile)
+    return parse(br.game.ReadFile(sfile), sfile)
 end
 
 -- Live settings files taken over this session from the root before the flavour split (path -> true)
@@ -243,7 +243,7 @@ function settingsManagement:checkDirectories(folder, class, spec, profile, insta
 
 	-- Set the Class Directory
 	if class == nil then
-		class = select(2, br._G.UnitClass("player"))
+		class = select(2, br.game.UnitClass("player"))
 	end
 	local classDir = settingsDir .. getFolderClassName(class) .. sep
 	checkDirectory(classDir)
@@ -437,7 +437,7 @@ function settingsManagement:cleanSettings()
 						if not br.data.ui[page] then
 							-- Page doesn't exist in UI registry - this might be normal if page hasn't been created yet
 							-- Don't wipe settings for pages that haven't been visited/created
-							-- br._G.print("|cffFFDD00[cleanSettings] Skipping page '" .. page .. "' - not in UI registry (not created yet)|r")
+							-- br.game.print("|cffFFDD00[cleanSettings] Skipping page '" .. page .. "' - not in UI registry (not created yet)|r")
 						else
 							-- Page exists in UI, check individual options
 							for option, _ in pairs(pageData) do
@@ -507,12 +507,12 @@ end
 -- current: the file's text now
 local function rotateBackups(path, current)
 	for i = SETTINGS_BACKUPS - 1, 1, -1 do
-		local older = br._G.ReadFile(path .. ".bak" .. i)
+		local older = br.game.ReadFile(path .. ".bak" .. i)
 		if older ~= nil and older ~= "" then
-			br._G.WriteFile(path .. ".bak" .. (i + 1), older, false)
+			br.game.WriteFile(path .. ".bak" .. (i + 1), older, false)
 		end
 	end
-	br._G.WriteFile(path .. ".bak1", current, false)
+	br.game.WriteFile(path .. ".bak1", current, false)
 end
 
 --------------------------------------------------------------------------
@@ -573,8 +573,8 @@ local SPEC_RESERVED = { toggles = true, RotationDrop = true, RotationDropValue =
 
 -- "<Realm>-<Name>" folder key for the current character
 local function characterKey()
-	local name = br._G.UnitName("player") or "Unknown"
-	local realm = (br._G.GetRealmName and br._G.GetRealmName()) or "Realm"
+	local name = br.game.UnitName("player") or "Unknown"
+	local realm = (br.game.GetRealmName and br.game.GetRealmName()) or "Realm"
 	return (realm .. "-" .. name):gsub("[\\/:%*%?\"<>|]", "_")
 end
 
@@ -714,7 +714,7 @@ local backedUp = {}
 -- out); a deliberate write always keeps the file it replaces.
 local function writeSettingsFile(path, data, label, allowEmpty)
 	local content = serialize(data)
-	local current = br._G.ReadFile(path)
+	local current = br.game.ReadFile(path)
 	if content == current then return true end
 	if not allowEmpty then
 		local onDisk = parse(current, path)
@@ -736,7 +736,7 @@ local function writeSettingsFile(path, data, label, allowEmpty)
 		rotateBackups(path, current)
 		backedUp[path] = true
 	end
-	br._G.WriteFile(path, content, false)
+	br.game.WriteFile(path, content, false)
 	return true
 end
 
@@ -751,8 +751,8 @@ local function touchIndex(specKey)
 	local index = tableLoad(path) or {}
 	local key = characterKey()
 	local entry = index[key] or {}
-	local now = br._G.time()
-	entry.class = select(2, br._G.UnitClass("player"))
+	local now = br.game.time()
+	entry.class = select(2, br.game.UnitClass("player"))
 	entry.lastUsed = now
 	entry.specs = entry.specs or {}
 	entry.specs[specKey] = now
@@ -765,7 +765,7 @@ end
 local function pickSeedCharacter(wantSpec)
 	local index = tableLoad(indexPath()) or {}
 	local me = characterKey()
-	local myClass = select(2, br._G.UnitClass("player"))
+	local myClass = select(2, br.game.UnitClass("player"))
 	local best, bestScore
 	for key, entry in pairs(index) do
 		if key ~= me and type(entry) == "table" then
@@ -922,7 +922,7 @@ function settingsManagement:loadSettings(profile)
 	br.data.settings[specKey] = specSettings
 	-- The UI mirror is rebuilt as pages are created
 	br.data.ui = nil
-	br._G.print("Loaded Settings for Profile " .. tostring(profile))
+	br.game.print("Loaded Settings for Profile " .. tostring(profile))
 	br.log.session:profileLoaded(profile)
 end
 
@@ -942,12 +942,12 @@ function settingsManagement:saveSettings(wipe, quiet)
 	end
 	local specKey = br.loader.selectedSpec
 	local files = wipe and { bot = {}, base = {}, profile = {} } or currentFiles()
-	if not quiet then br._G.print("Saving Profiles and Settings to Directory: " .. tostring(profileDir)) end
+	if not quiet then br.game.print("Saving Profiles and Settings to Directory: " .. tostring(profileDir)) end
 	writeSettingsFile(botOptionsPath(), files.bot, "Bot Options", wipe)
 	writeSettingsFile(baseOptionsPath(specKey), files.base, "Base Options", wipe)
 	writeSettingsFile(profileDir .. "settings.lua", files.profile, profile, wipe)
 	touchIndex(specKey)
-	if not quiet then br._G.print("Saved Settings for Profile " .. profile) end
+	if not quiet then br.game.print("Saved Settings for Profile " .. profile) end
 end
 
 --- Saves right away after a change made in the UI (Power click, toggle bar moved, profile switch),
@@ -979,7 +979,7 @@ end
 --- Where a snapshot saved before the settings rework would be (Settings/Profile Settings/...), or nil
 -- when there are none (so no folders are created for it).
 function settingsManagement:legacySnapshotDir(name)
-	if not br._G.DirectoryExists(legacyRoot() .. "Profile Settings") then return nil end
+	if not br.game.DirectoryExists(legacyRoot() .. "Profile Settings") then return nil end
 	return settingsManagement:checkDirectories("Profile Settings", nil, br.loader.selectedSpec, br.loader.selectedProfileName, name,
 		legacyRoot())
 end
@@ -998,7 +998,7 @@ function settingsManagement:saveSnapshot(dir, parts, label)
 	for _, part in ipairs(parts) do
 		writeSettingsFile(dir .. SNAPSHOT_FILES[part], files[part], label, true)
 	end
-	br._G.print("Saved " .. label .. " to " .. dir)
+	br.game.print("Saved " .. label .. " to " .. dir)
 end
 
 --- Replaces the current settings with a snapshot's files and reloads the profile. The replaced files
@@ -1028,7 +1028,7 @@ function settingsManagement:loadSnapshot(dir, parts, label, legacyDir)
 	-- Read the files back on the next startup step instead of keeping what is in memory
 	settingsManagement._lastLoadedSpec, settingsManagement._lastLoadedProfile = nil, nil
 	br.bootstrap:reloadProfile()
-	br._G.print("Loaded " .. label .. ".")
+	br.game.print("Loaded " .. label .. ".")
 	return true
 end
 
@@ -1085,7 +1085,7 @@ br.lifecycle:onLogout(20, "settings", function()
 	br.ui:saveWindowPosition()
 	settingsManagement:cleanSettings()
 	local profile = br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-	if profile and profile["PageList"] then br._G.wipe(profile["PageList"]) end
+	if profile and profile["PageList"] then br.game.wipe(profile["PageList"]) end
 	if br.functions.misc:getOptionCheck("Reset Options") then
 		settingsManagement:saveSettings(true) -- "Reset Options": the defaults are saved instead
 	else

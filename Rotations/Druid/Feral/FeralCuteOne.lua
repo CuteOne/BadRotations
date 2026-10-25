@@ -1424,7 +1424,7 @@ local function runRotation()
 
     -- General Vars
     var.multidot  = ui.mode.cleave == 1 and ui.mode.rotation < 3
-    var.getTime   = br._G.GetTime()
+    var.getTime   = br.game.GetTime()
     var.lootDelay = ui.checked("Auto Loot") and ui.value("Auto Loot") or 0
     var.minCount  = ui.useCDs() and 1 or 3
     if not unit.inCombat() and not unit.exists("target") then

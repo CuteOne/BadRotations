@@ -26,7 +26,7 @@ function br.ui:createWindow(name, width, height, title, color, messageWindow)
             br.ui:savePosition(name)
             br.data.settings[br.loader.selectedSpec][name]["active"] = false
             DiesalGUI:OnMouse(this, button)
-            br._G.PlaySound(799)
+            br.game.PlaySound(799)
             window:FireEvent("OnClose")
             window:Hide()
         end

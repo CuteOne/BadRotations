@@ -27,26 +27,26 @@ end
 -- Rotations/<Class>/ folder for the player, with trailing separator
 local function getClassRotationsPath()
     local base, sep = br.functions.misc:getAddonPath()
-    local class = select(2, br._G.UnitClass('player'))
+    local class = select(2, br.game.UnitClass('player'))
     return base .. sep .. 'Rotations' .. sep .. br.functions.misc:getClassFolderName(class) .. sep, sep
 end
 
 -- A profile file's error: Errors.log, then the game's error handler
 local function errorhandler(err)
-    return br.log:reportError(err, br._G.debugstack and br._G.debugstack(2))
+    return br.log:reportError(err, br.game.debugstack and br.game.debugstack(2))
 end
 
 -- Compiles and runs one rotation/support file. Its environment sees br, and reads globals through
--- br._G, so bare names get BR's versions (expansion shims, unlocker functions, tagged print).
+-- br.game, so bare names get BR's versions (expansion shims, unlocker functions, tagged print).
 local function loadFile(profile, file)
-    local custom_env = setmetatable({ br = br }, { __index = br._G })
-    local func, errorMessage = br._G.loadstring(profile, file);
+    local custom_env = setmetatable({ br = br }, { __index = br.game })
+    local func, errorMessage = br.game.loadstring(profile, file);
     if not func then
         br.log:error(file .. " cannot load. Please inform devs! " .. tostring(errorMessage))
         errorhandler(errorMessage)
         return false
     end
-    br._G.setfenv(func, custom_env)
+    br.game.setfenv(func, custom_env)
     br.log.rotation:registerSource(file, profile) -- names where a cast came from (System/RotationLog.lua)
 
     -- Capture the actual error in the error handler
@@ -144,25 +144,25 @@ function br.loader.registerRotation(def)
     local entry = {}
     for k, v in pairs(def) do entry[k] = v end
     entry.file = file
-    br._G.tinsert(list, entry)
+    br.game.tinsert(list, entry)
     return true
 end
 
 --- Runs every rotation file in the class/spec folder. Each file calls br.loader.registerRotation,
 -- which keeps the ones for the player's spec and expansion in br.loader.rotations[specID].
 function profileLoader:loadProfiles()
-    br._G.wipe(br.loader.rotations)
+    br.game.wipe(br.loader.rotations)
     local specID = br.loader.selectedSpecID
-    local class = select(2, br._G.UnitClass('player'))
+    local class = select(2, br.game.UnitClass('player'))
     local classPath, sep = getClassRotationsPath()
     local path = classPath .. getFolderSpecName(class, specID) .. sep
-    local files = br._G.GetDirectoryFiles(path) or {}
+    local files = br.game.GetDirectoryFiles(path) or {}
 
-    br._G.wipe(loading.seen)
+    br.game.wipe(loading.seen)
     for _, file in pairs(files) do
         if file:sub(-4) == ".lua" then
             loading.file = file
-            loadFile(br._G.ReadFile(path .. file) or "", file)
+            loadFile(br.game.ReadFile(path .. file) or "", file)
         end
     end
     loading.file = nil
@@ -197,12 +197,12 @@ function profileLoader:loadSupport(thisFile)
     br.loader.rotations.support = br.loader.rotations.support or {}
     -- A support file sets a table or a function; a table is emptied before the file fills it again
     if type(br.loader.rotations.support[thisFile]) == "table" then
-        br._G.wipe(br.loader.rotations.support[thisFile])
+        br.game.wipe(br.loader.rotations.support[thisFile])
     end
     local file = thisFile .. ".lua"
     local classPath, sep = getClassRotationsPath()
     local path = classPath .. 'Support' .. sep .. file
-    local profile = br._G.ReadFile(path)
+    local profile = br.game.ReadFile(path)
     if profile == nil then
         warn("support file not found: " .. path)
         return

@@ -33,8 +33,8 @@ local steps = br.api.professionSteps
 -- Leather Scraps
 steps[#steps + 1] = function(_, totals)
     if not br.functions.misc:isChecked("Leather Scraps") then return false end
-    if (totals[LEATHER_SCRAPS] or 0) >= SCRAPS_NEEDED and br._G.IsUsableItem(LEATHER_SCRAPS) then
-        br._G.UseItemByName(LEATHER_SCRAPS)
+    if (totals[LEATHER_SCRAPS] or 0) >= SCRAPS_NEEDED and br.game.IsUsableItem(LEATHER_SCRAPS) then
+        br.game.UseItemByName(LEATHER_SCRAPS)
         return true
     end
     return false
@@ -45,8 +45,8 @@ steps[#steps + 1] = function(slots)
     if not br.functions.misc:isChecked("Fish Oil") then return false end
     for i = 1, #slots do
         local itemID = slots[i].itemID
-        if OIL_FISH[itemID] and br._G.IsUsableItem(itemID) then
-            br._G.UseItemByName(itemID)
+        if OIL_FISH[itemID] and br.game.IsUsableItem(itemID) then
+            br.game.UseItemByName(itemID)
             return true
         end
     end

@@ -195,7 +195,7 @@ local function runRotation()
                 -- Start Attack
                 -- actions=auto_attack
                 if not C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(29722)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    br._G.StartAttack(units.dyn5)
+                    br.game.StartAttack(units.dyn5)
                 end
 
                 -- Curse of Weakness

@@ -48,7 +48,7 @@ local function debug(message)
 end
 
 local function targetGUID()
-	local guid = br._G.UnitGUID("target")
+	local guid = br.game.UnitGUID("target")
 	if guid ~= nil and br.functions.misc:canUseValue(guid) then return guid end
 	return nil
 end
@@ -73,14 +73,14 @@ end
 -- is already promised (E.promiseCosts), but it lands only when a swing does, which can take seconds
 -- (target behind the player or out of reach), so later casts don't wait for it.
 local function stillPending(entry)
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	if now - entry.sentAt < br.functions.misc:getRoundTripHold() then return true, false end
-	local _, _, _, _, _, _, _, _, castingID = br._G.UnitCastingInfo("player")
-	local _, _, _, _, _, _, _, channelID = br._G.UnitChannelInfo("player")
+	local _, _, _, _, _, _, _, _, castingID = br.game.UnitCastingInfo("player")
+	local _, _, _, _, _, _, _, channelID = br.game.UnitChannelInfo("player")
 	for i = 1, #entry.ids do
 		local id = entry.ids[i]
 		if id == castingID or id == channelID then return true, false end
-		if br._G.C_Spell.IsCurrentSpell(id) and now - entry.sentAt < 6 then return true, true end
+		if br.game.C_Spell.IsCurrentSpell(id) and now - entry.sentAt < 6 then return true, true end
 	end
 	return false, false
 end
@@ -98,19 +98,19 @@ local function settlePending()
 end
 
 function cast:resetOpener()
-	br._G.wipe(opener.steps)
-	br._G.wipe(opener.pending)
-	br._G.wipe(opener.order)
+	br.game.wipe(opener.steps)
+	br.game.wipe(opener.pending)
+	br.game.wipe(opener.order)
 	opener.started, opener.complete = false, false
 	opener.startGUID, opener.current = nil, nil
 end
 
 -- Called by the rotation pulse (Player:startRotation) before and after the profile runs.
 function cast:openerBeginPass()
-	br._G.wipe(opener.occurrences)
+	br.game.wipe(opener.occurrences)
 	opener.held, opener.lastCalled = false, nil
-	if opener.started and not br._G.UnitAffectingCombat("player")
-		and (not br._G.UnitExists("target") or br._G.UnitIsDeadOrGhost("target"))
+	if opener.started and not br.game.UnitAffectingCombat("player")
+		and (not br.game.UnitExists("target") or br.game.UnitIsDeadOrGhost("target"))
 	then
 		cast:resetOpener()
 		return
@@ -164,7 +164,7 @@ end
 -- Why the cast was just refused, from the cast engine's refusal record ("/br why").
 local function lastRefusal(name)
 	local entry = cast:getRefusal(name)
-	if entry and entry.refusedAt == br._G.GetTime() then return entry.reason end
+	if entry and entry.refusedAt == br.game.GetTime() then return entry.reason end
 	return nil
 end
 
@@ -192,7 +192,7 @@ function cast:openerStep(spellKey, id, castFn, ...)
 	if opener.pending[key] == nil and turnPassed(at) then
 		return skipStep(key, name, "its turn passed")
 	end
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	opener.held = true
 	if not opener.started then
 		opener.started = true

@@ -219,7 +219,7 @@ local unlockList =
 -- functions exported to BadRotations
 --------------------------------------------------------------------------------------------------------------------------------
 local _, br = ...
-local b = br._G
+local b = br.game
 local unlock = br.unlockers
 local tinkrUnlocked = false
 local funcCopies = {}
@@ -246,7 +246,7 @@ local File
 function unlock.TinkrUnlock()
 	if not tinkrUnlocked then
 		if Unlocker and Unlocker.name == "Tinkr" then
-			br._G.print("Tinkr Unlocker Detected")
+			br.game.print("Tinkr Unlocker Detected")
 			tinkrUnlocked = true
 			File = Unlocker.Util.File
 		else

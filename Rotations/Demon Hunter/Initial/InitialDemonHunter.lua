@@ -9,8 +9,8 @@ local function toggles()
         { name = "Off", icon = "chaosStrike", overlay = "Rotation Disabled", tip = "Disable Rotation" },
     } })
     br.ui:toggle("Defensive", { modes = {
-        { name = "On", icon = select(2, br._G.C_Item.GetItemSpell(br.player.items.legionHealthstone)), overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
-        { name = "Off", icon = select(2, br._G.C_Item.GetItemSpell(br.player.items.legionHealthstone)), overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+        { name = "On", icon = select(2, br.game.C_Item.GetItemSpell(br.player.items.legionHealthstone)), overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = select(2, br.game.C_Item.GetItemSpell(br.player.items.legionHealthstone)), overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
     br.ui:toggle("Cooldown", { modes = {
         { name = "On", icon = "metamorphosis", overlay = "Cooldown Enabled", tip = "Includes Offensive Cooldowns." },
@@ -122,7 +122,7 @@ end -- End Action List - Cooldowns
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
-    if not unit.inCombat() and not br._G.IsMounted() then
+    if not unit.inCombat() and not br.game.IsMounted() then
         if unit.valid("target") then
             -- Torment
             if cast.able.torment("target") and ui.checked("Torment") then
@@ -203,7 +203,7 @@ local function runRotation()
     units           = br.player.units
     use             = br.player.use
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or br._G.IsMounted() or br.functions.misc:pause() or ui.mode.rotation == 2
+    var.haltProfile = (unit.inCombat() and var.profileStop) or br.game.IsMounted() or br.functions.misc:pause() or ui.mode.rotation == 2
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40)

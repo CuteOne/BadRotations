@@ -1758,13 +1758,13 @@ local function runRotation()
     enemies.get(5)
 
     -- * General Vars
-    var.getTime   = br._G.GetTime()
+    var.getTime   = br.game.GetTime()
     var.lootDelay = ui.checked("Auto Loot") and ui.value("Auto Loot") or 0
     var.minCount  = ui.useCDs() and 1 or 3
 
     -- Skip DoTs on players only in instances/raids (to prevent DoTs on mind-controlled targets)
     -- In open world/PvP, allow DoTs on players
-    var.skipPlayerDoTs = br._G.IsInInstance()
+    var.skipPlayerDoTs = br.game.IsInInstance()
 
     -- Reset opener flag when out of combat or target changes
     if not unit.inCombat() then

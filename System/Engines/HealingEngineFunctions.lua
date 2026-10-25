@@ -9,7 +9,7 @@ function healingEngineFunctions:getTanksTable()
 	for i = 1, #br.engines.healingEngine.friend do
 		if br.engines.healingEngine.friend[i] then
 			if br.engines.healingEngine.friend[i].role == "TANK" then
-				br._G.tinsert(tanksTable, br.engines.healingEngine.friend[i])
+				br.game.tinsert(tanksTable, br.engines.healingEngine.friend[i])
 			end
 		end
 	end
@@ -50,7 +50,7 @@ function healingEngineFunctions:getUnitsToHealAround(UnitID,radius,health,count)
 	elseif UnitID and UnitID.x ~= 0 then
 		X1,Y1,Z1 = UnitID.x,UnitID.y,UnitID.z
 	end
-	local unit = {x = X1,y = Y1,z = Z1,guid = br._G.UnitGUID(UnitID),name = br._G.UnitName(UnitID)}
+	local unit = {x = X1,y = Y1,z = Z1,guid = br.game.UnitGUID(UnitID),name = br.game.UnitName(UnitID)}
 	-- once we get our unit location we call our getdistance
 	local lowHealthCandidates = {}
 	for i = 1, #br.engines.healingEngine.friend do
@@ -59,7 +59,7 @@ function healingEngineFunctions:getUnitsToHealAround(UnitID,radius,health,count)
 		if thisUnit.hp <= health and br.engines.healingEngineFunctions:getNovaDistance(unit,thisUnit) < radius then
 			-- if its first item in table, insert
 			if #lowHealthCandidates == 0 then
-				br._G.tinsert(lowHealthCandidates, 1, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
+				br.game.tinsert(lowHealthCandidates, 1, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
 				-- else compare and place our item at the right position in our table
 			else
 				-- scan from last to first and if higher just break out
@@ -76,12 +76,12 @@ function healingEngineFunctions:getUnitsToHealAround(UnitID,radius,health,count)
 					end
 				end
 				if bestPosition ~= 0 then
-					br._G.tinsert(lowHealthCandidates, bestPosition, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
+					br.game.tinsert(lowHealthCandidates, bestPosition, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
 				elseif lowHealthUnitsCount < count then
-					br._G.tinsert(lowHealthCandidates, lowHealthUnitsCount+1, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
+					br.game.tinsert(lowHealthCandidates, lowHealthUnitsCount+1, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
 				end
 				if #lowHealthCandidates > count then
-					br._G.tremove(lowHealthCandidates) -- drop the highest-health candidate past the count
+					br.game.tremove(lowHealthCandidates) -- drop the highest-health candidate past the count
 				end
 			end
 		end
@@ -112,7 +112,7 @@ function healingEngineFunctions:getAllies(Unit,Radius)
 	for i=1,#br.engines.healingEngine.friend do
 		if not br.functions.unit:GetUnitIsDeadOrGhost(br.engines.healingEngine.friend[i].unit) then
 			if br.functions.range:getDistance(Unit,br.engines.healingEngine.friend[i].unit) <= Radius then
-				br._G.tinsert(alliesTable,br.engines.healingEngine.friend[i])
+				br.game.tinsert(alliesTable,br.engines.healingEngine.friend[i])
 			end
 		end
 	end
@@ -120,7 +120,7 @@ function healingEngineFunctions:getAllies(Unit,Radius)
 end
 function healingEngineFunctions:inLoSHealer()
 	local function drawHealers(healer)
-		local LibDraw 					= br._G.LibStub("LibDraw-BR")
+		local LibDraw 					= br.game.LibStub("LibDraw-BR")
 		-- local facing 					= br.functions.unit:GetObjectFacing("player")
 		local playerX, playerY, playerZ = br.functions.unit:GetObjectPosition("player")
 		-- local locateX, locateY, locateZ = br.functions.unit:GetObjectPosition(healer)
@@ -134,7 +134,7 @@ function healingEngineFunctions:inLoSHealer()
 	end
 	for i = 1, #br.engines.healingEngine.friend do
 		local thisUnit = br.engines.healingEngine.friend[i].unit
-		if not br.functions.unit:GetUnitIsUnit(thisUnit,"player") and br._G.UnitGroupRolesAssigned(thisUnit) == "HEALER" then
+		if not br.functions.unit:GetUnitIsUnit(thisUnit,"player") and br.game.UnitGroupRolesAssigned(thisUnit) == "HEALER" then
 			drawHealers(thisUnit)
 		end
 	end
@@ -156,17 +156,17 @@ function healingEngineFunctions:isInside(x,y,ax,ay,bx,by,dx,dy)
 end
 
 function healingEngineFunctions:getUnitsInRect(width,length, showLines, hp)
-	local LibDraw = br._G.LibStub("LibDraw-BR")
+	local LibDraw = br.game.LibStub("LibDraw-BR")
 	local playerX, playerY, playerZ = br.functions.unit:GetObjectPosition("player")
 	local facing = br.functions.unit:GetObjectFacing("player")
 	-- Near Left
-	local nlX, nlY, nlZ = br._G.GetPositionFromPosition(playerX, playerY, playerZ, width/2, facing + math.rad(90), 0)
+	local nlX, nlY, nlZ = br.game.GetPositionFromPosition(playerX, playerY, playerZ, width/2, facing + math.rad(90), 0)
 	-- Near Right
-	local nrX, nrY, nrZ = br._G.GetPositionFromPosition(playerX, playerY, playerZ, width/2, facing + math.rad(270), 0)
+	local nrX, nrY, nrZ = br.game.GetPositionFromPosition(playerX, playerY, playerZ, width/2, facing + math.rad(270), 0)
 	-- Far Left
-	local flX, flY, flZ = br._G.GetPositionFromPosition(nlX, nlY, nlZ, length, facing + math.rad(0), 0)
+	local flX, flY, flZ = br.game.GetPositionFromPosition(nlX, nlY, nlZ, length, facing + math.rad(0), 0)
 	-- Far Right
-	local frX, frY, frZ = br._G.GetPositionFromPosition(nrX, nrY, nrZ, length, facing + math.rad(0), 0)
+	local frX, frY, frZ = br.game.GetPositionFromPosition(nrX, nrY, nrZ, length, facing + math.rad(0), 0)
 
 
 	if showLines then
@@ -192,7 +192,7 @@ function healingEngineFunctions:getUnitsInRect(width,length, showLines, hp)
 			if tX and tY then
 				if br.engines.healingEngineFunctions:isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
 					if showLines then
-						LibDraw.Circle(tX, tY, playerZ, br._G.UnitBoundingRadius(thisUnit.unit))
+						LibDraw.Circle(tX, tY, playerZ, br.game.UnitBoundingRadius(thisUnit.unit))
 					end
 					unitCounter = unitCounter + 1
 					table.insert(UnitsInRect,thisUnit)
@@ -216,11 +216,11 @@ end
 function healingEngineFunctions:castGroundAtLocation(loc, SpellID)
 	-- Check the spot first: the ground's height there, line of sight to it, and nothing standing on it.
 	-- (This used to start the targeting cursor before checking, and left it up when a check failed.)
-	local px, py, pz = br._G.ObjectPosition("player")
-	local _, _, groundZ = br._G.TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110) -- terrain and WMO
+	local px, py, pz = br.game.ObjectPosition("player")
+	local _, _, groundZ = br.game.TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110) -- terrain and WMO
 	if groundZ == nil
-		or br._G.TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) ~= nil -- line of sight, ignoring M2s
-		or br._G.TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) ~= nil -- no M2 on the spot
+		or br.game.TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) ~= nil -- line of sight, ignoring M2s
+		or br.game.TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) ~= nil -- no M2 on the spot
 	then
 		return false
 	end

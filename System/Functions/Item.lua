@@ -8,11 +8,11 @@ local potionCandidates = {}
 -- The bags' filled slots and the count per itemID (item:getBagItems); nil until read after a change
 local bagItems, bagTotals
 do
-	local bagWatch = br._G.CreateFrame("Frame")
+	local bagWatch = br.game.CreateFrame("Frame")
 	local watching = pcall(bagWatch.RegisterEvent, bagWatch, "BAG_UPDATE_DELAYED")
 	if watching then
 		bagWatch:SetScript("OnEvent", function()
-			br._G.wipe(potionCandidates)
+			br.game.wipe(potionCandidates)
 			bagItems, bagTotals = nil, nil
 		end)
 	end
@@ -21,10 +21,10 @@ end
 
 local function readBags()
 	local items, totals = {}, {}
-	local lastBag = (br._G.NUM_BAG_SLOTS or 4) + (br._G.NUM_REAGENTBAG_SLOTS or 0)
+	local lastBag = (br.game.NUM_BAG_SLOTS or 4) + (br.game.NUM_REAGENTBAG_SLOTS or 0)
 	for bag = 0, lastBag do
-		for slot = 1, br._G.C_Container.GetContainerNumSlots(bag) do
-			local info = br._G.C_Container.GetContainerItemInfo(bag, slot)
+		for slot = 1, br.game.C_Container.GetContainerNumSlots(bag) do
+			local info = br.game.C_Container.GetContainerItemInfo(bag, slot)
 			if info and info.itemID then
 				local count = info.stackCount or 1
 				items[#items + 1] = { bag = bag, slot = slot, itemID = info.itemID, count = count }
@@ -46,20 +46,20 @@ end
 -- Hidden tooltip, for clients without C_TooltipInfo
 local scanTooltip
 local function tooltipLines(bag, slot)
-	if br._G.C_TooltipInfo and br._G.C_TooltipInfo.GetBagItem then
-		local data = br._G.C_TooltipInfo.GetBagItem(bag, slot)
+	if br.game.C_TooltipInfo and br.game.C_TooltipInfo.GetBagItem then
+		local data = br.game.C_TooltipInfo.GetBagItem(bag, slot)
 		local lines, texts = data and data.lines or {}, {}
 		for i = 1, #lines do texts[i] = lines[i].leftText end
 		return texts
 	end
 	if scanTooltip == nil then
-		scanTooltip = br._G.CreateFrame("GameTooltip", "BRBagScanTooltip", nil, "GameTooltipTemplate")
+		scanTooltip = br.game.CreateFrame("GameTooltip", "BRBagScanTooltip", nil, "GameTooltipTemplate")
 	end
-	scanTooltip:SetOwner(br._G.WorldFrame, "ANCHOR_NONE")
+	scanTooltip:SetOwner(br.game.WorldFrame, "ANCHOR_NONE")
 	scanTooltip:SetBagItem(bag, slot)
 	local texts = {}
 	for i = 1, scanTooltip:NumLines() do
-		local line = br._G["BRBagScanTooltipTextLeft" .. i]
+		local line = br.game["BRBagScanTooltipTextLeft" .. i]
 		texts[i] = line and line:GetText()
 	end
 	scanTooltip:Hide()
@@ -70,7 +70,7 @@ end
 -- string (ITEM_MILLABLE, LOCKED, ...) so it works in every locale; false when text is nil (a client
 -- without that string), nil when the tooltip couldn't be read (item data not loaded yet, or text the
 -- game won't let BR compare: on Forever it can be flagged secret, so it's read under pcall).
--- if br.functions.item:bagTooltipHas(0, 1, br._G.ITEM_MILLABLE) then
+-- if br.functions.item:bagTooltipHas(0, 1, br.game.ITEM_MILLABLE) then
 function item:bagTooltipHas(bag, slot, text)
 	if text == nil then return false end
 	local ok, found = pcall(function()
@@ -93,19 +93,19 @@ function item:canUseItem(itemID)
 		return false
 	end
 	if itemID <= 19 then
-		local slotItemID = br._G.GetInventoryItemID("player", itemID)
+		local slotItemID = br.game.GetInventoryItemID("player", itemID)
 		if slotItemID == nil or slotItemID == 0 then
 			return false
 		end
-		if br._G.C_Item.GetItemSpell(slotItemID) ~= nil then
-			if br._G.C_Container.GetItemCooldown(slotItemID) == 0 and br._G.C_Item.IsUsableItem(slotItemID) then
+		if br.game.C_Item.GetItemSpell(slotItemID) ~= nil then
+			if br.game.C_Container.GetItemCooldown(slotItemID) == 0 and br.game.C_Item.IsUsableItem(slotItemID) then
 				return true
 			end
 		end
-	elseif (br._G.C_Item.GetItemCount(itemID, false, false) > 0 or br._G.PlayerHasToy(itemID)) and
-		((br._G.C_Item.IsEquippableItem(itemID) and br._G.C_Item.IsEquippedItem(itemID)) or (not br._G.C_Item.IsEquippableItem(itemID) and item:hasItem(itemID)))
+	elseif (br.game.C_Item.GetItemCount(itemID, false, false) > 0 or br.game.PlayerHasToy(itemID)) and
+		((br.game.C_Item.IsEquippableItem(itemID) and br.game.C_Item.IsEquippedItem(itemID)) or (not br.game.C_Item.IsEquippableItem(itemID) and item:hasItem(itemID)))
 	then
-		if itemID > 19 and br._G.C_Container.GetItemCooldown(itemID) == 0 and (br._G.C_Item.IsUsableItem(itemID) or br._G.C_Spell.IsSpellUsable(select(2, br._G.C_Item.GetItemSpell(itemID)))) then
+		if itemID > 19 and br.game.C_Container.GetItemCooldown(itemID) == 0 and (br.game.C_Item.IsUsableItem(itemID) or br.game.C_Spell.IsSpellUsable(select(2, br.game.C_Item.GetItemSpell(itemID)))) then
 			return true
 		end
 	end
@@ -126,9 +126,9 @@ function item:getBestPotion(nameMatch)
 		local slots = item:getBagItems()
 		for i = 1, #slots do
 			local itemID = slots[i].itemID
-			local itemName, _, _, itemLevel = br._G.C_Item.GetItemInfo(itemID)
+			local itemName, _, _, itemLevel = br.game.C_Item.GetItemInfo(itemID)
 			if itemName == nil then complete = false end
-			local classID = select(6, br._G.C_Item.GetItemInfoInstant(itemID))
+			local classID = select(6, br.game.C_Item.GetItemInfoInstant(itemID))
 			if itemName and classID == 0 and itemName:find("Potion", 1, true) and itemName:find(nameMatch, 1, true) then
 				candidates[#candidates + 1] = { itemID = itemID, itemLevel = itemLevel or 0 }
 			end
@@ -194,7 +194,7 @@ end
 -- True if the item has matchStat (a GetItemStats key), or any DPS stat when matchStat is nil.
 -- if br.functions.item:hasDPSStats(itemLink, "ITEM_MOD_AGILITY_SHORT") then
 function item:hasDPSStats(itemLink, matchStat)
-	local stats = br._G.C_Item.GetItemStats(itemLink) or {}
+	local stats = br.game.C_Item.GetItemStats(itemLink) or {}
 
 	-- Define the stats that contribute to DPS.
 	local dpsStats = {"ITEM_MOD_AGILITY_SHORT", "ITEM_MOD_STRENGTH_SHORT", "ITEM_MOD_INTELLECT_SHORT",
@@ -214,16 +214,16 @@ end
 
 function item:hasEquiped(ItemID, Slot)
 	if ItemID == nil then return false end
-	if br._G.PlayerHasToy(ItemID) then
+	if br.game.PlayerHasToy(ItemID) then
 		return true
 	end
 	--Scan Armor Slots to see if specified item was equiped
 	local foundItem = false
 	for i = 1, 19 do
 		-- if there is an item in that slot
-		if br._G.GetInventoryItemID("player", i) ~= nil then
+		if br.game.GetInventoryItemID("player", i) ~= nil then
 			-- check if it matches
-			if br._G.GetInventoryItemID("player", i) == ItemID then
+			if br.game.GetInventoryItemID("player", i) == ItemID then
 				if i == Slot or Slot == nil then
 					foundItem = true
 					break
@@ -238,15 +238,15 @@ end
 function item:hasItem(itemID)
 	if type(itemID) == "table" then itemID = self:getHighestHeldRank(itemID) end
 	if itemID == nil then return false end
-	if br._G.PlayerHasToy(itemID) then
+	if br.game.PlayerHasToy(itemID) then
 		return true
 	end
 	local itemFound = false
 	for i = 0, 4 do          --Let's look at each bag
-		local numBagSlots = br._G.C_Container.GetContainerNumSlots(i)
+		local numBagSlots = br.game.C_Container.GetContainerNumSlots(i)
 		if numBagSlots > 0 then -- Only look for slots if bag present
 			for x = 1, numBagSlots do --Let's look at each bag slot
-				local bagItemID = br._G.C_Container.GetContainerItemID(i, x)
+				local bagItemID = br.game.C_Container.GetContainerItemID(i, x)
 				if tostring(bagItemID) == tostring(itemID) then
 					itemFound = true
 				end
@@ -258,7 +258,7 @@ end
 
 -- item charges
 function item:itemCharges(itemID)
-	local charges = br._G.C_Item.GetItemCount(itemID, false, true)
+	local charges = br.game.C_Item.GetItemCount(itemID, false, true)
 	if charges == nil then
 		return 0
 	end
@@ -268,18 +268,18 @@ end
 -- if TierScan("T17")>=2 then
 function item:TierScan(thisTier)
 	local equippedItems = 0
-	local myClass = select(2, br._G.UnitClass("player"))
+	local myClass = select(2, br.game.UnitClass("player"))
 	thisTier = string.upper(thisTier)
 	local sets = br.lists.tier
 	if sets[thisTier] == nil or sets[thisTier][myClass] == nil then return 0 end
 	local tierList = sets[thisTier][myClass]
 	if not tierList then
-		br._G.print("No tier info found for this class! Please let devs know!")
+		br.game.print("No tier info found for this class! Please let devs know!")
 		return 0
 	end
 	if #tierList > 0 then
 		for i = 1, #tierList do
-			if br._G.C_Item.IsEquippedItem(tierList[i]) then
+			if br.game.C_Item.IsEquippedItem(tierList[i]) then
 				equippedItems = equippedItems + 1
 			end
 		end
@@ -293,23 +293,23 @@ function item:useItem(itemID, thisUnit)
 	if itemID == nil then return false end
 	br.itemSpamDelay = br.itemSpamDelay or 0
 	if itemID <= 19 then
-		if br._G.C_Item.GetItemSpell(br._G.GetInventoryItemID("player", itemID)) ~= nil then
-			local slotItemID = br._G.GetInventoryItemID("player", itemID)
-			if br._G.C_Container.GetItemCooldown(slotItemID) == 0 then
-				if not br.itemSpamDelay or br._G.GetTime() > br.itemSpamDelay then
-					-- br._G.RunMacroText("/use " .. select(1, GetItemInfo(slotItemID)))
-					br._G.UseItemByName(select(1, br._G.C_Item.GetItemInfo(slotItemID)), thisUnit);
-					br.itemSpamDelay = br._G.GetTime() + 1
+		if br.game.C_Item.GetItemSpell(br.game.GetInventoryItemID("player", itemID)) ~= nil then
+			local slotItemID = br.game.GetInventoryItemID("player", itemID)
+			if br.game.C_Container.GetItemCooldown(slotItemID) == 0 then
+				if not br.itemSpamDelay or br.game.GetTime() > br.itemSpamDelay then
+					-- br.game.RunMacroText("/use " .. select(1, GetItemInfo(slotItemID)))
+					br.game.UseItemByName(select(1, br.game.C_Item.GetItemInfo(slotItemID)), thisUnit);
+					br.itemSpamDelay = br.game.GetTime() + 1
 					return true
 				end
 			end
 		end
-	elseif itemID > 19 and (br._G.C_Item.GetItemCount(itemID) > 0 or br._G.PlayerHasToy(itemID)) then
-		if br._G.C_Container.GetItemCooldown(itemID) == 0 then
-			if not br.itemSpamDelay or br._G.GetTime() > br.itemSpamDelay then
-				-- br._G.RunMacroText("/use " .. select(1, GetItemInfo(itemID)))
-				br._G.UseItemByName(select(1, br._G.C_Item.GetItemInfo(itemID)), thisUnit);
-				br.itemSpamDelay = br._G.GetTime() + 1
+	elseif itemID > 19 and (br.game.C_Item.GetItemCount(itemID) > 0 or br.game.PlayerHasToy(itemID)) then
+		if br.game.C_Container.GetItemCooldown(itemID) == 0 then
+			if not br.itemSpamDelay or br.game.GetTime() > br.itemSpamDelay then
+				-- br.game.RunMacroText("/use " .. select(1, GetItemInfo(itemID)))
+				br.game.UseItemByName(select(1, br.game.C_Item.GetItemInfo(itemID)), thisUnit);
+				br.itemSpamDelay = br.game.GetTime() + 1
 				return true
 			end
 		end

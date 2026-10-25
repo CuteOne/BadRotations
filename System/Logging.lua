@@ -3,7 +3,7 @@ local _, br = ...
 -- Logging
 ---------------------------------------------------------------------------------------------------
 -- All of BR's output:
---   Chat          br._G.print (info), br.log:warning, br.log:error, br.log:say (a labelled line),
+--   Chat          br.game.print (info), br.log:warning, br.log:error, br.log:say (a labelled line),
 --                 br.log:more (a continuation line); see "Chat" below for the look.
 --   Log files     br.log:file(name, cap) gives a function that adds a line to BadRotations\Logs\<name>
 --                 (Loot.log, ...), written for reading between sessions (a user can send the folder
@@ -23,8 +23,8 @@ local DEFAULT_CAP = 2000     -- lines per file per session, unless the file asks
 local CHAT_CAP = 3000        -- Chat.log lines per session
 local RECENT_LINES = 500     -- chat lines /br log shows
 
-local GetTime, date = br._G.GetTime, br._G.date
-local tconcat, wipe = table.concat, br._G.wipe
+local GetTime, date = br.game.GetTime, br.game.date
+local tconcat, wipe = table.concat, br.game.wipe
 
 -- Every file's first lines this session start with this, so its game-time stamps can be matched
 -- to the clock (the stamps are GetTime: seconds the computer has been up)
@@ -89,7 +89,7 @@ end
 --- Notes a unit that is a player, so the log files show its stand-in instead of its name. Returns
 -- the stand-in (nil for an NPC or a unit that can't be read).
 function log:notePlayer(unit)
-	local G = br._G
+	local G = br.game
 	local ok, result = pcall(function()
 		if unit == nil or not G.UnitIsPlayer or not G.UnitIsPlayer(unit) then return nil end
 		local name, realm = G.UnitName(unit)
@@ -114,8 +114,8 @@ end
 -- The player, their realm and the group, as it changes
 local function noteGroup()
 	log:notePlayer("player")
-	if br._G.GetRealmName then noteRealm(br._G.GetRealmName()) end
-	local raid = br._G.IsInRaid and br._G.IsInRaid()
+	if br.game.GetRealmName then noteRealm(br.game.GetRealmName()) end
+	local raid = br.game.IsInRaid and br.game.IsInRaid()
 	for i = 1, raid and 40 or 4 do log:notePlayer((raid and "raid" or "party") .. i) end
 end
 
@@ -213,11 +213,11 @@ local folder, separator
 local function logFolder()
 	if folder then return folder, separator end
 	local misc = br.functions and br.functions.misc
-	if not (misc and misc.getAddonPath) or br._G.GetWoWDirectory == nil then return nil end
+	if not (misc and misc.getAddonPath) or br.game.GetWoWDirectory == nil then return nil end
 	local base, sep = misc:getAddonPath()
 	local dir = base .. sep .. "Logs"
-	if br._G.DirectoryExists and br._G.CreateDirectory and not br._G.DirectoryExists(dir) then
-		pcall(br._G.CreateDirectory, dir)
+	if br.game.DirectoryExists and br.game.CreateDirectory and not br.game.DirectoryExists(dir) then
+		pcall(br.game.CreateDirectory, dir)
 	end
 	folder, separator = dir, sep
 	return folder, separator
@@ -229,7 +229,7 @@ end
 -- the unlocker's file functions the lines wait.
 function log:flush()
 	if not dirty then return end
-	local writeFile, readFile = br._G.WriteFile, br._G.ReadFile
+	local writeFile, readFile = br.game.WriteFile, br.game.ReadFile
 	local dir, sep = logFolder()
 	if writeFile == nil or readFile == nil or dir == nil then return end
 	-- Nothing is written before the player's settings are loaded, and nothing at all with
@@ -267,7 +267,7 @@ end
 -- Chat
 ---------------------------------------------------------------------------------------------------
 -- Every BR line in chat looks the same: the class-colored [BadRotations] tag, then an optional
--- label, then the text. Levels: info (br._G.print, no label), warning, error. Tools label their
+-- label, then the text. Levels: info (br.game.print, no label), warning, error. Tools label their
 -- lines (br.log:say("Range", ...)); debug lines are labelled System Debug / Profile Debug
 -- (br.log:systemDebug, br.log:debug). Names and values in the text use one highlight color (log.highlight).
 log.colors = {
@@ -286,7 +286,7 @@ function log.highlight(text)
 end
 
 --- The one chat print: the tag, then msg; recorded (Chat.log, /br log) without the tag. BR's own
---- version of print (br.api.overrides), so br._G.print and profiles' print use it.
+--- version of print (br.api.overrides), so br.game.print and profiles' print use it.
 function br.api.overrides.print(msg)
 	if msg == nil then return end
 	local color = (br.ui and br.ui.colors and br.ui.colors.class) or ""
@@ -302,7 +302,7 @@ end
 
 --- A line with a label ("Range: ...", "Error: ...") in labelColor (gold when nil)
 function log:say(label, text, labelColor)
-	br._G.print((labelColor or log.colors.label) .. label .. ":|r " .. tostring(text))
+	br.game.print((labelColor or log.colors.label) .. label .. ":|r " .. tostring(text))
 end
 
 --- Something went wrong (a file that can't load, a setting that can't be saved, a mistake in a profile)
@@ -385,7 +385,7 @@ function log:reportError(err, stack)
 	elseif count % ERROR_EVERY == 0 then
 		errorLine(("error x%d this session: %s"):format(count, text))
 	end
-	local handler = br._G.geterrorhandler and br._G.geterrorhandler()
+	local handler = br.game.geterrorhandler and br.game.geterrorhandler()
 	if handler then return handler(err) end
 end
 
@@ -433,8 +433,8 @@ end
 ---------------------------------------------------------------------------------------------------
 -- Flushing
 ---------------------------------------------------------------------------------------------------
-br._G.C_Timer.NewTicker(FLUSH_EVERY, function() log:flush() end)
-local flushEvents = br._G.CreateFrame("Frame")
+br.game.C_Timer.NewTicker(FLUSH_EVERY, function() log:flush() end)
+local flushEvents = br.game.CreateFrame("Frame")
 flushEvents:RegisterEvent("PLAYER_REGEN_ENABLED") -- a fight's lines, right when it ends
 flushEvents:RegisterEvent("GROUP_ROSTER_UPDATE")  -- new group members get their stand-ins
 flushEvents:SetScript("OnEvent", function(_, event)
@@ -444,8 +444,8 @@ end)
 
 -- Lines from files that load before BR's chat exists (Expansions/Polyfills.lua), printed once every
 -- file has loaded: the tag's class color (System/UI/Colors.lua) isn't set until later in the TOC
-br._G.C_Timer.After(0, function()
-	for _, message in ipairs(br.earlyMessages or {}) do br._G.print(message) end
+br.game.C_Timer.After(0, function()
+	for _, message in ipairs(br.earlyMessages or {}) do br.game.print(message) end
 	br.earlyMessages = nil
 end)
 

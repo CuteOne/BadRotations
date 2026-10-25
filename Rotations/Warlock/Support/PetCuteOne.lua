@@ -62,12 +62,12 @@ br.loader.rotations.support["PetCuteOne"] = function()
 
     local friendUnit = br.engines.healingEngine.friend[1].unit
     local petActive = IsPetActive()
-    local petCombat = br._G.UnitAffectingCombat("pet")
+    local petCombat = br.game.UnitAffectingCombat("pet")
     local petDistance = br.functions.range:getDistance(petTarget, "pet") or 99
-    local petExists = br._G.UnitExists("pet")
+    local petExists = br.game.UnitExists("pet")
     local petHealth = br.functions.unit:getHP("pet")
     local petMode = getCurrentPetMode()
-    local validTarget = br._G.UnitExists(petTarget) and
+    local validTarget = br.game.UnitExists(petTarget) and
         (br.functions.misc:isValidUnit(petTarget) or br.functions.unit:isDummy()) --or (not UnitExists("pettarget") and br.functions.misc:isValidUnit("target")) or br.functions.unit:isDummy()
 
     -- if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
@@ -94,20 +94,20 @@ br.loader.rotations.support["PetCuteOne"] = function()
     if br.functions.misc:isChecked("Pet - Auto Attack/Passive") then
         -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
         if inCombat and (petMode == "Defensive" or petMode == "Passive") and not haltProfile then
-            br._G.PetAssistMode()
+            br.game.PetAssistMode()
         elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then
-            br._G.PetDefensiveMode()
+            br.game.PetDefensiveMode()
         elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) and not br.functions.cast:isUnitCasting("player") then
-            br._G.PetPassiveMode()
+            br.game.PetPassiveMode()
         end
         -- Pet Attack / retreat
         if (inCombat or petCombat) and not haltProfile then
-            br._G.PetAttack(petTarget)
+            br.game.PetAttack(petTarget)
         elseif not inCombat or (inCombat and not br.functions.misc:isValidUnit(petTarget)) or haltProfile
             and IsPetAttackActive() and not br.functions.cast:isUnitCasting("player")
         then
-            br._G.PetStopAttack()
-            br._G.PetFollow()
+            br.game.PetStopAttack()
+            br.game.PetFollow()
         end
     end
     -- Manage Pet Abilities

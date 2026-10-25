@@ -97,7 +97,7 @@ local eatingBuffNames = {
 -- True when the unit has a buff whose name is in names
 local function hasBuffNamed(Unit, names)
 	for i = 1, 40 do
-		local auraInfo = br._G.C_UnitAuras.GetBuffDataByIndex(Unit, i)
+		local auraInfo = br.game.C_UnitAuras.GetBuffDataByIndex(Unit, i)
 		if not auraInfo then return false end
 		if names[auraInfo.name] then return true end
 	end
@@ -117,9 +117,9 @@ end
 --- Cancels the player's shapeshift form, unless the player isn't in one or a cancel is already on
 -- its way. Returns true when a cancel was sent now.
 function unit:cancelShapeshiftForm()
-	if (br._G.GetShapeshiftForm() or 0) == 0 or unit:isFormCancelPending() then return false end
-	br._G.CancelShapeshiftForm()
-	formCancelSentAt = br._G.GetTime()
+	if (br.game.GetShapeshiftForm() or 0) == 0 or unit:isFormCancelPending() then return false end
+	br.game.CancelShapeshiftForm()
+	formCancelSentAt = br.game.GetTime()
 	return true
 end
 
@@ -127,8 +127,8 @@ end
 -- if br.functions.unit:getAggroRange("target") > 15 then
 function unit:getAggroRange(thisUnit)
 	if thisUnit == nil then thisUnit = "target" end
-	local thisLevel = br._G.UnitLevel(thisUnit) or 0
-	local playerLevel = br._G.UnitLevel("player") or 0
+	local thisLevel = br.game.UnitLevel(thisUnit) or 0
+	local playerLevel = br.game.UnitLevel("player") or 0
 	-- UnitLevel returns -1 for skull-level units; treat them as far above the player
 	if thisLevel < 0 then thisLevel = playerLevel + 10 end
 	return math.max(20 + (thisLevel - playerLevel), 5)
@@ -165,13 +165,13 @@ function unit:getCreatureType(Unit)
 	then
 		return false
 	end
-	return not br._G.UnitIsBattlePet(Unit) and not br._G.UnitIsWildBattlePet(Unit)
+	return not br.game.UnitIsBattlePet(Unit) and not br.game.UnitIsWildBattlePet(Unit)
 end
 
 -- The unit's creature type ID, or nil when it has none the game reports.
 -- if br.functions.unit:getCreatureTypeID("target") == 1 then
 function unit:getCreatureTypeID(Unit)
-	local name, id = br._G.UnitCreatureType(Unit)
+	local name, id = br.game.UnitCreatureType(Unit)
 	if id ~= nil then return id end
 	return name and creatureTypeByName[name]
 end
@@ -185,7 +185,7 @@ function unit:getDeadGroupMember(range, ...)
 	for i = 1, #friends do
 		local friend = friends[i]
 		local thisUnit = friend.unit
-		if br._G.UnitIsPlayer(thisUnit) and br._G.UnitIsDeadOrGhost(thisUnit)
+		if br.game.UnitIsPlayer(thisUnit) and br.game.UnitIsDeadOrGhost(thisUnit)
 			and (br.functions.range:getDistance("player", thisUnit) or 99) < range
 		then
 			if roles == nil then return thisUnit end
@@ -215,8 +215,8 @@ function unit:getFacing(Unit1, Unit2, Degrees)
 	-- check is preferred when present.
 	-- Note: our Degrees parameter is treated as a HALF-angle (e.g. 90 == 180deg front hemisphere).
 	local _, fromTarget = br.functions.unit:getServerFacing(Unit1)
-	if br._G.ObjectIsFacing ~= nil and not fromTarget then
-		local ok, result = pcall(br._G.ObjectIsFacing, Unit1, Unit2, Degrees * 2)
+	if br.game.ObjectIsFacing ~= nil and not fromTarget then
+		local ok, result = pcall(br.game.ObjectIsFacing, Unit1, Unit2, Degrees * 2)
 		if not ok then return nil end
 		return result == true
 	end
@@ -233,10 +233,10 @@ end
 -- but the player that has a target, that's the direction to its target. A stun or fear clears its
 -- target and sends the real facing (Unit::SetStunned), so without a target the client's is right.
 function unit:getServerFacing(Unit)
-	if Unit ~= "player" and br._G.UnitTarget and not br.functions.unit:GetUnitIsUnit(Unit, "player") then
-		local victim = br._G.UnitTarget(Unit)
-		if victim ~= nil and not br._G.UnitIsUnit(victim, Unit) then
-			if br._G.UnitIsUnit(victim, "player") then victim = "player" end
+	if Unit ~= "player" and br.game.UnitTarget and not br.functions.unit:GetUnitIsUnit(Unit, "player") then
+		local victim = br.game.UnitTarget(Unit)
+		if victim ~= nil and not br.game.UnitIsUnit(victim, Unit) then
+			if br.game.UnitIsUnit(victim, "player") then victim = "player" end
 			local x1, y1 = br.functions.unit:GetObjectPosition(Unit)
 			local x2, y2 = br.functions.unit:GetObjectPosition(victim)
 			if x1 and y1 and x2 and y2 and (x1 ~= x2 or y1 ~= y2) then
@@ -267,19 +267,19 @@ end
 
 --- The spell ID of the player's current shapeshift form, or nil when not in one.
 function unit:getFormSpellID()
-	if not br._G.GetShapeshiftForm or not br._G.GetShapeshiftFormInfo then return nil end
-	local formIndex = br._G.GetShapeshiftForm() or 0
+	if not br.game.GetShapeshiftForm or not br.game.GetShapeshiftFormInfo then return nil end
+	local formIndex = br.game.GetShapeshiftForm() or 0
 	if formIndex == 0 then return nil end
-	local _, _, _, formSpellID = br._G.GetShapeshiftFormInfo(formIndex)
+	local _, _, _, formSpellID = br.game.GetShapeshiftFormInfo(formIndex)
 	return formSpellID
 end
 
 function unit:getGUID(unit)
 	local nShortHand, targetGUID = "", ""
 	if br.functions.unit:GetObjectExists(unit) then
-		local guid = br._G.UnitGUID(unit)
+		local guid = br.game.UnitGUID(unit)
 		if guid ~= nil then
-			if br._G.UnitIsPlayer(unit) then
+			if br.game.UnitIsPlayer(unit) then
 				targetGUID = guid
 				nShortHand = string.sub(guid, -5)
 			else
@@ -294,22 +294,22 @@ end
 -- if br.functions.unit:getHP("player") then
 function unit:getHP(Unit)
 	if br.functions.unit:GetObjectExists(Unit) then
-		if br._G.UnitIsEnemy("player", Unit) then
-			return 100 * (br._G.UnitHealth(Unit) / br._G.UnitHealthMax(Unit))
+		if br.game.UnitIsEnemy("player", Unit) then
+			return 100 * (br.game.UnitHealth(Unit) / br.game.UnitHealthMax(Unit))
 		else
 			if not br.functions.unit:GetUnitIsDeadOrGhost(Unit) and br.functions.unit:GetUnitIsVisible(Unit) then
 				for i = 1, #br.engines.healingEngine.friend do
 					if br.engines.healingEngine.friend[i] then
-						if br.engines.healingEngine.friend[i].guidsh == string.sub(br._G.UnitGUID(Unit), -5) then
+						if br.engines.healingEngine.friend[i].guidsh == string.sub(br.game.UnitGUID(Unit), -5) then
 							return br.engines.healingEngine.friend[i].hp
 						end
 					end
 				end
-				if br.functions.misc:getOptionCheck("Incoming Heals") == true and br._G.UnitGetIncomingHeals(Unit, "player") ~= nil then
-					return 100 * (br._G.UnitHealth(Unit) + br._G.UnitGetIncomingHeals(Unit, "player")) /
-					br._G.UnitHealthMax(Unit)
+				if br.functions.misc:getOptionCheck("Incoming Heals") == true and br.game.UnitGetIncomingHeals(Unit, "player") ~= nil then
+					return 100 * (br.game.UnitHealth(Unit) + br.game.UnitGetIncomingHeals(Unit, "player")) /
+					br.game.UnitHealthMax(Unit)
 				else
-					return 100 * br._G.UnitHealth(Unit) / br._G.UnitHealthMax(Unit)
+					return 100 * br.game.UnitHealth(Unit) / br.game.UnitHealthMax(Unit)
 				end
 			end
 		end
@@ -342,7 +342,7 @@ end
 
 function unit:GetObjectFacing(Unit)
 	if br.unlocked and br.functions.unit:GetObjectExists(Unit) then
-		return br._G.ObjectFacing(Unit)
+		return br.game.ObjectFacing(Unit)
 	else
 		return 0
 	end
@@ -360,7 +360,7 @@ function unit:GetObjectID(Unit)
 		-- units the enemies engine tracks already have their NPC ID on record
 		local record = br.engines.enemiesEngine and br.engines.enemiesEngine.records and br.engines.enemiesEngine.records[Unit]
 		if record and record.id then return record.id end
-		return br._G.ObjectID(Unit)
+		return br.game.ObjectID(Unit)
 	else
 		return 0
 	end
@@ -369,9 +369,9 @@ end
 function unit:GetObjectPosition(Unit)
 	local x, y, z = 0, 0, 0
 	if br.unlocked then --EWT then
-		if Unit == nil then return br._G.ObjectPosition("player") end
+		if Unit == nil then return br.game.ObjectPosition("player") end
 		if br.functions.unit:GetObjectExists(Unit) then
-			x, y, z = br._G.ObjectPosition(Unit)
+			x, y, z = br.game.ObjectPosition(Unit)
 		end
 	end
 	return x, y, z
@@ -382,9 +382,9 @@ end
 -- local stat = br.functions.unit:getPrimaryStat()
 function unit:getPrimaryStat()
 	local stats = {
-		Strength = select(2, br._G.UnitStat("player", 1)),
-		Agility = select(2, br._G.UnitStat("player", 2)),
-		Intellect = select(2, br._G.UnitStat("player", 4)),
+		Strength = select(2, br.game.UnitStat("player", 1)),
+		Agility = select(2, br.game.UnitStat("player", 2)),
+		Intellect = select(2, br.game.UnitStat("player", 4)),
 	}
 	local highestStat, highestValue = "", 0
 	for statName, statValue in pairs(stats) do
@@ -399,7 +399,7 @@ end
 function unit:getSpellUnit(spellCast, aoe, minRange, maxRange, spellType)
 	local spellName = br.functions.spell:getName(spellCast)
 	if aoe == nil then aoe = false end
-	local hasRange = br._G.C_Spell.SpellHasRange(spellName) and true or false
+	local hasRange = br.game.C_Spell.SpellHasRange(spellName) and true or false
 	local facing = not aoe
 	local unit = maxRange > 0 and br.engines.enemiesEngineFunctions:dynamicTarget(maxRange, facing) or nil
 
@@ -431,12 +431,12 @@ end
 
 function unit:GetUnitExists(Unit)
 	if Unit == nil then return false end
-	return br._G.UnitExists(Unit)
+	return br.game.UnitExists(Unit)
 end
 
 function unit:getUnitID(Unit)
 	if br.functions.unit:GetObjectExists(Unit) and br.functions.unit:GetUnitIsVisible(Unit) then
-		local id = select(6, br._G.strsplit("-", br._G.UnitGUID(Unit) or ""))
+		local id = select(6, br.game.strsplit("-", br.game.UnitGUID(Unit) or ""))
 		return tonumber(id)
 	end
 	return 0
@@ -444,27 +444,27 @@ end
 
 function unit:GetUnitIsDeadOrGhost(Unit)
 	if Unit == nil then return false end
-	return br._G.UnitIsDeadOrGhost(Unit)
+	return br.game.UnitIsDeadOrGhost(Unit)
 end
 
 function unit:GetUnitIsFriend(Unit, otherUnit)
 	if not br.functions.unit:GetUnitIsVisible(Unit) or not br.functions.unit:GetUnitIsVisible(otherUnit) then return false end
-	return br._G.UnitIsFriend(Unit, otherUnit)
+	return br.game.UnitIsFriend(Unit, otherUnit)
 end
 
 function unit:GetUnitIsUnit(Unit, otherUnit)
 	if not br.functions.unit:GetUnitIsVisible(Unit) or not br.functions.unit:GetUnitIsVisible(otherUnit) then return false end
-	return br._G.UnitIsUnit(Unit, otherUnit)
+	return br.game.UnitIsUnit(Unit, otherUnit)
 end
 
 function unit:GetUnitIsVisible(Unit)
 	if Unit == nil then return false end
-	return br._G.UnitIsVisible(Unit)
+	return br.game.UnitIsVisible(Unit)
 end
 
 function unit:GetUnitReaction(Unit, otherUnit)
 	if not br.functions.unit:GetUnitIsVisible(Unit) or not br.functions.unit:GetUnitIsVisible(otherUnit) then return 10 end
-	return br._G.UnitReaction(Unit, otherUnit)
+	return br.game.UnitReaction(Unit, otherUnit)
 end
 
 -- True while the player has an active loss of control effect in the given category:
@@ -473,7 +473,7 @@ end
 -- if br.functions.unit:hasLossOfControl("rooted") then
 function unit:hasLossOfControl(category)
 	local types = lossOfControlTypes[category]
-	local LoC = br._G.C_LossOfControl
+	local LoC = br.game.C_LossOfControl
 	if types == nil or LoC == nil or LoC.GetActiveLossOfControlDataCount == nil then return false end
 	for i = 1, LoC.GetActiveLossOfControlDataCount() do
 		local data = LoC.GetActiveLossOfControlData(i)
@@ -489,9 +489,9 @@ end
 -- True when an enemy is attacking a friendly unit other than the player (to taunt it off them).
 -- if br.functions.unit:isAttackingOthers(thisUnit) then
 function unit:isAttackingOthers(thisUnit)
-	if not br._G.UnitAffectingCombat(thisUnit) or br.functions.combat:isTanking(thisUnit) then return false end
-	local victim = br._G.UnitTarget(thisUnit)
-	return victim ~= nil and br._G.UnitIsFriend(victim, "player") and not br._G.UnitIsUnit(victim, "player")
+	if not br.game.UnitAffectingCombat(thisUnit) or br.functions.combat:isTanking(thisUnit) then return false end
+	local victim = br.game.UnitTarget(thisUnit)
+	return victim ~= nil and br.game.UnitIsFriend(victim, "player") and not br.game.UnitIsUnit(victim, "player")
 end
 
 function unit:isAutoAttacking() return autoAttacking end
@@ -513,15 +513,15 @@ function unit:isBoss(unit)
 		end
 	end
 
-	local class = br._G.UnitClassification(unit)
-	local healthMax = br._G.UnitHealthMax(unit) or 0
-	local pHealthMax = br._G.UnitHealthMax("player") or 1
-	local instance = select(2, br._G.IsInInstance())
+	local class = br.game.UnitClassification(unit)
+	local healthMax = br.game.UnitHealthMax(unit) or 0
+	local pHealthMax = br.game.UnitHealthMax("player") or 1
+	local instance = select(2, br.game.IsInInstance())
 
 	return br.functions.unit:isInstanceBoss(unit) or br.functions.unit:isDummy(unit)
-		or (not br.functions.misc:isChecked("Boss Detection Only In Instance") and not br._G.UnitIsTrivial(unit) and instance ~= "party"
+		or (not br.functions.misc:isChecked("Boss Detection Only In Instance") and not br.game.UnitIsTrivial(unit) and instance ~= "party"
 			and ((class == "rare" and healthMax > 4 * pHealthMax) or class == "rareelite" or class == "worldboss"
-				or (class == "elite" and ((healthMax > 4 * pHealthMax and instance ~= "raid") or instance == "scenario")) or (br._G.UnitLevel(unit) and br._G.UnitLevel(unit) < 0)))
+				or (class == "elite" and ((healthMax > 4 * pHealthMax and instance ~= "raid") or instance == "scenario")) or (br.game.UnitLevel(unit) and br.game.UnitLevel(unit) < 0)))
 end
 
 -- True while the player is running away from an enemy within radius that is chasing it (escapes).
@@ -597,17 +597,17 @@ function unit:isFleeing(thisUnit)
 	if thisUnit == nil then thisUnit = "target" end
 	if not unit:GetObjectExists(thisUnit) or unit:GetUnitIsDeadOrGhost(thisUnit) then return false end
 	if br.functions.misc:isLongTimeCCed(thisUnit) == "fear" then return "fear" end
-	local guid = br._G.UnitGUID(thisUnit)
+	local guid = br.game.UnitGUID(thisUnit)
 	local fledAt = guid and fleeEmoteAt[guid]
 	if fledAt then
-		if br._G.GetTime() - fledAt <= FLEE_TIME then return "flee" end
+		if br.game.GetTime() - fledAt <= FLEE_TIME then return "flee" end
 		fleeEmoteAt[guid] = nil
 	end
 	-- The server's fleeing unit flag, where the unlocker reads unit flags and the expansion has
 	-- confirmed the bit (br.api.fleeingUnitFlag)
 	local flag = br.api.fleeingUnitFlag
-	if flag and br._G.UnitFlags then
-		local flags = br._G.UnitFlags(thisUnit)
+	if flag and br.game.UnitFlags then
+		local flags = br.game.UnitFlags(thisUnit)
 		if type(flags) == "number" and bit.band(flags, flag) ~= 0 then return "flee" end
 	end
 	return false
@@ -619,7 +619,7 @@ end
 function unit:isFleeingFrom(thisUnit, fromUnit)
 	if thisUnit == nil then thisUnit = "player" end
 	if fromUnit == nil then fromUnit = "target" end
-	if (br._G.GetUnitSpeed(thisUnit) or 0) <= 0 then return false end
+	if (br.game.GetUnitSpeed(thisUnit) or 0) <= 0 then return false end
 	return unit:getFacing(thisUnit, fromUnit) == false and unit:getFacing(fromUnit, thisUnit) == true
 end
 
@@ -642,13 +642,13 @@ function unit:noteFleeEmote(text, guid, name)
 				if bestHP == nil or hp < bestHP then best, bestHP = pointer, hp end
 			end
 		end
-		guid = best and br._G.UnitGUID(best)
+		guid = best and br.game.UnitGUID(best)
 	end
-	if guid then fleeEmoteAt[guid] = br._G.GetTime() end
+	if guid then fleeEmoteAt[guid] = br.game.GetTime() end
 end
 
 function unit:isFormCancelPending()
-	return br._G.GetTime() - formCancelSentAt < br.functions.misc:getRoundTripHold() and (br._G.GetShapeshiftForm() or 0) ~= 0
+	return br.game.GetTime() - formCancelSentAt < br.functions.misc:getRoundTripHold() and (br.game.GetShapeshiftForm() or 0) ~= 0
 end
 
 -- Dummy Check
@@ -670,7 +670,7 @@ end
 function unit:isInAggroRange(thisUnit, offset)
 	if thisUnit == nil then thisUnit = "target" end
 	if not unit:GetObjectExists(thisUnit) or unit:GetUnitIsDeadOrGhost(thisUnit)
-		or not br._G.UnitCanAttack("player", thisUnit)
+		or not br.game.UnitCanAttack("player", thisUnit)
 	then
 		return false
 	end
@@ -686,15 +686,15 @@ function unit:isInstanceBoss(unit)
 	unit = unit or "target"
 	if not br.functions.unit:GetObjectExists(unit) then return false end
 
-	if br._G.IsInInstance and br._G.IsInInstance() then
+	if br.game.IsInInstance and br.game.IsInInstance() then
 		-- Try modern instance API first (may exist on Retail or newer clients)
-		if br._G.GetInstanceLockTimeRemaining then
-			local ok, _, _, encountersTotal = pcall(br._G.GetInstanceLockTimeRemaining)
+		if br.game.GetInstanceLockTimeRemaining then
+			local ok, _, _, encountersTotal = pcall(br.game.GetInstanceLockTimeRemaining)
 			if ok and type(encountersTotal) == "number" and encountersTotal > 0 then
 				for i = 1, encountersTotal do
-					local ok2, bossName = pcall(br._G.GetInstanceLockTimeRemainingEncounter, i)
+					local ok2, bossName = pcall(br.game.GetInstanceLockTimeRemainingEncounter, i)
 					if ok2 and bossName and br.functions.unit:GetObjectExists(unit) then
-						local targetName = br._G.UnitName(unit)
+						local targetName = br.game.UnitName(unit)
 						if targetName == bossName then return true end
 					end
 				end
@@ -708,9 +708,9 @@ function unit:isInstanceBoss(unit)
 		end
 
 		-- Extra heuristics
-		local class = br._G.UnitClassification(unit)
+		local class = br.game.UnitClassification(unit)
 		if class == "worldboss" then return true end
-		local level = br._G.UnitLevel(unit)
+		local level = br.game.UnitLevel(unit)
 		if level and level < 0 then return true end
 	end
 	return false
@@ -732,16 +732,16 @@ function unit:isTankInRange(range)
 		-- Fallback: class-based detection for expansions without a role system (TBC, Classic).
 		-- Activates when UnitGroupRolesAssigned returns "NONE" for the player, indicating the
 		-- role API is unavailable. Warrior, Paladin, and Druid are valid tank classes in both.
-		local uigra = br._G.UnitGroupRolesAssigned
+		local uigra = br.game.UnitGroupRolesAssigned
 		if uigra and uigra("player") == "NONE" then
 			local tankClass = { WARRIOR = true, PALADIN = true, DRUID = true }
 			for i = 1, #br.engines.healingEngine.friend do
 				local friend = br.engines.healingEngine.friend[i]
-				if not br._G.UnitIsUnit(friend.unit, "player")
+				if not br.game.UnitIsUnit(friend.unit, "player")
 					and not br.functions.unit:GetUnitIsDeadOrGhost(friend.unit)
 					and br.functions.range:getDistance(friend.unit) < range
 				then
-					local _, classTag = br._G.UnitClass(friend.unit)
+					local _, classTag = br.game.UnitClass(friend.unit)
 					if classTag and tankClass[classTag] then
 						return true, friend.unit
 					end
@@ -769,23 +769,23 @@ function unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency)
 	local formSpellID = unit:getFormSpellID()
 	if formSpellID == nil then return false, "not in a form" end
 	if emergency then return true end
-	if br._G.IsStealthed and br._G.IsStealthed() then return false, "stealthed" end
+	if br.game.IsStealthed and br.game.IsStealthed() then return false, "stealthed" end
 	-- A tank in a group keeps its form while it holds threat (dropping it risks the group); solo there's
 	-- no one else to heal it, so it may leave the form like any other
 	if br.functions.spell:isTankForm(formSpellID) and br.functions.combat:isTanking()
-		and br._G.IsInGroup and br._G.IsInGroup()
+		and br.game.IsInGroup and br.game.IsInGroup()
 	then
 		return false, "tanking for the group"
 	end
 	local power = br.functions.power
 	local needed = power:getManaCostFromRef(outOfFormSpell, treatOutSpellAsFree) + power:getManaCostFromRef(formSpellID, false)
-	if needed > 0 and (br._G.UnitPower("player", 0) or 0) < needed then return false, "not enough mana to shift back" end
+	if needed > 0 and (br.game.UnitPower("player", 0) or 0) < needed then return false, "not enough mana to shift back" end
 	return true
 end
 
 -- True if the player's class uses mana (decided by class, so no secret power reads are needed).
 -- if br.functions.unit:usesMana() then
 function unit:usesMana()
-	local _, playerClass = br._G.UnitClass("player")
+	local _, playerClass = br.game.UnitClass("player")
 	return not noManaClasses[playerClass]
 end

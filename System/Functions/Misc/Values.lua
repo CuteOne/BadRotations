@@ -33,8 +33,8 @@ end
 -- BadRotations' folder on disk and the path separator for this OS.
 -- local path, sep = br.functions.misc:getAddonPath()
 function misc:getAddonPath()
-	local sep = br._G.IsMacClient() and "/" or "\\"
-	local wowDir = br._G.GetWoWDirectory() or ""
+	local sep = br.game.IsMacClient() and "/" or "\\"
+	local wowDir = br.game.GetWoWDirectory() or ""
 	if wowDir:match('_retail_') then
 		return wowDir .. sep .. 'Interface' .. sep .. 'AddOns' .. sep .. br.loader.addonName, sep
 	end

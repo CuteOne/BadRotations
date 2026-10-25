@@ -143,11 +143,11 @@ local var
 -- Custom Functions
 local function cancelRushAnimation(debugMessage)
     -- if cast.able.felRush() and GetUnitSpeed("player") == 0 then
-    br._G.MoveBackwardStart()
-    br._G.JumpOrAscendStart()
+    br.game.MoveBackwardStart()
+    br.game.JumpOrAscendStart()
     cast.felRush()
-    br._G.MoveBackwardStop()
-    br._G.AscendStop()
+    br.game.MoveBackwardStop()
+    br.game.AscendStop()
     ui.debug(debugMessage)
     -- end
     return true
@@ -189,9 +189,9 @@ actionList.Extras = function()
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
             if br.functions.combat:getCombatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and unit.isDummy("target") then
-                br._G.StopAttack()
-                br._G.ClearTarget()
-                br._G.Print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
+                br.game.StopAttack()
+                br.game.ClearTarget()
+                br.game.Print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end

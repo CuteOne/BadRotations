@@ -39,8 +39,8 @@ end
 
 -- Casts a spell that takes a bag item (Milling, Disenchant, Pick Lock, ...) on that slot's item
 local function castOnItem(spellID, entry)
-	br._G.RunMacroText("/cast " .. br.functions.spell:getName(spellID))
-	br._G.RunMacroText("/use " .. entry.bag .. " " .. entry.slot)
+	br.game.RunMacroText("/cast " .. br.functions.spell:getName(spellID))
+	br.game.RunMacroText("/use " .. entry.bag .. " " .. entry.slot)
 end
 
 -- Mill Herbs / Prospect Ores: the first stack of five the tooltip marks with the game's text
@@ -79,7 +79,7 @@ end
 local function lockboxes(slots)
 	if not br.functions.misc:isChecked("Lockboxes") then return false end
 	local spellID = knownSpell("pickLock")
-	local lockedText = br._G.LOCKED
+	local lockedText = br.game.LOCKED
 	if spellID == nil or lockedText == nil then return false end
 	for i = 1, #slots do
 		local entry = slots[i]
@@ -87,7 +87,7 @@ local function lockboxes(slots)
 			if br.functions.item:bagTooltipHas(entry.bag, entry.slot, lockedText) then
 				castOnItem(spellID, entry)
 			else
-				br._G.RunMacroText("/use " .. entry.bag .. " " .. entry.slot)
+				br.game.RunMacroText("/use " .. entry.bag .. " " .. entry.slot)
 			end
 			return true
 		end
@@ -96,8 +96,8 @@ local function lockboxes(slots)
 end
 
 local steps = {
-	processMarked("Mill Herbs", "milling", br._G.ITEM_MILLABLE),
-	processMarked("Prospect Ores", "prospecting", br._G.ITEM_PROSPECTABLE),
+	processMarked("Mill Herbs", "milling", br.game.ITEM_MILLABLE),
+	processMarked("Prospect Ores", "prospecting", br.game.ITEM_PROSPECTABLE),
 	disenchant,
 	lockboxes,
 }
@@ -115,9 +115,9 @@ end
 function ProfessionHelper:ProfessionHelper()
 	local misc = br.functions.misc
 	if not misc:isChecked("Profession Helper") then return end
-	if misc:isInCombat("player") or br._G.IsMounted() or br._G.IsFlying() then return end
-	local now = br._G.GetTime()
-	if br._G.LootFrame:IsShown() then
+	if misc:isInCombat("player") or br.game.IsMounted() or br.game.IsFlying() then return end
+	local now = br.game.GetTime()
+	if br.game.LootFrame:IsShown() then
 		if lastAction and now - lastAction < OWN_LOOT then
 			br.engines.lootEngine:manuallyLootAll()
 		end

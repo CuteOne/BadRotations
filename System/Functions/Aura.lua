@@ -12,20 +12,20 @@ local NOT_FOUND = {}
 
 -- True for aura data that hasn't run out; expirationTime 0 is an aura that doesn't expire (forms).
 local function isActive(auraInfo)
-	return auraInfo ~= nil and (auraInfo.expirationTime == 0 or auraInfo.expirationTime > br._G.GetTime())
+	return auraInfo ~= nil and (auraInfo.expirationTime == 0 or auraInfo.expirationTime > br.game.GetTime())
 end
 
 local function lookupKey(kind, unit, spellID, filter)
 	if unit == nil then return nil end
 	if type(unit) == "string" and (unit:find("target", 1, true) or unit == "focus" or unit == "mouseover") then
-		unit = br._G.UnitGUID(unit)
+		unit = br.game.UnitGUID(unit)
 		if not unit then return nil end
 	end
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	-- A new table each frame, and a new one when this context can't read it: once a lookup holding a
 	-- secret value is stored, Forever marks the table secret, and tainted code (a slash command, a UI
 	-- click) reading it raises "attempted to iterate a table that cannot be accessed while tainted"
-	if lookupsAt ~= now or (br._G.canaccesstable and not br._G.canaccesstable(lookups)) then
+	if lookupsAt ~= now or (br.game.canaccesstable and not br.game.canaccesstable(lookups)) then
 		lookups = {}
 		lookupsAt = now
 	end
@@ -46,42 +46,42 @@ end
 -- 	-- Failsafe if not cached
 -- 	if unit == "player" then
 -- 		local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
--- 	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
+-- 	    if auraInfo and auraInfo.expirationTime > br.game.GetTime() then return auraInfo end
 -- 	end
--- 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
+-- 	local exactSearch = filter ~= nil and br.game.strfind(br.game.strupper(filter), "EXACT")
 -- 	if exactSearch then
 -- 		for i = 1, 40 do
--- 			-- local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitDebuff(unit, i, "player")
+-- 			-- local buffName, _, _, _, _, _, _, _, _, buffSpellID = br.game.UnitDebuff(unit, i, "player")
 -- 			local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "PLAYER")
 -- 			if auraInfo and auraInfo.spellId == spellID then
--- 				return auraInfo --br._G.UnitDebuff(unit, i, "player")
+-- 				return auraInfo --br.game.UnitDebuff(unit, i, "player")
 -- 			end
 -- 		end
 -- 	else
--- 		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
+-- 		if filter ~= nil and br.game.strfind(br.game.strupper(filter), "PLAYER") then
 -- 			for i = 1, 40 do
 -- 				local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL|PLAYER")
 -- 				if auraInfo and auraInfo.name == spellName then return auraInfo end
 -- 			end
--- 			-- return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL|PLAYER")
+-- 			-- return br.game.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL|PLAYER")
 -- 		end
 -- 		for i = 1, 40 do
 -- 			local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL")
 -- 			if auraInfo and auraInfo.name == spellName then return auraInfo end
 -- 		end
--- 		-- return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL")
+-- 		-- return br.game.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL")
 -- 	end
 -- end
 local _UnitDebuffID_lock = false
 
 local function findDebuff(unit, spellID, filter)
         spellID = br.functions.spell:currentRank(spellID) -- a rank list: the rank in use
-        local thisUnit = br._G["ObjectPointer"](unit)
+        local thisUnit = br.game["ObjectPointer"](unit)
         local spellName = br.functions.spell:getName(spellID)
         -- Check Cache
         if br.functions.misc:isChecked("Cache Debuffs") then
             if thisUnit and br.engines.enemiesEngine.enemy[thisUnit] ~= nil then
-                if filter == nil then filter = "player" else filter = br._G["ObjectPointer"](filter) end
+                if filter == nil then filter = "player" else filter = br.game["ObjectPointer"](filter) end
                 if br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter] ~= nil then
                     if br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter][spellID] ~= nil then
                         return br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter][spellID](spellID, thisUnit)
@@ -94,29 +94,29 @@ local function findDebuff(unit, spellID, filter)
 
         -- Failsafe if not cached
         if unit == "player" then
-            local auraInfo = br._G.C_UnitAuras.GetPlayerAuraBySpellID(spellID)
+            local auraInfo = br.game.C_UnitAuras.GetPlayerAuraBySpellID(spellID)
             if isActive(auraInfo) then return auraInfo end
         end
-        local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
+        local exactSearch = filter ~= nil and br.game.strfind(br.game.strupper(filter), "EXACT")
         if exactSearch then
             for i = 1, 40 do
-                local auraInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(unit, i, "PLAYER")
+                local auraInfo = br.game.C_UnitAuras.GetDebuffDataByIndex(unit, i, "PLAYER")
                 if not auraInfo then return nil end
                 if auraInfo.spellId == spellID then
                     return auraInfo
                 end
             end
         else
-            if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
+            if filter ~= nil and br.game.strfind(br.game.strupper(filter), "PLAYER") then
                 for i = 1, 40 do
-                    local auraInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL|PLAYER")
+                    local auraInfo = br.game.C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL|PLAYER")
                     if not auraInfo then return nil end
                     if auraInfo.name == spellName then return auraInfo end
                 end
                 return nil
             end
             for i = 1, 40 do
-                local auraInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL")
+                local auraInfo = br.game.C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL")
                 if not auraInfo then return nil end
                 if auraInfo.name == spellName then return auraInfo end
             end
@@ -127,7 +127,7 @@ end
 local function Dispel(unit, stacks, buffDuration, buffRemain, buffSpellID, buff)
 	if not buff then
 		if buffSpellID == (br.functions.spell:getHighestSpellID("reaping")) then
-			if stacks >= br.functions.misc:getOptionValue("Reaping") or not br._G.UnitAffectingCombat("player") then
+			if stacks >= br.functions.misc:getOptionValue("Reaping") or not br.game.UnitAffectingCombat("player") then
 				return true
 			else
 				return false
@@ -197,7 +197,7 @@ local exsanguinateKeys = { crimsonTempest = true, garrote = true, rupture = true
 
 -- One pass over a unit's buffs or debuffs for an aura with this name (aura:findByName)
 local function scanByName(name, unit, filter, isHarmful)
-	local read = isHarmful and br._G.C_UnitAuras.GetDebuffDataByIndex or br._G.C_UnitAuras.GetBuffDataByIndex
+	local read = isHarmful and br.game.C_UnitAuras.GetDebuffDataByIndex or br.game.C_UnitAuras.GetBuffDataByIndex
 	for i = 1, 40 do
 		local auraInfo = read(unit, i, filter)
 		if not auraInfo then return nil end
@@ -230,7 +230,7 @@ function aura:canDispel(Unit, spellID)
 		end
 		return v ~= nil and v == spellID
 	end
-	local _, playerClass = br._G.UnitClass("player")
+	local _, playerClass = br.game.UnitClass("player")
 	for key, types in pairs(br.lists.dispelTypes[playerClass] or {}) do
 		if isSpell(key) then
 			typesList = types
@@ -261,11 +261,11 @@ function aura:canDispel(Unit, spellID)
 		return typeCheck
 	end
 	local i = 1
-	if br._G.UnitPhaseReason(Unit) == nil then -- in the player's phase
+	if br.game.UnitPhaseReason(Unit) == nil then -- in the player's phase
 		if br.functions.unit:GetUnitIsFriend("player", Unit) then
-			while br._G.C_UnitAuras.GetDebuffDataByIndex(Unit, i) do
-				local debuffInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(Unit, i)
-				local debuffRemain = debuffInfo.expirationTime - br._G.GetTime()
+			while br.game.C_UnitAuras.GetDebuffDataByIndex(Unit, i) do
+				local debuffInfo = br.game.C_UnitAuras.GetDebuffDataByIndex(Unit, i)
+				local debuffRemain = debuffInfo.expirationTime - br.game.GetTime()
 				if (debuffInfo.dispelName and ValidType(debuffInfo.dispelName)) then
 					-- Create a unique key for this specific debuff instance
 					local trackerKey = Unit .. "_" .. debuffInfo.spellId .. "_" .. debuffInfo.expirationTime
@@ -281,7 +281,7 @@ function aura:canDispel(Unit, spellID)
 					local delay = br.dispelTracker[trackerKey]
 
 					if debuffInfo.spellId == (br.functions.spell:getHighestSpellID("bwonsamdiWrath")) and (br.GetHP(Unit) < br.functions.misc:getOptionValue("Bwonsamdi's Wrath HP")
-							or (br._G.UnitGroupRolesAssigned(Unit) == "TANK" and (debuffInfo.duration - debuffRemain) > delay)) then
+							or (br.game.UnitGroupRolesAssigned(Unit) == "TANK" and (debuffInfo.duration - debuffRemain) > delay)) then
 						HasValidDispel = true
 						break
 					end
@@ -310,10 +310,10 @@ function aura:canDispel(Unit, spellID)
 				i = i + 1
 			end
 		else
-			while br._G.C_UnitAuras.GetBuffDataByIndex(Unit, i) do
-				local buffInfo = br._G.C_UnitAuras.GetBuffDataByIndex(Unit, i)
-				local buffRemain = buffInfo.expirationTime - br._G.GetTime()
-				if (buffInfo.dispelName and ValidType(buffInfo.dispelName)) and not br._G.UnitIsPlayer(Unit) then
+			while br.game.C_UnitAuras.GetBuffDataByIndex(Unit, i) do
+				local buffInfo = br.game.C_UnitAuras.GetBuffDataByIndex(Unit, i)
+				local buffRemain = buffInfo.expirationTime - br.game.GetTime()
+				if (buffInfo.dispelName and ValidType(buffInfo.dispelName)) and not br.game.UnitIsPlayer(Unit) then
 					-- Create a unique key for this specific buff instance
 					local trackerKey = Unit .. "_" .. buffInfo.spellId .. "_" .. buffInfo.expirationTime
 
@@ -347,9 +347,9 @@ function aura:canDispel(Unit, spellID)
 
 	-- Periodically clean up old tracker entries to prevent memory bloat
 	-- Run cleanup every 30 seconds
-	if not br.dispelTrackerLastCleanup or (br._G.GetTime() - br.dispelTrackerLastCleanup) > 30 then
+	if not br.dispelTrackerLastCleanup or (br.game.GetTime() - br.dispelTrackerLastCleanup) > 30 then
 		br.dispelTracker = {}
-		br.dispelTrackerLastCleanup = br._G.GetTime()
+		br.dispelTrackerLastCleanup = br.game.GetTime()
 	end
 
 	return HasValidDispel
@@ -390,22 +390,22 @@ function aura:findBuff(unit, spellID, filter)
 	spellID = br.functions.spell:currentRank(spellID) -- a rank list: the rank in use
 	local spellName = br.functions.spell:getName(spellID)
 	if not spellName then return nil end
-	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
+	local exactSearch = filter ~= nil and br.game.strfind(br.game.strupper(filter), "EXACT")
  	if unit == "player" then
-	    local auraInfo = br._G.C_UnitAuras.GetPlayerAuraBySpellID(spellID)
+	    local auraInfo = br.game.C_UnitAuras.GetPlayerAuraBySpellID(spellID)
 	    if isActive(auraInfo) then return auraInfo end
 	end
 	if exactSearch then
 		for i = 1, 40 do
-			local auraInfo = br._G.C_UnitAuras.GetBuffDataByIndex(unit, i, "player")
+			local auraInfo = br.game.C_UnitAuras.GetBuffDataByIndex(unit, i, "player")
 			if not auraInfo then return nil end
 			if auraInfo.spellId == spellID then
-				return br._G.C_UnitAuras.GetBuffDataByIndex(unit, i)
+				return br.game.C_UnitAuras.GetBuffDataByIndex(unit, i)
 			end
 		end
 	else
-		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
-			-- br._G.print("Unit: " .. tostring(unit) .. ", Spell: " .. tostring(spellName) .. ", ID: " .. tostring(spellID))
+		if filter ~= nil and br.game.strfind(br.game.strupper(filter), "PLAYER") then
+			-- br.game.print("Unit: " .. tostring(unit) .. ", Spell: " .. tostring(spellName) .. ", ID: " .. tostring(spellID))
 			return aura:findByName(spellName, unit, "HELPFUL|PLAYER")
 		end
 		return aura:findByName(spellName, unit, "HELPFUL")
@@ -434,7 +434,7 @@ function aura:findByName(spellName, unit, filter)
 	end
 	-- A filter without HELPFUL / HARMFUL / PLAYER: only the generic aura list covers it
 	for i = 1, 40 do
-		local auraInfo = br._G.C_UnitAuras.GetAuraDataByIndex(unit, i, filter)
+		local auraInfo = br.game.C_UnitAuras.GetAuraDataByIndex(unit, i, filter)
 		if not auraInfo then break end
 		if auraInfo.name == spellName then return auraInfo end
 	end
@@ -442,12 +442,12 @@ function aura:findByName(spellName, unit, filter)
 end
 
 -- function aura:UnitDebuffID(unit, spellID, filter)
--- 	local thisUnit = br._G["ObjectPointer"](unit)
+-- 	local thisUnit = br.game["ObjectPointer"](unit)
 -- 	local spellName = br.functions.spell:getName(spellID)
 -- 	-- Check Cache
 -- 	if br.functions.misc:isChecked("Cache Debuffs") then
 -- 		if br.engines.enemiesEngine.enemy[thisUnit] ~= nil then
--- 			if filter == nil then filter = "player" else filter = br._G["ObjectPointer"](filter) end
+-- 			if filter == nil then filter = "player" else filter = br.game["ObjectPointer"](filter) end
 -- 			if br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter] ~= nil then
 -- 				if br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter][spellID] ~= nil then
 -- 					return br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter][spellID](spellID, thisUnit)
@@ -492,7 +492,7 @@ function aura:getBuffReact(Unit, BuffID, Source)
 		expire = auraInfo.expirationTime
 	end
 	if duration ~= nil then
-		return (br._G.GetTime() - (expire - duration)) > 0.5
+		return (br.game.GetTime() - (expire - duration)) > 0.5
 	end
 	return false
 end
@@ -502,9 +502,9 @@ function aura:getBuffRemain(Unit, BuffID, Source)
 	local auraInfo,_,_,_,_,expires = aura:UnitBuffID(Unit, BuffID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.expirationTime then
-		return auraInfo.expirationTime - br._G.GetTime()
+		return auraInfo.expirationTime - br.game.GetTime()
 	else
-		return (expires - br._G.GetTime()) or 0
+		return (expires - br.game.GetTime()) or 0
 	end
 end
 
@@ -597,9 +597,9 @@ function aura:getDebuffRemain(Unit, DebuffID, Source)
 	local auraInfo,_,_,_,_,expires = aura:UnitDebuffID(Unit, DebuffID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.expirationTime then
-		return auraInfo.expirationTime - br._G.GetTime()
+		return auraInfo.expirationTime - br.game.GetTime()
 	else
-		return (expires - br._G.GetTime()) or 0
+		return (expires - br.game.GetTime()) or 0
 	end
 end
 
@@ -653,7 +653,7 @@ function aura:getSnapshotValue(dot)
 		if br.player.buff.savageRoar               and br.player.buff.savageRoar.exists()               then multiplier = multiplier * 1.45 end
 
 		-- Get Attack Power for actual damage calculations
-		local base, posBuff, negBuff = br._G.UnitAttackPower("player")
+		local base, posBuff, negBuff = br.game.UnitAttackPower("player")
 		local ap = base + posBuff + negBuff
 
 		-- * Rip: 768% AP over 16 seconds (8 ticks, one every 2 seconds)

@@ -56,9 +56,9 @@ function profileUI:createOptions(player, spec)
     br.ui:createProfileWindow(player.specName)
 
     -- Rotation dropdown with the names of every profile for this spec
-    br._G.wipe(rotationNames)
+    br.game.wipe(rotationNames)
     for i = 1, #br.loader.rotations[spec] do
-        br._G.tinsert(rotationNames, br.loader.rotations[spec][i].name)
+        br.game.tinsert(rotationNames, br.loader.rotations[spec][i].name)
     end
     br.ui.window.profile.rotationDD = br.ui:createRotationDropdown(br.ui.window.profile.parent, rotationNames)
 
@@ -104,7 +104,7 @@ function profileUI:checkDropdowns(when)
             .. " | " .. describeDropdown("config pages", config and config.pageDD))
     end
     note()
-    br._G.C_Timer.After(2, function() when = when .. " +2s"; note() end)
+    br.game.C_Timer.After(2, function() when = when .. " +2s"; note() end)
     local parent = br.ui.window.profile and br.ui.window.profile.parent
     if parent and parent.frame and not parent.diagnosticHooked then
         parent.diagnosticHooked = true

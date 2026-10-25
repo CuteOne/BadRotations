@@ -250,7 +250,7 @@ end
 
 -- Action List - Extras
 actionList.Extras = function()
-    local startTime = br._G.debugprofilestop()
+    local startTime = br.game.debugprofilestop()
     -- * Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
@@ -320,7 +320,7 @@ end -- End Action List - Extras
 
 -- Action List - Defensive
 actionList.Defensive = function()
-    local startTime = br._G.debugprofilestop()
+    local startTime = br.game.debugprofilestop()
     if ui.useDefensive() then
         -- * Ancestral Spirit
         if ui.checked("Ancestral Spirit") and cast.timeSinceLast.ancestralSpirit() > 5 then
@@ -412,7 +412,7 @@ end -- End Action List - Interrupts
 
 -- Action List - AOE
 actionList.AOE = function()
-    local startTime = br._G.debugprofilestop()
+    local startTime = br.game.debugprofilestop()
     -- * Fire Nova
     -- fire_nova,if=active_flame_shock>=4
     if cast.able.fireNova("player","aoe",1,10) and debuff.flameShock.count() >= 4 then
@@ -543,7 +543,7 @@ end -- End Action List - AOE
 
 -- Action List - Single
 actionList.Single = function()
-    local startTime = br._G.debugprofilestop()
+    local startTime = br.game.debugprofilestop()
     -- * Searing Totem
     -- searing_totem,if=!totem.fire.active
     if cast.able.searingTotem("player") and not totem.fire.active() and unit.standingTime() > 1 then
@@ -690,7 +690,7 @@ end -- End Action List - Single
 
 -- Action List - PreCombat
 actionList.PreCombat = function()
-    local startTime = br._G.debugprofilestop()
+    local startTime = br.game.debugprofilestop()
     if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then
         -- * Flask
         -- flask,type=spring_blossoms
@@ -730,7 +730,7 @@ end -- End Action List - PreCombat
 
 -- Action List - Combat
 actionList.Combat = function()
-    local startTime = br._G.debugprofilestop()
+    local startTime = br.game.debugprofilestop()
     if (unit.inCombat() --[[or (not unit.inCombat() and unit.valid(units.dyn5))]]) and not var.profileStop
         and unit.exists(units.dyn5) and cd.global.remain() == 0
     then

@@ -102,7 +102,7 @@ function E.printReport(ctx, debugOnly, debugReason, thisCount)
 				" type:" .. ctx.spellType ..
 				" range:[" .. ctx.minRange .. "-" .. ctx.maxRange .. "]" ..
 				" dist:" .. tostring(br.functions.misc:plainNumber(br.functions.range:getDistance(thisUnit))) ..
-				" inRange:" .. tostring(br._G.C_Spell.IsSpellInRange(ctx.spellName, thisUnit)) ..
+				" inRange:" .. tostring(br.game.C_Spell.IsSpellInRange(ctx.spellName, thisUnit)) ..
 				" unit:" .. tostring(thisUnit))
 		end
 	end
@@ -117,7 +117,7 @@ end
 -- ─────────────────────────────────────────────────────────────────────────────
 
 function E.castingSpell(ctx, thisUnit, castType, debug)
-	if br._G.UnitHealth(thisUnit) <= 0 and castType ~= "dead" then
+	if br.game.UnitHealth(thisUnit) <= 0 and castType ~= "dead" then
 		E.recordRefusal(ctx.spellID, "UNIT_DEAD", "unit " .. tostring(thisUnit))
 		return false
 	end
@@ -135,7 +135,7 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 	-- Hard CC guard (re-checked here so the timer is set correctly even if the
 	-- gate was bypassed via cache).
 	if br.functions.combat and br.functions.combat.cannotCast and br.functions.combat:cannotCast(ctx.spellID) then
-		E.castTimers[ctx.spellID] = br._G.GetTime() + 0.50
+		E.castTimers[ctx.spellID] = br.game.GetTime() + 0.50
 		E.setCastIntentLock(ctx.spellID, 0.50)
 		return E.printReport(ctx, false, "No Control")
 	end
@@ -158,23 +158,23 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 	if castType == "pet" then
 		local slot = E.getPetBarSlot(castName, true)
 		if slot then
-			br._G.CastPetAction(slot)
+			br.game.CastPetAction(slot)
 			br.log.rotation:sent(ctx.spellID, castName, thisUnit)
 			-- Read the cooldown the game just applied to the bar slot.
 			-- GetPetActionCooldown is updated synchronously after CastPetAction,
 			-- so cdDuration reflects the real ability cooldown on TBC Classic.
 			local cdStart, cdDuration
-			if br._G.GetPetActionCooldown then
-				cdStart, cdDuration = br._G.GetPetActionCooldown(slot)
+			if br.game.GetPetActionCooldown then
+				cdStart, cdDuration = br.game.GetPetActionCooldown(slot)
 			end
 			local petCDSec = (cdDuration and cdDuration > 0) and cdDuration
 				or (ctx.baseCooldown > 0 and ctx.baseCooldown / 1000)
 				or 8  -- fallback: most pet abilities are 8–10 s
-			E.castTimers[ctx.spellID] = br._G.GetTime() + math.max(petCDSec, 1)
+			E.castTimers[ctx.spellID] = br.game.GetTime() + math.max(petCDSec, 1)
 			E.setCastIntentLock(ctx.spellID, 0.5)
 			br.ui.toggles.mainButton:SetNormalTexture(ctx.icon)
 			br.lastSpellCast   = ctx.spellID
-			br.lastSpellTarget = br._G.UnitGUID(thisUnit)
+			br.lastSpellTarget = br.game.UnitGUID(thisUnit)
 			return true
 		end
 		return E.printReport(ctx, false, "PET_SLOT_NOT_FOUND", castName)
@@ -193,9 +193,9 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 	else
 		cast:castByName(castName, thisUnit)
 	end
-	if br._G.IsAoEPending() then
-		local X, Y, Z = br._G.ObjectPosition(thisUnit)
-		br._G.ClickPosition(X, Y, Z)
+	if br.game.IsAoEPending() then
+		local X, Y, Z = br.game.ObjectPosition(thisUnit)
+		br.game.ClickPosition(X, Y, Z)
 	end
 
 	local castSucceeded, details = E.verifyCastStarted(ctx.spellID, snapshot, castName)
@@ -213,10 +213,10 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 	if (castSucceeded or (details and details.inconclusive))
 		and not (br.player and br.player.buff and br.player.buff.clearcasting and br.player.buff.clearcasting.exists())
 	then
-		local now = br._G.GetTime()
+		local now = br.game.GetTime()
 		local hold = br.functions.misc:getRoundTripHold(ctx.latency)
-		local _, _, _, _, castEnd = br._G.UnitCastingInfo("player")
-		if castBeforeKey == nil and br._G.C_Spell.IsCurrentSpell(ctx.spellID) and castEnd == nil then
+		local _, _, _, _, castEnd = br.game.UnitCastingInfo("player")
+		if castBeforeKey == nil and br.game.C_Spell.IsCurrentSpell(ctx.spellID) and castEnd == nil then
 			E.promiseCosts(ctx.spellID, now + 6, true)          -- on-next-swing: until the swing
 		elseif castEnd then
 			E.promiseCosts(ctx.spellID, castEnd / 1000 + hold)  -- cast-time, or pre-cast behind a cast
@@ -231,21 +231,21 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 			-- Just started casting this spell: hold it until the cast reaches its own
 			-- queue window, where the profile may choose to pre-cast it again.
 			local hold = math.max(0.12, sameSpellCastRemain - cast:getQueueWindow())
-			E.castTimers[ctx.spellID] = br._G.GetTime() + hold
+			E.castTimers[ctx.spellID] = br.game.GetTime() + hold
 			E.setCastIntentLock(ctx.spellID, hold)
 		else
-			E.castTimers[ctx.spellID] = br._G.GetTime() + 1
+			E.castTimers[ctx.spellID] = br.game.GetTime() + 1
 			local settleLock = 0.12
 			if ctx.spellType == "Helpful" then
 				settleLock = 0.30
-			elseif ctx.spellType == "Harmful" and not br._G.UnitAffectingCombat("player") then
+			elseif ctx.spellType == "Harmful" and not br.game.UnitAffectingCombat("player") then
 				settleLock = 0.30
 			end
 			E.setCastIntentLock(ctx.spellID, settleLock)
 		end
 		br.ui.toggles.mainButton:SetNormalTexture(ctx.icon)
 		br.lastSpellCast   = ctx.spellID
-		br.lastSpellTarget = br._G.UnitGUID(thisUnit)
+		br.lastSpellTarget = br.game.UnitGUID(thisUnit)
 		return true
 	end
 
@@ -254,12 +254,12 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 		-- its way). Hold the spell for a server round trip so it isn't sent a second time before the
 		-- reply arrives.
 		local hold = br.functions.misc:getRoundTripHold(ctx.latency)
-		E.castTimers[ctx.spellID] = br._G.GetTime() + hold
+		E.castTimers[ctx.spellID] = br.game.GetTime() + hold
 		E.setCastIntentLock(ctx.spellID, hold)
 		return true -- queued / not yet confirmed; do not spam CAST_FAILED
 	end
 
-	E.castTimers[ctx.spellID] = br._G.GetTime() + 0.10
+	E.castTimers[ctx.spellID] = br.game.GetTime() + 0.10
 	E.setCastIntentLock(ctx.spellID, 0.20)
 	return E.printReport(ctx, false, "Cast Failed")
 end
@@ -292,7 +292,7 @@ function E.checkUnitValidity(thisUnit, castType)
 	if br.functions.unit:GetUnitIsUnit(thisUnit, "player") then return true end
 	if castType == "pet" then
 		-- Pet abilities are cast by the pet, so the player's LoS doesn't apply.
-		return br._G.UnitExists(thisUnit) == true
+		return br.game.UnitExists(thisUnit) == true
 	end
 	return E.isUnitVisible(thisUnit)
 end
@@ -317,9 +317,9 @@ function E.checkRange(ctx, thisUnit, castType)
 	-- pet's — so it cannot reliably gate melee or short-range pet abilities.  Skip the
 	-- API check entirely for pet spells and always measure pet-to-target distance directly.
 	if castType ~= "pet" then
-		local spellInRange = br._G.C_Spell.IsSpellInRange(ctx.spellName, thisUnit)
+		local spellInRange = br.game.C_Spell.IsSpellInRange(ctx.spellName, thisUnit)
 		if spellInRange == false then
-			local timerKey = ctx.spellID .. "_" .. (br._G.UnitGUID(thisUnit) or thisUnit)
+			local timerKey = ctx.spellID .. "_" .. (br.game.UnitGUID(thisUnit) or thisUnit)
 			E.rangeDelayTimers[timerKey] = nil
 			return false, string.format("IsSpellInRange=false (distance %.1f)",
 				br.functions.range:getDistance(thisUnit) or -1)
@@ -328,13 +328,13 @@ function E.checkRange(ctx, thisUnit, castType)
 			-- A melee spell while either unit moves: the client's answer can count the running leeway
 			-- the server only gives when both run (2026-10-19, TBC: Ravage sent at 4.4-5.1 yd edge to
 			-- edge onto a walking mob, refused). getDistance applies the melee rule then.
-			if ctx.maxRange <= 5 and ((br._G.GetUnitSpeed("player") or 0) > 0 or (br._G.GetUnitSpeed(thisUnit) or 0) > 0)
+			if ctx.maxRange <= 5 and ((br.game.GetUnitSpeed("player") or 0) > 0 or (br.game.GetUnitSpeed(thisUnit) or 0) > 0)
 				and br.functions.range:getDistance(thisUnit) >= 5
 			then
 				return false, "moving: the game says in range, the melee rule doesn't"
 			end
 			if br.functions.misc:isMoving("player") and ctx.maxRange > 0 then
-				local now      = br._G.GetTime()
+				local now      = br.game.GetTime()
 				-- Entries are keyed per spell + unit GUID and were only ever cleared on
 				-- leaving range, so dead/despawned units piled up. Sweep ones not checked lately.
 				if now >= E.rangeDelayNextPrune then
@@ -343,7 +343,7 @@ function E.checkRange(ctx, thisUnit, castType)
 						if now - entry.seen > E.RANGE_DELAY_PRUNE_INTERVAL then E.rangeDelayTimers[k] = nil end
 					end
 				end
-				local timerKey = ctx.spellID .. "_" .. (br._G.UnitGUID(thisUnit) or thisUnit)
+				local timerKey = ctx.spellID .. "_" .. (br.game.UnitGUID(thisUnit) or thisUnit)
 				local entry = E.rangeDelayTimers[timerKey]
 				if entry == nil then
 					E.rangeDelayTimers[timerKey] = { started = now, seen = now }
@@ -416,7 +416,7 @@ local function facingDetail(ctx, thisUnit, castType)
 		parts[#parts + 1] = ("%d° off, centres %.1fyd apart, edge %.1fyd"):format(plain(angle), plain(centres),
 			plain(br.functions.range:getEdgeDistance(who, thisUnit) or 0))
 	end
-	if br._G.ObjectIsFacing ~= nil then parts[#parts + 1] = "unlocker facing check" end
+	if br.game.ObjectIsFacing ~= nil then parts[#parts + 1] = "unlocker facing check" end
 	return table.concat(parts, ", ")
 end
 
@@ -425,7 +425,7 @@ function E.dispatchST(ctx, thisUnit, castType, minUnits, enemies, debug)
 	-- (Demoralizing Roar, Thunder Clap): it gets the AoE safety check, so it doesn't pull neutral or
 	-- not-yet-engaged mobs standing nearby. Without a radius from the call, 10 yards.
 	if thisUnit == "player" and castType == "norm" and ctx.spellType == "Harmful"
-		and br._G.C_Spell.SpellHasRange and not br._G.C_Spell.SpellHasRange(ctx.spellName)
+		and br.game.C_Spell.SpellHasRange and not br.game.C_Spell.SpellHasRange(ctx.spellName)
 		and not br.functions.range:isSafeToAoE(ctx.spellID, "player", math.max(ctx.effectRng or 5, 10), 1, "aoe")
 	then
 		return E.printReport(ctx, false, "Not Safe")

@@ -3,7 +3,7 @@ local _, br = ...
 ---@class br.functions.misc
 br.functions.misc = br.functions.misc or {}
 local misc = br.functions.misc
-misc.pauseCast = br._G.GetTime()
+misc.pauseCast = br.game.GetTime()
 
 -- Channels the player can freely act through — moving, attacking, or casting does NOT
 -- cancel them — so the rotation must NOT pause while they tick (otherwise we just stand
@@ -32,15 +32,15 @@ local function standingReason(now)
 	local sd = br.lists.spells.Shared.Shared.debuffs
 
 	-- Dead (health = 0 or ghost-running). UnitHealth == 0 is the fastest pre-filter.
-	if br._G.UnitHealth("player") == 0 then return "dead", false end
+	if br.game.UnitHealth("player") == 0 then return "dead", false end
 
 	-- ── DPS Testing timer ──────────────────────────────────────────────────
 	if br.functions.misc:isChecked("DPS Testing") then
 		if br.functions.unit:GetObjectExists("target") and br.functions.misc:isInCombat("player") then
 			if br.functions.combat:getCombatTime() >= (tonumber(br.functions.misc:getOptionValue("DPS Testing")) * 60) and br.functions.unit:isDummy() then
-				br._G.StopAttack()
-				br._G.ClearTarget(); br.functions.range:clearDistanceMemo()
-				br._G.print(tonumber(br.functions.misc:getOptionValue("DPS Testing")) ..
+				br.game.StopAttack()
+				br.game.ClearTarget(); br.functions.range:clearDistanceMemo()
+				br.game.print(tonumber(br.functions.misc:getOptionValue("DPS Testing")) ..
 					" Minute Dummy Test Concluded - Profile Stopped")
 				br.profileStop = true
 			else
@@ -48,8 +48,8 @@ local function standingReason(now)
 			end
 		elseif not br.functions.misc:isInCombat("player") and br.profileStop == true then
 			if br.functions.unit:GetObjectExists("target") then
-				br._G.StopAttack()
-				br._G.ClearTarget(); br.functions.range:clearDistanceMemo()
+				br.game.StopAttack()
+				br.game.ClearTarget(); br.functions.range:clearDistanceMemo()
 				br.profileStop = false
 			end
 		end
@@ -60,10 +60,10 @@ local function standingReason(now)
 	if toggles ~= nil and toggles["Pause"] == 1 then return "pause toggle", false end
 
 	-- ── Pause key: held with keyboard focus clear and the option enabled ───
-	if br.functions.misc:isChecked("Pause Mode") and br._G.GetCurrentKeyBoardFocus() == nil then
+	if br.functions.misc:isChecked("Pause Mode") and br.game.GetCurrentKeyBoardFocus() == nil then
 		local pausekey
 		if br.functions.misc:SpecificToggle("Pause Mode") == nil or br.functions.misc:getValue("Pause Mode") == 6 then
-			pausekey = br._G.IsLeftAltKeyDown()
+			pausekey = br.game.IsLeftAltKeyDown()
 		else
 			pausekey = br.functions.misc:SpecificToggle("Pause Mode")
 		end
@@ -87,24 +87,24 @@ local function standingReason(now)
 		or br.functions.aura:UnitBuffID("player", sb.nagrandRidingClefthoof)
 		or br.functions.aura:UnitBuffID("player", sb.nagrandGoat)
 	if not nagrandMount then
-		if (br._G.IsMounted() or br._G.IsFlying()) and not br.functions.unit:isBoss("target") then return "mounted", true end
-		if br._G.UnitOnTaxi("player") then return "on a taxi", true end
-		if br._G.UnitInVehicle("player")
+		if (br.game.IsMounted() or br.game.IsFlying()) and not br.functions.unit:isBoss("target") then return "mounted", true end
+		if br.game.UnitOnTaxi("player") then return "on a taxi", true end
+		if br.game.UnitInVehicle("player")
 			and not br.functions.misc:isChecked("Bypass Vehicle Check")
-			and not (br._G.UnitExists("target") and br._G.UnitCanAttack("player", "target"))
+			and not (br.game.UnitExists("target") and br.game.UnitCanAttack("player", "target"))
 		then
 			return "in a vehicle", true
 		end
 	end
 
 	-- Spell-targeting cursor active (player clicked a targeted spell)
-	if br._G.SpellIsTargeting() then return "targeting a spell", true end
+	if br.game.SpellIsTargeting() then return "targeting a spell", true end
 
 	-- Dead, eating, drinking, specific channeled debuffs/buffs.
 	-- 252753 = Potion of Replenishment (BFA mana channel — registered as a debuff).
 	-- 114018 = Shroud of Concealment (Rogue group stealth, MOP+); rotation should
 	--          remain idle while the group is sneaking.
-	if br._G.UnitIsDeadOrGhost("player") then return "dead", true end
+	if br.game.UnitIsDeadOrGhost("player") then return "dead", true end
 	if br.functions.unit:isEating() then return "eating", true end
 	if br.functions.unit:isDrinking() then return "drinking", true end
 	if br.functions.aura:UnitDebuffID("player", sd.potionOfReplenishment) then return "drinking", true end
@@ -112,7 +112,7 @@ local function standingReason(now)
 
 	-- Pet battle: player character is completely locked during a pet battle UI.
 	-- C_PetBattles exists on MOP+ only; nil-guarded for Classic/TBC safety.
-	if br._G.C_PetBattles and br._G.C_PetBattles.IsInBattle and br._G.C_PetBattles.IsInBattle() then return "pet battle", true end
+	if br.game.C_PetBattles and br.game.C_PetBattles.IsInBattle and br.game.C_PetBattles.IsInBattle() then return "pet battle", true end
 
 	-- Mind Control / Charm: player is controlled by an enemy and cannot act.
 	-- On Classic/TBC/MOP, hasCharmBreakTracking = false, so this always pauses
@@ -121,7 +121,7 @@ local function standingReason(now)
 	-- that implements a charm-break ability (e.g. DK Lichborne) can enable the
 	-- "Bypass CC Pause" option to let Cast.lua's per-spell cannotCast() gate
 	-- handle the MC instead of halting the entire rotation here.
-	if br._G.UnitIsCharmed("player")
+	if br.game.UnitIsCharmed("player")
 		and (not br.api.hasCharmBreakTracking or not br.functions.misc:isChecked("Bypass CC Pause"))
 	then
 		return "charmed", true
@@ -140,7 +140,7 @@ local memoTime, memoReason, memoEmpowerRuns
 -- "charmed", "item channel", "casting", "channelling".
 -- @param skipCastingCheck true for code that acts while the player casts or channels
 function misc:pauseReason(skipCastingCheck)
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 
 	-- Resolve the act-through-channel ID set once, now that the spell lists are loaded.
 	local sa = br.lists.spells.Shared.Shared.abilities
@@ -162,17 +162,17 @@ function misc:pauseReason(skipCastingCheck)
 		local items = br.lists.items
 		local lastCast = br.functions.lastCast.lastCastTable.tracker[1]
 		if misc.pauseCast - now <= 0 then
-			local hasted = (1 - br._G.UnitSpellHaste("player") / 100)
+			local hasted = (1 - br.game.UnitSpellHaste("player") / 100)
 			-- Focused Azerite Beam
 			if lastCast == sa.focusedAzeriteBeam and br.functions.spell:getSpellCD(sa.focusedAzeriteBeam) == 0 then
 				misc.pauseCast = now + br.functions.cast:getCastTime(sa.focusedAzeriteBeam) + (br.functions.cast:getCastTime(sa.focusedAzeriteBeamChannel) * hasted)
 			end
 			-- Cyclotronic Blast
-			if lastCast == sa.cyclotronicBlast and br._G.C_Container.GetItemCooldown(items.pocketSizedComputationDevice) == 0 then
+			if lastCast == sa.cyclotronicBlast and br.game.C_Container.GetItemCooldown(items.pocketSizedComputationDevice) == 0 then
 				misc.pauseCast = now + br.functions.cast:getCastTime(sa.cyclotronicBlast) + (2.5 * hasted) + br.functions.spell:getGlobalCD(true)
 			end
 			-- Azshara's Font of Power - Latent Arcana
-			if lastCast == sb.latentArcana and br._G.C_Container.GetItemCooldown(items.azsharasFontOfPower) == 0 then
+			if lastCast == sb.latentArcana and br.game.C_Container.GetItemCooldown(items.azsharasFontOfPower) == 0 then
 				misc.pauseCast = now + br.functions.cast:getCastTime(sb.latentArcana) + (2.5 * hasted)
 			end
 		end
@@ -196,7 +196,7 @@ function misc:pauseReason(skipCastingCheck)
 
 	-- Channeling pauses the rotation EXCEPT for act-through channels (nonBlockingChannels):
 	-- those let us move/attack/cast without clipping them, so we keep running and fight back.
-	local channelName, _, _, _, _, _, _, channelSpellID = br._G.UnitChannelInfo("player")
+	local channelName, _, _, _, _, _, _, channelSpellID = br.game.UnitChannelInfo("player")
 	if channelName ~= nil and not (channelSpellID and nonBlockingChannels and nonBlockingChannels[channelSpellID]) then
 		if empowering then return nil end
 		return "channelling"
@@ -208,10 +208,10 @@ function misc:pauseReason(skipCastingCheck)
 	-- Only in combat: a pull spell's window falls before its bolt lands, so out of
 	-- combat the profile would pre-cast a second pull spell instead of letting the
 	-- first decision after the pull use its in-combat priorities.
-	local castName, _, _, _, endTime, _, castID = br._G.UnitCastingInfo("player")
+	local castName, _, _, _, endTime, _, castID = br.game.UnitCastingInfo("player")
 	if castName ~= nil then
 		if empowering then return nil end
-		local window = br._G.UnitAffectingCombat("player") and br.functions.cast:getQueueWindow() or 0
+		local window = br.game.UnitAffectingCombat("player") and br.functions.cast:getQueueWindow() or 0
 		if (endTime / 1000 - now) > window or br.functions.cast:isQueuedBehind(castID, endTime) then
 			return "casting"
 		end

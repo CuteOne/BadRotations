@@ -178,7 +178,7 @@ local function runRotation()
     enemies.get(40)
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = br._G.GetTime() end
+    if br.pauseTime == nil then br.pauseTime = br.game.GetTime() end
 
     ---------------------
     --- Begin Profile ---
@@ -187,7 +187,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        br.pauseTime = br._G.GetTime()
+        br.pauseTime = br.game.GetTime()
         return true
     else
         ---------------------------------

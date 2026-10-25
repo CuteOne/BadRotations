@@ -1,5 +1,5 @@
 local _, br     = ...
-local LibDraw   = br._G.LibStub("LibDraw-BR")
+local LibDraw   = br.game.LibStub("LibDraw-BR")
 br.engines.enemiesEngineFunctions = br.engines.enemiesEngineFunctions or {}
 local enemiesEngineFunctions = br.engines.enemiesEngineFunctions
 -- getEnemies results for anchors other than the player: [checkNoCombat][unit][radius][facing] = list
@@ -88,7 +88,7 @@ local function rebuildPartitionCache(sourceKey, targetRadius, unitFuncs, rangeFu
 		and br.engines.enemiesEngine.units
 		or  br.engines.enemiesEngine.enemy
 	local entries = {}
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	for _, v in pairs(sourceTable) do
 		local vUnit = v and v.unit
 		if vUnit and not unitFuncs:GetUnitIsDeadOrGhost(vUnit) then
@@ -127,7 +127,7 @@ end
 -- isPartitionCacheValid's 0.02s combat / 0.05s OOC TTL + 2-3y movement.
 local function derivePartitionResult(pCache, radius, facing)
 	local result = {}
-	local tinsert = br._G.tinsert
+	local tinsert = br.game.tinsert
 	table.wipe(addedSet)
 	for i = 1, #pCache.entries do
 		local entry = pCache.entries[i]
@@ -154,7 +154,7 @@ end
 
 -- /dump enemiesEngineFunctions:getEnemies("target",10)
 function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, facing)
-	local startTime = br._G.debugprofilestop()
+	local startTime = br.game.debugprofilestop()
 	radius = tonumber(radius) or 0
 	-- enemyTable selection happens inside rebuildPartitionCache for player-relative
 	-- scans; fallback paths below reference br.engines.enemiesEngine.units directly.
@@ -162,7 +162,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	local thisEnemy, distance
 	if checkNoCombat == nil then checkNoCombat = false end
 	if facing == nil then facing = false end
-	local now, inCombat, inRaid = br._G.GetTime(), br._G.UnitAffectingCombat("player"), br._G.IsInRaid()
+	local now, inCombat, inRaid = br.game.GetTime(), br.game.UnitAffectingCombat("player"), br.game.IsInRaid()
 	if storedTables[checkNoCombat] ~= nil then
 		if storedTables[checkNoCombat][thisUnit] ~= nil then
 			if storedTables[checkNoCombat][thisUnit][radius] ~= nil then
@@ -257,7 +257,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 		and aoeDistance(thisUnit, "target") < radius
 		and br.functions.misc:isValidUnit("target")
 		and (not facing or br.functions.unit:getFacing("player", "target")) then
-		br._G.tinsert(enemiesTable, "target")
+		br.game.tinsert(enemiesTable, "target")
 	end
 
 	-- FIXED: If still empty and no target, check for enemies with threat on player/group (e.g., mobs attacking you)
@@ -286,7 +286,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 				if distance < radius and (not facing or br.functions.unit:getFacing("player", thisEnemy)) then
 					-- Check if this enemy has threat on us or is targeting us
 					if br.functions.combat:hasThreat(thisEnemy) or br.functions.misc:isTargeting(thisEnemy) then
-						br._G.tinsert(enemiesTable, thisEnemy)
+						br.game.tinsert(enemiesTable, thisEnemy)
 						fallbackCount = fallbackCount + 1
 					end
 				end
@@ -332,19 +332,19 @@ end
 function enemiesEngineFunctions:isBurnTarget(unit)
 	local coef = 0
 	-- check if unit is valid
-	if br.functions.misc:getOptionCheck("Forced Burn") and br._G.UnitExists(unit) and br.functions.combat:hasThreat(unit) then
+	if br.functions.misc:getOptionCheck("Forced Burn") and br.game.UnitExists(unit) and br.functions.combat:hasThreat(unit) then
 		local unitID = br.functions.unit:GetObjectID(unit)
 		local burnUnit = br.lists.burnUnits[unitID]
 		if burnUnit and burnUnit.anyUnit then burnUnit = nil end -- an aura entry, not this NPC
 		-- not in its first 0.25 s (a unit just seen); timestamp is the last re-check, so it's seenAt
 		local record = br.engines.enemiesEngine.units[unit]
-		local unitTime = record ~= nil and record.seenAt or br._G.GetTime() - 1
+		local unitTime = record ~= nil and record.seenAt or br.game.GetTime() - 1
 		-- (it also required burnUnit.isValidUnit, a field no entry has, so no unit was ever burned)
-		if burnUnit and (burnUnit.cast == nil or not br.functions.cast:isCasting(burnUnit.cast, unitID)) and (br._G.GetTime() - unitTime) > 0.25 then
+		if burnUnit and (burnUnit.cast == nil or not br.functions.cast:isCasting(burnUnit.cast, unitID)) and (br.game.GetTime() - unitTime) > 0.25 then
 			if burnUnit.buff and br.functions.aura:UnitBuffID(unit, burnUnit.buff) then
 				coef = burnUnit.coef
 			end
-			if not burnUnit.buff and (br._G.UnitName(unit) == burnUnit.name or --[[burnUnit or]] burnUnit.id == unitID) then
+			if not burnUnit.buff and (br.game.UnitName(unit) == burnUnit.name or --[[burnUnit or]] burnUnit.id == unitID) then
 				--if not UnitIsUnit("target",unit) then TargetUnit(unit) end
 				coef = burnUnit.coef
 			end
@@ -405,7 +405,7 @@ end
 
 function enemiesEngineFunctions:isSafeToAttack(unit)
 	if br.functions.misc:getOptionCheck("Safe Damage Check") == true then
-		local startTime = br._G.debugprofilestop()
+		local startTime = br.game.debugprofilestop()
 		-- check if unit is valid
 		local unitID = br.functions.unit:GetObjectExists(unit) and br.functions.unit:GetObjectID(unit) or 0
 		local anyUnit, thisUnit = noTouchEntries(unitID)
@@ -460,7 +460,7 @@ end
 -- distance, and whether it is in front of the player
 local targetFacts = { at = nil }
 local function readTargetFacts()
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	if targetFacts.at == now then return targetFacts end
 	targetFacts.at = now
 	local unitFns, misc = br.functions.unit, br.functions.misc
@@ -485,7 +485,7 @@ end
 -- True when the target holds the player's combo points (Classic-era: stored on it, lost on a switch)
 local function targetHoldsComboPoints()
 	return br.api and br.api.comboPointsOnTarget
-		and (tonumber(br._G.GetComboPoints and br._G.GetComboPoints("player", "target")) or 0) > 0 or false
+		and (tonumber(br.game.GetComboPoints and br.game.GetComboPoints("player", "target")) or 0) > 0 or false
 end
 
 -- Facing requests up to this range (yards) are melee: auto attack follows the WoW target, so BR switches
@@ -500,10 +500,10 @@ local MELEE_RETARGET = 8
 --- WoW target is set to the pick.
 function enemiesEngineFunctions:dynamicTarget(range, facing)
 	if range == nil or range > 100 then return nil end
-	local startTime = br._G.debugprofilestop()
+	local startTime = br.game.debugprofilestop()
 	local misc = br.functions.misc
 	facing = facing or false
-	local inCombat = br._G.UnitAffectingCombat("player")
+	local inCombat = br.game.UnitAffectingCombat("player")
 	-- Targeting Mode: 1 Off, 2 Assist (the default), 3 Full
 	local mode = misc:getOptionValue("Targeting Mode")
 	if mode == 0 then mode = 2 end
@@ -541,10 +541,10 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 			if wantRetarget and not unitFns:GetUnitIsUnit(result, "target") and not unitFns:isDummy(result)
 				and not (facing and unitFns:isExplosive(result))
 			then
-				br._G.TargetUnit(result)
+				br.game.TargetUnit(result)
 				targetFacts.at = nil -- the target changed: read it afresh
 				br.functions.range:clearDistanceMemo()
-				enemiesEngineFunctions.lastRetargetAt = br._G.GetTime() -- for the targeting log
+				enemiesEngineFunctions.lastRetargetAt = br.game.GetTime() -- for the targeting log
 			end
 		end
 	end
@@ -570,13 +570,13 @@ function enemiesEngineFunctions:getEnemiesInCone(angle, length, checkNoCombat, s
 	local maxProcess = math.min(#enemiesTable, 30)
 	for i = 1, maxProcess do
 		local thisUnit = enemiesTable[i]
-		local radius = br._G.UnitCombatReach(thisUnit)
-		local unitX, unitY, unitZ = br._G.GetPositionBetweenObjects(thisUnit, "player", radius)
+		local radius = br.game.UnitCombatReach(thisUnit)
+		local unitX, unitY, unitZ = br.game.GetPositionBetweenObjects(thisUnit, "player", radius)
 		if playerX and unitX and playerY and unitY then
 			for j = radius, 0, -0.5 do
 				inside = false
 				if j > 0 then
-					unitX, unitY = br._G.GetPositionBetweenObjects(thisUnit, "player", j)
+					unitX, unitY = br.game.GetPositionBetweenObjects(thisUnit, "player", j)
 				else
 					unitX, unitY = br.functions.unit:GetObjectPosition(thisUnit)
 				end
@@ -591,7 +591,7 @@ function enemiesEngineFunctions:getEnemiesInCone(angle, length, checkNoCombat, s
 			end
 			if inside then
 				if showLines then
-					LibDraw.Circle(unitX, unitY, playerZ, br._G.UnitBoundingRadius(thisUnit))
+					LibDraw.Circle(unitX, unitY, playerZ, br.game.UnitBoundingRadius(thisUnit))
 				end
 				unitsCounter = unitsCounter + 1
 				table.insert(coneUnits, thisUnit)
@@ -612,13 +612,13 @@ function enemiesEngineFunctions:getEnemiesInRect(width, length, showLines, check
 		local facing = br.functions.unit:GetObjectFacing("player") or 0
 		local halfWidth = width / 2
 		-- Near Left
-		local nlX, nlY, _ = br._G.GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(90), 0)
+		local nlX, nlY, _ = br.game.GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(90), 0)
 		-- Near Right
-		local nrX, nrY, nrZ = br._G.GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(270), 0)
+		local nrX, nrY, nrZ = br.game.GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(270), 0)
 		-- Far Left
 		-- local flX, flY, flZ = GetPositionFromPosition(nlX, nlY, nlZ, length, facing, 0)
 		-- Far Right
-		local frX, frY, _ = br._G.GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
+		local frX, frY, _ = br.game.GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
 
 		return nlX, nlY, nrX, nrY, frX, frY
 	end
@@ -634,14 +634,14 @@ function enemiesEngineFunctions:getEnemiesInRect(width, length, showLines, check
 		local maxProcess = math.min(#enemiesTable, 40)
 		for i = 1, maxProcess do
 			local thisUnit = enemiesTable[i]
-			local radius = br._G.UnitCombatReach(thisUnit)
-			local tX, tY = br._G.GetPositionBetweenObjects(thisUnit, "player", radius)
+			local radius = br.game.UnitCombatReach(thisUnit)
+			local tX, tY = br.game.GetPositionBetweenObjects(thisUnit, "player", radius)
 			if tX and tY then
 				for j = radius, 0, -0.1 do
 					inside = false
 					local pX, pY
 					if j > 0 then
-						pX, pY = br._G.GetPositionBetweenObjects(thisUnit, "player", j)
+						pX, pY = br.game.GetPositionBetweenObjects(thisUnit, "player", j)
 					else
 						pX, pY = br.functions.unit:GetObjectPosition(thisUnit)
 					end
@@ -653,7 +653,7 @@ function enemiesEngineFunctions:getEnemiesInRect(width, length, showLines, check
 				if inside then
 					if showLines then
 						---@diagnostic disable-next-line: undefined-field
-						LibDraw.Circle(tX, tY, pz, br._G.UnitBoundingRadius(thisUnit))
+						LibDraw.Circle(tX, tY, pz, br.game.UnitBoundingRadius(thisUnit))
 					end
 					enemyCounter = enemyCounter + 1
 					table.insert(rectUnits, thisUnit)

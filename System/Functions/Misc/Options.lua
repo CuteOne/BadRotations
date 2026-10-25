@@ -52,7 +52,7 @@ local function findOption(Value, Page, Type, missing)
 		missingOptions = {}
 		missingSettings = settings
 	end
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	local missedAt = missingOptions[option]
 	if missedAt ~= nil and now - missedAt < 1 then return notFound end
 	for pageName, pageSettings in pairs(settings) do

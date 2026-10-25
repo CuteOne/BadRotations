@@ -33,7 +33,7 @@ if br.lists.longCC then
 end
 
 -- Racial IDs checked against Wowhead's Classic database (2026-10-05).
-local playerClass = select(2, br._G.UnitClass("player"))
+local playerClass = select(2, br.game.UnitClass("player"))
 local berserkingID = ({ WARRIOR = 26296, ROGUE = 26297 })[playerClass] or 20554
 
 -- cast.racial() is the race's damage racial, so a profile can use it SimC-style ("use

@@ -3,12 +3,12 @@ br.readers.common = br.readers.common or {}
 local common = br.readers.common
 
 -- Pre-register all event frames at module load time to avoid ADDON_ACTION_FORBIDDEN in NnLua runtime context
-local _lfgFrame         = br._G.CreateFrame("Frame"); _lfgFrame:RegisterEvent("LFG_PROPOSAL_SHOW")
-local _merchantFrame    = br._G.CreateFrame("Frame"); _merchantFrame:RegisterEvent("MERCHANT_SHOW")
-local _regenDisFrame    = br._G.CreateFrame("Frame"); _regenDisFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-local _regenEnFrame     = br._G.CreateFrame("Frame"); _regenEnFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-local _uiErrFrame       = br._G.CreateFrame("Frame"); _uiErrFrame:RegisterEvent("UI_ERROR_MESSAGE")
-local _superFrame       = br._G.CreateFrame("Frame")
+local _lfgFrame         = br.game.CreateFrame("Frame"); _lfgFrame:RegisterEvent("LFG_PROPOSAL_SHOW")
+local _merchantFrame    = br.game.CreateFrame("Frame"); _merchantFrame:RegisterEvent("MERCHANT_SHOW")
+local _regenDisFrame    = br.game.CreateFrame("Frame"); _regenDisFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+local _regenEnFrame     = br.game.CreateFrame("Frame"); _regenEnFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+local _uiErrFrame       = br.game.CreateFrame("Frame"); _uiErrFrame:RegisterEvent("UI_ERROR_MESSAGE")
+local _superFrame       = br.game.CreateFrame("Frame")
 local autoAttackGUID      -- the unit auto attack started on (PLAYER_ENTER_COMBAT), for the Cast Debug stop line
 _superFrame:RegisterEvent("CHAT_MSG_ADDON")
 _superFrame:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
@@ -47,7 +47,7 @@ _superFrame:RegisterEvent("SPELLS_CHANGED")
 -- The unit auto attack started on is dead or gone
 local function autoAttackTargetDied()
 	if autoAttackGUID == nil then return false end
-	local unit = br._G.GetObjectWithGUID and br._G.GetObjectWithGUID(autoAttackGUID)
+	local unit = br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(autoAttackGUID)
 	return unit == nil or br.functions.unit:GetUnitIsDeadOrGhost(unit)
 end
 
@@ -71,7 +71,7 @@ function common:commonReaders()
 	local function MerchantShow_AutoJoin(_, event, _)
 		if br.functions.misc:getOptionCheck("Accept Queues") == true then
 			if event == "LFG_PROPOSAL_SHOW" then
-				br.functions.misc.readyToAccept = br._G.GetTime()
+				br.functions.misc.readyToAccept = br.game.GetTime()
 			end
 		end
 	end
@@ -92,14 +92,14 @@ function common:commonReaders()
 	-- Frame:SetScript("OnEvent", Eclipse)
 	----------------------
 	--[[ timer Frame --]]
-	br._G.CreateFrame("Frame"):SetScript(
+	br.game.CreateFrame("Frame"):SetScript(
 		"OnUpdate",
 		function()
 			if br.uiDropdownTimer ~= nil then
-				br.uiTimerStarted = br._G.GetTime()
+				br.uiTimerStarted = br.game.GetTime()
 			end
-			if br.uiTimerStarted and br._G.GetTime() - br.uiTimerStarted >= 0.5 then
-				br._G.clearChilds(br.uiDropdownTimer)
+			if br.uiTimerStarted and br.game.GetTime() - br.uiTimerStarted >= 0.5 then
+				br.game.clearChilds(br.uiDropdownTimer)
 				br.uiDropdownTimer = false
 				br.uiTimerStarted = nil
 			end
@@ -136,7 +136,7 @@ function common:commonReaders()
 		if event == "PLAYER_REGEN_ENABLED" then
 			-- start loot manager
 			if br.lM then
-				if not br._G.IsMounted("player") then
+				if not br.game.IsMounted("player") then
 					br.lM.shouldLoot = true
 					br.lM.looted = 0
 				end
@@ -152,7 +152,7 @@ function common:commonReaders()
 			br.Thrash_sDamage = {}
 			br.petAttacking = false
 			br.functions.lastCast.lastCastTable.line_cd = {}
-			br._G.wipe(br.readers.combatLog.debuffTracker)
+			br.game.wipe(br.readers.combatLog.debuffTracker)
 		end
 	end
 	Frame:SetScript("OnEvent", LeavingCombat)
@@ -163,10 +163,10 @@ function common:commonReaders()
 		-- Remember casts the game refused (stronger aura, line of sight, facing, range)
 		-- so they aren't retried endlessly against the same unit.
 		br.functions.cast:handleCastError(message)
-		br.lastError = br._G.GetGameMessageInfo(errorType)
-		br.lastErrorTime = br._G.GetTime()
+		br.lastError = br.game.GetGameMessageInfo(errorType)
+		br.lastErrorTime = br.game.GetTime()
 		local param = br.lastError
-		--br._G.print("|cffFF0000UI Error: " .. errorType .. " - " .. param)
+		--br.game.print("|cffFF0000UI Error: " .. errorType .. " - " .. param)
 		if param == "ERR_PET_SPELL_DEAD" then
 			br.data.settings[br.loader.selectedSpec]["Pet Dead"] = true
 			br.data.settings[br.loader.selectedSpec]["Pet Whistle"] = false
@@ -213,11 +213,11 @@ function common:commonReaders()
 	Frame:SetScript("OnEvent", UiErrorMessages)
 	-- ------------------------
 	-- --[[ Spells Changed --]]
-	-- Frame = br._G.CreateFrame("Frame")
+	-- Frame = br.game.CreateFrame("Frame")
 	-- Frame:RegisterEvent("LEARNED_SPELL_IN_SKILL_LINE")
 	-- local function SpellsChanged(_, _, _)
-	-- 	if not br.configReloadTimer or br.configReloadTimer <= br._G.GetTime() - 1 then
-	-- 		br.currentConfig, br.configReloadTimer = nil, br._G.GetTime()
+	-- 	if not br.configReloadTimer or br.configReloadTimer <= br.game.GetTime() - 1 then
+	-- 		br.currentConfig, br.configReloadTimer = nil, br.game.GetTime()
 	-- 	end
 	-- end
 	-- Frame:SetScript("OnEvent", SpellsChanged)
@@ -266,14 +266,14 @@ function common:commonReaders()
 	--     "LOADING_SCREEN_DISABLED"
 	-- )
 	-- local function addonReader(...)
-	-- 	function br._G.DBM:AddMsg(text, prefix)
+	-- 	function br.game.DBM:AddMsg(text, prefix)
 	-- 		prefix = prefix or (self.localization and self.localization.general.name) or "Deadly Boss Mods"
-	-- 		local frame = br._G[tostring(_G.DBM.Options.ChatFrame)]
-	-- 		br._G.print("!!")
-	-- 		frame = frame and frame:IsShown() and frame or br._G["DEFAULT_CHAT_FRAME"]
+	-- 		local frame = br.game[tostring(_G.DBM.Options.ChatFrame)]
+	-- 		br.game.print("!!")
+	-- 		frame = frame and frame:IsShown() and frame or br.game["DEFAULT_CHAT_FRAME"]
 	-- 		frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(prefix), tostring(text)), 0.41, 0.8, 0.94)
 	-- 	end
-	-- 	br._G.print(...)
+	-- 	br.game.print(...)
 	-- end
 	--Frame:SetScript("OnEvent", addonReader)
 
@@ -311,7 +311,7 @@ function common:commonReaders()
 		if event == "PLAYER_ENTER_COMBAT" or event == "PLAYER_LEAVE_COMBAT" then
 			br.functions.unit:setAutoAttacking(event == "PLAYER_ENTER_COMBAT")
 			-- The unit auto attack started on, so a stop can tell "it died" from "the target changed"
-			local targetGUID = br._G.UnitGUID("target")
+			local targetGUID = br.game.UnitGUID("target")
 			if not br.functions.misc:canUseValue(targetGUID) then targetGUID = nil end
 			if event == "PLAYER_ENTER_COMBAT" then autoAttackGUID = targetGUID end
 			-- Cast Debug: when auto attack stops mid-fight (a queued Maul / Heroic Strike goes with it,
@@ -319,10 +319,10 @@ function common:commonReaders()
 			-- unit it started on died: the game drops a dead target, the fight's normal end.
 			-- Checked half a second later: when the attacked unit dies, auto attack stops before the game
 			-- marks it dead and before combat ends (2026-10-19: "no target" right before looting each kill)
-			if event == "PLAYER_LEAVE_COMBAT" and br._G.UnitAffectingCombat("player")
+			if event == "PLAYER_LEAVE_COMBAT" and br.game.UnitAffectingCombat("player")
 				and br.functions.misc:isChecked("Cast Debug") -- a diagnostic: Cast Debug only
-			then br._G.C_Timer.After(0.5, function()
-				if autoAttackTargetDied() or not br._G.UnitAffectingCombat("player") then return end
+			then br.game.C_Timer.After(0.5, function()
+				if autoAttackTargetDied() or not br.game.UnitAffectingCombat("player") then return end
 				local unit, misc = br.functions.unit, br.functions.misc
 				-- A part built from a flagged value can't print (2026-10-12 the whole line came out as "a debug
 				-- line holding a secret value"): each value goes in as a plain copy, and the line names the
@@ -338,7 +338,7 @@ function common:commonReaders()
 				local target = "no target"
 				if unit:GetUnitExists("target") then
 					local distance = plainPart("distance", br.functions.range:getDistance("target") or -1)
-					target = tostring(plainPart("target name", br._G.UnitName("target")) or "target")
+					target = tostring(plainPart("target name", br.game.UnitName("target")) or "target")
 						.. (type(distance) == "number" and string.format(" %.1f yds", distance) or " ? yds")
 						.. (unit:GetUnitIsDeadOrGhost("target") and ", dead" or "")
 					if autoAttackGUID ~= nil and targetGUID ~= nil and targetGUID ~= autoAttackGUID then
@@ -347,7 +347,7 @@ function common:commonReaders()
 				end
 				local lastCast = ""
 				if br.botSpell and br.botCastTime then
-					local ago = plainPart("time since the cast", br._G.GetTime() - br.botCastTime)
+					local ago = plainPart("time since the cast", br.game.GetTime() - br.botCastTime)
 					lastCast = ", BR's last cast " .. tostring(plainPart("spell name", br.functions.spell:getName(br.botSpell)))
 						.. (type(ago) == "number" and string.format(" %.1fs ago", ago) or " ? ago")
 				end
@@ -400,9 +400,9 @@ function common:commonReaders()
 						queuedID = queuedID[1]
 					end
 					if br.functions.spell:getName(SpellID) == br.functions.spell:getName(queuedID) then
-						br._G.tremove(br.player.queue, i)
-						if br._G.IsAoEPending() then
-							br._G.SpellStopTargeting()
+						br.game.tremove(br.player.queue, i)
+						if br.game.IsAoEPending() then
+							br.game.SpellStopTargeting()
 						end
 						if not br.functions.misc:isChecked("Mute Queue") then
 							br.log:say("Queue", "Cast " .. br.log.highlight(br.functions.spell:getName(queuedID)) .. ", removed from the queue")
@@ -431,7 +431,7 @@ function common:commonReaders()
 			if not br.functions.unit:GetUnitIsDeadOrGhost("player") and (br.functions.unit:GetUnitIsDeadOrGhost("pet") or not br.functions.unit:GetUnitExists("pet")) and (errorMsg == 51 or errorMsg == 203) then --or errorMsg == 277 or errorMsg == 275 then
 				br.readers.combatLog.deadPet = true
 				-- if deadPet == false then
-				-- elseif deadPet == true and br._G.UnitHealth("pet") > 0 then
+				-- elseif deadPet == true and br.game.UnitHealth("pet") > 0 then
 				-- 	deadPet = false
 				-- end
 			end

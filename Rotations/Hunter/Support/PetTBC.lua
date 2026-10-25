@@ -28,12 +28,12 @@ local units
 local var
 
 -- Module state
-local petAppearTimer        = br._G.GetTime()
+local petAppearTimer        = br.game.GetTime()
 local petCalled             = false
 local petRevived            = false
 local petDead               = false
 local lastPetMode           = nil    -- Track applied pet stance; avoids redundant WoW API calls
-local targetSwitchTimer     = br._G.GetTime()
+local targetSwitchTimer     = br.game.GetTime()
 local currentTarget         = nil
 local happinessWarnTimer    = 0      -- Rate-limit unhappy pet warning to once per 30 seconds
 
@@ -122,10 +122,10 @@ br.loader.rotations.support["PetTBC"] = {
         enemies.get(8, "pet")    -- enemies.yards8pet: AoE radius for Screech / Thunderstomp
 
         -- Halt conditions — actions where pet management should be suppressed entirely.
-        var.haltPetProfile = br._G.UnitCastingInfo("pet")
-            or br._G.UnitHasVehicleUI("player")
-            or br._G.CanExitVehicle("player")
-            or br._G.UnitOnTaxi("player")
+        var.haltPetProfile = br.game.UnitCastingInfo("pet")
+            or br.game.UnitHasVehicleUI("player")
+            or br.game.CanExitVehicle("player")
+            or br.game.UnitOnTaxi("player")
             or unit.mounted()
             or unit.flying()
             or ui.pause()
@@ -144,10 +144,10 @@ br.loader.rotations.support["PetTBC"] = {
         -- TBC-exclusive: happiness 1=Unhappy (75% dmg), 2=Content (100%), 3=Happy (125%).
         -- Feed the pet manually to maintain Happy state and full damage output.
         if petExists and petActive then
-            local happiness = br._G.GetPetHappiness and br._G.GetPetHappiness() or 2
-            if happiness == 1 and br._G.GetTime() - happinessWarnTimer > 30 then
+            local happiness = br.game.GetPetHappiness and br.game.GetPetHappiness() or 2
+            if happiness == 1 and br.game.GetTime() - happinessWarnTimer > 30 then
                 ui.debug("|cffFF0000WARNING|r: Pet is Unhappy — suffering a 25% damage penalty. Feed your pet. [Pet]")
-                happinessWarnTimer = br._G.GetTime()
+                happinessWarnTimer = br.game.GetTime()
             end
         end
 
@@ -155,14 +155,14 @@ br.loader.rotations.support["PetTBC"] = {
         --- Pet Summoning / Revive ---
         ----------------------------
         if ui.checked("Summon Pet") and not var.haltPetProfile and not unit.falling()
-            and petAppearTimer < br._G.GetTime() - 2
+            and petAppearTimer < br.game.GetTime() - 2
         then
             -- Confirm pending Call Pet: clear flag on success, or after timeout (do NOT set petDead —
             -- a dismissed/missing pet is not the same as a dead one).
             if petCalled then
                 if petExists and petActive then
                     petCalled = false
-                elseif br._G.GetTime() - petAppearTimer > PET_CALL_TIMEOUT then
+                elseif br.game.GetTime() - petAppearTimer > PET_CALL_TIMEOUT then
                     petCalled = false  -- timed out; will retry Call Pet, not Revive Pet
                 end
             end
@@ -173,7 +173,7 @@ br.loader.rotations.support["PetTBC"] = {
                 if cast.able.revivePet("player") and cast.timeSinceLast.revivePet() > unit.gcd(true) then
                     if cast.revivePet("player") then
                         ui.debug("Casting Revive Pet [Pet]")
-                        petAppearTimer = br._G.GetTime(); petRevived = true; petCalled = false; growlAutoCastDisabled = false
+                        petAppearTimer = br.game.GetTime(); petRevived = true; petCalled = false; growlAutoCastDisabled = false
                         return true
                     end
                 end
@@ -183,12 +183,12 @@ br.loader.rotations.support["PetTBC"] = {
             -- GetPetExperience() returns non-nil for any pet in the active slot (summoned,
             -- dismissed, or dead). It returns nil only when no pet occupies the active slot
             -- (all stabled or no pets owned), in which case Call Pet would fail.
-            local hasActivePet = br._G.GetPetExperience() ~= nil
+            local hasActivePet = br.game.GetPetExperience() ~= nil
             if not petExists and not petCalled and not petDead and hasActivePet then
                 if cast.able.callPet("player") then
                     if cast.callPet("player") then
                         ui.debug("Casting Call Pet [Pet]")
-                        petAppearTimer = br._G.GetTime(); petCalled = true; petRevived = false; growlAutoCastDisabled = false
+                        petAppearTimer = br.game.GetTime(); petCalled = true; petRevived = false; growlAutoCastDisabled = false
                         return true
                     end
                 end
@@ -221,13 +221,13 @@ br.loader.rotations.support["PetTBC"] = {
         local desiredMode = ui.value("Pet Mode")  -- 1=Assist, 2=Defensive, 3=Passive
         if desiredMode ~= lastPetMode then
             if desiredMode == 1 then
-                br._G.PetAggressiveMode()
+                br.game.PetAggressiveMode()
                 ui.debug("Pet Mode → Aggressive [Pet]")
             elseif desiredMode == 2 then
-                br._G.PetDefensiveMode()
+                br.game.PetDefensiveMode()
                 ui.debug("Pet Mode → Defensive [Pet]")
             elseif desiredMode == 3 then
-                br._G.PetPassiveMode()
+                br.game.PetPassiveMode()
                 ui.debug("Pet Mode → Passive [Pet]")
             end
             lastPetMode = desiredMode
@@ -241,7 +241,7 @@ br.loader.rotations.support["PetTBC"] = {
         -- currentTarget stores the GUID of the last directed target so that transient frame-drops
         -- (e.g. the pettarget token going nil for one tick while a mob fears) do not cause
         -- redundant PetAttack calls that interrupt the pet's current swing animation.
-        if targetSwitchTimer < br._G.GetTime() - 1 then
+        if targetSwitchTimer < br.game.GetTime() - 1 then
             if unit.valid("target") and not unit.friend("target")
                 and desiredMode ~= 3   -- Skip auto-direction in Passive; player controls directly
             then
@@ -253,19 +253,19 @@ br.loader.rotations.support["PetTBC"] = {
                     or targetGUID ~= currentTarget          -- player switched targets
                 then
                     ui.debug("Pet Attack → " .. (unit.name("target") or "target") .. " [Pet]")
-                    br._G.PetAttack("target")
+                    br.game.PetAttack("target")
                     currentTarget = targetGUID
                 end
             elseif not unit.inCombat()
-                and br._G.IsPetAttackActive and br._G.IsPetAttackActive()
+                and br.game.IsPetAttackActive and br.game.IsPetAttackActive()
             then
                 -- Out of combat with no valid enemy target (e.g. target deselected pre-pull).
-                br._G.PetStopAttack()
-                br._G.PetFollow()
+                br.game.PetStopAttack()
+                br.game.PetFollow()
                 currentTarget = nil
                 ui.debug("Pet Follow [Pet]")
             end
-            targetSwitchTimer = br._G.GetTime()
+            targetSwitchTimer = br.game.GetTime()
         end
 
         ----------------------------
@@ -274,12 +274,12 @@ br.loader.rotations.support["PetTBC"] = {
         -- Disable Growl's built-in auto-cast once per session so this module controls threat
         -- manually. TBC WoW API: GetPetActionInfo(slot) / TogglePetAutocast(slot).
         if ui.checked("Auto Growl") and not growlAutoCastDisabled then
-            if br._G.NUM_PET_ACTION_SLOTS then
-                for i = 1, br._G.NUM_PET_ACTION_SLOTS do
-                    local name, _, _, _, _, autoCastEnabled = br._G.GetPetActionInfo(i)
+            if br.game.NUM_PET_ACTION_SLOTS then
+                for i = 1, br.game.NUM_PET_ACTION_SLOTS do
+                    local name, _, _, _, _, autoCastEnabled = br.game.GetPetActionInfo(i)
                     if name and (name == "Growl" or name == "PET_ACTION_GROWL") and autoCastEnabled then
-                        if br._G.TogglePetAutocast then
-                            br._G.TogglePetAutocast(i)
+                        if br.game.TogglePetAutocast then
+                            br.game.TogglePetAutocast(i)
                         end
                     end
                 end

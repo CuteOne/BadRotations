@@ -38,7 +38,7 @@ end
 local updateRateAt, updateRateValue
 --- Seconds between ticks: the Bot Update Rate, stretched by Auto Delay.
 function core:getUpdateRate()
-    local now = br._G.GetTime()
+    local now = br.game.GetTime()
     if updateRateAt == now then return updateRateValue end
     local updateRate = br.functions.misc:getOptionValue("Bot Update Rate") or 0.1
     if br.functions.misc:isChecked("Auto Delay") then
@@ -70,19 +70,19 @@ local SETTLE_SECONDS = 3
 core.loading = false
 local settledAt = 0
 --- True for a moment after a loading screen.
-function core:isSettling() return br._G.GetTime() < settledAt end
+function core:isSettling() return br.game.GetTime() < settledAt end
 
-local loadingScreen = br._G.CreateFrame("Frame")
+local loadingScreen = br.game.CreateFrame("Frame")
 loadingScreen:RegisterEvent("LOADING_SCREEN_ENABLED")
 loadingScreen:RegisterEvent("LOADING_SCREEN_DISABLED")
 loadingScreen:SetScript("OnEvent", function(_, event)
     core.loading = event == "LOADING_SCREEN_ENABLED"
-    if not core.loading then settledAt = br._G.GetTime() + SETTLE_SECONDS end
+    if not core.loading then settledAt = br.game.GetTime() + SETTLE_SECONDS end
 end)
 
 local powerWasOn = false
 local function update(_, elapsed)
-    local started = br._G.debugprofilestop()
+    local started = br.game.debugprofilestop()
     if core.loading then return end
     local bootstrap = br.bootstrap
     bootstrap:advance()
@@ -97,9 +97,9 @@ local function update(_, elapsed)
         else
             powerWasOn = true
             if readable and br.debug.timer:useTimer("playerUpdate", core:getUpdateRate()) then
-                local tickStarted = br._G.debugprofilestop()
+                local tickStarted = br.game.debugprofilestop()
                 br.lifecycle:run("tick")
-                core:recordTickCost("rotation", br._G.debugprofilestop() - tickStarted)
+                core:recordTickCost("rotation", br.game.debugprofilestop() - tickStarted)
             end
         end
     end
@@ -109,7 +109,7 @@ end
 -- The frame loop, from when the player first enters the world
 br.lifecycle:onStart(30, "core frame", function()
     if core.frame then return end
-    core.frame = br._G.CreateFrame("Frame", nil, br._G.UIParent)
+    core.frame = br.game.CreateFrame("Frame", nil, br.game.UIParent)
     core.frame:SetScript("OnUpdate", update)
     core.frame:Show()
 end)

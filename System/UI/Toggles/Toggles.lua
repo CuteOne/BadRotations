@@ -17,7 +17,7 @@ end
 local function mainTip()
 	local text = isPowerOn() and "|cffFF0000Disable BadRotations \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size."
 		or "|cff00FF00Enable |cffFF0000BadRotations \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size."
-	br._G.GameTooltip:SetText(text, 225 / 255, 225 / 255, 225 / 255)
+	br.game.GameTooltip:SetText(text, 225 / 255, 225 / 255, 225 / 255)
 end
 
 -- Sizes the main button for the current button size
@@ -38,7 +38,7 @@ function toggles:TogglesFrame()
 	toggles.genericIconOff = [[Interface\GLUES\CREDITS\Arakkoa1]]
 	toggles.genericIconOn = [[Interface/BUTTONS/CheckButtonGlow]]
 	if toggles.mainButton then return end
-	local mainButton = br._G.CreateFrame("Button", nil, br._G.UIParent)
+	local mainButton = br.game.CreateFrame("Button", nil, br.game.UIParent)
 	toggles.mainButton = mainButton
 	mainButton:RegisterForClicks("AnyUp")
 	local pos = br.data.settings.mainButton and br.data.settings.mainButton.pos or {}
@@ -50,7 +50,7 @@ function toggles:TogglesFrame()
 	mainButton:RegisterForDrag("LeftButton")
 	mainButton:SetScript("OnDragStart", mainButton.StartMoving)
 
-	local glow = br._G.CreateFrame("Frame", nil, mainButton)
+	local glow = br.game.CreateFrame("Frame", nil, mainButton)
 	glow:SetPoint("CENTER")
 	glow.texture = glow:CreateTexture(nil, "OVERLAY")
 	glow.texture:SetAllPoints()
@@ -76,16 +76,16 @@ function toggles:TogglesFrame()
 		end
 		mainButton:SetNormalTexture(turnOn and toggles.backIconOn or toggles.backIconOff)
 		glow.texture:SetTexture(turnOn and toggles.genericIconOn or toggles.genericIconOff)
-		if br._G.GameTooltip:IsOwned(mainButton) then mainTip() end
+		if br.game.GameTooltip:IsOwned(mainButton) then mainTip() end
 		br.ui.settingsManagement:saveIfLoaded()
 	end)
 	mainButton:SetScript("OnEnter", function()
-		br._G.GameTooltip:SetOwner(mainButton, "ANCHOR_RIGHT")
+		br.game.GameTooltip:SetOwner(mainButton, "ANCHOR_RIGHT")
 		mainTip()
-		br._G.GameTooltip:Show()
+		br.game.GameTooltip:Show()
 	end)
 	mainButton:SetScript("OnLeave", function()
-		br._G.GameTooltip:Hide()
+		br.game.GameTooltip:Hide()
 	end)
 	mainButton:SetScript("OnDragStop", function()
 		mainButton:StopMovingOrSizing()
@@ -95,7 +95,7 @@ function toggles:TogglesFrame()
 		br.ui.settingsManagement:saveIfLoaded()
 	end)
 	mainButton:SetScript("OnMouseWheel", function(_, delta)
-		if not br._G.IsLeftAltKeyDown() then return end
+		if not br.game.IsLeftAltKeyDown() then return end
 		local size = br.data.settings["buttonSize"] + delta
 		if size < 1 or size > 50 then return end
 		br.data.settings["buttonSize"] = size

@@ -33,8 +33,8 @@ engine.damaged    = engine.damaged or {}
 engine.ttd        = {} -- pointer -> samples used by record:unitTtd (Enhanced Time to Die)
 -- NPC / spell IDs this engine treats specially are in br.lists.unitRules (System/Lists/UnitRules.lua)
 
-local GetTime = br._G.GetTime
-local tinsert = br._G.tinsert
+local GetTime = br.game.GetTime
+local tinsert = br.game.tinsert
 local pX, pY, pZ, pCR, autoLoot -- player position / combat reach / Auto Loot, set once per pulse
 local playerPointer, targetPointer -- the player's and their target's pointers, set once per pulse
 
@@ -63,20 +63,20 @@ function engine:track(unit)
 	if record then return record end
 	if not isUnitReference(unit) then return nil end
 	local rules = br.lists.unitRules
-	if br._G.UnitIsPlayer(unit) and br.functions.aura:UnitDebuffID("player", rules.ignorePlayersWhilePlayerHas) then return nil end
+	if br.game.UnitIsPlayer(unit) and br.functions.aura:UnitDebuffID("player", rules.ignorePlayersWhilePlayerHas) then return nil end
 	local id = br.functions.unit:GetObjectID(unit)
 	if rules.neverTrack[id] then return nil end
 	record = setmetatable({
 		unit       = unit,
-		guid       = br._G.UnitGUID(unit),
-		name       = br._G.UnitName(unit),
+		guid       = br.game.UnitGUID(unit),
+		name       = br.game.UnitName(unit),
 		id         = id,
 		isCritter  = br.functions.unit:isCritter(unit) and true or false,
-		isOtherPet = br._G.UnitIsOtherPlayersPet(unit) and true or false,
-		isOwnPet   = rules.ownPets[id] ~= nil or br.functions.unit:GetUnitIsUnit(br._G.UnitCreator(unit), "player"),
+		isOtherPet = br.game.UnitIsOtherPlayersPet(unit) and true or false,
+		isOwnPet   = rules.ownPets[id] ~= nil or br.functions.unit:GetUnitIsUnit(br.game.UnitCreator(unit), "player"),
 		debuffs    = {},
 		range      = 0,
-		seenAt     = br._G.GetTime(), -- when the engine first saw it (timestamp is the last re-check)
+		seenAt     = br.game.GetTime(), -- when the engine first saw it (timestamp is the last re-check)
 	}, Record)
 	engine.records[unit] = record
 	return record
@@ -130,7 +130,7 @@ end
 -- Time to die (Enhanced Time to Die): linear regression over recent HP samples
 -- ─────────────────────────────────────────────────────────────────────────────
 function Record:unitTtd(targetPercentage)
-	local startTime = br._G.debugprofilestop()
+	local startTime = br.game.debugprofilestop()
 	if targetPercentage == nil then targetPercentage = 0 end
 	if self.hp == 0 then return 0 end -- dead: no time left (0, not a misleading negative)
 	if self.hp == 100 or br.functions.unit:isDummy(self.unit) then return 999 end
@@ -195,7 +195,7 @@ end
 function Record:RawDistance()
 	local x2, y2, z2 = self.posX, self.posY, self.posZ
 	if pX == nil or x2 == nil then return 99 end
-	return math.sqrt(((x2 - pX) ^ 2) + ((y2 - pY) ^ 2) + ((z2 - pZ) ^ 2)) - ((pCR or 0) + (br._G.UnitCombatReach(self.unit) or 0)), z2 - pZ
+	return math.sqrt(((x2 - pX) ^ 2) + ((y2 - pY) ^ 2) + ((z2 - pZ) ^ 2)) - ((pCR or 0) + (br.game.UnitCombatReach(self.unit) or 0)), z2 - pZ
 end
 
 -- Shared debuff lookup for the Cache Debuffs option
@@ -205,7 +205,7 @@ end
 
 -- Cache Debuffs: the player's debuffs on this unit, from the combat log's tracker
 function Record:UpdateDebuffs()
-	local startTime = br._G.debugprofilestop()
+	local startTime = br.game.debugprofilestop()
 	local debuffList = self.debuffs
 	if not br.functions.misc:isChecked("Cache Debuffs") then
 		self.debuffs = {}
@@ -245,24 +245,24 @@ local function candidateInterval(hasGroup, fps)
 end
 
 function Record:update(now, inCombat, hasGroup, fps)
-	local startTime = br._G.debugprofilestop()
+	local startTime = br.game.debugprofilestop()
 	local unit = self.unit
 	local units, enemy = engine.units, engine.enemy
 
-	self.posX, self.posY, self.posZ = br._G.ObjectPosition(unit)
+	self.posX, self.posY, self.posZ = br.game.ObjectPosition(unit)
 	if not self.posX then return end -- no position: skip until it has one
 
 	self.distance = self:RawDistance()
-	self.hpabs = br._G.UnitHealth(unit)
-	self.hpmax = br._G.UnitHealthMax(unit)
+	self.hpabs = br.game.UnitHealth(unit)
+	self.hpmax = br.game.UnitHealthMax(unit)
 	self.hp = self.hpabs / self.hpmax * 100
 
 	local isDamaged = engine.damaged[unit] ~= nil
 	local isDead = br.functions.unit:GetUnitIsDeadOrGhost(unit)
 	-- "Targeting the player?" by UnitIsUnit: unlockers return UnitTarget as a pointer, GUID or token
 	-- (not always equal to the player's pointer); "is the player's target?" is a pointer compare
-	local victim = br._G.UnitTarget(unit)
-	local isTargeting = victim ~= nil and br._G.UnitIsUnit(victim, "player") and true or false
+	local victim = br.game.UnitTarget(unit)
+	local isTargeting = victim ~= nil and br.game.UnitIsUnit(victim, "player") and true or false
 	local isPlayerTarget = targetPointer ~= nil and unit == targetPointer
 
 	-- Candidate: close, alive, not a critter, and passes misc:enemyListCheck (damaged units always do)
@@ -299,7 +299,7 @@ function Record:update(now, inCombat, hasGroup, fps)
 	if enemy[unit] ~= nil and self.candidate and not isDamaged then
 		local ttl = inCombat and 0.05 or 0.10
 		if self.quickCheckAt == nil or self.quickCheckAt < now - ttl then
-			self.quickCheckOk = self.hpabs > 0 and not isDead and br._G.UnitCanAttack("player", unit)
+			self.quickCheckOk = self.hpabs > 0 and not isDead and br.game.UnitCanAttack("player", unit)
 				and not (br.functions.misc:getOptionCheck("Don't break CCs") and br.functions.misc:isCCProtected(unit))
 				and br.engines.enemiesEngineFunctions:isSafeToAttack(unit)
 			self.quickCheckAt = now
@@ -355,10 +355,10 @@ function Record:update(now, inCombat, hasGroup, fps)
 	end
 
 	-- Loot
-	if autoLoot and isDead and engine.lootable[unit] == nil and br._G.CanLootUnit(self.guid) then
+	if autoLoot and isDead and engine.lootable[unit] == nil and br.game.CanLootUnit(self.guid) then
 		engine.lootable[unit] = self
 		if br.debug.loot then
-			br.debug.loot:line(("lootable: %s %s at %.0f yd"):format(br.functions.misc:plainText(br._G.UnitName(unit) or "?"),
+			br.debug.loot:line(("lootable: %s %s at %.0f yd"):format(br.functions.misc:plainText(br.game.UnitName(unit) or "?"),
 				br.debug.loot:tag(self.guid), br.functions.misc:plainNumber(self.distance or 0)))
 		end
 	end
@@ -402,25 +402,25 @@ end
 -- Most units the engine tracks at once (keeps very busy areas affordable)
 local function trackLimit(inRaid)
 	if inRaid then return 120 end
-	if br._G.GetNumGroupMembers() > 0 then return 200 end
+	if br.game.GetNumGroupMembers() > 0 then return 200 end
 	return 300
 end
 
 -- Scan the next slice of the object list. Every object is reached in turn, however many there are.
 -- Returns true when the slice reached the end of the list.
 function engine:scan(now, fps, inRaid)
-	local startTime = br._G.debugprofilestop()
+	local startTime = br.game.debugprofilestop()
 	if now - lastScanAt < (inRaid and 0.5 or SCAN_INTERVAL) then return false end
 	lastScanAt = now
-	local totalObjects = br._G.GetObjectCount() or 0
+	local totalObjects = br.game.GetObjectCount() or 0
 	if totalObjects == 0 then return false end
 	local perSlice, maxDistance = scanBudget(totalObjects, fps, inRaid)
 	if scanCursor > totalObjects then scanCursor = 1 end
 	local last = math.min(scanCursor + perSlice - 1, totalObjects)
 	local limit = trackLimit(inRaid)
 	local records = engine.records
-	local GetObjectWithIndex, ObjectExists, ObjectIsUnit = br._G.GetObjectWithIndex, br._G.ObjectExists, br._G.ObjectIsUnit
-	local UnitIsPlayer, UnitIsVisible, ObjectPosition = br._G.UnitIsPlayer, br._G.UnitIsVisible, br._G.ObjectPosition
+	local GetObjectWithIndex, ObjectExists, ObjectIsUnit = br.game.GetObjectWithIndex, br.game.ObjectExists, br.game.ObjectIsUnit
+	local UnitIsPlayer, UnitIsVisible, ObjectPosition = br.game.UnitIsPlayer, br.game.UnitIsVisible, br.game.ObjectPosition
 	for i = scanCursor, last do
 		local unit = GetObjectWithIndex(i)
 		local record = records[unit]
@@ -432,8 +432,8 @@ function engine:scan(now, fps, inRaid)
 			-- A corpse you may loot is tracked too (Auto Loot), even when the game no longer counts it
 			-- as attackable: one that died out of view or before a /reload was never tracked alive
 			if inReach and #engine.recordList < limit and not br.functions.unit:isCritter(unit)
-				and (br._G.UnitCanAttack("player", unit) or (br._G.UnitGUID(unit) and string.match(br._G.UnitGUID(unit), "Pet"))
-					or (autoLoot and br._G.UnitIsDeadOrGhost(unit) and br._G.CanLootUnit(br._G.UnitGUID(unit))))
+				and (br.game.UnitCanAttack("player", unit) or (br.game.UnitGUID(unit) and string.match(br.game.UnitGUID(unit), "Pet"))
+					or (autoLoot and br.game.UnitIsDeadOrGhost(unit) and br.game.CanLootUnit(br.game.UnitGUID(unit))))
 			then
 				record = engine:track(unit)
 				if record then list(record) end
@@ -450,20 +450,20 @@ end
 -- ─────────────────────────────────────────────────────────────────────────────
 function engine:Update()
 	local now = GetTime()
-	pX, pY, pZ = br._G.ObjectPosition("player")
+	pX, pY, pZ = br.game.ObjectPosition("player")
 	-- Published for getEnemies' caches (position the enemy lists were built at)
 	engine.playerPosX, engine.playerPosY, engine.playerPosZ = pX, pY, pZ
-	pCR = br._G.UnitCombatReach("player")
-	playerPointer = br._G.ObjectPointer("player")
-	targetPointer = br._G.UnitExists("target") and br._G.ObjectPointer("target") or nil
+	pCR = br.game.UnitCombatReach("player")
+	playerPointer = br.game.ObjectPointer("player")
+	targetPointer = br.game.UnitExists("target") and br.game.ObjectPointer("target") or nil
 	autoLoot = br.functions.misc:isChecked("Auto Loot")
 	if br.player ~= nil then
 		br.player.pet = br.player.pet or {}
 		br.player.pet.list = br.player.pet.list or {}
 	end
-	local fps = br._G.GetFramerate() or 60
+	local fps = br.game.GetFramerate() or 60
 	engine.fps = fps
-	local inRaid = br._G.IsInRaid()
+	local inRaid = br.game.IsInRaid()
 
 	if engine:scan(now, fps, inRaid) then
 		-- A full pass over the object list: getEnemies' per-unit caches start over
@@ -475,8 +475,8 @@ function engine:Update()
 	-- and units not yet candidates are checked four times as often, so they show up quickly.
 	local updateRate = br.core:getUpdateRate()
 	local raidMultiplier = inRaid and 2.00 or 1.00
-	local inCombat = br._G.UnitAffectingCombat("player")
-	local hasGroup = br._G.GetNumGroupMembers() > 0
+	local inCombat = br.game.UnitAffectingCombat("player")
+	local hasGroup = br.game.GetNumGroupMembers() > 0
 	local recordList = engine.recordList
 	local i = 1
 	while i <= #recordList do
@@ -487,7 +487,7 @@ function engine:Update()
 			record.nextUpdate = now + delay
 			-- Gone, or the pointer now belongs to a different unit (its record's facts would be wrong):
 			-- forget it; the scan picks a new unit up again
-			if not br.functions.unit:GetUnitIsVisible(record.unit) or br._G.UnitGUID(record.unit) ~= record.guid then
+			if not br.functions.unit:GetUnitIsVisible(record.unit) or br.game.UnitGUID(record.unit) ~= record.guid then
 				forget(record) -- the last record was swapped into slot i: process it next
 			else
 				record:update(now, inCombat, hasGroup, engine.fps)
@@ -501,7 +501,7 @@ function engine:Update()
 	-- Loot that's gone or already looted
 	if autoLoot then
 		for unit, record in pairs(engine.lootable) do
-			if not br.functions.unit:GetObjectExists(unit) or not br._G.CanLootUnit(record.guid) then
+			if not br.functions.unit:GetObjectExists(unit) or not br.game.CanLootUnit(record.guid) then
 				engine.lootable[unit] = nil
 			end
 		end
@@ -515,7 +515,7 @@ br.lifecycle:onFrame(10, "enemies engine", function(elapsed, active)
 	sinceUpdate = sinceUpdate + elapsed
 	if sinceUpdate < math.max(0.05, br.core:getUpdateRate()) then return end
 	sinceUpdate = 0
-	local started = br._G.debugprofilestop()
+	local started = br.game.debugprofilestop()
 	engine:Update()
-	br.core:recordTickCost("enemies", br._G.debugprofilestop() - started)
+	br.core:recordTickCost("enemies", br.game.debugprofilestop() - started)
 end)

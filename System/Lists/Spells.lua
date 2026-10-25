@@ -24,12 +24,12 @@ local function getFilesLocation()
     return br.functions.misc:getAddonPath()
 end
 
--- Spell list files read bare globals through br._G (BR's versions: expansion shims, unlocker functions)
+-- Spell list files read bare globals through br.game (BR's versions: expansion shims, unlocker functions)
 local function loadFile(path, label)
-    local data = br._G.ReadFile(path)
+    local data = br.game.ReadFile(path)
     if data then
         local func = assert(loadstring(data, label))
-        setfenv(func, setmetatable({}, {__index = br._G}))
+        setfenv(func, setmetatable({}, {__index = br.game}))
         func(nil, br)
         return true
     end
@@ -63,10 +63,10 @@ function br.lists:loadExpansionSpells()
     if not loadFile(globalPath, expansion .. " Global") then
         -- Fallback to legacy monolithic Spells.lua
         br.log:warning(expansion .. " Global.lua not found; falling back to Spells.lua")
-        local legacy = br._G.ReadFile(expBase .. sep .. "Spells.lua")
+        local legacy = br.game.ReadFile(expBase .. sep .. "Spells.lua")
         if legacy then
             local func = assert(loadstring(legacy, expansion .. " Spells"))
-            setfenv(func, setmetatable({}, {__index = br._G}))
+            setfenv(func, setmetatable({}, {__index = br.game}))
             func(nil, br)
         else
             br.log:error(expansion .. " spell lists not found!")
@@ -74,10 +74,10 @@ function br.lists:loadExpansionSpells()
         return
     end
 
-    br._G.print("Loading " .. expansion .. " spell lists...")
+    br.game.print("Loading " .. expansion .. " spell lists...")
 
     -- 2. CLASS/Class.lua
-    local class = br._G.select(2, br._G.UnitClass("player"))
+    local class = br.game.select(2, br.game.UnitClass("player"))
     if class then
         local classPath = expBase .. sep .. class .. sep .. "Class.lua"
         if not loadFile(classPath, expansion .. " " .. class .. " Class") then
@@ -104,7 +104,7 @@ function br.lists:loadSpecSpells(specName)
 
     local base, sep = getFilesLocation()
     local expBase = base .. sep .. "Expansions" .. sep .. br.api.expansion
-    local class   = br._G.select(2, br._G.UnitClass("player"))
+    local class   = br.game.select(2, br.game.UnitClass("player"))
     if not class then return end
 
     local specPath = expBase .. sep .. class .. sep .. specName .. ".lua"

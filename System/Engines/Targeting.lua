@@ -53,8 +53,8 @@ end
 local function preference(unit, mode, distance, mostHealth)
 	if mode == 1 then return br.functions.unit:getHP(unit) / 100 end                -- Highest %
 	if mode == 2 then return 1 - br.functions.unit:getHP(unit) / 100 end            -- Lowest %
-	if mode == 3 then return mostHealth > 0 and br._G.UnitHealth(unit) / mostHealth or 0 end      -- abs Highest
-	if mode == 4 then return mostHealth > 0 and 1 - br._G.UnitHealth(unit) / mostHealth or 0 end  -- abs Lowest
+	if mode == 3 then return mostHealth > 0 and br.game.UnitHealth(unit) / mostHealth or 0 end      -- abs Highest
+	if mode == 4 then return mostHealth > 0 and 1 - br.game.UnitHealth(unit) / mostHealth or 0 end  -- abs Lowest
 	if mode == 5 then return math.max(0, 1 - distance / SCAN_RANGE) end            -- Nearest
 	if mode == 6 then return math.min(1, distance / SCAN_RANGE) end                 -- Furthest
 	return 0
@@ -72,12 +72,12 @@ end
 
 -- Scores every unit BR may attack, once per frame, and keeps or replaces the focus
 local function refresh()
-	local now = br._G.GetTime()
+	local now = br.game.GetTime()
 	if now == scoredAt then return end
 	scoredAt = now
-	br._G.wipe(scores)
-	br._G.wipe(distances)
-	br._G.wipe(priority)
+	br.game.wipe(scores)
+	br.game.wipe(distances)
+	br.game.wipe(priority)
 	local misc, ef = br.functions.misc, br.engines.enemiesEngineFunctions
 	local mode = misc:getOptionValue("Target Preference") - 1
 	local nearDeath = misc:isChecked("Prefer Near Death")
@@ -86,7 +86,7 @@ local function refresh()
 	local burn, shields = misc:getOptionCheck("Forced Burn"), misc:getOptionCheck("Avoid Shields")
 	local tank = misc:getOptionCheck("Tank Threat") and br.functions.combat:isPlayerTank()
 	local custom = br.player and br.player.units and br.player.units.customTargetWeight
-	local targetPointer = br._G.UnitExists("target") and br._G.ObjectPointer("target") or nil
+	local targetPointer = br.game.UnitExists("target") and br.game.ObjectPointer("target") or nil
 
 	local units = {}
 	for _, unit in ipairs(ef:getEnemies("player", SCAN_RANGE)) do
@@ -94,7 +94,7 @@ local function refresh()
 	end
 	local mostHealth = 0
 	if mode == 3 or mode == 4 then
-		for _, unit in ipairs(units) do mostHealth = math.max(mostHealth, br._G.UnitHealth(unit)) end
+		for _, unit in ipairs(units) do mostHealth = math.max(mostHealth, br.game.UnitHealth(unit)) end
 	end
 	for _, unit in ipairs(units) do
 		local distance = br.functions.range:getDistance(unit) or SCAN_RANGE
@@ -105,11 +105,11 @@ local function refresh()
 		addPart("nearness", W.nearness * math.max(0, 1 - distance / SCAN_RANGE))
 		-- Who it attacks, compared with UnitIsUnit: unlockers hand UnitTarget back as a pointer, GUID or
 		-- token, which doesn't always equal ObjectPointer("player")
-		local victim = br._G.UnitTarget(unit)
-		local onPlayer = victim ~= nil and br._G.UnitIsUnit(victim, "player")
+		local victim = br.game.UnitTarget(unit)
+		local onPlayer = victim ~= nil and br.game.UnitIsUnit(victim, "player")
 		if onPlayer then
 			addPart("attacking you", W.attackingMe)
-		elseif victim ~= nil and (br._G.UnitIsUnit(victim, "pet") or br._G.UnitInParty(victim) or br._G.UnitInRaid(victim)) then
+		elseif victim ~= nil and (br.game.UnitIsUnit(victim, "pet") or br.game.UnitInParty(victim) or br.game.UnitInRaid(victim)) then
 			addPart("attacking your group", W.attackingGroup)
 		end
 		if tank and victim ~= nil and not onPlayer then addPart("lost aggro", W.lostAggro) end
@@ -117,7 +117,7 @@ local function refresh()
 			local hp = br.functions.unit:getHP(unit)
 			if hp < NEAR_DEATH then addPart("near death", W.nearDeath * (1 - hp / NEAR_DEATH)) end
 		end
-		if skull and br._G.GetRaidTargetIndex(unit) == 8 then
+		if skull and br.game.GetRaidTargetIndex(unit) == 8 then
 			addPart("skull", W.priority)
 			priority[unit] = priority[unit] or "skull"
 		end

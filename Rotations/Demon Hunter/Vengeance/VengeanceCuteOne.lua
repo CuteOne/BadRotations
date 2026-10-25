@@ -183,8 +183,8 @@ actionList.Extras = function()
     if ui.mode.tankbuster == 1 and unit.inCombat() then
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if br._G.UnitThreatSituation("player", thisUnit) == 3 and br._G.UnitCastingInfo("target") then
-                if br.lists.tankBuster[select(9, br._G.UnitCastingInfo("target"))] ~= nil then
+            if br.game.UnitThreatSituation("player", thisUnit) == 3 and br.game.UnitCastingInfo("target") then
+                if br.lists.tankBuster[select(9, br.game.UnitCastingInfo("target"))] ~= nil then
                     if cd.demonSpikes.ready() and not debuff.fieryBrand.exists(thisUnit) then
                         if cast.demonSpikes() then
                             br.log:debug("[TANKBUST] Demon Spike")

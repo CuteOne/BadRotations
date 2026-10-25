@@ -35,7 +35,7 @@ end
 -- Forever reworked the racials and added new ones, plus a new race, the Skyborne (High
 -- Order for the Alliance, Windshaper for the Horde). There are no Blood Elves or Draenei.
 -- IDs and effects checked against Wowhead's Forever database (2026-10-05).
-local playerClass = select(2, br._G.UnitClass("player"))
+local playerClass = select(2, br.game.UnitClass("player"))
 -- Gnome's Eureka! is a different spell for each class that can be a Gnome.
 local eurekaByClass = { ROGUE = 1259812, WARRIOR = 1259813, MAGE = 1259817, WARLOCK = 1259821, PRIEST = 1259823 }
 

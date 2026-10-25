@@ -6,7 +6,7 @@ local chatOverlay = br.ui.chatOverlay
 -- Fade speed after the 2 s hold: about 0.8 s, what the old 0.02-per-frame fade took at 60 FPS
 local FADE_PER_SECOND = 1.2
 local function onUpdate(self, elapsed)
-	if br._G.GetTime() - self.time < 2.0 then return end
+	if br.game.GetTime() - self.time < 2.0 then return end
 	local alpha = self:GetAlpha() - FADE_PER_SECOND * elapsed
 	if alpha <= 0 then
 		self:Hide()
@@ -16,8 +16,8 @@ local function onUpdate(self, elapsed)
 end
 
 -- Chat Overlay Frame
-chatOverlay.frame = br._G.CreateFrame("Frame", nil, br._G.ChatFrame1)
-chatOverlay.frame:SetSize(br._G.ChatFrame1:GetWidth(), 50)
+chatOverlay.frame = br.game.CreateFrame("Frame", nil, br.game.ChatFrame1)
+chatOverlay.frame:SetSize(br.game.ChatFrame1:GetWidth(), 50)
 chatOverlay.frame:Hide()
 chatOverlay.frame:SetScript("OnUpdate", onUpdate)
 chatOverlay.frame:SetPoint("TOP", 0, 0)
@@ -31,13 +31,13 @@ chatOverlay.frame.time = 0
 -- Function to show messages in chat overlay
 function chatOverlay:Show(Message, FadingTime)
 	if br.functions.misc:getOptionCheck("Overlay Messages") then
-		chatOverlay.frame:SetSize(br._G.ChatFrame1:GetWidth(), 50)
+		chatOverlay.frame:SetSize(br.game.ChatFrame1:GetWidth(), 50)
 		chatOverlay.frame.text:SetText(Message)
 		chatOverlay.frame:SetAlpha(1)
 		if FadingTime == nil or type(FadingTime) ~= "number" then
-			chatOverlay.frame.time = br._G.GetTime()
+			chatOverlay.frame.time = br.game.GetTime()
 		else
-			chatOverlay.frame.time = br._G.GetTime() - 2 + FadingTime
+			chatOverlay.frame.time = br.game.GetTime() - 2 + FadingTime
 		end
 		chatOverlay.frame:Show()
 	end

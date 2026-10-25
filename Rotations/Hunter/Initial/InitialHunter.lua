@@ -86,12 +86,12 @@ local units
 -- Profile Specific Locals
 local actionList = {}
 local var = {}
-var.getFacingDistance = br._G["getFacingDistance"]
-var.getItemInfo = br._G["GetItemInfo"]
+var.getFacingDistance = br.game["getFacingDistance"]
+var.getItemInfo = br.game["GetItemInfo"]
 var.haltProfile = false
-var.loadSupport = br._G["loadSupport"]
+var.loadSupport = br.game["loadSupport"]
 var.profileStop = false
-var.specificToggle = br._G["SpecificToggle"]
+var.specificToggle = br.game["SpecificToggle"]
 
 --------------------
 --- Action Lists ---

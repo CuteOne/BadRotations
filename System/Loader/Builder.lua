@@ -7,7 +7,7 @@ local builder = br.loader.builder
 -- Builds br.player for the given spec: a Player object (Player.lua) with the selected
 -- rotation, its compiled spell lists and the profile API.
 function builder:new(spec, specName)
-    local loadStart = br._G.debugprofilestop()
+    local loadStart = br.game.debugprofilestop()
     local self = br.loader.Player:new(spec)
     self.specName = specName or "Initial"
 
@@ -17,10 +17,10 @@ function builder:new(spec, specName)
     if rotations ~= nil and br.loader.selectedProfile ~= nil and rotations[br.loader.selectedProfile] then
         self.rotation = rotations[br.loader.selectedProfile]
     elseif rotations ~= nil then
-        br._G.print("No Previously Selected Rotation, Defaulting To: " .. rotations[1].name)
+        br.game.print("No Previously Selected Rotation, Defaulting To: " .. rotations[1].name)
         self.rotation = rotations[1]
     else
-        br._G.print("No Rotations Found!")
+        br.game.print("No Rotations Found!")
         return
     end
 
