@@ -112,7 +112,7 @@ local function options()
     -- Shield of Vengeance
     ui.spinner(section, "Shield of Vengeance", { value = 55, tip = "|cffFFBB00Health Percentage to use at." })
     -- Turn Evil
-    ui.checkbox(section, "Turn Evil")
+    ui.spinner(section, "Turn Evil", { value = 40, tip = "Health Percent to Cast At" })
     -- Word of Glory
     ui.spinner(section, "Word of Glory", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
     -------------------------
@@ -284,7 +284,7 @@ actionList.Defensive = function()
         end
         -- Cleanse Toxins
         if ui.checked("Cleanse Toxins") then
-            var.cleanseUnit = getHealUnitOption("Cleanse Toxin")
+            var.cleanseUnit = getHealUnitOption("Cleanse Toxins")
             if var.cleanseUnit ~= nil and cast.able.cleanseToxins(var.cleanseUnit) and cast.dispel.cleanseToxins(var.cleanseUnit) and unit.distance(var.cleanseUnit) < 40 then
                 if cast.cleanseToxins(var.cleanseUnit) then
                     ui.debug("Casting Cleanse Toxins on " .. unit.name(var.cleanseUnit))
@@ -347,7 +347,7 @@ actionList.Defensive = function()
         end
         -- Lay On Hands
         if ui.checked("Lay On Hands") then
-            var.layUnit = getHealUnitOption("Lay On Hands Target", true)
+            var.layUnit = getHealUnitOption("Lay on Hands Target", true)
             if var.layUnit ~= nil and cast.able.layOnHands(var.layUnit) and unit.inCombat(var.layUnit) and not debuff.forbearance.exists(var.layUnit)
                 and unit.hp(var.layUnit) <= ui.value("Lay On Hands") and unit.distance(var.layUnit) < 40
             then

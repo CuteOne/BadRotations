@@ -121,7 +121,6 @@ end -- End Action List - PreCombat
 -- Action List - Combat
 actionList.Combat = function()
     if unit.inCombat() and unit.valid("target") then
-        local formValue = ui.mode.forms
         ------------------------
         --- In Combat - Main ---
         ------------------------

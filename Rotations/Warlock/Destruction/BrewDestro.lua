@@ -215,7 +215,7 @@ end             -- End runRotation
 registerRotation({
     name      = rotationName,
     specID    = 267,
-    expansion = "MOP",
+    expansion = { "Retail", "MOP" },
     toggles   = toggles,
     options   = options,
     run       = runRotation,

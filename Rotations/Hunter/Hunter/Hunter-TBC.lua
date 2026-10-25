@@ -137,6 +137,8 @@ local function options()
     section = ui.section("Interrupts")
     -- Interrupt % threshold
     ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast % to use CC/interrupt. 0 = at any cast stage." })
+    -- Viper Sting
+    ui.checkbox(section, "Viper Sting", { tip = "Use Viper Sting to drain mana off casting enemies." })
     -- Scatter Shot
     ui.checkbox(section, "Scatter Shot", { tip = "Use Scatter Shot (MM talent) to disorient casting enemies as a follow-up CC." })
     -- Freezing Trap

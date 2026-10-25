@@ -103,7 +103,7 @@ actionList.Defensive = function()
         module.BasicHealing()
         -- Aspect of the Turtle
         if ui.checked("Aspect of the Turtle") and cast.able.aspectOfTheTurtle()
-            and unit.inCombat() and unit.hp() < ui.value("Apect of the Turtle")
+            and unit.inCombat() and unit.hp() < ui.value("Aspect of the Turtle")
         then
             if cast.aspectOfTheTurtle() then
                 ui.debug("Casting Aspect of the Turtle")
@@ -184,8 +184,8 @@ actionList.PreCombat = function()
                 end
             end
             -- Start Attack
-            if cast.able.autoShoot("target") then
-                if cast.autoShoot("target") then
+            if cast.able.autoShot("target") then
+                if cast.autoShot("target") then
                     ui.debug("Casting Auto Attack [Precombat]")
                     return true
                 end
@@ -262,8 +262,8 @@ local function runRotation()
                 --- Main ---
                 ------------
                 -- Start Attack
-                if cast.able.autoShoot("target") then
-                    if cast.autoShoot("target") then
+                if cast.able.autoShot("target") then
+                    if cast.autoShot("target") then
                         ui.debug("Casting Auto Attack")
                         return true
                     end
@@ -291,7 +291,7 @@ end             -- End runRotation
 registerRotation({
     name      = rotationName,
     specID    = 1448,
-    expansion = "MOP",
+    expansion = { "Retail", "MOP" },
     toggles   = toggles,
     options   = options,
     run       = runRotation,

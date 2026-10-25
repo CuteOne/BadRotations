@@ -235,7 +235,7 @@ actionList.Defensive = function()
         end
         -- * Lay On Hands
         if ui.checked("Lay On Hands") then
-            var.layUnit = getHealUnitOption("Lay On Hands Target", true)
+            var.layUnit = getHealUnitOption("Lay on Hands Target", true)
             if var.layUnit ~= nil and cast.able.layOnHands(var.layUnit) and unit.inCombat(var.layUnit) and not debuff.forbearance.exists(var.layUnit)
                 and unit.hp(var.layUnit) <= ui.value("Lay On Hands") and unit.distance(var.layUnit) < 40
             then

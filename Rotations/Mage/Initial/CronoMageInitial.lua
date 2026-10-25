@@ -27,6 +27,9 @@ local function options()
     --- GENERAL OPTIONS --- -- Define General Options
     -----------------------
     section = ui.section("General")
+    -- Pre-Pull Timer
+    ui.spinner(section, "Pre-Pull Timer", { value = 5, min = 1, max = 10, step = 1,
+        tip = "Seconds left on the boss mod pull timer to start the pre-pull." })
 
     -------------------------
     --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -208,7 +211,7 @@ end             -- End runRotation
 registerRotation({
     name      = rotationName,
     specID    = 0, --1449 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
-    expansion = "MOP",
+    expansion = "Retail",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

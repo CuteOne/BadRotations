@@ -1373,7 +1373,7 @@ registerRotation({
     handlesRacials = true,
     name      = rotationName,
     specID    = 577,
-    expansion = "MOP",
+    expansion = "Retail",
     author    = "CuteOne",
     patch     = "10.2",
     coverage  = "100%",

@@ -66,6 +66,8 @@ local function options()
     local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
     -- Avatar
     ui.dropdown(section, "Avatar", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Avatar." })
+    -- Racial
+    ui.dropdown(section, "Racial", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Racial." })
     -- Bladestorm
     ui.dropdown(section, "Bladestorm", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Bladestorm." })
     -- Bloodbath
@@ -99,6 +101,8 @@ local function options()
     ui.spinner(section, "Rallying Cry", { value = 60, tip = defTooltip })
     -- Shield Wall
     ui.spinner(section, "Shield Wall", { value = 30, tip = defTooltip })
+    -- Spell Reflection
+    ui.spinner(section, "Spell Reflection", { value = 60, tip = defTooltip })
     -- Victory Rush
     ui.spinner(section, "Victory Rush", { value = 60, tip = defTooltip })
     -------------------------
@@ -234,7 +238,7 @@ actionList.Defensive = function()
             end
         end
         -- Spell Reflection
-        if ui.checked("Spell Reflection") and cast.able.spellReflection() and useDefensive("Spell Relection") then
+        if ui.checked("Spell Reflection") and cast.able.spellReflection() and useDefensive("Spell Reflection") then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if (cast.timeRemain(thisUnit) < 5 or cast.inFlight.spellReflection(thisUnit)) then

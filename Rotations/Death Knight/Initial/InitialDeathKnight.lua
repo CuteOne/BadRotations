@@ -89,7 +89,7 @@ end -- End Action List - Defensive
 actionList.Interrupts = function()
     if ui.useInterrupt() then
         --Death Grip
-        if ui.checked("Death Grip (Interrupt)") and cast.able.deathGrip() then
+        if ui.checked("Death Grip - Int") and cast.able.deathGrip() then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
                 if unit.interruptable(thisUnit, ui.value("Interrupt At")) and unit.distance(thisUnit) > 8 then
@@ -245,7 +245,7 @@ end     -- End runRotation
 registerRotation({
     name      = rotationName,
     specID    = 1455,
-    expansion = "MOP",
+    expansion = "Retail",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

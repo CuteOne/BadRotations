@@ -93,6 +93,8 @@ local function options()
     --- Defensive Options ---
     -------------------------
     section = ui.section("Defensive")
+    -- Wing Clip
+    ui.checkbox(section, "Wing Clip", { tip = "Use Wing Clip on enemies in melee range (when Concussive Shot isn't talented)." })
     -- Aspect of the Turtle
     ui.spinner(section, "Aspect Of The Turtle", { value = 60, tip = "|cffFFBB00Health Percentage to use at." });
     -- Bursting Shot
@@ -915,7 +917,7 @@ registerRotation({
     handlesRacials = true,
     name      = rotationName,
     specID    = 254,
-    expansion = "MOP",
+    expansion = { "Retail", "MOP" },
     author    = "CuteOne",
     patch     = "11.0.2",
     coverage  = "100%",

@@ -257,7 +257,7 @@ end
 registerRotation({
     name      = rotationName,
     specID    = 265, -- Affliction Warlock
-    expansion = "MOP",
+    expansion = { "Retail", "MOP" },
     author    = "BrewingCoder",
     patch     = "10.2.6",
     coverage  = "50%",

@@ -230,7 +230,7 @@ actionList.Defensive = function()
         end
         -- Basic Healing Module
         module.BasicHealing()
-        if ui.checked("PoS removes Necrotic") and unit.instance() and debuff.necroticWound.stack() >= ui.value("PoS removes Necrotic") and use.able.phialOfSerenity() then
+        if ui.checked("PoS removes Necrotic") and unit.instance() ~= "none" and debuff.necroticWound.stack() >= ui.value("PoS removes Necrotic") and use.able.phialOfSerenity() then
             if use.phialOfSerenity() then return true end
         end
         -- Sigil of Misery
@@ -1046,7 +1046,7 @@ end     -- End runRotation
 registerRotation({
     name      = rotationName,
     specID    = 581,
-    expansion = "MOP",
+    expansion = "Retail",
     author    = "CuteOne",
     patch     = "10.2",
     coverage  = "100%",

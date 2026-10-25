@@ -721,7 +721,7 @@ actionList.PreCombat = function()
             end
         end
         -- Wild Charge
-        if ui.checked("Displacer Beast / Wild Charge") and cast.able.wildCharge("target") and unit.valid("target") then
+        if ui.checked("Wild Charge") and cast.able.wildCharge("target") and unit.valid("target") then
             if cast.wildCharge("target") then
                 ui.debug("Wild Charge on " .. unit.name("target"))
                 return true

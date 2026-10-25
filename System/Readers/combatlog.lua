@@ -909,18 +909,6 @@ function combatLog:Rogue(...)
     spellName,
     _,
     spellType = ... -- the event, read once by the dispatcher
-    --------------------------------------
-    --[[ Pick Pocket Success Recorder ]]
-    if br.unpickable == nil then br.unpickable = false end
-    if br.pickPocketUnit == nil then br.pickPocketUnit = br.game.UnitGUID("player") end
-    if br.pickPocketing == nil then br.pickPocketing = false end
-    if param == "SPELL_CAST_START" and spell == 921 then
-        br.pickPocketing = true
-    end
-    if param == "SPELL_CAST_SUCCESS" and spell == 921 then
-        br.unpickable = true
-        br.pickPocketing = false
-    end
     --[[ Bleed Recorder --]]
     if br.game.C_SpecializationInfo.GetSpecialization() == 1 then
         if source == br.game.UnitGUID("player") then

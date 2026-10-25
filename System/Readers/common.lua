@@ -199,21 +199,6 @@ function common:commonReaders()
 		if param == "SPELL_FAILED_TARGET_NO_WEAPONS" then
 			br.functions.unit.isDisarmed = true
 		end
-		if param == "ERR_SPELL_FAILED_S" and br.pickPocketing then --"SPELL_FAILED_TARGET_NO_POCKETS"
-			br.log:say("Pick Pocket", "no pockets")
-			br.unpickable = true
-			br.pickPocketing = false
-		end
-		if param == "ERR_ALREADY_PICKPOCKETED" then
-			br.log:say("Pick Pocket", "already pickpocketed")
-			br.unpickable = true
-			br.pickPocketing = false
-		end
-		if errorType == "ERR_NO_LOOT" and br.pickPocketing then
-			br.log:say("Pick Pocket", "no loot")
-			br.unpickable = true
-			br.pickPocketing = false
-		end
 	end
 	Frame:SetScript("OnEvent", UiErrorMessages)
 	---------------------------

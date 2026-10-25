@@ -53,6 +53,8 @@ local function options()
     ui.checkbox(section, "Berserker Rage", { tip = "Check to use Berserker Rage" })
     -- Charge
     ui.checkbox(section, "Charge", { tip = "Check to use Charge" })
+    -- Heroic Leap
+    ui.checkbox(section, "Heroic Leap", { tip = "Check to use Heroic Leap" })
     -- Heroic Throw
     ui.checkbox(section, "Heroic Throw")
     -- Piercing Howl
@@ -199,7 +201,7 @@ actionList.Defensive = function()
             end
         end
         -- Spell Reflection
-        if ui.checked("Spell Reflection") and cast.able.spellReflection() and useDefensive("Spell Relection") then
+        if ui.checked("Spell Reflection") and cast.able.spellReflection() and useDefensive("Spell Reflection") then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if (cast.timeRemain(thisUnit) < 5 or cast.inFlight.spellReflection(thisUnit)) then
@@ -1347,7 +1349,7 @@ actionList.Combat = function()
         -- call_action_list,name=variables
         if actionList.Variables() then return true end
         -- Racials
-        if ui.alwaysCdNever("Racial") and cast.able.racial() then
+        if ui.alwaysCdAoENeverRange("Racial") and cast.able.racial() then
             -- Lights Judgment
             -- lights_judgment,if=variable.on_gcd_racials
             if race == "LightforgedDraenei" and cast.able.lightsJudgment() and var.onGcdRacials then
@@ -1476,7 +1478,7 @@ end     -- End runRotation
 registerRotation({
     name      = rotationName,
     specID    = 72,
-    expansion = "MOP",
+    expansion = "Retail",
     author    = "CuteOne",
     patch     = "11.0.2",
     coverage  = "100%",

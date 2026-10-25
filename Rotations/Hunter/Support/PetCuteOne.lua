@@ -537,7 +537,7 @@ return {
                 local dispelled = false
                 for i = 1, #enemies.yards5p do
                     local thisUnit = enemies.yards5p[i]
-                    if ui.value("Purge") == 1 or (ui.value("Purge") == 2 and unit.isUnit(thisUnit, "target")) then
+                    if ui.value("Use Purge Ability") == 1 or (ui.value("Use Purge Ability") == 2 and unit.isUnit(thisUnit, "target")) then
                         if unit.valid(thisUnit) and cast.dispel.spiritPulse(thisUnit) then --br.functions.aura:canDispel(thisUnit,spells.spiritPulse) then
                             if cast.able.spiritPulse(thisUnit, "pet") then
                                 if cast.spiritPulse(thisUnit, "pet") then
