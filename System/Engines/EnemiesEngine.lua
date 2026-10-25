@@ -1,6 +1,11 @@
 local _, br = ...
 br.engines.enemiesEngine = br.engines.enemiesEngine or {}
 local engine = br.engines.enemiesEngine
+-- This tick's enemy lists by name (yards8, yards8t, yards8c, ...), as the profile asked for them
+-- (misc:setEnemiesVariable); the profile's enemies table and the cast pipeline read them
+engine.lists = engine.lists or {}
+-- The player's own pets (the enemies engine finds them; the pet API lists them)
+engine.ownPet = engine.ownPet or {}
 
 --[[ Enemies engine
 
@@ -99,7 +104,7 @@ local function forget(record)
 	engine.pet[unit] = nil
 	engine.lootable[unit] = nil
 	engine.ttd[unit] = nil
-	if br.player ~= nil and br.player.pet ~= nil and br.player.pet.list ~= nil then br.player.pet.list[unit] = nil end
+	engine.ownPet[unit] = nil
 	local index = record.listIndex
 	if index then
 		local recordList = engine.recordList
@@ -363,9 +368,7 @@ function Record:update(now, inCombat, hasGroup, fps)
 		end
 	end
 	-- Pets: the player's own, and other players'
-	if self.isOwnPet and br.player ~= nil and br.player.pet.list[unit] == nil then
-		br.player.pet.list[unit] = self
-	end
+	if self.isOwnPet and engine.ownPet[unit] == nil then engine.ownPet[unit] = self end
 	if self.isOtherPet then engine.pet[unit] = self end
 
 	br.debug.cpu:updateDebug(startTime, "enemiesEngine.record.update")
@@ -457,10 +460,6 @@ function engine:Update()
 	playerPointer = br.game.ObjectPointer("player")
 	targetPointer = br.game.UnitExists("target") and br.game.ObjectPointer("target") or nil
 	autoLoot = br.functions.misc:isChecked("Auto Loot")
-	if br.player ~= nil then
-		br.player.pet = br.player.pet or {}
-		br.player.pet.list = br.player.pet.list or {}
-	end
 	local fps = br.game.GetFramerate() or 60
 	engine.fps = fps
 	local inRaid = br.game.IsInRaid()

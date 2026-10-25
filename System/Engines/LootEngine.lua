@@ -270,10 +270,7 @@ if not lootEngine.metaTable then
 		-- 10y (e.g. AoE farming where the mobs we're looting are already dead). getLoot no
 		-- longer hard-blocks on combat, so this single gate now actually governs the policy.
 		if br.functions.misc:isInCombat("player") then
-			if not (br.player and br.player.enemies and br.player.enemies.get) then
-				return -- can't verify it's safe, don't loot in combat
-			end
-			local nearbyEnemies = br.player.enemies.get(10)
+			local nearbyEnemies = br.engines.enemiesEngineFunctions:getEnemies("player", 10)
 			if nearbyEnemies and nearbyEnemies[1] ~= nil then
 				return
 			end
@@ -290,16 +287,10 @@ if not lootEngine.metaTable then
 		-- a nearby hostile, an opener, or any other reason); breaking it to grab loot would
 		-- drop stealth and can get us detected and aggro'd.
 		--
-		-- Detected via the rotation buff API. Only the active spec's spell list is loaded,
-		-- so each buff object is nil-guarded (buff.prowl is nil on a Rogue, buff.stealth is
-		-- nil on a Druid). The buff API resolves ranks, so ranked Prowl is covered too.
-		local pbuff = br.player and br.player.buff
-		if pbuff and (
-			(pbuff.prowl and pbuff.prowl.exists())
-			or (pbuff.stealth and pbuff.stealth.exists())
-			or (pbuff.shadowmeld and pbuff.shadowmeld.exists())
-			or (pbuff.vanish and pbuff.vanish.exists())
-		) then
+		-- By the player's buffs in the spell list: a class without one has no key (prowl on a
+		-- Rogue, stealth on a Druid), and ranked Prowl resolves to the rank in use.
+		local aura = br.functions.aura
+		if aura:isBuffUp("prowl") or aura:isBuffUp("stealth") or aura:isBuffUp("shadowmeld") or aura:isBuffUp("vanish") then
 			return -- stealthed: don't break it to loot
 		end
 

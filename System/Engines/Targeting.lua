@@ -9,7 +9,7 @@ local _, br = ...
 --   lostAggro      Tank Threat: the player is the tank and the unit attacks someone else
 --   priority       skull (Skull First), totems (Prioritize Totems)
 --   burn           Forced Burn: W.priority plus the list entry's own weight
---   shields, the profile's units.customTargetWeight: their own values
+--   shields, the profile's weight (units.setTargetWeight -> targeting.customWeight): their own values
 --   hold           the current target and BR's current focus, so a switch needs a clearly better unit
 -- The focus is the best-scored unit overall; once chosen it is kept for HOLD_TIME. Each request
 -- (range, facing) takes the focus when it can reach it, otherwise the best-scored unit it can reach,
@@ -85,7 +85,7 @@ local function refresh()
 	local skull, totems = misc:getOptionCheck("Skull First"), misc:isChecked("Prioritize Totems")
 	local burn, shields = misc:getOptionCheck("Forced Burn"), misc:getOptionCheck("Avoid Shields")
 	local tank = misc:getOptionCheck("Tank Threat") and br.functions.combat:isPlayerTank()
-	local custom = br.player and br.player.units and br.player.units.customTargetWeight
+	local custom = targeting.customWeight
 	local targetPointer = br.game.UnitExists("target") and br.game.ObjectPointer("target") or nil
 
 	local units = {}

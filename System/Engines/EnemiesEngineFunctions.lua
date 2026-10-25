@@ -498,7 +498,7 @@ local MELEE_RETARGET = 8
 --- the selected target; Assist uses BR's pick when the target can't take the request; Full lets BR's
 --- pick replace a usable target and sets the WoW target to it. In combat with no usable target, the
 --- WoW target is set to the pick.
-function enemiesEngineFunctions:dynamicTarget(range, facing)
+local function pickDynamicTarget(range, facing)
 	if range == nil or range > 100 then return nil end
 	local startTime = br.game.debugprofilestop()
 	local misc = br.functions.misc
@@ -550,6 +550,18 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 	end
 	br.debug.cpu:updateDebug(startTime, "enemiesEngine.dynamicTarget")
 	return result
+end
+
+-- The last pick for each request the profile made, by its units key (dyn5, dyn8AOE, ...), false when
+-- it came back empty: what "/br target" lists
+enemiesEngineFunctions.dynamicPicks = enemiesEngineFunctions.dynamicPicks or {}
+
+function enemiesEngineFunctions:dynamicTarget(range, facing)
+	local pick = pickDynamicTarget(range, facing)
+	if range ~= nil then
+		enemiesEngineFunctions.dynamicPicks["dyn" .. range .. (facing and "" or "AOE")] = pick or false
+	end
+	return pick
 end
 
 -- Cone Logic for Enemies

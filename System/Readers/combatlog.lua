@@ -9,8 +9,11 @@ br.readers.combatLog = br.readers.combatLog or {}
 br.readers.combatLog.debuffTracker = {}
 br.readers.combatLog.enraged = {}
 local combatLog = br.readers.combatLog
--- A debuff's base duration per unit, kept for the pandemic refresh window (debuff.X.pandemic)
-combatLog.pandemic = combatLog.pandemic or {}
+-- Feral and Assassination bleed snapshots per debuff key and unit: the damage value when it was
+-- applied (combatLog.bleed), and whether Exsanguinate sped it up (combatLog.exsa). debuff.X.applied /
+-- exsang read them; aura:cleanBleedSnapshots tidies them each tick.
+combatLog.bleed = combatLog.bleed or {}
+combatLog.exsa = combatLog.exsa or {}
 
 -- TODO: OUTDATED - MoP DPS potions (buff -> item), for the potion-used tracking in combatLog:common
 local DPSPotionsSet = {
@@ -485,64 +488,6 @@ function combatLog:common(...)
             end
         end
     end
-    ------------------
-    --[[Pandemic]]
-    if source == br.game.UnitGUID("player") then
-        if destination ~= nil and destination ~= "" then
-            local thisUnit = "target"
-            if br.unlocked then --EWT then
-                local destination = br.game.GetObjectWithGUID(destination)
-                if br.functions.unit:GetObjectExists(destination) then
-                    thisUnit = destination
-                elseif br.functions.unit:GetObjectExists("target") then
-                    thisUnit = br.game.GetObjectWithGUID(br.game.UnitGUID("target"))
-                else
-                    thisUnit = br.game.GetObjectWithGUID(br.game.UnitGUID("player"))
-                end
-                if br.player ~= nil then
-                    local debuff = br.player.debuff
-                    local pandemic = combatLog.pandemic
-                    if br.player["spell"].debuffs ~= nil then
-                        if param == "SPELL_AURA_REMOVED" then
-                            if
-                                not br.game.UnitAffectingCombat("player") or not br.game.UnitExists(thisUnit) or
-                                br.functions.unit:GetUnitIsDeadOrGhost(thisUnit)
-                            then
-                                if pandemic[thisUnit] ~= nil then
-                                    pandemic[thisUnit] = nil
-                                end
-                            else
-                                for k, v in pairs(br.player["spell"].debuffs) do
-                                    if spell == v and pandemic[thisUnit] ~= nil and pandemic[thisUnit][k] ~= nil then
-                                        pandemic[thisUnit][k] = 0
-                                        break
-                                    end
-                                end
-                            end
-                        end
-                        if param == "SPELL_AURA_APPLIED" then
-                            for k, v in pairs(br.player["spell"].debuffs) do
-                                if thisUnit ~= nil and spell == v then
-                                    if pandemic[thisUnit] == nil then
-                                        pandemic[thisUnit] = {}
-                                    end
-                                    if
-                                        (pandemic[thisUnit][k] == nil or pandemic[thisUnit][k] == 0 or
-                                            debuff[k].duration(thisUnit) ~=
-                                            pandemic[thisUnit][k] + (pandemic[thisUnit][k] * 0.3))
-                                    then
-                                        --Print("Debuff: "..spellName.." Applied (k = "..k..", v = "..v..", duration = "..debuff[k].duration(thisUnit))
-                                        pandemic[thisUnit][k] = debuff[k].duration(thisUnit)
-                                        break
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
     --[[ Last Spell Cast Success ]]
     if source == guid and param == "SPELL_CAST_SUCCESS" then
         -- Add spells we dont want to appear here.
@@ -674,8 +619,11 @@ function combatLog:Druid(...)
                         thisUnit = br.game.GetObjectWithGUID("player")
                     end
                     if br.player ~= nil and br.functions.range:getDistance(thisUnit) < 40 then
-                        local debuff = br.player.debuff
-                        local debuffID = br.player["spells"].debuffs
+                        local debuffID = br.player.spells.debuffs
+                        local spec = br.loader.selectedSpecID
+                        local function snapshot(key)
+                            return (spec == 103 or spec == 259) and br.functions.aura:getSnapshotValue(debuffID[key]) or 0
+                        end
                         if debuffID ~= nil then
                             local k
                             if spell == debuffID.rake or spell == debuffID.rip then
@@ -685,22 +633,21 @@ function combatLog:Druid(...)
                                 if spell == debuffID.rip then
                                     k = "rip"
                                 end
-                                if debuff[k].bleed == nil then
-                                    debuff[k].bleed = {}
-                                end
-                                if debuff[k].bleed[thisUnit] == nil then
-                                    debuff[k].bleed[thisUnit] = 0
+                                combatLog.bleed[k] = combatLog.bleed[k] or {}
+                                local bleed = combatLog.bleed[k]
+                                if bleed[thisUnit] == nil then
+                                    bleed[thisUnit] = 0
                                 end
                                 if param == "SPELL_AURA_REMOVED" then
-                                    debuff[k].bleed[thisUnit] = 0
+                                    bleed[thisUnit] = 0
                                     if br.functions.unit:GetUnitIsUnit(thisUnit, "target") then
-                                        debuff[k].bleed["target"] = 0
+                                        bleed["target"] = 0
                                     end
                                 end
                                 if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
-                                    debuff[k].bleed[thisUnit] = debuff[k].calc()
+                                    bleed[thisUnit] = snapshot(k)
                                     if br.functions.unit:GetUnitIsUnit(thisUnit, "target") then
-                                        debuff[k].bleed["target"] = debuff[k].calc()
+                                        bleed["target"] = snapshot(k)
                                     end
                                 end
                             end
@@ -1079,22 +1026,23 @@ function combatLog:Rogue(...)
                         thisUnit = br.game.GetObjectWithGUID(br.game.UnitGUID("player"))
                     end
                     if br.player ~= nil and br.functions.range:getDistance(thisUnit) < 40 then
-                        local debuff = br.player.debuff
+                        local exsa = combatLog.exsa
+                        for _, key in ipairs({ "crimsonTempest", "garrote", "rupture" }) do exsa[key] = exsa[key] or {} end
                         local debuffID = br.player.spells.debuffs
                         local k
                         if debuffID ~= nil then
                             if spell == br.player.spells.exsanguinate then
-                                if debuff.crimsonTempest.exsa[thisUnit] == nil then debuff.crimsonTempest.exsa[thisUnit] = true end
-                                if debuff.garrote.exsa[thisUnit] == nil then debuff.garrote.exsa[thisUnit] = true end
-                                if debuff.rupture.exsa[thisUnit] == nil then debuff.rupture.exsa[thisUnit] = true end
+                                if exsa.crimsonTempest[thisUnit] == nil then exsa.crimsonTempest[thisUnit] = true end
+                                if exsa.garrote[thisUnit] == nil then exsa.garrote[thisUnit] = true end
+                                if exsa.rupture[thisUnit] == nil then exsa.rupture[thisUnit] = true end
                                 if param == "SPELL_CAST_SUCCESS" then
-                                    debuff.rupture.exsa[thisUnit] = true
-                                    debuff.garrote.exsa[thisUnit] = true
-                                    debuff.crimsonTempest.exsa[thisUnit] = true
+                                    exsa.rupture[thisUnit] = true
+                                    exsa.garrote[thisUnit] = true
+                                    exsa.crimsonTempest[thisUnit] = true
                                     if br.functions.unit:GetUnitIsUnit(thisUnit, "target") then
-                                        debuff.rupture.exsa["target"] = true
-                                        debuff.garrote.exsa["target"] = true
-                                        debuff.crimsonTempest.exsa["target"] = true
+                                        exsa.rupture["target"] = true
+                                        exsa.garrote["target"] = true
+                                        exsa.crimsonTempest["target"] = true
                                     end
                                 end
                             end
@@ -1102,21 +1050,19 @@ function combatLog:Rogue(...)
                                 if spell == debuffID.rupture then k = "rupture" end
                                 if spell == debuffID.garrote then k = "garrote" end
                                 if spell == debuffID.crimsonTempest then k = "crimsonTempest" end
-                                if debuff[k].bleed == nil then debuff[k].bleed = {} end
+                                combatLog.bleed[k] = combatLog.bleed[k] or {}
+                                local bleed = combatLog.bleed[k]
+                                local value = 0
                                 if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
-                                    debuff[k].bleed[thisUnit] = debuff[k].calc()
-                                    debuff[k].exsa[thisUnit] = false
-                                    if br.functions.unit:GetUnitIsUnit(thisUnit, "target") then
-                                        debuff[k].bleed["target"] = debuff[k].calc()
-                                        debuff[k].exsa["target"] = false
-                                    end
+                                    local spec = br.loader.selectedSpecID
+                                    value = (spec == 103 or spec == 259) and br.functions.aura:getSnapshotValue(debuffID[k]) or 0
                                 end
-                                if param == "SPELL_AURA_REMOVED" then
-                                    debuff[k].bleed[thisUnit] = 0
-                                    debuff[k].exsa[thisUnit] = false
+                                if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" or param == "SPELL_AURA_REMOVED" then
+                                    bleed[thisUnit] = value
+                                    exsa[k][thisUnit] = false
                                     if br.functions.unit:GetUnitIsUnit(thisUnit, "target") then
-                                        debuff[k].bleed["target"] = 0
-                                        debuff[k].exsa["target"] = false
+                                        bleed["target"] = value
+                                        exsa[k]["target"] = false
                                     end
                                 end
                             end

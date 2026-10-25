@@ -13,7 +13,7 @@ br.lists.unitRules = {
         [140853] = 10,
         [149684] = 5,
     },
-    -- NPCs that are the player's own pet when summoned (listed in br.player.pet.list, never enemies)
+    -- NPCs that are the player's own pet when summoned (listed in br.engines.enemiesEngine.ownPet, never enemies)
     ownPets = {
         [11492] = "Water Elemental",
     },

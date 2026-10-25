@@ -277,7 +277,7 @@ end
 
 -- Stores an enemies list on the player as enemies.yards<range><tags> (used by the Enemies API).
 -- Tags: t/f/p/m... for the center unit, nc for no-combat check, f for facing, r/c for rect/cone.
-function misc:setEnemiesVariable(self, unit, range, checkNoCombat, facing, type, table, count)
+function misc:setEnemiesVariable(unit, range, checkNoCombat, facing, type, table, count)
 	if unit == nil then unit = "player" end
 	if range == nil then range = 5 end
 	if checkNoCombat == nil then checkNoCombat = false end
@@ -300,6 +300,8 @@ function misc:setEnemiesVariable(self, unit, range, checkNoCombat, facing, type,
 	end
 	if checkNoCombat then insertTable = insertTable .. "nc" end -- Ex: enemies.yards8tnc (returns all units around target in 8yrds)
 	if facing then insertTable = insertTable .. "f" end         -- Ex: enemies.yards8tncf (returns all units the target is facing in 8yrds)
-	if self.enemies[insertTable] == nil then self.enemies[insertTable] = {} else br.game.wipe(self.enemies[insertTable]) end
-	if count > 0 then br.functions.custom:insertTableIntoTable(self.enemies[insertTable], table) end
+	-- The enemies engine keeps this tick's lists; the profile's enemies table reads them (enemies.yards8, ...)
+	local lists = br.engines.enemiesEngine.lists
+	if lists[insertTable] == nil then lists[insertTable] = {} else br.game.wipe(lists[insertTable]) end
+	if count > 0 then br.functions.custom:insertTableIntoTable(lists[insertTable], table) end
 end

@@ -188,9 +188,9 @@ local baseTickTimes = {
 }
 
 -- Bleed snapshot upkeep for Feral (103) and Assassination (259), run each tick. The combat
--- log reader records snapshots in debuff.X.bleed / debuff.X.exsa; this drops dead units and
+-- log reader records snapshots in combatLog.bleed / combatLog.exsa; this drops dead units and
 -- zeroes snapshots for bleeds that are no longer applied.
--- br.functions.aura:cleanBleedSnapshots(br.player.debuff, br.loader.selectedSpecID)
+-- br.functions.aura:cleanBleedSnapshots(br.loader.selectedSpecID)
 local bleedSnapshotKeys = { rake = true, rip = true, rupture = true, garrote = true, crimsonTempest = true }
 
 local exsanguinateKeys = { crimsonTempest = true, garrote = true, rupture = true }
@@ -360,31 +360,31 @@ function aura:canDispel(Unit, spellID)
 	return HasValidDispel
 end
 
-function aura:cleanBleedSnapshots(debuff, spec)
-	if debuff == nil or (spec ~= 103 and spec ~= 259) then return end
+function aura:cleanBleedSnapshots(spec)
+	if spec ~= 103 and spec ~= 259 then return end
+	local combatLog, ids = br.readers.combatLog, br.player and br.player.spells and br.player.spells.debuffs
+	if ids == nil then return end
 	for k in pairs(bleedSnapshotKeys) do
-		local thisDebuff = debuff[k]
-		if thisDebuff then
-			if thisDebuff.bleed == nil then thisDebuff.bleed = {} end
-			for thisUnit in pairs(thisDebuff.bleed) do
+		local bleed = combatLog.bleed[k]
+		if bleed and ids[k] then
+			for thisUnit in pairs(bleed) do
 				if br.functions.unit:GetUnitIsDeadOrGhost(thisUnit) then
-					thisDebuff.bleed[thisUnit] = nil
-				elseif not thisDebuff.exists(thisUnit, "EXACT") then
-					thisDebuff.bleed[thisUnit] = 0
+					bleed[thisUnit] = nil
+				elseif aura:UnitDebuffID(thisUnit, ids[k], "EXACT") == nil then
+					bleed[thisUnit] = 0
 				end
 			end
 		end
 	end
 	if spec ~= 259 then return end
 	for k in pairs(exsanguinateKeys) do
-		local thisDebuff = debuff[k]
-		if thisDebuff then
-			if thisDebuff.exsa == nil then thisDebuff.exsa = {} end
-			for thisUnit in pairs(thisDebuff.exsa) do
+		local exsa = combatLog.exsa[k]
+		if exsa and ids[k] then
+			for thisUnit in pairs(exsa) do
 				if br.functions.unit:GetUnitIsDeadOrGhost(thisUnit) then
-					thisDebuff.exsa[thisUnit] = nil
-				elseif not thisDebuff.exists(thisUnit) then
-					thisDebuff.exsa[thisUnit] = false
+					exsa[thisUnit] = nil
+				elseif aura:UnitDebuffID(thisUnit, ids[k], "player") == nil then
+					exsa[thisUnit] = false
 				end
 			end
 		end
@@ -550,7 +550,8 @@ function aura:getDebuffDuration(Unit, DebuffID, Source)
 	end
 end
 
-function aura:getDebuffMinMax(spell, range, debuffType, returnType, source)
+-- The unit within range (and in front) with the lowest ("min") or highest ("max") value read(unit)
+function aura:getDebuffMinMax(read, range, returnType, source)
 	local thisMin = 99
 	local thisMax = 0
 	local lowestUnit = "target"
@@ -558,7 +559,7 @@ function aura:getDebuffMinMax(spell, range, debuffType, returnType, source)
 	for k, _ in pairs(br.engines.enemiesEngine.enemy) do
 		local thisUnit = br.engines.enemiesEngine.enemy[k].unit
 		local distance = br.functions.range:getDistance(thisUnit, source)
-		local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
+		local thisDebuff = read(thisUnit)
 		if br.functions.unit:getFacing("player", thisUnit) and distance <= range and thisDebuff >= 0
 			and ((returnType == "min" and thisDebuff < thisMin) or (returnType == "max" and thisDebuff > thisMax))
 		then
@@ -580,13 +581,13 @@ function aura:getDebuffMinMax(spell, range, debuffType, returnType, source)
 	end
 end
 
-function aura:getDebuffMinMaxButForPetsThisTime(spell, range, debuffType, returnType)
+function aura:getDebuffMinMaxButForPetsThisTime(read, range, returnType)
 	local thisMin = 99
 	local lowestUnit = "target"
 	for k, _ in pairs(br.engines.enemiesEngine.enemy) do
 		local thisUnit = br.engines.enemiesEngine.enemy[k].unit
 		local distance = br.functions.range:getDistance(thisUnit, "pet")
-		local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
+		local thisDebuff = read(thisUnit)
 		if br.functions.unit:getFacing("player", thisUnit) and distance <= range and thisDebuff >= 0 and thisDebuff < thisMin then
 			if returnType == "min" or returnType == nil then
 				lowestUnit = thisUnit
@@ -649,13 +650,11 @@ function aura:getSnapshotValue(dot)
 	if br.loader.selectedSpecID == 103 then
 		local multiplier = 1.00
 
-		-- Each buff only fires if it exists in the current expansion's spell list.
-		-- Spells absent from the list leave br.player.buff[name] nil, so the nil-guard
-		-- prevents both errors and false positives without any expansion flag checks.
-		if br.player.buff.tigersFury               and br.player.buff.tigersFury.exists()               then multiplier = multiplier * 1.15 end
-		if br.player.buff.dreamOfCenarius          and br.player.buff.dreamOfCenarius.exists()          then multiplier = multiplier * 1.30 end
-		if br.player.buff.bloodtalons              and br.player.buff.bloodtalons.exists()              then multiplier = multiplier * 1.30 end
-		if br.player.buff.savageRoar               and br.player.buff.savageRoar.exists()               then multiplier = multiplier * 1.45 end
+		-- Each buff only counts where the current expansion's spell list has it (aura:isBuffUp)
+		if aura:isBuffUp("tigersFury")      then multiplier = multiplier * 1.15 end
+		if aura:isBuffUp("dreamOfCenarius") then multiplier = multiplier * 1.30 end
+		if aura:isBuffUp("bloodtalons")     then multiplier = multiplier * 1.30 end
+		if aura:isBuffUp("savageRoar")      then multiplier = multiplier * 1.45 end
 
 		-- Get Attack Power for actual damage calculations
 		local base, posBuff, negBuff = br.game.UnitAttackPower("player")
@@ -669,9 +668,7 @@ function aura:getSnapshotValue(dot)
 		if dot == br.player.spells.debuffs.rake then
 			local rakeMultiplier = 1.0
 			-- Incarnation/Prowl/Shadowmeld bonus — only present on expansions that have them
-			if (br.player.buff.incarnationAvatarOfAshamane and br.player.buff.incarnationAvatarOfAshamane.exists())
-				or (br.player.buff.prowl        and br.player.buff.prowl.exists())
-				or (br.player.buff.shadowmeld   and br.player.buff.shadowmeld.exists())
+			if aura:isBuffUp("incarnationAvatarOfAshamane") or aura:isBuffUp("prowl") or aura:isBuffUp("shadowmeld")
 			then
 				rakeMultiplier = 2.0
 			end
@@ -707,6 +704,15 @@ function aura:hasBloodLust()
 		if aura:UnitBuffID("player", buffID) then return true end
 	end
 	return false
+end
+
+-- True when the player's buff from the spell list (by key, e.g. "prowl") is up; false when the
+-- class's lists have no such buff
+-- if br.functions.aura:isBuffUp("clearcasting") then
+function aura:isBuffUp(buffKey)
+	local buffs = br.player and br.player.spells and br.player.spells.buffs
+	local id = buffs and buffs[buffKey]
+	return id ~= nil and aura:UnitBuffID("player", id) ~= nil
 end
 
 -- Overwrite UnitBuff

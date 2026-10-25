@@ -145,21 +145,21 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 
 	-- ── Step 9: Pre-fill enemies count from pre-calculated tables ─────────────
 	if enemies == nil then
-		local eKey = "yards" .. effectRng
-		if (castType == "norm" or castType == "pet") and br.player.enemies[eKey .. "f"] ~= nil then
-			enemies = #br.player.enemies[eKey .. "f"]
-		elseif castType == "cone" and br.player.enemies[eKey .. "c"] ~= nil then
-			enemies = #br.player.enemies[eKey .. "c"]
-		elseif castType == "rect" and br.player.enemies[eKey .. "r"] ~= nil then
-			enemies = #br.player.enemies[eKey .. "r"]
+		local eKey, lists = "yards" .. effectRng, br.engines.enemiesEngine.lists
+		if (castType == "norm" or castType == "pet") and lists[eKey .. "f"] ~= nil then
+			enemies = #lists[eKey .. "f"]
+		elseif castType == "cone" and lists[eKey .. "c"] ~= nil then
+			enemies = #lists[eKey .. "c"]
+		elseif castType == "rect" and lists[eKey .. "r"] ~= nil then
+			enemies = #lists[eKey .. "r"]
 		elseif castType == "aoe" then
-			if thisUnit == "player" and br.player.enemies[eKey] ~= nil then
-				enemies = #br.player.enemies[eKey]
-			elseif br.player.enemies[eKey .. "t"] ~= nil then
-				enemies = #br.player.enemies[eKey .. "t"]
+			if thisUnit == "player" and lists[eKey] ~= nil then
+				enemies = #lists[eKey]
+			elseif lists[eKey .. "t"] ~= nil then
+				enemies = #lists[eKey .. "t"]
 			end
-		elseif castType == "targetAOE" and br.player.enemies[eKey .. "t"] ~= nil then
-			enemies = #br.player.enemies[eKey .. "t"]
+		elseif castType == "targetAOE" and lists[eKey .. "t"] ~= nil then
+			enemies = #lists[eKey .. "t"]
 		end
 	end
 

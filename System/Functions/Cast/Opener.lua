@@ -44,7 +44,7 @@ local function stepTimeout()
 end
 
 local function debug(message)
-	if br.player and br.player.ui and br.player.ui.debug then br.player.ui.debug(message) end
+	br.log:debug(message)
 end
 
 local function targetGUID()

@@ -334,8 +334,7 @@ local function gateUsable(ctx, thisUnit, castType, allTalents, allSpells) -- lua
 		return true
 	end
 	-- Clearcasting / Omen of Clarity: the next cast is free, so promised power doesn't matter
-	local freeCast = br.player and br.player.buff and br.player.buff.clearcasting
-		and br.player.buff.clearcasting.exists()
+	local freeCast = br.functions.aura:isBuffUp("clearcasting")
 	-- IsSpellUsable returns false when the player lacks resources, wrong form, etc.
 	-- nil means "usable but no resource requirement" — treat as pass.
 	if ctx.isUsable ~= false then
@@ -463,7 +462,7 @@ local function gateKnownTalent(ctx, thisUnit, castType, allTalents, allSpells) -
 	-- Talent check.
 	if allTalents then
 		local talentKey = getTalentKey(ctx.spellID, allTalents)
-		if talentKey ~= nil and not (br.player.talent[talentKey] or isKnown) then
+		if talentKey ~= nil and not (br.functions.spell:hasTalent(talentKey) or isKnown) then
 			return false, "NO_TALENT",
 				"talent '" .. tostring(talentKey) .. "' not active"
 		end

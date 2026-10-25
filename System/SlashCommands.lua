@@ -165,8 +165,10 @@ local function handler(message, editbox)
 		-- Help
 		br.slashCommands:SlashCommandHelp("Print Help")
 	elseif msg1 == "cooldowns" then
-		if not br.player then return false end
-		br.ui:ToggleToValue("Cooldown", br.player.ui.mode.cooldown == 2 and 3 or 2)
+		local specSettings = br.data.settings[br.loader.selectedSpec]
+		local toggles = specSettings and specSettings.toggles
+		if not (br.player and toggles) then return false end
+		br.ui:ToggleToValue("Cooldown", toggles["Cooldown"] == 2 and 3 or 2)
 	elseif msg1 == "blacklist" then
 		-- Blacklist
 		if msg2 == "dump" then
@@ -537,15 +539,12 @@ local function handler(message, editbox)
 			end
 			-- Every dynamic unit the profile asked for (units.get(N) -> units.dynN), and
 			-- "none" when one came back empty on the last tick.
-			local units = br.player and br.player.units
-			local requested = br.player and br.player.dynRequested
-			if units and requested then
-				local dynKeys = {}
-				for key in pairs(requested) do dynKeys[#dynKeys + 1] = key end
-				table.sort(dynKeys)
-				for _, key in ipairs(dynKeys) do
-					br.log:more("  units." .. key .. ": " .. describe(units[key]))
-				end
+			local picks = br.engines.enemiesEngineFunctions.dynamicPicks
+			local dynKeys = {}
+			for key in pairs(picks) do dynKeys[#dynKeys + 1] = key end
+			table.sort(dynKeys)
+			for _, key in ipairs(dynKeys) do
+				br.log:more("  units." .. key .. ": " .. describe(picks[key] or nil))
 			end
 		end)
 	elseif msg1 == "clean" or msg1 == "cleansettings" then

@@ -58,7 +58,7 @@ function Player:update()
 	if self.specID ~= br.loader.selectedSpecID then return end
 	if not br.game.UnitAffectingCombat("player") then self:updateOOC() end
 	self:baseUpdate()
-	br.functions.aura:cleanBleedSnapshots(self.debuff, self.specID)
+	br.functions.aura:cleanBleedSnapshots(self.specID)
 	if self.updatePlayer then self:rebuild() end
 	self:getToggleModes()
 	self:startRotation()

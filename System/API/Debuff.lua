@@ -24,7 +24,8 @@ br.api.debuffs = function(debuff, k, v)
     debuff.applied = function(thisUnit)
         v = currentRank()
         local thisUnit = br.functions.unit:getObjectFromGUID(thisUnit) or thisUnit or "target"
-        return (spec == 103 or spec == 259) and debuff.bleed[thisUnit] or 0
+        local bleed = br.readers.combatLog.bleed[k]
+        return (spec == 103 or spec == 259) and bleed and bleed[thisUnit] or 0
     end
 
     --- Calculates the snapshot value of a debuff.
@@ -73,7 +74,8 @@ br.api.debuffs = function(debuff, k, v)
     -- @treturn boolean
     debuff.exsang = function(thisUnit)
         v = currentRank()
-        return spec == 259 and debuff.exsa[thisUnit] or false
+        local exsa = br.readers.combatLog.exsa[k]
+        return spec == 259 and exsa and exsa[thisUnit] or false
     end
 
     --- Gets the unit with the lowest remaining time for a debuff within a specified range.
@@ -85,7 +87,7 @@ br.api.debuffs = function(debuff, k, v)
         v = currentRank()
         if range == nil then range = 40 end
         if debuffType == nil then debuffType = "remain" end
-        return br.functions.aura:getDebuffMinMax(k, range, debuffType, "min", source) or "target"
+        return br.functions.aura:getDebuffMinMax(function(u) return debuff[debuffType](u) end, range, "min", source) or "target"
     end
 
     --- Gets the unit with the lowest remaining time for a debuff within a specified range, considering only pets.
@@ -97,7 +99,7 @@ br.api.debuffs = function(debuff, k, v)
         v = currentRank()
         if range == nil then range = 8 end
         if debuffType == nil then debuffType = "remain" end
-        return br.functions.aura:getDebuffMinMaxButForPetsThisTime(k, range, debuffType, "min") or "target"
+        return br.functions.aura:getDebuffMinMaxButForPetsThisTime(function(u) return debuff[debuffType](u) end, range, "min") or "target"
     end
 
     --- Gets the unit with the highest remaining time for a debuff within a specified range.
@@ -109,10 +111,11 @@ br.api.debuffs = function(debuff, k, v)
         v = currentRank()
         if range == nil then range = 40 end
         if debuffType == nil then debuffType = "remain" end
-        return br.functions.aura:getDebuffMinMax(k, range, debuffType, "max") or "target"
+        return br.functions.aura:getDebuffMinMax(function(u) return debuff[debuffType](u) end, range, "max") or "target"
     end
 
-    --- Gets the pandemic threshold for refreshing a debuff.
+    --- The duration the refresh window is worked out from: the debuff's current duration on the unit
+    -- (debuff.spell.refresh refreshes in its last 30%).
     -- @function debuff.spell.pandemic
     -- @string[opt="target"] thisUnit The unit to check the pandemic threshold on.
     -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
@@ -122,12 +125,7 @@ br.api.debuffs = function(debuff, k, v)
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if thisUnit == 'target' then thisUnit = br.functions.unit:getUnitGUID("target") end
-        local pandemic = debuff.duration(thisUnit, sourceUnit)
-        local recorded = br.readers.combatLog.pandemic[thisUnit]
-        if recorded ~= nil and recorded[k] ~= nil then
-            pandemic = recorded[k]
-        end
-        return pandemic
+        return debuff.duration(thisUnit, sourceUnit)
     end
 
     --- Gets the multiplier for the debuff based on its remaining time and duration.

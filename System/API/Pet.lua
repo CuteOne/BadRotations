@@ -28,8 +28,8 @@ br.api.pets = function(pet,k,v,brplayer)
         -- @return number The count of matching active pets
         pet.active.count = function()
             local count = 0
-            for l,_ in pairs(brplayer.pet.list) do
-                local listID = brplayer.pet.list[l].id
+            for l,_ in pairs(br.engines.enemiesEngine.ownPet) do
+                local listID = br.engines.enemiesEngine.ownPet[l].id
                 if br.functions.unit:GetObjectID("pet") == listID then count = count + 1 end
             end
             return count
@@ -62,8 +62,8 @@ br.api.pets = function(pet,k,v,brplayer)
     -- @usage local impCount = br.player.pet.imp.count()
     pet.count = function()
         local count = 0
-        for l,_ in pairs(brplayer.pet.list) do
-            local listID = brplayer.pet.list[l].id
+        for l,_ in pairs(br.engines.enemiesEngine.ownPet) do
+            local listID = br.engines.enemiesEngine.ownPet[l].id
             if v == listID then count = count + 1 end
         end
         return count

@@ -211,7 +211,7 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 
 	-- Sent: its costs are promised until the client charges them (see E.promiseCosts)
 	if (castSucceeded or (details and details.inconclusive))
-		and not (br.player and br.player.buff and br.player.buff.clearcasting and br.player.buff.clearcasting.exists())
+		and not br.functions.aura:isBuffUp("clearcasting")
 	then
 		local now = br.game.GetTime()
 		local hold = br.functions.misc:getRoundTripHold(ctx.latency)

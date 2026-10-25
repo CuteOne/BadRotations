@@ -31,6 +31,10 @@ local function buildTalents(player, spec)
     -- Build Hero Tree Info
     spellCompiler:compileHeroTree(player)
 
+    -- The compiled talent state, for the layers below the profile API (spell:hasTalent / getTalentRank)
+    player.talentInfo = allTalents or {}
+    player.talentIDs = spellListTalents
+
     -- Parse Holding Table
     for k, v in pairs(spellListTalents) do
         br.api.talent(player.talent, k, v, allTalents, player.spells)

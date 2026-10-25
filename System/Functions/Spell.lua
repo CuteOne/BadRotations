@@ -701,10 +701,8 @@ function spell:getSpellRange(spellID, option)
 	local rangeMod = 0
 	-- Balance Affinity range change (Druid - Not Balance)
 	if br.player ~= nil then
-		if br.player.talent.balanceAffinity ~= nil then
-			if br.player.talent.balanceAffinity and option ~= "noMod" then
-				rangeMod = 5
-			end
+		if spell:hasTalent("balanceAffinity") and option ~= "noMod" then
+			rangeMod = 5
 		end
 	end
 	return maxRange + rangeMod
@@ -735,8 +733,28 @@ function spell:getSpellType(spellName)
 	if not helpful and not harmful then return "Unknown" end
 end
 
+-- The talent's rank (by key), 0 when it isn't taken, as talent.rank.<key> answers
+function spell:getTalentRank(talentKey)
+	local info = talentInfo(talentKey)
+	return info and info.rank or 0
+end
+
 function spell:getTexture(spellID)
 	return br.game.C_Spell.GetSpellTexture(spellID)
+end
+
+-- The compiled talent state of a talent from the spell lists (by key, hero talents included)
+local function talentInfo(talentKey)
+	local player = br.player
+	local id = player and player.talentIDs and player.talentIDs[talentKey]
+	return id and player.talentInfo and player.talentInfo[id]
+end
+
+-- True when the talent from the spell lists (by key) is active, as talent.<key> answers
+-- if br.functions.spell:hasTalent("balanceAffinity") then
+function spell:hasTalent(talentKey)
+	local info = talentInfo(talentKey)
+	return info ~= nil and info.active == true
 end
 
 -- True while the spell is on: auto-repeating (Auto Shot, Shoot) or the game's current spell

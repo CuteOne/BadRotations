@@ -205,7 +205,7 @@ function measureDistance(Unit1, Unit2, option)
     end
     local centre = range:getCenterDistance(Unit1, Unit2)
     if centre == nil then return 999 end
-    local talent = option ~= "noMod" and br.player and br.player.talent
+    local talents = option ~= "noMod" and br.functions.spell
     -- Melee: the game's answer when it has one
     local inMelee = nil
     local other = (isPlayer1 and Unit2) or (isPlayer2 and Unit1) or nil
@@ -218,13 +218,13 @@ function measureDistance(Unit1, Unit2, option)
     -- walked; the server refused Ravage as out of range). Then the melee rule decides.
     if inMelee == nil or (inMelee and ((br.game.GetUnitSpeed(Unit1) or 0) > 0 or (br.game.GetUnitSpeed(Unit2) or 0) > 0)) then
         local reach = range:getMeleeReach(Unit1, Unit2)
-        if talent and talent.acrobaticStrikes then reach = reach + ACROBATIC_STRIKES end
+        if talents and talents:hasTalent("acrobaticStrikes") then reach = reach + ACROBATIC_STRIKES end
         inMelee = centre <= reach
     end
     if inMelee then return 0 end
     local edge = centre - range:getCombatReach(Unit1) - range:getCombatReach(Unit2)
-    if talent and talent.astralInfluence then
-        edge = edge - (talent.rank.astralInfluence == 1 and 1 or 3)
+    if talents and talents:hasTalent("astralInfluence") then
+        edge = edge - (talents:getTalentRank("astralInfluence") == 1 and 1 or 3)
     end
     return math.max(OUT_OF_MELEE, edge)
 end

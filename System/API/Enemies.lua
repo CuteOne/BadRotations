@@ -25,6 +25,8 @@ local _, br = ...
 if br.api == nil then br.api = {} end
 br.api.enemies = function(self)
     local enemies = self.enemies
+    -- enemies.yards8, enemies.yards8t, ...: this tick's lists, kept by the enemies engine
+    setmetatable(enemies, { __index = br.engines.enemiesEngine.lists })
     enemies.cone = enemies.cone or {}
     enemies.rect = enemies.rect or {}
 
@@ -52,7 +54,7 @@ br.api.enemies = function(self)
     enemies.cone.get = function(angle, range, checkNoCombat, showLines)
         local count, table = br.engines.enemiesEngineFunctions:getEnemiesInCone(angle, range, checkNoCombat, showLines)
         -- Build enemies.yards variable
-        br.functions.misc:setEnemiesVariable(self, "player", range, checkNoCombat, false, "c", table, count)
+        br.functions.misc:setEnemiesVariable("player", range, checkNoCombat, false, "c", table, count)
         -- Backwards compatability for old way
         return table, count
     end
@@ -99,7 +101,7 @@ br.api.enemies = function(self)
         if facing == nil then facing = false end
         local enemyTable = br.engines.enemiesEngineFunctions:getEnemies(unit, range, checkNoCombat, facing)
         -- Build enemies.yards variable
-        br.functions.misc:setEnemiesVariable(self, unit, range, checkNoCombat, facing, "", enemyTable)
+        br.functions.misc:setEnemiesVariable(unit, range, checkNoCombat, facing, "", enemyTable)
         -- Backwards compatability for old way
         return enemyTable, #enemyTable
     end
@@ -115,7 +117,7 @@ br.api.enemies = function(self)
     enemies.rect.get = function(width, range, showLines, checkNoCombat, facing)
         local count, table = br.engines.enemiesEngineFunctions:getEnemiesInRect(width, range, showLines, checkNoCombat)
         -- Build enemies.yards variable
-        br.functions.misc:setEnemiesVariable(self, "player", range, checkNoCombat, false, "r", table, count)
+        br.functions.misc:setEnemiesVariable("player", range, checkNoCombat, false, "r", table, count)
         -- Backwards compatability for old way
         return table, count
     end
