@@ -67,6 +67,11 @@ for _, class in pairs(flavourBr.lists.spells) do
 end
 end
 sets.abilities.racial = true
+-- Glyphs are also reachable by a short name: glyphOfFrostShock -> frostShock (ProfileAPI.lua buildGlyphs)
+for _, key in ipairs(sortedKeys(sets.glyphs)) do
+    local suffix = key:match("^glyphOf(.+)$")
+    if suffix then sets.glyphs[suffix:sub(1, 1):lower() .. suffix:sub(2)] = true end
+end
 for key in pairs(fakeBr.lists.items or {}) do sets.items[key] = true end
 sets.pets = {}
 for key in pairs(fakeBr.lists.pets or {}) do sets.pets[key] = true end

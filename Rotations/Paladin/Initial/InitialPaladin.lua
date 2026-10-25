@@ -46,8 +46,6 @@ local function options()
     ui.spinner(section, "Flash of Light", { value = 50, tip = "Health Percent to Cast At" })
     -- Hammer of Justice
     ui.spinner(section, "Hammer of Justice - Defensive", { value = 30, tip = "Health Percent to Cast At" })
-    -- Lay on Hands
-    ui.spinner(section, "Lay on Hands", { value = 20, tip = "Health Percent to Cast At" })
     -- Word of Glory
     ui.spinner(section, "Word of Glory", { value = 40, tip = "Health Percent to Cast At" })
     -------------------------
@@ -77,16 +75,6 @@ var.profileStop      = false
 -- Action List - Defensive
 actionList.Defensive = function()
     if ui.useDefensive() then
-        -- Lay on Hands
-        if ui.checked("Lay on Hands") and cast.able.layOnHands() then
-            local thisUnit = unit.friend("target") and "target" or "player"
-            if unit.inCombat(thisUnit) and not debuff.forbearance.exists(thisUnit) and unit.hp(thisUnit) <= ui.value("Lay on Hands") then
-                if cast.layOnHands(thisUnit) then
-                    ui.debug("Casting Lay on Hands on " .. unit.name(thisUnit))
-                    return true
-                end
-            end
-        end
         -- Divine Shield
         if ui.checked("Divine Shield") and cast.able.divineShield() then
             local thisUnit = unit.friend("target") and "target" or "player"

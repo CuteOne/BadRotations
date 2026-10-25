@@ -475,7 +475,7 @@ actionList.Single = function()
     -- Bladestorm
     --# Use cancelaura (in-game) to stop bladestorm if CS comes off cooldown during it for any reason.
     -- bladestorm,if=enabled,interrupt_if=!cooldown.colossus_smash.remains
-    if ui.alwaysCdAoENever("Bladestorm",3,#enemies.yards8) and cast.able.bladestorm("player","aoe",1,8) and (not var.knownCS or cd.colossusSmash.remains(units.dyn5) > 10) then
+    if ui.alwaysCdAoENever("Bladestorm",3,#enemies.yards8) and cast.able.bladestorm("player","aoe",1,8) and (not var.knownCS or cd.colossusSmash.remains() > 10) then
         if cast.bladestorm("player","aoe",1,8) then
             ui.debug("Casting Bladestorm [Single]")
             return true
@@ -576,12 +576,6 @@ end -- End Action List - Single
 -- Action List - PreCombat
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then
-        -- Module - Phial Up
-        -- flask
-        module.PhialUp()
-        -- Module - Imbue Up
-        -- augmentation
-        module.ImbueUp()
         -- Pre-Pull
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
 

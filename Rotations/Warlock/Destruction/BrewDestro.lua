@@ -178,7 +178,7 @@ local function runRotation()
                 end
 
                 -- Curse of Weakness
-                if cast.able.curseOfWeakness() and ui.checked("Use Curse of Weakness") and debuff.curseOfWeakness.refresh(units.dyn40AoE) then
+                if cast.able.curseOfWeakness() and ui.checked("Use Curse of Weakness") and debuff.curseOfWeakness.refresh(units.dyn40AOE) then
                     if cast.curseOfWeakness() then
                         ui.debug("Casting Curse of Weakness")
                         return true

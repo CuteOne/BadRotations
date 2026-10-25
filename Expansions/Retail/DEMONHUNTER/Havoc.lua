@@ -11,6 +11,7 @@ br.lists.spells.DEMONHUNTER[577] = {
                 felRush      = 195072,
             },
             buffs     = {
+                augmentation  = 393438, -- Draconic Augmentation (the Augment Rune's buff)
                 furiousGaze   = 343312,
                 initiative    = 391215,
                 innerDemon    = 337313,
@@ -33,6 +34,8 @@ br.lists.spells.DEMONHUNTER[577] = {
                 beaconToTheBeyond       = 203963,
                 dragonfireBombDispenser = 202610,
                 elementiumPocketAnvil   = 202617,
+                markOfDargrul           = 137357,
+                screamingBlackDragonscale = 202612,
                 irideusFragment         = 193743,
                 manicGrieftorch         = 194308,
                 potion                  = 191381,

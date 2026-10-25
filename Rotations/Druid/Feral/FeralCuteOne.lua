@@ -149,6 +149,17 @@ end
 --- Locals ---
 --------------
 -- BR API Locals
+-- Berserk or Incarnation, whichever is taken (SimC's bs_inc)
+local bsInc = {
+    exists = function() return buff.berserk.exists() or buff.incarnationAvatarOfAshamane.exists() end,
+    remains = function() return math.max(buff.berserk.remain(), buff.incarnationAvatarOfAshamane.remain()) end,
+}
+bsInc.remain = bsInc.remains
+local bsIncCd = {
+    remains = function() return math.max(cd.berserk.remains(), cd.incarnationAvatarOfAshamane.remains()) end,
+    duration = function() return math.max(cd.berserk.duration(), cd.incarnationAvatarOfAshamane.duration()) end,
+}
+
 local actionList = {}
 local comboPoints
 local energy
@@ -634,7 +645,7 @@ actionList.PreCombat = function()
             -- prowl,if=!buff.prowl.up
             if cast.able.prowl("player") and buff.catForm.exists() and (not unit.inCombat() and not buff.prowl.exists() and unit.enemyNear(20)) and ui.mode.prowl == 1
                 and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
-                and not buff.bsInc.exists() -- and var.getTime - var.leftCombat > lootDelay
+                and not bsInc.exists() -- and var.getTime - var.leftCombat > lootDelay
             then
                 if cast.prowl("player") then
                     ui.debug("Casting Prowl [Pre-Combat]")
@@ -774,7 +785,7 @@ actionList.Combat = function()
         -- prowl,if=buff.bs_inc.down&!buff.prowl.up&!buff.shadowmeld.up
         if cast.able.prowl("player") and buff.catForm.exists()
             and ui.mode.prowl == 1 and not buff.prowl.exists() and not unit.resting()
-            and not buff.bsInc.exists() and not buff.shadowmeld.exists() and not cast.last.prowl()
+            and not bsInc.exists() and not buff.shadowmeld.exists() and not cast.last.prowl()
         then
             if cast.prowl("player") then
                 ui.debug("Casting Prowl [Combat]")
@@ -810,7 +821,7 @@ actionList.Combat = function()
         --- tigers fury on cooldown, in aoe patchwerk we can hold ~2s for frantic frenzy as needed. Like frantic frenzy, holding can sometimes be a gain in dr/ds, but the conditions are unclear. Addendum: Seems't've been related to holding Berserk, attempt to check holding tigers fury at your own risk.
         -- tigers_fury,if=(cooldown.bs_inc.remains<=1|cooldown.bs_inc.remains>10)&(cooldown.frantic_frenzy.remains<buff.tigers_fury.duration-1.5|cooldown.frantic_frenzy.remains>22|!talent.frantic_frenzy|spell_targets=1|fight_style.dungeonroute|fight_style.dungeonslice)&!variable.use_custom_timers|variable.tfNow
         if ui.checked("Tiger's Fury") and cast.able.tigersFury()
-            and (((cd.bsInc.remains() <= 1 or cd.bsInc.remains() > 10)
+            and (((bsIncCd.remains() <= 1 or bsIncCd.remains() > 10)
                     and (cd.franticFrenzy.remains() < buff.tigersFury.duration() - 1.5 or cd.franticFrenzy.remains() > 22
                         or not talent.franticFrenzy or ui.useST(8, 1) or ui.fightStyle.dungeonRoute() or ui.fightStyle.dungeonSlice())
                     and not var.useCustomTimers)
@@ -906,7 +917,7 @@ actionList.AoeBuilder = function()
     -- Swipe Cat: DotC during Berserk, or Clearcasting at 3-6 targets
     -- swipe_cat,if=hero_tree.druid_of_the_claw&buff.bs_inc.up|buff.clearcasting.react&spell_targets>2&(hero_tree.druid_of_the_claw|spell_targets<7)
     if cast.able.swipeCat("player", "aoe", 1, 8)
-        and ((heroTree.druidOfTheClaw and buff.bsInc.exists())
+        and ((heroTree.druidOfTheClaw and bsInc.exists())
             or (buff.clearcasting.exists() and #enemies.yards8 > 2
                 and (heroTree.druidOfTheClaw or #enemies.yards8 < 7)))
     then
@@ -1035,7 +1046,7 @@ actionList.Cooldown = function()
     if unit.distance(units.dyn5) < 5 then
         -- Use Item - Imperfect Ascendancy Serum
         -- use_item,name=imperfect_ascendancy_serum,if=cooldown.bs_inc.remains<=1
-        if use.able.imperfectAscendancySerum() and cd.bsInc.remains() <= 1 then
+        if use.able.imperfectAscendancySerum() and bsIncCd.remains() <= 1 then
             if use.imperfectAscendancySerum() then ui.debug("Using Imperfect Ascendancy Serum [Cooldown]") return true end
         end
         -- Compute hold variables (simplified from cd_variable)
@@ -1045,8 +1056,8 @@ actionList.Cooldown = function()
                 and cd.convokeTheSpirits.remains() <= 20)
             or (var.useCustomTimers and var.nextBSTimer - 5 > var.getTime and not var.zerkNow)
         -- variable,name=holdConvoke: hold last convoke for last berserk if berserk isn't up yet
-        var.holdConvoke = (not buff.bsInc.exists() and cd.bsInc.remains() > 0 and cd.bsInc.remains() < 15)
-            or (var.useCustomTimers and talent.ashamanesGuidance and cd.bsInc.remains() < 50)
+        var.holdConvoke = (not bsInc.exists() and bsIncCd.remains() > 0 and bsIncCd.remains() < 15)
+            or (var.useCustomTimers and talent.ashamanesGuidance and bsIncCd.remains() < 50)
 
         -- Racial: Berserking (Troll)
         -- berserking
@@ -1058,7 +1069,7 @@ actionList.Cooldown = function()
         end
         -- Module - Combatpotion Up (fires before Berserk/Incarnation, matching SimC order)
         -- potion,if=buff.bs_inc.up|fight_remains<32|buff.tigers_fury.up&!variable.holdPot
-        if buff.bsInc.exists() or unit.ttdGroup() < 32 or buff.tigersFury.exists() then
+        if bsInc.exists() or unit.ttdGroup() < 32 or buff.tigersFury.exists() then
             module.CombatPotionUp()
         end
         if ui.alwaysCdNever("Berserk/Incarnation") and ui.useCDs() then
@@ -1091,7 +1102,7 @@ actionList.Cooldown = function()
         -- Feral Frenzy (no Frantic Frenzy talent)
         -- feral_frenzy,if=!talent.frantic_frenzy&combo_points<=2+(2*buff.bs_inc.up)
         if cast.able.feralFrenzy() and not talent.franticFrenzy
-            and comboPoints() <= 2 + (buff.bsInc.exists() and 2 or 0)
+            and comboPoints() <= 2 + (bsInc.exists() and 2 or 0)
         then
             if cast.feralFrenzy() then
                 ui.debug("Casting Feral Frenzy [Cooldown]")
@@ -1104,7 +1115,7 @@ actionList.Cooldown = function()
             and ((not ui.fightStyle.dungeonRoute() and not ui.fightStyle.dungeonSlice())
                 or (#enemies.yards8 > 1 and unit.ttd(var.minTTDUnit) > 5))
             and (buff.tigersFury.exists() and #enemies.yards8 >= 2
-                or comboPoints() <= 2 + (buff.bsInc.exists() and 2 or 0))
+                or comboPoints() <= 2 + (bsInc.exists() and 2 or 0))
         then
             if cast.franticFrenzy() then
                 ui.debug("Casting Frantic Frenzy [Cooldown]")
@@ -1115,7 +1126,7 @@ actionList.Cooldown = function()
         -- convoke_the_spirits,if=fight_remains<5|buff.bs_inc.up&buff.bs_inc.remains<5-talent.ashamanes_guidance|buff.tigers_fury.up&!variable.holdConvoke&(prev_gcd.1.rip|prev_gcd.1.ferocious_bite)|variable.use_custom_timers&variable.nextTFTimer+cooldown.convoke_the_spirits.duration-10>variable.nextBSTimer&combo_points<=2
         if ui.alwaysCdNever("Convoke The Spirits") and cast.able.convokeTheSpirits()
             and (unit.ttdGroup(40) < 5
-                or (buff.bsInc.exists() and buff.bsInc.remains() < 5 - var.ashamanesGuidance)
+                or (bsInc.exists() and bsInc.remains() < 5 - var.ashamanesGuidance)
                 or (buff.tigersFury.exists() and not var.holdConvoke
                     and (cast.last.rip() or cast.last.ferociousBite()))
                 or (var.useCustomTimers
@@ -1147,8 +1158,8 @@ actionList.Finisher = function()
     -- pool_resource,for_next=1
     -- ferocious_bite,if=combo_points>=4+buff.bs_inc.up&(!talent.saber_jaws|buff.bs_inc.up)
     if cast.able.ferociousBite()
-        and comboPoints() >= 4 + (buff.bsInc.exists() and 1 or 0)
-        and (not talent.saberJaws or buff.bsInc.exists())
+        and comboPoints() >= 4 + (bsInc.exists() and 1 or 0)
+        and (not talent.saberJaws or bsInc.exists())
     then
         if cast.ferociousBite() then
             ui.debug("Casting Ferocious Bite - Standard [Finisher]")
@@ -1158,7 +1169,7 @@ actionList.Finisher = function()
     -- Ferocious Bite: at max energy with 5 CP (4 with Panther's Guile) outside Berserk
     -- pool_resource,for_next=1
     -- ferocious_bite,max_energy=1,if=combo_points>=5-talent.panthers_guile&!buff.bs_inc.up
-    if cast.able.ferociousBite() and energy() >= 50 and not buff.bsInc.exists()
+    if cast.able.ferociousBite() and energy() >= 50 and not bsInc.exists()
         and comboPoints() >= 5 - (talent.panthersGuile and 1 or 0)
     then
         if cast.ferociousBite() then
@@ -1174,7 +1185,7 @@ actionList.AoeFinisher = function()
     -- primal_wrath,target_if=min:remains,if=combo_points>=5&spell_targets.primal_wrath>1&(dot.primal_wrath.remains<6.5&!buff.bs_inc.up|dot.primal_wrath.refreshable)
     if talent.primalWrath and cast.able.primalWrath("player", "aoe", 1, 8)
         and comboPoints() >= 5 and #enemies.yards8 > 1
-        and (debuff.rip.remains(var.minRipUnit) < 6.5 and not buff.bsInc.exists()
+        and (debuff.rip.remains(var.minRipUnit) < 6.5 and not bsInc.exists()
             or debuff.rip.refresh(var.minRipUnit))
     then
         if cast.primalWrath("player", "aoe", 1, 8) then
@@ -1339,34 +1350,6 @@ local function runRotation()
     var.unit5ID     = unit.id(units.dyn5) or 0
     var.noDoT       = var.unit5ID == 153758 or var.unit5ID == 156857 or var.unit5ID == 156849 or var.unit5ID == 156865 or
         var.unit5ID == 156869
-    -- Add buff.bsInc.exists()
-    buff.bsInc      = buff.bsInc or {}
-    if not buff.bsInc.exists then
-        buff.bsInc.exists = function()
-            return buff.berserk.exists() or buff.incarnationAvatarOfAshamane.exists()
-        end
-    end
-    -- Add buff.bsInc.remain()
-    if not buff.bsInc.remains then
-        buff.bsInc.remains = function()
-            return math.max(buff.berserk.remain(), buff.incarnationAvatarOfAshamane.remain())
-        end
-    end
-    -- Add cd.bsInc.remains()
-    cd.bsInc = cd.bsInc or {}
-    if not cd.bsInc.remains then
-        cd.bsInc.remains = function()
-            return math.max(cd.berserk.remains(), cd.incarnationAvatarOfAshamane.remains())
-        end
-    end
-    -- Add cd.bsInc.duration()
-    cd.bsInc = cd.bsInc or {}
-    if not cd.bsInc.duration then
-        cd.bsInc.duration = function()
-            return math.max(cd.berserk.duration(), cd.incarnationAvatarOfAshamane.duration())
-        end
-    end
-
     -- Friends In Range
     var.solo = #units.friends < 2
     var.friendsInRange = false

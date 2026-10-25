@@ -48,10 +48,15 @@ br.lists.spells.Shared = {
                 focusedAzeriteBeam        = 295258,  -- BFA Condensed Life-Force essence cast
                 focusedAzeriteBeamChannel = 295261,  -- BFA Condensed Life-Force follow-up channel (hasted)
                 latentArcana              = 296971,
-                lightsJudgment = 255647,
-                quakingPalm    = 107079,
+                -- Racials a profile casts by name (cast.racial casts the player's own)
+                ancestralCall  = 274738, -- Mag'har Orc
+                arcanePulse    = 260364, -- Nightborne
+                bagOfTricks    = 312411, -- Vulpera
+                fireblood      = 265221, -- Dark Iron Dwarf
+                lightsJudgment = 255647, -- Lightforged Draenei
+                quakingPalm    = 107079, -- Pandaren
                 racial         = br.functions.spell:getRacial(),
-                shadowmeld     = 58984,
+                shadowmeld     = 58984,  -- Night Elf
             },
             buffs            = {
                 ancientHysteria                = 90355,

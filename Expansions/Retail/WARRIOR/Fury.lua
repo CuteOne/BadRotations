@@ -32,6 +32,9 @@ br.lists.spells.WARRIOR[72] = {
                 markedForExecution = 445584,
                 odynsFuryTormentMh = 385060,
             },
+            items     = {
+                fyralathTheDreamrender = 206448,
+            },
             glyphs    = {
 
             },

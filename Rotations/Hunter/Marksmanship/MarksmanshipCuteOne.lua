@@ -712,12 +712,6 @@ end -- End Action List - St
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if not unit.inCombat() and not buff.feignDeath.exists() then
-        -- Module - Phial Up
-        -- flask
-        module.PhialUp()
-        -- Module - Imbue Up
-        -- augmentation
-        module.ImbueUp()
         -- Summon Pet
         -- summon_pet,if=!talent.lone_wolf
         if actionList.PetManagement() then

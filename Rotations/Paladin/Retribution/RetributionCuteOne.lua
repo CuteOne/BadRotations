@@ -55,10 +55,6 @@ local function options()
     section = ui.section("Cooldowns")
     -- Potion
     module.CombatPotionUp(section)
-    -- Phial
-    module.PhialUp(section)
-    -- Imbue
-    module.ImbueUp(section)
     -- Trinkets
     module.BasicTrinkets(nil, section)
     -- Racial
@@ -449,7 +445,7 @@ actionList.Cooldowns = function()
     -- Module - Combatpotion Up
     -- potion,if=buff.avenging_wrath.up|buff.crusade.up|fight_remains<30
     if (buff.avengingWrath.exists() or buff.crusade.exists() or unit.ttdGroup(40) < 30) then
-        module.CombatpotionUp()
+        module.CombatPotionUp()
     end
 
     -- Lights Judgment
@@ -854,12 +850,6 @@ end -- End Action List - Generators
 -- Action List - PreCombat
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
-        -- Module - Phial Up
-        -- flask
-        module.PhialUp()
-        -- Module - Imbue Up
-        -- augmentation
-        module.ImbueUp()
         if unit.valid("target") then
             -- Shield Of Vengeance
             -- shield_of_vengeance

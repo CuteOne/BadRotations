@@ -107,13 +107,7 @@ end         -- End Action List - Interrupts
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if not unit.inCombat() and not unit.mounted() then
-        -- Module - Phial Up
-        -- flask
-        module.PhialUp()
 
-        -- Module - Imbue Up
-        -- augmentation
-        module.ImbueUp()
         -- Variable - Trinket 1 Buffs
         -- variable,name=trinket_1_buffs,value=trinket.1.has_use_buff|(trinket.1.has_buff.strength|trinket.1.has_buff.mastery|trinket.1.has_buff.versatility|trinket.1.has_buff.haste|trinket.1.has_buff.crit)|trinket.1.is.mirror_of_fractured_tomorrows
         -- TODO
@@ -202,7 +196,7 @@ actionList.Combat = function()
             -- Module - Combatpotion Up
             -- potion,if=buff.dancing_rune_weapon.up
             if buff.dancingRuneWeapon.exists() then
-                module.CombatpotionUp()
+                module.CombatPotionUp()
             end
             -- Call Action List - Trinkets
             -- call_action_list,name=trinkets
@@ -447,7 +441,7 @@ actionList.Racials = function()
     end
     -- Arcane Pulse
     -- arcane_pulse,if=active_enemies>=2|runes<1&runic_power.deficit>60
-    if unit.race() == "VoidElf" and cast.able.arcanePulse() and ((#enemies.yards5f >= 2 or runes() < 1 and runicPower.deficit() > 60)) then
+    if unit.race() == "Nightborne" and cast.able.arcanePulse() and ((#enemies.yards5f >= 2 or runes() < 1 and runicPower.deficit() > 60)) then
         if cast.arcanePulse() then
             ui.debug("Casting Arcane Pulse [Racials]")
             return true

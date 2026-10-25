@@ -131,6 +131,17 @@ end
 --- Locals ---
 --------------
 -- BR API Locals
+-- Berserk or Incarnation, whichever is taken (SimC's bs_inc)
+local bsInc = {
+    exists = function() return buff.berserk.exists() or buff.incarnation.exists() end,
+    remains = function() return math.max(buff.berserk.remain(), buff.incarnation.remain()) end,
+}
+bsInc.remain = bsInc.remains
+local bsIncCd = {
+    remains = function() return math.max(cd.berserk.remains(), cd.incarnation.remains()) end,
+    duration = function() return math.max(cd.berserk.duration(), cd.incarnation.duration()) end,
+}
+
 local actionList = {}
 local comboPoints
 local energy
@@ -933,7 +944,7 @@ actionList.PreCombat = function()
                         and cast.able.prowl("player") and not buff.prowl.exists()
                         and (not unit.inCombat() and not buff.prowl.exists() and unit.enemyNear(20)) and ui.mode.prowl == 1
                         and (not unit.resting() or unit.isDummy("target"))
-                        and not buff.bsInc.exists()
+                        and not bsInc.exists()
                     then
                         if cast.prowl("player") then
                             ui.debug("Casting Prowl [Boss Pre-Pull]")
@@ -958,7 +969,7 @@ actionList.PreCombat = function()
                     -- * Prowl (Stealth)
                     if cast.able.prowl("player") and buff.catForm.exists() and (not unit.inCombat() and not buff.prowl.exists() and unit.enemyNear(20)) and ui.mode.prowl == 1
                         and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
-                        and not buff.bsInc.exists()
+                        and not bsInc.exists()
                     then
                         if cast.prowl("player") then
                             ui.debug("Casting Prowl [Pre-Combat]")
@@ -1032,7 +1043,7 @@ actionList.Combat = function()
         -- -- prowl,if=(buff.bs_inc.down|!in_combat)&!buff.prowl.up
         -- if cast.able.prowl("player") and buff.catForm.exists() and (not unit.inCombat() and not buff.prowl.exists() and unit.enemyNear(20))
         --     and ui.mode.prowl == 1 and not buff.prowl.exists() and not unit.resting()
-        --     and (((not buff.bsInc.exists() or not unit.inCombat()) and not buff.prowl.exists()))
+        --     and (((not bsInc.exists() or not unit.inCombat()) and not buff.prowl.exists()))
         -- then
         --     if cast.prowl("player") then
         --         ui.debug("Casting Prowl [Combat]")
@@ -1505,9 +1516,9 @@ actionList.SingleTarget = function()
             local applied = debuff.rake.applied(thisUnit) > 0 and debuff.rake.applied(thisUnit) or 1
             if cast.able.rake(thisUnit) and not (var.skipPlayerDoTs and unit.player(thisUnit))
                 and (unit.ttd(thisUnit) - debuff.rake.remains(thisUnit) > 3)
-                and (debuff.rake.calc(thisUnit) > applied
+                and (debuff.rake.calc() > applied
                     or (debuff.rake.remains(thisUnit) < 3
-                        and (debuff.rake.calc(thisUnit) / applied) >= 0.75))
+                        and (debuff.rake.calc() / applied) >= 0.75))
             then
                 if cast.rake(thisUnit) then
                     ui.debug("Casting Rake on " .. unit.name(thisUnit) .. " [Single]")
@@ -1759,34 +1770,6 @@ local function runRotation()
     if unit.inCombat() and ui.mode.bossPull == 1 then
         ui.setToggle("BossPull", 2)  -- Use API function to update toggle
         ui.debug("Boss Pull mode auto-disabled on combat start")
-    end
-
-    -- Add buff.bsInc.exists()
-    buff.bsInc = buff.bsInc or {}
-    if not buff.bsInc.exists then
-        buff.bsInc.exists = function()
-            return buff.berserk.exists() or buff.incarnation.exists()
-        end
-    end
-    -- Add buff.bsInc.remain()
-    if not buff.bsInc.remains then
-        buff.bsInc.remains = function()
-            return math.max(buff.berserk.remain(), buff.incarnation.remain())
-        end
-    end
-    -- Add cd.bsInc.remains()
-    cd.bsInc = cd.bsInc or {}
-    if not cd.bsInc.remains then
-        cd.bsInc.remains = function()
-            return math.max(cd.berserk.remains(), cd.incarnation.remains())
-        end
-    end
-    -- Add cd.bsInc.duration()
-    cd.bsInc = cd.bsInc or {}
-    if not cd.bsInc.duration then
-        cd.bsInc.duration = function()
-            return math.max(cd.berserk.duration(), cd.incarnation.duration())
-        end
     end
 
     -- ui.chatOverlay("Stealthing: "..tostring(buff.prowl.exists() or buff.shadowmeld.exists()))

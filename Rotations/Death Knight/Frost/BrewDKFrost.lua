@@ -232,7 +232,7 @@ local function runRotation()
                 end
 
                 -- Death Coil
-                if cast.able.deathCoil() and runicPower > 40 and (runes == 0 or runicPower >= 80) and not talent.frostStrike then
+                if cast.able.deathCoil() and runicPower > 40 and (runes == 0 or runicPower >= 80) and not spell.frostStrike.known() then
                     if cast.deathCoil() then
                         ui.debug("Casting Death Coil")
                         return true
@@ -251,13 +251,13 @@ local function runRotation()
                 -- end
 
                 -- Rune Strike / obliterate
-                if cast.able.runeStrike() and runes > 0 and not talent.obliterate then
+                if cast.able.runeStrike() and runes > 0 and not spell.obliterate.known() then
                     if cast.runeStrike() then
                         ui.debug("Casting Rune Strike")
                         return true
                     end
                 end
-                if talent.obliterate and cast.able.obliterate() and runes > 0 then
+                if cast.able.obliterate() and runes > 0 then
                     if cast.obliterate() then
                         ui.debug("Casting Obliterate")
                         return true

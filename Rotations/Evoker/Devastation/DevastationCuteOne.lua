@@ -435,9 +435,9 @@ actionList.AoE = function()
         end
     end
     -- Firestorm
-    -- firestorm,if=talent.raging_inferno&(cooldown.dragonrage.remains>=20|cooldown.dragonrage.remains<=10)&(buff.essence_burst.up|essence>=2|cooldown.dragonrage.remains<=10)|buff.snapfire.up
+    -- firestorm,if=talent.raging_inferno&(cooldown.dragonrage.remains>=20|cooldown.dragonrage.remains<=10)&(buff.essence_burst.up|essence>=2|cooldown.dragonrage.remains<=10)|buff.snapFire.up
     if cast.able.firestorm("target", "ground", 3, 8) and ((talent.ragingInferno and (cd.dragonrage.remains() >= 20 or cd.dragonrage.remains() <= 10)
-            and (buff.essenceBurst.exists() or essence() >= 2 or cd.dragonrage.remains() <= 10) or buff.snapfire.exists()))
+            and (buff.essenceBurst.exists() or essence() >= 2 or cd.dragonrage.remains() <= 10) or buff.snapFire.exists()))
     then
         if cast.firestorm("target", "ground", 3, 8) then
             ui.debug("Casting Firestorm [Aoe]")
@@ -488,8 +488,8 @@ actionList.AoE = function()
         end
     end
     -- Living Flame
-    -- living_flame,target_if=max:target.health.pct,if=talent.snapfire&buff.burnout.up
-    if cast.able.livingFlame(var.maxHpUnit) and talent.snapfire and buff.burnout.exists() then
+    -- living_flame,target_if=max:target.health.pct,if=talent.snapFire&buff.burnout.up
+    if cast.able.livingFlame(var.maxHpUnit) and talent.snapFire and buff.burnout.exists() then
         if cast.livingFlame(var.maxHpUnit) then
             ui.debug("Casting Living Flame [Aoe]")
             return true
@@ -588,7 +588,6 @@ actionList.Fb = function()
         end
         -- fire_breath,empower_to=3,target_if=max:target.health.pct,if=(talent.everburning_flame&buff.dragonrage.up&active_enemies>=5)|!talent.font_of_magic|(debuff.in_firestorm.up&talent.everburning_flame&active_enemies<=3)|(buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste)
         if (((talent.everburningFlame and buff.dragonrage.exists() and #enemies.yards25f >= 5) or not talent.fontOfMagic
-                or (debuff.inFirestorm.exists(units.dyn25) and talent.everburningFlame and #enemies.yards25f <= 3)
                 or (buff.dragonrage.remains() <= 3.25 * var.spellHaste and buff.dragonrage.remains() >= 2.5 * var.spellHaste)))
         then
             if cast.fireBreath("player", "cone", 1, 25) then
@@ -681,15 +680,15 @@ end -- End Action List - Trinkets
 actionList.ST = function()
     -- Use Item - Kharnalex The First Light
     -- use_item,name=kharnalex_the_first_light,if=!buff.dragonrage.up&debuff.shattering_star_debuff.down&raid_event.movement.in>6
-    if use.able.kharnalexTheFirstLight() and not buff.dragonrage.exists() and not debuff.shatteringStar.exists(units.dyn25f) then
+    if use.able.kharnalexTheFirstLight() and not buff.dragonrage.exists() and not debuff.shatteringStar.exists(units.dyn25) then
         if use.kharnalexTheFirstLight() then
             ui.debug("Using Kharnalex The First Light [St]")
             return true
         end
     end
     -- Firestorm
-    -- firestorm,if=buff.snapfire.up
-    if cast.able.firestorm("target", "ground", 1, 8) and buff.snapfire.exists() then
+    -- firestorm,if=buff.snapFire.up
+    if cast.able.firestorm("target", "ground", 1, 8) and buff.snapFire.exists() then
         if cast.firestorm("target", "ground", 1, 8) then
             ui.debug("Casting Firestorm [St]")
             return true
@@ -699,7 +698,7 @@ actionList.ST = function()
     -- dragonrage,if=cooldown.fire_breath.remains<4&cooldown.eternity_surge.remains<10&target.time_to_die>=32|fight_remains<32
     if ui.alwaysCdAoENever("Dragonrage", 1, 25) and cast.able.dragonrage()
         and ((cd.fireBreath.remains() < 4 and cd.eternitySurge.remains() < 10
-            and unit.ttd(units.dyn25f) >= 32 or unit.ttdGroup(40) < 32))
+            and unit.ttd(units.dyn25) >= 32 or unit.ttdGroup(40) < 32))
     then
         if cast.dragonrage() then
             ui.debug("Casting Dragonrage [St]")
@@ -724,7 +723,7 @@ actionList.ST = function()
         and ((not talent.dragonrage or var.nextDragonrage > var.drPrepTimeSt or not talent.animosity)
             and (buff.blazingShards.remains() < var.r1CastTime or buff.dragonrage.exists())
             and (cd.eternitySurge.exists() or not talent.eventHorizon or not buff.dragonrage.exists())
-            and (unit.ttd(units.dyn25f) >= 8 or unit.ttdGroup(40) < 30 or unit.isDummy("target")))
+            and (unit.ttd(units.dyn25) >= 8 or unit.ttdGroup(40) < 30 or unit.isDummy("target")))
     then
         if actionList.Fb() then return true end
     end
@@ -742,7 +741,7 @@ actionList.ST = function()
     -- call_action_list,name=es,if=(!talent.dragonrage|variable.next_dragonrage>variable.dr_prep_time_st|!talent.animosity)&(buff.blazing_shards.remains<variable.r1_cast_time|buff.dragonrage.up)&(target.time_to_die>=8|fight_remains<30)
     if ui.alwaysCdAoENever("Eternity Surge", 3, #enemies.yards25f) and ((not talent.dragonrage or var.nextDragonrage > var.drPrepTimeSt or not talent.animosity)
             and (buff.blazingShards.remains() < var.r1CastTime or buff.dragonrage.exists())
-            and (unit.ttd(units.dyn25f) >= 8 or unit.ttdGroup(40) < 30 or unit.isDummy("target")))
+            and (unit.ttd(units.dyn25) >= 8 or unit.ttdGroup(40) < 30 or unit.isDummy("target")))
     then
         if actionList.Es() then return true end
     end
@@ -770,49 +769,49 @@ actionList.ST = function()
     end
     -- Living Flame
     -- living_flame,if=buff.dragonrage.up&buff.dragonrage.remains<(buff.essence_burst.max_stack-buff.essence_burst.stack)*gcd.max&buff.burnout.up
-    if cast.able.livingFlame(units.dyn25f) and buff.dragonrage.exists()
+    if cast.able.livingFlame(units.dyn25) and buff.dragonrage.exists()
         and buff.dragonrage.remains() < (var.essenceBurstMaxStacks - buff.essenceBurst.stack()) * unit.gcd(true) and buff.burnout.exists()
     then
-        if cast.livingFlame(units.dyn25f) then
+        if cast.livingFlame(units.dyn25) then
             ui.debug("Casting Living Flame - Dragonrage Burnout [St]")
             return true
         end
     end
     -- Azure Strike
     -- azure_strike,if=buff.dragonrage.up&buff.dragonrage.remains<(buff.essence_burst.max_stack-buff.essence_burst.stack)*gcd.max
-    if cast.able.azureStrike(units.dyn25f) and buff.dragonrage.exists()
+    if cast.able.azureStrike(units.dyn25) and buff.dragonrage.exists()
         and buff.dragonrage.remains() < (var.essenceBurstMaxStacks - buff.essenceBurst.stack()) * unit.gcd(true)
     then
-        if cast.azureStrike(units.dyn25f) then
+        if cast.azureStrike(units.dyn25) then
             ui.debug("Casting Azure Strike - Dragonrage Essence Burst [St]")
             return true
         end
     end
     -- Living Flame
     -- living_flame,if=buff.burnout.up&(buff.leaping_flames.up&!buff.essence_burst.up|!buff.leaping_flames.up&buff.essence_burst.stack<buff.essence_burst.max_stack)&essence.deficit>=2
-    if cast.able.livingFlame(units.dyn25f) and ((buff.burnout.exists() and (buff.leapingFlames.exists()
+    if cast.able.livingFlame(units.dyn25) and ((buff.burnout.exists() and (buff.leapingFlames.exists()
                 and not buff.essenceBurst.exists() or not buff.leapingFlames.exists() and buff.essenceBurst.stack() < var.essenceBurstMaxStacks)
             and essence.deficit() >= 2))
     then
-        if cast.livingFlame(units.dyn25f) then
+        if cast.livingFlame(units.dyn25) then
             ui.debug("Casting Living Flame - Burnout [St]")
             return true
         end
     end
     -- Pyre
     -- pyre,if=debuff.in_firestorm.up&talent.raging_inferno&buff.charged_blast.stack==20&active_enemies>=2
-    if cast.able.pyre(units.dyn25f, "aoe", 1, 8) --[[and debuff.inFirestorm.exists(units.dyn25f)]] and talent.ragingInferno
+    if cast.able.pyre(units.dyn25, "aoe", 1, 8) --[[and debuff.inFirestorm.exists(units.dyn25)]] and talent.ragingInferno
         and buff.chargedBlast.stack() == 20 and #enemies.yards8t >= 2
     then
-        if cast.pyre(units.dyn25f, "aoe", 1, 8) then
+        if cast.pyre(units.dyn25, "aoe", 1, 8) then
             ui.debug("Casting Pyre [St]")
             return true
         end
     end
     -- Disintegrate
     -- disintegrate,chain=1,early_chain_if=evoker.use_early_chaining&ticks>=2&buff.dragonrage.up&(raid_event.movement.in>2|buff.hover.up),interrupt_if=evoker.use_clipping&buff.dragonrage.up&ticks>=2&(raid_event.movement.in>2|buff.hover.up),if=raid_event.movement.in>2|buff.hover.up
-    if cast.able.disintegrate(units.dyn25f) and var.moveCast then
-        if cast.disintegrate(units.dyn25f) then
+    if cast.able.disintegrate(units.dyn25) and var.moveCast then
+        if cast.disintegrate(units.dyn25) then
             ui.debug("Casting Disintegrate [St]")
             return true
         end
@@ -840,7 +839,7 @@ actionList.ST = function()
     -- Deep Breath
     -- deep_breath,if=!buff.dragonrage.up&talent.imminent_destruction&!debuff.shattering_star_debuff.up
     if ui.alwaysCdAoENever("Deep Breath", 3, #enemies.yards50r) and cast.able.deepBreath("groundLocation", var.deepBreathX, var.deepBreathY, 6)
-        and not buff.dragonrage.exists() and talent.imminentDestruction and not debuff.shatteringStar.exists(units.dyn40f)
+        and not buff.dragonrage.exists() and talent.imminentDestruction and not debuff.shatteringStar.exists(units.dyn40)
     then
         if cast.deepBreath("groundLocation", var.deepBreathX, var.deepBreathY, 6) then
             ui.debug("Casting Deep Breath - Imminent Destruction [St]")
@@ -849,15 +848,15 @@ actionList.ST = function()
     end
     -- Call Action List - Green
     -- call_action_list,name=green,if=talent.ancient_flame&!buff.ancient_flame.up&!buff.shattering_star_debuff.up&talent.scarlet_adaptation&!buff.dragonrage.up
-    if talent.ancientFlame and not buff.ancientFlame.exists() and not debuff.shatteringStar.exists(units.dyn25f) and talent.scarletAdaptation and not buff.dragonrage.exists() then
+    if talent.ancientFlame and not buff.ancientFlame.exists() and not debuff.shatteringStar.exists(units.dyn25) and talent.scarletAdaptation and not buff.dragonrage.exists() then
         if actionList.Green() then return true end
     end
     -- Living Flame
     -- living_flame,if=!buff.dragonrage.up|(buff.iridescence_red.remains>execute_time|buff.iridescence_blue.up)&active_enemies==1
-    if cast.able.livingFlame(units.dyn25f) and ((not buff.dragonrage.exists() or (buff.iridescenceRed.remains() > cast.time.livingFlame()
+    if cast.able.livingFlame(units.dyn25) and ((not buff.dragonrage.exists() or (buff.iridescenceRed.remains() > cast.time.livingFlame()
             or buff.iridescenceBlue.exists()) and #enemies.yards25f == 1))
     then
-        if cast.livingFlame(units.dyn25f) then
+        if cast.livingFlame(units.dyn25) then
             ui.debug("Casting Living Flame [St]")
             return true
         end

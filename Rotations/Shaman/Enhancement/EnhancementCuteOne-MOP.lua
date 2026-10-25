@@ -407,7 +407,7 @@ actionList.AOE = function()
     -- * Magma Totem
     -- magma_totem,if=active_enemies>5&!totem.fire.active
     if #enemies.yards8 > 5 and cast.able.magmaTotem("player")
-        and (not totem.fire.magma.exists() or totem.fire.magma.distance() > 8)
+        and (not totem.fire.magmaTotem.exists() or totem.fire.magmaTotem.distance() > 8)
         and unit.standingTime() > 1
     then
         if cast.magmaTotem("player") then ui.debug("Casting Magma Totem - 5+ Enemies [AOE]") return true end
@@ -760,7 +760,7 @@ actionList.Combat = function()
         -- # Link Stormlash totem cast to early Bloodlust, and ensure that only one Stormlash is used at a time.
         -- stormlash_totem,if=!active&!buff.stormlash.up&(buff.bloodlust.up|time>=60)
         if ui.alwaysCdNever("Stormlash Totem") and cast.able.stormlashTotem("player")
-            and not totem.air.stormlash.exists() and not buff.stormlash.exists()
+            and not totem.air.stormlashTotem.exists()
             and (buff.bloodlust.exists() or unit.combatTime() >= 60)
         then
             if cast.stormlashTotem("player") then
@@ -812,7 +812,7 @@ actionList.Combat = function()
         end
         -- * Fire Elemental Totem
         -- fire_elemental_totem,if=!active
-        if ui.alwaysCdNever("Fire Elemental") and cast.able.fireElementalTotem("player") and not totem.fireElemental.exists() then
+        if ui.alwaysCdNever("Fire Elemental") and cast.able.fireElementalTotem("player") and not totem.fire.fireElementalTotem.exists() then
             if cast.fireElementalTotem("player") then
                 ui.debug("Casting Fire Elemental Totem")
                 return true

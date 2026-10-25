@@ -111,8 +111,6 @@ local function options()
     ui.checkbox(section, "Chaos Nova")
     -- Disrupt
     ui.checkbox(section, "Disrupt")
-    -- Fel Eruption
-    ui.checkbox(section, "Fel Eruption")
     -- Sigil of Misery
     ui.checkbox(section, "Sigil of Misery")
     -- Interrupt Percentage
@@ -258,18 +256,6 @@ end     -- End Action List - Defensive
 -- Action List - Interrupts
 actionList.Interrupts = function()
     if ui.useInterrupt() then
-        -- Fel Eruption
-        if ui.checked("Fel Eruption") and talent.felEruption then
-            for i = 1, #enemies.yards20 do
-                local thisUnit = enemies.yards20[i]
-                if unit.interruptable(thisUnit, ui.value("Interrupt At")) and cast.able.felEruption(thisUnit) then
-                    if cast.felEruption(thisUnit) then
-                        ui.debug("Casting Fel Eruption")
-                        return true
-                    end
-                end
-            end
-        end
         -- Disrupt
         if ui.checked("Disrupt") then
             for i = 1, #enemies.yards10 do
@@ -425,7 +411,7 @@ actionList.Cooldown = function()
 
         -- Use Item - Elementium Pocket Anvil,Use Off Gcd=1
         -- use_item,name=elementium_pocket_anvil,use_off_gcd=1,if=!prev_gcd.1.fel_rush&gcd.remains
-        if use.able.elementiumPocketAnvil() and not cast.last.felRush(1) and cd.elementiumPocketAnvil.remains() then
+        if use.able.elementiumPocketAnvil() and not cast.last.felRush(1) and cd.elementiumPocketAnvil.remain() then
             if use.elementiumPocketAnvil() then
                 ui.debug("Using Elementium Pocket Anvil [Cooldown]")
                 return true
@@ -578,7 +564,7 @@ actionList.Combat = function()
     -- Auto Attack
     -- retarget_auto_attack,line_cd=1,target_if=min:debuff.burning_wound.remains,if=talent.burning_wound&talent.demon_blades&active_dot.burning_wound<(spell_targets>?3)
     if cast.able.autoAttack(var.lowestBurningWound) and ui.delay("AutoAttack0", 1) and talent.burningWound and talent.demonBlades
-        and debuff.burningWound.count(var.lowestBurningWound) < (math.max(#enemies.yards5, 3))
+        and debuff.burningWound.count() < (math.max(#enemies.yards5, 3))
     then
         -- unit.target(var.lowestBurningWound)
         if cast.autoAttack(var.lowestBurningWound) then
@@ -590,7 +576,7 @@ actionList.Combat = function()
     -- Auto Attack
     -- retarget_auto_attack,line_cd=1,target_if=min:!target.is_boss,if=talent.burning_wound&talent.demon_blades&active_dot.burning_wound=(spell_targets>?3)
     if cast.able.autoAttack(var.minTTDUnit) and ui.delay("AutoAttack1", 1) and talent.burningWound and talent.demonBlades
-        and debuff.burningWound.count(var.minTTDUnit) == (math.max(#enemies.yards5, 3))
+        and debuff.burningWound.count() == (math.max(#enemies.yards5, 3))
     then
         -- unit.target(var.minTTDUnit)
         if cast.autoAttack(var.minTTDUnit) then
@@ -627,7 +613,7 @@ actionList.Combat = function()
     -- Immolation Aura
     -- immolation_aura,if=talent.ragefire&active_enemies>=3&(cooldown.blade_dance.remains|debuff.essence_break.down)
     if cast.able.immolationAura("player", "aoe", 1, 8) and ((talent.ragefire and #enemies.yards8 >= 3
-            and (cd.bladeDance.remains() or not debuff.essenceBreak.exists(units.dyn8AoE))))
+            and (cd.bladeDance.remains() or not debuff.essenceBreak.exists(units.dyn8AOE))))
     then
         if cast.immolationAura("player", "aoe", 1, 8) then
             ui.debug("Casting Immolation Aura - Ragefire +3 | No Essence Break [Combat]")
@@ -642,7 +628,7 @@ actionList.Combat = function()
     -- Immolation Aura
     -- immolation_aura,if=talent.a_fire_inside&talent.inertia&buff.unbound_chaos.down&full_recharge_time<gcd.max*2&debuff.essence_break.down
     if cast.able.immolationAura("player", "aoe", 1, 8) and talent.aFireInside and talent.inertia and not buff.unboundChaos.exists()
-        and charges.immolationAura.timeTillFull() < unit.gcd(true) * 2 and not debuff.essenceBreak.exists(units.dyn8AoE)
+        and charges.immolationAura.timeTillFull() < unit.gcd(true) * 2 and not debuff.essenceBreak.exists(units.dyn8AOE)
     then
         if cast.immolationAura("player", "aoe", 1, 8) then
             ui.debug("Casting Immolation Aura - A Fire Inside Inertia [Combat]")
@@ -682,7 +668,7 @@ actionList.Combat = function()
     -- Immolation Aura
     -- immolation_aura,if=talent.inertia&(cooldown.eye_beam.remains<gcd.max*2|buff.metamorphosis.up)&cooldown.essence_break.remains<gcd.max*3&buff.unbound_chaos.down&buff.inertia.down&debuff.essence_break.down
     if cast.able.immolationAura("player", "aoe", 1, 8) and ((talent.inertia and (cd.eyeBeam.remains() < unit.gcd(true) * 2 or buff.metamorphosis.exists())
-            and cd.essenceBreak.remains() < unit.gcd(true) * 3 and not buff.unboundChaos.exists() and not buff.inertia.exists() and not debuff.essenceBreak.exists(units.dyn8AoE)))
+            and cd.essenceBreak.remains() < unit.gcd(true) * 3 and not buff.unboundChaos.exists() and not buff.inertia.exists() and not debuff.essenceBreak.exists(units.dyn8AOE)))
     then
         if cast.immolationAura("player", "aoe", 1, 8) then
             ui.debug("Casting Immolation Aura - Inertia [Combat]")
@@ -694,7 +680,7 @@ actionList.Combat = function()
     -- immolation_aura,if=talent.inertia&buff.unbound_chaos.down&(full_recharge_time<cooldown.essence_break.remains|!talent.essence_break)&debuff.essence_break.down&(buff.metamorphosis.down|buff.metamorphosis.remains>6)&cooldown.blade_dance.remains&(fury<75|cooldown.blade_dance.remains<gcd.max*2)
     if cast.able.immolationAura("player", "aoe", 1, 8) and ((talent.inertia and not buff.unboundChaos.exists()
             and (charges.immolationAura.timeTillFull() < cd.essenceBreak.remains() or not talent.essenceBreak)
-            and not debuff.essenceBreak.exists(units.dyn8AoE) and (not buff.metamorphosis.exists() or buff.metamorphosis.remains() > 6)
+            and not debuff.essenceBreak.exists(units.dyn8AOE) and (not buff.metamorphosis.exists() or buff.metamorphosis.remains() > 6)
             and cd.bladeDance.remains() and (fury() < 75 or cd.bladeDance.remains() < unit.gcd(true) * 2)))
     then
         if cast.immolationAura("player", "aoe", 1, 8) then
@@ -1069,7 +1055,7 @@ actionList.Combat = function()
     -- Immolation Aura
     -- immolation_aura,if=buff.immolation_aura.stack<buff.immolation_aura.max_stack&(!talent.ragefire|active_enemies>desired_targets|raid_event.adds.in>15)&buff.out_of_range.down&(!buff.unbound_chaos.up|!talent.unbound_chaos)&(recharge_time<cooldown.essence_break.remains|!talent.essence_break&cooldown.eye_beam.remains>recharge_time)
     if cast.able.immolationAura("player", "aoe", 1, 8) and ((buff.immolationAura.stack() < buff.immolationAura.stackMax()
-            and (not talent.ragefire or #enemies.yards8 > ui.value("Units to AoE")) and unit.distance(units.dyn8AoE) < 8
+            and (not talent.ragefire or #enemies.yards8 > ui.value("Units to AoE")) and unit.distance(units.dyn8AOE) < 8
             and (not buff.unboundChaos.exists() or not talent.unboundChaos) and (charges.immolationAura.recharge() < cd.essenceBreak.remains() or not talent.essenceBreak
                 and cd.eyeBeam.remains() > charges.immolationAura.recharge())))
     then
@@ -1140,7 +1126,7 @@ actionList.Combat = function()
     -- Demons Bite
     -- demons_bite,target_if=min:debuff.burning_wound.remains,if=talent.burning_wound&debuff.burning_wound.remains<4&active_dot.burning_wound<(spell_targets>?3)
     if cast.able.demonsBite(var.lowestBurningWound) and talent.burningWound and debuff.burningWound.remains(var.lowestBurningWound) < 4
-        and debuff.burningWound.count(var.lowestBurningWound) < (math.max(#enemies.yards5, 3))
+        and debuff.burningWound.count() < (math.max(#enemies.yards5, 3))
     then
         if cast.demonsBite(var.lowestBurningWound) then
             ui.debug("Casting Demons Bite - Low Burning Wounds [Combat]")
@@ -1167,7 +1153,7 @@ actionList.Combat = function()
 
     -- Sigil Of Flame
     -- sigil_of_flame,if=raid_event.adds.in>15&fury.deficit>=30&buff.out_of_range.down
-    if not unit.moving(units.dyn5) and #enemies.yards5 > 0 and fury.deficit() >= 30 and unit.distance(units.dyn8AoE) < 8 then
+    if not unit.moving(units.dyn5) and #enemies.yards5 > 0 and fury.deficit() >= 30 and unit.distance(units.dyn8AOE) < 8 then
         if cast.able.sigilOfFlame(units.dyn30, "ground", 1, 8) then
             if cast.sigilOfFlame(units.dyn30, "ground", 1, 8) then
                 ui.debug("Casting Sigil of Flame - Low Fury 2 [Combat]")

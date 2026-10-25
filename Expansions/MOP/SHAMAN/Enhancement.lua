@@ -41,6 +41,7 @@ br.lists.spells.SHAMAN[263] = {
                 -- lashingFlames = 334168,
             },
             glyphs    = {
+                glyphOfFireElementalTotem = 55455,
                 glyphOfFrostShock = 55443,
             },
             talents   = {

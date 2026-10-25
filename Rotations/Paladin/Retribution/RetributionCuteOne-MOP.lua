@@ -362,7 +362,7 @@ actionList.Combat    = function()
             -- * Inquisition
             -- inquisition,if=(buff.inquisition.down|buff.inquisition.remains<=2)&(holy_power>=3|target.time_to_die<holy_power*20|buff.divine_purpose.react)
             if cast.able.inquisition() then
-                if debuff.remain.inquisition(units.dyn5) <= 2
+                if buff.inquisition.remain() <= 2
                     and (holyPower() >= 3 or unit.ttd(units.dyn5) < holyPower() * 20 or buff.divinePurpose.exists())
                 then
                     if cast.inquisition() then

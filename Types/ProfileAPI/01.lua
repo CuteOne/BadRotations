@@ -51,6 +51,7 @@
 ---@field amplification T
 ---@field amplificationCore T
 ---@field amplifyCurse T
+---@field ancestralCall T
 ---@field ancestralGuidance T
 ---@field ancestralProtectionTotem T
 ---@field ancestralSpirit T
@@ -91,6 +92,7 @@
 ---@field arcaneMissiles T
 ---@field arcaneOrb T
 ---@field arcanePower T
+---@field arcanePulse T
 ---@field arcaneShot T
 ---@field arcaneTorrent T
 ---@field arcaneVigor T
@@ -151,6 +153,7 @@
 ---@field azureEssenceBurst T
 ---@field azureStrike T
 ---@field backstab T
+---@field bagOfTricks T
 ---@field balanceAffinity T
 ---@field balanceOfAllThings T
 ---@field banish T
@@ -433,6 +436,7 @@
 ---@field commanddemon T
 ---@field commanderOfTheDead T
 ---@field commandingShout T
+---@field concentrationAura T
 ---@field concussiveBlows T
 ---@field concussiveShot T
 ---@field conductiveEnergy T
@@ -864,6 +868,7 @@
 ---@field fireResistanceTotem T
 ---@field fireWithin T
 ---@field fireball T
+---@field fireblood T
 ---@field firestarter T
 ---@field firestorm T
 ---@field firstBlood T
@@ -1152,8 +1157,8 @@
 ---@field illidariKnowledge T
 ---@field illuminatedSigils T
 ---@field imbuementMastery T
----@field immenentDestruction T
 ---@field imminentDemise T
+---@field imminentDestruction T
 ---@field immolate T
 ---@field immolationAura T
 ---@field immolationTrap T
@@ -2536,6 +2541,7 @@
 ---@field astralAcceleration T
 ---@field astralShift T
 ---@field atonement T
+---@field augmentation T
 ---@field auraMastery T
 ---@field avatar T
 ---@field avengersValor T
@@ -3516,6 +3522,28 @@
 ---@field water T
 
 ---@class BR.Keys.Glyphs<T>
+---@field adrenalineRush T
+---@field ambush T
+---@field backstab T
+---@field blackout T
+---@field blind T
+---@field burnout T
+---@field cloakOfShadows T
+---@field cracklingFlames T
+---@field disguise T
+---@field exposedArmor T
+---@field fallowWings T
+---@field fanOfKnives T
+---@field fearsomeMetamorphosis T
+---@field feint T
+---@field felEnemies T
+---@field felTouchedSouls T
+---@field felWings T
+---@field fireElementalTotem T
+---@field fireFromHeavens T
+---@field flashBang T
+---@field frostShock T
+---@field garrote T
 ---@field glyphOfAdrenalineRush T
 ---@field glyphOfAmbush T
 ---@field glyphOfBackstab T
@@ -3533,6 +3561,7 @@
 ---@field glyphOfFelEnemies T
 ---@field glyphOfFelTouchedSouls T
 ---@field glyphOfFelWings T
+---@field glyphOfFireElementalTotem T
 ---@field glyphOfFireFromHeavens T
 ---@field glyphOfFlashBang T
 ---@field glyphOfFrostShock T
@@ -3558,6 +3587,27 @@
 ---@field glyphOfTricksOfTheTrade T
 ---@field glyphOfVanish T
 ---@field glyphOfWingedVengeance T
+---@field gouge T
+---@field hemorrhage T
+---@field kick T
+---@field killingSpree T
+---@field manaTouchedSouls T
+---@field pillarOfLight T
+---@field preparation T
+---@field risingTigerKick T
+---@field sap T
+---@field shadowDance T
+---@field shadowEnemies T
+---@field sliceAndDice T
+---@field sprint T
+---@field tatteredWings T
+---@field theFelImp T
+---@field theLuminousCharger T
+---@field theQueen T
+---@field thunderStrike T
+---@field tricksOfTheTrade T
+---@field vanish T
+---@field wingedVengeance T
 
 ---@class BR.Keys.Items<T>
 ---@field abyssalHealingPotion T
@@ -3622,6 +3672,7 @@
 ---@field flaskOfTheUndertow T
 ---@field flaskOfTheVastHorizon T
 ---@field flaskOfTheWhisperedPact T
+---@field fyralathTheDreamrender T
 ---@field galecallersBeak T
 ---@field galecallersBoon T
 ---@field gladiatorsBadge T
@@ -3661,6 +3712,7 @@
 ---@field manaGem T
 ---@field manariTrainingAmulet T
 ---@field manicGrieftorch T
+---@field markOfDargrul T
 ---@field mirrorOfFracturedTomorrows T
 ---@field mythicKeystone T
 ---@field neuralSynapseEnhancer T
@@ -3684,6 +3736,7 @@
 ---@field repurposedFelFocuser T
 ---@field ringOfCollapsingFutures T
 ---@field rotcrustedVoodooDoll T
+---@field screamingBlackDragonscale T
 ---@field shadowCoreOil T
 ---@field shiverVenomRelic T
 ---@field shroudOfResolve T
@@ -4556,8 +4609,8 @@
 ---@field illidariKnowledge integer
 ---@field illuminatedSigils integer
 ---@field imbuementMastery integer
----@field immenentDestruction integer
 ---@field imminentDemise integer
+---@field imminentDestruction integer
 ---@field impale integer
 ---@field impendingVictory integer
 ---@field implant integer
@@ -7556,8 +7609,8 @@ local C79 = {}
 ---@field illidariKnowledge boolean # true while the talent is taken
 ---@field illuminatedSigils boolean # true while the talent is taken
 ---@field imbuementMastery boolean # true while the talent is taken
----@field immenentDestruction boolean # true while the talent is taken
 ---@field imminentDemise boolean # true while the talent is taken
+---@field imminentDestruction boolean # true while the talent is taken
 ---@field impale boolean # true while the talent is taken
 ---@field impendingVictory boolean # true while the talent is taken
 ---@field implant boolean # true while the talent is taken

@@ -391,7 +391,7 @@ end         -- End Action List - PreCombat
 actionList.Combat = function()
     -- Variable - Fd Ready
     -- variable,name=fd_ready,value=talent.fiery_brand&talent.fiery_demise&active_dot.fiery_brand>0
-    var.fdReady = talent.fieryBrand and talent.fieryDemise and debuff.fieryBrand.count(units.dyn5) > 0
+    var.fdReady = talent.fieryBrand and talent.fieryDemise and debuff.fieryBrand.count() > 0
 
     -- Variable - Dont Cleave
     -- variable,name=dont_cleave,value=(cooldown.fel_devastation.remains<=(action.soul_cleave.execute_time+gcd.remains))&fury<80
@@ -475,7 +475,7 @@ actionList.Combat = function()
 
     -- Call Action List - Fiery Demise
     -- call_action_list,name=fiery_demise,if=talent.fiery_brand&talent.fiery_demise&active_dot.fiery_brand>0
-    if talent.fieryBrand and talent.fieryDemise and debuff.fieryBrand.count(units.dyn5) > 0 then
+    if talent.fieryBrand and talent.fieryDemise and debuff.fieryBrand.count() > 0 then
         if actionList.FieryDemise() then return true end
     end
 
@@ -605,7 +605,7 @@ actionList.FieryDemise = function()
 
     -- Sigil Of Flame
     -- sigil_of_flame,if=talent.ascending_flame|active_dot.sigil_of_flame=0
-    if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame("target", "ground", 1, 8) and ((talent.ascendingFlame or debuff.sigilOfFlame.count(units.dyn30AoE) == 0)) then
+    if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame("target", "ground", 1, 8) and ((talent.ascendingFlame or debuff.sigilOfFlame.count() == 0)) then
         if cast.sigilOfFlame("target", "ground", 1, 8) then
             ui.debug("Casting Sigil Of Flame [Fiery Demise]")
             return true
@@ -721,7 +721,7 @@ end -- End Action List - Filler
 actionList.Maintenance = function()
     -- Fiery Brand
     -- fiery_brand,if=talent.fiery_brand&((active_dot.fiery_brand=0&(cooldown.sigil_of_flame.remains<=(execute_time+gcd.remains)|cooldown.soul_carver.remains<=(execute_time+gcd.remains)|cooldown.fel_devastation.remains<=(execute_time+gcd.remains)))|(talent.down_in_flames&full_recharge_time<=(execute_time+gcd.remains)))
-    if cast.able.fieryBrand() and ((talent.fieryBrand and ((debuff.fieryBrand.count(units.dyn5) == 0
+    if cast.able.fieryBrand() and ((talent.fieryBrand and ((debuff.fieryBrand.count() == 0
                 and (cd.sigilOfFlame.remains() <= (unit.ttd(units.dyn5) + unit.gcd()) or cd.soulCarver.remains() <= (unit.ttd(units.dyn5) + unit.gcd())
                     or cd.felDevastation.remains() <= (unit.ttd(units.dyn5) + unit.gcd())))
             or (talent.downInFlames and charges.fieryBrand.timeTillFull() <= (unit.ttd(units.dyn5) + unit.gcd())))))
@@ -734,7 +734,7 @@ actionList.Maintenance = function()
 
     -- Sigil Of Flame
     -- sigil_of_flame,if=talent.ascending_flame|active_dot.sigil_of_flame=0
-    if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame("target", "ground", 1, 8) and ((talent.ascendingFlame or debuff.sigilOfFlame.count(units.dyn5) == 0)) then
+    if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame("target", "ground", 1, 8) and ((talent.ascendingFlame or debuff.sigilOfFlame.count() == 0)) then
         if cast.sigilOfFlame("target", "ground", 1, 8) then
             ui.debug("Casting Sigil Of Flame [Maintenance]")
             return true
@@ -1001,6 +1001,7 @@ local function runRotation()
     units.get(5)
     units.get(8, true)
     units.get(20)
+    units.get(30, true)
     -- Enemies Listss
     enemies.get(5)
     enemies.get(8)

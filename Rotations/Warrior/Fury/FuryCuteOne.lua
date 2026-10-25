@@ -572,7 +572,7 @@ actionList.SlayerSt = function()
     end
     -- Execute
     -- execute,if=debuff.marked_for_execution.stack=3|(talent.ashen_juggernaut&buff.ashen_juggernaut.remains<=gcd&buff.enrage.up)
-    if cast.able.execute() and ((debuff.markedForExecution.count(units.dyn5) == 3
+    if cast.able.execute() and ((debuff.markedForExecution.stack(units.dyn5) == 3
             or (talent.ashenJuggernaut and buff.ashenJuggernaut.remains() <= unit.gcd(true) and buff.enrage.exists())))
     then
         if cast.execute() then
@@ -1206,12 +1206,6 @@ end -- End Action List - Variables
 -- Action List - PreCombat
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then
-        -- Module - Phial Up
-        -- flask
-        module.PhialUp()
-        -- Module - Imbue Up
-        -- augmentation
-        module.ImbueUp()
         -- Variable - Trinket 1 Exclude
         -- variable,name=trinket_1_exclude,value=trinket.1.is.treacherous_transmitter
         var.trinket1Exclude = false -- TODO: Optional replace with UI option, review SimC for detailed notes
