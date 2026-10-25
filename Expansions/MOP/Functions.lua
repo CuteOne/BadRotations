@@ -4,10 +4,6 @@ local _, br = ...
 
 if not br.isMOP then return end
 
-br.api.expansion = "MOP"
-br.api.comboPointsOnTarget    = true   -- combo points are stored on the target until 6.0.2 (Warlords of Draenor)
-
-
 -- Talent System - MoP/Classic uses tier/column system
 br.api.getTalentInfo = function(spec, spellTalents)
     local talents = {}
@@ -36,7 +32,3 @@ br.api.getTalentInfo = function(spec, spellTalents)
 
     return talents
 end
-
-
--- Print version info on load
-br.api.printCompatLoaded()

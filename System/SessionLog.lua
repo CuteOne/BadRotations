@@ -33,13 +33,6 @@ local function sortedKeys(t)
 	return keys
 end
 
-local function flavorName()
-	for _, flavor in ipairs({ "Forever", "Retail", "MOP", "Cata", "Wrath", "BC", "Classic" }) do
-		if br["is" .. flavor] then return flavor end
-	end
-	return "unknown (project " .. tostring(br._G.WOW_PROJECT_ID) .. ")"
-end
-
 local function yesNo(value) return value and "yes" or "no" end
 
 -- The other addons loaded, by folder name
@@ -99,7 +92,7 @@ local function writeEnvironment()
 	local version = brVersion() .. " (" .. brCommit() .. ")"
 	local clientVersion, build, buildDate, interface = G.GetBuildInfo()
 	line(("BadRotations %s on %s: client %s, build %s (%s), interface %s, locale %s"):format(tostring(version),
-		flavorName(), tostring(clientVersion), tostring(build), tostring(buildDate), tostring(interface),
+		br.api.flavourName, tostring(clientVersion), tostring(build), tostring(buildDate), tostring(interface),
 		tostring(G.GetLocale and G.GetLocale())))
 	line(("unlocker %s: protected call %s, appends to files %s, secret values on this client %s"):format(
 		tostring(br.unlockers.selected), yesNo(br.unlockers.protect ~= nil), yesNo(br.unlockers.nativeAppend),

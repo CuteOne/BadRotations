@@ -53,8 +53,6 @@ Expansions\Retail\Pulse.lua
 Expansions\Retail\Professions.lua
 Expansions\MOP\Functions.lua
 Expansions\TBC\Functions.lua
-Expansions\Classic\Functions.lua
-Expansions\Forever\Functions.lua
 
 BadRotations.lua
 System\Version.lua

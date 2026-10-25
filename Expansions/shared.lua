@@ -218,7 +218,6 @@ do
     end
 end
 
-
 -- C_Spell namespace shims.
 -- Polyfill methods missing on older clients. Guards ensure a shim is only
 -- installed when the native method is absent; safe to run on all clients.
@@ -472,16 +471,5 @@ do
             -- answer rather than the honest "no value" that callers handle.
             return nil
         end
-    end
-end
-
--- The standard compatibility-layer banner. Called at the end of each expansion's Functions.lua
--- once br.api.expansion has been set. BR's chat (System/Logging.lua) loads later in the TOC, so the
--- line waits in br.earlyMessages and Logging.lua prints it.
-br.api.printCompatLoaded = function()
-    if br.api.compat and br.api.compat.getVersionInfo then
-        local versionInfo = br.api.compat:getVersionInfo()
-        br.earlyMessages = br.earlyMessages or {}
-        br.earlyMessages[#br.earlyMessages + 1] = "API: " .. br.api.expansion .. " compatibility layer loaded (Build: " .. versionInfo.build .. ")"
     end
 end

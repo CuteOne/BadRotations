@@ -4,12 +4,6 @@ local _, br = ...
 
 if not br.isRetail then return end
 
--- Capability flags for Retail
-br.api.hasHeroTalentTrees     = true   -- hero talent trees (Dragonflight+)
-br.api.hasCharmBreakTracking  = true   -- C_LossOfControl available; charm-break spells can fire while charmed
-br.api.hasBFAItemChannels     = true   -- BFA trinket/essence follow-up channel lock (Azerite Beam, Cyclotronic, Azshara)
-br.api.expansion              = "Retail"
-
 local api = br.api.wow
 
 -- Returns the effective spec id for the player (forces Initial for all classes below level 10 in Retail)
@@ -51,8 +45,6 @@ end
 api.UnitDebuff = function(unit, index, filter)
     return unpackAura("GetDebuffDataByIndex", unit, index, filter)
 end
-
-
 
 -- Talent System - Retail uses C_Traits API (Dragonflight talent trees)
 br.api.getTalentInfo = function(spec, spellTalents)
@@ -119,6 +111,3 @@ br.api.getTalentInfo = function(spec, spellTalents)
 
     return talents
 end
-
--- Print version info on load
-br.api.printCompatLoaded()
