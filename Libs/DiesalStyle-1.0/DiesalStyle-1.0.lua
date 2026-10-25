@@ -82,29 +82,22 @@ local function getMedia(mediaType, name)
   return Media[mediaType][name]  -- returns the candidates list (or nil)
 end
 
--- Helper function for LibSharedMedia - returns the first candidate path
-local function getMediaPath(mediaType, name)
-  local candidates = getMedia(mediaType, name)
-  if not candidates then return nil end
-  if type(candidates) == 'table' then return candidates[1] end
-  return candidates  -- old format string
-end
-
 -- LibSharedMedia registration. Only a path that actually loads is registered: the first media path
 -- may not exist (the client only loads media from its own Interface folder), newer LibSharedMedia
 -- versions report fonts that don't load, and LibSharedMedia keeps the first path registered for a
 -- name, so registering a dead path early would also hide a working one registered later.
 local probeFont, probeTexture
--- Never raises: a probe that can't be made or used just means "doesn't load".
+-- Never raises: a probe that can't be made or used just means "doesn't load". Fonts are probed with a
+-- FontString: its SetFont reports success (a Font object's returns nothing), or raises (Forever).
 local function loads(mediaType, path)
   if mediaType == 'font' then
     if not probeFont then
-      local ok, font = pcall(CreateFont, "DiesalStyleMediaProbe")
-      probeFont = ok and type(font) == 'table' and font or nil
+      local ok, fontString = pcall(TextureFrame.CreateFontString, TextureFrame)
+      probeFont = ok and type(fontString) == 'table' and fontString or nil
     end
     if not probeFont then return false end
-    local ok, result = pcall(probeFont.SetFont, probeFont, path, 12, '') -- raises (Forever) or returns false
-    return ok and result ~= false
+    local ok, result = pcall(probeFont.SetFont, probeFont, path, 12, '')
+    return ok and result == true
   end
   if not probeTexture then
     local ok, texture = pcall(TextureFrame.CreateTexture, TextureFrame)
@@ -118,6 +111,33 @@ local function loads(mediaType, path)
   end)
   return ok and loaded
 end
+
+-- Sets a font object to the first of the candidate paths that loads, or the game's default font. SetFont
+-- with a missing file doesn't always raise, and GetFont then still reports the path, so a dead path
+-- would be kept and every text using the font drawn blank: loads() checks first.
+local DEFAULT_FONT = "Fonts\\FRIZQT__.TTF"
+local function setLoadingFont(fontObject, candidates, size, flags)
+  if not fontObject then return end
+  if type(candidates) == 'string' then candidates = { candidates } end
+  for _, path in ipairs(candidates or {}) do
+    if loads('font', path) then
+      fontObject:SetFont(path, size, flags or '')
+      return
+    end
+  end
+  pcall(fontObject.SetFont, fontObject, DEFAULT_FONT, size, flags or '')
+end
+
+-- DiesalStyle's own font objects, from the media registered now
+local function setFonts()
+  setLoadingFont(DiesalFontNormal, getMedia('font', 'calibrib'), 11, '')
+  local standard0755 = getMedia('font', 'Standard0755')
+  setLoadingFont(DiesalFontPixel, standard0755, 8, '')
+  setLoadingFont(DiesalFontPixelOutLine, standard0755, 8, "OUTLINE, MONOCHROME")
+  if DiesalFontPixelOutLine then DiesalFontPixelOutLine:SetSpacing(2) end
+  setLoadingFont(DiesalFontPixel2, getMedia('font', 'FFF Intelligent Thin Condensed'), 8, "OUTLINE, MONOCHROME")
+end
+
 local SHARED_MEDIA = {
   -- LibSharedMedia type, LibSharedMedia name, DiesalStyle media name
   { 'font', 'Calibri Bold', 'calibrib' },
@@ -627,25 +647,7 @@ do -- | Set Fonts |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   CreateFont("DiesalFontPixelOutLine")
   CreateFont("DiesalFontPixel2")
 
-  -- Safe font initialization with fallback to default WoW font
-  local function safeSetFont(fontObject, path, size, flags)
-    local status, err = pcall(fontObject.SetFont, fontObject, path, size, flags or '')
-    if not status then
-      -- If custom font fails, try WoW default
-      pcall(fontObject.SetFont, fontObject, "Fonts\\FRIZQT__.TTF", size, flags or '')
-    end
-  end
-
-  local calibribPath = getMediaPath('font', 'calibrib')
-  safeSetFont(DiesalFontNormal, calibribPath or "Fonts\\FRIZQT__.TTF", 11, '')
-
-  local standard0755Path = getMediaPath('font', 'Standard0755')
-  safeSetFont(DiesalFontPixel, standard0755Path or "Fonts\\FRIZQT__.TTF", 8, '')
-  safeSetFont(DiesalFontPixelOutLine, standard0755Path or "Fonts\\FRIZQT__.TTF", 8, "OUTLINE, MONOCHROME")
-  if DiesalFontPixelOutLine then DiesalFontPixelOutLine:SetSpacing(2) end
-
-  local fffIntelligentPath = getMediaPath('font', 'FFF Intelligent Thin Condensed')
-  safeSetFont(DiesalFontPixel2, fffIntelligentPath or "Fonts\\FRIZQT__.TTF", 8, "OUTLINE, MONOCHROME")
+  setFonts()
 end
 -- ~~| DiesalStyle API |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 --[[ Texture style table format
@@ -1258,53 +1260,7 @@ function DiesalStyle:ReloadMedia()
 end
 
 function DiesalStyle:ReinitializeFonts()
-  -- Safe font setter with fallback - tries multiple paths
-  local function safeSetFont(fontObject, absolutePath, relativePath, size, flags)
-    if not fontObject then
-      return
-    end
-
-    local fontSet = false
-
-    -- Try 1: Absolute path (for unlockers that allow it)
-    if absolutePath and not fontSet then
-      local status = pcall(fontObject.SetFont, fontObject, absolutePath, size, flags or '')
-      if status then
-        local verifyPath = fontObject:GetFont()
-        if verifyPath then
-          fontSet = true
-        end
-      end
-    end
-
-    -- Try 2: Relative path (standard WoW format)
-    if relativePath and not fontSet then
-      local status = pcall(fontObject.SetFont, fontObject, relativePath, size, flags or '')
-      if status then
-        local verifyPath = fontObject:GetFont()
-        if verifyPath then
-          fontSet = true
-        end
-      end
-    end
-
-    -- Try 3: WoW default fallback
-    if not fontSet then
-      pcall(fontObject.SetFont, fontObject, "Fonts\\FRIZQT__.TTF", size, flags or '')
-    end
-  end
-
-  -- Reinitialize all global fonts with the new media paths
-  local calibribCandidates = getMedia('font', 'calibrib') or {}
-  safeSetFont(DiesalFontNormal, calibribCandidates[1], calibribCandidates[2], 11, '')
-
-  local standard0755Candidates = getMedia('font', 'Standard0755') or {}
-  safeSetFont(DiesalFontPixel, standard0755Candidates[1], standard0755Candidates[2], 8, '')
-  safeSetFont(DiesalFontPixelOutLine, standard0755Candidates[1], standard0755Candidates[2], 8, "OUTLINE, MONOCHROME")
-  if DiesalFontPixelOutLine then DiesalFontPixelOutLine:SetSpacing(2) end
-
-  local fffIntelligentCandidates = getMedia('font', 'FFF Intelligent Thin Condensed') or {}
-  safeSetFont(DiesalFontPixel2, fffIntelligentCandidates[1], fffIntelligentCandidates[2], 8, "OUTLINE, MONOCHROME")
+  setFonts()
 end
 
 -- deprecated

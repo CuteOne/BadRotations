@@ -73,43 +73,6 @@ function profileUI:createOptions(rotation, spec)
 
     br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
     br.ui:checkWindowStatus("profile")
-    profileUI:checkDropdowns("built") -- TEMP diagnostic
-end
-
--- TEMP diagnostic: the profile window's dropdowns showed no text (Anniversary 2026-10-25). Session.log
--- gets what each dropdown holds right after the window is built, 2 s later and whenever it's shown.
-local function describeDropdown(label, dropdown)
-    if dropdown == nil then return label .. " missing" end
-    local fontString = dropdown.text
-    local text = fontString and fontString:GetText()
-    local font, size = nil, nil
-    if fontString then font, size = fontString:GetFont() end
-    local list = dropdown.settings and dropdown.settings.list
-    local listCount = 0
-    if type(list) == "table" then for _ in pairs(list) do listCount = listCount + 1 end end
-    local selected
-    for _, item in ipairs(dropdown.children or {}) do
-        if item.settings and item.settings.selected then selected = tostring(item.settings.key) .. "=" .. tostring(item.settings.value) end
-    end
-    return ("%s: text %q, font %s %s, items %d, list %d, selected %s, shown %s"):format(label, tostring(text),
-        tostring(font), tostring(size), #(dropdown.children or {}), listCount, tostring(selected),
-        tostring(dropdown.frame and dropdown.frame:IsVisible()))
-end
-
-function profileUI:checkDropdowns(when)
-    local function note()
-        local profile, config = br.ui.window.profile, br.ui.window.config
-        br.log.session:note("UI check (" .. when .. "): " .. describeDropdown("profile pages", profile and profile.pageDD)
-            .. " | " .. describeDropdown("profile rotation", profile and profile.rotationDD)
-            .. " | " .. describeDropdown("config pages", config and config.pageDD))
-    end
-    note()
-    br.game.C_Timer.After(2, function() when = when .. " +2s"; note() end)
-    local parent = br.ui.window.profile and br.ui.window.profile.parent
-    if parent and parent.frame and not parent.diagnosticHooked then
-        parent.diagnosticHooked = true
-        parent.frame:HookScript("OnShow", function() profileUI:checkDropdowns("shown") end)
-    end
 end
 
 --- The rotation's option pages as { { page name, build function } }. options is the function that
