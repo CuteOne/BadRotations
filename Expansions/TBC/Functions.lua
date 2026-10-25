@@ -2,10 +2,10 @@
 -- Handles API differences in TBC
 local _, br = ...
 
-if br.api.expansion ~= "TBC" then return end
+if br.client.flavour ~= "TBC" then return end
 
 -- The unlocker's version of a game name, else the client's (Expansions/Layers.lua)
-local base = br.api.base
+local base = br.client.base
 
 -- C_Spell shim overrides for TBC.
 -- C_Spell does not exist natively in TBC Classic (it was introduced in Shadowlands).
@@ -13,7 +13,7 @@ local base = br.api.base
 -- and usability, causing the cast gate to fire spells too rapidly (depleting energy)
 -- or to miss legitimate energy/rage checks. Override with raw _G APIs that work reliably.
 do
-    local cs = br.api.wow.C_Spell
+    local cs = br.client.polyfills.C_Spell
 
     -- GetSpellCooldown: NN shim may return startTime==0 even when a spell is on GCD,
     -- making getSpellCD() always 0. That causes getSpellCD(spellID) <= updateRate to

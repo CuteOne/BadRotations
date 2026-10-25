@@ -92,11 +92,11 @@ local function writeEnvironment()
 	local version = brVersion() .. " (" .. brCommit() .. ")"
 	local clientVersion, build, buildDate, interface = G.GetBuildInfo()
 	line(("BadRotations %s on %s: client %s, build %s (%s), interface %s, locale %s"):format(tostring(version),
-		br.api.flavourName, tostring(clientVersion), tostring(build), tostring(buildDate), tostring(interface),
+		br.client.flavourName, tostring(clientVersion), tostring(build), tostring(buildDate), tostring(interface),
 		tostring(G.GetLocale and G.GetLocale())))
 	line(("unlocker %s: protected call %s, appends to files %s, secret values on this client %s"):format(
 		tostring(br.unlockers.selected), yesNo(br.unlockers.protect ~= nil), yesNo(br.unlockers.nativeAppend),
-		yesNo(br.hasSecretValues)))
+		yesNo(br.client.hasSecretValues)))
 	local base, sep = br.functions.misc:getAddonPath()
 	line("BadRotations folder " .. base .. ", logs in " .. base .. sep .. "Logs")
 	log:notePlayer("player")

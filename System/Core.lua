@@ -88,7 +88,7 @@ local function update(_, elapsed)
     bootstrap:advance()
     if not br.unlocked then return end
     -- Paused while the game hides values from BR (secret values, System/Secrets.lua)
-    local readable = br.api.canPulse == nil or br.api.canPulse()
+    local readable = br.secrets.canPulse == nil or br.secrets.canPulse()
     br.lifecycle:run("frame", elapsed or 0, core:isPowerOn() and readable)
     if bootstrap:isPlayerReady() then
         if core:isPowerOff() then

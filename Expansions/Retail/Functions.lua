@@ -2,13 +2,13 @@
 -- Handles API differences in Retail (Dragonflight/The War Within/etc.)
 local _, br = ...
 
-if not br.isRetail then return end
+if not br.client.isRetail then return end
 
 -- The unlocker's version of a game name, else the client's (Expansions/Layers.lua)
-local base = br.api.base
+local base = br.client.base
 
 -- Returns the effective spec id for the player (forces Initial for all classes below level 10 in Retail)
-br.api.getEffectiveSpecID = function()
+br.client.getEffectiveSpecID = function()
     local class  = select(2, br.game.UnitClass("player"))
     local level  = br.game.UnitLevel("player")
     local specID = br.game.C_SpecializationInfo.GetSpecializationInfo(br.game.C_SpecializationInfo.GetSpecialization())
@@ -22,7 +22,7 @@ br.api.getEffectiveSpecID = function()
 end
 
 -- Talent System - Retail uses C_Traits API (Dragonflight talent trees)
-br.api.getTalentInfo = function(spec, spellTalents)
+br.client.getTalentInfo = function(spec, spellTalents)
     local talents = {}
 
     -- Initial profiles (spec > 1400) don't have talents

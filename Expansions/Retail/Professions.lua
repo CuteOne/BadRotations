@@ -2,7 +2,7 @@
 -- Expansions/Retail/Options.lua (Other Features).
 local _, br = ...
 
-if not br.isRetail then return end
+if not br.client.isRetail then return end
 
 local LEATHER_SCRAPS = 110610 -- Raw Beast Hide Scraps (Warlords of Draenor): ten combine into a hide
 local SCRAPS_NEEDED = 10
@@ -27,8 +27,8 @@ local BAITS = {
     { item = 173043, buff = 331698 }, -- Elysian Thade Bait
 }
 
-br.api.professionSteps = br.api.professionSteps or {}
-local steps = br.api.professionSteps
+br.client.professionSteps = br.client.professionSteps or {}
+local steps = br.client.professionSteps
 
 -- Leather Scraps
 steps[#steps + 1] = function(_, totals)

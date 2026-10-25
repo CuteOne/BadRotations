@@ -1,7 +1,7 @@
 -- Retail-only work each BR tick (a tick step, br.lifecycle; before the rotation).
 local _, br = ...
 
-if not br.isRetail then return end
+if not br.client.isRetail then return end
 
 -- Quaking (Mythic+ affix): stop a cast or channel that the quake would interrupt (Quaking Helper,
 -- Expansions/Retail/Options.lua)

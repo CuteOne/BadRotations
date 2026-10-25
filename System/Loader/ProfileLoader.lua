@@ -17,7 +17,7 @@ br.loader.settingsFile = "None.lua"
 -- Spec folder under Rotations/<Class>/: the spec name on expansions with sub-specs,
 -- otherwise the class folder itself (Classic-era profiles live in Rotations/<Class>/<Class>/).
 local function getFolderSpecName(class, specID)
-    if not br.api.hasSubSpecs then return class end
+    if not br.client.rules.hasSubSpecs then return class end
     for k, v in pairs(br.lists.spec[class]) do
         if v == specID then return tostring(k) end
     end
@@ -130,7 +130,7 @@ function br.loader.registerRotation(def)
     loading.seen[#loading.seen + 1] = { file = file, name = def.name, expansion = def.expansion }
 
     local specID = br.loader.selectedSpecID
-    if not matches(def.specID, specID) or not matches(def.expansion, br.api.expansion) then
+    if not matches(def.specID, specID) or not matches(def.expansion, br.client.flavour) then
         return false
     end
     br.loader.rotations[specID] = br.loader.rotations[specID] or {}
@@ -182,7 +182,7 @@ function profileLoader:loadProfiles()
                 for _, r in ipairs(loading.seen) do
                     found[#found + 1] = r.name .. " (" .. listText(r.expansion) .. ")"
                 end
-                warn("no rotation for spec " .. specID .. " on " .. br.api.expansion .. ". Found: " .. table.concat(found, ", "))
+                warn("no rotation for spec " .. specID .. " on " .. br.client.flavour .. ". Found: " .. table.concat(found, ", "))
             end
         end
     else

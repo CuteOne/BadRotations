@@ -13,7 +13,7 @@ br.unlockers.raw = nil
 
 -- Unlocker adapters, in priority order. Each adapter file (Unlockers/*.lua)
 -- defines br.unlockers:<fn>(): it sets up its functions (written into br.game, they land in
--- br.unlockers.api, Expansions/Flavours.lua) and returns true only when its
+-- br.unlockers.functions, Expansions/Flavours.lua) and returns true only when its
 -- unlocker is present, and returns false quietly otherwise. Detection and the
 -- "no unlocker" case are handled here, not by any adapter.
 local adapters = {
@@ -43,9 +43,9 @@ end
 unlockers.nativeAppend = false
 -- Once, when the adapter is picked (loadUnlockerAPI runs until one is)
 local function emulateAppend()
-    local write, read = br.api.base.WriteFile, br.api.base.ReadFile
+    local write, read = br.client.base.WriteFile, br.client.base.ReadFile
     if unlockers.nativeAppend or write == nil or read == nil then return end
-    br.api.overrides.WriteFile = function(path, text, append, ...)
+    br.client.overrides.WriteFile = function(path, text, append, ...)
         if append then
             local ok, current = pcall(read, path)
             if ok and type(current) == "string" then text = current .. text end

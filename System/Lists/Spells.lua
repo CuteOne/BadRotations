@@ -6,9 +6,9 @@ local _, br = ...
 --   CLASS/Class.lua     (once per login; class never changes mid-session)
 --   CLASS/SpecName.lua  (once per spec; cached so spec re-visits skip the disk read)
 --
--- Classic/TBC have no spec system (br.api.hasSubSpecs == false):
+-- Classic/TBC have no spec system (br.client.rules.hasSubSpecs == false):
 --   only Global.lua + CLASS/Class.lua are loaded.
--- MOP/Retail (br.api.hasSubSpecs == true):
+-- MOP/Retail (br.client.rules.hasSubSpecs == true):
 --   Global.lua + CLASS/Class.lua + CLASS/<SpecName>.lua are loaded.
 
 if br.lists == nil then br.lists = {} end
@@ -48,7 +48,7 @@ end
 -- Called once after the unlocker is ready. Loads Global.lua + the player's
 -- current class (and spec, on MOP/Retail).
 function br.lists:loadExpansionSpells()
-    local expansion = br.api.expansion
+    local expansion = br.client.flavour
     if not expansion or expansion == "Unknown" then
         local label = expansion or "Unknown"
         br.log:warning(label .. " spell lists not yet implemented!")
@@ -86,7 +86,7 @@ function br.lists:loadExpansionSpells()
     end
 
     -- 3. CLASS/SpecName.lua — only on expansions with a spec system
-    if br.api.hasSubSpecs then
+    if br.client.rules.hasSubSpecs then
         local specName = sanitizeSpecName(br.loader.selectedSpec or "")
         if specName ~= "" then
             br.lists:loadSpecSpells(specName)
@@ -95,22 +95,22 @@ function br.lists:loadExpansionSpells()
 end
 
 -- Lazy-loads a single spec file. Safe to call multiple times; skips if already
--- loaded this session. Only meaningful when br.api.hasSubSpecs == true.
+-- loaded this session. Only meaningful when br.client.rules.hasSubSpecs == true.
 function br.lists:loadSpecSpells(specName)
-    if not br.api.hasSubSpecs then return end
+    if not br.client.rules.hasSubSpecs then return end
 
     specName = sanitizeSpecName(specName)
     if specName == "" or br.lists._loadedSpecs[specName] then return end
 
     local base, sep = getFilesLocation()
-    local expBase = base .. sep .. "Expansions" .. sep .. br.api.expansion
+    local expBase = base .. sep .. "Expansions" .. sep .. br.client.flavour
     local class   = br.game.select(2, br.game.UnitClass("player"))
     if not class then return end
 
     local specPath = expBase .. sep .. class .. sep .. specName .. ".lua"
-    if loadFile(specPath, br.api.expansion .. " " .. class .. " " .. specName) then
+    if loadFile(specPath, br.client.flavour .. " " .. class .. " " .. specName) then
         br.lists._loadedSpecs[specName] = true
     else
-        br.log:warning(specName .. ".lua not found for " .. class .. " in " .. br.api.expansion)
+        br.log:warning(specName .. ".lua not found for " .. class .. " in " .. br.client.flavour)
     end
 end

@@ -41,7 +41,7 @@ function profileUI:buildBaseOptionsPage(player)
     player.module.BasicHealing(section_module)
     br.ui:text(section_module, "===Combat Options===")
     player.module.CombatPotionUp(section_module) -- Mists of Pandaria
-    if br.isMOP then -- checked here too, so the primary stat (secret in combat on Forever) is only read on MoP
+    if br.client.isMOP then -- checked here too, so the primary stat (secret in combat on Forever) is only read on MoP
         player.module.FlaskUp(br.functions.unit:getPrimaryStat(), section_module) -- Mists of Pandaria
     end
     player.module.BasicTrinkets(nil, section_module)

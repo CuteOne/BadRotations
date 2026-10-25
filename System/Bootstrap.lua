@@ -27,7 +27,7 @@ end
 
 -- Current spec ID and settings key (class name on expansions without sub-specs)
 local function resolveSpec()
-	local specID = (br.api and br.api.getEffectiveSpecID and br.api.getEffectiveSpecID())
+	local specID = (br.api and br.client.getEffectiveSpecID and br.client.getEffectiveSpecID())
 		or br.game.C_SpecializationInfo.GetSpecializationInfo(br.game.C_SpecializationInfo.GetSpecialization())
 	local specName = select(2, br.game.GetSpecializationInfoForSpecID(specID)) or "Initial"
 	if specName == "" then specName = "Initial" end

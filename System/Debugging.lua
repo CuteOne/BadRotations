@@ -451,7 +451,7 @@ local function meleeState(player)
         "target fleeing " .. tostring(br.functions.unit:isFleeing("target")),
     }
     -- The target's unit flags where the unlocker reads them (to confirm the fleeing bit, 0x00800000
-    -- on TrinityCore-era servers, before br.api.fleeingUnitFlag is set)
+    -- on TrinityCore-era servers, before br.client.fleeingUnitFlag is set)
     if br.game.UnitFlags then
         local ok, flags = pcall(br.game.UnitFlags, "target")
         if ok and type(flags) == "number" then
@@ -633,7 +633,7 @@ end
 -- (Retail since 6.0.2)? Forever's tooltips list them as a cost like Retail's, unconfirmed. When the
 -- target changes while the player has combo points, Melee.log gets the points before and after,
 -- read both ways (GetComboPoints on the target, and the player's ComboPoints power, type 4).
--- br.api.comboPointsOnTarget (Expansions/<Name>) follows the answer.
+-- br.client.rules.comboPointsOnTarget (Expansions/<Name>) follows the answer.
 ----------------------------------------------------------------------------------------------------
 local comboBefore, comboPowerBefore = 0, 0
 local comboLogged = 0
@@ -649,7 +649,7 @@ comboFrame:SetScript("OnEvent", function()
     comboLogged = comboLogged + 1
     local onTarget, power = readCombo()
     meleeWrite(("combo points on a target switch: before %d on the target / %d as power -> after %d on the new target / %d as power (on-target flag %s)"):format(
-        comboBefore, comboPowerBefore, onTarget, power, tostring(br.api.comboPointsOnTarget)))
+        comboBefore, comboPowerBefore, onTarget, power, tostring(br.client.rules.comboPointsOnTarget)))
 end)
 
 -- Called each tick (Player:startRotation): the points before any switch

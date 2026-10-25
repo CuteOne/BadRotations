@@ -9,7 +9,7 @@ local _, br = ...
 -- call), some unwrap the values; with neither, BR can't use them.
 --
 -- On those clients every WoW function BR reads through br.game is checked here. The first result
--- BR can't use pauses BR (br.api.canPulse, checked by System/Core.lua); the calls that returned
+-- BR can't use pauses BR (br.secrets.canPulse, checked by System/Core.lua); the calls that returned
 -- such values are re-checked every 2 seconds, and BR resumes once they all return usable values.
 -- BR is either fully working or paused, never running on values it can't read.
 --
@@ -32,7 +32,7 @@ function secrets.canUse(value)
 	return true
 end
 
-if not br.hasSecretValues or not issecretvalue then return end
+if not br.client.hasSecretValues or not issecretvalue then return end
 
 local canUse = secrets.canUse
 local type, select, pairs, pcall, tostring = type, select, pairs, pcall, tostring
@@ -151,7 +151,7 @@ local function report(name, fn, n, a1, a2, a3, ...)
 end
 
 -- BR's pulse gate: false while any recorded call still returns values BR can't use.
-function br.api.canPulse()
+function br.secrets.canPulse()
 	if probeCount == 0 then return true end
 	local now = base("GetTime")()
 	if now < nextCheck then return false end
@@ -292,7 +292,7 @@ local replaced = {
 }
 
 -- C_* namespaces: BR sees each through a proxy whose functions are checked. Reads and writes go
--- to the real table (or the expansion's proxy in br.api.wow), which is never modified by this.
+-- to the real table (or the expansion's proxy in br.client.polyfills), which is never modified by this.
 local namespaceProxies = setmetatable({}, { __mode = "k" })
 local function namespace(real, name)
 	local proxy = namespaceProxies[real]

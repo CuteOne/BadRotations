@@ -23,7 +23,7 @@ end
 -- unless an earlier entry came from the spec list).
 local function getSources(spec)
     -- Lazy-load the spec's spell file if not yet cached (MOP/Retail only)
-    if br.api.hasSubSpecs and br.lists and br.lists.loadSpecSpells then
+    if br.client.rules.hasSubSpecs and br.lists and br.lists.loadSpecSpells then
         br.lists:loadSpecSpells(br.loader.selectedSpec)
     end
     local playerClass = select(2, br.game.UnitClass('player'))
@@ -171,7 +171,7 @@ end
 -- @param spec Spec ID
 -- @return table allTalents as reported by the expansion's talent system
 function spellCompiler:compileTalents(player, spec)
-    local allTalents = br.api.getTalentInfo(spec, player.spells.talents)
+    local allTalents = br.client.getTalentInfo(spec, player.spells.talents)
     if player.talent == nil then player.talent = {} end
 
     validateTalents(allTalents, spec)
@@ -198,7 +198,7 @@ end
 --- Sets player.heroTree[name] for the active hero talent tree (expansions with hero trees only).
 -- @param player The br.player object being built
 function spellCompiler:compileHeroTree(player)
-    if not br.api.hasHeroTalentTrees then return end
+    if not br.client.rules.hasHeroTalentTrees then return end
     if not br.game.C_ClassTalents or not br.game.C_ClassTalents.GetActiveHeroTalentSpec then return end
     if not br.lists or not br.lists.heroSpec then return end
 
@@ -216,7 +216,7 @@ end
 -- with spell ranks, otherwise the entry unchanged.
 -- @param id Spell ID or table of rank IDs
 function spellCompiler:resolve(id)
-    if br.api.hasSpellRanks and type(id) == "table" then
+    if br.client.rules.hasSpellRanks and type(id) == "table" then
         return br.functions.spell:resolveRank(id)
     end
     return id

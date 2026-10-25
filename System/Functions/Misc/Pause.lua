@@ -122,7 +122,7 @@ local function standingReason(now)
 	-- "Bypass CC Pause" option to let Cast.lua's per-spell cannotCast() gate
 	-- handle the MC instead of halting the entire rotation here.
 	if br.game.UnitIsCharmed("player")
-		and (not br.api.hasCharmBreakTracking or not br.functions.misc:isChecked("Bypass CC Pause"))
+		and (not br.client.rules.hasCharmBreakTracking or not br.functions.misc:isChecked("Bypass CC Pause"))
 	then
 		return "charmed", true
 	end
@@ -157,7 +157,7 @@ function misc:pauseReason(skipCastingCheck)
 	-- and Azshara's Font of Power / Latent Arcana (296962) each trigger a
 	-- follow-up channel that must complete uninterrupted. misc.pauseCast
 	-- stores the timestamp at which the follow-up finishes.
-	if br.api.hasBFAItemChannels and not skipCastingCheck then
+	if br.client.rules.hasBFAItemChannels and not skipCastingCheck then
 		local sb    = br.lists.spells.Shared.Shared.buffs
 		local items = br.lists.items
 		local lastCast = br.functions.lastCast.lastCastTable.tracker[1]

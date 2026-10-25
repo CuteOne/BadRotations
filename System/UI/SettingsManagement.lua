@@ -18,7 +18,7 @@ end
 -- TBC/Classic  (hasSubSpecs = false) → returns the formatted class name ("Shaman", "Death Knight", …)
 -- so all specs share one folder and the key is stable across respecs.
 function settingsManagement:normalizeSpecKey(rawSpec)
-	if not br.api.hasSubSpecs then
+	if not br.client.rules.hasSubSpecs then
 		return getClassFolderName()
 	end
 	return rawSpec
@@ -45,12 +45,12 @@ local function legacyRoot()
 	return base .. s .. "Settings" .. s, s
 end
 
--- Settings/<Flavour>/: each WoW flavour (br.api.expansion: Retail, Classic, TBC, MOP, Forever) keeps
+-- Settings/<Flavour>/: each WoW flavour (br.client.flavour: Retail, Classic, TBC, MOP, Forever) keeps
 -- its own settings, so profiles and characters of one flavour never read another's
 local function settingsRoot()
 	local legacy, s = legacyRoot()
 	checkDirectory(legacy)
-	local root = legacy .. (br.api.expansion or "Unknown") .. s
+	local root = legacy .. (br.client.flavour or "Unknown") .. s
 	checkDirectory(root)
 	return root, s
 end
@@ -178,7 +178,7 @@ local function loadLive(path)
 	file = oldPath and tableLoad(oldPath)
 	if file and not tookOver[path] then
 		tookOver[path] = true
-		br.log:say("Settings", "Took over " .. br.log.highlight(oldPath) .. " for " .. tostring(br.api.expansion)
+		br.log:say("Settings", "Took over " .. br.log.highlight(oldPath) .. " for " .. tostring(br.client.flavour)
 			.. " (the old file is kept).")
 	end
 	return file
@@ -257,7 +257,7 @@ function settingsManagement:checkDirectories(folder, class, spec, profile, insta
 	-- TBC/Classic have no sub-specializations: always use the class name as the spec folder
 	-- so settings live at Settings/Shaman/Shaman/Profile/ (not Settings/Shaman/Enhancement/Profile/).
 	-- This matches the rotation folder layout where hasSubSpecs = false uses the class folder.
-	if not br.api.hasSubSpecs then
+	if not br.client.rules.hasSubSpecs then
 		spec = getFolderClassName(class)
 	else
 		if spec == nil then

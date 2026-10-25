@@ -1,18 +1,18 @@
 -- Retail-only Bot Options (Mythic+ affixes, dungeon and raid mechanics).
--- System/UI/Windows/Config.lua calls br.api.botOptions[<page>](section) at the end of that page; the
+-- System/UI/Windows/Config.lua calls br.client.botOptions[<page>](section) at the end of that page; the
 -- options go in the page's own section, so their saved values stay where they were.
 local _, br = ...
 
-if not br.isRetail then return end
+if not br.client.isRetail then return end
 
-br.api.botOptions = br.api.botOptions or {}
+br.client.botOptions = br.client.botOptions or {}
 
-br.api.botOptions["Enemies Engine"] = function(section)
+br.client.botOptions["Enemies Engine"] = function(section)
     br.ui:spinner(section, "Bursting Stack Limit", { value = 2, min = 1, max = 10, step = 1, checkbox = false,
         tip = "**Requires Safe Damage Check** - Set to desired limit, will still dps targets but not kill until below limit." })
 end
 
-br.api.botOptions["Healing Options"] = function(section)
+br.client.botOptions["Healing Options"] = function(section)
     br.ui:spinner(section, "Bwonsamdi's Wrath HP", { value = 30, min = 1, checkbox = false,
         tip = "Set HP to decurse Bwonsamdi's Wrath (Mythic Conclave)" })
     br.ui:spinner(section, "Reaping", { value = 20, min = 1, checkbox = false, tip = "Set how many stacks of reaping needed to dispel." })
@@ -26,7 +26,7 @@ br.api.botOptions["Healing Options"] = function(section)
         tip = "Set how long to stop healing tank before Decaying Strike is cast." })
 end
 
-br.api.botOptions["Other Features"] = function(professions, window)
+br.client.botOptions["Other Features"] = function(professions, window)
     -- Profession Helper's Retail-only items (Expansions/Retail/Professions.lua)
     br.ui:checkbox(professions, "Leather Scraps", { tip = "Combine Raw Beast Hide Scraps. Profession Helper must be checked." })
     br.ui:checkbox(professions, "Fish Oil", { tip = "Turn Battle for Azeroth fish into Aromatic Fish Oil. Profession Helper must be checked." })

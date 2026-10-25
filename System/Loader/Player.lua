@@ -177,10 +177,10 @@ function Player:runModules()
 	end
 	if not self.unit.inCombat() then
 		-- Module Auto Mythic+ Keystone (Retail)
-		if br.isRetail then self.module.autoKeystone() end
+		if br.client.isRetail then self.module.autoKeystone() end
 	else
 		-- Module - Combatpotion Up (Mists of Pandaria)
-		if br.isMOP then self.module.CombatPotionUp() end
+		if br.client.isMOP then self.module.CombatPotionUp() end
 		-- Module - Basic Trinkets
 		if not self.localTrinkets then
 			self.module.BasicTrinkets()

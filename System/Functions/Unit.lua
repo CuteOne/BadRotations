@@ -604,8 +604,8 @@ function unit:isFleeing(thisUnit)
 		fleeEmoteAt[guid] = nil
 	end
 	-- The server's fleeing unit flag, where the unlocker reads unit flags and the expansion has
-	-- confirmed the bit (br.api.fleeingUnitFlag)
-	local flag = br.api.fleeingUnitFlag
+	-- confirmed the bit (br.client.fleeingUnitFlag)
+	local flag = br.client.fleeingUnitFlag
 	if flag and br.game.UnitFlags then
 		local flags = br.game.UnitFlags(thisUnit)
 		if type(flags) == "number" and bit.band(flags, flag) ~= 0 then return "flee" end

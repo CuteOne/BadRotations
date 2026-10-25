@@ -130,7 +130,7 @@ br.api.buffs = function(buff, k, v)
         -- A higher rank already on the unit (same name, higher spellId) is left alone; a lower rank,
         -- from anyone, is upgraded straight away. (If a rank ID ever misleads, the game refuses the
         -- cast and the aura-bounce memory holds it until that aura ends.)
-        if (br.api.hasSpellRanks and sourceUnit == nil) then
+        if (br.client.rules.hasSpellRanks and sourceUnit == nil) then
             local auraInfo = br.functions.aura:UnitBuffID(thisUnit, v)
             if auraInfo and auraInfo.spellId and auraInfo.spellId > v then
                 return false

@@ -6,7 +6,7 @@ local ProfessionHelper = br.misc.ProfessionHelper
 -- recast delay. It mills and prospects what the game's tooltip marks Millable / Prospectable, so
 -- every flavour and expansion works without item lists; disenchants the listed crafts
 -- (br.lists.professions.disenchant); and picks and opens locked boxes. Expansions add their own
--- steps to br.api.professionSteps (Expansions/Retail/Professions.lua).
+-- steps to br.client.professionSteps (Expansions/Retail/Professions.lua).
 
 -- When the helper last acted. A loot window that opens within OWN_LOOT seconds of that is the
 -- helper's (milling, prospecting, a lockbox) and it empties it; any other window is left alone.
@@ -125,7 +125,7 @@ function ProfessionHelper:ProfessionHelper()
 	end
 	if lastAction and lastAction > now - misc:getValue("Profession Helper") then return end
 	local slots, totals = br.functions.item:getBagItems()
-	if runSteps(steps, slots, totals) or runSteps(br.api.professionSteps, slots, totals) then
+	if runSteps(steps, slots, totals) or runSteps(br.client.professionSteps, slots, totals) then
 		lastAction = now
 	end
 end

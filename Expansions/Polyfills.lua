@@ -1,15 +1,15 @@
 -- Polyfills: the modern game API on clients that lack it
 -- BR is written against the modern API (C_Spell, C_UnitAuras, C_QuestLog, C_Item, ...). Each polyfill
 -- here is installed only where the client lacks that function, has the signature Blizzard documents,
--- and builds the answer from the client's older API; it reads br.api.base, so it wraps an unlocker's
+-- and builds the answer from the client's older API; it reads br.client.base, so it wraps an unlocker's
 -- version too. Fixes for one client's bugs in a modern function (TBC's cooldowns) live in that
 -- client's Expansions/<name>/Functions.lua.
 -- Load order in .toc: Layers.lua → Flavours.lua → Polyfills.lua → Retail / MOP / TBC Functions.lua
 local _, br = ...
 
 -- The unlocker's version of a game name, else the client's (Expansions/Layers.lua)
-local base = br.api.base
-local api = br.api.wow
+local base = br.client.base
+local api = br.client.polyfills
 
 -- UnitPhaseReason: why the unit is in another phase, nil when it's in the player's (Enum.PhaseReason;
 -- 0 = Phasing). On a client without it, from the old UnitInPhase.
@@ -23,7 +23,7 @@ end
 -- C_UnitAuras namespace shims: the aura readers on clients without them, built from the
 -- pre-Shadowlands multi-return UnitAura/UnitBuff/UnitDebuff (the AuraData table's fields).
 do
-    local cua = br.api.wow.C_UnitAuras
+    local cua = br.client.polyfills.C_UnitAuras
 
     local function buildAuraRecord(rawGlobal, unit, index, filter, isHarmful)
         local fn = base[rawGlobal]
@@ -97,11 +97,11 @@ end
 -- Polyfill methods missing on older clients. Guards ensure a shim is only
 -- installed when the native method is absent; safe to run on all clients.
 do
-    local cs = br.api.wow.C_Spell
+    local cs = br.client.polyfills.C_Spell
 
     -- GetSpellInfo: the SpellInfo table (name, iconID, originalIconID, castTime, minRange, maxRange,
     -- spellID). Built from the old multi-return where the client lacks it; where the client gives
-    -- minRange and maxRange the other way round (br.api.spellRangeSwapped: Classic, TBC) they are
+    -- minRange and maxRange the other way round (br.client.rules.spellRangeSwapped: Classic, TBC) they are
     -- swapped back. Elsewhere the client's own is used as it is.
     if not (base.C_Spell and base.C_Spell.GetSpellInfo) then
         cs.GetSpellInfo = function(spell)
@@ -111,7 +111,7 @@ do
             return { name = name, iconID = icon, originalIconID = originalIcon or icon, castTime = castTime,
                 minRange = minRange, maxRange = maxRange, spellID = spellID }
         end
-    elseif br.api.spellRangeSwapped then
+    elseif br.client.rules.spellRangeSwapped then
         cs.GetSpellInfo = function(spell)
             local info = base.C_Spell.GetSpellInfo(spell)
             if info == nil then return nil end
@@ -214,7 +214,7 @@ end
 -- suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questID); IsComplete finds the quest's
 -- entry in the log.
 do
-    local cq = br.api.wow.C_QuestLog
+    local cq = br.client.polyfills.C_QuestLog
     local native = base.C_QuestLog or {}
 
     if not native.GetNumQuestLogEntries then
@@ -252,7 +252,7 @@ end
 -- The proxies (Flavours.lua) look up the client's namespace table as it was at load, so a namespace an
 -- unlocker created later wouldn't be seen; none does.
 do
-    local ca = br.api.wow.C_AddOns
+    local ca = br.client.polyfills.C_AddOns
 
     if not (base.C_AddOns and base.C_AddOns.IsAddOnLoaded) then
         ca.IsAddOnLoaded = function(name)
@@ -279,7 +279,7 @@ end
 --   GetActiveSpecGroup -> 1 (no dual spec)
 --   GetSpecializationInfo -> nil; the spec name then becomes "Initial" (System/Bootstrap.lua)
 do
-    local cs = br.api.wow.C_SpecializationInfo
+    local cs = br.client.polyfills.C_SpecializationInfo
 
     if not (base.C_SpecializationInfo and base.C_SpecializationInfo.GetSpecialization) then
         cs.GetSpecialization = function()
@@ -312,7 +312,7 @@ end
 -- C_Container namespace shims: the old globals under the namespace names. GetContainerItemInfo
 -- turns the old multi-return into the namespace's table (nil for an empty slot).
 do
-    local cc = br.api.wow.C_Container
+    local cc = br.client.polyfills.C_Container
 
     if not (base.C_Container and base.C_Container.GetContainerNumSlots) then
         cc.GetContainerNumSlots = function(bagID)
@@ -389,7 +389,7 @@ end
 -- C_Item namespace shims: the old globals (GetItemIcon for GetItemIconByID) on clients without them.
 -- The old globals are deprecated on Retail, where these branches never run.
 do
-    local ci = br.api.wow.C_Item
+    local ci = br.client.polyfills.C_Item
 
     if not (base.C_Item and base.C_Item.GetItemIconByID) then
         ci.GetItemIconByID = function(itemID)
@@ -439,7 +439,7 @@ end
 -- numbered maps differently, so a translation would give a plausible but wrong map; every caller
 -- handles nil (the maps BR checks for are Retail zones).
 do
-    local cm = br.api.wow.C_Map
+    local cm = br.client.polyfills.C_Map
 
     if not (base.C_Map and base.C_Map.GetBestMapForUnit) then
         cm.GetBestMapForUnit = function(_)

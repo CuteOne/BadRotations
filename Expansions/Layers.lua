@@ -3,23 +3,23 @@
 -- after it reads the game through br.game. Needs nothing from the client.
 local _, br = ...
 
-br.api = br.api or {}
+br.client = br.client or {}
 
 -- br.game: the game's names as BR sees them. A name resolves through four layers, first match wins:
---   br.api.overrides  BR's own versions of game names (its tagged print, WriteFile's append)
---   br.api.wow        polyfills: the modern API where the client lacks it (Polyfills.lua, <name>/Functions.lua)
---   br.unlockers.api  what the unlocker adapter installs: Unlockers/*.lua write into br.game, which lands here
+--   br.client.overrides  BR's own versions of game names (its tagged print, WriteFile's append)
+--   br.client.polyfills        polyfills: the modern API where the client lacks it (Polyfills.lua, <name>/Functions.lua)
+--   br.unlockers.functions  what the unlocker adapter installs: Unlockers/*.lua write into br.game, which lands here
 --   the client's own globals
--- br.api.base is the two lower layers (the unlocker's version, else the client's). Polyfills read
+-- br.client.base is the two lower layers (the unlocker's version, else the client's). Polyfills read
 -- through it, so they wrap the unlocker's function or namespace instead of replacing it.
 local game = _G
 br.unlockers = br.unlockers or {}
-br.unlockers.api = br.unlockers.api or setmetatable({}, { __index = game })
-br.api.base = br.unlockers.api
-br.api.overrides = br.api.overrides or {}
-br.api.wow = br.api.wow or {}
+br.unlockers.functions = br.unlockers.functions or setmetatable({}, { __index = game })
+br.client.base = br.unlockers.functions
+br.client.overrides = br.client.overrides or {}
+br.client.polyfills = br.client.polyfills or {}
 do
-    local overrides, polyfills, unlocked = br.api.overrides, br.api.wow, br.unlockers.api
+    local overrides, polyfills, unlocked = br.client.overrides, br.client.polyfills, br.unlockers.functions
     br.game = setmetatable({}, {
         __index = function(_, name)
             local value = overrides[name]
@@ -36,8 +36,8 @@ end
 -- <name>/Functions.lua) is the polyfill; any other method comes from the base namespace, the unlocker's
 -- (NN's C_Spell) or else the client's, looked up when called, so an unlocker installed later is seen.
 for _, name in ipairs({ "C_Spell", "C_UnitAuras", "C_QuestLog", "C_Container", "C_SpellBook", "C_AddOns", "C_SpecializationInfo", "C_Item", "C_Map" }) do
-    br.api.wow[name] = setmetatable({}, { __index = function(_, method)
-        local namespace = br.api.base[name]
+    br.client.polyfills[name] = setmetatable({}, { __index = function(_, method)
+        local namespace = br.client.base[name]
         return namespace and namespace[method]
     end })
 end

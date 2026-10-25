@@ -13,7 +13,7 @@ function br.ui:createConfigWindow()
     local section
     -- Options an expansion adds at the end of a page (Expansions/<Name>/Options.lua)
     local function expansionOptions(page)
-        local add = br.api.botOptions and br.api.botOptions[page]
+        local add = br.client.botOptions and br.client.botOptions[page]
         if add then add(section, br.ui.window.config) end
     end
 
@@ -172,7 +172,7 @@ function br.ui:createConfigWindow()
         -- Every settings file (Bot, Base and Rotation Options) for moving or sharing them
         section = br.ui:section("Export/Import from Settings Folder", { window = br.ui.window.config })
         br.ui:text(section, "Export/Import all settings for this profile:")
-        br.ui:text(section, "Settings/" .. tostring(br.api.expansion) .. "/Exported Settings/<Class>/<Spec>/" .. tostring(br.loader.selectedProfileName))
+        br.ui:text(section, "Settings/" .. tostring(br.client.flavour) .. "/Exported Settings/<Class>/<Spec>/" .. tostring(br.loader.selectedProfileName))
         y = br.ui.elementOptions.nextRowY(section)
         br.ui:createButton(section, "Export", 10, y, function()
             settings:cleanSettings()

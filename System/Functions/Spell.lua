@@ -370,7 +370,7 @@ end
 function spell:getDamageRacialName(race)
 	if race == "Orc" then return "Blood Fury" end
 	if race == "Troll" then return "Berserking" end
-	if br.isForever then
+	if br.client.isForever then
 		if race == "NightElf" then return "Elune's Light" end
 		if race == "Gnome" then return "Eureka!" end
 	end
@@ -460,7 +460,7 @@ end
 -- @param spellIDOrTable - A spell ID (number) or table of spell IDs {rank1, rank2, ...}
 -- @return spellID - The highest rank spell ID that the player knows, or the original ID if not a table
 function spell:getHighestKnownRank(spellIDOrTable)
-    if not br.api.hasSpellRanks then
+    if not br.client.rules.hasSpellRanks then
         return type(spellIDOrTable) == "table" and spellIDOrTable[1] or spellIDOrTable
     end
 
@@ -497,7 +497,7 @@ end
 -- @param spellIDOrTable - A spell ID (number) or table of spell IDs
 -- @return number - The highest rank number known (1-based), or 0 if none known
 function spell:getKnownRank(spellIDOrTable)
-    if not br.api.hasSpellRanks then
+    if not br.client.rules.hasSpellRanks then
         return self:isKnown(type(spellIDOrTable) == "table" and spellIDOrTable[1] or spellIDOrTable) and 1 or 0
     end
 
@@ -692,7 +692,7 @@ end
 -- @param spellIDOrTable - A spell ID (number) or table of spell IDs {rank1, rank2, ...}
 -- @param rank - The rank number (1-based index)
 function spell:getSpellRank(spellIDOrTable, rank)
-    if not br.api.hasSpellRanks or type(spellIDOrTable) ~= "table" then return spellIDOrTable end
+    if not br.client.rules.hasSpellRanks or type(spellIDOrTable) ~= "table" then return spellIDOrTable end
     local asked = math.max(1, math.min(tonumber(rank) or 1, #spellIDOrTable))
     for i = asked, 1, -1 do
         if self:isKnown(spellIDOrTable[i]) then return spellIDOrTable[i] end
@@ -714,7 +714,7 @@ function spell:isKnown(spellID)
 	if spellID == nil then return false end
 
 	-- In Classic/TBC, spell ID is rank-specific so check by ID not by name
-	if br.api.hasSpellRanks then
+	if br.client.rules.hasSpellRanks then
 		-- Check if this specific spell ID is known
 		return br.game.IsPlayerSpell(tonumber(spellID)) or br.game.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID, "spell")
 	end
@@ -776,7 +776,7 @@ end
 
 -- if br.functions.spell:isKnown(106832) then
 -- function spell:isKnown(spellID)
--- 	local baseSpellID = br.api.wow.FindBaseSpellByID(spellID)
+-- 	local baseSpellID = br.client.polyfills.FindBaseSpellByID(spellID)
 -- 	local _, _, spellInBookType = br.functions.spell:getSpellInSpellBook(spellID)
 -- 	return spellID ~= nil and spellInBookType ~= "Future Spell" and
 -- 		( --[[spellInBookType ~= nil or]] br.game.IsPlayerSpell(tonumber(spellID))

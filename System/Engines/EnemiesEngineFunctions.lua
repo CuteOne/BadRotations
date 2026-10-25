@@ -484,7 +484,7 @@ end
 
 -- True when the target holds the player's combo points (Classic-era: stored on it, lost on a switch)
 local function targetHoldsComboPoints()
-	return br.api and br.api.comboPointsOnTarget
+	return br.api and br.client.rules.comboPointsOnTarget
 		and (tonumber(br.game.GetComboPoints and br.game.GetComboPoints("player", "target")) or 0) > 0 or false
 end
 

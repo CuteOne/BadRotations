@@ -434,9 +434,9 @@ function questTracker:isQuestObject(object)
 	local objectID = br.game.ObjectID(object)
 	if ignoreObjects[objectID] then return false end
 
-	-- The server's quest flag on the object, on clients where its bit is known (br.api.questObjectFlag,
+	-- The server's quest flag on the object, on clients where its bit is known (br.client.rules.questObjectFlag,
 	-- set per expansion) and the unlocker can read it: it decides outright
-	local mask = br.api.questObjectFlag
+	local mask = br.client.rules.questObjectFlag
 	if mask and br.game.ObjectDynamicFlags then
 		local flags = br.game.ObjectDynamicFlags(object)
 		if type(flags) == "number" then

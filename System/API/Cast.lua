@@ -326,7 +326,7 @@ br.api.cast = function(self, spell, id)
     end
 
     cast.maxRank[spell] = function()
-        if not br.api.hasSpellRanks then return 1 end
+        if not br.client.rules.hasSpellRanks then return 1 end
         return br.functions.spell:getKnownRank(id)
     end
 

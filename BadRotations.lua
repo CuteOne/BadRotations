@@ -13,7 +13,7 @@ local _, br = ...
     higher-level wrapper. Write against the modern API; the polyfills cover older clients.
     Example: br.game.UnitHealth("player")
 
-  Tier 2 — br.api.wow
+  Tier 2 — br.client.polyfills
     The polyfill layer of br.game (Expansions/Polyfills.lua, Expansions/<name>/Functions.lua).
     Call br.game, not this table: only Expansions/ writes here.
 
@@ -35,6 +35,9 @@ local _, br = ...
 
 -- BR's tables. Each module fills its own and keeps its own state there.
 br.api = {}
+br.bootstrap = {}
+br.client = {}
+br.core = {}
 br.data = { settings = {}, ui = {} }
 br.debug = {}
 br.engines = {}
@@ -43,6 +46,7 @@ br.lists = {}
 br.loader = {}
 br.misc = {}
 br.readers = {}
+br.secrets = {}
 br.slashCommands = {}
 br.ui = {}
 br.unlockers = {}

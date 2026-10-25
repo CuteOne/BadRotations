@@ -22,7 +22,7 @@ br.api.module = function(self)
     -- @function module.autoKeystone
     -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.autoKeystone = function(section)
-        if not br.isRetail then return end -- Mythic+ keystones are Retail only
+        if not br.client.isRetail then return end -- Mythic+ keystones are Retail only
         if section ~= nil then
             -- Auto Keystone
             br.ui:checkbox(section, "Auto Mythic+ Keystone", { tip = "Check to Auto click keystones if you're at a Font of Power" })
@@ -64,7 +64,7 @@ br.api.module = function(self)
                 br.ui:spinner(section, "Mana Potion", { value = 20, tip = "Mana Percent to Cast At" })
             end
             -- Heirloom Neck (Retail only)
-            if br.isRetail then
+            if br.client.isRetail then
                 br.ui:spinner(section, "Heirloom Neck", { value = 80, tip = "Health Percent to Cast At (out of combat)" })
             end
             -- -- Music of Bastion
@@ -106,7 +106,7 @@ br.api.module = function(self)
                 end
             end
             -- Heirloom Neck
-            if br.isRetail and ui.checked("Heirloom Neck") and unit.hp() <= ui.value("Heirloom Neck") and not unit.inCombat() then
+            if br.client.isRetail and ui.checked("Heirloom Neck") and unit.hp() <= ui.value("Heirloom Neck") and not unit.inCombat() then
                 if use.able.heirloomNeck() and item.heirloomNeck ~= 0 and item.heirloomNeck ~= item.manariTrainingAmulet then
                     if use.heirloomNeck() then
                         ui.debug("Using Heirloom Neck")
@@ -208,7 +208,7 @@ br.api.module = function(self)
     -- @function module.CombatPotionUp
     -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.CombatPotionUp = function(section)
-        if not br.isMOP then return end -- Only Virmen's Bite (Mists of Pandaria) is supported
+        if not br.client.isMOP then return end -- Only Virmen's Bite (Mists of Pandaria) is supported
         local potList = { "Virmen's Bite" }
         if section ~= nil then
             br.ui:dropdown(section, "Use Combat Potion", { choices = potList, value = 1, tip = "Select Combat Potion, uses best quality." })
@@ -236,7 +236,7 @@ br.api.module = function(self)
     -- @string buffType The type of flask to use. (e.g. "Agility", "Intellect", "Stamina", "Strength")
     -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.FlaskUp = function(buffType, section)
-        if not br.isMOP then return end -- Only Flask of Spring Blossoms (Mists of Pandaria) is implemented
+        if not br.client.isMOP then return end -- Only Flask of Spring Blossoms (Mists of Pandaria) is implemented
         local flaskByStat = {
             Agility = "Flask of Spring Blossoms",
             Intellect = "Greater Flask of Endless Fathoms",
