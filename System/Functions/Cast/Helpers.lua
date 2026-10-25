@@ -66,6 +66,8 @@ br.log.rotation:onNoAnswer(function(entry)
 	end
 end)
 
+-- Both keep send's result in a local: "return send(...)" is a tail call, which drops this frame,
+-- and noteSendError would then name the wrong call site.
 function cast:castByName(name, unit)
 	local ok = send(br._G.CastSpellByName, name, unit)
 	return ok
@@ -74,8 +76,13 @@ end
 -- By ID: a lower rank than the best known one (casting by name sends the highest known rank).
 function cast:castByID(spellID, unit)
 	local text = silentByID[spellID] and rankedName(spellID)
-	if text then return send(br._G.CastSpellByName, text, unit, spellID, "by name with rank") end
-	return send(br._G.CastSpellByID, spellID, unit, nil, "by ID")
+	local ok
+	if text then
+		ok = send(br._G.CastSpellByName, text, unit, spellID, "by name with rank")
+	else
+		ok = send(br._G.CastSpellByID, spellID, unit, nil, "by ID")
+	end
+	return ok
 end
 
 --cast spell on position x,y,z
