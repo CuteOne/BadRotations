@@ -293,6 +293,26 @@ function item:hasItem(itemID)
 	return itemFound
 end
 
+-- From now on, when the keystone window (Font of Power) opens, puts that keystone from the bags in it.
+-- The window comes with Blizzard_ChallengesUI, so it's hooked once that has loaded.
+function item:insertKeystoneOnOpen(keystoneID)
+	local frame = br.game.CreateFrame("Frame")
+	frame:RegisterEvent("ADDON_LOADED")
+	frame:SetScript("OnEvent", function(self, event, addon)
+		if addon ~= "Blizzard_ChallengesUI" or not br.game.ChallengesKeystoneFrame then return end
+		br.game.ChallengesKeystoneFrame:HookScript("OnShow", function()
+			for bag = 0, br.game.NUM_BAG_SLOTS do
+				for slot = 1, br.game.C_Container.GetContainerNumSlots(bag) do
+					if br.game.C_Container.GetContainerItemID(bag, slot) == keystoneID then
+						return br.game.UseContainerItem(bag, slot)
+					end
+				end
+			end
+		end)
+		self:UnregisterEvent(event)
+	end)
+end
+
 -- True when an item of that type ("Shields", "Two-Handed Maces", ...) is equipped
 function item:isEquippedType(itemType)
 	return br.game.IsEquippedItemType(itemType)

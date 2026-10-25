@@ -172,6 +172,12 @@ function misc:isInCombat(Unit)
 	end
 end
 
+-- True inside an active Mythic+ key run (C_ChallengeMode, Retail)
+function misc:isInMythicPlus()
+	local challenge = br.game.C_ChallengeMode
+	return challenge ~= nil and challenge.GetActiveChallengeMapID() ~= nil
+end
+
 function misc:isInProvingGround()
 	local currentMapID = br.game.C_Map.GetBestMapForUnit("player")
 	return currentMapID == 480

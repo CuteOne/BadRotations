@@ -285,14 +285,15 @@ function log.highlight(text)
 	return log.colors.highlight .. tostring(text) .. "|r"
 end
 
---- The one chat print: the tag, then msg; recorded (Chat.log, /br log) without the tag. BR's own
---- version of print (br.client.overrides), so br.game.print and profiles' print use it.
-function br.client.overrides.print(msg)
+--- The one chat print: the tag, then msg; recorded (Chat.log, /br log) without the tag.
+function log:print(msg)
 	if msg == nil then return end
 	local color = (br.ui and br.ui.colors and br.ui.colors.class) or ""
 	print(color .. "[BadRotations] |r" .. log.printable(msg))
 	log:chat(msg)
 end
+-- BR's own version of print (br.client.overrides), so br.game.print and profiles' print use it
+function br.client.overrides.print(msg) return log:print(msg) end
 
 --- A line that continues the one before it (a list, help), without the tag
 function log:more(text)

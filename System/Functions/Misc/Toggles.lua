@@ -20,6 +20,18 @@ local KEY_HELD = {
 -- When each toggle's key last cycled it
 local lastCycled = {}
 
+-- True while that mouse button is down, or any of the five when none is named
+function misc:isMouseButtonDown(button)
+	local down = br.game.IsMouseButtonDown
+	if button ~= nil then return down(button) end
+	return down("LeftButton") or down("RightButton") or down("MiddleButton") or down("Button4") or down("Button5")
+end
+
+-- True while the player types in an edit box (chat, search), when keybind toggles must not fire
+function misc:isTyping()
+	return br.game.GetCurrentKeyBoardFocus() ~= nil
+end
+
 --- Whether the key chosen in a key option (a br.ui.dropOptions.Toggle dropdown) is held: false for
 --- "None", nil when the option doesn't exist.
 function misc:SpecificToggle(toggle)

@@ -43,6 +43,8 @@ br.lists.items = {
     lightforgedAugmentRune                  = 153023, -- 7.3 augment rune item
     -- Flasks
     flaskOfSpringBlossoms                   = 76084,
+    -- Retail: Mythic+ (module.autoKeystone)
+    mythicKeystone                          = 180653,
     flaskOfTenThousandScars                 = 127850,
     flaskOfTheCountlessArmies               = 127849,
     flaskOfTheSeventhDemon                  = 127848,

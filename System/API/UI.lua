@@ -173,13 +173,7 @@ br.api.ui = function(self)
         -- @string[opt] mouseButton - Name of the mouse button.
         -- @return boolean - Returns true if the specified mouse button is down
         ui.isMouseDown = function(mouseButton)
-            local mouseDown = br.game.IsMouseButtonDown
-            if mouseButton == nil then
-                return mouseDown("LeftButton") or mouseDown("RightButton") or mouseDown("MiddleButton") or
-                    mouseDown("Button4") or mouseDown("Button5")
-            else
-                return mouseDown(mouseButton)
-            end
+            return br.functions.misc:isMouseButtonDown(mouseButton)
         end
     end
 
@@ -202,7 +196,7 @@ br.api.ui = function(self)
         -- @string msg - The message to show in chat.
         -- @return nil
         ui.print = function(msg)
-            return br.game.print(msg)
+            return br.log:print(msg)
         end
     end
 
@@ -232,7 +226,7 @@ br.api.ui = function(self)
         -- @function ui.time
         -- @return number - Returns the current game time
         ui.time = function()
-            return br.game.GetTime()
+            return br.functions.misc:getTime()
         end
     end
 
@@ -253,7 +247,7 @@ br.api.ui = function(self)
         -- @string thisToggle - Name of the toggle to check.
         -- @return boolean - Returns true if the toggle is active
         ui.toggle = function(thisToggle)
-            return not br.game.GetCurrentKeyBoardFocus() and br.functions.misc:SpecificToggle(thisToggle) or false
+            return not br.functions.misc:isTyping() and br.functions.misc:SpecificToggle(thisToggle) or false
         end
     end
 
@@ -361,9 +355,7 @@ br.api.ui = function(self)
         -- @function ui.fightStyle.dungeonRoute
         -- @return boolean
         ui.fightStyle.dungeonRoute = function()
-            return self.state.instance == "party"
-                and br.game.C_ChallengeMode ~= nil
-                and br.game.C_ChallengeMode.GetActiveChallengeMapID() ~= nil
+            return self.state.instance == "party" and br.functions.misc:isInMythicPlus()
         end
     end
 
@@ -372,9 +364,7 @@ br.api.ui = function(self)
         -- @function ui.fightStyle.dungeonSlice
         -- @return boolean
         ui.fightStyle.dungeonSlice = function()
-            return self.state.instance == "party"
-                and not (br.game.C_ChallengeMode ~= nil
-                    and br.game.C_ChallengeMode.GetActiveChallengeMapID() ~= nil)
+            return self.state.instance == "party" and not br.functions.misc:isInMythicPlus()
         end
     end
 
