@@ -126,7 +126,7 @@ br.api.itemCD = function(self, item, id)
     -- @return number
     -- @within cd.item
     cd[item].duration = function()
-        return br._G.GetSpellBaseCooldown(select(2, br._G.GetItemSpell(id))) / 1000
+        return br._G.GetSpellBaseCooldown(select(2, br._G.C_Item.GetItemSpell(id))) / 1000
     end
 
     --- Checks if item is on cooldown or not.

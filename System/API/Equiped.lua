@@ -44,8 +44,8 @@ br.api.equiped = function(self, item, id)
     -- @number gemID The ID of the gem to check for.
     -- @treturn boolean
     equiped.socket[item] = function(gemID)
-        local socketSpell = br._G.GetItemSpell(id)
-        local checkSpell = br._G.GetItemInfo(gemID)
+        local socketSpell = br._G.C_Item.GetItemSpell(id)
+        local checkSpell = br._G.C_Item.GetItemInfo(gemID)
         return socketSpell == checkSpell
     end
 

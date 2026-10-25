@@ -80,7 +80,7 @@ local function stillPending(entry)
 	for i = 1, #entry.ids do
 		local id = entry.ids[i]
 		if id == castingID or id == channelID then return true, false end
-		if br._G.IsCurrentSpell and br._G.IsCurrentSpell(id) and now - entry.sentAt < 6 then return true, true end
+		if br._G.C_Spell.IsCurrentSpell(id) and now - entry.sentAt < 6 then return true, true end
 	end
 	return false, false
 end

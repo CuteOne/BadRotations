@@ -216,7 +216,7 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 		local now = br._G.GetTime()
 		local hold = br.functions.misc:getRoundTripHold(ctx.latency)
 		local _, _, _, _, castEnd = br._G.UnitCastingInfo("player")
-		if castBeforeKey == nil and br._G.IsCurrentSpell and br._G.IsCurrentSpell(ctx.spellID) and castEnd == nil then
+		if castBeforeKey == nil and br._G.C_Spell.IsCurrentSpell(ctx.spellID) and castEnd == nil then
 			E.promiseCosts(ctx.spellID, now + 6, true)          -- on-next-swing: until the swing
 		elseif castEnd then
 			E.promiseCosts(ctx.spellID, castEnd / 1000 + hold)  -- cast-time, or pre-cast behind a cast

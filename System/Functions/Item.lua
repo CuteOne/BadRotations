@@ -97,15 +97,15 @@ function item:canUseItem(itemID)
 		if slotItemID == nil or slotItemID == 0 then
 			return false
 		end
-		if br._G.GetItemSpell(slotItemID) ~= nil then
-			if br._G.C_Container.GetItemCooldown(slotItemID) == 0 and br._G.IsUsableItem(slotItemID) then
+		if br._G.C_Item.GetItemSpell(slotItemID) ~= nil then
+			if br._G.C_Container.GetItemCooldown(slotItemID) == 0 and br._G.C_Item.IsUsableItem(slotItemID) then
 				return true
 			end
 		end
-	elseif (br._G.GetItemCount(itemID, false, false) > 0 or br._G.PlayerHasToy(itemID)) and
-		((br._G.IsEquippableItem(itemID) and br._G.IsEquippedItem(itemID)) or (not br._G.IsEquippableItem(itemID) and item:hasItem(itemID)))
+	elseif (br._G.C_Item.GetItemCount(itemID, false, false) > 0 or br._G.PlayerHasToy(itemID)) and
+		((br._G.C_Item.IsEquippableItem(itemID) and br._G.C_Item.IsEquippedItem(itemID)) or (not br._G.C_Item.IsEquippableItem(itemID) and item:hasItem(itemID)))
 	then
-		if itemID > 19 and br._G.C_Container.GetItemCooldown(itemID) == 0 and (br._G.IsUsableItem(itemID) or br._G.C_Spell.IsSpellUsable(select(2, br._G.GetItemSpell(itemID)))) then
+		if itemID > 19 and br._G.C_Container.GetItemCooldown(itemID) == 0 and (br._G.C_Item.IsUsableItem(itemID) or br._G.C_Spell.IsSpellUsable(select(2, br._G.C_Item.GetItemSpell(itemID)))) then
 			return true
 		end
 	end
@@ -194,7 +194,7 @@ end
 -- True if the item has matchStat (a GetItemStats key), or any DPS stat when matchStat is nil.
 -- if br.functions.item:hasDPSStats(itemLink, "ITEM_MOD_AGILITY_SHORT") then
 function item:hasDPSStats(itemLink, matchStat)
-	local stats = br._G.GetItemStats(itemLink) or {}
+	local stats = br._G.C_Item.GetItemStats(itemLink) or {}
 
 	-- Define the stats that contribute to DPS.
 	local dpsStats = {"ITEM_MOD_AGILITY_SHORT", "ITEM_MOD_STRENGTH_SHORT", "ITEM_MOD_INTELLECT_SHORT",
@@ -258,7 +258,7 @@ end
 
 -- item charges
 function item:itemCharges(itemID)
-	local charges = br._G.GetItemCount(itemID, false, true)
+	local charges = br._G.C_Item.GetItemCount(itemID, false, true)
 	if charges == nil then
 		return 0
 	end
@@ -279,7 +279,7 @@ function item:TierScan(thisTier)
 	end
 	if #tierList > 0 then
 		for i = 1, #tierList do
-			if br._G.IsEquippedItem(tierList[i]) then
+			if br._G.C_Item.IsEquippedItem(tierList[i]) then
 				equippedItems = equippedItems + 1
 			end
 		end
@@ -293,22 +293,22 @@ function item:useItem(itemID, thisUnit)
 	if itemID == nil then return false end
 	br.itemSpamDelay = br.itemSpamDelay or 0
 	if itemID <= 19 then
-		if br._G.GetItemSpell(br._G.GetInventoryItemID("player", itemID)) ~= nil then
+		if br._G.C_Item.GetItemSpell(br._G.GetInventoryItemID("player", itemID)) ~= nil then
 			local slotItemID = br._G.GetInventoryItemID("player", itemID)
 			if br._G.C_Container.GetItemCooldown(slotItemID) == 0 then
 				if not br.itemSpamDelay or br._G.GetTime() > br.itemSpamDelay then
 					-- br._G.RunMacroText("/use " .. select(1, GetItemInfo(slotItemID)))
-					br._G.UseItemByName(select(1, br._G.GetItemInfo(slotItemID)), thisUnit);
+					br._G.UseItemByName(select(1, br._G.C_Item.GetItemInfo(slotItemID)), thisUnit);
 					br.itemSpamDelay = br._G.GetTime() + 1
 					return true
 				end
 			end
 		end
-	elseif itemID > 19 and (br._G.GetItemCount(itemID) > 0 or br._G.PlayerHasToy(itemID)) then
+	elseif itemID > 19 and (br._G.C_Item.GetItemCount(itemID) > 0 or br._G.PlayerHasToy(itemID)) then
 		if br._G.C_Container.GetItemCooldown(itemID) == 0 then
 			if not br.itemSpamDelay or br._G.GetTime() > br.itemSpamDelay then
 				-- br._G.RunMacroText("/use " .. select(1, GetItemInfo(itemID)))
-				br._G.UseItemByName(select(1, br._G.GetItemInfo(itemID)), thisUnit);
+				br._G.UseItemByName(select(1, br._G.C_Item.GetItemInfo(itemID)), thisUnit);
 				br.itemSpamDelay = br._G.GetTime() + 1
 				return true
 			end

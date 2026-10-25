@@ -81,34 +81,13 @@ do
     end
 end
 
--- IsCurrentSpell: the old global, else C_Spell.IsCurrentSpell (newer clients only have that one).
--- Without it the cast pipeline can't see an on-next-swing ability (Maul) sitting in the swing
--- queue, so it re-presses it every few ticks.
-api.IsCurrentSpell = function(spellIdentifier)
-    if base.IsCurrentSpell then return base.IsCurrentSpell(spellIdentifier) end
-    if base.C_Spell and base.C_Spell.IsCurrentSpell then
-        return base.C_Spell.IsCurrentSpell(spellIdentifier)
-    end
-    return false
-end
-
--- CombatLogGetCurrentEventInfo: whichever combat log reader the client has; nothing otherwise.
-api.CombatLogGetCurrentEventInfo = function()
-    if base.CombatLogGetCurrentEventInfo then return base.CombatLogGetCurrentEventInfo() end
-    if base.C_CombatLog and base.C_CombatLog.GetCurrentEventInfo then
-        return base.C_CombatLog.GetCurrentEventInfo()
-    end
-end
-
--- Items by their old global names: newer clients only have them in C_Item. The global when it
--- exists, else the C_Item method, else the "no item" answer.
-do
-    local noItem = { IsEquippedItem = false, IsEquippableItem = false, IsUsableItem = false, GetItemCount = 0 }
-    for _, name in ipairs({ "IsEquippedItem", "IsEquippableItem", "IsUsableItem", "GetItemSpell", "GetItemInfo", "GetItemCount", "GetItemStats" }) do
-        api[name] = function(...)
-            if base[name] then return base[name](...) end
-            if base.C_Item and base.C_Item[name] then return base.C_Item[name](...) end
-            return noItem[name]
+-- CombatLogGetCurrentEventInfo: on a client without the global, C_CombatLog's reader; nothing otherwise.
+-- Looked up when called: on clients that give addons no reader (Forever), the unlocker installs one later.
+if not base.CombatLogGetCurrentEventInfo then
+    api.CombatLogGetCurrentEventInfo = function()
+        if base.CombatLogGetCurrentEventInfo then return base.CombatLogGetCurrentEventInfo() end
+        if base.C_CombatLog and base.C_CombatLog.GetCurrentEventInfo then
+            return base.C_CombatLog.GetCurrentEventInfo()
         end
     end
 end
@@ -137,6 +116,14 @@ do
             if info == nil then return nil end
             return { name = info.name, iconID = info.iconID, originalIconID = info.originalIconID,
                 castTime = info.castTime, minRange = info.maxRange, maxRange = info.minRange, spellID = info.spellID }
+        end
+    end
+
+    -- IsCurrentSpell: the old global where the client lacks it. Without it the cast pipeline can't see
+    -- an on-next-swing ability (Maul) sitting in the swing queue, so it re-presses it every few ticks.
+    if not (base.C_Spell and base.C_Spell.IsCurrentSpell) then
+        cs.IsCurrentSpell = function(spell)
+            return base.IsCurrentSpell ~= nil and base.IsCurrentSpell(spell) and true or false
         end
     end
 
@@ -425,6 +412,16 @@ do
             ---@diagnostic disable-next-line: deprecated
             if base.GetItemCount then return base.GetItemCount(itemID, includeBank, includeUses, includeReagentBank) end
             return 0
+        end
+    end
+
+    -- Pure namespace moves: the old global under the C_Item name ("no item" when neither exists)
+    for name, none in pairs({ IsEquippedItem = false, IsEquippableItem = false, IsUsableItem = false, GetItemStats = nil }) do
+        if not (base.C_Item and base.C_Item[name]) then
+            ci[name] = function(...)
+                if base[name] then return base[name](...) end
+                return none
+            end
         end
     end
 

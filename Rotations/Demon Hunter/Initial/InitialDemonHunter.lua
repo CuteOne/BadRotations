@@ -9,8 +9,8 @@ local function toggles()
         { name = "Off", icon = "chaosStrike", overlay = "Rotation Disabled", tip = "Disable Rotation" },
     } })
     br.ui:toggle("Defensive", { modes = {
-        { name = "On", icon = select(2, br._G.GetItemSpell(br.player.items.legionHealthstone)), overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
-        { name = "Off", icon = select(2, br._G.GetItemSpell(br.player.items.legionHealthstone)), overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+        { name = "On", icon = select(2, br._G.C_Item.GetItemSpell(br.player.items.legionHealthstone)), overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = select(2, br._G.C_Item.GetItemSpell(br.player.items.legionHealthstone)), overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
     br.ui:toggle("Cooldown", { modes = {
         { name = "On", icon = "metamorphosis", overlay = "Cooldown Enabled", tip = "Includes Offensive Cooldowns." },

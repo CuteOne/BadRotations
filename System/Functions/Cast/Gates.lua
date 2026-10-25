@@ -525,7 +525,7 @@ local function gateAutoRepeat(ctx, thisUnit, castType, allTalents, allSpells) --
 	-- auto-cast enabled pet abilities could spuriously match on some clients.
 	-- Also not blocked: the spell we're casting right now, once it's inside the
 	-- queue window (pre-casting the next Wrath behind the current one).
-	if castType ~= "pet" and br._G.IsCurrentSpell and br._G.IsCurrentSpell(ctx.spellID) then
+	if castType ~= "pet" and br._G.C_Spell.IsCurrentSpell(ctx.spellID) then
 		local castingInWindow = E.getSameSpellCastRemain(ctx.spellID) > 0
 			and not E.isCastingOutsideQueueWindow(ctx.spellID)
 		if not isShapeshiftFormSpell(ctx.spellID) and not castingInWindow then

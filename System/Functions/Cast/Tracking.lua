@@ -327,7 +327,7 @@ local function prunePromised(now)
 	for i = #promised, 1, -1 do
 		local entry = promised[i]
 		local done = now > entry.untilTime
-			or (entry.swing and not (br._G.IsCurrentSpell and br._G.IsCurrentSpell(entry.spellID)))
+			or (entry.swing and not (br._G.C_Spell.IsCurrentSpell(entry.spellID)))
 		if done then table.remove(promised, i) end
 	end
 end
@@ -486,10 +486,7 @@ function E.takeCastStartSnapshot(spellID)
 	if br.functions.spell and br.functions.spell.getSpellCD then
 		spellCdBefore = br.functions.spell:getSpellCD(spellID) or 0
 	end
-	local currentSpellBefore = false
-	if br._G.IsCurrentSpell then
-		currentSpellBefore = br._G.IsCurrentSpell(spellID) == true
-	end
+	local currentSpellBefore = br._G.C_Spell.IsCurrentSpell(spellID) == true
 	local buffBefore = false
 	if br.functions.aura and br.functions.aura.UnitBuffID then
 		buffBefore = br.functions.aura:UnitBuffID("player", spellID) ~= nil
@@ -527,7 +524,7 @@ function E.verifyCastStarted(spellID, snapshot, expectedSpellName)
 	local castingAfter = castNameAfter ~= nil
 	local channelingAfter = channelNameAfter ~= nil
 	local spellCdAfter = (br.functions.spell and br.functions.spell.getSpellCD) and (br.functions.spell:getSpellCD(spellID) or 0) or 0
-	local currentSpellAfter = br._G.IsCurrentSpell and (br._G.IsCurrentSpell(spellID) == true) or false
+	local currentSpellAfter = br._G.C_Spell.IsCurrentSpell(spellID) == true
 	local buffAfter = (br.functions.aura and br.functions.aura.UnitBuffID) and (br.functions.aura:UnitBuffID("player", spellID) ~= nil) or false
 	local failedAt = (br.functions.lastCast and br.functions.lastCast.lastCastTable and br.functions.lastCast.lastCastTable.failedTime and br.functions.lastCast.lastCastTable.failedTime[spellID]) or 0
 	local recentlyFailed = failedAt ~= 0 and (br._G.GetTime() - failedAt) < 0.20
