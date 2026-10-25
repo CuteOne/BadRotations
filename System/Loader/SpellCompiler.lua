@@ -181,7 +181,7 @@ function spellCompiler:compileTalents(player, spec)
         local entry = allTalents[spellID]
         if entry then
             player.talent[name] = entry.active
-            if entry.active and not br.api.wow.IsPassiveSpell(spellID) then
+            if entry.active and not br._G.C_Spell.IsSpellPassive(spellID) then
                 player.spells.abilities[name] = spellID
                 player.spells[name] = spellID
             end

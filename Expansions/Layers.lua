@@ -35,7 +35,7 @@ end
 -- Namespaces BR polyfills methods in: br._G.C_Spell (etc.) is this proxy. A method set on it (shared.lua,
 -- <name>/Functions.lua) is the polyfill; any other method comes from the base namespace, the unlocker's
 -- (NN's C_Spell) or else the client's, looked up when called, so an unlocker installed later is seen.
-for _, name in ipairs({ "C_Spell", "C_UnitAuras", "C_Container", "C_SpellBook", "C_AddOns", "C_SpecializationInfo", "C_Item", "C_Map" }) do
+for _, name in ipairs({ "C_Spell", "C_UnitAuras", "C_QuestLog", "C_Container", "C_SpellBook", "C_AddOns", "C_SpecializationInfo", "C_Item", "C_Map" }) do
     br.api.wow[name] = setmetatable({}, { __index = function(_, method)
         local namespace = br.api.base[name]
         return namespace and namespace[method]

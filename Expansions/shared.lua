@@ -10,73 +10,13 @@ local _, br = ...
 local base = br.api.base
 local api = br.api.wow
 
--- IsPassiveSpell: C_Spell.IsSpellPassive, else the old global.
-api.IsPassiveSpell = function(spellID)
-    if base.C_Spell and base.C_Spell.IsSpellPassive then
-        return base.C_Spell.IsSpellPassive(spellID)
+-- UnitPhaseReason: why the unit is in another phase, nil when it's in the player's (Enum.PhaseReason;
+-- 0 = Phasing). On a client without it, from the old UnitInPhase.
+if not base.UnitPhaseReason then
+    api.UnitPhaseReason = function(unit)
+        if base.UnitInPhase and not base.UnitInPhase(unit) then return 0 end
+        return nil
     end
-    if base.IsPassiveSpell then
-        return base.IsPassiveSpell(spellID)
-    end
-    return false
-end
-
--- UnitInPhase: the old global, else UnitPhaseReason (nil = same phase), else "in phase if it exists".
-api.UnitInPhase = function(unit)
-    if base.UnitInPhase then return base.UnitInPhase(unit) end
-    if base.UnitPhaseReason then
-        local phaseReason = base.UnitPhaseReason(unit)
-        return not phaseReason or phaseReason == 0
-    end
-    if base.UnitExists then return base.UnitExists(unit) end
-    return true
-end
-
--- Quest log: the old globals, else C_QuestLog.
-api.GetNumQuestLogEntries = function()
-    if base.GetNumQuestLogEntries then return base.GetNumQuestLogEntries() end
-    if base.C_QuestLog and base.C_QuestLog.GetNumQuestLogEntries then
-        return base.C_QuestLog.GetNumQuestLogEntries()
-    end
-    return 0
-end
-
--- GetQuestLogTitle in the old return order: title, level, suggestedGroup, isHeader, isCollapsed,
--- isComplete, frequency, questID, ...
-api.GetQuestLogTitle = function(questLogIndex)
-    if base.GetQuestLogTitle then return base.GetQuestLogTitle(questLogIndex) end
-    if base.C_QuestLog and base.C_QuestLog.GetInfo then
-        local info = base.C_QuestLog.GetInfo(questLogIndex)
-        if info then
-            return info.title, info.level, info.suggestedGroup, info.isHeader, info.isCollapsed,
-                   info.isComplete, info.frequency, info.questID, nil, info.questID,
-                   info.isOnMap, info.hasLocalPOI, info.isTask, info.isStory
-        end
-    end
-    return nil
-end
-
--- FindBaseSpellByID: C_SpellBook → base.FindBaseSpellByID fallback.
-api.FindBaseSpellByID = function(spellID)
-    if base.C_SpellBook and base.C_SpellBook.FindBaseSpellByID then
-        return base.C_SpellBook.FindBaseSpellByID(spellID)
-    end
-    if base.FindBaseSpellByID then
-        return base.FindBaseSpellByID(spellID)
-    end
-    return spellID
-end
-
--- FindSpellOverrideByID: the spell a talent or form puts in this spell's place (e.g. Condemn for
--- Execute). Clients without spell overrides get the ID back unchanged.
-api.FindSpellOverrideByID = function(spellID)
-    if base.FindSpellOverrideByID then
-        return base.FindSpellOverrideByID(spellID)
-    end
-    if base.C_Spell and base.C_Spell.GetOverrideSpell then
-        return base.C_Spell.GetOverrideSpell(spellID)
-    end
-    return spellID
 end
 
 -- C_UnitAuras namespace shims: the aura readers on clients without them, built from the
@@ -200,6 +140,31 @@ do
         end
     end
 
+    -- IsSpellPassive: the old global IsPassiveSpell where the client lacks it.
+    if not (base.C_Spell and base.C_Spell.IsSpellPassive) then
+        cs.IsSpellPassive = function(spell)
+            return base.IsPassiveSpell ~= nil and base.IsPassiveSpell(spell) or false
+        end
+    end
+
+    -- GetBaseSpell / GetOverrideSpell: the spell a talent or form replaces / puts in a spell's place
+    -- (e.g. Condemn for Execute). From the old globals where the client lacks them; a client without
+    -- spell overrides gets the ID back unchanged.
+    if not (base.C_Spell and base.C_Spell.GetBaseSpell) then
+        cs.GetBaseSpell = function(spellID)
+            local book = base.C_SpellBook
+            if book and book.FindBaseSpellByID then return book.FindBaseSpellByID(spellID) end
+            if base.FindBaseSpellByID then return base.FindBaseSpellByID(spellID) end
+            return spellID
+        end
+    end
+    if not (base.C_Spell and base.C_Spell.GetOverrideSpell) then
+        cs.GetOverrideSpell = function(spellID)
+            if base.FindSpellOverrideByID then return base.FindSpellOverrideByID(spellID) end
+            return spellID
+        end
+    end
+
     -- GetSpellLevelLearned: Retail-only. Return 1 so CD.lua level-gate checks always pass.
     if not (base.C_Spell and base.C_Spell.GetSpellLevelLearned) then
         cs.GetSpellLevelLearned = function() return 1 end
@@ -252,6 +217,44 @@ do
     if not (base.C_Spell and base.C_Spell.IsAutoRepeatSpell) then
         cs.IsAutoRepeatSpell = function(spellName)
             return base.IsAutoRepeatSpell and base.IsAutoRepeatSpell(spellName) or false
+        end
+    end
+end
+
+-- C_QuestLog namespace shims: the quest log on clients without it, from the old globals.
+-- GetInfo gives the QuestInfo fields BR reads (the old GetQuestLogTitle order: title, level,
+-- suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questID); IsComplete finds the quest's
+-- entry in the log.
+do
+    local cq = br.api.wow.C_QuestLog
+    local native = base.C_QuestLog or {}
+
+    if not native.GetNumQuestLogEntries then
+        cq.GetNumQuestLogEntries = function()
+            if base.GetNumQuestLogEntries then return base.GetNumQuestLogEntries() end
+            return 0, 0
+        end
+    end
+
+    if not native.GetInfo then
+        cq.GetInfo = function(questLogIndex)
+            if not base.GetQuestLogTitle then return nil end
+            local title, level, suggestedGroup, isHeader, isCollapsed, _, frequency, questID = base.GetQuestLogTitle(questLogIndex)
+            if title == nil then return nil end
+            return { title = title, questLogIndex = questLogIndex, questID = questID, level = level,
+                suggestedGroup = suggestedGroup, isHeader = isHeader and true or false,
+                isCollapsed = isCollapsed and true or false, frequency = frequency }
+        end
+    end
+
+    if not native.IsComplete then
+        cq.IsComplete = function(questID)
+            if not (base.GetQuestLogTitle and base.GetNumQuestLogEntries) then return false end
+            for i = 1, (base.GetNumQuestLogEntries()) do
+                local _, _, _, _, _, isComplete, _, id = base.GetQuestLogTitle(i)
+                if id == questID then return isComplete == 1 or isComplete == true end
+            end
+            return false
         end
     end
 end

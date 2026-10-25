@@ -189,8 +189,8 @@ defineGroup({ "spellName", "icon", "rawCastTime", "castTime", "minRange", "maxRa
 end)
 
 defineGroup({ "baseSpellID", "overrideSpellID" }, function(ctx)
-	rawset(ctx, "baseSpellID", br.api.wow.FindBaseSpellByID(ctx.spellID))
-	rawset(ctx, "overrideSpellID", br._G.FindSpellOverrideByID(ctx.spellID))
+	rawset(ctx, "baseSpellID", br._G.C_Spell.GetBaseSpell(ctx.spellID))
+	rawset(ctx, "overrideSpellID", br._G.C_Spell.GetOverrideSpell(ctx.spellID))
 end)
 
 defineGroup({ "baseSpellName" }, function(ctx)

@@ -493,12 +493,13 @@ function questTracker:rebuild()
 	if br._G.IsInInstance() then return end
 
 	local questLog = br._G.C_QuestLog
-	local numEntries = br._G.GetNumQuestLogEntries()
+	local numEntries = questLog.GetNumQuestLogEntries()
 	for questIdx = 1, numEntries do
-		local title, _, _, isHeader, _, isComplete, _, questId = br._G.GetQuestLogTitle(questIdx)
-		if not isHeader and type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil then
+		local info = questLog.GetInfo(questIdx)
+		local title, questId = info and info.title, info and info.questID
+		if info and not info.isHeader and type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil then
 			-- Finished quests (ready to turn in) have nothing left to track
-			if isComplete == 1 or isComplete == true or (questLog and questLog.IsComplete and questLog.IsComplete(questId)) then
+			if questLog.IsComplete(questId) then
 				if title then questTracker.completed[title] = true end
 				questTracker.completedCount = questTracker.completedCount + 1
 			elseif questLog and questLog.GetQuestObjectives then

@@ -113,7 +113,7 @@ if not healingEngine.metaTable1 then
 	function healingEngine:HealCheck(tar)
 		if
 			(br.functions.unit:GetUnitIsVisible(tar) and br.functions.unit:GetUnitReaction("player", tar) > 4 and not br.functions.unit:GetUnitIsDeadOrGhost(tar) and br.functions.misc:getLineOfSight("player", tar) and br.functions.unit:getCreatureType(tar) and
-				br._G.UnitInPhase(tar)) and
+				br._G.UnitPhaseReason(tar) == nil) and
 				((br.functions.misc:isPlayer(tar) and br._G.UnitIsConnected(tar) and CheckBadDebuff(tar) and not br._G.UnitIsCharmed(tar) and not br._G.UnitIsOtherPlayersPet(tar)) or
 					((GetUnitIsUnit(tar,"pet") or br._G.UnitIsOtherPlayersPet(tar)) and br.functions.misc:getOptionCheck("Heal Pets")) or
 					br.engines.healingEngineCollections.SpecialHealUnitList[tonumber(select(2, br.functions.unit:getGUID(tar)))] ~= nil)

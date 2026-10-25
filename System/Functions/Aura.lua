@@ -261,7 +261,7 @@ function aura:canDispel(Unit, spellID)
 		return typeCheck
 	end
 	local i = 1
-	if br._G.UnitInPhase(Unit) then
+	if br._G.UnitPhaseReason(Unit) == nil then -- in the player's phase
 		if br.functions.unit:GetUnitIsFriend("player", Unit) then
 			while br._G.C_UnitAuras.GetDebuffDataByIndex(Unit, i) do
 				local debuffInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(Unit, i)
