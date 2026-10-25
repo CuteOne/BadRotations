@@ -203,9 +203,29 @@ function item:getHighestItemID(key)
     return v
 end
 
+function item:getName(itemID)
+	return (br.game.C_Item.GetItemInfo(itemID))
+end
+
 -- The cooldown of the item in an inventory slot: start, duration, enable
 function item:getSlotCooldown(slotID)
 	return br.game.GetInventoryItemCooldown("player", slotID)
+end
+
+-- The link of the item in an inventory slot
+function item:getSlotLink(slotID)
+	return br.game.GetInventoryItemLink("player", slotID)
+end
+
+-- The name of the item's use spell
+function item:getSpellName(itemID)
+	return (br.game.C_Item.GetItemSpell(itemID))
+end
+
+-- The weapon enchants (imbues), as the game returns them: hasMain, mainExpiration, mainCharges,
+-- mainEnchantID, hasOff, offExpiration, offCharges, offEnchantID
+function item:getWeaponEnchants()
+	return br.game.GetWeaponEnchantInfo()
 end
 
 -- True if the item has matchStat (a GetItemStats key), or any DPS stat when matchStat is nil.
@@ -271,6 +291,11 @@ function item:hasItem(itemID)
 		end
 	end
 	return itemFound
+end
+
+-- True when an item of that type ("Shields", "Two-Handed Maces", ...) is equipped
+function item:isEquippedType(itemType)
+	return br.game.IsEquippedItemType(itemType)
 end
 
 -- item charges

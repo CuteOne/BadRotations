@@ -123,6 +123,11 @@ function unit:cancelShapeshiftForm()
 	return true
 end
 
+-- Clears the player's target
+function unit:clearTarget()
+	return br.game.ClearTarget()
+end
+
 -- Aggro radius of a unit against the player: 20 yards, +/- 1 per level difference, minimum 5.
 -- if br.functions.unit:getAggroRange("target") > 15 then
 function unit:getAggroRange(thisUnit)
@@ -132,6 +137,12 @@ function unit:getAggroRange(thisUnit)
 	-- UnitLevel returns -1 for skull-level units; treat them as far above the player
 	if thisLevel < 0 then thisLevel = playerLevel + 10 end
 	return math.max(20 + (thisLevel - playerLevel), 5)
+end
+
+-- The unit's attack power, buffs and debuffs included
+function unit:getAttackPower(Unit)
+	local base, posBuff, negBuff = br.game.UnitAttackPower(Unit)
+	return base + posBuff + negBuff
 end
 
 -- Picks the unit to buff from a "Player/Target/Mouseover/Focus/Group" option value.
@@ -154,6 +165,11 @@ function unit:getBuffUnit(choice, needsBuff, range)
 		end
 	end
 	return "player"
+end
+
+-- The unit's class token ("DRUID", "DEATHKNIGHT", ...)
+function unit:getClass(Unit)
+	return select(2, br.game.UnitClass(Unit))
 end
 
 -- False for critters, totems and pets (battle pets included); true for everything else.
@@ -226,9 +242,35 @@ function unit:getFacing(Unit1, Unit2, Degrees)
 	return angle < Degrees
 end
 
+function unit:getHealth(Unit)
+	return br.game.UnitHealth(Unit)
+end
+
+function unit:getHealthMax(Unit)
+	return br.game.UnitHealthMax(Unit)
+end
+
+function unit:getLevel(Unit)
+	return br.game.UnitLevel(Unit)
+end
+
+function unit:getName(Unit)
+	return br.game.UnitName(Unit)
+end
+
 -- The unit (object) with this GUID, nil when there is none
 function unit:getObjectFromGUID(guid)
 	return br.game.GetObjectWithGUID(guid)
+end
+
+-- The unit's race token ("NightElf", "Orc", ...)
+function unit:getRace(Unit)
+	return select(2, br.game.UnitRace(Unit))
+end
+
+-- The role assigned in the group ("TANK", "HEALER", "DAMAGER", "NONE")
+function unit:getRole(Unit)
+	return br.game.UnitGroupRolesAssigned(Unit)
 end
 
 --- Which way Unit faces as the server has it, in radians, and whether that came from its target.
@@ -427,6 +469,11 @@ function unit:getSpellUnit(spellCast, aoe, minRange, maxRange, spellType)
 	return "None"
 end
 
+-- The unit's target (as the unlocker gives it)
+function unit:getTarget(Unit)
+	return br.game.UnitTarget(Unit)
+end
+
 function unit:GetUnit(Unit)
 	if Unit ~= nil and br.functions.unit:GetObjectExists(Unit) then
 		return Unit
@@ -475,6 +522,12 @@ end
 function unit:GetUnitReaction(Unit, otherUnit)
 	if not br.functions.unit:GetUnitIsVisible(Unit) or not br.functions.unit:GetUnitIsVisible(otherUnit) then return 10 end
 	return br.game.UnitReaction(Unit, otherUnit)
+end
+
+-- The unit's average weapon hit: halfway between its minimum and maximum damage
+function unit:getWeaponDamage(Unit)
+	local minDamage, maxDamage = br.game.UnitDamage(Unit)
+	return (minDamage + maxDamage) / 2
 end
 
 -- True while the player has an active loss of control effect in the given category:
@@ -534,6 +587,10 @@ function unit:isBoss(unit)
 				or (class == "elite" and ((healthMax > 4 * pHealthMax and instance ~= "raid") or instance == "scenario")) or (br.game.UnitLevel(unit) and br.game.UnitLevel(unit) < 0)))
 end
 
+function unit:isCharmed(Unit)
+	return br.game.UnitIsCharmed(Unit)
+end
+
 -- True while the player is running away from an enemy within radius that is chasing it (escapes).
 -- if br.functions.unit:isChased(10) then
 function unit:isChased(radius)
@@ -588,6 +645,10 @@ function unit:isElemental(Unit)
 	return unit:isCreatureType(Unit, "elemental")
 end
 
+function unit:isEnemy(Unit, otherUnit)
+	return br.game.UnitIsEnemy(Unit, otherUnit)
+end
+
 -- True when an enemy is close enough to start a fight: one already fighting within radius, or an idle
 -- one whose aggro range you're in. For stealthing before a pull (Prowl, Stealth).
 -- if br.functions.unit:isEnemyNear(20) then
@@ -631,6 +692,15 @@ function unit:isFleeingFrom(thisUnit, fromUnit)
 	if fromUnit == nil then fromUnit = "target" end
 	if (br.game.GetUnitSpeed(thisUnit) or 0) <= 0 then return false end
 	return unit:getFacing(thisUnit, fromUnit) == false and unit:getFacing(fromUnit, thisUnit) == true
+end
+
+function unit:isOnTaxi(Unit)
+	return br.game.UnitOnTaxi(Unit)
+end
+
+-- True when the unit is a player character (misc:isPlayer also counts Proving Grounds NPCs)
+function unit:isPlayer(Unit)
+	return br.game.UnitIsPlayer(Unit)
 end
 
 --- True while a form cancel BR sent is still on its way (sent within a round trip, form still on).
@@ -791,6 +861,14 @@ function unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency)
 	local needed = power:getManaCostFromRef(outOfFormSpell, treatOutSpellAsFree) + power:getManaCostFromRef(formSpellID, false)
 	if needed > 0 and (br.game.UnitPower("player", 0) or 0) < needed then return false, "not enough mana to shift back" end
 	return true
+end
+
+function unit:startAttack()
+	return br.game.StartAttack()
+end
+
+function unit:stopAttack()
+	return br.game.StopAttack()
 end
 
 -- True if the player's class uses mana (decided by class, so no secret power reads are needed).

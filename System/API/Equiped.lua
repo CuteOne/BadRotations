@@ -44,8 +44,8 @@ br.api.equiped = function(self, item, id)
     -- @number gemID The ID of the gem to check for.
     -- @treturn boolean
     equiped.socket[item] = function(gemID)
-        local socketSpell = br.game.C_Item.GetItemSpell(id)
-        local checkSpell = br.game.C_Item.GetItemInfo(gemID)
+        local socketSpell = br.functions.item:getSpellName(id)
+        local checkSpell = br.functions.item:getName(gemID)
         return socketSpell == checkSpell
     end
 
@@ -65,9 +65,8 @@ br.api.equiped = function(self, item, id)
         -- @string itemType The type of item to check for. (e.g. "Weapon" or "Trinket")
         -- @treturn boolean
         equiped.type = function(itemType)
-            local IsEquippedItemType = br.game["IsEquippedItemType"]
             if itemType == nil then return false end
-            return IsEquippedItemType(itemType)
+            return br.functions.item:isEquippedType(itemType)
         end
     end
 end

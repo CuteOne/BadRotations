@@ -55,7 +55,7 @@ br.api.has = function(self,item,id)
             versatility = "ITEM_MOD_VERSATILITY"
         }
 
-        local itemLink = br.game.GetInventoryItemLink("player", itemSlot)
+        local itemLink = br.functions.item:getSlotLink(itemSlot)
         if itemLink then
             local statStr = statMap[desiredStat]
 

@@ -63,9 +63,7 @@ br.api.unit = function(self)
     -- @return number Total attack power (base + positive buffs + negative buffs)
     unit.attackPower = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        local UnitAttackPower = br.game["UnitAttackPower"]
-        local base, posBuff, negBuff = UnitAttackPower(thisUnit)
-        return base + posBuff + negBuff
+        return br.functions.unit:getAttackPower(thisUnit)
     end
 
     --- Check if a unit is a Beast
@@ -92,9 +90,8 @@ br.api.unit = function(self)
     -- @param playerUnit The attacking unit, defaults to "player" if nil
     -- @return boolean True if playerUnit can attack thisUnit
     unit.canAttack = function(thisUnit, playerUnit)
-        local UnitCanAttack = br.game["UnitCanAttack"]
         if playerUnit == nil then playerUnit = "player" end
-        return UnitCanAttack(thisUnit, playerUnit)
+        return br.functions.combat:canAttack(thisUnit, playerUnit)
     end
 
     --- Check if it's safe to cancel form (enough mana to cast the spell and shift back).
@@ -157,10 +154,7 @@ br.api.unit = function(self)
     -- @return boolean True if the unit is casting, or casting the specific spell if spellID provided
     unit.casting = function(thisUnit, spellID)
         if thisUnit == nil then thisUnit = "player" end
-        local spellCasting = br.game.UnitCastingInfo(thisUnit)
-        if spellCasting == nil then
-            spellCasting = br.game.UnitChannelInfo(thisUnit)
-        end
+        local spellCasting = br.functions.cast:getCastName(thisUnit)
         if spellID == nil then return spellCasting ~= nil end
         local spellName = br.functions.spell:getName(spellID)
         return tostring(spellCasting) == tostring(spellName)
@@ -171,7 +165,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check
     -- @return boolean True if the unit is charmed
     unit.charmed = function(thisUnit)
-        return br.game.UnitIsCharmed(thisUnit)
+        return br.functions.unit:isCharmed(thisUnit)
     end
 
     --- Clear current target
@@ -179,7 +173,7 @@ br.api.unit = function(self)
     -- @return nil
     unit.clearTarget = function()
         br.functions.range:clearDistanceMemo()
-        return br.game.ClearTarget()
+        return br.functions.unit:clearTarget()
     end
 
     --- Get combat time
@@ -195,8 +189,7 @@ br.api.unit = function(self)
     -- @return number Critical strike chance percentage
     unit.critChance = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        local GetCritChance = br.game["GetCritChance"]
-        return GetCritChance()
+        return br.functions.misc:getCritChance()
     end
 
     --- Check if a unit is dead or ghost
@@ -204,8 +197,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check
     -- @return boolean True if the unit is dead or a ghost
     unit.deadOrGhost = function(thisUnit)
-        local UnitIsDeadOrGhost = br.game["UnitIsDeadOrGhost"]
-        return UnitIsDeadOrGhost(thisUnit)
+        return br.functions.unit:GetUnitIsDeadOrGhost(thisUnit)
     end
 
     --- Check if a unit is a Demon
@@ -234,8 +226,7 @@ br.api.unit = function(self)
     -- @function unit.dualWielding
     -- @return boolean True if player is dual wielding
     unit.dualWielding = function()
-        local IsDualWielding = br.game["IsDualWielding"]
-        return IsDualWielding()
+        return br.functions.misc:isDualWielding()
     end
 
     --- Check if a unit is an enemy
@@ -244,9 +235,8 @@ br.api.unit = function(self)
     -- @param playerUnit The reference unit, defaults to "player" if nil
     -- @return boolean True if thisUnit is an enemy to playerUnit
     unit.enemy = function(thisUnit, playerUnit)
-        local UnitIsEnemy = br.game["UnitIsEnemy"]
         if playerUnit == nil then playerUnit = "player" end
-        return UnitIsEnemy(thisUnit, playerUnit)
+        return br.functions.unit:isEnemy(thisUnit, playerUnit)
     end
 
     --- Check if a unit exists
@@ -279,8 +269,7 @@ br.api.unit = function(self)
     -- @function unit.falling
     -- @return boolean True if player is falling
     unit.falling = function()
-        local IsFalling = br.game["IsFalling"]
-        return IsFalling()
+        return br.functions.misc:isFalling()
     end
 
     --- Get time the player has been falling
@@ -294,16 +283,14 @@ br.api.unit = function(self)
     -- @function unit.flying
     -- @return boolean True if player is flying
     unit.flying = function()
-        local IsFlying = br.game["IsFlying"]
-        return IsFlying()
+        return br.functions.misc:isFlying()
     end
 
     --- Get current shapeshift form
     -- @function unit.form
     -- @return number Current shapeshift form ID
     unit.form = function()
-        local GetShapeshiftForm = br.game["GetShapeshiftForm"]
-        return GetShapeshiftForm()
+        return br.functions.misc:getShapeshiftForm()
     end
 
     --- Check if a specific form is active or if any form is active
@@ -344,7 +331,7 @@ br.api.unit = function(self)
         local outCost = br.functions.power:getManaCostFromRef(outOfFormSpell, treatOutSpellAsFree)
         local backCost = br.functions.power:getManaCostFromRef(returnFormSpell, false)
         local requiredMana = outCost + backCost
-        local currentMana = br.game.UnitPower("player", 0)
+        local currentMana = br.functions.power:getPower("player", 0)
         return requiredMana, currentMana
     end
 
@@ -352,8 +339,7 @@ br.api.unit = function(self)
     -- @function unit.formCount
     -- @return number Count of available shapeshift forms
     unit.formCount = function()
-        local GetNumShapeshiftForms = br.game["GetNumShapeshiftForms"]
-        return GetNumShapeshiftForms()
+        return br.functions.misc:getShapeshiftFormCount()
     end
 
     --- Get information about a specific shapeshift form
@@ -361,11 +347,7 @@ br.api.unit = function(self)
     -- @param formIndex The index of the form (1-based)
     -- @return texture, isActive, isCastable, spellID
     unit.formInfo = function(formIndex)
-        local GetShapeshiftFormInfo = br.game["GetShapeshiftFormInfo"]
-        if GetShapeshiftFormInfo then
-            return GetShapeshiftFormInfo(formIndex)
-        end
-        return nil, false, false, nil
+        return br.functions.misc:getShapeshiftFormInfo(formIndex)
     end
 
     --- Check if a unit is friendly to another unit
@@ -374,9 +356,8 @@ br.api.unit = function(self)
     -- @param playerUnit The reference unit, defaults to "player" if nil
     -- @return boolean True if thisUnit is friendly to playerUnit
     unit.friend = function(thisUnit, playerUnit)
-        local UnitIsFriend = br.game["UnitIsFriend"]
         if playerUnit == nil then playerUnit = "player" end
-        return UnitIsFriend(thisUnit, playerUnit)
+        return br.functions.unit:GetUnitIsFriend(thisUnit, playerUnit)
     end
 
     --- Get global cooldown duration
@@ -401,8 +382,7 @@ br.api.unit = function(self)
     -- @function unit.groupCount
     -- @return number Total group member count
     unit.groupCount = function()
-        local GetNumGroupMembers = br.game["GetNumGroupMembers"]
-        return GetNumGroupMembers()
+        return br.functions.misc:getGroupSize()
     end
 
     --- Get unit's GUID (Globally Unique Identifier)
@@ -410,8 +390,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to get GUID for
     -- @return string Unit's GUID
     unit.guid = function(thisUnit)
-        local UnitGUID = br.game["UnitGUID"]
-        return UnitGUID(thisUnit)
+        return br.functions.unit:getUnitGUID(thisUnit)
     end
 
     --- Get unit's current health
@@ -421,9 +400,9 @@ br.api.unit = function(self)
     unit.health = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
         if unit.isDummy(thisUnit) then
-            return br.game.UnitHealthMax(thisUnit)
+            return br.functions.unit:getHealthMax(thisUnit)
         end
-        return br.game.UnitHealth(thisUnit)
+        return br.functions.unit:getHealth(thisUnit)
     end
 
     --- Get unit's maximum health
@@ -431,9 +410,8 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check, defaults to "player" if nil
     -- @return number Maximum health of the unit
     unit.healthMax = function(thisUnit)
-        local UnitHealthMax = br.game["UnitHealthMax"]
         if thisUnit == nil then thisUnit = "player" end
-        return UnitHealthMax(thisUnit)
+        return br.functions.unit:getHealthMax(thisUnit)
     end
 
     --- Get unit's health percentage
@@ -494,9 +472,7 @@ br.api.unit = function(self)
     -- @param thisInstance Optional specific instance type to check for
     -- @return string|boolean Returns instance type if no parameter, or boolean if matching specific instance
     unit.instance = function(thisInstance)
-        local select = _G["select"]
-        local IsInInstance = br.game["IsInInstance"]
-        local instanceType = select(2, IsInInstance())
+        local instanceType = br.functions.misc:getInstanceType()
         return thisInstance == nil and instanceType or instanceType == thisInstance
     end
 
@@ -659,9 +635,8 @@ br.api.unit = function(self)
     -- @param otherUnit Second unit to compare
     -- @return boolean True if both units are the same
     unit.isUnit = function(thisUnit, otherUnit)
-        local UnitIsUnit = br.game["UnitIsUnit"]
         if thisUnit == nil or otherUnit == nil then return false end
-        return UnitIsUnit(thisUnit, otherUnit)
+        return br.functions.unit:GetUnitIsUnit(thisUnit, otherUnit)
     end
 
     --- Get unit's level
@@ -669,9 +644,8 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check, defaults to "player" if nil
     -- @return number The level of the unit
     unit.level = function(thisUnit)
-        local UnitLevel = br.game["UnitLevel"]
         if thisUnit == nil then thisUnit = "player" end
-        return UnitLevel(thisUnit)
+        return br.functions.unit:getLevel(thisUnit)
     end
 
     --- Get the lowest health friendly unit in range
@@ -687,8 +661,7 @@ br.api.unit = function(self)
     -- @function unit.mounted
     -- @return boolean True if player is mounted
     unit.mounted = function()
-        local IsMounted = br.game["IsMounted"]
-        return IsMounted()
+        return br.functions.misc:isMounted()
     end
 
     --- Seconds since the player last landed from a mount
@@ -696,7 +669,7 @@ br.api.unit = function(self)
     -- @return number|nil Seconds since dismounting, nil while mounted or if not mounted since login
     unit.timeSinceDismount = function()
         local dismountTime = br.player.state.dismountTime
-        return dismountTime and (br.game.GetTime() - dismountTime) or nil
+        return dismountTime and (br.functions.misc:getTime() - dismountTime) or nil
     end
 
     --- Check if a unit is moving
@@ -704,9 +677,8 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check, defaults to "player" if nil
     -- @return boolean True if the unit is moving
     unit.moving = function(thisUnit)
-        local GetUnitSpeed = br.game["GetUnitSpeed"]
         if thisUnit == nil then thisUnit = "player" end
-        return GetUnitSpeed(thisUnit) > 0
+        return br.functions.misc:isMoving(thisUnit)
     end
 
     --- Get time a unit has been moving
@@ -721,9 +693,8 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to get name of
     -- @return string The name of the unit
     unit.name = function(thisUnit)
-        local UnitName = br.game["UnitName"]
         if thisUnit == nil then return "" end
-        return UnitName(thisUnit)
+        return br.functions.unit:getName(thisUnit)
     end
 
     --- Get time out of combat
@@ -737,7 +708,7 @@ br.api.unit = function(self)
     -- @function unit.outdoors
     -- @return boolean True if player is outdoors
     unit.outdoors = function()
-        return br.game["IsOutdoors"]
+        return br.functions.misc:isOutdoors()
     end
 
     --- Check if a unit is a player
@@ -745,8 +716,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check
     -- @return boolean True if the unit is a player
     unit.player = function(thisUnit)
-        local UnitIsPlayer = br.game["UnitIsPlayer"]
-        return UnitIsPlayer(thisUnit)
+        return br.functions.unit:isPlayer(thisUnit)
     end
 
     --- Get unit's race
@@ -754,10 +724,8 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check, defaults to "player" if nil
     -- @return string The race of the unit
     unit.race = function(thisUnit)
-        local select = _G["select"]
-        local UnitRace = br.game["UnitRace"]
         if thisUnit == nil then thisUnit = "player" end
-        return select(2, UnitRace(thisUnit))
+        return br.functions.unit:getRace(thisUnit)
     end
 
     --- Get the player's current ranged attack speed in seconds.
@@ -766,8 +734,7 @@ br.api.unit = function(self)
     -- @function unit.rangedAttackSpeed
     -- @return number Ranged weapon speed in seconds, or 0 if unavailable
     unit.rangedAttackSpeed = function()
-        local _, _, speed = br.game.UnitRangedDamage("player")
-        return speed or 0
+        return br.functions.misc:getRangedAttackSpeed()
     end
 
     --- Get unit's reaction level towards another unit
@@ -784,7 +751,7 @@ br.api.unit = function(self)
     -- @function unit.resting
     -- @return boolean True if player is resting
     unit.resting = function()
-        return br.game.IsResting()
+        return br.functions.misc:isResting()
     end
 
     --- Get unit's assigned role in group
@@ -792,9 +759,8 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check, defaults to "target" if nil
     -- @return string The role assigned to the unit ("TANK", "HEALER", "DAMAGER", "NONE")
     unit.role = function(thisUnit)
-        local UnitGroupRolesAssigned = br.game["UnitGroupRolesAssigned"]
         if thisUnit == nil then thisUnit = "target" end
-        return UnitGroupRolesAssigned(thisUnit)
+        return br.functions.unit:getRole(thisUnit)
     end
 
     --- Check if player is solo (no group)
@@ -808,7 +774,7 @@ br.api.unit = function(self)
     -- @function unit.spellHaste
     -- @return number Spell haste percentage
     unit.spellHaste = function()
-        return br.game.GetRangedHaste()
+        return br.functions.misc:getSpellHaste()
     end
 
     --- Get time a unit has been standing still
@@ -822,22 +788,21 @@ br.api.unit = function(self)
     -- @function unit.startAttack
     -- @return nil
     unit.startAttack = function()
-        return br.game.StartAttack()
+        return br.functions.unit:startAttack()
     end
 
     --- Stop auto-attack
     -- @function unit.stopAttack
     -- @return nil
     unit.stopAttack = function()
-        return br.game.StopAttack()
+        return br.functions.unit:stopAttack()
     end
 
     --- Check if player is swimming
     -- @function unit.swimming
     -- @return boolean True if player is swimming
     unit.swimming = function()
-        local IsSwimming = br.game["IsSwimming"]
-        return IsSwimming()
+        return br.functions.misc:isSwimming()
     end
 
     --- Get the current target of a unit
@@ -845,8 +810,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit whose target to get
     -- @return string|nil Unit token of thisUnit's current target, or nil if none
     unit.target = function(thisUnit)
-        local UnitTarget = br.game["UnitTarget"]
-        return UnitTarget(thisUnit)
+        return br.functions.unit:getTarget(thisUnit)
     end
 
     --- Check if a unit is on a taxi
@@ -854,9 +818,8 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check, defaults to "player" if nil
     -- @return boolean True if the unit is on a taxi
     unit.taxi = function(thisUnit)
-        local UnitIsOnTaxi = br.game["UnitOnTaxi"]
         if thisUnit == nil then thisUnit = "player" end
-        return UnitIsOnTaxi(thisUnit)
+        return br.functions.unit:isOnTaxi(thisUnit)
     end
 
     --- Check if a unit has threat
@@ -923,9 +886,7 @@ br.api.unit = function(self)
     -- @return number Average weapon damage
     unit.weaponDamage = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        local UnitDamage = br.game["UnitDamage"]
-        local minDmg, maxDmg = UnitDamage(thisUnit)
-        return (minDmg + maxDmg) / 2
+        return br.functions.unit:getWeaponDamage(thisUnit)
     end
 
     --- Get weapon imbue charges
@@ -934,8 +895,7 @@ br.api.unit = function(self)
     -- @param offHand Boolean whether to check offhand (true) or main hand (false, default)
     -- @return number Number of charges remaining on the weapon imbue
     unit.weaponImbue.charges = function(imbueId, offHand)
-        local GetWeaponEnchantInfo = br.game["GetWeaponEnchantInfo"]
-        local _, _, mainCharges, _, _, _, offCharges = GetWeaponEnchantInfo()
+        local _, _, mainCharges, _, _, _, offCharges = br.functions.item:getWeaponEnchants()
         if offHand and unit.weaponImbue.exists(imbueId, true) then return offCharges end
         if not offHand and unit.weaponImbue.exists(imbueId) then return mainCharges end
         return 0
@@ -947,8 +907,7 @@ br.api.unit = function(self)
     -- @param offHand Boolean whether to check offhand (true) or main hand (false, default)
     -- @return boolean True if the imbue exists on the specified weapon
     unit.weaponImbue.exists = function(imbueId, offHand)
-        local GetWeaponEnchantInfo = br.game["GetWeaponEnchantInfo"]
-        local hasMain, _, _, mainId, hasOff, _, _, offId = GetWeaponEnchantInfo()
+        local hasMain, _, _, mainId, hasOff, _, _, offId = br.functions.item:getWeaponEnchants()
         if offHand == nil then offHand = false end
         if type(imbueId) == "table" then
             -- If parallel spell rank data is embedded, check only the highest known rank
@@ -1005,11 +964,10 @@ br.api.unit = function(self)
     -- @param offHand Boolean whether to check offhand (true) or main hand (false, default)
     -- @return number Time remaining on the weapon imbue in seconds
     unit.weaponImbue.remain = function(imbueId, offHand)
-        local GetWeaponEnchantInfo = br.game["GetWeaponEnchantInfo"]
-        local _, mainExp, _, _, _, offExp = GetWeaponEnchantInfo()
+        local _, mainExp, _, _, _, offExp = br.functions.item:getWeaponEnchants()
         local timeRemain = 0
-        if offHand and unit.weaponImbue.exists(imbueId, true) then timeRemain = offExp - br.game.GetTime() end
-        if not offHand and unit.weaponImbue.exists(imbueId) then timeRemain = mainExp - br.game.GetTime() end
+        if offHand and unit.weaponImbue.exists(imbueId, true) then timeRemain = offExp - br.functions.misc:getTime() end
+        if not offHand and unit.weaponImbue.exists(imbueId) then timeRemain = mainExp - br.functions.misc:getTime() end
         return timeRemain > 0 and timeRemain or 0
     end
 

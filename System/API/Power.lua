@@ -30,7 +30,7 @@ if br.api == nil then br.api = {} end
 -- @field 19 = essence
 
 br.api.power = function(power,powerType,powerIndex)
-    local isDKRunes = select(2,br.game.UnitClass("player")) == "DEATHKNIGHT" and powerIndex == 5
+    local isDKRunes = br.functions.unit:getClass("player") == "DEATHKNIGHT" and powerIndex == 5
     local isDestruction = br.loader.selectedSpecID == 267 and powerIndex == 7
 
     --- Gets the amount of specified power until max is reached
@@ -50,10 +50,7 @@ br.api.power = function(power,powerType,powerIndex)
         end
         -- Destruction Warlocks
         if isDestruction then
-            local shardPower = br.game.UnitPower("player", br.game.Enum.PowerType.SoulShards, true)
-            local shardModifier = br.game.UnitPowerDisplayMod(br.game.Enum.PowerType.SoulShards)
-            local fragmentCount = (shardModifier ~= 0) and (shardPower / shardModifier) or 0
-            return (shardPower + fragmentCount)/10
+            return br.functions.power:getSoulShardFrac()
         end
         return br.functions.power:getPower("player",powerIndex)
     end

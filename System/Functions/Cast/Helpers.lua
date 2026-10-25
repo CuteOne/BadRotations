@@ -312,3 +312,13 @@ end
 function cast:shapeshift(formIndex)
 	return br.game.CastShapeshiftForm(formIndex)
 end
+
+-- The name of what the unit is casting or channelling, nil when neither
+function cast:getCastName(unit)
+	return br.game.UnitCastingInfo(unit) or br.game.UnitChannelInfo(unit)
+end
+
+-- Stops the player's cast or channel
+function cast:stopCasting()
+	return br.game.SpellStopCasting()
+end

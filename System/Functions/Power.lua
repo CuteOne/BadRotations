@@ -147,6 +147,15 @@ function power:getRunePercent(Type)
 	return maxCooldownPercent
 end
 
+-- Destruction Warlock soul shards with their fragments, as one number (3.4 = 3 shards, 4 fragments)
+function power:getSoulShardFrac()
+	local soulShards = br.game.Enum.PowerType.SoulShards
+	local shardPower = br.game.UnitPower("player", soulShards, true)
+	local shardModifier = br.game.UnitPowerDisplayMod(soulShards)
+	local fragmentCount = (shardModifier ~= 0) and (shardPower / shardModifier) or 0
+	return (shardPower + fragmentCount) / 10
+end
+
 function power:getSpellCost(spell)
 	if spell == nil then
 		return 0

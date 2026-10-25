@@ -27,6 +27,11 @@ function misc:getAgility()
 	return Agi
 end
 
+-- The player's melee crit chance in percent
+function misc:getCritChance()
+	return br.game.GetCritChance()
+end
+
 function misc:getFallDistance()
 	local zDist
 	local zCoord = nil
@@ -71,9 +76,19 @@ function misc:getFallTime()
 	return br.fallTime
 end
 
+-- Members in the player's group or raid (0 when alone)
+function misc:getGroupSize()
+	return br.game.GetNumGroupMembers()
+end
+
 -- Home latency (to the realm server) in seconds, unclamped.
 function misc:getHomeLatency()
 	return (select(3, br.game.GetNetStats()) or 0) / 1000
+end
+
+-- The kind of instance the player is in ("none", "party", "raid", "pvp", "arena", "scenario")
+function misc:getInstanceType()
+	return select(2, br.game.IsInInstance())
 end
 
 -- getLatency()
@@ -96,11 +111,31 @@ function misc:getMovingTime()
 	return now - movingTimer
 end
 
+-- The player's ranged weapon speed in seconds, with haste (Rapid Fire, quiver) applied; 0 without one
+function misc:getRangedAttackSpeed()
+	local _, _, speed = br.game.UnitRangedDamage("player")
+	return speed or 0
+end
+
 -- How long to wait for the server to answer something BR sent: a round trip plus a margin.
 -- @param latency home latency in seconds; read from the client when not given
 function misc:getRoundTripHold(latency)
 	latency = latency or misc:getHomeLatency()
 	return math.max(0.20, latency * 2 + 0.10)
+end
+
+-- The index of the player's form on the stance bar (0 = none)
+function misc:getShapeshiftForm()
+	return br.game.GetShapeshiftForm()
+end
+
+function misc:getShapeshiftFormCount()
+	return br.game.GetNumShapeshiftForms()
+end
+
+-- The stance bar form at that index: icon, active, castable, spellID
+function misc:getShapeshiftFormInfo(formIndex)
+	return br.game.GetShapeshiftFormInfo(formIndex)
 end
 
 -- The player's spell haste in percent
@@ -114,6 +149,18 @@ function misc:getStandingTime()
 	local now = br.game.GetTime()
 	if standingTimer == nil or br.game.GetUnitSpeed("player") > 0 then standingTimer = now end
 	return now - standingTimer
+end
+
+function misc:isDualWielding()
+	return br.game.IsDualWielding()
+end
+
+function misc:isFalling()
+	return br.game.IsFalling()
+end
+
+function misc:isFlying()
+	return br.game.IsFlying()
 end
 
 -- if isInCombat("target") then
@@ -135,6 +182,10 @@ function misc:isLooting()
 	return br.game.GetNumLootItems() > 0
 end
 
+function misc:isMounted()
+	return br.game.IsMounted()
+end
+
 -- if not isMoving("target") then
 function misc:isMoving(Unit)
 	if Unit == nil then
@@ -144,3 +195,15 @@ function misc:isMoving(Unit)
 end
 
 br.lifecycle:onTick(85, "dungeon queues", function() misc:AcceptQueues() end)
+
+function misc:isOutdoors()
+	return br.game.IsOutdoors()
+end
+
+function misc:isResting()
+	return br.game.IsResting()
+end
+
+function misc:isSwimming()
+	return br.game.IsSwimming()
+end

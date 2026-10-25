@@ -183,9 +183,8 @@ br.api.cast = function(self, spell, id)
     -- @function cast.cancel.spell
     -- @treturn boolean
     cast.cancel[spell] = function()
-        local SpellStopCasting = br.game["SpellStopCasting"]
         if self.cast.current[spell]() then
-            SpellStopCasting()
+            br.functions.cast:stopCasting()
             return true
         end
         return false
