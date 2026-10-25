@@ -1077,3 +1077,19 @@ function settingsManagement:saveSelection()
 	if not valid then return end
 	tableSave({ profile = name }, specDir() .. "selection.lua")
 end
+
+-- On logout (and /reload): save, but only once this session's settings were loaded (never defaults
+-- over a real file)
+br.lifecycle:onLogout(20, "settings", function()
+	if not br.bootstrap:canSave() then return end
+	br.ui:saveWindowPosition()
+	settingsManagement:cleanSettings()
+	local profile = br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+	if profile and profile["PageList"] then br._G.wipe(profile["PageList"]) end
+	if br.functions.misc:getOptionCheck("Reset Options") then
+		settingsManagement:saveSettings(true) -- "Reset Options": the defaults are saved instead
+	else
+		settingsManagement:saveSettings()
+	end
+	settingsManagement:saveSelection()
+end)

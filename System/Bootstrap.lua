@@ -61,7 +61,7 @@ end
 
 local stages = {}
 
-stages.WAITING_FOR_WORLD = function() end -- br.load() moves on once the player is in the world
+stages.WAITING_FOR_WORLD = function() end -- bootstrap:start() moves on once the player is in the world
 
 stages.WAITING_FOR_UNLOCK = function()
 	if br.unlocked then setStage("SPELL_LISTS") end
@@ -198,9 +198,31 @@ function bootstrap:canSave()
 	return self.settingsLoaded and self.stage ~= "NO_ROTATION"
 end
 
---- Starts the sequence once the player is in the world (br.load).
+--- Starts BR once the player is in the world: the modules' start steps (br.lifecycle:onStart), then
+-- the stages. Only the first call does anything.
 function bootstrap:start()
-	if self.stage == "WAITING_FOR_WORLD" then setStage("WAITING_FOR_UNLOCK") end
+	if self.stage ~= "WAITING_FOR_WORLD" then return end
+	br._G.print("Initializing Please Wait...")
+	br.lifecycle:run("start")
+	setStage("WAITING_FOR_UNLOCK")
+end
+
+-- The client's lifecycle events. The frame is made (and its events registered) at load: some unlockers
+-- refuse frames registering events later (ADDON_ACTION_FORBIDDEN).
+local events = br._G.CreateFrame("Frame")
+events:RegisterEvent("PLAYER_ENTERING_WORLD")
+events:RegisterEvent("PLAYER_LOGOUT")
+events:SetScript("OnEvent", function(_, event)
+	if event == "PLAYER_ENTERING_WORLD" then
+		bootstrap:start()
+	elseif event == "PLAYER_LOGOUT" then -- also on /reload
+		br.lifecycle:run("logout")
+	end
+end)
+-- Loaded after login (injected): PLAYER_ENTERING_WORLD has already fired. Start on the next frame,
+-- once the rest of the TOC's files have run.
+if br._G.IsLoggedIn and br._G.IsLoggedIn() then
+	br._G.C_Timer.After(0, function() bootstrap:start() end)
 end
 
 --- Re-selects and reloads the current profile (profile dropdown, profile buttons, settings import).

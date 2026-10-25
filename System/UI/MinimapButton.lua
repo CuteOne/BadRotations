@@ -164,3 +164,5 @@ function br.ui:MinimapButton()
 	br.ui.minimapButton.frame:SetScript("OnEnter", handleOnEnter)
 	br.ui.minimapButton.frame:SetScript("OnLeave", handleOnLeave)
 end
+
+br.lifecycle:onStart(10, "minimap button", function() br.ui:MinimapButton() end)

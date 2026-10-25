@@ -1372,3 +1372,5 @@ function combatLog:Warrior(...)
         end
     end
 end
+
+br.lifecycle:onStart(20, "combat log reader", function() combatLog:combatLog() end)

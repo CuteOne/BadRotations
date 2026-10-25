@@ -487,3 +487,5 @@ if not lootEngine.metaTable then
 		end)
 	end
 end
+
+br.lifecycle:onStart(40, "loot engine", function() lootEngine:init() end)

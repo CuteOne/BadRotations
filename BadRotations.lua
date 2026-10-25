@@ -1,5 +1,6 @@
--- [[ Global Variables and Tables Initialization ]] --
--- define br global that will hold the bot global background features
+-- BadRotations: BR's tables and its lifecycle. The first file in the TOC; it calls nothing in the game.
+-- What happens when: System/Bootstrap.lua starts BR once the player is in the world and runs the
+-- startup stages; System/Core.lua runs it from then on.
 local _, br = ...
 
 --[[
@@ -8,7 +9,7 @@ local _, br = ...
   Tier 1 — br._G
     The game's API as BR sees it: the client's globals with the unlocker's functions,
     the polyfills (the modern API where the client lacks it) and BR's own versions on
-    top (layers: Expansions/wowapi.lua). Use it for WoW API calls that have no
+    top (layers: Expansions/Layers.lua). Use it for WoW API calls that have no
     higher-level wrapper. Write against the modern API; the polyfills cover older clients.
     Example: br._G.UnitHealth("player")
 
@@ -32,125 +33,53 @@ local _, br = ...
   higher-tier wrapper does not exist yet.
 ]]
 
-local loadedIn = false
--- Guard to make br.load idempotent when multiple loaders invoke it
-local _br_loaded = false
--- System Table Initialization
-br.api = br.api or {} -- Don't overwrite if already initialized by wowapi.lua
+-- BR's tables. Each module fills its own and keeps its own state there.
+br.api = {}
+br.data = { settings = {}, ui = {} }
+br.debug = {}
 br.engines = {}
 br.functions = {}
 br.lists = {}
 br.loader = {}
 br.misc = {}
 br.readers = {}
-br.ui = {}
-br.debug = {}
 br.slashCommands = {}
-br.unlockers = br.unlockers or {} -- br.unlockers.api is set up by wowapi.lua
+br.ui = {}
+br.unlockers = {}
 
--- Other Initialization
-br.data = {}
-br.data.settings = {}
-br.data.ui = {}
-br.loader.addonName = "BadRotations"
-br.loader.rotations = {}
-br.loader.selectedSpec = "None"
-br.loader.selectedSpecID = 0
-br.loader.selectedProfile = 1
-br.loader.selectedProfileName = "None"
-br.loader.settingsFile = "None.lua"
+---------------------------------------------------------------------------------------------------
+-- Lifecycle
+---------------------------------------------------------------------------------------------------
+-- Modules register their own steps; nothing here knows what they do.
+--   br.lifecycle:onStart(order, name, fn)   once, when the player first enters the world, before the
+--                                           startup stages (System/Bootstrap.lua)
+--   br.lifecycle:onTick(order, name, fn)    every rotation tick, once BR runs (System/Core.lua); a
+--                                           step that returns true ends the tick there
+--   br.lifecycle:onLogout(order, name, fn)  on logout and /reload
+-- Steps run by order, lowest first (ties in the order they registered). Orders in use:
+--   start   10 minimap button  20 combat log reader  21 other readers  30 engine frames  40 loot engine
+--   tick    see System/Core.lua
+--   logout  10 spell queue window  20 settings  90 log files
+br.lifecycle = { steps = { start = {}, tick = {}, logout = {} } }
+local lifecycle = br.lifecycle
 
--- Run
-function br.Run()
-	-- add minimap fire icon
-	br.ui:MinimapButton()
-	-- Build up pulse frame (hearth)
-	if not loadedIn then
-		-- Start Logs
-		-- combat log
-		br.readers.combatLog:combatLog()
-		-- other readers
-		br.readers.common:commonReaders()
-		-- Start Engines
-		br.engines:Main()
-		br.engines:ObjectManager()
-		br.engines:ObjectTracker()
-		-- Initialize Loot Engine
-		if br.engines.lootEngine and br.engines.lootEngine.init then
-			br.engines.lootEngine:init()
-		end
-			loadedIn = true
+local function add(list, order, name, fn)
+	local at = #list + 1
+	for i = #list, 1, -1 do
+		if list[i].order <= order then break end
+		at = i
 	end
+	table.insert(list, at, { order = order, name = name, fn = fn })
 end
 
-function br.load()
-	if _br_loaded then return end
-	_br_loaded = true
-	br._G.print("Initializing Please Wait...")
-	-- Spec, rotations, settings and the player are set up by the startup stages (System/Bootstrap.lua)
-	br.bootstrap:start()
-	if not loadedIn then
-		if br.engines.enemiesEngine and br.engines.enemiesEngine.damaged == nil then
-			br.engines.enemiesEngine.damaged = {}
-		end
-		br:Run()
-	end
-end
+function lifecycle:onStart(order, name, fn) add(self.steps.start, order, name, fn) end
+function lifecycle:onTick(order, name, fn) add(self.steps.tick, order, name, fn) end
+function lifecycle:onLogout(order, name, fn) add(self.steps.logout, order, name, fn) end
 
--- [[ Event Listeners ]] --
-local frame = br._G.CreateFrame("FRAME")
-
--- Registering events
-frame:RegisterEvent("PLAYER_LOGOUT")
-frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-frame:RegisterEvent("LOADING_SCREEN_ENABLED")
-frame:RegisterEvent("LOADING_SCREEN_DISABLED")
-
--- Separate OnEvent function
-local function OnEvent(self, event)
-	if event == "LOADING_SCREEN_ENABLED" then
-		br.disablePulse = true
+--- Runs one list's steps in order; returns true (and stops) when a step returns true.
+function lifecycle:run(kind, ...)
+	for _, step in ipairs(self.steps[kind]) do
+		if step.fn(...) == true then return true end
 	end
-	if event == "LOADING_SCREEN_DISABLED" then
-		br.disablePulse = false
-		-- Give aura/buff data a few ticks to propagate before rotations run again.
-		br.zoneGraceEnd = br._G.GetTime() + 3
-	end
-	if event == "PLAYER_LOGOUT" then
-		-- Attempt to save settings and UI state on logout regardless of unlock status.
-		-- Guard calls to avoid errors if subsystems are not available.
-		-- Restore SpellQueueWindow to the value BR saved before changing it.
-		if br._G and br._G.RunMacroText and br.unlockers and br.unlockers.origQueueWindow then
-			br._G.RunMacroText("/console SpellQueueWindow " .. br.unlockers.origQueueWindow)
-		end
-		-- Only save once this session's settings were actually loaded (never defaults over a real file)
-		if br.ui and br.ui.settingsManagement and br.bootstrap:canSave() then
-			br.ui:saveWindowPosition()
-			br.ui.settingsManagement:cleanSettings()
-			if br.data and br.data.settings and br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] then
-				table.wipe(br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"])
-			end
-			if br.functions and br.functions.misc and br.functions.misc:getOptionCheck("Reset Options") then
-				-- Reset Settings
-				br.ui.settingsManagement:saveSettings(true)
-			else
-				-- Save Settings
-				br.ui.settingsManagement:saveSettings()
-			end
-			br.ui.settingsManagement:saveSelection()
-			table.wipe(br.ui)
-		end
-	end
-	if event == "PLAYER_ENTERING_WORLD" then
-		br.load()
-	end
-end
-
--- Setting the OnEvent script handler
-frame:SetScript("OnEvent", OnEvent)
-
--- When injected after login, PLAYER_ENTERING_WORLD has already fired. Load on
--- the next frame instead, once the rest of the TOC's files have run.
-if br._G.IsLoggedIn and br._G.IsLoggedIn() then
-	br._G.C_Timer.After(0, br.load)
+	return false
 end

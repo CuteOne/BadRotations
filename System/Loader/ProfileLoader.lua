@@ -5,6 +5,15 @@ local _, br = ...
 br.loader.profileLoader = br.loader.profileLoader or {}
 local profileLoader = br.loader.profileLoader
 
+-- The loader's state: the rotations registered per spec ID and what's selected (Bootstrap sets these)
+br.loader.addonName = "BadRotations"
+br.loader.rotations = {}
+br.loader.selectedSpec = "None"
+br.loader.selectedSpecID = 0
+br.loader.selectedProfile = 1
+br.loader.selectedProfileName = "None"
+br.loader.settingsFile = "None.lua"
+
 -- Spec folder under Rotations/<Class>/: the spec name on expansions with sub-specs,
 -- otherwise the class folder itself (Classic-era profiles live in Rotations/<Class>/<Class>/).
 local function getFolderSpecName(class, specID)

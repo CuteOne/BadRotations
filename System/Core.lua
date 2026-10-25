@@ -252,3 +252,24 @@ function engines.Update(frame, elapsed)
     end -- End Unlock Check
     br.debug.cpu:updateDebug(startTime, "pulse")
 end -- End Bad Rotations Update Function
+
+-- BR's frames, when the player first enters the world
+br.lifecycle:onStart(30, "engine frames", function()
+    engines:Main()
+    engines:ObjectManager()
+    engines:ObjectTracker()
+end)
+
+-- Loading screens: nothing runs during one, and the rotation waits a moment after it so aura data
+-- has arrived (br.disablePulse, br.zoneGraceEnd; Loader/Player.lua)
+local loadingScreen = br._G.CreateFrame("Frame")
+loadingScreen:RegisterEvent("LOADING_SCREEN_ENABLED")
+loadingScreen:RegisterEvent("LOADING_SCREEN_DISABLED")
+loadingScreen:SetScript("OnEvent", function(_, event)
+    if event == "LOADING_SCREEN_ENABLED" then
+        br.disablePulse = true
+    else
+        br.disablePulse = false
+        br.zoneGraceEnd = br._G.GetTime() + 3
+    end
+end)

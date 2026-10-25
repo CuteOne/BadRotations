@@ -3,7 +3,6 @@ br.readers.common = br.readers.common or {}
 local common = br.readers.common
 
 -- Pre-register all event frames at module load time to avoid ADDON_ACTION_FORBIDDEN in NnLua runtime context
-local _locFrame         = br._G.CreateFrame("Frame"); _locFrame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
 local _lfgFrame         = br._G.CreateFrame("Frame"); _lfgFrame:RegisterEvent("LFG_PROPOSAL_SHOW")
 local _merchantFrame    = br._G.CreateFrame("Frame"); _merchantFrame:RegisterEvent("MERCHANT_SHOW")
 local _regenDisFrame    = br._G.CreateFrame("Frame"); _regenDisFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -68,13 +67,6 @@ function common:commonReaders()
 	---------------
 	--[[ Readers ]]
 	---------------
-	-----------------------
-	--[[ Loss of control ]]
-	local frame = _locFrame  -- pre-registered at module load time
-	local function lostControl(_, _, ...)
-		-- Print(...)
-	end
-	frame:SetScript("OnEvent", lostControl)
 	----------------
 	--[[ Auto Join]]
 	local Frame = _lfgFrame  -- pre-registered at module load time
@@ -477,3 +469,5 @@ function common:commonReaders()
 	end
 	superReaderFrame:SetScript("OnEvent", SuperReader)
 end
+
+br.lifecycle:onStart(21, "readers", function() common:commonReaders() end)

@@ -436,7 +436,6 @@ end
 br._G.C_Timer.NewTicker(FLUSH_EVERY, function() log:flush() end)
 local flushEvents = br._G.CreateFrame("Frame")
 flushEvents:RegisterEvent("PLAYER_REGEN_ENABLED") -- a fight's lines, right when it ends
-flushEvents:RegisterEvent("PLAYER_LOGOUT")        -- also on /reload
 flushEvents:RegisterEvent("GROUP_ROSTER_UPDATE")  -- new group members get their stand-ins
 flushEvents:SetScript("OnEvent", function(_, event)
 	if event == "GROUP_ROSTER_UPDATE" then return noteGroup() end
@@ -449,3 +448,6 @@ br._G.C_Timer.After(0, function()
 	for _, message in ipairs(br.earlyMessages or {}) do br._G.print(message) end
 	br.earlyMessages = nil
 end)
+
+-- On logout (and /reload): the last lines, after every other logout step wrote its own
+br.lifecycle:onLogout(90, "log files", function() log:flush() end)

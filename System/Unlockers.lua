@@ -88,3 +88,10 @@ function unlockers:loadUnlockerAPI()
     end
     return unlocked
 end
+
+-- On logout (and /reload): give the player back the Spell Queue Window BR changed
+br.lifecycle:onLogout(10, "spell queue window", function()
+    if unlockers.origQueueWindow then
+        br._G.RunMacroText("/console SpellQueueWindow " .. unlockers.origQueueWindow)
+    end
+end)

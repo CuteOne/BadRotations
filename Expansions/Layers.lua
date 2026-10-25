@@ -1,5 +1,6 @@
 -- br._G and its layers
--- Loaded first: everything after it reads the game through br._G. Needs nothing from the client.
+-- Loaded before any file reads the game (BadRotations.lua, which only makes tables, comes first): everything
+-- after it reads the game through br._G. Needs nothing from the client.
 local _, br = ...
 
 br.api = br.api or {}

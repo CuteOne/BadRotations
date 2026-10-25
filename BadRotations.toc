@@ -44,6 +44,9 @@ Libs\DiesalLibs.lua
 
 #@end-no-lib-strip@
 
+## BR
+BadRotations.lua
+
 ## WoW API Compatibility
 Expansions\Layers.lua
 Expansions\wowapi.lua
@@ -55,7 +58,6 @@ Expansions\Retail\Professions.lua
 Expansions\MOP\Functions.lua
 Expansions\TBC\Functions.lua
 
-BadRotations.lua
 System\Version.lua
 System\Secrets.lua
 System\Logging.lua
@@ -67,7 +69,6 @@ System\Readers\combatlog.lua
 System\Readers\common.lua
 Unlockers\daemonic.lua
 bindings.xml
-misc.xml
 
 ## System
 
@@ -217,5 +218,4 @@ System\Loader\Builder.lua
 
 System\Misc\ProfessionHelper\ProfessionHelper.lua
 
-exports.lua
 
