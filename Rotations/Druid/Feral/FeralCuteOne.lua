@@ -1411,8 +1411,8 @@ local function runRotation()
         local ticksGain = (rakeable * gainRefresh)
         local rakePandemic = (pmulti < applied) and 1 or 0
         local rakeRemain = remain - (rakePandemic * 20)
-        local rakePandemic = (pmulti <= applied) and 1 or 0
-        local rakeRefresh = (rakePandemic * 25) + gainRefresh
+        local rakeRefreshable = (pmulti <= applied) and 1 or 0
+        local rakeRefresh = (rakeRefreshable * 25) + gainRefresh
         local bloodseeker = debuff.bloodseekerVines.remain(thisUnit)
         -- target_if=min:target.time_to_die
         if ttdUnit < var.minTTD then

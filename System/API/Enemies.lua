@@ -94,6 +94,7 @@ br.api.build.enemies = function(api)
     -- @bool checkNoCombat Check for enemies even if not in combat
     -- @bool facing Check if enemies are facing unit
     -- @treturn table
+    -- @treturn number How many
     enemies.get = function(range, unit, checkNoCombat, facing)
         if unit == nil then unit = "player" end
         if checkNoCombat == nil then checkNoCombat = false end

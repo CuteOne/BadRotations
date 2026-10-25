@@ -245,7 +245,7 @@ end -- End Action List - Extras
 actionList.Defensive = function()
     if ui.useDefensive() then
         -- Blessing of Protection
-        if ui.checked("Blessing of Protection", true) then
+        if ui.checked("Blessing of Protection") then
             var.protectionUnit = getHealUnitOption("Blessing of Protection Target")
             if var.protectionUnit ~= nil and cast.able.blessingOfProtection(var.protectionUnit) and unit.inCombat(var.protectionUnit)
                 and unit.role(var.protectionUnit) ~= "TANK" and not debuff.forbearance.exists(var.protectionUnit)
@@ -312,8 +312,7 @@ actionList.Defensive = function()
                     end
                 end
                 -- Long Cast
-                if not unit.moving("player") and (var.forceHeal
-                        or (unit.inCombat() and unit.hp(var.flashUnit) <= ui.value("Flash of Light"))
+                if not unit.moving("player") and ((unit.inCombat() and unit.hp(var.flashUnit) <= ui.value("Flash of Light"))
                         or (not unit.inCombat() and unit.hp(var.flashUnit) <= 90))
                 then
                     if cast.flashOfLight(var.flashUnit) then

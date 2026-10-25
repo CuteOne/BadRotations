@@ -95,7 +95,7 @@ return {
         mode    = ui.mode
 
         -- Pre-populate enemy tables used by pet family abilities.
-        enemies.get(8, "pet")    -- enemies.yards8pet: AoE radius for Screech / Thunderstomp
+        enemies.get(8, "pet")    -- enemies.yards8p: AoE radius for Screech / Thunderstomp
 
         -- Halt conditions — actions where pet management should be suppressed entirely.
         var.haltPetProfile = unit.casting("pet")
@@ -285,7 +285,7 @@ return {
         --- AoE: Screech          ---
         ----------------------------
         -- Carrion Bird/Bat/Owl: AoE melee-AP debuff. High value on 2+ enemies around the pet.
-        local petAoECount = enemies.yards8pet and #enemies.yards8pet or 0
+        local petAoECount = #enemies.yards8p
         if ui.checked("Screech") and petAoECount >= 2 and cast.able.screech("pettarget", "pet") then
             if cast.screech("pettarget", "pet") then
                 ui.debug("Casting Screech (" .. petAoECount .. " targets in 8y) [Pet]")

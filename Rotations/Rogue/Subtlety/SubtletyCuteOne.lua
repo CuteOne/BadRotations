@@ -187,6 +187,8 @@ local function canPickPocket(thisUnit)
     return true
 end
 
+---@param lootMsg string? The loot message on success
+---@param errorMsg string? The error message on failure
 local function markPickPocketResult(thisUnit, success, lootMsg, errorMsg)
     local guid = unit.guid(thisUnit)
     if not guid then return end

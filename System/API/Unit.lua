@@ -369,7 +369,7 @@ br.api.build.unit = function(api)
     --- Get information about a specific shapeshift form
     -- @function unit.formInfo
     -- @param formIndex The index of the form (1-based)
-    -- @return texture, isActive, isCastable, spellID
+    -- @return number, boolean, boolean, number icon, isActive, isCastable, spellID
     unit.formInfo = function(formIndex)
         return br.functions.misc:getShapeshiftFormInfo(formIndex)
     end
@@ -663,6 +663,7 @@ br.api.build.unit = function(api)
     --- Check if a tank is in range
     -- @function unit.isTankInRange
     -- @return boolean True if a tank is in range
+    -- @treturn string The tank
     unit.isTankInRange = function()
         return br.functions.unit:isTankInRange()
     end

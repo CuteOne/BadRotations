@@ -213,8 +213,7 @@ actionList.Defensive = function()
                     end
                 end
                 -- Long Cast
-                if not unit.moving("player") and (var.forceHeal
-                        or (unit.inCombat() and unit.hp(var.flashUnit) <= ui.value("Flash of Light"))
+                if not unit.moving("player") and ((unit.inCombat() and unit.hp(var.flashUnit) <= ui.value("Flash of Light"))
                         or (not unit.inCombat() and unit.hp(var.flashUnit) <= 90))
                 then
                     if cast.flashOfLight(var.flashUnit) then
@@ -648,6 +647,8 @@ local function runRotation()
     enemies.get(8)
     enemies.get(10)
     -- General Locals
+    var.lowestUnit = units.friends[1].unit
+    var.resable = unit.player("target") and unit.deadOrGhost("target") and unit.friend("target", "player")
     var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or unit.flying() or ui.pause() or ui.mode.rotation == 4
 
 

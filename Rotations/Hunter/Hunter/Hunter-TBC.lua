@@ -977,7 +977,7 @@ end
 -- Handles entry guards and context-sensitive traps, then delegates to Melee or Ranged.
 actionList.Combat = function()
     -- Require: in combat or a valid target ready, not halted, GCD free
-    if (unit.inCombat() or unit.valid(units.dyn40)) and not var.profileStop
+    if (unit.inCombat() or unit.valid(units.dyn40)) and not profileStop
         and unit.exists(units.dyn40) and cd.global.remain() == 0
     then
         local targetDist = unit.distance(units.dyn40) or 99

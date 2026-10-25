@@ -1,3 +1,5 @@
+-- A standalone tool: it runs in luajit (io, os, loadfile), not the game
+---@diagnostic disable: undefined-global
 -- Builds Types/ProfileAPI/*.lua: type definitions for the profile API, so an editor with the Lua language
 -- server (VS Code's "Lua" extension) completes and documents what profiles use: cast, buff, unit, ui, ...
 -- usage (from the BR folder, after changing System/API or the spell lists):  luajit Types/generate.lua [out folder]
@@ -128,13 +130,22 @@ local function parseTag(text, doc)
         if rest ~= "" then doc.usage[#doc.usage + 1] = rest end
         doc.inUsage = true
     elseif base == "return" or base == "treturn" then
-        local typ, desc = nil, rest
-        if base == "treturn" then typ, desc = rest:match("^(%S+)%s*(.*)$")
+        if base == "treturn" then
+            local typ, desc = rest:match("^(%S+)%s*(.*)$")
+            doc.returns[#doc.returns + 1] = { type = typ or "any", desc = desc or "" }
         else
-            local first = rest:match("^(%a+)")
-            if first and TYPE_WORDS[first:lower()] then typ = first:lower(); desc = rest:gsub("^%a+%s*", "") end
+            -- "@return number, number, number x, y, z": each leading type word is one return value
+            local types, desc = {}, rest
+            repeat
+                local word, comma, after = desc:match("^(%a+)%s*(,?)%s*(.*)$")
+                local isType = word and TYPE_WORDS[word:lower()]
+                if isType then types[#types + 1] = word:lower(); desc = after end
+            until not isType or comma == ""
+            if #types == 0 then types[1] = "any" end
+            for i, typ in ipairs(types) do
+                doc.returns[#doc.returns + 1] = { type = typ, desc = i == #types and desc or "" }
+            end
         end
-        doc.returns[#doc.returns + 1] = { type = typ or "any", desc = desc or "" }
     elseif base == "param" or base == "tparam" or SHORT_TYPES[base] then
         local typ, name, desc
         if base == "tparam" then typ, name, desc = rest:match("^(%S+)%s+([%w_%.]+)%s*(.*)$")
@@ -287,7 +298,10 @@ local function emitClass(node, root, parentClass)
             local base
             for _, other in ipairs(node.order) do
                 local ph = other:match("^<(%w+)>$")
-                if ph and keysFor(root, ph)[seg] then base = className(node.children[other].path) end
+                if ph and keysFor(root, ph)[seg] then
+                    base = className(node.children[other].path)
+                    child.baseNode = node.children[other]
+                end
             end
             child.base = base
             fields[#fields + 1] = { name = seg, type = emitClass(child, root, cls) }
@@ -297,7 +311,9 @@ local function emitClass(node, root, parentClass)
     if node.doc then docLines(node.doc, "") end
     if node.base then parents[#parents + 1] = node.base end
     emit("---@class " .. cls .. (#parents > 0 and (" : " .. table.concat(parents, ", ")) or ""))
-    if node.doc then emit("---@overload " .. signature(node.doc)) end
+    -- a subclass repeats its base's call signature (not every language server inherits it)
+    local callDoc = node.doc or (node.baseNode and node.baseNode.doc)
+    if callDoc then emit("---@overload " .. signature(callDoc)) end
     if node.path:match("^cast%.<spell>$") or node.path:match("^cast%.able%.<spell>$") or node.path:match("^cast%.opener%.<spell>$") then
         for _, form in ipairs(CAST_FORMS) do emit("---@field " .. form.name .. " " .. form.sig) end
         emit("---@field rank fun(rank: integer): " .. cls .. " The spell at a rank (or the highest known below it)")
@@ -347,7 +363,36 @@ for _, r in ipairs({ 5, 8, 10, 12, 15, 20, 25, 30, 35, 40 }) do
     table.insert(roots.units.extraFields, ("dyn%dAOE string? The best unit within %d yards (units.get(%d, true))"):format(r, r, r))
 end
 roots.enemies = roots.enemies or newNode("enemies")
-roots.enemies.extraFields = { "[string] string[] The lists enemies.get() made: yards8, yards8t (around the target), yards8f (facing), yards8r (rect), ..." }
+-- The lists enemies.get() / .cone.get() / .rect.get() make (Functions/Misc/Units.lua setEnemiesVariable):
+-- yards<range><shape: r rect, c cone><unit: t target, p pet, f focus, m mouseover><nc: out of combat too><f: facing>.
+-- Named fields, not an indexer: not every language server reads indexers, and named ones complete
+roots.enemies.extraFields = {}
+do
+    local ranges = { [5] = true, [8] = true, [10] = true, [15] = true, [20] = true, [25] = true, [30] = true, [40] = true }
+    for _, path in ipairs(lines('find Rotations -name "*.lua"')) do
+        local text = readFile(path)
+        for range in text:gmatch("enemies%.yards(%d+)") do ranges[tonumber(range)] = true end
+        for range in text:gmatch("enemies%.get%(%s*(%d+)") do ranges[tonumber(range)] = true end
+        for range in text:gmatch("enemies%.%a+%.get%(%s*%d+%s*,%s*(%d+)") do ranges[tonumber(range)] = true end
+    end
+    -- Focus and facing share the suffix "f" (yards8f is either), so a name can come up twice
+    local seen = {}
+    for _, range in ipairs(sortedKeys(ranges)) do
+        for _, shape in ipairs({ "", "c", "r" }) do
+            for _, who in ipairs({ "", "t", "p", "f", "m" }) do
+                for _, nc in ipairs({ "", "nc" }) do
+                    for _, facing in ipairs({ "", "f" }) do
+                        local name = "yards" .. range .. shape .. who .. nc .. facing
+                        if not seen[name] then
+                            seen[name] = true
+                            table.insert(roots.enemies.extraFields, name .. " string[] Enemies within " .. range .. " yards (enemies.get)")
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
 roots.var = roots.var or newNode("var")
 roots.var.class = "table"
 
@@ -359,7 +404,8 @@ local HEADER = {
     "-- The profile API as the Lua language server sees it, so the editor completes and documents what",
     "-- profiles use. The game never loads these files.",
 }
-emit("---@class BR.Friend A group member the healing engine keeps")
+emit("--- A group member the healing engine keeps")
+emit("---@class BR.Friend")
 emit("---@field unit string The unit token (player, party1, raid12, ...)")
 emit("---@field hp number Health percent, with incoming heals")
 emit("---@field role string TANK, HEALER or DAMAGER")
@@ -382,7 +428,8 @@ for _, name in ipairs(TABLES) do
 end
 
 emit(BLOCK)
-emit("---@class BR.RotationDefinition What registerRotation takes (System/Loader/ProfileLoader.lua)")
+emit("--- What registerRotation takes (System/Loader/ProfileLoader.lua)")
+emit("---@class BR.RotationDefinition")
 emit("---@field name string Shown in the rotation dropdown; unique for the spec")
 emit("---@field specID integer|integer[] The spec ID(s) it is for")
 emit('---@field expansion "Retail"|"MOP"|"TBC"|"Classic"|"Forever" The flavour it is for')
