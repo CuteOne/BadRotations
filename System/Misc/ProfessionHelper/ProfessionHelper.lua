@@ -129,3 +129,5 @@ function ProfessionHelper:ProfessionHelper()
 		lastAction = now
 	end
 end
+
+br.lifecycle:onTick(90, "profession helper", function() ProfessionHelper:ProfessionHelper() end)

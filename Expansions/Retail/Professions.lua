@@ -54,8 +54,7 @@ steps[#steps + 1] = function(slots)
 end
 
 -- Bait: kept up every tick, with or without Profession Helper
-br.api.pulseHooks = br.api.pulseHooks or {}
-br.api.pulseHooks[#br.api.pulseHooks + 1] = function()
+br.lifecycle:onTick(5, "fishing bait", function()
     if not br.functions.misc:isChecked("Bait") then return end
     local bait = BAITS[br.functions.misc:getValue("Bait")]
     if bait and br.functions.item:hasItem(bait.item) and br.functions.aura:getBuffRemain("player", bait.buff) == 0
@@ -63,4 +62,4 @@ br.api.pulseHooks[#br.api.pulseHooks + 1] = function()
     then
         br.functions.item:useItem(bait.item)
     end
-end
+end)

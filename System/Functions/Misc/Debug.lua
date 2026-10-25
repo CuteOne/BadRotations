@@ -50,3 +50,6 @@ function misc:devMode()
 		end
 	end
 end
+
+-- Dev Mode exposes br as a global while it's checked
+br.lifecycle:onTick(1, "dev mode", function() misc:devMode() end)

@@ -489,3 +489,4 @@ if not lootEngine.metaTable then
 end
 
 br.lifecycle:onStart(40, "loot engine", function() lootEngine:init() end)
+br.lifecycle:onTick(60, "auto loot", function() lootEngine:autoLoot() end)

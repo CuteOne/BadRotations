@@ -473,7 +473,7 @@ function engine:Update()
 	-- Update the records that are due. Each update reschedules the record a little under one
 	-- update period ahead (randomised so updates spread out); in raids half as often. New units
 	-- and units not yet candidates are checked four times as often, so they show up quickly.
-	local updateRate = br.engines:getUpdateRate()
+	local updateRate = br.core:getUpdateRate()
 	local raidMultiplier = inRaid and 2.00 or 1.00
 	local inCombat = br._G.UnitAffectingCombat("player")
 	local hasGroup = br._G.GetNumGroupMembers() > 0
@@ -507,3 +507,15 @@ function engine:Update()
 		end
 	end
 end
+
+-- The enemies engine at the update rate (at most every 0.05 s), while Power is on
+local sinceUpdate = 0
+br.lifecycle:onFrame(10, "enemies engine", function(elapsed, active)
+	if not active then return end
+	sinceUpdate = sinceUpdate + elapsed
+	if sinceUpdate < math.max(0.05, br.core:getUpdateRate()) then return end
+	sinceUpdate = 0
+	local started = br._G.debugprofilestop()
+	engine:Update()
+	br.core:recordTickCost("enemies", br._G.debugprofilestop() - started)
+end)

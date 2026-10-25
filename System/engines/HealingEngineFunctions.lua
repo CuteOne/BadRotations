@@ -226,3 +226,7 @@ function healingEngineFunctions:castGroundAtLocation(loc, SpellID)
 	end
 	return br.functions.cast:castAtPosition(loc.x, loc.y, groundZ, SpellID)
 end
+
+br.lifecycle:onTick(75, "healer line of sight", function()
+	if br.functions.misc:isChecked("Healer Line of Sight Indicator") then healingEngineFunctions:inLoSHealer() end
+end)

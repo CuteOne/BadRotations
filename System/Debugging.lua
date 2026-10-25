@@ -142,10 +142,10 @@ function br.debug.cpu:profile(seconds)
         br.log:say("CPU", ("over %d s | FPS avg %.0f | objects %d | tracked units %d | candidates %d | enemies %d"):format(
             seconds, fpsSamples > 0 and fpsTotal / fpsSamples or 0, br._G.GetObjectCount and br._G.GetObjectCount() or 0,
             #(engine.recordList or {}), count(engine.units), count(engine.enemy)))
-        local costs = br.engines.tickCost
+        local costs = br.core.tickCost
         if costs then
             br.log:more(("  BR tick cost (running average): rotation %.2f ms + enemies engine %.2f ms -> %.2f s between ticks%s"):format(
-                costs.rotation, costs.enemies, br.engines:getUpdateRate(),
+                costs.rotation, costs.enemies, br.core:getUpdateRate(),
                 br.functions.misc:isChecked("Auto Delay") and " (Auto Delay)" or ""))
         end
         for _, stats in ipairs(results) do

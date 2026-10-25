@@ -182,3 +182,7 @@ function SmartQueue:smartQueue()
 		end
 	end
 end
+
+br.lifecycle:onTick(15, "smart queue", function()
+	if br.functions.misc:isChecked("Smart Queue") then SmartQueue:smartQueue() end
+end)

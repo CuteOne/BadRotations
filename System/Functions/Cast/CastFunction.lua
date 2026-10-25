@@ -286,3 +286,30 @@ function cast:castQueue()
 	end
 	return
 end
+
+-- Queued casts first each tick: a queued cast going out ends the tick. The queue empties when Queue
+-- Casting is off, the player dies or combat ends.
+br.lifecycle:onTick(10, "queued casts", function()
+	local misc, queue = br.functions.misc, br.player and br.player.queue
+	if queue == nil then return end
+	local queueOn = misc:isChecked("Queue Casting")
+	if queueOn and #queue > 0 and not br._G.UnitChannelInfo("player") then
+		if cast:castQueue() then return true end
+	end
+	local dead = br.functions.unit:GetUnitIsDeadOrGhost("player")
+	local inCombat = br._G.UnitAffectingCombat("player")
+	if (not queueOn or dead or not inCombat) and #queue ~= 0 then
+		br._G.wipe(queue)
+		if not misc:isChecked("Mute Queue") then
+			if not queueOn then print("Queue System Disabled! - Queue Cleared.") end
+			if dead then print("Player Death Detected! - Queue Cleared.") end
+			if not inCombat then print("No Combat Detected! - Queue Cleared.") end
+		end
+	end
+end)
+br.lifecycle:onPowerOff(10, "queued casts", function()
+	local queue = br.player and br.player.queue
+	if queue == nil or #queue == 0 then return end
+	br._G.wipe(queue)
+	if not br.functions.misc:isChecked("Mute Queue") then print("BR Disabled! - Queue Cleared.") end
+end)

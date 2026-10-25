@@ -37,8 +37,6 @@ _superFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
 _superFrame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
 _superFrame:RegisterUnitEvent("TRAIT_CONFIG_UPDATED")
 _superFrame:RegisterUnitEvent("UI_ERROR_MESSAGE")
-_superFrame:RegisterEvent("LOADING_SCREEN_ENABLED")
-_superFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
 -- Fired when the local player changes specialization (all supported expansions).
 -- Sets a dirty flag so Core.lua re-evaluates the spec on the next pulse tick
 -- instead of calling getEffectiveSpecID() on every tick.
@@ -447,12 +445,6 @@ function common:commonReaders()
 			if br.player ~= nil then
 				br.player.eID = 0
 			end
-		end
-		if event == "LOADING_SCREEN_ENABLED" and br.disableControl == false then
-			br.disableControl = true
-		end
-		if event == "LOADING_SCREEN_DISABLED" and br.disableControl == true then
-			br.disableControl = false
 		end
 		if event == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED" then
 			br.bootstrap:noteSpecChange()

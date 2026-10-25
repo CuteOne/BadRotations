@@ -558,3 +558,21 @@ function custom:PullTimerRemain(returnBool)
         end
     end
 end
+
+-- Boss mod timers (br.functions.DBM): which boss mod is loaded ("DBM", "BigWigs" or false) is checked
+-- once, then again whenever an addon loads
+local bossMod
+local bossModFrame = br._G.CreateFrame("Frame")
+bossModFrame:RegisterEvent("ADDON_LOADED")
+bossModFrame:SetScript("OnEvent", function() bossMod = nil end)
+br.lifecycle:onTick(80, "boss mod timers", function()
+	if bossMod == nil then
+		local loaded = br._G.C_AddOns.IsAddOnLoaded
+		bossMod = loaded("DBM-Core") and "DBM" or loaded("BigWigs") and "BigWigs" or false
+	end
+	if bossMod == "DBM" then
+		br.functions.DBM:getBars()
+	elseif bossMod == "BigWigs" then
+		if not br.functions.DBM.BigWigs then custom:BWInit() else custom:BWCheck() end
+	end
+end)

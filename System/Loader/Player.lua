@@ -133,14 +133,8 @@ end
 -- the player casts or channels.
 function Player:startRotation()
 	local startTime = br._G.debugprofilestop()
-	-- Halt all rotations during loading screens and transitions
-	if br.disableControl or br.disablePulse then
-		return
-	end
-
-	-- Suppress rotation for a short grace period after a zone transition so that
-	-- aura/buff data has time to propagate before action lists query it.
-	if br.zoneGraceEnd and br._G.GetTime() < br.zoneGraceEnd then
+	-- Not for a moment after a loading screen, so aura data has arrived (System/Core.lua)
+	if br.core:isSettling() then
 		return
 	end
 
@@ -219,3 +213,12 @@ end
 function Player:getToggleModes()
 	br.loader.profileUI:updateToggleModes(self)
 end
+
+-- The player and its rotation, each tick (in a vehicle only with the target in melee)
+br.lifecycle:onTick(50, "player", function()
+	local player = br.player
+	if player == nil then return end
+	if not br._G.CanExitVehicle() or (br.functions.unit:GetUnitExists("target") and br.functions.range:getDistance("target") < 5) then
+		player:update()
+	end
+end)

@@ -104,3 +104,5 @@ br.ui.messageStylesheet = {
         color = "060606"
     }
 }
+
+br.lifecycle:onPowerOff(20, "BR's windows", function() br.ui:closeWindow("all") end)

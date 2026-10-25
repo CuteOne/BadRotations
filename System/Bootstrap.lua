@@ -38,11 +38,6 @@ local function specSettings()
 	return br.data.settings[br.loader.selectedSpec]
 end
 
-local function powerIsOff()
-	local toggles = specSettings() and specSettings().toggles
-	return toggles ~= nil and toggles["Power"] ~= nil and toggles["Power"] ~= 1
-end
-
 -- Shown once per session: the toggle bar (needed to switch Power on) and minimap button position
 local function buildMainButtons()
 	if bootstrap.mainButtonsBuilt then return end
@@ -63,8 +58,29 @@ local stages = {}
 
 stages.WAITING_FOR_WORLD = function() end -- bootstrap:start() moves on once the player is in the world
 
+-- The unlocker: looked for right away, then once a second until one is found (br.unlocked). Without
+-- one, BR says so once (and again every so often with Notify Not Unlocked).
+local UNLOCK_RETRY = 1
+local nextUnlockTry = 0
 stages.WAITING_FOR_UNLOCK = function()
-	if br.unlocked then setStage("SPELL_LISTS") end
+	local now = br._G.GetTime()
+	if now < nextUnlockTry then return end
+	nextUnlockTry = now + UNLOCK_RETRY
+	br.unlocked = br.unlockers:loadUnlockerAPI()
+	if br.unlocked then
+		setStage("SPELL_LISTS")
+		return
+	end
+	if not bootstrap.notUnlockedShown then
+		bootstrap.notUnlockedShown = true
+		br.ui:closeWindow("all")
+		br.ui.chatOverlay:Show("Unable To Load")
+	end
+	if br.functions.misc:isChecked("Notify Not Unlocked") and
+		br.debug.timer:useTimer("notLoaded", br.functions.misc:getOptionValue("Notify Not Unlocked"))
+	then
+		print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
+	end
 end
 
 stages.SPELL_LISTS = function()
@@ -107,12 +123,17 @@ stages.SETTINGS = function()
 	settingsManagement:defaultSettings()
 	bootstrap.settingsLoaded = true
 	buildMainButtons()
+	if not bootstrap.announced then
+		bootstrap.announced = true
+		br.ui.chatOverlay:Show("-= BadRotations Loaded =-")
+		br._G.print("Initialization Complete.")
+	end
 	setStage("PLAYER")
 end
 
 stages.PLAYER = function()
 	-- Nothing is built while BR's Power toggle is off; still follow spec changes meanwhile
-	if powerIsOff() then
+	if br.core:isPowerOff() then
 		bootstrap:checkSpecChange()
 		return
 	end
@@ -176,7 +197,9 @@ stages.UI_CLEANUP = function()
 	setStage("RUNNING")
 end
 
-stages.RUNNING = function() end -- Core runs the per-tick rotation body
+stages.RUNNING = function() -- Core runs the rotation; a spec change starts over from ROTATIONS
+	bootstrap:checkSpecChange()
+end
 
 --- Advances the startup sequence by one stage (called every frame by Core).
 function bootstrap:advance()

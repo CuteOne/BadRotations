@@ -101,7 +101,7 @@ local function getStringIndex(string, index)
 end
 
 local function updateRate()
-	br._G.print("Current Update Rate: " .. br.engines:getUpdateRate())
+	br._G.print("Current Update Rate: " .. br.core:getUpdateRate())
 end
 
 local function forewardDisengage() -- from Stinky Twitch

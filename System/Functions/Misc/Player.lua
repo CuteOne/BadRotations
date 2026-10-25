@@ -137,3 +137,5 @@ function misc:isMoving(Unit)
 	end
 	return br._G.GetUnitSpeed(Unit) > 0
 end
+
+br.lifecycle:onTick(85, "dungeon queues", function() misc:AcceptQueues() end)

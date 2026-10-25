@@ -256,7 +256,7 @@ function E.getFrameValues()
 	local now = br._G.GetTime()
 	if frameValues.at ~= now then
 		frameValues.at         = now
-		frameValues.updateRate = br.engines:getUpdateRate()
+		frameValues.updateRate = br.core:getUpdateRate()
 		frameValues.latency    = br.functions.misc:getHomeLatency()
 		frameValues.gcdMax     = br.functions.spell:getGlobalCD(true)
 	end

@@ -33,7 +33,6 @@ local function standingReason(now)
 
 	-- Dead (health = 0 or ghost-running). UnitHealth == 0 is the fastest pre-filter.
 	if br._G.UnitHealth("player") == 0 then return "dead", false end
-	if br.disableControl == true then return "control disabled", false end
 
 	-- ── DPS Testing timer ──────────────────────────────────────────────────
 	if br.functions.misc:isChecked("DPS Testing") then

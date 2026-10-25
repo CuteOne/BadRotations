@@ -538,3 +538,10 @@ br._G.SlashCmdList["BRTRACK"] = function(msg)
     end
     tracker:dump()
 end
+
+-- Every frame: the tracker scans on its own interval but must re-project its markers each frame or
+-- they lag behind the camera
+br.lifecycle:onFrame(20, "object tracker", function(elapsed, active)
+    if active then tracker:update(elapsed) else tracker:suspend() end
+end)
+br.lifecycle:onPowerOff(30, "drawings", function() LibDraw.clearCanvas() end)

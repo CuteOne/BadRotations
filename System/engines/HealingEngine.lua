@@ -469,3 +469,8 @@ if not healingEngine.metaTable1 then
 	-- We are setting up the Tables for the first time
 	healingEngine:SetupTables()
 end
+
+-- Before the profile runs, so heal decisions see this tick's group health
+br.lifecycle:onTick(20, "healing engine", function()
+	if br.functions.misc:isChecked("HE Active") then healingEngine.friend:Update() end
+end)

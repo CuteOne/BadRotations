@@ -112,3 +112,16 @@ function toggles:TogglesFrame()
 	mainButton:SetNormalTexture(isPowerOn() and toggles.backIconOn or toggles.backIconOff)
 	glow.texture:SetTexture(isPowerOn() and toggles.genericIconOn or toggles.genericIconOff)
 end
+
+-- The main button: shown, with the distance to the target on it
+br.lifecycle:onTick(70, "main button", function()
+	local specs = br.data.settings[br.loader.selectedSpec]
+	local spec = specs and specs.toggles
+	if spec and spec["Main"] ~= 1 and spec["Main"] ~= 0 then
+		spec["Main"] = 1
+		toggles.mainButton:Show()
+	end
+	if toggles.mainButton ~= nil then
+		toggles.mainText:SetText(math.ceil(br.functions.range:getDistance("target") or 0))
+	end
+end)

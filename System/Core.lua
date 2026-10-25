@@ -1,9 +1,23 @@
 local _, br = ...
-br.engines = br.engines or {}
-local engines = br.engines
-
-local Print  = print
-local LibDraw -- assigned lazily on first Update call (LibStub must be registered first)
+--- Core: BR's rotating body
+-- One frame loop. It runs the startup stages (System/Bootstrap.lua) every frame; once an unlocker is
+-- found it runs the frame steps every frame, and once the player is built it runs the tick steps at
+-- the Bot Update Rate. Core decides only whether BR may run; what each step does belongs to the module
+-- that registered it (br.lifecycle, BadRotations.lua).
+--   frame steps   fn(elapsed, active): active is false while Power is off or values are hidden
+--                 10 enemies engine (engines/EnemiesEngine.lua)  20 object tracker (engines/Tracker.lua)
+--   tick steps    run only while Power is on and values are readable; a step returning true ends
+--                 the tick there
+--                 1 dev mode (Misc/Debug.lua)  5 expansion work (Expansions/Retail: quaking, bait)
+--                 10 queued casts (Cast/CastFunction.lua)  15 smart queue (SmartQueue.lua)
+--                 20 healing engine (HealingEngine.lua)  50 the player and its rotation (Loader/Player.lua)
+--                 60 auto loot (LootEngine.lua)  70 main button (UI/Toggles/Toggles.lua)
+--                 75 healer line of sight (HealingEngineFunctions.lua)  80 boss mod timers (Custom.lua)
+--                 85 dungeon queues (Misc/Player.lua)  90 profession helper (Misc/ProfessionHelper)
+--   powerOff      once when the player switches Power off: 10 queued casts  20 BR's windows (UI/ui.lua)
+--                 30 drawings (engines/Tracker.lua)
+br.core = br.core or {}
+local core = br.core
 
 -- Auto Delay keeps BR's own work to a share of real time: when a tick (the rotation plus the
 -- enemies engine, which run at this rate) gets expensive, ticks are spaced out just enough to stay
@@ -12,264 +26,90 @@ local LibDraw -- assigned lazily on first Update call (LibStub must be registere
 -- made BR slowest in busy fights whatever its own share of the frame.)
 local AUTO_DELAY_SHARE = 0.10 -- at most 10% of real time spent in BR
 local AUTO_DELAY_MAX   = 0.5  -- never more than this between ticks
-engines.tickCost = { rotation = 0, enemies = 0 } -- running averages, milliseconds per tick
+core.tickCost = { rotation = 0, enemies = 0 } -- running averages, milliseconds per tick
 
--- Fold one measured tick (milliseconds) into a running average
-local function recordTickCost(part, ms)
-    local costs = engines.tickCost
+--- Folds one measured tick (milliseconds) of a part ("rotation", "enemies") into its running average.
+function core:recordTickCost(part, ms)
+    local costs = self.tickCost
     costs[part] = costs[part] * 0.8 + ms * 0.2
 end
 
--- Worked out once per frame: the OnUpdate engines ask every frame
+-- Worked out once per frame: the frame steps ask every frame
 local updateRateAt, updateRateValue
-function engines:getUpdateRate()
+--- Seconds between ticks: the Bot Update Rate, stretched by Auto Delay.
+function core:getUpdateRate()
     local now = br._G.GetTime()
     if updateRateAt == now then return updateRateValue end
     local updateRate = br.functions.misc:getOptionValue("Bot Update Rate") or 0.1
-
     if br.functions.misc:isChecked("Auto Delay") then
-        local costSeconds = (engines.tickCost.rotation + engines.tickCost.enemies) / 1000
+        local costSeconds = (self.tickCost.rotation + self.tickCost.enemies) / 1000
         updateRate = math.max(updateRate, math.min(AUTO_DELAY_MAX, costSeconds / AUTO_DELAY_SHARE))
     end
     updateRateAt, updateRateValue = now, updateRate
     return updateRate
 end
 
--- Which boss mod is loaded ("DBM", "BigWigs" or false): checked once, then again when an addon loads
-local bossMod
-local bossModFrame = br._G.CreateFrame("Frame")
-bossModFrame:RegisterEvent("ADDON_LOADED")
-bossModFrame:SetScript("OnEvent", function() bossMod = nil end)
-local function loadedBossMod()
-    if bossMod == nil then
-        local loaded = br._G.C_AddOns.IsAddOnLoaded
-        bossMod = loaded("DBM-Core") and "DBM" or loaded("BigWigs") and "BigWigs" or false
-    end
-    return bossMod
+-- The Power toggle of the current spec (nil until the toggle bar exists)
+local function powerToggle()
+    local settings = br.data.settings[br.loader.selectedSpec]
+    return settings and settings.toggles and settings.toggles["Power"]
 end
 
--- Returns true when BR is unlocked and the Power toggle is on.
--- Used by sub-engine update callbacks to gate their work behind the same
--- condition as the main pulse engine.
-local function isPowerEnabled()
-    if not br.unlocked then return false end
-    -- Paused while the game hides values from BR (secret values, System/Secrets.lua).
-    if br.api.canPulse and not br.api.canPulse() then return false end
-    local toggles = br.data and br.data.settings
-        and br.data.settings[br.loader.selectedSpec]
-        and br.data.settings[br.loader.selectedSpec].toggles
-    return toggles ~= nil and toggles["Power"] == 1
+--- True when the player has Power on.
+function core:isPowerOn() return powerToggle() == 1 end
+
+--- True when the player has switched Power off (not before the toggle bar exists).
+function core:isPowerOff()
+    local power = powerToggle()
+    return power ~= nil and power ~= 1
 end
-
--- Main Engine
-function engines:Main()
-    if engines.Pulse_Engine == nil then
-        engines.Pulse_Engine = br._G.CreateFrame("Frame", nil, br._G.UIParent)
-        engines.Pulse_Engine:SetScript("OnUpdate", engines.Update)
-        engines.Pulse_Engine:Show()
-    end
-end
-
--- Object Manager Engine
-local function ObjectManagerUpdate(self, elapsed)
-    if not isPowerEnabled() then return end
-    self.omElapsed = (self.omElapsed or 0) + (elapsed or 0)
-    if self.omElapsed < math.max(0.05, engines:getUpdateRate()) then return end
-    self.omElapsed = 0
-    local started = br._G.debugprofilestop()
-    engines.enemiesEngine:Update()
-    recordTickCost("enemies", br._G.debugprofilestop() - started)
-end
-
-function engines:ObjectManager()
-    if engines.OM_Engine == nil then
-        engines.OM_Engine = br._G.CreateFrame("Frame", nil, br._G.UIParent)
-        engines.OM_Engine:SetScript("OnUpdate", ObjectManagerUpdate)
-        engines.OM_Engine:Show()
-    end
-end
-
--- Object Tracker
--- Runs every frame: the tracker scans on its own interval but must re-project its
--- markers each frame or they lag behind the camera.
-local function ObjectTrackerUpdate(self, elapsed)
-    if not isPowerEnabled() then
-        engines.tracker:suspend()
-        return
-    end
-    engines.tracker:update(elapsed or 0)
-end
-
-function engines:ObjectTracker()
-    if engines.Tracker_Engine == nil then
-        engines.Tracker_Engine = br._G.CreateFrame("Frame", nil, br._G.UIParent)
-        engines.Tracker_Engine:SetScript("OnUpdate", ObjectTrackerUpdate)
-        engines.Tracker_Engine:Show()
-    end
-end
-
-function engines.Update(frame, elapsed)
-    local startTime = br._G.debugprofilestop()
-    LibDraw = LibDraw or br._G.LibStub("LibDraw-BR")
-    -- Check for Unlocker
-    if not br.unlocked then
-        br.unlocked = br.unlockers:loadUnlockerAPI()
-    end
-    if br.disablePulse == true then
-        return
-    end
-    -- BR Not Unlocked
-    if not br.unlocked then
-        -- Load and Cycle BR
-        -- Notify Not Unlocked
-        -- once, not every frame, while no unlocker is found
-        if not engines.notUnlockedShown then
-            engines.notUnlockedShown = true
-            br.ui:closeWindow("all")
-            br.ui.chatOverlay:Show("Unable To Load")
-        end
-        if br.functions.misc:isChecked("Notify Not Unlocked") and
-            br.debug.timer:useTimer("notLoaded", br.functions.misc:getOptionValue("Notify Not Unlocked"))
-        then
-            Print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
-        end
-        return false
-    else -- br.unlocked guaranteed true here
-        br.functions.misc:devMode()
-        -- Startup sequence (spell lists, rotations, profile, settings, player, UI): see System/Bootstrap.lua
-        local bootstrap = br.bootstrap
-        local wasSettingsStage = bootstrap.stage == "SETTINGS"
-        bootstrap:advance()
-        if wasSettingsStage and bootstrap.settingsLoaded and not bootstrap.announced then
-            bootstrap.announced = true
-            br.ui.chatOverlay:Show("-= BadRotations Loaded =-")
-            br._G.print("Initialization Complete.")
-        end
-        if not bootstrap:isPlayerReady() then
-            return
-        end
-        -- Cache settings check
-        local settings = br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
-        local toggles = settings and settings.toggles
-        -- Continue Load
-        if toggles then
-            -- BR Main Toggle Off
-            if toggles["Power"] ~= nil and toggles["Power"] ~= 1 then
-                -- BR Main Toggle On - Main Cycle
-                -- Clear Queue
-                if br.player ~= nil and br.player.queue ~= nil and #br.player.queue ~= 0 then
-                    br._G.wipe(br.player.queue)
-                    if not br.functions.misc:isChecked("Mute Queue") then
-                        Print("BR Disabled! - Queue Cleared.")
-                    end
-                end
-                -- Close All UI
-                br.ui:closeWindow("all")
-                -- Clear All Tracking
-                LibDraw.clearCanvas()
-                return false
-            elseif br.api.canPulse and not br.api.canPulse() then
-                -- Paused while the game hides values from BR (secret values, System/Secrets.lua).
-                return false
-            elseif br.debug.timer:useTimer("playerUpdate", br.engines:getUpdateRate()) then
-                local tickStarted = br._G.debugprofilestop()
-                -- Expansion work each tick (Expansions/<Name>: br.api.pulseHooks, e.g. Retail's Quaking helper)
-                if br.api.pulseHooks then
-                    for _, hook in ipairs(br.api.pulseHooks) do hook() end
-                end
-                -- Queue Casting
-                if br.functions.misc:isChecked("Queue Casting") and br.player ~= nil and #br.player.queue > 0
-                    and not br._G.UnitChannelInfo("player")
-                then
-                    if br.functions.cast:castQueue() then return end
-                end
-                if (not br.functions.misc:isChecked("Queue Casting") or br.functions.unit:GetUnitIsDeadOrGhost("player")
-                    or not br._G.UnitAffectingCombat("player")) and br.player ~= nil and #br.player.queue ~= 0 
-                then
-                    br._G.wipe(br.player.queue)
-                    if not br.functions.misc:isChecked("Mute Queue") then
-                        if not br.functions.misc:isChecked("Queue Casting") then
-                            Print("Queue System Disabled! - Queue Cleared.")
-                        end
-                        if br.functions.unit:GetUnitIsDeadOrGhost("player") then
-                            Print("Player Death Detected! - Queue Cleared.")
-                        end
-                        if not br._G.UnitAffectingCombat("player") then
-                            Print("No Combat Detected! - Queue Cleared.")
-                        end
-                    end
-                end
-                -- Smart Queue
-                if br.unlocked and br.functions.misc:isChecked("Smart Queue") then
-                    br.functions.SmartQueue:smartQueue()
-                end
-                -- Healing Engine: before the profile runs, so heal decisions see this tick's group health
-                if br.functions.misc:isChecked("HE Active") then
-                    br.engines.healingEngine.friend:Update()
-                end
-                -- Update Player
-                if br.player ~= nil and (not br._G.CanExitVehicle() or (br.functions.unit:GetUnitExists("target") and br.functions.range:getDistance("target") < 5)) then
-                    br.player:update()
-                end
-                -- Auto Loot
-                br.engines.lootEngine:autoLoot()
-                -- Spec change: save and restart from ROTATIONS (System/Bootstrap.lua)
-                bootstrap:checkSpecChange()
-                -- Show Main Button
-                if toggles["Main"] ~= 1 and toggles["Main"] ~= 0 then
-                    toggles["Main"] = 1
-                    br.ui.toggles.mainButton:Show()
-                end
-                -- Display Distance on Main Icon
-                if br.ui.toggles.mainButton ~= nil then
-                    local targetDistance = br.functions.range:getDistance("target") or 0
-                    local displayDistance = math.ceil(targetDistance)
-                    br.ui.toggles.mainText:SetText(displayDistance)
-                end
-                -- LoS Line Draw
-                if br.functions.misc:isChecked("Healer Line of Sight Indicator") then
-                    br.engines.healingEngineFunctions:inLoSHealer()
-                end
-                -- Get DBM/BigWigs Timer/Bars
-                -- global -> br.functions.DBM.Timer
-                local boss = loadedBossMod()
-                if boss == "DBM" then
-                    br.functions.DBM:getBars()
-                elseif boss == "BigWigs" then
-                    if not br.functions.DBM.BigWigs then
-                        br.functions.custom:BWInit()
-                    else
-                        br.functions.custom:BWCheck()
-                    end
-                end
-                -- Accept dungeon queues
-                br.functions.misc:AcceptQueues()
-                -- Profession Helper
-                br.misc.ProfessionHelper:ProfessionHelper()
-                recordTickCost("rotation", br._G.debugprofilestop() - tickStarted)
-            end -- End Update Check
-        end -- End Settings Loaded Check
-    end -- End Unlock Check
-    br.debug.cpu:updateDebug(startTime, "pulse")
-end -- End Bad Rotations Update Function
-
--- BR's frames, when the player first enters the world
-br.lifecycle:onStart(30, "engine frames", function()
-    engines:Main()
-    engines:ObjectManager()
-    engines:ObjectTracker()
-end)
 
 -- Loading screens: nothing runs during one, and the rotation waits a moment after it so aura data
--- has arrived (br.disablePulse, br.zoneGraceEnd; Loader/Player.lua)
+-- has arrived (core:isSettling, Loader/Player.lua)
+local SETTLE_SECONDS = 3
+core.loading = false
+local settledAt = 0
+--- True for a moment after a loading screen.
+function core:isSettling() return br._G.GetTime() < settledAt end
+
 local loadingScreen = br._G.CreateFrame("Frame")
 loadingScreen:RegisterEvent("LOADING_SCREEN_ENABLED")
 loadingScreen:RegisterEvent("LOADING_SCREEN_DISABLED")
 loadingScreen:SetScript("OnEvent", function(_, event)
-    if event == "LOADING_SCREEN_ENABLED" then
-        br.disablePulse = true
-    else
-        br.disablePulse = false
-        br.zoneGraceEnd = br._G.GetTime() + 3
+    core.loading = event == "LOADING_SCREEN_ENABLED"
+    if not core.loading then settledAt = br._G.GetTime() + SETTLE_SECONDS end
+end)
+
+local powerWasOn = false
+local function update(_, elapsed)
+    local started = br._G.debugprofilestop()
+    if core.loading then return end
+    local bootstrap = br.bootstrap
+    bootstrap:advance()
+    if not br.unlocked then return end
+    -- Paused while the game hides values from BR (secret values, System/Secrets.lua)
+    local readable = br.api.canPulse == nil or br.api.canPulse()
+    br.lifecycle:run("frame", elapsed or 0, core:isPowerOn() and readable)
+    if bootstrap:isPlayerReady() then
+        if core:isPowerOff() then
+            if powerWasOn then br.lifecycle:run("powerOff") end
+            powerWasOn = false
+        else
+            powerWasOn = true
+            if readable and br.debug.timer:useTimer("playerUpdate", core:getUpdateRate()) then
+                local tickStarted = br._G.debugprofilestop()
+                br.lifecycle:run("tick")
+                core:recordTickCost("rotation", br._G.debugprofilestop() - tickStarted)
+            end
+        end
     end
+    br.debug.cpu:updateDebug(started, "pulse")
+end
+
+-- The frame loop, from when the player first enters the world
+br.lifecycle:onStart(30, "core frame", function()
+    if core.frame then return end
+    core.frame = br._G.CreateFrame("Frame", nil, br._G.UIParent)
+    core.frame:SetScript("OnUpdate", update)
+    core.frame:Show()
 end)
