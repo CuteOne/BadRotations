@@ -917,7 +917,7 @@ registerRotation({
     handlesRacials = true,
     name      = rotationName,
     specID    = 254,
-    expansion = { "Retail", "MOP" },
+    expansion = "Retail",
     author    = "CuteOne",
     patch     = "11.0.2",
     coverage  = "100%",

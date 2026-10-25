@@ -231,7 +231,7 @@ end                 -- End runRotation
 registerRotation({
     name      = rotationName,
     specID    = 253,
-    expansion = { "Retail", "MOP" },
+    expansion = "Retail",
     author    = "BrewingCoder",
     patch     = "10.2.6",
     coverage  = "75%",
