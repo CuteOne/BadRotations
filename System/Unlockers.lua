@@ -12,7 +12,8 @@ br.unlockers.raw = nil
 -- Without it, BR pauses on values it can't use.
 
 -- Unlocker adapters, in priority order. Each adapter file (Unlockers/*.lua)
--- defines br.unlockers:<fn>(): it sets up br._G and returns true only when its
+-- defines br.unlockers:<fn>(): it sets up its functions (written into br._G, they land in
+-- br.unlockers.api, Expansions/wowapi.lua) and returns true only when its
 -- unlocker is present, and returns false quietly otherwise. Detection and the
 -- "no unlocker" case are handled here, not by any adapter.
 local adapters = {
@@ -42,9 +43,9 @@ end
 unlockers.nativeAppend = false
 -- Once, when the adapter is picked (loadUnlockerAPI runs until one is)
 local function emulateAppend()
-    local write, read = br._G.WriteFile, br._G.ReadFile
+    local write, read = br.api.base.WriteFile, br.api.base.ReadFile
     if unlockers.nativeAppend or write == nil or read == nil then return end
-    br._G.WriteFile = function(path, text, append, ...)
+    br.api.overrides.WriteFile = function(path, text, append, ...)
         if append then
             local ok, current = pcall(read, path)
             if ok and type(current) == "string" then text = current .. text end

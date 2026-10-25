@@ -45,6 +45,7 @@ Libs\DiesalLibs.lua
 #@end-no-lib-strip@
 
 ## WoW API Compatibility
+Expansions\Layers.lua
 Expansions\wowapi.lua
 Expansions\shared.lua
 Expansions\Retail\Functions.lua

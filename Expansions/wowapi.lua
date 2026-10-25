@@ -1,7 +1,7 @@
 -- WoW client detection and game rules
--- Which client BR runs on (br.api.expansion), the rules of its game version (br.api.<rule>, one
--- table below), and the br.api.wow table that br._G resolves game names from. shared.lua adds the
--- polyfills; Expansions/<name>/Functions.lua holds code only a client needs.
+-- Which client BR runs on (br.api.expansion) and the rules of its game version (br.api.<rule>, one
+-- table below). Layers.lua (before this) builds br._G; shared.lua adds the polyfills;
+-- Expansions/<name>/Functions.lua holds code only a client needs.
 local _, br = ...
 
 br.api = br.api or {}
@@ -81,23 +81,3 @@ end
 br.earlyMessages = br.earlyMessages or {}
 br.earlyMessages[#br.earlyMessages + 1] = "API: " .. br.api.expansion .. " compatibility layer loaded (Build: "
     .. (select(2, GetBuildInfo()) or "?") .. ")"
-
--- The game names br._G resolves before the client's own globals (shared.lua and the Functions.lua files
--- fill it).
-br.api.wow = {}
-
--- Namespace proxy tables for br._G.C_Spell.X / C_Container.X / C_SpellBook.X / C_AddOns.X / C_SpecializationInfo.X / C_Item.X / C_Map.X calls.
--- shared.lua adds the methods a client lacks to these proxies.
--- br._G.__index returns br.api.wow[name] when a key is not rawset on br._G, so these
--- proxies intercept every br._G.C_Spell.* call and check for an expansion shim first,
--- then fall through to the real WoW global. Expansion files assign into br.api.wow.C_Spell
--- (etc.) to polyfill methods that are missing or differ on their client version.
--- The NN unlocker writes br._G.C_Spell = nnProxy directly (rawset), which takes priority
--- over this proxy via rawget and bypasses __index entirely.
-br.api.wow.C_Spell              = setmetatable({}, { __index = _G.C_Spell              or {} })
-br.api.wow.C_Container          = setmetatable({}, { __index = _G.C_Container          or {} })
-br.api.wow.C_SpellBook          = setmetatable({}, { __index = _G.C_SpellBook          or {} })
-br.api.wow.C_AddOns             = setmetatable({}, { __index = _G.C_AddOns             or {} })
-br.api.wow.C_SpecializationInfo = setmetatable({}, { __index = _G.C_SpecializationInfo or {} })
-br.api.wow.C_Item               = setmetatable({}, { __index = _G.C_Item               or {} })
-br.api.wow.C_Map                = setmetatable({}, { __index = _G.C_Map                or {} })

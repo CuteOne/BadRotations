@@ -332,14 +332,11 @@ end
 
 -- Last result per key, so a repeated read doesn't rebuild or re-test anything
 local lastRead = {}
--- Functions and namespaces set on br._G (unlocker adapters, expansion shims). Kept here rather
--- than in br._G itself, so setting the same name again is checked too.
-local assigned = {}
 
+-- Every read of br._G is checked here: whatever layer the name comes from (Expansions/wowapi.lua),
+-- writes included, since a write lands in a layer and is read back through this.
 mt.__index = function(t, key)
-	local value = assigned[key]
-	if value ~= nil then return value end
-	value = baseIndex(t, key)
+	local value = baseIndex(t, key)
 	if value == nil then return nil end
 	local last = lastRead[key]
 	if last and last[1] == value then return last[2] end
@@ -353,14 +350,3 @@ mt.__index = function(t, key)
 	return result
 end
 
-mt.__newindex = function(t, key, value)
-	if guardable(key, value) then
-		assigned[key] = guard(key, value)
-	elseif assigned[key] ~= nil then
-		-- A checked name set to something unguardable (or nil): stored plainly from now on
-		assigned[key] = nil
-		rawset(t, key, value)
-	else
-		rawset(t, key, value)
-	end
-end

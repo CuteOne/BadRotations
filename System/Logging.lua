@@ -285,8 +285,9 @@ function log.highlight(text)
 	return log.colors.highlight .. tostring(text) .. "|r"
 end
 
---- The one chat print: the tag, then msg; recorded (Chat.log, /br log) without the tag.
-function br._G.print(msg)
+--- The one chat print: the tag, then msg; recorded (Chat.log, /br log) without the tag. BR's own
+--- version of print (br.api.overrides), so br._G.print and profiles' print use it.
+function br.api.overrides.print(msg)
 	if msg == nil then return end
 	local color = (br.ui and br.ui.colors and br.ui.colors.class) or ""
 	print(color .. "[BadRotations] |r" .. log.printable(msg))

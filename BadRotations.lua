@@ -6,16 +6,15 @@ local _, br = ...
   API TIER HIERARCHY — call the highest tier that meets your need.
 
   Tier 1 — br._G
-    Raw proxy over native WoW globals (_G) with br.api.wow overrides applied.
-    Use for WoW API calls that have no higher-level wrapper, or when you need
-    guaranteed access to the raw unlocker/WoW surface.
+    The game's API as BR sees it: the client's globals with the unlocker's functions,
+    the polyfills (the modern API where the client lacks it) and BR's own versions on
+    top (layers: Expansions/wowapi.lua). Use it for WoW API calls that have no
+    higher-level wrapper. Write against the modern API; the polyfills cover older clients.
     Example: br._G.UnitHealth("player")
 
   Tier 2 — br.api.wow
-    Expansion compatibility shims. Each expansion file (retail.lua, mop.lua, etc.)
-    overrides functions here so the rest of the codebase can call a single name
-    regardless of which WoW version is running.
-    Example: br.api.wow.GetSpellInfo(spellID)
+    The polyfill layer of br._G (Expansions/shared.lua, Expansions/<name>/Functions.lua).
+    Call br._G, not this table: only Expansions/ writes here.
 
   Tier 3 — br.functions
     Low-level manipulation helpers: range checks, aura scans, unit queries, etc.
@@ -36,25 +35,6 @@ local _, br = ...
 local loadedIn = false
 -- Guard to make br.load idempotent when multiple loaders invoke it
 local _br_loaded = false
-br._G = setmetatable({}, { __index = _G })
-
--- WoW API Compatibility Layer
--- Expansion-specific API wrappers are loaded via Expansions/wowapi.lua -> Expansions/<name>/Functions.lua
--- This allows all API differences to be managed in one place per expansion
--- Access API functions via: br.api.wow.FunctionName() or br._G.FunctionName()
-
--- Override br._G to use compatibility layer when available
-local originalIndex = getmetatable(br._G).__index
-setmetatable(br._G, {
-	__index = function(t, k)
-		-- First check if we have a compatibility wrapper
-		if br.api and br.api.wow and br.api.wow[k] then
-			return br.api.wow[k]
-		end
-		-- Fall back to global _G
-		return originalIndex[k]
-	end
-})
 -- System Table Initialization
 br.api = br.api or {} -- Don't overwrite if already initialized by wowapi.lua
 br.engines = {}
@@ -66,7 +46,7 @@ br.readers = {}
 br.ui = {}
 br.debug = {}
 br.slashCommands = {}
-br.unlockers = {}
+br.unlockers = br.unlockers or {} -- br.unlockers.api is set up by wowapi.lua
 
 -- Other Initialization
 br.data = {}
