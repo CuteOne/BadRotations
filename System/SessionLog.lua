@@ -156,6 +156,11 @@ function session:optionChanged(page, key, value)
 	if not waiting then br._G.C_Timer.After(SETTLE, writeSettled) end
 end
 
+--- TEMP diagnostic (profile window dropdown text): a free-form line
+function session:note(text)
+	line(text)
+end
+
 --- A toggle changed (by the player, a keybind or the profile)
 function session:toggleChanged(name, value)
 	line(("toggle changed: %s = %s"):format(tostring(name), valueText(value)))
