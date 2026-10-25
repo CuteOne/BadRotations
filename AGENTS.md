@@ -12,8 +12,8 @@ The codebase follows a strict **4-tier API hierarchy** — never call a lower ti
 
 | Tier | Path | Role |
 |------|------|------|
-| 1 — Raw | `br._G` | Direct proxy over native WoW globals |
-| 2 — Compat | `br.api.wow` | Expansion compatibility shims (`Expansions/`) |
+| 1 — Raw | `br._G` | The game's API as BR sees it: BR's own versions, polyfills, the unlocker, the client (`Expansions/Layers.lua`); write against the modern API |
+| 2 — Compat | `br.api.wow` | Polyfills: the modern API where a client lacks it (`Expansions/Polyfills.lua`); code calls `br._G`, not this |
 | 3 — Helpers | `br.functions.*` | Range checks, aura scans, unit queries (`System/Functions/`) |
 | 4 — Rotation API | `br.player.*` | Rotation-facing API: `cast`, `buff`, `cd`, `unit`, `enemies`, etc. (`System/API/`) |
 
@@ -22,7 +22,7 @@ The codebase follows a strict **4-tier API hierarchy** — never call a lower ti
 | Path | Purpose |
 |------|---------|
 | `BadRotations.lua` | First file: BR's tables and `br.lifecycle` (start / frame / tick / power-off / logout steps that modules register) |
-| `Expansions/` | The client layer: `Layers.lua` (`br._G`'s layers), `wowapi.lua` (which client, its game rules), `shared.lua` (polyfills); `{Retail,MOP,TBC}/Functions.lua` hold code only that client needs; each flavour folder holds its spell lists |
+| `Expansions/` | The client layer: `Layers.lua` (`br._G`'s layers), `Flavours.lua` (which client, its game rules), `Polyfills.lua` (the modern API where a client lacks it); `{Retail,MOP,TBC}/Functions.lua` hold code only that client needs; each flavour folder holds its spell lists |
 | `System/Bootstrap.lua` | The startup stages, from entering the world to running: unlocker → spell lists → rotations → profile → settings → player → UI → running |
 | `System/Core.lua` | The rotating body: one frame loop running the frame and tick steps (`br.core`) |
 | `System/API/` | 20 API modules (Buff, Cast, CD, Unit, Spell, Enemies, Power, Talent, …) |

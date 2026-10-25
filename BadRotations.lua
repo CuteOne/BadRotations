@@ -14,7 +14,7 @@ local _, br = ...
     Example: br._G.UnitHealth("player")
 
   Tier 2 — br.api.wow
-    The polyfill layer of br._G (Expansions/shared.lua, Expansions/<name>/Functions.lua).
+    The polyfill layer of br._G (Expansions/Polyfills.lua, Expansions/<name>/Functions.lua).
     Call br._G, not this table: only Expansions/ writes here.
 
   Tier 3 — br.functions

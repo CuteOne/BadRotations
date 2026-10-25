@@ -333,7 +333,7 @@ end
 -- Last result per key, so a repeated read doesn't rebuild or re-test anything
 local lastRead = {}
 
--- Every read of br._G is checked here: whatever layer the name comes from (Expansions/wowapi.lua),
+-- Every read of br._G is checked here: whatever layer the name comes from (Expansions/Flavours.lua),
 -- writes included, since a write lands in a layer and is read back through this.
 mt.__index = function(t, key)
 	local value = baseIndex(t, key)

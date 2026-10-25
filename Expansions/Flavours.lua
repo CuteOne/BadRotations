@@ -1,6 +1,6 @@
 -- WoW client detection and game rules
 -- Which client BR runs on (br.api.expansion) and the rules of its game version (br.api.<rule>, one
--- table below). Layers.lua (before this) builds br._G; shared.lua adds the polyfills;
+-- table below). Layers.lua (before this) builds br._G; Polyfills.lua adds the polyfills;
 -- Expansions/<name>/Functions.lua holds code only a client needs.
 local _, br = ...
 

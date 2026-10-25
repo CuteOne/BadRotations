@@ -49,8 +49,8 @@ BadRotations.lua
 
 ## WoW API Compatibility
 Expansions\Layers.lua
-Expansions\wowapi.lua
-Expansions\shared.lua
+Expansions\Flavours.lua
+Expansions\Polyfills.lua
 Expansions\Retail\Functions.lua
 Expansions\Retail\Options.lua
 Expansions\Retail\Pulse.lua

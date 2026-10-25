@@ -13,7 +13,7 @@ br.unlockers.raw = nil
 
 -- Unlocker adapters, in priority order. Each adapter file (Unlockers/*.lua)
 -- defines br.unlockers:<fn>(): it sets up its functions (written into br._G, they land in
--- br.unlockers.api, Expansions/wowapi.lua) and returns true only when its
+-- br.unlockers.api, Expansions/Flavours.lua) and returns true only when its
 -- unlocker is present, and returns false quietly otherwise. Detection and the
 -- "no unlocker" case are handled here, not by any adapter.
 local adapters = {

@@ -1,9 +1,10 @@
--- Shared API Compatibility Helpers
--- The default br.api.wow functions for every client. Each one uses whichever API the client has
--- (the old global where it's still there, so older clients keep their own behaviour), so a client
--- only needs its own Expansions/<name>/Functions.lua for what differs in kind (talent systems,
--- spec rules, client bugs).
--- Load order in .toc: wowapi.lua → shared.lua → Retail / MOP / TBC Functions.lua
+-- Polyfills: the modern game API on clients that lack it
+-- BR is written against the modern API (C_Spell, C_UnitAuras, C_QuestLog, C_Item, ...). Each polyfill
+-- here is installed only where the client lacks that function, has the signature Blizzard documents,
+-- and builds the answer from the client's older API; it reads br.api.base, so it wraps an unlocker's
+-- version too. Fixes for one client's bugs in a modern function (TBC's cooldowns) live in that
+-- client's Expansions/<name>/Functions.lua.
+-- Load order in .toc: Layers.lua → Flavours.lua → Polyfills.lua → Retail / MOP / TBC Functions.lua
 local _, br = ...
 
 -- The unlocker's version of a game name, else the client's (Expansions/Layers.lua)
@@ -248,7 +249,7 @@ end
 
 -- C_AddOns namespace shims: the old globals where the client lacks the namespace methods.
 -- IsAddOnLoaded returns a boolean, as the namespace does (the old global returns 1/nil).
--- The proxies (wowapi.lua) look up the client's namespace table as it was at load, so a namespace an
+-- The proxies (Flavours.lua) look up the client's namespace table as it was at load, so a namespace an
 -- unlocker created later wouldn't be seen; none does.
 do
     local ca = br.api.wow.C_AddOns

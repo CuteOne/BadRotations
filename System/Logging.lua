@@ -442,7 +442,7 @@ flushEvents:SetScript("OnEvent", function(_, event)
 	log:flush()
 end)
 
--- Lines from files that load before BR's chat exists (Expansions/shared.lua), printed once every
+-- Lines from files that load before BR's chat exists (Expansions/Polyfills.lua), printed once every
 -- file has loaded: the tag's class color (System/UI/Colors.lua) isn't set until later in the TOC
 br._G.C_Timer.After(0, function()
 	for _, message in ipairs(br.earlyMessages or {}) do br._G.print(message) end
