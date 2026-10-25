@@ -1,6 +1,7 @@
 local _, br = ...
 br.readers.common = br.readers.common or {}
 local common = br.readers.common
+common.encounterID = 0
 
 -- Pre-register all event frames at module load time to avoid ADDON_ACTION_FORBIDDEN in NnLua runtime context
 local _lfgFrame         = br.game.CreateFrame("Frame"); _lfgFrame:RegisterEvent("LFG_PROPOSAL_SHOW")
@@ -12,11 +13,9 @@ local _superFrame       = br.game.CreateFrame("Frame")
 local autoAttackGUID      -- the unit auto attack started on (PLAYER_ENTER_COMBAT), for the Cast Debug stop line
 _superFrame:RegisterEvent("CHAT_MSG_ADDON")
 _superFrame:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
-_superFrame:RegisterEvent("PLAYER_STARTED_MOVING")
 -- Auto-attack starting and stopping (unit:isAutoAttacking)
 _superFrame:RegisterEvent("PLAYER_ENTER_COMBAT")
 _superFrame:RegisterEvent("PLAYER_LEAVE_COMBAT")
-_superFrame:RegisterEvent("PLAYER_STOPPED_MOVING")
 _superFrame:RegisterEvent("PLAYER_TOTEM_UPDATE")
 _superFrame:RegisterEvent("UNIT_AURA")
 _superFrame:RegisterEvent("UNIT_SPELLCAST_START")
@@ -357,19 +356,6 @@ function common:commonReaders()
 			end) end
 			return
 		end
-		-- Player moving
-		if event == "PLAYER_STARTED_MOVING" then
-			if br.player ~= nil then
-				br.player.moving = true
-			end
-			return
-		end
-		if event == "PLAYER_STOPPED_MOVING" then
-			if br.player ~= nil then
-				br.player.moving = false
-			end
-			return
-		end
 		-- Update Player Info
 		-- if event == "PLAYER_TALENT_UPDATE" and select(2, GetSpecializationInfo(GetSpecialization())) == br.loader.selectedSpec then
 		-- 	br.loader.rotationChanged = true
@@ -391,16 +377,16 @@ function common:commonReaders()
 				br.botCast = false
 			end
 			-- Queue Casting: the queued spell went off, drop it from the queue
-			if SourceUnit == "player" and br.player ~= nil and #br.player.queue ~= 0 then
-				for i = 1, #br.player.queue do
-					local queuedID = br.player.queue[i].id
+			if SourceUnit == "player" and #br.functions.cast.queue ~= 0 then
+				for i = 1, #br.functions.cast.queue do
+					local queuedID = br.functions.cast.queue[i].id
 					if type(queuedID) == "table" and br.functions and br.functions.spell and br.functions.spell.getHighestKnownRank then
 						queuedID = br.functions.spell:getHighestKnownRank(queuedID) or queuedID[1]
 					elseif type(queuedID) == "table" then
 						queuedID = queuedID[1]
 					end
 					if br.functions.spell:getName(SpellID) == br.functions.spell:getName(queuedID) then
-						br.game.tremove(br.player.queue, i)
+						br.game.tremove(br.functions.cast.queue, i)
 						if br.game.IsAoEPending() then
 							br.game.SpellStopTargeting()
 						end
@@ -436,16 +422,9 @@ function common:commonReaders()
 				-- end
 			end
 		end
-		if event == "ENCOUNTER_START" then
-			if br.player ~= nil then
-				br.player.eID = select(1, ...)
-			end
-		end
-		if event == "ENCOUNTER_END" then
-			if br.player ~= nil then
-				br.player.eID = 0
-			end
-		end
+		-- The boss encounter in progress (common.encounterID, 0 outside one)
+		if event == "ENCOUNTER_START" then common.encounterID = select(1, ...) end
+		if event == "ENCOUNTER_END" then common.encounterID = 0 end
 		if event == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED" then
 			br.bootstrap:noteSpecChange()
 		end

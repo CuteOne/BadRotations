@@ -16,11 +16,9 @@ function Player:new(spec)
 	self.actionList = {}                                    -- Action Lists
 	self.class = select(2, br.game.UnitClass("player"))       -- Class (non-localised)
 	self.glyph = {}                                         -- Glyphs
-	self.pandemic = {}                                      -- Base Duration per Unit/Debuff (combat log reader)
 	self.pet = {}                                           -- Pet Information Table
 	self.pet.list = {}                                      -- Table of Pets
 	self.specName = "None"                                  -- Spec name (settings key; the profile window title)
-	self.queue = {}                                         -- Queued Spells
 	self.race = select(2, br.game.UnitRace("player"))         -- Race (non-localised; Undead = Scourge)
 	self.rotation = {}                                      -- Selected Rotation
 	self.variables = {}                                     -- Custom Profile Variables
@@ -100,8 +98,8 @@ end
 
 -- Updates things out of combat
 function Player:baseUpdateOOC()
-	if #self.queue ~= 0 and br.functions.misc:getOptionCheck("Queue Casting") then
-		self.queue = {} -- Reset Queue Casting Table out of combat
+	if #br.functions.cast.queue ~= 0 and br.functions.misc:getOptionCheck("Queue Casting") then
+		br.game.wipe(br.functions.cast.queue) -- Reset Queue Casting Table out of combat
 		br.game.print("Out of Combat - Queue List Cleared")
 	end
 end

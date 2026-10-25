@@ -4,6 +4,9 @@ local E = cast.internal
 
 -- Entry point: createCastFunction (cast.<spell> and cast.able.<spell>) and the cast queue.
 
+-- Spells queued to cast (by /br queue or the Queue Casting option): { id, name, target, ... }
+cast.queue = cast.queue or {}
+
 -- ─────────────────────────────────────────────────────────────────────────────
 -- SECTION: createCastFunction (public entry point)
 --
@@ -259,15 +262,15 @@ end
 function cast:castQueue()
 	-- Catch for spells not registering on Combat log
 	if br.player ~= nil then
-		if br.player.queue ~= nil and #br.player.queue > 0 and not br.game.IsAoEPending() then
+		if #cast.queue > 0 and not br.game.IsAoEPending() then
 			local now = br.game.GetTime()
 			-- TTL: expire queue entries older than 3 GCDs to prevent indefinite retry of stale spells
 			local ttl = (br.player.state.gcdMax or 1.5) * 3
 			local i = 1
-			while i <= #br.player.queue do
-				local entry = br.player.queue[i]
+			while i <= #cast.queue do
+				local entry = cast.queue[i]
 				if entry.queuedAt and (now - entry.queuedAt) > ttl then
-					br.game.tremove(br.player.queue, i)
+					br.game.tremove(cast.queue, i)
 					if not br.functions.misc:isChecked("Mute Queue") then
 						br.log:say("Queue", br.log.highlight(tostring(entry.name)) .. " expired")
 					end
@@ -275,8 +278,8 @@ function cast:castQueue()
 					i = i + 1
 				end
 			end
-			for j = 1, #br.player.queue do
-				local entry = br.player.queue[j]
+			for j = 1, #cast.queue do
+				local entry = cast.queue[j]
 				-- Entries hold id, name, target and queuedAt (Readers/combatlog.lua); castType and the
 				-- AoE settings are optional and default like a plain cast.<spell>(target).
 				if br.functions.cast:createCastFunction(entry.target, entry.castType, entry.minUnits, entry.effectRng,
@@ -290,8 +293,7 @@ end
 -- Queued casts first each tick: a queued cast going out ends the tick. The queue empties when Queue
 -- Casting is off, the player dies or combat ends.
 br.lifecycle:onTick(10, "queued casts", function()
-	local misc, queue = br.functions.misc, br.player and br.player.queue
-	if queue == nil then return end
+	local misc, queue = br.functions.misc, cast.queue
 	local queueOn = misc:isChecked("Queue Casting")
 	if queueOn and #queue > 0 and not br.game.UnitChannelInfo("player") then
 		if cast:castQueue() then return true end
@@ -308,7 +310,7 @@ br.lifecycle:onTick(10, "queued casts", function()
 	end
 end)
 br.lifecycle:onPowerOff(10, "queued casts", function()
-	local queue = br.player and br.player.queue
+	local queue = cast.queue
 	if queue == nil or #queue == 0 then return end
 	br.game.wipe(queue)
 	if not br.functions.misc:isChecked("Mute Queue") then print("BR Disabled! - Queue Cleared.") end

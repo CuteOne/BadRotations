@@ -249,17 +249,13 @@ local function handler(message, editbox)
 		end
 	elseif msg1 == "queue" then
 		-- Queue
-		if br.player == nil or br.player.queue == nil then
+		if br.player == nil then
 			br.game.print("The queue is available once a rotation is loaded.")
 		elseif msg2 == "clear" then
-			if br.player.queue == nil then
+			if #br.functions.cast.queue == 0 then
 				br.game.print("Queue Already Cleared")
-			end
-			if #br.player.queue == 0 then
-				br.game.print("Queue Already Cleared")
-			end
-			if #br.player.queue > 0 then
-				br.player.queue = {}
+			else
+				br.game.wipe(br.functions.cast.queue)
 				br.game.print("Cleared Queue")
 			end
 		elseif msg2 == "add" then
@@ -299,9 +295,9 @@ local function handler(message, editbox)
 				elseif not notOnCD then
 					br.log:say("Queue", br.log.highlight(spellName) .. " not added, cooldown greater than gcd")
 				else
-					if #br.player.queue == 0 and notOnCD then
+					if #br.functions.cast.queue == 0 and notOnCD then
 						br.game.tinsert(
-							br.player.queue,
+							br.functions.cast.queue,
 							{
 								id = spellId,
 								name = spellName,
@@ -312,14 +308,14 @@ local function handler(message, editbox)
 							}
 						)
 						br.log:say("Queue", "Added " .. br.log.highlight(spellName))
-					elseif #br.player.queue ~= 0 then
-						for i = 1, #br.player.queue do
-							if spellId == br.player.queue[i].id then
+					elseif #br.functions.cast.queue ~= 0 then
+						for i = 1, #br.functions.cast.queue do
+							if spellId == br.functions.cast.queue[i].id then
 								br.log:say("Queue", br.log.highlight(spellName) .. " is already queued")
 								break
 							elseif notOnCD then
 								br.game.tinsert(
-									br.player.queue,
+									br.functions.cast.queue,
 									{
 										id = spellId,
 										name = spellName,
@@ -342,10 +338,10 @@ local function handler(message, editbox)
 			else
 				local spellName, spellId = br.functions.spell:getName(msg3), br.functions.spell:getSpellID(msg3)
 				local removedSpell = false
-				if #br.player.queue ~= 0 then
-					for i = 1, #br.player.queue do
-						if spellId == br.player.queue[i].id then
-							br.game.tremove(br.player.queue, i)
+				if #br.functions.cast.queue ~= 0 then
+					for i = 1, #br.functions.cast.queue do
+						if spellId == br.functions.cast.queue[i].id then
+							br.game.tremove(br.functions.cast.queue, i)
 							br.log:say("Queue", "Removed " .. br.log.highlight(spellName))
 							removedSpell = true
 							break

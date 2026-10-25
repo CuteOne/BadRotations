@@ -123,8 +123,9 @@ br.api.debuffs = function(debuff, k, v)
         if sourceUnit == nil then sourceUnit = 'player' end
         if thisUnit == 'target' then thisUnit = br.functions.unit:getUnitGUID("target") end
         local pandemic = debuff.duration(thisUnit, sourceUnit)
-        if br.player.pandemic[thisUnit] ~= nil and br.player.pandemic[thisUnit][k] ~= nil then
-            pandemic = br.player.pandemic[thisUnit][k]
+        local recorded = br.readers.combatLog.pandemic[thisUnit]
+        if recorded ~= nil and recorded[k] ~= nil then
+            pandemic = recorded[k]
         end
         return pandemic
     end

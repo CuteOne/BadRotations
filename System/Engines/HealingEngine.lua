@@ -151,7 +151,7 @@ if not healingEngine.metaTable1 then
 				local stacks = aura:getDebuffStacks(o.unit, doNotHeal.necroticRot)
 				if stacks > 0 and stacks >= necroRot then return 250, 250, 250 end
 			end
-			local encounter = br.player.eID
+			local encounter = br.readers.common.encounterID
 			if br.functions.misc:isChecked("Toxic Brand") and encounter and encounter == doNotHeal.toxicBrand.encounter then
 				local toxicBrand = br.functions.misc:getOptionValue("Toxic Brand")
 				if toxicBrand == 0 or toxicBrand == nil then toxicBrand = 10 end

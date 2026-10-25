@@ -9,6 +9,8 @@ br.readers.combatLog = br.readers.combatLog or {}
 br.readers.combatLog.debuffTracker = {}
 br.readers.combatLog.enraged = {}
 local combatLog = br.readers.combatLog
+-- A debuff's base duration per unit, kept for the pandemic refresh window (debuff.X.pandemic)
+combatLog.pandemic = combatLog.pandemic or {}
 
 -- TODO: OUTDATED - MoP DPS potions (buff -> item), for the potion-used tracking in combatLog:common
 local DPSPotionsSet = {
@@ -388,21 +390,21 @@ function combatLog:common(...)
                     else
                         br.queueDest = destination
                     end
-                    if br.player ~= nil and #br.player.queue == 0 and notOnCD then
-                        br.game.tinsert(br.player.queue, { id = spell, name = spellName, target = br.queueDest, queuedAt = br.game.GetTime() })
+                    if #br.functions.cast.queue == 0 and notOnCD then
+                        br.game.tinsert(br.functions.cast.queue, { id = spell, name = spellName, target = br.queueDest, queuedAt = br.game.GetTime() })
                         if not br.functions.misc:isChecked("Mute Queue") then
                             br.log:say("Queue", "Added " .. br.log.highlight(spellName))
                         end
-                    elseif br.player ~= nil and #br.player.queue ~= 0 then
-                        for i = 1, #br.player.queue do
-                            if spell == br.player.queue[i].id then
-                                br.game.tremove(br.player.queue, i)
+                    elseif #br.functions.cast.queue ~= 0 then
+                        for i = 1, #br.functions.cast.queue do
+                            if spell == br.functions.cast.queue[i].id then
+                                br.game.tremove(br.functions.cast.queue, i)
                                 if not br.functions.misc:isChecked("Mute Queue") then
                                     br.log:say("Queue", "Removed " .. br.log.highlight(spellName))
                                 end
                                 break
                             elseif notOnCD then
-                                br.game.tinsert(br.player.queue, { id = spell, name = spellName, target = br.queueDest, queuedAt = br.game.GetTime() })
+                                br.game.tinsert(br.functions.cast.queue, { id = spell, name = spellName, target = br.queueDest, queuedAt = br.game.GetTime() })
                                 if not br.functions.misc:isChecked("Mute Queue") then
                                     br.log:say("Queue", "Added " .. br.log.highlight(spellName))
                                 end
@@ -428,10 +430,10 @@ function combatLog:common(...)
                     if br.botCast == true then
                         br.botCast = false
                     end
-                    if br.player ~= nil and br.player.queue ~= nil and #br.player.queue ~= 0 then
-                        for i = 1, #br.player.queue do
-                            if spell == br.player.queue[i].id then
-                                br.game.tremove(br.player.queue, i)
+                    if #br.functions.cast.queue ~= 0 then
+                        for i = 1, #br.functions.cast.queue do
+                            if spell == br.functions.cast.queue[i].id then
+                                br.game.tremove(br.functions.cast.queue, i)
                                 if not br.functions.misc:isChecked("Mute Queue") then
                                     br.log:say("Queue", "Cast " .. br.log.highlight(spellName) .. ", removed from the queue")
                                 end
@@ -499,7 +501,7 @@ function combatLog:common(...)
                 end
                 if br.player ~= nil then
                     local debuff = br.player.debuff
-                    local pandemic = br.player.pandemic
+                    local pandemic = combatLog.pandemic
                     if br.player["spell"].debuffs ~= nil then
                         if param == "SPELL_AURA_REMOVED" then
                             if
@@ -1160,36 +1162,6 @@ function combatLog:Shaman(...) -- 7
     end
     if param == "UNIT_DESTROYED" and br.activeTotem == destination then
         br.activeTotem = nil
-    end
-    -------------
-    --[[ Lightning Bolt ]]
-    if br.player ~= nil and br.game.C_SpecializationInfo.GetSpecialization() == 2 then
-        if sourceName ~= nil then
-            if br.functions.misc:isInCombat("player") and br.functions.unit:GetUnitIsUnit(sourceName, "player") then
-                -- Chain Lightning / Lightning Bolt
-                if br.lightningStarted == nil then
-                    br.lightningStarted = false
-                end
-                if param == "SPELL_CAST_START" then
-                    if
-                        (spell == br.player.spells.lightningBolt or spell == br.player.spells.chainLightning) and
-                        br.player.variables.fillLightning
-                    then
-                        br.lightningStarted = true
-                    end
-                end
-                if param == "SPELL_CAST_SUCCESS" then
-                    if
-                        (spell == br.player.spells.lightningBolt or spell == br.player.spells.chainLightning) and
-                        br.player.variables.fillLightning and
-                        br.lightningStarted
-                    then
-                        br.player.variables.fillLightning = false
-                        br.lightningStarted = false
-                    end
-                end
-            end
-        end
     end
 end
 

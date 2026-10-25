@@ -243,7 +243,7 @@ function aura:canDispel(Unit, spellID)
 		end
 	end
 	-- Arcane Torrent (Blood Elf)
-	if br.player.race == "BloodElf" and (isSpell("arcaneTorrent")
+	if br.functions.unit:getRace("player") == "BloodElf" and (isSpell("arcaneTorrent")
 		or spellID == br.functions.spell:getSpellID(br.lists.racials and br.lists.racials._bloodElfBase))
 	then
 		typesList = { "Magic" }
