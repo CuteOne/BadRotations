@@ -10,6 +10,23 @@ local hooksecurefunc, select, UnitGUID, tonumber, strfind =
 	br._G.UnitGUID,
 	br._G.tonumber,
 	br._G.strfind
+
+-- Runs callback(tooltip, data) whenever a tooltip of this kind is shown: through the tooltip's old
+-- OnTooltipSet* script where it still has it, else TooltipDataProcessor (newer clients drop the
+-- scripts, and hooking a missing script errors). onlyThisTooltip limits the TooltipDataProcessor
+-- hook to that one tooltip frame (item hooks); spell and unit hooks fire for every tooltip.
+local function onTooltip(dataType, scriptName, tooltip, callback, onlyThisTooltip)
+	local processor = br._G.TooltipDataProcessor
+	local dataTypes = br._G.Enum and br._G.Enum.TooltipDataType
+	if tooltip and tooltip.HasScript and tooltip:HasScript(scriptName) then
+		tooltip:HookScript(scriptName, function(self) callback(self) end)
+	elseif processor and processor.AddTooltipPostCall and dataTypes then
+		processor.AddTooltipPostCall(dataTypes[dataType], function(tooltipFrame, data)
+			if not onlyThisTooltip or tooltipFrame == tooltip then callback(tooltipFrame, data) end
+		end)
+	end
+end
+
 local types = {
 	spell = "SpellID:",
 	item = "ItemID:",
@@ -94,12 +111,12 @@ hooksecurefunc(
 		end
 	end
 )
--- Spell tooltips (uses compatibility wrapper for Retail vs Classic)
-if br.api and br.api.wow and br.api.wow.HookTooltipSetSpell then
-	br.api.wow.HookTooltipSetSpell(function(tooltip, id)
-		addLine(tooltip, id, types.spell)
-	end)
-end
+-- Spell tooltips
+onTooltip("Spell", "OnTooltipSetSpell", br._G.GameTooltip, function(tooltip, data)
+	local id = data and data.id
+	if not id and tooltip.GetSpell then id = select(2, tooltip:GetSpell()) end
+	if id then addLine(tooltip, id, types.spell) end
+end)
 -- NPCs
 local function unitTooltipHandler(tooltip)
 	if br._G.C_PetBattles and br._G.C_PetBattles.IsInBattle and br._G.C_PetBattles.IsInBattle() then
@@ -159,11 +176,9 @@ function tooltips:targetValidationDebugHandler(tooltip)
 	tooltip:AddLine(reason or "Not valid", 1, 0, 0)
 end
 
--- Register tooltip hook (uses compatibility wrapper for Retail vs Classic)
-if br.api and br.api.wow and br.api.wow.HookTooltipSetUnit then
-	br.api.wow.HookTooltipSetUnit(unitTooltipHandler)
-	br.api.wow.HookTooltipSetUnit(function(tooltip) pcall(tooltips.targetValidationDebugHandler, tooltips, tooltip) end)
-end
+-- Unit tooltips
+onTooltip("Unit", "OnTooltipSetUnit", br._G.GameTooltip, unitTooltipHandler)
+onTooltip("Unit", "OnTooltipSetUnit", br._G.GameTooltip, function(tooltip) pcall(tooltips.targetValidationDebugHandler, tooltips, tooltip) end)
 -- Items
 local function attachItemTooltip(self)
 	if (self == GameTooltip or self == _G.ItemRefTooltip) then
@@ -177,8 +192,6 @@ local function attachItemTooltip(self)
 	end
 end
 
--- Register item tooltip hooks (uses compatibility wrapper for Retail vs Classic)
-if br.api and br.api.wow and br.api.wow.HookTooltipSetItem then
-	br.api.wow.HookTooltipSetItem(br._G.GameTooltip, attachItemTooltip)
-	br.api.wow.HookTooltipSetItem(br._G.ItemRefTooltip, attachItemTooltip)
-end
+-- Item tooltips
+onTooltip("Item", "OnTooltipSetItem", br._G.GameTooltip, attachItemTooltip, true)
+onTooltip("Item", "OnTooltipSetItem", br._G.ItemRefTooltip, attachItemTooltip, true)

@@ -24,6 +24,13 @@ br.hasSecretValues = (issecretvalue ~= nil or canaccessvalue ~= nil) and (br.isR
 -- Defaults to "Unknown" for unsupported clients (Cata, Wrath, etc.).
 br.api.expansion = "Unknown"
 
+-- The talents BR reads, { [talentSpellID] = { active = bool, rank = n } }. By default none:
+-- rotations gate talents through cast.able.* and known spells. Retail (C_Traits) and MOP (tiers)
+-- read theirs in their own Functions.lua.
+br.api.getTalentInfo = function(spec, spellTalents)
+    return {}
+end
+
 -- Version info for debugging
 function br.api.compat:getVersionInfo()
     local version, build, date, tocVersion = GetBuildInfo()

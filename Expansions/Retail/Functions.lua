@@ -55,7 +55,7 @@ end
 
 
 -- Talent System - Retail uses C_Traits API (Dragonflight talent trees)
-api.getTalentInfo = function(spec, spellTalents)
+br.api.getTalentInfo = function(spec, spellTalents)
     local talents = {}
 
     -- Initial profiles (spec > 1400) don't have talents

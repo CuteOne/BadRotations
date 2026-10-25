@@ -40,43 +40,6 @@ api.GetSpellInfo = function(spellIdentifier)
     return nil
 end
 
--- Tooltip hooks: the old OnTooltipSet* scripts where the tooltip still has them, else
--- TooltipDataProcessor (newer clients drop the scripts, and hooking a missing script errors).
--- onlyThisTooltip limits the modern hook to one tooltip frame (item hooks); spell and unit hooks
--- fire for every tooltip.
-local function hookTooltip(dataType, scriptName, tooltip, callback, onlyThisTooltip)
-    local processor = br._G.TooltipDataProcessor
-    if tooltip and tooltip.HasScript and tooltip:HasScript(scriptName) then
-        tooltip:HookScript(scriptName, function(self) callback(self) end)
-    elseif processor and processor.AddTooltipPostCall and _G.Enum and _G.Enum.TooltipDataType then
-        processor.AddTooltipPostCall(_G.Enum.TooltipDataType[dataType], function(tooltipFrame, data)
-            if not onlyThisTooltip or not tooltip or tooltipFrame == tooltip then
-                callback(tooltipFrame, data)
-            end
-        end)
-    end
-end
-
-api.HookTooltipSetSpell = function(callback)
-    hookTooltip("Spell", "OnTooltipSetSpell", GameTooltip, function(tooltip, data)
-        local id = data and data.id
-        if not id and tooltip.GetSpell then id = select(2, tooltip:GetSpell()) end
-        if id then callback(tooltip, id) end
-    end)
-end
-
-api.HookTooltipSetUnit = function(callback)
-    hookTooltip("Unit", "OnTooltipSetUnit", GameTooltip, function(tooltip)
-        callback(tooltip)
-    end)
-end
-
-api.HookTooltipSetItem = function(tooltip, callback)
-    hookTooltip("Item", "OnTooltipSetItem", tooltip, function(tooltipFrame)
-        callback(tooltipFrame)
-    end, true)
-end
-
 -- UnitInPhase: the old global, else UnitPhaseReason (nil = same phase), else "in phase if it exists".
 api.UnitInPhase = function(unit)
     if _G.UnitInPhase then return _G.UnitInPhase(unit) end
@@ -221,43 +184,6 @@ do
         end
         return nil
     end
-
-    -- One pass over a unit's buffs or debuffs for an aura with this name
-    local function scanByName(name, u, ft, isHarm)
-        for i = 1, 40 do
-            local aura = isHarm and api.GetDebuffDataByIndex(u, i, ft)
-                                 or api.GetBuffDataByIndex(u, i, ft)
-            if not aura then return nil end
-            if aura.name == name then return aura end
-        end
-    end
-
-    api.FindAuraByName = function(spellName, unit, filter)
-        if not spellName or not unit then return nil end
-        -- Skip _G.AuraUtil.FindAuraByName: it internally calls GetAuraDataBySpellName which
-        -- rejects object pointers in Midnight. api.GetXxxDataByIndex already handles unit
-        -- conversion correctly per expansion (including NN ObjectUnit wrapping on Retail).
-        if not filter then
-            return scanByName(spellName, unit, nil, false) or scanByName(spellName, unit, nil, true)
-        end
-        local upFilter = string.upper(filter)
-        local hasHelpful = string.find(upFilter, "HELPFUL", 1, true)
-        local hasHarmful = string.find(upFilter, "HARMFUL", 1, true)
-        if hasHelpful or hasHarmful then
-            return (hasHelpful and scanByName(spellName, unit, filter, false))
-                or (hasHarmful and scanByName(spellName, unit, filter, true)) or nil
-        end
-        if string.find(upFilter, "PLAYER", 1, true) then
-            return scanByName(spellName, unit, "PLAYER", false) or scanByName(spellName, unit, "PLAYER", true)
-        end
-        -- A filter without HELPFUL / HARMFUL / PLAYER: only the generic aura list covers it
-        for i = 1, 40 do
-            local aura = api.GetAuraDataByIndex(unit, i, filter)
-            if not aura then break end
-            if aura.name == spellName then return aura end
-        end
-        return nil
-    end
 end
 
 -- IsCurrentSpell: the old global, else C_Spell.IsCurrentSpell (newer clients only have that one).
@@ -292,11 +218,6 @@ do
     end
 end
 
--- Talents: no talent API is read by default; rotations gate talents through cast.able.* and known
--- spells. Retail (C_Traits) and MOP (tiers) read theirs in their own files.
-api.getTalentInfo = function(spec, spellTalents)
-    return {}
-end
 
 -- C_Spell namespace shims.
 -- Polyfill methods missing on older clients. Guards ensure a shim is only
@@ -552,33 +473,6 @@ do
             return nil
         end
     end
-end
-
--- The spell whose cooldown is the global cooldown. Clients that have the GCD spell (61304, from Wrath of
--- the Lich King on) use it; older ones use a spell every member of the class knows from level 1 and
--- that shares the GCD in every form (a Druid's Wrath works in Cat and Bear Form too).
-local GCD_SPELL = 61304
-local GCDSpells = {
-    DRUID   = 5176,   -- Wrath
-    HUNTER  = 1978,   -- Serpent Sting
-    MAGE    = 133,    -- Fireball
-    PALADIN = 635,    -- Holy Light
-    PRIEST  = 2050,   -- Holy Smite
-    ROGUE   = 1752,   -- Sinister Strike
-    SHAMAN  = 403,    -- Lightning Bolt
-    WARLOCK = 686,    -- Shadow Bolt
-    WARRIOR = 772,    -- Rend
-}
-local hasGCDSpell = nil -- whether this client has GCD_SPELL, checked once
-
-api.GetGCDSpellID = function()
-    if hasGCDSpell == nil then
-        hasGCDSpell = (_G.C_Spell and _G.C_Spell.GetSpellInfo and _G.C_Spell.GetSpellInfo(GCD_SPELL) ~= nil)
-            or (_G.GetSpellInfo and _G.GetSpellInfo(GCD_SPELL) ~= nil) or false
-    end
-    if hasGCDSpell then return GCD_SPELL end
-    local _, class = _G.UnitClass("player")
-    return class and GCDSpells[class] or GCDSpells.DRUID
 end
 
 -- The standard compatibility-layer banner. Called at the end of each expansion's Functions.lua

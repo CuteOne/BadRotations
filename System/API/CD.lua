@@ -24,8 +24,8 @@ br.api.cd = function(self, spell, id)
     cd[spell].duration = function()
         -- Special handling for global CD in Classic
         local spellID = br.functions.spell:currentRank(id)
-        if spell == "global" and br.api.wow.GetGCDSpellID then
-            spellID = br.api.wow.GetGCDSpellID()
+        if spell == "global" then
+            spellID = br.functions.spell:getGCDSpellID()
         end
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
@@ -41,8 +41,8 @@ br.api.cd = function(self, spell, id)
     cd[spell].exists = function()
         -- Special handling for global CD in Classic
         local spellID = br.functions.spell:currentRank(id)
-        if spell == "global" and br.api.wow.GetGCDSpellID then
-            spellID = br.api.wow.GetGCDSpellID()
+        if spell == "global" then
+            spellID = br.functions.spell:getGCDSpellID()
         end
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
@@ -67,8 +67,8 @@ br.api.cd = function(self, spell, id)
     cd[spell].ready = function()
         -- Special handling for global CD in Classic
         local spellID = br.functions.spell:currentRank(id)
-        if spell == "global" and br.api.wow.GetGCDSpellID then
-            spellID = br.api.wow.GetGCDSpellID()
+        if spell == "global" then
+            spellID = br.functions.spell:getGCDSpellID()
         end
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
@@ -83,8 +83,8 @@ br.api.cd = function(self, spell, id)
     cd[spell].remain = function()
         -- Special handling for global CD in Classic
         local spellID = br.functions.spell:currentRank(id)
-        if spell == "global" and br.api.wow.GetGCDSpellID then
-            spellID = br.api.wow.GetGCDSpellID()
+        if spell == "global" then
+            spellID = br.functions.spell:getGCDSpellID()
         end
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
@@ -99,8 +99,8 @@ br.api.cd = function(self, spell, id)
     cd[spell].remains = function()
         -- Special handling for global CD in Classic
         local spellID = br.functions.spell:currentRank(id)
-        if spell == "global" and br.api.wow.GetGCDSpellID then
-            spellID = br.api.wow.GetGCDSpellID()
+        if spell == "global" then
+            spellID = br.functions.spell:getGCDSpellID()
         end
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1

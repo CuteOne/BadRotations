@@ -171,7 +171,7 @@ end
 -- @param spec Spec ID
 -- @return table allTalents as reported by the expansion's talent system
 function spellCompiler:compileTalents(player, spec)
-    local allTalents = br.api.wow.getTalentInfo(spec, player.spells.talents)
+    local allTalents = br.api.getTalentInfo(spec, player.spells.talents)
     if player.talent == nil then player.talent = {} end
 
     validateTalents(allTalents, spec)

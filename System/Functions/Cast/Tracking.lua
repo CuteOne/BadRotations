@@ -54,7 +54,7 @@ local function strongerAuraRemaining(spellID, guid)
 	local name = br.functions.spell:getName(spellID)
 	if not unit or not name then return nil end
 	local filter = br.functions.spell:getSpellType(name) == "Harmful" and "HARMFUL" or "HELPFUL"
-	local aura = br.api.wow.FindAuraByName(name, unit, filter)
+	local aura = br.functions.aura:findByName(name, unit, filter)
 	local expires = aura and aura.expirationTime
 	if not expires or expires == 0 then return nil end
 	local remaining = expires - br._G.GetTime()

@@ -3,6 +3,7 @@ local _, br = ...
 br.functions.spell = br.functions.spell or {}
 local spell = br.functions.spell
 local maxStage = 0
+local hasGCDSpell = nil -- whether this client has the GCD spell (spell:getGCDSpellID), checked once
 
 local function getEventBuffIDs()
     return br.functions.spell:getHighestSpellID("forTheAlliance"),
@@ -429,6 +430,19 @@ function spell:getFullRechargeTime(spellID)
 	return 0
 end
 
+-- The spell whose cooldown is the global cooldown (br.lists.globalCooldown): the client's GCD
+-- spell, or a class spell on clients without it.
+-- local gcd = br.functions.spell:getSpellCD(br.functions.spell:getGCDSpellID())
+function spell:getGCDSpellID()
+	local list = br.lists.globalCooldown
+	if hasGCDSpell == nil then
+		hasGCDSpell = br.api.wow.GetSpellInfo(list.spell) ~= nil
+	end
+	if hasGCDSpell then return list.spell end
+	local _, class = br._G.UnitClass("player")
+	return class and list.byClass[class] or list.byClass.DRUID
+end
+
 function spell:getGlobalCD(max)
 	local currentSpecName = br.loader.selectedSpec
 	if currentSpecName == "" then currentSpecName = "Initial" end
@@ -439,8 +453,7 @@ function spell:getGlobalCD(max)
 			return math.max(math.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100)), 0.75)
 		end
 	end
-	-- The client's GCD spell (Expansions/shared.lua: 61304, or a class spell on clients without it)
-	return br.functions.spell:getSpellCD(br.api.wow.GetGCDSpellID())
+	return br.functions.spell:getSpellCD(spell:getGCDSpellID())
 end
 
 -- Get the highest known rank of a spell from a spell ID table or single ID

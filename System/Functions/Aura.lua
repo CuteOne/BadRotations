@@ -194,6 +194,16 @@ local bleedSnapshotKeys = { rake = true, rip = true, rupture = true, garrote = t
 
 local exsanguinateKeys = { crimsonTempest = true, garrote = true, rupture = true }
 
+-- One pass over a unit's buffs or debuffs for an aura with this name (aura:findByName)
+local function scanByName(name, unit, filter, isHarmful)
+	local read = isHarmful and br.api.wow.GetDebuffDataByIndex or br.api.wow.GetBuffDataByIndex
+	for i = 1, 40 do
+		local auraInfo = read(unit, i, filter)
+		if not auraInfo then return nil end
+		if auraInfo.name == name then return auraInfo end
+	end
+end
+
 function aura:AuraData(unit, index, filter)
 	local auraData = br.api.wow.GetAuraDataByIndex(unit, index, filter)
 	if not auraData then return nil end
@@ -404,10 +414,39 @@ function aura:findBuff(unit, spellID, filter)
 	else
 		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
 			-- br._G.print("Unit: " .. tostring(unit) .. ", Spell: " .. tostring(spellName) .. ", ID: " .. tostring(spellID))
-			return br.api.wow.FindAuraByName(spellName, unit, "HELPFUL|PLAYER")
+			return aura:findByName(spellName, unit, "HELPFUL|PLAYER")
 		end
-		return br.api.wow.FindAuraByName(spellName, unit, "HELPFUL")
+		return aura:findByName(spellName, unit, "HELPFUL")
 	end
+end
+
+-- The first aura with this name on the unit, by its filter: HELPFUL / HARMFUL search buffs /
+-- debuffs, PLAYER alone searches both for the player's own, no filter searches both.
+-- (AuraUtil.FindAuraByName isn't used: it calls GetAuraDataBySpellName, which rejects the object
+-- pointers some unlockers hand out as units.)
+-- local aura = br.functions.aura:findByName("Rejuvenation", "target", "HELPFUL|PLAYER")
+function aura:findByName(spellName, unit, filter)
+	if not spellName or not unit then return nil end
+	if not filter then
+		return scanByName(spellName, unit, nil, false) or scanByName(spellName, unit, nil, true)
+	end
+	local upFilter = string.upper(filter)
+	local hasHelpful = string.find(upFilter, "HELPFUL", 1, true)
+	local hasHarmful = string.find(upFilter, "HARMFUL", 1, true)
+	if hasHelpful or hasHarmful then
+		return (hasHelpful and scanByName(spellName, unit, filter, false))
+			or (hasHarmful and scanByName(spellName, unit, filter, true)) or nil
+	end
+	if string.find(upFilter, "PLAYER", 1, true) then
+		return scanByName(spellName, unit, "PLAYER", false) or scanByName(spellName, unit, "PLAYER", true)
+	end
+	-- A filter without HELPFUL / HARMFUL / PLAYER: only the generic aura list covers it
+	for i = 1, 40 do
+		local auraInfo = br.api.wow.GetAuraDataByIndex(unit, i, filter)
+		if not auraInfo then break end
+		if auraInfo.name == spellName then return auraInfo end
+	end
+	return nil
 end
 
 -- function aura:UnitDebuffID(unit, spellID, filter)

@@ -200,7 +200,7 @@ end
 
 -- Shared debuff lookup for the Cache Debuffs option
 local function findDebuffOnUnit(buffName, unit)
-	return br.api.wow.FindAuraByName(br.api.wow.GetSpellInfo(buffName), unit, "HARMFUL|PLAYER")
+	return br.functions.aura:findByName(br.api.wow.GetSpellInfo(buffName), unit, "HARMFUL|PLAYER")
 end
 
 -- Cache Debuffs: the player's debuffs on this unit, from the combat log's tracker
