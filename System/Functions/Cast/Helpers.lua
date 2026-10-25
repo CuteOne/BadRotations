@@ -302,3 +302,13 @@ function E.getPetBarSlot(spellName, refresh)
 	end
 	return petBarCache[spellName]
 end
+
+-- Runs a macro's text (/cast, /use, ...)
+function cast:runMacro(text)
+	br.game.RunMacroText(text)
+end
+
+-- Shifts into the form at that index of the stance bar (0 leaves the form)
+function cast:shapeshift(formIndex)
+	return br.game.CastShapeshiftForm(formIndex)
+end

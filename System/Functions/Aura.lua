@@ -205,6 +205,11 @@ local function scanByName(name, unit, filter, isHarmful)
 	end
 end
 
+-- Cancels the player's buff (by spell ID)
+function aura:cancelBuff(spellID)
+	br.game.RunMacroText("/cancelaura " .. br.functions.spell:getName(spellID))
+end
+
 -- if br.functions.aura:canDispel("target",SpellID) == true then
 function aura:canDispel(Unit, spellID)
 	-- Initialize dispel tracking table if it doesn't exist

@@ -4,6 +4,11 @@ local _, br = ...
 br.functions.misc = br.functions.misc or {}
 local misc = br.functions.misc
 
+-- Runs fn after the given seconds
+function misc:after(seconds, fn)
+	br.game.C_Timer.After(seconds, fn)
+end
+
 -- Whether BR may use a value (compare it, do arithmetic with it). See System/Secrets.lua:
 -- issecretvalue is true even for values BR's protected scripts may use (measured on Forever), so
 -- it only decides whether a value can be shown in chat.
@@ -58,3 +63,8 @@ function misc:round2(num, idp)
 end
 
 -- UnitGUID("target"):sub(-15,-10)
+
+-- The game clock in seconds
+function misc:getTime()
+	return br.game.GetTime()
+end

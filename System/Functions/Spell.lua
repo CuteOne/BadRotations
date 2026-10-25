@@ -311,6 +311,17 @@ function spell:finisherKills(spellID, thisUnit)
 	return damage[comboPoints] + extraEnergy * damage.perEnergy >= (br.game.UnitHealth(thisUnit) or 0)
 end
 
+-- The spell's base cooldown and the global cooldown it triggers, in milliseconds
+-- local cooldownMS, gcdMS = br.functions.spell:getBaseCooldown(774)
+function spell:getBaseCooldown(spellID)
+	return br.game.GetSpellBaseCooldown(spellID)
+end
+
+-- How many casts the spell has stored (Retail's cast count, e.g. Soul Fragments consumers)
+function spell:getCastCount(spellID)
+	return br.game.C_Spell.GetSpellCastCount(spellID)
+end
+
 function spell:getCastingRegen(spellID)
 	local regenRate = br.functions.power:getRegen("player")
 	local power = 0
@@ -363,6 +374,12 @@ function spell:getChargesFrac(spellID, chargeMax)
 		end
 	end
 	return 0
+end
+
+-- The full length of the spell's current cooldown in seconds (0 when it isn't cooling down)
+function spell:getCooldownDuration(spellID)
+	local cooldown = br.game.C_Spell.GetSpellCooldown(spellID)
+	return cooldown and cooldown.duration or 0
 end
 
 -- Name of the race's damage racial (cast.racial), or nil if the race has none on this client.
@@ -491,6 +508,14 @@ function spell:getHighestSpellID(key)
     -- Only once the player's spells are compiled: before that the class lists may not be loaded yet
     if br.player and br.player.spells then highestSpellIDs[key] = found == nil and NO_SPELL or found end
     return found
+end
+
+-- The spell's SpellInfo table (name, iconID, castTime, minRange, maxRange, spellID), nil when
+-- unknown or for a rank list
+-- local info = br.functions.spell:getInfo(5176)
+function spell:getInfo(spellIDOrName)
+	if spellIDOrName == nil or type(spellIDOrName) == "table" then return nil end
+	return br.game.C_Spell.GetSpellInfo(spellIDOrName)
 end
 
 -- Get the current rank the player knows for a spell
@@ -710,6 +735,16 @@ function spell:getSpellType(spellName)
 	if not helpful and not harmful then return "Unknown" end
 end
 
+function spell:getTexture(spellID)
+	return br.game.C_Spell.GetSpellTexture(spellID)
+end
+
+-- True while the spell is on: auto-repeating (Auto Shot, Shoot) or the game's current spell
+-- (queued for the next swing, like Maul)
+function spell:isActive(spellID)
+	return br.game.C_Spell.IsAutoRepeatSpell(spell:getName(spellID)) or br.game.C_Spell.IsCurrentSpell(spellID)
+end
+
 function spell:isKnown(spellID)
 	if spellID == nil then return false end
 
@@ -729,6 +764,20 @@ function spell:isKnown(spellID)
 		inBook = br.functions.spell:isSpellInSpellbook(spellID, "spell")
 	end
 	return inBook or br.game.IsPlayerSpell(tonumber(spellID)) or br.game.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID,"spell")
+end
+
+-- True once the player's level reaches the level the spell is learned at
+function spell:isLevelReached(spellID)
+	return br.game.UnitLevel("player") >= (br.game.C_Spell.GetSpellLevelLearned(spellID) or 1)
+end
+
+function spell:isPassive(spellID)
+	return br.game.C_Spell.IsSpellPassive(spellID)
+end
+
+-- True when the player has the spell (talents included), as the game answers IsPlayerSpell
+function spell:isPlayerSpell(spellID)
+	return br.game.IsPlayerSpell(spellID)
 end
 
 -- Check whether a spell ID is a spell list entry or one of its ranks

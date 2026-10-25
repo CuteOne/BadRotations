@@ -112,6 +112,13 @@ function item:canUseItem(itemID)
 	return false
 end
 
+-- The base cooldown of the item's use spell, in seconds (0 for an item without one)
+function item:getBaseCooldown(itemID)
+	local _, spellID = br.game.C_Item.GetItemSpell(itemID)
+	if spellID == nil then return 0 end
+	return br.game.GetSpellBaseCooldown(spellID) / 1000
+end
+
 -- Best usable potion in the bags whose name contains both nameMatch and "Potion" (e.g. "Heal", "Mana").
 -- Matches the Consumable item class and the name, since localized subtype strings differ between flavors.
 -- local potion = br.functions.item:getBestPotion("Heal")
@@ -140,6 +147,11 @@ function item:getBestPotion(nameMatch)
 		if item:canUseItem(candidates[i].itemID) then return candidates[i].itemID end
 	end
 	return nil
+end
+
+-- The item's cooldown: start, duration (start 0 when it isn't cooling down)
+function item:getCooldown(itemID)
+	return br.game.C_Container.GetItemCooldown(itemID)
 end
 
 function item:getHeirloomNeck()
@@ -189,6 +201,11 @@ function item:getHighestItemID(key)
         return br.functions.item:getHighestHeldRank(v)
     end
     return v
+end
+
+-- The cooldown of the item in an inventory slot: start, duration, enable
+function item:getSlotCooldown(slotID)
+	return br.game.GetInventoryItemCooldown("player", slotID)
 end
 
 -- True if the item has matchStat (a GetItemStats key), or any DPS stat when matchStat is nil.

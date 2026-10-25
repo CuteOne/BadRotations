@@ -23,7 +23,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @treturn number
     debuff.applied = function(thisUnit)
         v = currentRank()
-        local thisUnit = br.game.GetObjectWithGUID(thisUnit) or thisUnit or "target"
+        local thisUnit = br.functions.unit:getObjectFromGUID(thisUnit) or thisUnit or "target"
         return (spec == 103 or spec == 259) and debuff.bleed[thisUnit] or 0
     end
 
@@ -121,7 +121,7 @@ br.api.debuffs = function(debuff, k, v)
         v = currentRank()
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        if thisUnit == 'target' then thisUnit = br.game.UnitGUID("target") end
+        if thisUnit == 'target' then thisUnit = br.functions.unit:getUnitGUID("target") end
         local pandemic = debuff.duration(thisUnit, sourceUnit)
         if br.player.pandemic[thisUnit] ~= nil and br.player.pandemic[thisUnit][k] ~= nil then
             pandemic = br.player.pandemic[thisUnit][k]
@@ -138,7 +138,7 @@ br.api.debuffs = function(debuff, k, v)
         v = currentRank()
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        if thisUnit == 'target' then thisUnit = br.game.UnitGUID("target") end
+        if thisUnit == 'target' then thisUnit = br.functions.unit:getUnitGUID("target") end
         local multiplier = 0
         local duration = br.functions.aura:getDebuffDuration(thisUnit, v, sourceUnit) or 0
         if duration > 0 then
@@ -237,7 +237,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @return number
     debuff.ticksGainedOnRefresh = function(thisUnit)
         v = currentRank()
-        local haste = br.game.UnitSpellHaste("player")
+        local haste = br.functions.misc:getSpellHaste()
         local hasteMultiplier = 1 + (haste / 100)
         local baseTickTime = br.functions.aura:getBaseTickTime(v)
         local hastedTickTime = baseTickTime / hasteMultiplier
@@ -246,7 +246,7 @@ br.api.debuffs = function(debuff, k, v)
         if auraInfo then
             local expirationTime = auraInfo.expirationTime
             local duration = auraInfo.duration
-            local remainingDuration = expirationTime - br.game.GetTime()
+            local remainingDuration = expirationTime - br.functions.misc:getTime()
             local remainingTicks = math.floor(remainingDuration / hastedTickTime)
 
             -- Calculate the additional ticks (pandemic mechanic)
@@ -268,7 +268,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @return number
     debuff.ticksRemain = function(thisUnit)
         v = currentRank()
-        local haste = br.game.UnitSpellHaste("player")
+        local haste = br.functions.misc:getSpellHaste()
         local hasteMultiplier = 1 + (haste / 100)
         local baseTickTime = br.functions.aura:getBaseTickTime(v)
         local hastedTickTime = baseTickTime / hasteMultiplier
@@ -277,7 +277,7 @@ br.api.debuffs = function(debuff, k, v)
         if auraInfo then
             local expirationTime = auraInfo.expirationTime
             -- local duration = auraInfo.duration
-            local remainingDuration = expirationTime - br.game.GetTime()
+            local remainingDuration = expirationTime - br.functions.misc:getTime()
             local remainingTicks = math.floor(remainingDuration / hastedTickTime)
 
             return remainingTicks -- The additional ticks gained by refreshing

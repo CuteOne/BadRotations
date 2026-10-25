@@ -226,6 +226,11 @@ function unit:getFacing(Unit1, Unit2, Degrees)
 	return angle < Degrees
 end
 
+-- The unit (object) with this GUID, nil when there is none
+function unit:getObjectFromGUID(guid)
+	return br.game.GetObjectWithGUID(guid)
+end
+
 --- Which way Unit faces as the server has it, in radians, and whether that came from its target.
 -- The server turns a unit to face the unit it attacks or casts at without telling the client
 -- (CMaNGOS Unit::SelectHostileTarget -> SetInFront), so the client's facing for it can be far off
@@ -432,6 +437,11 @@ end
 function unit:GetUnitExists(Unit)
 	if Unit == nil then return false end
 	return br.game.UnitExists(Unit)
+end
+
+-- The unit's full GUID (unit:getGUID gives the short ID parts)
+function unit:getUnitGUID(Unit)
+	return br.game.UnitGUID(Unit)
 end
 
 function unit:getUnitID(Unit)

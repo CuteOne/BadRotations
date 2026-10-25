@@ -44,6 +44,12 @@ function power:getPowerMax(Unit, index)
 	return br.game.UnitPowerMax(Unit, index)
 end
 
+-- The unit's power type as a lowercase name ("energy", "rage", "mana", ...), matching br.player.power's keys
+function power:getPowerTypeName(Unit)
+	local _, token = br.game.UnitPowerType(Unit or "player")
+	return token and token:lower()
+end
+
 -- if br.functions.power:getRegen("player") > 15 then
 function power:getRegen(Unit)
 	return select(2, br.game.GetPowerRegen(Unit))

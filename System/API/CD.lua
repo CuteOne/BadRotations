@@ -9,6 +9,13 @@ local _, br = ...
 
 if br.api == nil then br.api = {} end
 
+-- The spell a cooldown is read from (the global cooldown's spell for "global"), and whether the player's
+-- level has reached the level it's learned at
+local function cooldownSpell(spell, id)
+    local spellID = spell == "global" and br.functions.spell:getGCDSpellID() or br.functions.spell:currentRank(id)
+    return spellID, br.functions.spell:isLevelReached(spellID)
+end
+
 br.api.cd = function(self, spell, id)
     self.cd = self.cd or {}
     local cd = self.cd
@@ -22,16 +29,9 @@ br.api.cd = function(self, spell, id)
     -- @return number
     -- @within cd.spell
     cd[spell].duration = function()
-        -- Special handling for global CD in Classic
-        local spellID = br.functions.spell:currentRank(id)
-        if spell == "global" then
-            spellID = br.functions.spell:getGCDSpellID()
-        end
-        local level = br.game.UnitLevel("player")
-        local spellLevel = br.game.C_Spell.GetSpellLevelLearned(spellID) or 1
-        if level < spellLevel then return 0 end
-        local spellCD = br.game.C_Spell.GetSpellCooldown(spellID)
-        return spellCD and spellCD.duration or 0
+        local spellID, learned = cooldownSpell(spell, id)
+        if not learned then return 0 end
+        return br.functions.spell:getCooldownDuration(spellID)
     end
 
     --- Checks if spell is on cooldown or not.
@@ -39,14 +39,8 @@ br.api.cd = function(self, spell, id)
     -- @return boolean
     -- @within cd.spell
     cd[spell].exists = function()
-        -- Special handling for global CD in Classic
-        local spellID = br.functions.spell:currentRank(id)
-        if spell == "global" then
-            spellID = br.functions.spell:getGCDSpellID()
-        end
-        local level = br.game.UnitLevel("player")
-        local spellLevel = br.game.C_Spell.GetSpellLevelLearned(spellID) or 1
-        if level < spellLevel then return false end
+        local spellID, learned = cooldownSpell(spell, id)
+        if not learned then return false end
         local spellCD = br.functions.spell:getSpellCD(spellID)
         return spellCD > 0
     end
@@ -57,7 +51,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].prevgcd = function()
         local spellID = br.functions.spell:currentRank(id)
-        return select(2, br.game.GetSpellBaseCooldown(spellID))
+        return select(2, br.functions.spell:getBaseCooldown(spellID))
     end
 
     --- Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).
@@ -65,14 +59,8 @@ br.api.cd = function(self, spell, id)
     -- @return boolean
     -- @within cd.spell
     cd[spell].ready = function()
-        -- Special handling for global CD in Classic
-        local spellID = br.functions.spell:currentRank(id)
-        if spell == "global" then
-            spellID = br.functions.spell:getGCDSpellID()
-        end
-        local level = br.game.UnitLevel("player")
-        local spellLevel = br.game.C_Spell.GetSpellLevelLearned(spellID) or 1
-        if level < spellLevel then return false end
+        local spellID, learned = cooldownSpell(spell, id)
+        if not learned then return false end
         return br.functions.spell:getSpellCD(spellID) == 0
     end
 
@@ -81,14 +69,8 @@ br.api.cd = function(self, spell, id)
     -- @return number
     -- @within cd.spell
     cd[spell].remain = function()
-        -- Special handling for global CD in Classic
-        local spellID = br.functions.spell:currentRank(id)
-        if spell == "global" then
-            spellID = br.functions.spell:getGCDSpellID()
-        end
-        local level = br.game.UnitLevel("player")
-        local spellLevel = br.game.C_Spell.GetSpellLevelLearned(spellID) or 1
-        if level < spellLevel then return 99 end
+        local spellID, learned = cooldownSpell(spell, id)
+        if not learned then return 99 end
         return br.functions.spell:getSpellCD(spellID)
     end
 
@@ -97,14 +79,8 @@ br.api.cd = function(self, spell, id)
     -- @return number
     -- @within cd.spell
     cd[spell].remains = function()
-        -- Special handling for global CD in Classic
-        local spellID = br.functions.spell:currentRank(id)
-        if spell == "global" then
-            spellID = br.functions.spell:getGCDSpellID()
-        end
-        local level = br.game.UnitLevel("player")
-        local spellLevel = br.game.C_Spell.GetSpellLevelLearned(spellID) or 1
-        if level < spellLevel then return 99 end
+        local spellID, learned = cooldownSpell(spell, id)
+        if not learned then return 99 end
         return br.functions.spell:getSpellCD(spellID)
     end
 end
@@ -126,7 +102,7 @@ br.api.itemCD = function(self, item, id)
     -- @return number
     -- @within cd.item
     cd[item].duration = function()
-        return br.game.GetSpellBaseCooldown(select(2, br.game.C_Item.GetItemSpell(id))) / 1000
+        return br.functions.item:getBaseCooldown(id)
     end
 
     --- Checks if item is on cooldown or not.
@@ -134,7 +110,7 @@ br.api.itemCD = function(self, item, id)
     -- @return boolean
     -- @within cd.item
     cd[item].exists = function()
-        return br.game.C_Container.GetItemCooldown(id) > 0
+        return (br.functions.item:getCooldown(id)) > 0
     end
 
     --- Gets the time remaining on item cooldown or 0 if not.
@@ -142,8 +118,9 @@ br.api.itemCD = function(self, item, id)
     -- @return number
     -- @within cd.item
     cd[item].remain = function()
-        if br.game.C_Container.GetItemCooldown(id) ~= 0 then
-            return (br.game.C_Container.GetItemCooldown(id) + select(2, br.game.C_Container.GetItemCooldown(id)) - br.game.GetTime())
+        local start, duration = br.functions.item:getCooldown(id)
+        if start ~= 0 then
+            return start + duration - br.functions.misc:getTime()
         end
         return 0
     end
@@ -155,7 +132,7 @@ br.api.itemCD = function(self, item, id)
     -- @within cd.slot
     cd.slot.duration = function(slotID)
         if slotID == nil then return nil end
-        local _, duration = br.game.GetInventoryItemCooldown("player", slotID)
+        local _, duration = br.functions.item:getSlotCooldown(slotID)
         return duration
     end
 
@@ -185,11 +162,11 @@ br.api.itemCD = function(self, item, id)
     -- @within cd.slot
     cd.slot.remain = function(slotID)
         if slotID == nil then return nil end
-        local start, duration, enable = br.game.GetInventoryItemCooldown("player", slotID)
+        local start, duration, enable = br.functions.item:getSlotCooldown(slotID)
         if enable == 0 or duration == 0 then
             return 0 -- No cooldown is active, or the item has no cooldown
         else
-            local currentTime = br.game.GetTime()
+            local currentTime = br.functions.misc:getTime()
             local endTime = start + duration
             local timeRemaining = endTime - currentTime
             if timeRemaining < 0 then

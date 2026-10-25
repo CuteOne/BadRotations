@@ -103,6 +103,11 @@ function misc:getRoundTripHold(latency)
 	return math.max(0.20, latency * 2 + 0.10)
 end
 
+-- The player's spell haste in percent
+function misc:getSpellHaste()
+	return br.game.UnitSpellHaste("player")
+end
+
 -- Seconds the player has been standing still (0 while moving).
 -- if br.functions.misc:getStandingTime() > 2 then
 function misc:getStandingTime()
