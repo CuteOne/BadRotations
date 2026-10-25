@@ -45,7 +45,7 @@ end
 -- Only checks once startup has finished, so a toggle bar deferred by combat isn't reported.
 -- br.functions.misc:warnMissingToggle("Cooldown", "cooldowns", "ui.useCDs()")
 function misc:warnMissingToggle(toggleName, purpose, apiCall)
-	if not (br.loader.bootstrap and br.loader.bootstrap.stage == "RUNNING") then return end
+	if br.bootstrap.stage ~= "RUNNING" then return end
 	if br.ui.toggles and br.ui.toggles.modes[toggleName] ~= nil then return end
 	local profile = tostring(br.loader.selectedProfileName)
 	local key = profile .. "|" .. toggleName

@@ -312,7 +312,7 @@ end
 -- clients without specs (original Classic, TBC):
 --   GetSpecialization -> nil, so "== N" spec checks fail (1 would fire spec-1 branches for every class)
 --   GetActiveSpecGroup -> 1 (no dual spec)
---   GetSpecializationInfo -> nil; the spec name then becomes "Initial" (System/Loader/Bootstrap.lua)
+--   GetSpecializationInfo -> nil; the spec name then becomes "Initial" (System/Bootstrap.lua)
 do
     local cs = br.api.wow.C_SpecializationInfo
 

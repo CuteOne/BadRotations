@@ -684,7 +684,7 @@ local GUARD_MIN_REVERTED = 10
 -- Counts options that are customised on disk but back at their registered default in memory.
 -- Needs the option index (complete once startup reaches RUNNING); returns reverted, customised.
 local function countReverted(newPages, diskPages)
-	if not (br.loader.bootstrap and br.loader.bootstrap.stage == "RUNNING") then return 0, 0 end
+	if br.bootstrap.stage ~= "RUNNING" then return 0, 0 end
 	local defaults = br.functions.misc:getOptionDefaults()
 	local reverted, customised = 0, 0
 	for page, diskValues in pairs(diskPages or {}) do
@@ -954,7 +954,7 @@ end
 -- so it survives a crash; logout saves everything anyway. Only once this session's settings were
 -- loaded (never defaults over a real file), and without chat lines unless loud.
 function settingsManagement:saveIfLoaded(loud)
-	if br.loader.bootstrap and br.loader.bootstrap:canSave() then
+	if br.bootstrap:canSave() then
 		settingsManagement:saveSettings(false, not loud)
 	end
 end
@@ -1027,7 +1027,7 @@ function settingsManagement:loadSnapshot(dir, parts, label, legacyDir)
 	for part, data in pairs(files) do writeSettingsFile(live[part], data, label, true) end
 	-- Read the files back on the next startup step instead of keeping what is in memory
 	settingsManagement._lastLoadedSpec, settingsManagement._lastLoadedProfile = nil, nil
-	br.loader.bootstrap:reloadProfile()
+	br.bootstrap:reloadProfile()
 	br._G.print("Loaded " .. label .. ".")
 	return true
 end

@@ -48,7 +48,7 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
                 br.loader.selectedProfile = key
                 br.loader.selectedProfileName = value
                 br.ui.settingsManagement:saveSelection()
-                br.loader.bootstrap:reloadProfile()
+                br.bootstrap:reloadProfile()
             end
         end
     )

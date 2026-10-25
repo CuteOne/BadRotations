@@ -87,8 +87,8 @@ function br.load()
 	if _br_loaded then return end
 	_br_loaded = true
 	br._G.print("Initializing Please Wait...")
-	-- Spec, rotations, settings and the player are set up by the startup stages (System/Loader/Bootstrap.lua)
-	br.loader.bootstrap:start()
+	-- Spec, rotations, settings and the player are set up by the startup stages (System/Bootstrap.lua)
+	br.bootstrap:start()
 	if not loadedIn then
 		if br.engines.enemiesEngine and br.engines.enemiesEngine.damaged == nil then
 			br.engines.enemiesEngine.damaged = {}
@@ -124,7 +124,7 @@ local function OnEvent(self, event)
 			br._G.RunMacroText("/console SpellQueueWindow " .. br.unlockers.origQueueWindow)
 		end
 		-- Only save once this session's settings were actually loaded (never defaults over a real file)
-		if br.ui and br.ui.settingsManagement and br.loader.bootstrap and br.loader.bootstrap:canSave() then
+		if br.ui and br.ui.settingsManagement and br.bootstrap:canSave() then
 			br.ui:saveWindowPosition()
 			br.ui.settingsManagement:cleanSettings()
 			if br.data and br.data.settings and br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] then

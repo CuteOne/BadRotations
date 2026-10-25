@@ -73,6 +73,7 @@ misc.xml
 
 System\Unlockers.lua
 System\Core.lua
+System\Bootstrap.lua
 System\Debugging.lua
 System\SlashCommands.lua
 
@@ -209,7 +210,6 @@ System\Loader\SpellCompiler.lua
 System\Loader\PlayerAPI.lua
 System\Loader\ProfileUI.lua
 System\Loader\Builder.lua
-System\Loader\Bootstrap.lua
 
 ## Misc
 

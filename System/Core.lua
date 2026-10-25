@@ -108,9 +108,6 @@ function engines:ObjectTracker()
     end
 end
 
--- Seeded true so the first check after loading compares the live spec once.
--- Thereafter only ACTIVE_PLAYER_SPECIALIZATION_CHANGED sets it (System/readers/common.lua).
-br.loader.specDirty = true
 function engines.Update(frame, elapsed)
     local startTime = br._G.debugprofilestop()
     LibDraw = LibDraw or br._G.LibStub("LibDraw-BR")
@@ -139,8 +136,8 @@ function engines.Update(frame, elapsed)
         return false
     else -- br.unlocked guaranteed true here
         br.functions.misc:devMode()
-        -- Startup sequence (spell lists, rotations, profile, settings, player, UI): see Loader/Bootstrap.lua
-        local bootstrap = br.loader.bootstrap
+        -- Startup sequence (spell lists, rotations, profile, settings, player, UI): see System/Bootstrap.lua
+        local bootstrap = br.bootstrap
         local wasSettingsStage = bootstrap.stage == "SETTINGS"
         bootstrap:advance()
         if wasSettingsStage and bootstrap.settingsLoaded and not bootstrap.announced then
@@ -216,7 +213,7 @@ function engines.Update(frame, elapsed)
                 end
                 -- Auto Loot
                 br.engines.lootEngine:autoLoot()
-                -- Spec change: save and restart from ROTATIONS (Loader/Bootstrap.lua)
+                -- Spec change: save and restart from ROTATIONS (System/Bootstrap.lua)
                 bootstrap:checkSpecChange()
                 -- Show Main Button
                 if toggles["Main"] ~= 1 and toggles["Main"] ~= 0 then

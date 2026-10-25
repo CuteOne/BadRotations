@@ -1,18 +1,22 @@
 local _, br = ...
 --- Bootstrap
--- Owns BR's startup sequence as explicit stages. Core's per-frame Update calls
--- bootstrap:advance(); each stage does its work once and names the next stage.
+-- Owns BR's startup sequence as explicit stages, from the player entering the world to the rotation
+-- running (Core.lua runs it from then on). Core's per-frame Update calls bootstrap:advance(); each
+-- stage does its work once and names the next stage.
 --
 --   WAITING_FOR_WORLD → WAITING_FOR_UNLOCK → SPELL_LISTS → ROTATIONS → SELECT_PROFILE
 --     → SETTINGS → PLAYER → UI → UI_CLEANUP → RUNNING
 --   ROTATIONS with no matching rotation → NO_ROTATION (waits for a spec change or reload)
 --   Spec change → back to ROTATIONS (settings saved first)
 --   Profile change / reload request → back to SETTINGS
-br.loader.bootstrap = br.loader.bootstrap or {}
-local bootstrap = br.loader.bootstrap
+br.bootstrap = br.bootstrap or {}
+local bootstrap = br.bootstrap
 
 bootstrap.stage = "WAITING_FOR_WORLD"
 bootstrap.settingsLoaded = false   -- true once the current spec/profile's settings are in memory
+-- Seeded true so the first check after loading compares the live spec once; afterwards
+-- bootstrap:noteSpecChange() (the ACTIVE_PLAYER_SPECIALIZATION_CHANGED reader) sets it
+bootstrap.specDirty = true
 
 local function setStage(stage)
 	if bootstrap.stage ~= stage then
@@ -207,11 +211,16 @@ function bootstrap:reloadProfile()
 	end
 end
 
---- Detects a spec change (signalled by the ACTIVE_PLAYER_SPECIALIZATION_CHANGED reader) and
--- restarts from ROTATIONS after saving the old spec's settings.
+--- The player's spec may have changed (ACTIVE_PLAYER_SPECIALIZATION_CHANGED, System/readers/common.lua)
+function bootstrap:noteSpecChange()
+	self.specDirty = true
+end
+
+--- Detects a spec change (signalled by bootstrap:noteSpecChange) and restarts from ROTATIONS after
+-- saving the old spec's settings.
 function bootstrap:checkSpecChange()
-	if not br.loader.specDirty then return end
-	br.loader.specDirty = false
+	if not self.specDirty then return end
+	self.specDirty = false
 	local _, specName = resolveSpec()
 	if specName == "" or specName == br.loader.selectedSpec then return end
 	br.ui:closeWindow("all")
