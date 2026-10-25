@@ -27,6 +27,10 @@ br.api.build.glyph = function(api)
         return glyphFn and glyphFn:hasGlyph(glyphSpellId) or false
     end
     -- Alias for readability.
+    --- Returns true if the given glyph spellId is socketed (glyph.has).
+    -- @function glyph.enabled
+    -- @number glyphSpellId
+    -- @treturn boolean
     g.enabled = g.has
 
     --- Returns how many glyph sockets we can scan.
@@ -58,7 +62,13 @@ br.api.build.glyphs = function(glyphTable, k, v)
         return glyphFn and glyphFn:hasGlyph(v) or false
     end
     -- Aliases commonly used in converted APLs.
+    --- Returns true if this glyph is socketed (glyph.<k>.enabled).
+    -- @function glyph.<k>.exists
+    -- @treturn boolean
     entry.exists = entry.enabled
+    --- Returns true if this glyph is socketed (glyph.<k>.enabled).
+    -- @function glyph.<k>.up
+    -- @treturn boolean
     entry.up = entry.enabled
 
     --- Returns the glyph spellId.

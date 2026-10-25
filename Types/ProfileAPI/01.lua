@@ -260,6 +260,7 @@
 ---@field bloodshot T
 ---@field bloodsoakedGround T
 ---@field bloodsurge T
+---@field bloodtalons T
 ---@field bloodthirst T
 ---@field bloodworms T
 ---@field bloodyFortitude T
@@ -3960,6 +3961,7 @@
 ---@field bloodshot integer
 ---@field bloodsoakedGround integer
 ---@field bloodsurge integer
+---@field bloodtalons integer
 ---@field bloodthirst integer
 ---@field bloodworms integer
 ---@field bloodyFortitude integer
@@ -6352,6 +6354,14 @@ function C63.down() end
 ---@return boolean
 function C63.enabled() end
 
+--- Returns true if this glyph is socketed (glyph.<k>.enabled).
+---@return boolean
+function C63.exists() end
+
+--- Returns true if this glyph is socketed (glyph.<k>.enabled).
+---@return boolean
+function C63.up() end
+
 --- Returns the glyph spellId.
 ---@return number
 function C63.id() end
@@ -6367,6 +6377,11 @@ function C64.available() end
 ---@param glyphSpellId? number
 ---@return boolean
 function C64.has(glyphSpellId) end
+
+--- Returns true if the given glyph spellId is socketed (glyph.has).
+---@param glyphSpellId? number
+---@return boolean
+function C64.enabled(glyphSpellId) end
 
 --- Returns how many glyph sockets we can scan.
 ---@return number
@@ -6520,6 +6535,10 @@ function C72.count() end
 --- True when a pet of this kind is out
 ---@return boolean
 function C72.exists() end
+
+--- True when a pet of this kind is out (pet.<name>.exists)
+---@return boolean
+function C72.active() end
 
 --- This pet kind's NPC ID
 ---@return number
@@ -6942,6 +6961,7 @@ local C79 = {}
 ---@field bloodshot boolean # true while the talent is taken
 ---@field bloodsoakedGround boolean # true while the talent is taken
 ---@field bloodsurge boolean # true while the talent is taken
+---@field bloodtalons boolean # true while the talent is taken
 ---@field bloodthirst boolean # true while the talent is taken
 ---@field bloodworms boolean # true while the talent is taken
 ---@field bloodyFortitude boolean # true while the talent is taken
@@ -8627,6 +8647,14 @@ local C85 = {}
 ---@param enemyCount? number - A precomputed enemy count (e.g. `#enemies.yards8`) provided by the caller.
 ---@return boolean # - Returns true based on selected option and current combat conditions
 function C85.alwaysCdAoENever(thisOption, minUnits, enemyCount) end
+
+--- Convenience wrapper: compute enemy count from a range and delegate to ui.alwaysCdAoENever
+---@param thisOption? string - Name of the option from the defined profile options.
+---@param minUnits? number - Minimum number of units required to treat this as AOE.
+---@param range? number - Range in yards to check for enemies.
+---@param useTarget? string - Reference unit used to evaluate range (defaults to `player`).
+---@return boolean
+function C85.alwaysCdAoENeverRange(thisOption, minUnits, range, useTarget) end
 
 --- Checks if the passed option is set to "Always, CD, or Never"
 ---@param thisOption? string - Name of the option from the defined profile options.

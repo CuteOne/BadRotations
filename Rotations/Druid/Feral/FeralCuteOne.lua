@@ -114,8 +114,6 @@ local function options()
         tip = "Select if Regrowth is allowed to break shapeshift to heal out of combat." })
     ui.dropdown(section, "Regrowth - InC", { choices = { "|cff00FF00Immediately", "|cffFF0000Save For BT" }, value = "Immediately", checkbox = false,
         tip = "Select if Predatory Swiftness is used when available or saved for Bloodtalons." })
-    -- Rejuvenation
-    ui.spinner(section, "Rejuvenation", { value = 50, tip = "Health Percent to Cast At" })
     -- Remove Corruption
     ui.checkbox(section, "Remove Corruption")
     ui.dropdown(section, "Remove Corruption - Target", { choices = { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, value = "Player", checkbox = false,
@@ -130,10 +128,6 @@ local function options()
     ui.checkbox(section, "Soothe")
     -- Survival Instincts
     ui.spinner(section, "Survival Instincts", { value = 40, tip = "Health Percent to Cast At" })
-    -- Swiftmend
-    ui.spinner(section, "Swiftmend", { value = 50, tip = "Health Percent to Cast At" })
-    -- Wild Growth
-    ui.spinner(section, "Wild Growth", { value = 50, tip = "Health Percent to Cast At" })
     -- Auto-Heal
     ui.dropdown(section, "Auto Heal", { choices = { "|cffFFDD11LowestHP", "|cffFFDD11Player" }, value = "LowestHP", checkbox = false,
         tip = "Select Target to Auto-Heal" })
@@ -488,68 +482,6 @@ actionList.Defensive = function()
                             cast.form(i)
                             ui.debug("Casting Last Form [Breaking CC]")
                             return true
-                        end
-                    end
-                end
-            end
-        end
-        -- Resto Affinity
-        if talent.restorationAffinity and not (unit.mounted() or unit.flying())
-            and (ui.value("Auto Heal") ~= 1 or (ui.value("Auto Heal") == 1
-                and unit.distance(units.friends[1].unit) < 40))
-        then
-            local thisHP = unit.hp()
-            local thisUnit = "player"
-            local lowestUnit = unit.lowest(40)
-            local fhp = unit.hp(lowestUnit)
-            if ui.value("Auto Heal") == 1 then
-                thisHP = fhp; thisUnit = lowestUnit
-            end
-            -- Swiftmend
-            local swiftPercent = ui.value("Swiftmend")
-            if ui.checked("Swiftmend") and cast.able.swiftmend()
-                and ((not unit.inCombat() and thisHP <= swiftPercent) or (unit.inCombat() and thisHP <= swiftPercent / 2))
-            then
-                if unit.form() ~= 0 then
-                    unit.cancelForm()
-                    ui.debug("Cancel Form [Swiftmend]")
-                elseif unit.form() == 0 then
-                    if cast.swiftmend(thisUnit) then
-                        ui.debug("Casting Swiftmend on " .. unit.name(thisUnit))
-                        return true
-                    end
-                end
-            end
-            -- Rejuvenation
-            local rejuvPercent = ui.value("Rejuvenation")
-            if ui.checked("Rejuvenation") and cast.able.rejuvenation() and buff.rejuvenation.refresh(thisUnit)
-                and ((not unit.inCombat() and thisHP <= rejuvPercent) or (unit.inCombat() and thisHP <= rejuvPercent / 2))
-            then
-                if unit.form() ~= 0 then
-                    unit.cancelForm()
-                    ui.debug("Cancel Form [Rejuvenation]")
-                elseif unit.form() == 0 then
-                    if cast.rejuvenation(thisUnit) then
-                        ui.debug("Casting Rejuvenation on " .. unit.name(thisUnit))
-                        return true
-                    end
-                end
-            end
-            -- Wild Growth
-            if ui.checked("Wild Growth") and not unit.inCombat() and cast.able.wildGrowth() then
-                for i = 1, #units.friends do
-                    local wildGrowthUnit = units.friends[i].unit
-                    local lowHealthCandidates = units.healAround(wildGrowthUnit, 30, ui.value("Wild Growth"),
-                        #units.friends)
-                    if #lowHealthCandidates > 1 and not unit.moving() then
-                        if unit.form() ~= 0 then
-                            unit.cancelForm()
-                            ui.debug("Cancel Form [Wild Growth]")
-                        elseif unit.form() == 0 then
-                            if cast.wildGrowth(units.friends[i].unit) then
-                                ui.debug("Casting Wild Growth on " .. unit.name(wildGrowthUnit))
-                                return true
-                            end
                         end
                     end
                 end

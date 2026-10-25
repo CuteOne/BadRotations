@@ -67,6 +67,7 @@ br.lists.spells.DRUID[103] = {
                 berserk                     = 106951,
                 berserkHeartOfTheLion       = 391174,
                 bloodSplattered             = 1244532,
+                bloodtalons                 = 319439,
                 carnivorousInstinct         = 390902,
                 chomp                       = 1244258,
                 circleOfLifeAndDeath        = 400320,

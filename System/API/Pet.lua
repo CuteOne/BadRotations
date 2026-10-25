@@ -111,6 +111,9 @@ br.api.build.pet = function(api, petList)
         -- @function pet.<name>.exists
         -- @return boolean
         entry.exists = function() return entry.count() > 0 end
+        --- True when a pet of this kind is out (pet.<name>.exists)
+        -- @function pet.<name>.active
+        -- @return boolean
         entry.active = entry.exists
 
         --- This pet kind's NPC ID

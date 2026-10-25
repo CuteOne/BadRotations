@@ -52,7 +52,7 @@ br.api.build.ui = function(api)
         return false
     end
 
-    -- Convenience wrapper: compute enemy count from a range and delegate to ui.alwaysCdAoENever
+    --- Convenience wrapper: compute enemy count from a range and delegate to ui.alwaysCdAoENever
     -- @function ui.alwaysCdAoENeverRange
     -- @string thisOption - Name of the option from the defined profile options.
     -- @number[opt=3] minUnits - Minimum number of units required to treat this as AOE.
