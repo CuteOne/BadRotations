@@ -6,7 +6,7 @@
 -- Load order in .toc: wowapi.lua → shared.lua → Retail / MOP / TBC Functions.lua
 local _, br = ...
 
--- The unlocker's version of a game name, else the client's (Expansions/wowapi.lua)
+-- The unlocker's version of a game name, else the client's (Expansions/Layers.lua)
 local base = br.api.base
 local api = br.api.wow
 
@@ -79,10 +79,11 @@ api.FindSpellOverrideByID = function(spellID)
     return spellID
 end
 
--- Aura readers: C_UnitAuras, else a record built from the pre-Shadowlands multi-return
--- UnitAura/Buff/Debuff globals. The index readers go through br._G.C_UnitAuras, so an unlocker's
--- own version (NN's proxy converts its unit objects) is used.
+-- C_UnitAuras namespace shims: the aura readers on clients without them, built from the
+-- pre-Shadowlands multi-return UnitAura/UnitBuff/UnitDebuff (the AuraData table's fields).
 do
+    local cua = br.api.wow.C_UnitAuras
+
     local function buildAuraRecord(rawGlobal, unit, index, filter, isHarmful)
         local fn = base[rawGlobal]
         if not fn then return nil end
@@ -116,54 +117,27 @@ do
         }
     end
 
-    api.GetAuraDataByIndex = function(unit, index, filter)
-        local cua = br._G.C_UnitAuras
-        if cua and cua.GetAuraDataByIndex then
-            return cua.GetAuraDataByIndex(unit, index, filter)
-        end
-        return buildAuraRecord("UnitAura", unit, index, filter, false)
+    local native = base.C_UnitAuras or {}
+    if not native.GetAuraDataByIndex then
+        cua.GetAuraDataByIndex = function(unit, index, filter) return buildAuraRecord("UnitAura", unit, index, filter, false) end
     end
-
-    api.GetDebuffDataByIndex = function(unit, index, filter)
-        local cua = br._G.C_UnitAuras
-        if cua and cua.GetDebuffDataByIndex then
-            return cua.GetDebuffDataByIndex(unit, index, filter)
-        end
-        return buildAuraRecord("UnitDebuff", unit, index, filter, true)
+    if not native.GetBuffDataByIndex then
+        cua.GetBuffDataByIndex = function(unit, index, filter) return buildAuraRecord("UnitBuff", unit, index, filter, false) end
     end
-
-    api.GetBuffDataByIndex = function(unit, index, filter)
-        local cua = br._G.C_UnitAuras
-        if cua and cua.GetBuffDataByIndex then
-            return cua.GetBuffDataByIndex(unit, index, filter)
-        end
-        return buildAuraRecord("UnitBuff", unit, index, filter, false)
+    if not native.GetDebuffDataByIndex then
+        cua.GetDebuffDataByIndex = function(unit, index, filter) return buildAuraRecord("UnitDebuff", unit, index, filter, true) end
     end
-
-    api.GetPlayerAuraBySpellID = function(spellID)
-        -- Support Classic/TBC rank tables: resolve to the highest known rank.
-        if type(spellID) == "table" then
-            for i = #spellID, 1, -1 do
-                if br.functions and br.functions.spell and br.functions.spell:isKnown(spellID[i]) then
-                    spellID = spellID[i]
-                    break
+    if not native.GetPlayerAuraBySpellID then
+        cua.GetPlayerAuraBySpellID = function(spellID)
+            for _, kind in ipairs({ "UnitBuff", "UnitDebuff" }) do
+                for i = 1, 40 do
+                    local record = buildAuraRecord(kind, "player", i, nil, kind == "UnitDebuff")
+                    if not record then break end
+                    if record.spellId == spellID then return record end
                 end
             end
+            return nil
         end
-        if base.C_UnitAuras and base.C_UnitAuras.GetPlayerAuraBySpellID then
-            return base.C_UnitAuras.GetPlayerAuraBySpellID(spellID)
-        end
-        for i = 1, 40 do
-            local rec = buildAuraRecord("UnitBuff", "player", i, nil, false)
-            if not rec then break end
-            if rec.spellId == spellID then return rec end
-        end
-        for i = 1, 40 do
-            local rec = buildAuraRecord("UnitDebuff", "player", i, nil, true)
-            if not rec then break end
-            if rec.spellId == spellID then return rec end
-        end
-        return nil
     end
 end
 

@@ -4,7 +4,7 @@ local _, br = ...
 
 if not br.isMOP then return end
 
--- The unlocker's version of a game name, else the client's (Expansions/wowapi.lua)
+-- The unlocker's version of a game name, else the client's (Expansions/Layers.lua)
 local base = br.api.base
 
 -- Talent System - MoP/Classic uses tier/column system

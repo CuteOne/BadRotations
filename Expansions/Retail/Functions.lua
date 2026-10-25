@@ -4,10 +4,8 @@ local _, br = ...
 
 if not br.isRetail then return end
 
--- The unlocker's version of a game name, else the client's (Expansions/wowapi.lua)
+-- The unlocker's version of a game name, else the client's (Expansions/Layers.lua)
 local base = br.api.base
-
-local api = br.api.wow
 
 -- Returns the effective spec id for the player (forces Initial for all classes below level 10 in Retail)
 br.api.getEffectiveSpecID = function()
@@ -21,32 +19,6 @@ br.api.getEffectiveSpecID = function()
         return br.lists.spec[class].Initial
     end
     return specID
-end
-
--- UnitAura / UnitBuff / UnitDebuff wrappers
--- Retail: the C_UnitAuras record unpacked into the old multi-return. UnitBuff and UnitDebuff
--- read only helpful / only harmful auras, as the old globals did, whatever the filter.
-local function unpackAura(method, unit, index, filter)
-    local cua = br._G.C_UnitAuras
-    if cua and cua[method] then
-        local auraData = cua[method](unit, index, filter)
-        if auraData and base.AuraUtil and base.AuraUtil.UnpackAuraData then
-            return base.AuraUtil.UnpackAuraData(auraData)
-        end
-    end
-    return nil
-end
-
-api.UnitAura = function(unit, index, filter)
-    return unpackAura("GetAuraDataByIndex", unit, index, filter)
-end
-
-api.UnitBuff = function(unit, index, filter)
-    return unpackAura("GetBuffDataByIndex", unit, index, filter)
-end
-
-api.UnitDebuff = function(unit, index, filter)
-    return unpackAura("GetDebuffDataByIndex", unit, index, filter)
 end
 
 -- Talent System - Retail uses C_Traits API (Dragonflight talent trees)

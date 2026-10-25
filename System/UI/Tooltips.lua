@@ -95,7 +95,7 @@ for method, getData in pairs({ SetUnitBuff = "GetBuffDataByIndex", SetUnitDebuff
 	-- SetUnitAura is the Shadowlands-era script point; other clients only have SetUnitBuff/SetUnitDebuff
 	if br._G.GameTooltip[method] then
 		hooksecurefunc(br._G.GameTooltip, method, function(self, ...)
-			local id = auraSpellID(br.api.wow[getData], ...)
+			local id = auraSpellID(br._G.C_UnitAuras[getData], ...)
 			if id then
 				addLine(self, id, types.spell)
 			end

@@ -90,7 +90,7 @@ if not healingEngine.metaTable1 then
 		-- Debuff records have the same shape on every client; stop at the first empty slot
 		local badDebuffs = br.engines.healingEngineCollections.BadDebuffList
 		for i = 1, 40 do
-			local auraInfo = br.api.wow.GetDebuffDataByIndex(tar, i, "HARMFUL")
+			local auraInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(tar, i, "HARMFUL")
 			if not auraInfo then break end
 			if badDebuffs[auraInfo.spellId] ~= nil then
 				return false
@@ -141,7 +141,7 @@ if not healingEngine.metaTable1 then
 			local doNotHeal = br.engines.healingEngineCollections.doNotHeal
 			local aura = br.functions.aura
 			for i = 1, 40 do
-				local buff = br.api.wow.GetBuffDataByIndex(o.unit, i, "HELPFUL")
+				local buff = br._G.C_UnitAuras.GetBuffDataByIndex(o.unit, i, "HELPFUL")
 				if not buff then break end
 				if doNotHeal.buffs[buff.spellId] then return 250, 250, 250 end
 			end
@@ -234,7 +234,7 @@ if not healingEngine.metaTable1 then
 			local debugTimerStartTime = GetTime()
 			local hpDebuffs = br.engines.healingEngineCollections.SpecificHPDebuffs
 			for i = 1, 40 do
-				local auraInfo = br.api.wow.GetDebuffDataByIndex(o.unit, i, "HARMFUL")
+				local auraInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(o.unit, i, "HARMFUL")
 				if not auraInfo then break end
 				local debuffID = hpDebuffs[auraInfo.spellId]
 				if debuffID ~= nil then

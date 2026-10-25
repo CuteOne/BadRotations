@@ -49,6 +49,61 @@ local autoAttacking = false
 -- the form's spell would also block casting that form and be cleared by unrelated cast errors.
 local formCancelSentAt = -math.huge
 
+-- Drink and food buffs by name, in every client language (unit:isDrinking, unit:isEating)
+local drinkingBuffNames = {
+	["Drinking"]           = true, -- enUS
+	["Drink"]              = true, -- enUS (drink buff)
+	["Trinken"]            = true, -- deDE
+	["Getränk"]            = true, -- deDE (drink buff)
+	["Boire"]              = true, -- frFR
+	["Boisson"]            = true, -- frFR (drink buff)
+	["Bebiendo"]           = true, -- esES / esMX
+	["Bebida"]             = true, -- esES / esMX / ptBR (drink buff)
+	["Bebendo"]            = true, -- ptBR
+	["Bevendo"]            = true, -- itIT
+	["Bevanda"]            = true, -- itIT (drink buff)
+	["Употребление напитка"] = true, -- ruRU
+	["Напиток"]             = true, -- ruRU (drink buff)
+	["음료 마시는 중"]        = true, -- koKR
+	["음료"]                = true, -- koKR (drink buff)
+	["喝水中"]              = true, -- zhCN / zhTW
+	["饮料"]               = true, -- zhCN (drink buff)
+	["飲料"]               = true, -- zhTW (drink buff)
+}
+local eatingBuffNames = {
+	["Eating"]             = true, -- enUS
+	["Food"]               = true, -- enUS (food buff)
+	["Essen"]              = true, -- deDE
+	["Speise"]             = true, -- deDE (food buff)
+	["Nahrung"]            = true, -- deDE (alt)
+	["Manger"]             = true, -- frFR
+	["Nourriture"]         = true, -- frFR (food buff)
+	["Comiendo"]           = true, -- esES / esMX
+	["Comida"]             = true, -- esES / esMX / ptBR (food buff)
+	["Comendo"]            = true, -- ptBR
+	["Alimento"]           = true, -- ptBR (food buff)
+	["Mangiando"]          = true, -- itIT
+	["Cibo"]               = true, -- itIT (food buff)
+	["Поглощение пищи"]    = true, -- ruRU
+	["Еда"]                = true, -- ruRU (food buff)
+	["Пища"]               = true, -- ruRU (alt)
+	["음식 먹는 중"]         = true, -- koKR
+	["음식"]                = true, -- koKR (food buff)
+	["进食中"]              = true, -- zhCN
+	["食物"]               = true, -- zhCN / zhTW (food buff)
+	["進食中"]              = true, -- zhTW
+}
+
+-- True when the unit has a buff whose name is in names
+local function hasBuffNamed(Unit, names)
+	for i = 1, 40 do
+		local auraInfo = br._G.C_UnitAuras.GetBuffDataByIndex(Unit, i)
+		if not auraInfo then return false end
+		if names[auraInfo.name] then return true end
+	end
+	return false
+end
+
 -- True if any enemy (in combat or not) within radius yards would aggro on the player.
 -- if br.functions.unit:anyInAggroRange(5) then
 function unit:anyInAggroRange(offset, radius)
@@ -502,32 +557,7 @@ end
 -- if br.functions.unit:isDrinking([Unit]) == true then
 function unit:isDrinking(Unit)
 	Unit = Unit or "player"
-	local drinkingBuffNames = {
-		["Drinking"]           = true, -- enUS
-		["Drink"]              = true, -- enUS (drink buff)
-		["Trinken"]            = true, -- deDE
-		["Getränk"]            = true, -- deDE (drink buff)
-		["Boire"]              = true, -- frFR
-		["Boisson"]            = true, -- frFR (drink buff)
-		["Bebiendo"]           = true, -- esES / esMX
-		["Bebida"]             = true, -- esES / esMX / ptBR (drink buff)
-		["Bebendo"]            = true, -- ptBR
-		["Bevendo"]            = true, -- itIT
-		["Bevanda"]            = true, -- itIT (drink buff)
-		["Употребление напитка"] = true, -- ruRU
-		["Напиток"]             = true, -- ruRU (drink buff)
-		["음료 마시는 중"]        = true, -- koKR
-		["음료"]                = true, -- koKR (drink buff)
-		["喝水中"]              = true, -- zhCN / zhTW
-		["饮料"]               = true, -- zhCN (drink buff)
-		["飲料"]               = true, -- zhTW (drink buff)
-	}
-	for i = 1, 40 do
-		local name = br.functions.aura:UnitBuff(Unit, i)
-		if not name then break end
-		if drinkingBuffNames[name] then return true end
-	end
-	return false
+	return hasBuffNamed(Unit, drinkingBuffNames)
 end
 
 function unit:isDummy(Unit)
@@ -541,35 +571,7 @@ end
 -- if br.functions.unit:isEating([Unit]) == true then
 function unit:isEating(Unit)
 	Unit = Unit or "player"
-	local eatingBuffNames = {
-		["Eating"]             = true, -- enUS
-		["Food"]               = true, -- enUS (food buff)
-		["Essen"]              = true, -- deDE
-		["Speise"]             = true, -- deDE (food buff)
-		["Nahrung"]            = true, -- deDE (alt)
-		["Manger"]             = true, -- frFR
-		["Nourriture"]         = true, -- frFR (food buff)
-		["Comiendo"]           = true, -- esES / esMX
-		["Comida"]             = true, -- esES / esMX / ptBR (food buff)
-		["Comendo"]            = true, -- ptBR
-		["Alimento"]           = true, -- ptBR (food buff)
-		["Mangiando"]          = true, -- itIT
-		["Cibo"]               = true, -- itIT (food buff)
-		["Поглощение пищи"]    = true, -- ruRU
-		["Еда"]                = true, -- ruRU (food buff)
-		["Пища"]               = true, -- ruRU (alt)
-		["음식 먹는 중"]         = true, -- koKR
-		["음식"]                = true, -- koKR (food buff)
-		["进食中"]              = true, -- zhCN
-		["食物"]               = true, -- zhCN / zhTW (food buff)
-		["進食中"]              = true, -- zhTW
-	}
-	for i = 1, 40 do
-		local name = br.functions.aura:UnitBuff(Unit, i)
-		if not name then break end
-		if eatingBuffNames[name] then return true end
-	end
-	return false
+	return hasBuffNamed(Unit, eatingBuffNames)
 end
 
 function unit:isElemental(Unit)

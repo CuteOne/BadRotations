@@ -4,7 +4,7 @@ local _, br = ...
 
 if br.api.expansion ~= "TBC" then return end
 
--- The unlocker's version of a game name, else the client's (Expansions/wowapi.lua)
+-- The unlocker's version of a game name, else the client's (Expansions/Layers.lua)
 local base = br.api.base
 
 -- C_Spell shim overrides for TBC.

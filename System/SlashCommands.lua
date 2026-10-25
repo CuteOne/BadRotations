@@ -574,10 +574,12 @@ local function dumpInfo(msg, editbox)
 			_G.targetInfo.name = br._G.UnitName("target")
 			local thisUnit = br.engines.enemiesEngine.enemy[k].unit
 			_G.targetInfo.unitID = thisUnit.id
-			local buff1 = br.functions.aura:UnitBuff("target", 1)
-			local buff2 = br.functions.aura:UnitBuff("target", 2)
-			local deBuff1 = br.functions.aura:UnitDebuff("target", 1)
-			local deBuff2 = br.functions.aura:UnitDebuff("target", 2)
+			local auras = br._G.C_UnitAuras
+			local function auraName(info) return info and info.name end
+			local buff1 = auraName(auras.GetBuffDataByIndex("target", 1))
+			local buff2 = auraName(auras.GetBuffDataByIndex("target", 2))
+			local deBuff1 = auraName(auras.GetDebuffDataByIndex("target", 1))
+			local deBuff2 = auraName(auras.GetDebuffDataByIndex("target", 2))
 			if buff1 then
 				_G.targetInfo.buff1 = buff1
 			end

@@ -117,7 +117,7 @@ function misc:isLongTimeCCed(Unit)
 	local longTimeCC = br.lists.longCC
 	local feared, rooted = false, false
 	for i = 1, 40 do
-		local auraInfo = br.api.wow.GetDebuffDataByIndex(Unit, i)
+		local auraInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(Unit, i)
 		if not auraInfo then break end
 		local kind = longTimeCC[tonumber(auraInfo.spellId)]
 		if kind == true then return "cc" end
