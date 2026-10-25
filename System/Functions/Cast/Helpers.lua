@@ -156,7 +156,7 @@ end
 -- New Moon's cycle, report the spell they've become); 0 for an instant or unknown spell.
 -- if br.functions.cast:getCastTime(br.player.spells.healingTouch) < 3 then
 function cast:getCastTime(spellID)
-	if br._G.FindSpellOverrideByID then spellID = br._G.FindSpellOverrideByID(spellID) or spellID end
+	spellID = br._G.FindSpellOverrideByID(spellID) or spellID
 	return (select(4, br.api.wow.GetSpellInfo(spellID)) or 0) / 1000
 end
 

@@ -114,6 +114,18 @@ api.FindBaseSpellByID = function(spellID)
     return spellID
 end
 
+-- FindSpellOverrideByID: the spell a talent or form puts in this spell's place (e.g. Condemn for
+-- Execute). Clients without spell overrides get the ID back unchanged.
+api.FindSpellOverrideByID = function(spellID)
+    if _G.FindSpellOverrideByID then
+        return _G.FindSpellOverrideByID(spellID)
+    end
+    if _G.C_Spell and _G.C_Spell.GetOverrideSpell then
+        return _G.C_Spell.GetOverrideSpell(spellID)
+    end
+    return spellID
+end
+
 -- Aura polyfills.
 -- Build a normalised aura record from the pre-Shadowlands multi-return UnitAura/Buff/Debuff
 -- globals. Used as a fallback when the native C_UnitAuras methods are absent.

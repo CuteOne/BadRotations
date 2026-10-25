@@ -110,12 +110,5 @@ do
     end
 end
 
--- FindSpellOverrideByID: Retail API for talent-overridden spells (e.g. Condemn replaces Execute).
--- TBC has no spell override system. Stub it to return the input ID so gateSpellID's
--- identity check always passes and castingSpell's condemn patch is never triggered.
-if not _G.FindSpellOverrideByID then
-	_G.FindSpellOverrideByID = function(id) return id end
-end
-
 -- Print version info on load
 br.api.printCompatLoaded()
