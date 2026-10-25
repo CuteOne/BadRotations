@@ -29,7 +29,7 @@ local IGNORED = { "counterspell", "iceBarrier", "shimmer" }
 -- abilities are lists ({rank1, rank2, ...}), so comparing the cast's ID with each entry missed
 -- them all: on ranked clients their casts were never recorded (cast.last.time, timeSinceLast and
 -- the double-cast guard saw them as never cast). Built once the lists exist; cleared on spellbook,
--- talent, level and spec changes (readers/common.lua).
+-- talent, level and spec changes (Readers/common.lua).
 local abilityIDs, ignoredIDs
 
 local function buildAbilityIDs()

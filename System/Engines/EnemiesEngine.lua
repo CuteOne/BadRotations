@@ -15,7 +15,7 @@ The sets the rest of BR reads hold the same records (no copies):
   engine.enemy[pointer]     valid enemies (misc:isValidUnit passed)
   engine.pet[pointer]       other players' pets
   engine.lootable[pointer]  dead units with loot (Auto Loot)
-  engine.damaged[pointer]   filled by readers/combatlog.lua
+  engine.damaged[pointer]   filled by Readers/combatlog.lua
 Records keep the fields the old per-set entries had (unit, name, guid, id, range, debuffs, timestamp).
 
 Each engine pulse (Core.lua's object manager frame) runs engine:Update(): scan a slice of the

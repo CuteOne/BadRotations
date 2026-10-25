@@ -152,7 +152,7 @@ function combat:canRegainControl(spellID, controlEvent)
 end
 
 -- When the player entered and last left combat (GetTime). Runtime state, set from the combat events
--- (readers/common.lua); it used to live in the saved settings, which aren't there before a spec loads.
+-- (Readers/common.lua); it used to live in the saved settings, which aren't there before a spec loads.
 local combatStartedAt, combatEndedAt = nil, nil
 
 -- Seconds in combat (to the millisecond), 0 out of combat.

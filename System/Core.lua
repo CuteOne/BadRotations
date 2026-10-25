@@ -5,7 +5,7 @@ local _, br = ...
 -- the Bot Update Rate. Core decides only whether BR may run; what each step does belongs to the module
 -- that registered it (br.lifecycle, BadRotations.lua).
 --   frame steps   fn(elapsed, active): active is false while Power is off or values are hidden
---                 10 enemies engine (engines/EnemiesEngine.lua)  20 object tracker (engines/Tracker.lua)
+--                 10 enemies engine (Engines/EnemiesEngine.lua)  20 object tracker (Engines/Tracker.lua)
 --   tick steps    run only while Power is on and values are readable; a step returning true ends
 --                 the tick there
 --                 1 dev mode (Misc/Debug.lua)  5 expansion work (Expansions/Retail: quaking, bait)
@@ -15,7 +15,7 @@ local _, br = ...
 --                 75 healer line of sight (HealingEngineFunctions.lua)  80 boss mod timers (Custom.lua)
 --                 85 dungeon queues (Misc/Player.lua)  90 profession helper (Misc/ProfessionHelper)
 --   powerOff      once when the player switches Power off: 10 queued casts  20 BR's windows (UI/ui.lua)
---                 30 drawings (engines/Tracker.lua)
+--                 30 drawings (Engines/Tracker.lua)
 br.core = br.core or {}
 local core = br.core
 

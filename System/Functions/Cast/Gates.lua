@@ -112,7 +112,7 @@ local function emitGateDebug(spellID, spellName, reason, detail)
 end
 
 -- Facts about a spell that only change when the character's spells or talents do. Kept until
--- cast:clearSpellFacts(), which the spell/talent/level events call (readers/common.lua).
+-- cast:clearSpellFacts(), which the spell/talent/level events call (Readers/common.lua).
 -- Whether a spell is known isn't kept: some spells only exist while a form or buff is up, and
 -- the spellbook event isn't guaranteed then.
 local spellFacts = {}       -- spellID -> { spellType, baseCooldown }

@@ -41,7 +41,7 @@ local lossOfControlTypes = {
 -- When BR last cancelled the player's shapeshift form. The form's buff only goes once the server
 -- replies, so for a round trip the form still looks active and a rotation would cancel it again.
 -- Whether the player is auto-attacking, from the game's PLAYER_ENTER_COMBAT / PLAYER_LEAVE_COMBAT
--- (readers/common.lua). IsCurrentSpell on the Attack spell reads false while an on-next-swing
+-- (Readers/common.lua). IsCurrentSpell on the Attack spell reads false while an on-next-swing
 -- attack (Maul, Heroic Strike) is queued, so it can't answer this on its own.
 local autoAttacking = false
 

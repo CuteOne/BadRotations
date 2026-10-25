@@ -256,7 +256,7 @@ function bootstrap:reloadProfile()
 	end
 end
 
---- The player's spec may have changed (ACTIVE_PLAYER_SPECIALIZATION_CHANGED, System/readers/common.lua)
+--- The player's spec may have changed (ACTIVE_PLAYER_SPECIALIZATION_CHANGED, System/Readers/common.lua)
 function bootstrap:noteSpecChange()
 	self.specDirty = true
 end

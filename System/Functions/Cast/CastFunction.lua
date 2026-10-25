@@ -277,7 +277,7 @@ function cast:castQueue()
 			end
 			for j = 1, #br.player.queue do
 				local entry = br.player.queue[j]
-				-- Entries hold id, name, target and queuedAt (readers/combatlog.lua); castType and the
+				-- Entries hold id, name, target and queuedAt (Readers/combatlog.lua); castType and the
 				-- AoE settings are optional and default like a plain cast.<spell>(target).
 				if br.functions.cast:createCastFunction(entry.target, entry.castType, entry.minUnits, entry.effectRng,
 					entry.id, entry.name) then return end

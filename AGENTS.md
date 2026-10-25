@@ -21,13 +21,17 @@ The codebase follows a strict **4-tier API hierarchy** — never call a lower ti
 
 | Path | Purpose |
 |------|---------|
-| `Expansions/{Retail,Classic,MOP,TBC,Forever}/` | Expansion-specific function overrides |
+| `BadRotations.lua` | First file: BR's tables and `br.lifecycle` (start / frame / tick / power-off / logout steps that modules register) |
+| `Expansions/` | The client layer: `Layers.lua` (`br._G`'s layers), `wowapi.lua` (which client, its game rules), `shared.lua` (polyfills); `{Retail,MOP,TBC}/Functions.lua` hold code only that client needs; each flavour folder holds its spell lists |
+| `System/Bootstrap.lua` | The startup stages, from entering the world to running: unlocker → spell lists → rotations → profile → settings → player → UI → running |
+| `System/Core.lua` | The rotating body: one frame loop running the frame and tick steps (`br.core`) |
 | `System/API/` | 20 API modules (Buff, Cast, CD, Unit, Spell, Enemies, Power, Talent, …) |
-| `System/engines/` | Game systems: EnemiesEngine, HealingEngine, Tracker, LootEngine |
-| `System/Loader/` | Startup + `br.player`: `Bootstrap` (startup stages: spell lists → rotations → profile → settings → player → UI → running), `Builder` (creates the player), `Player` (class + per-tick update), `ProfileLoader` (finds/runs rotation files, `registerRotation`), `SpellCompiler` (spell lists, talents, ranks), `PlayerAPI` (builds the rotation API), `ProfileUI` (options window pages, toggle bar) |
+| `System/Engines/` | Game systems: EnemiesEngine, HealingEngine, Tracker, LootEngine |
+| `System/Readers/` | Event readers: the combat log and other game events |
+| `System/Loader/` | Builds `br.player`: `Builder` (creates the player), `Player` (class + per-tick update), `ProfileLoader` (finds/runs rotation files, `registerRotation`), `SpellCompiler` (spell lists, talents, ranks), `PlayerAPI` (builds the rotation API), `ProfileUI` (options window pages, toggle bar) |
 | `System/UI/` | Windows, option elements (`Elements/`: `br.ui:section`, `br.ui:checkbox`, `br.ui:spinner`, `br.ui:dropdown`, …), toggles (`Toggles/`: `br.ui:toggle`), settings storage (`SettingsManagement`) |
 | `Rotations/{Class}/{Spec}/` | Rotation profile Lua files |
-| `Settings/{Class}/{Spec}/` | Saved settings per spec/profile |
+| `Settings/{Flavour}/{Class}/{Spec}/` | Saved settings per flavour and spec/profile |
 | `Libs/` | Third-party libs (LibStub, DiesalGUI, LibSharedMedia) |
 | `Unlockers/` | Unlocker integrations (daemonic, nn, tinkr) |
 

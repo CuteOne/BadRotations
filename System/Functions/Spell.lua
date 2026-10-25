@@ -144,7 +144,7 @@ local finisherDamage = {}
 
 -- The rank to use for a spell list entry right now: on ranked clients the highest known rank
 -- of a rank list, remembered until the spellbook changes (clearRankCache, called on
--- SPELLS_CHANGED and talent/level/spec changes in readers/common.lua). So a rank bought at a
+-- SPELLS_CHANGED and talent/level/spec changes in Readers/common.lua). So a rank bought at a
 -- trainer is picked up straight away, without a rebuild.
 local currentRanks = {}
 
