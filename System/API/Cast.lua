@@ -89,14 +89,6 @@ br.api.build.cast = function(api, spell, id)
     -- SPELL RANK SYSTEM (CLASSIC)
     -- ===========================
 
-    --- Get the highest known rank number for this spell.
-    -- @function cast.maxRank.spell
-    -- @treturn number The highest rank number the player knows (1-based), or 0 if none
-    -- @usage
-    -- local knownRank = cast.maxRank.healingTouch()
-    -- if knownRank >= 5 then
-    --     -- Player knows at least Rank 5
-    -- end
     cast.maxRank = cast.maxRank or {}
 
     --- Checks if a spell can be cast by its ID based on various parameters.
@@ -138,7 +130,7 @@ br.api.build.cast = function(api, spell, id)
 
     --- Checks if a spell can be cast based on various parameters.
     -- The function name is dynamically generated based on the spell name.
-    -- @function cast.able.spell
+    -- @function cast.able.<spell>
     -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
     -- @string castType Defines the type of AoE or special cast conditions.
     -- @number minUnits Minimum number of units needed to be hit by AoE spell.
@@ -159,7 +151,7 @@ br.api.build.cast = function(api, spell, id)
         end)
 
     --- Checks if the spell is the one currently being cast.
-    -- @function cast.active.spell
+    -- @function cast.active.<spell>
     -- @string thisUnit The unit to check if it's casting the spell. Can be standard WoW units or dynamic units.
     -- @treturn boolean
     cast.active[spell] = function(thisUnit)
@@ -168,7 +160,7 @@ br.api.build.cast = function(api, spell, id)
     end
 
     --- Checks if the spell is set to auto-repeat or if it's the current spell being cast.
-    -- @function cast.auto.spell
+    -- @function cast.auto.<spell>
     -- @treturn boolean
     cast.auto[spell] = function()
         -- Auto attack: the game's own on/off events, since the Attack spell stops being "current"
@@ -179,7 +171,7 @@ br.api.build.cast = function(api, spell, id)
 
     --- Cancels the current spell being cast if it matches the specified spell, or stops it repeating
     -- (Auto Shot, Shoot).
-    -- @function cast.cancel.spell
+    -- @function cast.cancel.<spell>
     -- @treturn boolean
     cast.cancel[spell] = function()
         -- An auto-repeating spell (Auto Shot, Shoot) stops when cast again; stopping a cast doesn't stop it
@@ -195,7 +187,7 @@ br.api.build.cast = function(api, spell, id)
     end
 
     --- Gets the cost of the spell.
-    -- @function cast.cost.spell
+    -- @function cast.cost.<spell>
     -- @bool altPower Set to "true" to return alternate power cost.
     -- @treturn number
     cast.cost[spell] = function(altPower)
@@ -217,7 +209,7 @@ br.api.build.cast = function(api, spell, id)
     end
 
     --- Gets the currently cast spell for the target (Alternate to cast.active.spell()).
-    -- @function cast.current.spell
+    -- @function cast.current.<spell>
     -- @string thisUnit Acceptable parameters: nil (defaults to "player"), standard WoW units, or dynamic units.
     -- @treturn boolean
     cast.current[spell] = function(thisUnit)
@@ -226,7 +218,7 @@ br.api.build.cast = function(api, spell, id)
     end
 
     --- Checks if the spell is capable of dispelling the target.
-    -- @function cast.dispel.spell
+    -- @function cast.dispel.<spell>
     -- @string thisUnit Acceptable parameters: nil (defaults to "target"), standard WoW units, or dynamic units.
     -- @treturn boolean
     cast.dispel[spell] = function(thisUnit)
@@ -235,7 +227,7 @@ br.api.build.cast = function(api, spell, id)
     end
 
     --- Gets current empowered rank of the spell or 0 if not empowered.
-    -- @function cast.empowered.spell
+    -- @function cast.empowered.<spell>
     -- @treturn number
     cast.empowered[spell] = function()
         return br.functions.spell:getEmpoweredRank(currentRank())
@@ -271,7 +263,7 @@ br.api.build.cast = function(api, spell, id)
     end
 
     --- Checks if the spell is currently in flight to the target.
-    -- @function cast.inFlight.spell
+    -- @function cast.inFlight.<spell>
     -- @string thisUnit Acceptable parameters: nil (defaults to "target"), standard WoW units, or dynamic units.
     -- @treturn boolean
     cast.inFlight[spell] = function(thisUnit)
@@ -280,7 +272,7 @@ br.api.build.cast = function(api, spell, id)
     end
 
     --- Gets time remaining on a spell in flight to the target.
-    -- @function cast.inFlightRemain.spell
+    -- @function cast.inFlightRemain.<spell>
     -- @string thisUnit The target unit to check for the spell in flight.
     -- @treturn number
     cast.inFlightRemain[spell] = function(thisUnit)
@@ -288,7 +280,7 @@ br.api.build.cast = function(api, spell, id)
     end
 
     --- Checks if the spell was the last one cast or not.
-    -- @function cast.last.spell
+    -- @function cast.last.<spell>
     -- @number index Number of last cast spell up to 10 previous spells, default value is 1 if not provided.
     -- @treturn boolean
     cast.last[spell] = function(index)
@@ -298,7 +290,7 @@ br.api.build.cast = function(api, spell, id)
     end
 
     --- Gets the GetTime() value the last cast of this spell occurred, or 0 if it hasn't been cast.
-    -- @function cast.last.time.spell
+    -- @function cast.last.time.<spell>
     -- @treturn number
     cast.last.time[spell] = function()
         return br.functions.lastCast.lastCastTable.castTime[currentRank()] or 0
@@ -328,6 +320,14 @@ br.api.build.cast = function(api, spell, id)
         end
     end
 
+    --- Get the highest known rank number for this spell (1 on clients without spell ranks).
+    -- @function cast.maxRank.<spell>
+    -- @treturn number The highest rank number the player knows (1-based), or 0 if none
+    -- @usage
+    -- local knownRank = cast.maxRank.healingTouch()
+    -- if knownRank >= 5 then
+    --     -- Player knows at least Rank 5
+    -- end
     cast.maxRank[spell] = function()
         if not br.client.rules.hasSpellRanks then return 1 end
         return br.functions.spell:getKnownRank(id)
@@ -353,7 +353,7 @@ br.api.build.cast = function(api, spell, id)
     end
 
     --- Checks if the spell can free you of a "no control" effect.
-    -- @function cast.noControl.spell
+    -- @function cast.noControl.<spell>
     -- @treturn boolean
     cast.noControl[spell] = function()
         return br.functions.combat:hasNoControl(currentRank())
@@ -367,7 +367,7 @@ br.api.build.cast = function(api, spell, id)
     -- done when the game confirms the cast, and skipped when the spell isn't known, its cooldown
     -- won't be up in time, or it can't be cast for about two GCDs. A step whose condition is false
     -- is passed over. The opener resets out of combat without a target, or on a new target.
-    -- @function cast.opener.spell
+    -- @function cast.opener.<spell>
     -- @treturn boolean
     -- @usage
     -- if not debuff.rake.exists("target") then
@@ -395,7 +395,7 @@ br.api.build.cast = function(api, spell, id)
         end)
 
     --- Checks if specified power requirements are not met.
-    -- @function cast.pool.spell
+    -- @function cast.pool.<spell>
     -- @param altPower boolean Set to "true" to return alternate power cost. Defaults to false if not provided.
     -- @param specificAmt number Set to specified power amount. Defaults to 0 if not provided.
     -- @param multiplier number Set to specified power multiplier. Defaults to 1 if not provided.
@@ -411,21 +411,21 @@ br.api.build.cast = function(api, spell, id)
     end
 
     --- Gets the spell's range, if it has one.
-    -- @function cast.range.spell
+    -- @function cast.range.<spell>
     -- @treturn number
     cast.range[spell] = function()
         return br.functions.spell:getSpellRange(currentRank())
     end
 
     --- Gets the amount of power spell will generate when cast.
-    -- @function cast.regen.spell
+    -- @function cast.regen.<spell>
     -- @treturn number
     cast.regen[spell] = function()
         return br.functions.spell:getCastingRegen(currentRank())
     end
 
     --- Checks if safe to cast specified aoe spell on unit given the aoe dimensions.
-    -- @function cast.safe.spell
+    -- @function cast.safe.<spell>
     -- @string thisUnit The target unit to check for safety. Defaults to "target" if not provided.
     -- @string aoeType The type of AoE to check for safety. Can be "rect", "cone", "ground", or "aoe".
     -- @number minUnits Specify minimal number of units needed to be hit by AoE spell before it will use.
@@ -438,7 +438,7 @@ br.api.build.cast = function(api, spell, id)
     --- Cast a spell based on various parameters.
     -- The function name is dynamically generated based on the spell name.
     -- For example, for a spell named "thisSpell", the function would be `cast.thisSpell()`.
-    -- @function cast.spell
+    -- @function cast.<spell>
     -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
     -- @string castType Defines the type of AoE or special cast conditions.
     -- @number minUnits Minimum number of units needed to be hit by AoE spell.
@@ -465,7 +465,7 @@ br.api.build.cast = function(api, spell, id)
         end)
 
     --- Gets the cast time of player's spell. If the spell has no cast time, it returns the global cooldown.
-    -- @function cast.time.spell
+    -- @function cast.time.<spell>
     -- @treturn number
     cast.time[spell] = function()
         local castTime = br.functions.cast:getCastTime(currentRank())
@@ -484,7 +484,7 @@ br.api.build.cast = function(api, spell, id)
     end
 
     --- Gets the time since the last cast of this spell occurred (very large if it hasn't been cast).
-    -- @function cast.timeSinceLast.spell
+    -- @function cast.timeSinceLast.<spell>
     -- @treturn number
     cast.timeSinceLast[spell] = function()
         return br.functions.misc:getTime() - (br.functions.lastCast.lastCastTable.castTime[currentRank()] or 0)

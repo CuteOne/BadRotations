@@ -23,7 +23,7 @@ br.api.build.cd = function(api, spell, id)
     cd[spell] = cd[spell] or {}
 
     --- Gets the total time of the spell cooldown
-    -- @function cd.spell.duration
+    -- @function cd.<spell>.duration
     -- @return number
     -- @within cd.spell
     cd[spell].duration = function()
@@ -33,7 +33,7 @@ br.api.build.cd = function(api, spell, id)
     end
 
     --- Checks if spell is on cooldown or not.
-    -- @function cd.spell.exists
+    -- @function cd.<spell>.exists
     -- @return boolean
     -- @within cd.spell
     cd[spell].exists = function()
@@ -44,7 +44,7 @@ br.api.build.cd = function(api, spell, id)
     end
 
     --- Gets the duration of the spells Global Cooldown.
-    -- @function cd.spell.prevgcd
+    -- @function cd.<spell>.prevgcd
     -- @return number
     -- @within cd.spell
     cd[spell].prevgcd = function()
@@ -53,7 +53,7 @@ br.api.build.cd = function(api, spell, id)
     end
 
     --- Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).
-    -- @function cd.spell.ready
+    -- @function cd.<spell>.ready
     -- @return boolean
     -- @within cd.spell
     cd[spell].ready = function()
@@ -63,7 +63,7 @@ br.api.build.cd = function(api, spell, id)
     end
 
     --- Gets the time remaining on spell cooldown or 0 if not.
-    -- @function cd.spell.remain
+    -- @function cd.<spell>.remain
     -- @return number
     -- @within cd.spell
     cd[spell].remain = function()
@@ -73,7 +73,7 @@ br.api.build.cd = function(api, spell, id)
     end
 
     --- Gets the time remaining on spell cooldown or 0 if not (alternate to cd.spell.remain() incase of typo).
-    -- @function cd.spell.remains
+    -- @function cd.<spell>.remains
     -- @return number
     -- @within cd.spell
     cd[spell].remains = function()
@@ -96,7 +96,7 @@ br.api.build.itemCD = function(api, item, id)
     cd.slot = cd.slot or {}
 
     --- Gets the total cooldown time of the item in seconds.
-    -- @function cd.item.duration
+    -- @function cd.<item>.duration
     -- @return number
     -- @within cd.item
     cd[item].duration = function()
@@ -104,7 +104,7 @@ br.api.build.itemCD = function(api, item, id)
     end
 
     --- Checks if item is on cooldown or not.
-    -- @function cd.item.exists
+    -- @function cd.<item>.exists
     -- @return boolean
     -- @within cd.item
     cd[item].exists = function()
@@ -112,7 +112,7 @@ br.api.build.itemCD = function(api, item, id)
     end
 
     --- Gets the time remaining on item cooldown or 0 if not.
-    -- @function cd.item.remain
+    -- @function cd.<item>.remain
     -- @return number
     -- @within cd.item
     cd[item].remain = function()

@@ -103,18 +103,18 @@ br.api.build.pet = function(api, petList)
         pet[k] = entry
 
         --- Counts the player's pets of this kind
-        -- @function pet.name.count
+        -- @function pet.<name>.count
         -- @return number
         entry.count = function() return functions:countOwn(v) end
 
         --- True when a pet of this kind is out
-        -- @function pet.name.exists
+        -- @function pet.<name>.exists
         -- @return boolean
         entry.exists = function() return entry.count() > 0 end
         entry.active = entry.exists
 
         --- This pet kind's NPC ID
-        -- @function pet.name.id
+        -- @function pet.<name>.id
         -- @return number
         entry.id = function() return v end
     end

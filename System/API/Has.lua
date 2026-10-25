@@ -15,7 +15,7 @@ br.api.build.has = function(api,item,id)
 
     --- Checks if item is in your bags or not.
     -- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
-    -- @function has.item
+    -- @function has.<item>
     -- @return boolean
     has[item] = function()
         if type(id) == "table" then
@@ -38,11 +38,11 @@ br.api.build.has = function(api,item,id)
 
     --- Checks if an inventory item has any of chosen DPS stats.
     -- @function has.stats.dps
-    -- @tparam itemSlot The slot number in the player's inventory where the item is located.
-    -- @tparam desiredStat A string representing the desired stat to check. It can be one of:
+    -- @number itemSlot The slot number in the player's inventory where the item is located.
+    -- @string desiredStat A string representing the desired stat to check. It can be one of:
     -- 'agility', 'strength', 'intellect', 'crit', 'haste', 'mastery', 'versatility', or 'anyDps'.
     -- 'anyDps' checks for any DPS-related stat. If `desiredStat` is not recognized, it defaults to 'anyDps'.
-    -- @treturn bool True if the item has the chosen DPS stat, False otherwise.
+    -- @treturn boolean True if the item has the chosen DPS stat, False otherwise.
     has.stats.dps = function(itemSlot, desiredStat)
         local statMap = {
             agility = "ITEM_MOD_AGILITY_SHORT",

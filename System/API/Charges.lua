@@ -11,7 +11,7 @@ br.api.build.charges = function(api, spell, id)
     local charges = api[spell]
 
     --- Gets the number of charges remaining on spell.
-    -- @function charges.spell.count
+    -- @function charges.<spell>.count
     -- @return number
     charges.count = function()
         local spellID = br.functions.spell:currentRank(id)
@@ -19,7 +19,7 @@ br.api.build.charges = function(api, spell, id)
     end
 
     --- Checks if spell has charges or not.
-    -- @function charges.spell.exists
+    -- @function charges.<spell>.exists
     -- @return boolean
     charges.exists = function()
         local spellID = br.functions.spell:currentRank(id)
@@ -27,7 +27,7 @@ br.api.build.charges = function(api, spell, id)
     end
 
     --- Gets the number of charges remaining on spell as a fraction. (e.g. 1.5 charges remaining)
-    -- @function charges.spell.frac
+    -- @function charges.<spell>.frac
     -- @return number
     charges.frac = function()
         local spellID = br.functions.spell:currentRank(id)
@@ -35,7 +35,7 @@ br.api.build.charges = function(api, spell, id)
     end
 
     --- Gets the maximum number of charges the spell can have.
-    -- @function charges.spell.max
+    -- @function charges.<spell>.max
     -- @return number
     charges.max = function()
         local spellID = br.functions.spell:currentRank(id)
@@ -43,7 +43,7 @@ br.api.build.charges = function(api, spell, id)
     end
 
     --- Gets the time remaining on until next charge is available.
-    -- @function charges.spell.remain
+    -- @function charges.<spell>.recharge
     -- @bool[opt] chargeMax If true, returns the time remaining until all charges are available.
     -- @return number
     charges.recharge = function(chargeMax)
@@ -55,13 +55,16 @@ br.api.build.charges = function(api, spell, id)
         end
     end
 
+    --- The spell's cast count as the game keeps it (uses stored on spells that count them).
+    -- @function charges.<spell>.spellCount
+    -- @treturn number
     charges.spellCount = function()
         local spellID = br.functions.spell:currentRank(id)
         return br.functions.spell:getCastCount(spellID)
     end
 
     --- Gets the total time remaining until all charges are available.
-    -- @function charges.spell.timeTillFull
+    -- @function charges.<spell>.timeTillFull
     -- @return number
     charges.timeTillFull = function()
         local spellID = br.functions.spell:currentRank(id)
@@ -74,14 +77,14 @@ br.api.build.itemCharges = function(api, item, id)
     local charges = api[item]
 
     --- Gets the number of charges remaining on item.
-    -- @function charges.item.count
+    -- @function charges.<item>.count
     -- @return number
     charges.count = function()
         return br.functions.item.itemCharges(id)
     end
 
     --- Checks if item has charges or not.
-    -- @function charges.item.exists
+    -- @function charges.<item>.exists
     -- @return boolean
     charges.exists = function()
         return br.functions.item.itemCharges(id) > 0

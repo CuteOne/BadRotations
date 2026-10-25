@@ -44,12 +44,15 @@ br.api.build.glyphs = function(glyphTable, k, v)
 
     local glyphFn = br.functions and br.functions.glyph
 
+    --- Returns true if this glyph is NOT socketed.
+    -- @function glyph.<k>.down
+    -- @treturn boolean
     entry.down = function()
         return not entry.enabled()
     end
 
     --- Returns true if this glyph is socketed.
-    -- @function glyph.k.enabled
+    -- @function glyph.<k>.enabled
     -- @treturn boolean
     entry.enabled = function()
         return glyphFn and glyphFn:hasGlyph(v) or false
@@ -59,7 +62,7 @@ br.api.build.glyphs = function(glyphTable, k, v)
     entry.up = entry.enabled
 
     --- Returns the glyph spellId.
-    -- @function glyph.k.id
+    -- @function glyph.<k>.id
     -- @treturn number
     entry.id = function()
         return v

@@ -129,7 +129,7 @@ br.api.build.totemElement = function(api, elementKey, slot)
     element.slot = slot
 
     --- Check if any totem in this element slot is active.
-    -- @function totem.element.active
+    -- @function totem.<element>.active
     -- @treturn boolean
     element.active = function()
         if not totemFn then return false end
@@ -137,12 +137,12 @@ br.api.build.totemElement = function(api, elementKey, slot)
         return haveTotem == true
     end
     --- Alias for active.
-    -- @function totem.element.exists
+    -- @function totem.<element>.exists
     -- @treturn boolean
     element.exists = element.active
 
     --- Get distance to the active totem in this slot.
-    -- @function totem.element.distance
+    -- @function totem.<element>.distance
     -- @treturn number
     element.distance = function()
         if not totemFn or not totemFn.slotDistance then return 999 end
@@ -150,7 +150,7 @@ br.api.build.totemElement = function(api, elementKey, slot)
     end
 
     --- Get duration for the active totem in this slot.
-    -- @function totem.element.duration
+    -- @function totem.<element>.duration
     -- @treturn number
     element.duration = function()
         if not totemFn then return 0 end
@@ -159,7 +159,7 @@ br.api.build.totemElement = function(api, elementKey, slot)
     end
 
     --- Check if the active totem matches any of the provided candidates.
-    -- @function totem.element.is
+    -- @function totem.<element>.is
     -- @tparam ... candidates
     -- @treturn boolean
     element.is = function(...)
@@ -168,7 +168,7 @@ br.api.build.totemElement = function(api, elementKey, slot)
     end
 
     --- Get the name of the active totem in this slot.
-    -- @function totem.element.name
+    -- @function totem.<element>.name
     -- @treturn string|nil
     element.name = function()
         if not totemFn then return nil end
@@ -177,7 +177,7 @@ br.api.build.totemElement = function(api, elementKey, slot)
     end
 
     --- Get remaining time for the active totem in this slot.
-    -- @function totem.element.remain
+    -- @function totem.<element>.remain
     -- @treturn number
     element.remain = function()
         if not totemFn then return 0 end
@@ -205,19 +205,19 @@ br.api.build.totemSpecific = function(slot, totemKey)
     local specific = {}
 
     --- Check if this specific totem is active.
-    -- @function totem.element.totemName.active
+    -- @function totem.<element>.<totemName>.active
     -- @treturn boolean
     specific.active = function()
         if not totemFn then return false end
         return totemFn:slotMatchesAny(slot, totemKey)
     end
     --- Alias for active.
-    -- @function totem.element.totemName.exists
+    -- @function totem.<element>.<totemName>.exists
     -- @treturn boolean
     specific.exists = specific.active
 
     --- Get distance to this specific totem.
-    -- @function totem.element.totemName.distance
+    -- @function totem.<element>.<totemName>.distance
     -- @treturn number
     specific.distance = function()
         if not specific.active() then return 999 end
@@ -226,7 +226,7 @@ br.api.build.totemSpecific = function(slot, totemKey)
     end
 
     --- Get duration for this specific totem.
-    -- @function totem.element.totemName.duration
+    -- @function totem.<element>.<totemName>.duration
     -- @treturn number
     specific.duration = function()
         if not specific.active() then return 0 end
@@ -236,7 +236,7 @@ br.api.build.totemSpecific = function(slot, totemKey)
     end
 
     --- Get the name of this totem if active.
-    -- @function totem.element.totemName.name
+    -- @function totem.<element>.<totemName>.name
     -- @treturn string|nil
     specific.name = function()
         if not specific.active() then return nil end
@@ -246,7 +246,7 @@ br.api.build.totemSpecific = function(slot, totemKey)
     end
 
     --- Get remaining time for this specific totem.
-    -- @function totem.element.totemName.remain
+    -- @function totem.<element>.<totemName>.remain
     -- @treturn number
     specific.remain = function()
         if not specific.active() then return 0 end

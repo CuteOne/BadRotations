@@ -188,6 +188,10 @@ At the end of startup BR runs every options page once without building frames (`
 
 ---
 
+## Editor Types
+
+`Types/ProfileAPI/` holds type definitions for the Lua language server (VS Code: the "Lua" extension by sumneko), so profiles get completion and hover docs for the profile API: `cast.` lists every spell key, `buff.<key>.` its functions, `unit.hp(` its parameters. The files are generated from the `--- ` doc blocks in `System/API/` (each names its function with `@function`; per-key parts in angle brackets, e.g. `@function buff.<spell>.exists`), the profile environment in `System/Loader/ProfileAPI.lua` and every flavour's spell lists. After changing any of those, run `luajit Types/generate.lua` from the BR folder and commit the result. The game never loads `Types/`.
+
 ## No Build Step
 
 The addon loads directly as Lua files — no compilation or bundling needed. API documentation can be generated with `config.ld` (LDoc). There are no automated tests.

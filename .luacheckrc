@@ -4,6 +4,7 @@ exclude_files = {
 	"**/3rd Party Files",
 	"**/Libs",
 	"**/Unlockers",
+	"Types/ProfileAPI", -- generated editor type definitions (Types/generate.lua)
 }
 only = {
 	"011", -- syntax
@@ -41257,4 +41258,35 @@ read_globals = {
             'wipe'
         }
     }
+}
+
+-- Profiles run in the profile API (System/Loader/ProfileAPI.lua): its tables and functions are their globals
+files["Rotations"] = {
+	read_globals = {
+		"buff",
+		"cast",
+		"cd",
+		"charges",
+		"debuff",
+		"enemies",
+		"equiped",
+		"glyph",
+		"has",
+		"heroTree",
+		"imbues",
+		"module",
+		"pet",
+		"power",
+		"spell",
+		"talent",
+		"totem",
+		"ui",
+		"unit",
+		"units",
+		"use",
+		"var",
+		"print",
+		"registerRotation",
+		"loadSupport",
+	},
 }

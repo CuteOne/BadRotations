@@ -14,7 +14,7 @@ br.api.build.use = function(api,item,id)
 
     --- Checks if item is usable or not.
     -- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
-    -- @function use.able.item
+    -- @function use.able.<item>
     -- @number[opt] slotID The ID of the equipment slot to check.
     -- @treturn boolean
     use.able[item] = function(slotID)
@@ -51,7 +51,7 @@ br.api.build.use = function(api,item,id)
         -- in the items.lua usage precedence will be the order the items appear in the array from first to last.
         -- typically for using higher quality items first, such as gold items over silver, etc.
         -- example, howlingRuneQualities = {194820,194819,194817} would attempt to use 194820 (gold qual) first, then 194819 (silver qaul) second, etc.
-        -- @function use.bestItem()
+        -- @function use.bestItem
         -- @array itemIDs The array of variable quality items.
         -- @string[opt="target"] thisUnit The unit to use the item on.
         -- @treturn boolean
@@ -70,7 +70,7 @@ br.api.build.use = function(api,item,id)
         --- iterates through a list of items and returns true if they are usable
         -- typically for using higher quality items first, such as gold items over silver, etc.
         -- example, howlingRuneQualities = {194820,194819,194817} would attempt to use 194820 (gold qual) first, then 194819 (silver qaul) second, etc.
-        -- @function use.isOneOfUsable()
+        -- @function use.isOneOfUsable
         -- @array itemIDs The array of variable quality items.
         -- @treturn boolean
         use.isOneOfUsable = function(itemIDs)
@@ -83,7 +83,7 @@ br.api.build.use = function(api,item,id)
     end
 
     --- Uses the item.
-    -- @function use.item
+    -- @function use.<item>
     -- @number[opt] slotID The equipment slot number to use the item from.
     -- @string[opt="target"] thisUnit The unit to use the item on.
     -- @treturn boolean

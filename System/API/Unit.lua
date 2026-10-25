@@ -282,7 +282,9 @@ br.api.build.unit = function(api)
         return br.functions.range:getFacingDistance()
     end
 
-    --- @return number Distance in yards the player has fallen
+    --- How far the player has fallen
+    -- @function unit.fallDist
+    -- @return number Distance in yards the player has fallen
     unit.fallDist = function()
         return br.functions.misc:getFallDistance() or 0
     end

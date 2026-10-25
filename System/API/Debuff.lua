@@ -16,7 +16,7 @@ br.api.build.debuffs = function(debuff, k, v)
     v = currentRank()
 
     --- Gets the value of the debuff when it was applied.
-    -- @function debuff.spell.applied
+    -- @function debuff.<spell>.applied
     -- @string[opt="target"] thisUnit The unit to check the debuff applied value on.
     -- @treturn number
     debuff.applied = function(thisUnit)
@@ -27,7 +27,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Calculates the snapshot value of a debuff.
-    -- @function debuff.spell.calc
+    -- @function debuff.<spell>.calc
     -- @treturn number
     debuff.calc = function()
         v = currentRank()
@@ -35,7 +35,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Gets the count of a specific debuff across all units.
-    -- @function debuff.spell.count
+    -- @function debuff.<spell>.count
     -- @treturn number
     debuff.count = function()
         v = currentRank()
@@ -43,7 +43,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Gets the duration of a debuff on a unit.
-    -- @function debuff.spell.duration
+    -- @function debuff.<spell>.duration
     -- @string[opt="target"] thisUnit The unit to check the debuff duration on.
     -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn number
@@ -55,7 +55,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Checks if a debuff exists on a unit.
-    -- @function debuff.spell.exists
+    -- @function debuff.<spell>.exists
     -- @string[opt="target"] thisUnit The unit to check the debuff on.
     -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn boolean
@@ -67,7 +67,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Checks if a debuff is exsanguinated.
-    -- @function debuff.spell.exsang
+    -- @function debuff.<spell>.exsang
     -- @string[opt="target"] thisUnit The unit to check the debuff on.
     -- @treturn boolean
     debuff.exsang = function(thisUnit)
@@ -77,7 +77,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Gets the unit with the lowest remaining time for a debuff within a specified range.
-    -- @function debuff.spell.lowest
+    -- @function debuff.<spell>.lowest
     -- @number[opt=40] range The range to check units within.
     -- @string[opt="remain"] debuffType The type of debuff check to perform (e.g., "remain").
     -- @treturn string
@@ -89,7 +89,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Gets the unit with the lowest remaining time for a debuff within a specified range, considering only pets.
-    -- @function debuff.spell.lowestPet
+    -- @function debuff.<spell>.lowestPet
     -- @number[opt=8] range The range to check units within.
     -- @string[opt="remain"] debuffType The type of debuff check to perform (e.g., "remain").
     -- @treturn string
@@ -101,7 +101,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Gets the unit with the highest remaining time for a debuff within a specified range.
-    -- @function debuff.spell.max
+    -- @function debuff.<spell>.max
     -- @number[opt=40] range The range to check units within.
     -- @string[opt="remain"] debuffType The type of debuff check to perform (e.g., "remain").
     -- @treturn string
@@ -114,7 +114,7 @@ br.api.build.debuffs = function(debuff, k, v)
 
     --- The duration the refresh window is worked out from: the debuff's current duration on the unit
     -- (debuff.spell.refresh refreshes in its last 30%).
-    -- @function debuff.spell.pandemic
+    -- @function debuff.<spell>.pandemic
     -- @string[opt="target"] thisUnit The unit to check the pandemic threshold on.
     -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn number
@@ -127,7 +127,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Gets the multiplier for the debuff based on its remaining time and duration.
-    -- @function debuff.spell.pmultiplier
+    -- @function debuff.<spell>.pmultiplier
     -- @string[opt="target"] thisUnit The unit to check the debuff multiplier on.
     -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn number
@@ -145,7 +145,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Checks if a debuff should be refreshed based on its remaining time and pandemic threshold.
-    -- @function debuff.spell.refresh
+    -- @function debuff.<spell>.refresh
     -- @string[opt="target"] thisUnit The unit to check if the debuff should be refreshed on.
     -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn boolean
@@ -158,7 +158,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Gets the count of units that should have their debuff refreshed.
-    -- @function debuff.spell.refreshCount
+    -- @function debuff.<spell>.refreshCount
     -- @number[opt=40] range The range to check units within.
     -- @treturn number
     debuff.refreshCount = function(range)
@@ -180,7 +180,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Gets the remaining time of a debuff on a unit.
-    -- @function debuff.spell.remain
+    -- @function debuff.<spell>.remain
     -- @string[opt="target"] thisUnit The unit to check the debuff remaining time on.
     -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn number
@@ -192,7 +192,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Gets the count of units with a debuff remaining time less than a specified value.
-    -- @function debuff.spell.remainCount
+    -- @function debuff.<spell>.remainCount
     -- @number remain The remaining time to check against.
     -- @treturn number
     debuff.remainCount = function(remain)
@@ -201,7 +201,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Gets the remaining time of a debuff on a unit. (Duplicate of debuff.spell.remain)
-    -- @function debuff.spell.remains
+    -- @function debuff.<spell>.remains
     -- @string[opt="target"] thisUnit The unit to check the debuff remaining time on.
     -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn number
@@ -213,7 +213,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Gets the stack count of a debuff on a unit.
-    -- @function debuff.spell.stack
+    -- @function debuff.<spell>.stack
     -- @string[opt="target"] thisUnit The unit to check the debuff stack count on.
     -- @string[opt="player"] sourceUnit "player": applied by you; "any": by anyone
     -- @treturn number
@@ -229,7 +229,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Gets the number of debuff ticks that will be gained by reapplying the debuff to the specified unit.
-    -- @function debuff.spell.ticksGainedOnRefresh
+    -- @function debuff.<spell>.ticksGainedOnRefresh
     -- @param thisUnit string|nil The unit to check the ticks gained by reapplying the debuff on (optional, default "target").
     -- @return number
     debuff.ticksGainedOnRefresh = function(thisUnit)
@@ -260,7 +260,7 @@ br.api.build.debuffs = function(debuff, k, v)
     end
 
     --- Gets the number of debuff ticks remaining until it expires on the specified unit.
-    -- @function debuff.spell.ticksRemain
+    -- @function debuff.<spell>.ticksRemain
     -- @param thisUnit string|nil The unit to check the remaining ticks on (optional, default "target").
     -- @return number
     debuff.ticksRemain = function(thisUnit)
