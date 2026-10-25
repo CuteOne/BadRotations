@@ -3,26 +3,26 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "consecration", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
         { name = "Mult", icon = "consecration", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
         { name = "Sing", icon = "crusaderStrike", overlay = "Single Target Rotation", tip = "Single target rotation used." },
         { name = "Off", icon = "flashOfLight", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "avengingWrath", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "avengingWrath", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "avengingWrath", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "flashOfLight", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "flashOfLight", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "hammerOfJustice", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "hammerOfJustice", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
-    br.ui:toggle("Aura", { modes = {
+    ui.toggle("Aura", { modes = {
         { name = "Con", icon = "concentrationAura", overlay = "Concentration Aura", tip = "Use Concentration Aura", highlight = false },
         { name = "Dev", icon = "devotionAura", overlay = "Devotion Aura", tip = "Use Devotion Aura" },
         { name = "Ret", icon = "retributionAura", overlay = "Retribution Aura", tip = "Use Retribution Aura" },
@@ -40,115 +40,100 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Dummy DPS Test
-    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+    ui.spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
         tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
     -- Blessing of Freedom
-    br.ui:dropdown(section, "Blessing of Freedom", { choices = playTarMouseFocLow, value = 1, tip = "Target to Cast On" })
+    ui.dropdown(section, "Blessing of Freedom", { choices = playTarMouseFocLow, value = 1, tip = "Target to Cast On" })
     -- Divine Storm Units
-    br.ui:spinner(section, "Divine Storm Units", { value = 2, min = 1, max = 5, step = 1, checkbox = false,
+    ui.spinner(section, "Divine Storm Units", { value = 2, min = 1, max = 5, step = 1, checkbox = false,
         tip = "|cffFFBB00Units to use Divine Storm." })
     ------------------------
     --- COOLDOWN OPTIONS ---
     ------------------------
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
     -- Potion
-    br.player.module.CombatPotionUp(section)
+    module.CombatPotionUp(section)
     -- Phial
-    br.player.module.PhialUp(section)
+    module.PhialUp(section)
     -- Imbue
-    br.player.module.ImbueUp(section)
+    module.ImbueUp(section)
     -- Trinkets
-    br.player.module.BasicTrinkets(nil, section)
+    module.BasicTrinkets(nil, section)
     -- Racial
-    br.ui:dropdown(section, "Racial", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "Set mode to use." })
+    ui.dropdown(section, "Racial", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "Set mode to use." })
     -- Avenging Wrath
-    br.ui:dropdown(section, "Avenging Wrath", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
+    ui.dropdown(section, "Avenging Wrath", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
     -- Crusade
-    br.ui:dropdown(section, "Crusade", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
+    ui.dropdown(section, "Crusade", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
     -- Execution Sentence
-    br.ui:dropdown(section, "Execution Sentence", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
+    ui.dropdown(section, "Execution Sentence", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
     -- Final Reckoning
-    br.ui:dropdown(section, "Final Reckoning", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
+    ui.dropdown(section, "Final Reckoning", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
     -- Shield of Vengeance
-    br.ui:dropdown(section, "Shield of Vengeance - CD", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
+    ui.dropdown(section, "Shield of Vengeance - CD", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
     -- Wake of Ashes
-    br.ui:dropdown(section, "Wake of Ashes", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
+    ui.dropdown(section, "Wake of Ashes", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Basic Healing Module
-    br.player.module.BasicHealing(section)
+    module.BasicHealing(section)
     -- Blessing of Protection
-    br.ui:spinner(section, "Blessing of Protection", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
-    br.ui:dropdown(section, "Blessing of Protection Target", { choices = playTarMouseFocLow, value = 5, checkbox = false,
+    ui.spinner(section, "Blessing of Protection", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.dropdown(section, "Blessing of Protection Target", { choices = playTarMouseFocLow, value = 5, checkbox = false,
         tip = "Target for Blessing of Protection" })
     -- Blessing of Sacrifice
-    br.ui:dropdown(section, "Blessing of Sacrifice", { choices = playTarMouseFocLow, value = 5, tip = "Target for Blessing of Sacrifice" })
-    br.ui:spinner(section, "Friendly HP", { value = 30, checkbox = false, tip = "|cffFFBB00Health Percentage to use at." })
-    br.ui:spinner(section, "Personal HP Limit", { value = 80, checkbox = false, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.dropdown(section, "Blessing of Sacrifice", { choices = playTarMouseFocLow, value = 5, tip = "Target for Blessing of Sacrifice" })
+    ui.spinner(section, "Friendly HP", { value = 30, checkbox = false, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.spinner(section, "Personal HP Limit", { value = 80, checkbox = false, tip = "|cffFFBB00Health Percentage to use at." })
     -- Blinding Light
-    br.ui:spinner(section, "Blinding Light", { value = 40, tip = "|cffFFBB00Health Percentage to use at." })
-    br.ui:spinner(section, "Blinding Light Units", { value = 3, min = 1, max = 5, step = 1, checkbox = false, tip = "Units to Cast On" })
+    ui.spinner(section, "Blinding Light", { value = 40, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.spinner(section, "Blinding Light Units", { value = 3, min = 1, max = 5, step = 1, checkbox = false, tip = "Units to Cast On" })
     -- Cleanse Toxin
-    br.ui:dropdown(section, "Cleanse Toxins", { choices = playTarMouseFocLow, value = 1, tip = "Target to Cast On" })
+    ui.dropdown(section, "Cleanse Toxins", { choices = playTarMouseFocLow, value = 1, tip = "Target to Cast On" })
     -- Divine Shield
-    br.ui:spinner(section, "Divine Shield", { value = 35, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.spinner(section, "Divine Shield", { value = 35, tip = "|cffFFBB00Health Percentage to use at." })
     -- Flash of Light
-    br.ui:spinner(section, "Flash of Light", { value = 50, tip = "|cffFFBB00Health Percentage to use at." })
-    br.ui:dropdown(section, "Flash of Light Target", { choices = playTarMouseFocLow, value = 5, checkbox = false,
+    ui.spinner(section, "Flash of Light", { value = 50, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.dropdown(section, "Flash of Light Target", { choices = playTarMouseFocLow, value = 5, checkbox = false,
         tip = "Target for Flash of Light" })
     -- Hammer of Justice
-    br.ui:spinner(section, "Hammer of Justice - HP", { value = 40, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.spinner(section, "Hammer of Justice - HP", { value = 40, tip = "|cffFFBB00Health Percentage to use at." })
     -- Justicar's Vengeance
-    br.ui:spinner(section, "Justicar's Vengeance", { value = 45, tip = "|cffFFBB00Health Percentage to use at over Templar's Verdict." })
+    ui.spinner(section, "Justicar's Vengeance", { value = 45, tip = "|cffFFBB00Health Percentage to use at over Templar's Verdict." })
     -- Lay On Hands
-    br.ui:spinner(section, "Lay On Hands", { value = 20, tip = "", boxTip = "Health Percentage to use at" })
-    br.ui:dropdown(section, "Lay on Hands Target", { choices = playTarMouseFocLow, value = 5, checkbox = false, tip = "Target for Lay On Hands" })
+    ui.spinner(section, "Lay On Hands", { value = 20, tip = "", boxTip = "Health Percentage to use at" })
+    ui.dropdown(section, "Lay on Hands Target", { choices = playTarMouseFocLow, value = 5, checkbox = false, tip = "Target for Lay On Hands" })
     -- Redemption
-    br.ui:dropdown(section, "Redemption", { choices = { "Target", "Mouseover", "Focus" }, value = "Target", tip = "Target to Cast On" })
+    ui.dropdown(section, "Redemption", { choices = { "Target", "Mouseover", "Focus" }, value = "Target", tip = "Target to Cast On" })
     -- Shield of Vengeance
-    br.ui:spinner(section, "Shield of Vengeance", { value = 55, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.spinner(section, "Shield of Vengeance", { value = 55, tip = "|cffFFBB00Health Percentage to use at." })
     -- Turn Evil
-    br.ui:checkbox(section, "Turn Evil")
+    ui.checkbox(section, "Turn Evil")
     -- Word of Glory
-    br.ui:spinner(section, "Word of Glory", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.spinner(section, "Word of Glory", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Blinding Light
-    br.ui:checkbox(section, "Blinding Light - Int")
+    ui.checkbox(section, "Blinding Light - Int")
     -- Hammer of Justice
-    br.ui:checkbox(section, "Hammer of Justice")
+    ui.checkbox(section, "Hammer of Justice")
     -- Rebuke
-    br.ui:checkbox(section, "Rebuke")
+    ui.checkbox(section, "Rebuke")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
-
-local debugprofilestop = br.game["debugprofilestop"]
 
 --------------
 --- Locals ---
 --------------
 -- BR API
-local buff
-local cast
-local cd
-local charges
-local debuff
-local enemies
-local equiped
 local holyPower
-local module
-local talent
-local ui
-local unit
-local units
-local var
 
 ------------------------
 --- Custom Functions ---
@@ -157,14 +142,14 @@ local canGlory = function()
     local optionValue = ui.value("Word of Glory")
     local otherCounter = 0
     if holyPower() >= 3 then
-        if #br.engines.healingEngine.friend == 1 then
+        if #units.friends == 1 then
             if unit.hp("player") <= optionValue then
                 var.gloryUnit = "player"
                 return true
             end
         end
-        for i = 1, #br.engines.healingEngine.friend do
-            local thisUnit = br.engines.healingEngine.friend[i].unit
+        for i = 1, #units.friends do
+            local thisUnit = units.friends[i].unit
             local thisHP = unit.hp(thisUnit)
             if thisHP < optionValue then
                 -- Emergency Single
@@ -174,8 +159,8 @@ local canGlory = function()
                 end
                 -- Group Heal
                 if otherCounter < 2 then
-                    for j = 1, #br.engines.healingEngine.friend do
-                        local otherUnit = br.engines.healingEngine.friend[j].unit
+                    for j = 1, #units.friends do
+                        local otherUnit = units.friends[j].unit
                         local otherHP = unit.hp(otherUnit)
                         local distanceFromYou = unit.distance(otherUnit, "player")
                         if distanceFromYou < 30 and otherHP < optionValue then
@@ -210,9 +195,9 @@ local getHealUnitOption = function(option, checkForbearance)
     if thisTar == 5 then
         thisUnit = var.lowestUnit
         -- Get the next lowest unit if lowest unit has Forbearance debuff
-        if checkForbearance and #br.engines.healingEngine.friend > 1 and debuff.forbearance.exists(thisUnit) then
-            for i = 1, #br.engines.healingEngine.friend do
-                local nextUnit = br.engines.healingEngine.friend[i].unit
+        if checkForbearance and #units.friends > 1 and debuff.forbearance.exists(thisUnit) then
+            for i = 1, #units.friends do
+                local nextUnit = units.friends[i].unit
                 if not debuff.forbearance.exists(nextUnit) then
                     thisUnit = nextUnit
                     break
@@ -561,7 +546,7 @@ actionList.Cooldowns = function()
     if ui.alwaysCdNever("Execution Sentence") and cast.able.executionSentence() and (((not buff.crusade.exists() and cd.crusade.remains() > 15
                 or buff.crusade.stack() == 10 or cd.avengingWrath.remains() < 0.75 or cd.avengingWrath.remains() > 15)
             and (holyPower() >= 4 and unit.combatTime() < 5 or holyPower() >= 3 and unit.combatTime() > 5 or holyPower() >= 2 and talent.divineAuxiliary)
-            and (unit.timeToDie(units.dyn30) > 8 and not talent.executionersWill or unit.timeToDie(units.dyn30) > 12)))
+            and (unit.ttd(units.dyn30) > 8 and not talent.executionersWill or unit.ttd(units.dyn30) > 12)))
     then
         if cast.executionSentence() then
             ui.debug("Casting Execution Sentence [Cooldowns]")
@@ -573,7 +558,7 @@ actionList.Cooldowns = function()
     -- avenging_wrath,if=(holy_power>=4&time<5|holy_power>=3&(time>5|!talent.vanguard_of_justice)|holy_power>=2&talent.divine_auxiliary&(cooldown.execution_sentence.remains=0|cooldown.final_reckoning.remains=0))&(!raid_event.adds.up|target.time_to_die>10)
     if ui.alwaysCdNever("Avenging Wrath") and cast.able.avengingWrath() and (((holyPower() >= 4 and unit.combatTime() < 5 or holyPower() >= 3
             and (unit.combatTime() > 5 or not talent.vanguardOfJustice) or holyPower() >= 2 and talent.divineAuxiliary
-            and (cd.executionSentence.remains() == 0 or cd.finalReckoning.remains() == 0)) and unit.timeToDie(units.dyn5) > 10))
+            and (cd.executionSentence.remains() == 0 or cd.finalReckoning.remains() == 0)) and unit.ttd(units.dyn5) > 10))
     then
         if cast.avengingWrath() then
             ui.debug("Casting Avenging Wrath [Cooldowns]")
@@ -653,7 +638,7 @@ actionList.Generators = function()
     -- wake_of_ashes,if=holy_power<=2&(cooldown.avenging_wrath.remains>6|cooldown.crusade.remains>6)&(!talent.execution_sentence|cooldown.execution_sentence.remains>4|target.time_to_die<8)&(!raid_event.adds.exists|raid_event.adds.in>20|raid_event.adds.up)
     if ui.alwaysCdNever("Wake of Ashes") and cast.able.wakeOfAshes(units.dyn12, "cone", 1, 12)
         and ((holyPower() <= 2 and (cd.avengingWrath.remains() > 6 or cd.crusade.remains() > 6)
-            and (not talent.executionSentence or (cd.executionSentence.remains() > 4 or not ui.alwaysCdNever("Execution Sentence")) or unit.timeToDie(units.dyn12) < 8)))
+            and (not talent.executionSentence or (cd.executionSentence.remains() > 4 or not ui.alwaysCdNever("Execution Sentence")) or unit.ttd(units.dyn12) < 8)))
     then
         if cast.wakeOfAshes(units.dyn12, "cone", 1, 12) then
             ui.debug("Casting Wake Of Ashes [Generators]")
@@ -714,9 +699,9 @@ actionList.Generators = function()
 
     -- Hammer Of Wrath
     -- hammer_of_wrath,if=(spell_targets.divine_storm<2|!talent.blessed_champion|set_bonus.tier30_4pc)&(holy_power<=3|target.health.pct>20|!talent.vanguards_momentum)
-    if cast.able.hammerOfWrath() and (unit.hp(unit.dyn30) < 20 or buff.avengingWrath.exists() or buff.finalVerdict.exists())
+    if cast.able.hammerOfWrath() and (unit.hp(units.dyn30) < 20 or buff.avengingWrath.exists() or buff.finalVerdict.exists())
         and (((#enemies.yards8 < 2 or not talent.blessedChampion or equiped.tier(30) >= 4)
-            and (holyPower() <= 3 or unit.hp(unit.dyn30) > 20 or not talent.vanguardsMomentum)))
+            and (holyPower() <= 3 or unit.hp(units.dyn30) > 20 or not talent.vanguardsMomentum)))
     then
         if cast.hammerOfWrath() then
             ui.debug("Casting Hammer Of Wrath - ST | No Blessed Champion | T30-4 [Generators]")
@@ -820,7 +805,7 @@ actionList.Generators = function()
 
     -- Hammer Of Wrath
     -- hammer_of_wrath,if=holy_power<=3|target.health.pct>20|!talent.vanguards_momentum
-    if cast.able.hammerOfWrath() and (unit.hp(unit.dyn30) < 20 or buff.avengingWrath.exists() or buff.finalVerdict.exists())
+    if cast.able.hammerOfWrath() and (unit.hp(units.dyn30) < 20 or buff.avengingWrath.exists() or buff.finalVerdict.exists())
         and ((holyPower() <= 3 or unit.hp(units.dyn30) > 20 or not talent.vanguardsMomentum))
     then
         if cast.hammerOfWrath() then
@@ -946,31 +931,18 @@ end -- End Action List - Combat
 --- ROTATION ---
 ----------------
 local runRotation = function()
-    -- This profile handles racials itself; skip the shared Racial module
-    if not br.player.localRacial then br.player.localRacial = true end
     -----------------
     --- Variables ---
     -----------------
     -- BR API
-    buff = br.player.buff
-    cast = br.player.cast
-    cd = br.player.cd
-    charges = br.player.charges
-    debuff = br.player.debuff
-    enemies = br.player.enemies
-    equiped = br.player.equiped
-    holyPower = br.player.power.holyPower
-    module = br.player.module
-    talent = br.player.talent
-    ui = br.player.ui
-    unit = br.player.unit
-    units = br.player.units
-    var = br.player.variables
+    holyPower = power.holyPower
     -- General API
 
     -- Dynamic Units
     units.get(5)
     units.get(8)
+    units.get(12)
+    units.get(30)
     -- Enemies Lists
     enemies.get(5)
     enemies.get(8)
@@ -985,7 +957,7 @@ local runRotation = function()
     -- variable,name=ds_castable,value=spell_targets.divine_storm=2&!(runeforge.final_verdict&talent.righteous_verdict.enabled&conduit.templars_vindication.enabled)|spell_targets.divine_storm>2|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down
     -- var.dsUnits = ((ui.mode.rotation == 1 and ((#enemies.yards8 == 2 and not (runeforge.finalVerdict.equiped and talent.righteousVerdict and conduit.templarsVindication.enabled)) or #enemies.yards8 > 2)) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
     -- var.dsCastable = (var.dsUnits or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()))
-    var.lowestUnit = br.engines.healingEngine.friend[1].unit
+    var.lowestUnit = units.friends[1].unit
     var.resable = unit.player("target") and unit.deadOrGhost("target") and unit.friend("target", "player")
     var.timeToHPG = 99
     if unit.level() >= 46 then
@@ -1128,7 +1100,8 @@ local runRotation = function()
         -- end -- End In Combat
     end -- End Profile
 end -- runRotation
-br.loader.registerRotation({
+registerRotation({
+    handlesRacials = true,
     name      = rotationName,
     specID    = 70,
     expansion = "Retail",

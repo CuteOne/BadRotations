@@ -4,19 +4,19 @@ local rotationName = "Initial Druid" -- Change to name of profile listed in opti
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "wrath", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
         { name = "Off", icon = "regrowth", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "regrowth", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "regrowth", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Cooldown", { modes = {
+    ui.toggle("Cooldown", { modes = {
         { name = "On", icon = "rebirth", overlay = "Cooldown Enabled", tip = "Includes Offensive Cooldowns." },
         { name = "Off", icon = "rebirth", overlay = "Cooldown Disabled", tip = "No Offensive Cooldowns Used." },
     } })
-    br.ui:toggle("Forms", { modes = {
+    ui.toggle("Forms", { modes = {
         { name = "Caster", icon = "moonkinForm", overlay = "Caster Form", tip = "Will force and use Caster Form" },
         { name = "Cat", icon = "catForm", overlay = "Cat Form", tip = "Will force and use Cat Form" },
         { name = "Bear", icon = "bearForm", overlay = "Bear Form", tip = "Will force and use Bear Form" },
@@ -31,41 +31,31 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
-    br.ui:spinner(section, "Shift Wait Time", { value = 2, max = 5, step = 1, checkbox = false,
+    section = ui.section("General")
+    ui.spinner(section, "Shift Wait Time", { value = 2, max = 5, step = 1, checkbox = false,
         tip = "Time in seconds the profile will wait while moving to shift. Combat is instant!" })
     -- Mark of the Wild
-    br.ui:dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+    ui.dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
         tip = "Set how to use Mark of the Wild" })
     ------------------------
     --- COOLDOWN OPTIONS ---
     ------------------------
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
 
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Regrowth
-    br.ui:spinner(section, "Regrowth", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Regrowth", { value = 50, tip = "Health Percent to Cast At" })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
-local buff
-local cast
-local cd
 local comboPoints
-local debuff
-local enemies
 local energy
-local module
-local ui
-local unit
-local units
-local spell
 local var = {}
 -- General Locals - Common Non-BR API Locals used in profiles
 local haltProfile
@@ -95,9 +85,9 @@ local getMarkUnitOption = function(option)
     end
     if thisTar == 5 then
         thisUnit = "player"
-        if #br.engines.healingEngine.friend > 1 then
-            for i = 1, #br.engines.healingEngine.friend do
-                local nextUnit = br.engines.healingEngine.friend[i].unit
+        if #units.friends > 1 then
+            for i = 1, #units.friends do
+                local nextUnit = units.friends[i].unit
                 if buff.markOfTheWild.refresh(nextUnit) and unit.distance(var.markUnit) < 40 then
                     thisUnit = nextUnit
                     break
@@ -129,7 +119,7 @@ actionList.Extra = function()
         if (formValue == 1 or (unit.exists("target") and (unit.id("target") == 164577 or unit.id("target") == 166906) and unit.canAttack("player", "target")))
             and (buff.bearForm.exists() or buff.catForm.exists())
         then
-            br.game.RunMacroText("/CancelForm")
+            unit.cancelForm()
             ui.debug("Casting Caster Form")
             return true
         end
@@ -162,10 +152,10 @@ actionList.Defensive = function()
         module.BasicHealing()
         -- Regrowth
         if ui.checked("Regrowth") and cast.able.regrowth() and not cast.current.regrowth() and not unit.moving() then
-            if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") and br.game.UnitIsPlayer("target") then
+            if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") and unit.player("target") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     -- CancelShapeshiftForm()
-                    br.game.RunMacroText("/CancelForm")
+                    unit.cancelForm()
                 else
                     if cast.regrowth("target") then
                         ui.debug("Casting Regrowth on " .. unit.name("target"))
@@ -176,7 +166,7 @@ actionList.Defensive = function()
             if not unit.friend("target") and unit.hp() <= ui.value("Regrowth") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     -- CancelShapeshiftForm()
-                    br.game.RunMacroText("/CancelForm")
+                    unit.cancelForm()
                 else
                     if cast.regrowth("player") then
                         ui.debug("Casting Regrowth on " .. unit.name("player"))
@@ -308,18 +298,8 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff        = br.player.buff
-    cast        = br.player.cast
-    cd          = br.player.cd
-    comboPoints = br.player.power.comboPoints()
-    debuff      = br.player.debuff
-    enemies     = br.player.enemies
-    energy      = br.player.power.energy()
-    module      = br.player.module
-    ui          = br.player.ui
-    unit        = br.player.unit
-    units       = br.player.units
-    spell       = br.player.spell
+    comboPoints = power.comboPoints()
+    energy      = power.energy()
     -- General Locals
     profileStop = profileStop or false
     haltProfile = (unit.inCombat() and profileStop) or ui.pause() or ui.mode.rotation == 2 or unit.id("target") == 156716
@@ -367,7 +347,7 @@ local function runRotation()
     end         -- Pause
     return true
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 1447,
     expansion = "Retail",

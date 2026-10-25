@@ -147,16 +147,16 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 
 	-- Condemn patch (Blizzard spell-swap quirk).
 	local castName = ctx.spellName
-	if br.player and br.player.spells
-		and (ctx.spellID == br.player.spells.condemn or ctx.spellID == br.player.spells.condemnMassacre)
+	if br.rotation and br.rotation.spells
+		and (ctx.spellID == br.rotation.spells.condemn or ctx.spellID == br.rotation.spells.condemnMassacre)
 	then
-		castName = br.functions.spell:getName(br.player.spells.execute)
+		castName = br.functions.spell:getName(br.rotation.spells.execute)
 	end
 
 	-- Pet ability dispatch: CastSpellByName cannot activate pet action bar abilities.
 	-- Scan the pet action bar for a slot matching the spell name and use CastPetAction.
 	if castType == "pet" then
-		local slot = E.getPetBarSlot(castName, true)
+		local slot = br.functions.pet:getBarSlot(castName, true)
 		if slot then
 			br.game.CastPetAction(slot)
 			br.log.rotation:sent(ctx.spellID, castName, thisUnit)

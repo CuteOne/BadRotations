@@ -469,6 +469,14 @@ function unit:getSpellUnit(spellCast, aoe, minRange, maxRange, spellType)
 	return "None"
 end
 
+-- The player's swing timer: seconds until the next swing (nil before the first), the weapon speed and
+-- when the last swing landed. hand: "mh" (melee, the default) or "ranged" (Auto Shot)
+function unit:getSwing(hand)
+	local swing = br.readers.combatLog.swing[hand or "mh"]
+	if swing == nil or swing.next == 0 then return nil, swing and swing.speed or 0, 0 end
+	return math.max(0, swing.next - br.game.GetTime()), swing.speed, swing.last
+end
+
 -- The unit's target (as the unlocker gives it)
 function unit:getTarget(Unit)
 	return br.game.UnitTarget(Unit)
@@ -545,6 +553,11 @@ function unit:hasLossOfControl(category)
 	return false
 end
 
+-- True while the player rides a vehicle (its own action bar, or one they can leave)
+function unit:inVehicle()
+	return br.game.UnitHasVehicleUI("player") == true or br.game.CanExitVehicle() == true
+end
+
 function unit:isAberration(Unit)
 	return unit:isCreatureType(Unit, "aberration")
 end
@@ -585,6 +598,12 @@ function unit:isBoss(unit)
 		or (not br.functions.misc:isChecked("Boss Detection Only In Instance") and not br.game.UnitIsTrivial(unit) and instance ~= "party"
 			and ((class == "rare" and healthMax > 4 * pHealthMax) or class == "rareelite" or class == "worldboss"
 				or (class == "elite" and ((healthMax > 4 * pHealthMax and instance ~= "raid") or instance == "scenario")) or (br.game.UnitLevel(unit) and br.game.UnitLevel(unit) < 0)))
+end
+
+-- True while the unit casts a spell in the tank buster list (br.lists.tankBuster)
+function unit:isCastingTankBuster(thisUnit)
+	local spellID = select(9, br.game.UnitCastingInfo(thisUnit))
+	return spellID ~= nil and br.lists.tankBuster[spellID] ~= nil
 end
 
 function unit:isCharmed(Unit)
@@ -692,6 +711,11 @@ function unit:isFleeingFrom(thisUnit, fromUnit)
 	if fromUnit == nil then fromUnit = "target" end
 	if (br.game.GetUnitSpeed(thisUnit) or 0) <= 0 then return false end
 	return unit:getFacing(thisUnit, fromUnit) == false and unit:getFacing(fromUnit, thisUnit) == true
+end
+
+-- True while the player is in a raid group
+function unit:isInRaid()
+	return br.game.IsInRaid() == true
 end
 
 function unit:isOnTaxi(Unit)
@@ -863,8 +887,9 @@ function unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency)
 	return true
 end
 
-function unit:startAttack()
-	return br.game.StartAttack()
+-- Starts auto attack, on thisUnit when given (else the target)
+function unit:startAttack(thisUnit)
+	return br.game.StartAttack(thisUnit)
 end
 
 function unit:stopAttack()

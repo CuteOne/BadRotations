@@ -1,16 +1,14 @@
 ---
 -- Glyph handling functions for BadRotations.
--- Glyph functions are stored in br.player.glyph and can be utilized by `local glyph = br.player.glyph` in your profile.
+-- Glyph functions are the profile API table `glyph` (br.api.profile.glyph); profiles use it by name.
 --
 -- NOTE: On modern retail clients the classic glyph socket API may not exist; in that case glyph checks return false.
--- @module br.player.glyph
+-- @module glyph
 local _, br = ...
-if br.api == nil then br.api = {} end
 
 -- Base glyph API (table-level helpers)
-br.api.glyph = function(self)
-    self.glyph = self.glyph or {}
-    local g = self.glyph
+br.api.build.glyph = function(api)
+    local g = api.glyph
 
     local glyphFn = br.functions and br.functions.glyph
 
@@ -40,7 +38,7 @@ br.api.glyph = function(self)
 end
 
 -- Per-glyph entry API
-br.api.glyphs = function(glyphTable, k, v)
+br.api.build.glyphs = function(glyphTable, k, v)
     local entry = glyphTable[k] or {}
     glyphTable[k] = entry
 

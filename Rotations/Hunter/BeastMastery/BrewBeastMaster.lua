@@ -1,23 +1,23 @@
 local rotationName = "BrewBeastMaster" -- Change to name of profile listed in options drop down
-br.loader.profileLoader:loadSupport("PetCuteOne")
+local petSupport = loadSupport("PetCuteOne")
 
 ---------------
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "On", icon = "steadyShot", overlay = "Rotation Enabled", tip = "Enables Rotation" },
         { name = "Off", icon = "steadyShot", overlay = "Rotation Disabled", tip = "Disables Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "exhilaration", overlay = "Defensive Enabled", tip = "Enables Defensive" },
         { name = "Off", icon = "exhilaration", overlay = "Defensive Disabled", tip = "Disables Defensive" },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "freezingTrap", overlay = "Interrupt Enabled", tip = "Enables Interrupt" },
         { name = "Off", icon = "freezingTrap", overlay = "Interrupt Disabled", tip = "Disables Interrupt" },
     } })
-    br.ui:toggle("PetSummon", { modes = {
+    ui.toggle("PetSummon", { modes = {
         { name = "1", icon = "callPet1", overlay = "Summon Pet 1", tip = "Summon Pet 1" },
         { name = "2", icon = "callPet2", overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = true },
         { name = "3", icon = "callPet3", overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = true },
@@ -36,45 +36,32 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS --- -- Define General Options
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
 
 
-    br.loader.rotations.support["PetCuteOne"].options()
+    petSupport.options()
     ------------------------
     --- COOLDOWN OPTIONS --- -- Define Cooldown Options
     ------------------------
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
 
     -------------------------
     --- DEFENSIVE OPTIONS --- -- Define Defensive Options
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
 
     -------------------------
     --- INTERRUPT OPTIONS --- -- Define Interrupt Options
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
-local buff
-local debuff
-local cast
-local cd
-local charges
-local enemies
-local module
-local power
-local talent
-local ui
-local unit
-local units
-local var
 
 -- Any variables/functions made should have a local here to prevent possible conflicts with other things.
 
@@ -97,9 +84,9 @@ actionList.PreCombat = function()
         if unit.valid("target") then
             -- Start Attack
             if unit.distance("target") <= 40 then
-                br.game.PetAttack("target")
-                if not br.game.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(75)) and unit.exists("target") then
-                    br.game.StartAttack("target")
+                pet.attack("target")
+                if not cast.auto.autoShot() and unit.exists("target") then
+                    unit.startAttack("target")
                 end
             end
         end
@@ -113,26 +100,13 @@ local function runRotation() -- This is the main profile loop, any below this po
     if math.random() > 0.80 then return false end;
 
     if actionList.PetManagement == nil then
-        actionList.PetManagement = br.loader.rotations.support["PetCuteOne"].run
+        actionList.PetManagement = petSupport.run
     end
 
     ---------------------
     --- Define Locals ---
     ---------------------
     -- BR API Locals - These are the same as the locals above just defined for use.
-    buff    = br.player.buff
-    debuff  = br.player.debuff
-    cast    = br.player.cast
-    cd      = br.player.cd
-    charges = br.player.charges
-    enemies = br.player.enemies
-    module  = br.player.module
-    power   = br.player.power
-    talent  = br.player.talent
-    ui      = br.player.ui
-    unit    = br.player.unit
-    units   = br.player.units
-    var     = br.player.variables
 
     units.get(5)                       -- Makes a variable called, units.dyn5
     units.get(40)                      -- Makes a variable called, units.dyn40
@@ -174,8 +148,8 @@ local function runRotation() -- This is the main profile loop, any below this po
                     --- Interrupt ---
                     -----------------
                     if actionList.Interrupt() then return true end
-                    if not br.game.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(75)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
-                        br.game.StartAttack(units.dyn40)
+                    if not cast.auto.autoShot() and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
+                        unit.startAttack(units.dyn40)
                     end
 
                     if #enemies.yards40f >= 3 then
@@ -254,7 +228,7 @@ local function runRotation() -- This is the main profile loop, any below this po
         end         -- End In Combat Rotation
     end             -- Pause
 end                 -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 253,
     expansion = "MOP",

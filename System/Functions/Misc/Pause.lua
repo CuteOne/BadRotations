@@ -60,15 +60,7 @@ local function standingReason(now)
 	if toggles ~= nil and toggles["Pause"] == 1 then return "pause toggle", false end
 
 	-- ── Pause key: held with keyboard focus clear and the option enabled ───
-	if br.functions.misc:isChecked("Pause Mode") and br.game.GetCurrentKeyBoardFocus() == nil then
-		local pausekey
-		if br.functions.misc:SpecificToggle("Pause Mode") == nil or br.functions.misc:getValue("Pause Mode") == 6 then
-			pausekey = br.game.IsLeftAltKeyDown()
-		else
-			pausekey = br.functions.misc:SpecificToggle("Pause Mode")
-		end
-		if pausekey then return "pause key", false end
-	end
+	if br.functions.misc:isPauseKeyDown() then return "pause key", false end
 
 	if br.profileStop then return "profile stopped", true end
 
@@ -133,6 +125,14 @@ end
 -- same for the whole frame. Casting is checked on every call, since a pre-cast sent this tick
 -- changes the answer.
 local memoTime, memoReason, memoEmpowerRuns
+
+-- True while the player holds the Pause Mode key (with the option on and no edit box focused)
+function misc:isPauseKeyDown()
+	if not misc:isChecked("Pause Mode") or misc:isTyping() then return false end
+	local held = misc:SpecificToggle("Pause Mode")
+	if held == nil or misc:getValue("Pause Mode") == 6 then return br.game.IsLeftAltKeyDown() == true end
+	return held == true
+end
 
 --- Why the rotation should not act now, or nil when it may.
 -- Reasons: "dead", "control disabled", "pause toggle", "pause key", "profile stopped", "mounted",

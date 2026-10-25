@@ -4,15 +4,15 @@ local rotationName = "Initial"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "On", icon = "crusaderStrike", overlay = "Rotation Enabled", tip = "Enables Rotation" },
         { name = "Off", icon = "crusaderStrike", overlay = "Rotation Disabled", tip = "Disables Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "flashOfLight", overlay = "Defensive Enabled", tip = "Enables Defensive" },
         { name = "Off", icon = "flashOfLight", overlay = "Defensive Disabled", tip = "Disables Defensive" },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "hammerOfJustice", overlay = "Interrupt Enabled", tip = "Enables Interrupt" },
         { name = "Off", icon = "hammerOfJustice", overlay = "Interrupt Disabled", tip = "Disables Interrupt" },
     } })
@@ -26,53 +26,44 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
 
     ------------------------
     --- COOLDOWN OPTIONS ---
     ------------------------
-    section = br.ui:section("Cooldown")
+    section = ui.section("Cooldown")
     -- Trinkets
-    br.player.module.BasicTrinkets(nil, section)
+    module.BasicTrinkets(nil, section)
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Basic Healing Module
-    br.player.module.BasicHealing(section)
+    module.BasicHealing(section)
     -- Divine Shield
-    br.ui:spinner(section, "Divine Shield", { value = 20, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Divine Shield", { value = 20, tip = "Health Percent to Cast At" })
     -- Flash of Light
-    br.ui:spinner(section, "Flash of Light", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Flash of Light", { value = 50, tip = "Health Percent to Cast At" })
     -- Hammer of Justice
-    br.ui:spinner(section, "Hammer of Justice - Defensive", { value = 30, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Hammer of Justice - Defensive", { value = 30, tip = "Health Percent to Cast At" })
     -- Lay on Hands
-    br.ui:spinner(section, "Lay on Hands", { value = 20, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Lay on Hands", { value = 20, tip = "Health Percent to Cast At" })
     -- Word of Glory
-    br.ui:spinner(section, "Word of Glory", { value = 40, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Word of Glory", { value = 40, tip = "Health Percent to Cast At" })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Hammer of Justice
-    br.ui:checkbox(section, "Hammer of Justice")
+    ui.checkbox(section, "Hammer of Justice")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
-local debuff
-local enemies
-local module
-local ui
-local unit
-local units
 -- Profile Specific Locals
 local actionList     = {}
 local var            = {}
@@ -147,7 +138,7 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i = 1, #enemies.yards10 do
             local thisUnit = enemies.yards10[i]
-            if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 -- Hammer of Justice
                 if ui.checked("Hammer of Justice") and cast.able.hammerOfJustice(thisUnit) then
                     if cast.hammerOfJustice(thisUnit) then
@@ -241,21 +232,12 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff    = br.player.buff
-    cast    = br.player.cast
-    cd      = br.player.cd
-    debuff  = br.player.debuff
-    enemies = br.player.enemies
-    module  = br.player.module
-    ui      = br.player.ui
-    unit    = br.player.unit
-    units   = br.player.units
     -- Units
     units.get(5)
     -- Enemies
     enemies.get(10)
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 2
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or ui.pause() or ui.mode.rotation == 2
 
 
     ---------------------
@@ -294,7 +276,7 @@ local function runRotation()
         end
     end -- Pause
 end     -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 1451,
     expansion = "Retail",

@@ -13,32 +13,32 @@
 -------------------------------------------------------
 
 local rotationName = "CuteOne"
-br.loader.profileLoader:loadSupport("PetTBC")
+local petSupport = loadSupport("PetTBC")
 
 ---------------
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "steadyShot", overlay = "Automatic Rotation", tip = "Swaps between Single and AoE based on enemies in range." },
         { name = "Multi", icon = "multiShot", overlay = "Multiple Target Rotation", tip = "Forces AoE rotation (Multi-Shot / Volley priority)." },
         { name = "Sing", icon = "arcaneShot", overlay = "Single Target Rotation", tip = "Forces single-target rotation." },
         { name = "Off", icon = "aspectOfTheCheetah", overlay = "DPS Rotation Disabled", tip = "Disable DPS rotation." },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "rapidFire", overlay = "Cooldowns Automated", tip = "Cooldowns used on boss targets only." },
         { name = "On", icon = "rapidFire", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "rapidFire", overlay = "Cooldowns Disabled", tip = "No cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "feignDeath", overlay = "Defensive Enabled", tip = "Includes defensive cooldowns." },
         { name = "Off", icon = "feignDeath", overlay = "Defensive Disabled", tip = "No defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "concussiveShot", overlay = "CC/Interrupt Enabled", tip = "Uses Silencing Shot, Concussive Shot, Scatter Shot, Freezing Trap." },
         { name = "Off", icon = "concussiveShot", overlay = "CC/Interrupt Disabled", tip = "No interrupts, CC, or slows will be used." },
     } })
-    br.ui:toggle("Misdirection", { modes = {
+    ui.toggle("Misdirection", { modes = {
         { name = "On", icon = "misdirection", overlay = "Misdirection Enabled", tip = "Misdirection cast on pull and on cooldown." },
         { name = "Off", icon = "misdirection", overlay = "Misdirection Disabled", tip = "Misdirection will not be used." },
     } })
@@ -54,112 +54,101 @@ local function options()
     -----------------------
     --- General Options ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Dummy DPS Test
-    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60, tip = "Set duration for dummy DPS test in minutes. Min: 5 / Max: 60" })
+    ui.spinner(section, "DPS Testing", { value = 5, min = 5, max = 60, tip = "Set duration for dummy DPS test in minutes. Min: 5 / Max: 60" })
     -- Hunter's Mark
-    br.ui:dropdown(section, "Hunter's Mark", { choices = alwaysCdNever, value = 1, checkbox = false,
+    ui.dropdown(section, "Hunter's Mark", { choices = alwaysCdNever, value = 1, checkbox = false,
         tip = "When to apply Hunter's Mark. 'CD' = only on bosses / cooldown eligible targets." })
     -- Misdirection target
-    br.ui:dropdown(section, "Misdirection Target", { choices = { "|cff00FF00Tank", "|cffFFFF00Focus", "|cffFF0000Pet" }, value = "Tank", checkbox = false,
+    ui.dropdown(section, "Misdirection Target", { choices = { "|cff00FF00Tank", "|cffFFFF00Focus", "|cffFF0000Pet" }, value = "Tank", checkbox = false,
         tip = "Who to cast Misdirection on." })
     -- Sting selection (mutually exclusive: only one sting per target at a time)
-    br.ui:dropdown(section, "Sting", { choices = { "None", "Serpent Sting", "Scorpid Sting", "Wyvern Sting" }, value = "Serpent Sting", checkbox = false,
+    ui.dropdown(section, "Sting", { choices = { "None", "Serpent Sting", "Scorpid Sting", "Wyvern Sting" }, value = "Serpent Sting", checkbox = false,
         tip = "Which sting to use. Serpent: sustained DoT (leveling). Scorpid: -AP debuff (physical bosses). Wyvern: CC sleep via interrupts section (Survival talent). One sting per target." })
     -- Wing Clip
-    br.ui:checkbox(section, "Wing Clip", { tip = "Apply Wing Clip while running away from a mob in melee range to slow it and create kiting distance. Only fires while moving. Skipped when a tank is nearby." })
+    ui.checkbox(section, "Wing Clip", { tip = "Apply Wing Clip while running away from a mob in melee range to slow it and create kiting distance. Only fires while moving. Skipped when a tank is nearby." })
 
     --------------------
     --- Aspect Options ---
     --------------------
-    section = br.ui:section("Aspects")
+    section = ui.section("Aspects")
     -- Viper Threshold
-    br.ui:spinner(section, "Viper Threshold", { value = 30, min = 5, max = 60, tip = "Mana % to enter Aspect of the Viper for mana recovery." })
+    ui.spinner(section, "Viper Threshold", { value = 30, min = 5, max = 60, tip = "Mana % to enter Aspect of the Viper for mana recovery." })
     -- Viper Recovery
-    br.ui:spinner(section, "Viper Recovery", { value = 90, min = 60, max = 95,
+    ui.spinner(section, "Viper Recovery", { value = 90, min = 60, max = 95,
         tip = "Mana % to leave Aspect of the Viper and return to the normal aspect." })
     -- Aspect of the Wild
-    br.ui:checkbox(section, "Aspect of the Wild", { tip = "Use Aspect of the Wild (+Nature resistance) when available. Overrides Hawk while active. Primarily useful in Nature-damage heavy encounters (e.g. Lady Vashj, Morogrim, Hydross)." })
+    ui.checkbox(section, "Aspect of the Wild", { tip = "Use Aspect of the Wild (+Nature resistance) when available. Overrides Hawk while active. Primarily useful in Nature-damage heavy encounters (e.g. Lady Vashj, Morogrim, Hydross)." })
     -- Monkey in Melee
-    br.ui:checkbox(section, "Monkey in Melee", { tip = "Swap to Aspect of the Monkey when any enemy is within 5y, boosting dodge chance and Mongoose Bite procs. Returns to Hawk immediately once no enemies are in melee range." })
+    ui.checkbox(section, "Monkey in Melee", { tip = "Swap to Aspect of the Monkey when any enemy is within 5y, boosting dodge chance and Mongoose Bite procs. Returns to Hawk immediately once no enemies are in melee range." })
     -- Cheetah (Solo)
-    br.ui:checkbox(section, "Cheetah (Solo)", { tip = "Auto-apply Aspect of the Cheetah when solo and out of combat after moving for the Travel Delay duration. Returns to Hawk when combat begins or movement stops." })
+    ui.checkbox(section, "Cheetah (Solo)", { tip = "Auto-apply Aspect of the Cheetah when solo and out of combat after moving for the Travel Delay duration. Returns to Hawk when combat begins or movement stops." })
     -- Pack (Group)
-    br.ui:checkbox(section, "Pack (Group)", { tip = "Auto-apply Aspect of the Pack when grouped and out of combat after moving for the Travel Delay duration. Returns to Hawk when combat begins or movement stops." })
+    ui.checkbox(section, "Pack (Group)", { tip = "Auto-apply Aspect of the Pack when grouped and out of combat after moving for the Travel Delay duration. Returns to Hawk when combat begins or movement stops." })
     -- Travel Delay
-    br.ui:spinner(section, "Travel Delay", { value = 3, min = 1, max = 10, step = 1,
+    ui.spinner(section, "Travel Delay", { value = 3, min = 1, max = 10, step = 1,
         tip = "Seconds of continuous movement required before switching to a travel aspect (Cheetah or Pack). Prevents brief repositioning from triggering a swap." })
 
     -----------------
     --- Pet Options ---
     -----------------
-    br.loader.rotations.support["PetTBC"].options()
+    petSupport.options()
 
     -------------------------
     --- Cooldown Options  ---
     -------------------------
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
     -- Rapid Fire
-    br.ui:dropdown(section, "Rapid Fire", { choices = alwaysCdNever, value = 2, checkbox = false,
+    ui.dropdown(section, "Rapid Fire", { choices = alwaysCdNever, value = 2, checkbox = false,
         tip = "When to use Rapid Fire. 'CD' = boss targets only." })
     -- Bestial Wrath (BM only — cast.able naturally gatekeeps)
-    br.ui:dropdown(section, "Bestial Wrath", { choices = alwaysCdNever, value = 2, checkbox = false,
+    ui.dropdown(section, "Bestial Wrath", { choices = alwaysCdNever, value = 2, checkbox = false,
         tip = "When to use Bestial Wrath (Beast Mastery only). 'CD' = boss targets only." })
 
     -------------------------
     --- AoE Options        ---
     -------------------------
-    section = br.ui:section("AoE")
+    section = ui.section("AoE")
     -- Explosive Trap threshold
-    br.ui:spinner(section, "Explosive Trap Threshold", { value = 4, min = 2, max = 20, step = 1,
+    ui.spinner(section, "Explosive Trap Threshold", { value = 4, min = 2, max = 20, step = 1,
         tip = "Minimum melee-range enemies to use Explosive Trap." })
     -- Volley threshold
-    br.ui:spinner(section, "Volley Threshold", { value = 3, min = 2, max = 20, step = 1, tip = "Minimum ranged enemies to channel Volley." })
+    ui.spinner(section, "Volley Threshold", { value = 3, min = 2, max = 20, step = 1, tip = "Minimum ranged enemies to channel Volley." })
     -- Immolation Trap (ST counterpart to Explosive Trap)
-    br.ui:checkbox(section, "Immolation Trap", { tip = "Drop Immolation Trap (single-target fire DoT) when the target is within 8y during single-target rotation. Explosive Trap takes precedence in AoE mode." })
+    ui.checkbox(section, "Immolation Trap", { tip = "Drop Immolation Trap (single-target fire DoT) when the target is within 8y during single-target rotation. Explosive Trap takes precedence in AoE mode." })
 
     -------------------------
     --- Defensive Options ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Frost Trap
-    br.ui:spinner(section, "Frost Trap Threshold", { value = 2, max = 10, step = 1,
+    ui.spinner(section, "Frost Trap Threshold", { value = 2, max = 10, step = 1,
         tip = "Minimum enemies in melee range to drop Frost Trap to slow pursuers. Set to 0 to disable. For solo kiting use 1." })
     -- Feign Death
-    br.ui:spinner(section, "Feign Death", { value = 20, min = 5, max = 60,
+    ui.spinner(section, "Feign Death", { value = 20, min = 5, max = 60,
         tip = "Health % to use Feign Death as a defensive (drops threat + avoids death)." })
     -- Disengage
-    br.ui:checkbox(section, "Disengage", { tip = "Use Disengage to escape melee range and re-establish ranged distance when a mob is within 5y." })
+    ui.checkbox(section, "Disengage", { tip = "Use Disengage to escape melee range and re-establish ranged distance when a mob is within 5y." })
 
     -------------------------
     --- Interrupt Options  ---
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Interrupt % threshold
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast % to use CC/interrupt. 0 = at any cast stage." })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast % to use CC/interrupt. 0 = at any cast stage." })
     -- Scatter Shot
-    br.ui:checkbox(section, "Scatter Shot", { tip = "Use Scatter Shot (MM talent) to disorient casting enemies as a follow-up CC." })
+    ui.checkbox(section, "Scatter Shot", { tip = "Use Scatter Shot (MM talent) to disorient casting enemies as a follow-up CC." })
     -- Freezing Trap
-    br.ui:checkbox(section, "Freezing Trap", { tip = "Use Freezing Trap on actively casting enemies (2s in-combat delay applies)." })
+    ui.checkbox(section, "Freezing Trap", { tip = "Use Freezing Trap on actively casting enemies (2s in-combat delay applies)." })
     -- Distracting Shot
-    br.ui:checkbox(section, "Distracting Shot", { tip = "Use Distracting Shot to pull aggro off a friendly (party member or pet) being attacked by an enemy." })
+    ui.checkbox(section, "Distracting Shot", { tip = "Use Distracting Shot to pull aggro off a friendly (party member or pet) being attacked by an enemy." })
 end
 
 --------------
 --- Locals ---
 --------------
-local buff
-local cast
-local cd
-local debuff
-local enemies
 local mana
-local module
-local pet
-local ui
-local unit
-local units
-local spell
 local var = {}
 local haltProfile
 local profileStop
@@ -554,7 +543,7 @@ actionList.Cooldowns = function()
         if mdPref == 1 then
             for i = 1, unit.groupCount() do
                 local member = "party" .. i
-                if unit.exists(member) and unit.isTank(member)
+                if unit.exists(member) and unit.role(member) == "TANK"
                     and cast.able.misdirection(member)
                 then
                     mdResolved = member
@@ -616,7 +605,7 @@ actionList.PreCombat = function()
                     if mdPref == 1 then
                         for i = 1, unit.groupCount() do
                             local member = "party" .. i
-                            if unit.exists(member) and unit.isTank(member)
+                            if unit.exists(member) and unit.role(member) == "TANK"
                                 and cast.able.misdirection(member)
                             then
                                 mdResolved = member
@@ -684,7 +673,7 @@ actionList.PreCombat = function()
 end
 
 -- Action List - Pet Management (delegate to PetTBC support)
-actionList.PetManagement = br.loader.rotations.support["PetTBC"].run
+actionList.PetManagement = petSupport.run
 
 -- Action List - Melee (target within 5y; ranged shots blocked by dead zone)
 -- Provides melee DPS and escape tools while the Hunter re-ranges.
@@ -695,13 +684,13 @@ actionList.Melee = function()
         return false
     end
 
-    -- Ensure melee auto-attack is running. Only call StartAttack() once per engagement;
+    -- Ensure melee auto-attack is running. Only call unit.startAttack() once per engagement;
     -- repeated calls every tick can interfere with the Auto Shot active state and
     -- prevent it from resuming when the Hunter returns to ranged distance.
     if unit.valid(units.dyn5) and not unit.deadOrGhost(units.dyn5) then
         if not var.inMeleeRange then
             var.inMeleeRange  = true
-            var.lastMeleeTime = br.game.GetTime()
+            var.lastMeleeTime = ui.time()
             unit.startAttack()
         end
     end
@@ -771,7 +760,7 @@ actionList.Ranged = function()
     -- Ranged auto-shot timer (seconds until next auto fires).
     -- Used to gate Steady Shot so it never clips the auto cycle.
     -- autoTimer == 999 means the timer hasn't calibrated yet (first shot); allow cast freely.
-    local autoTimer  = br.player.swing and br.player.swing.ranged and br.player.swing.ranged.timer or 999
+    local autoTimer  = unit.swing("ranged") or 999
     local steadyTime = cast.time.steadyShot and cast.time.steadyShot() or 2.0
 
     ---------------------------------------------------------------
@@ -955,24 +944,21 @@ actionList.Ranged = function()
     --- weapon speed; force a toggle-off so the next tick re-engages.
     ---------------------------------------------------------------
     if targetDist > 8 then
-        local sw           = br.player.swing and br.player.swing.ranged
-        local rangedSpeed  = sw and sw.speed and sw.speed > 0 and sw.speed or 2.5
-        local timeSinceShot = sw and sw.last and sw.last > 0
-            and (br.game.GetTime() - sw.last) or nil
+        local _, swingSpeed, lastShot = unit.swing("ranged")
+        local rangedSpeed  = swingSpeed > 0 and swingSpeed or 2.5
+        local timeSinceShot = lastShot > 0 and (ui.time() - lastShot) or nil
         -- Stuck: Auto Shot is "active" but hasn't fired for > one full cycle + 1.5 s
         -- after a recent melee engagement (var.lastMeleeTime set by Melee branch).
         local autoShotStuck = cast.auto.autoShot()
             and timeSinceShot ~= nil
             and timeSinceShot > (rangedSpeed + 1.5)
             and var.lastMeleeTime ~= nil
-            and (br.game.GetTime() - var.lastMeleeTime) <= 30
+            and (ui.time() - var.lastMeleeTime) <= 30
         if autoShotStuck then
             -- Toggle Auto Shot off.  gateAutoRepeat is bypassed here intentionally:
             -- IsAutoRepeatSpell=true even though nothing is firing.  On the next tick
             -- IsAutoRepeatSpell will be false and cast.autoShot restarts it normally.
-            local autoName = br.functions.spell:getName(spell.autoShot)
-            if autoName then
-                br.game.CastSpellByName(autoName)
+            if cast.cancel.autoShot() then
                 ui.debug("Auto Shot [Re-engage toggle — stuck after melee]")
                 return true
             end
@@ -1039,18 +1025,7 @@ local function runRotation()
     ---------------------
     --- Define Locals ---
     ---------------------
-    buff    = br.player.buff
-    cast    = br.player.cast
-    cd      = br.player.cd
-    debuff  = br.player.debuff
-    enemies = br.player.enemies
-    mana    = br.player.power.mana
-    module  = br.player.module
-    pet     = br.player.pet
-    ui      = br.player.ui
-    unit    = br.player.unit
-    units   = br.player.units
-    spell   = br.player.spell
+    mana    = power.mana
 
     -- General locals
     profileStop = profileStop or false
@@ -1060,7 +1035,7 @@ local function runRotation()
         or unit.id("target") == 156716   -- training dummy stop ID
 
     -- Rebind PetManagement each tick so support table is always current
-    actionList.PetManagement = br.loader.rotations.support["PetTBC"].run
+    actionList.PetManagement = petSupport.run
 
     -- Units
     units.get(5)         -- units.dyn5  (melee range)
@@ -1143,7 +1118,7 @@ local function runRotation()
     return true
 end
 
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 361, -- TBC/Classic Hunter spec ID (same class-level ID as Classic; hasSubSpecs = false)
     expansion = "TBC",

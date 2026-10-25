@@ -1,15 +1,13 @@
 ---
 -- These functions help in retrieving information about debuffs.
--- Debuff functions are stored in br.player.debuff and can be utilized
--- by `local debuff = br.player.debuff` in your profile.
+-- Debuff functions are the profile API table `debuff` (br.api.profile.debuff); profiles use it by name.
 -- `spell` in the function represent the name in the
 -- debuffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
--- @module br.player.debuff
+-- @module debuff
 local _, br = ...
 
-if br.api == nil then br.api = {} end
 
-br.api.debuffs = function(debuff, k, v)
+br.api.build.debuffs = function(debuff, k, v)
     local spec = br.loader.selectedSpecID
     -- The spell list entry (a rank list on ranked clients); v is set to its current rank at the
     -- start of every function, so a newly learned rank counts straight away

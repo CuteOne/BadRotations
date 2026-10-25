@@ -4,31 +4,31 @@ local rotationName = "CuteOne" -- Change to name of profile listed in options dr
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "swipe", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
         { name = "Multi", icon = "swipe", overlay = "Multiple Target Rotation", tip = "Forces Multiple Target Rotation." },
         { name = "Single", icon = "shred", overlay = "Single Target Rotation", tip = "Forces Single Target Rotation." },
         { name = "Off", icon = "healingTouch", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "innervate", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "innervate", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "innervate", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "healingTouch", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "healingTouch", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "bash", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "bash", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
-    br.ui:toggle("Forms", { modes = {
+    ui.toggle("Forms", { modes = {
         { name = "Caster", icon = "moonkinForm", overlay = "Caster Form", tip = "Will force and use Caster Form" },
         { name = "Cat", icon = "catForm", overlay = "Cat Form", tip = "Will force and use Cat Form" },
         { name = "Bear", icon = "bearForm", overlay = "Bear Form", tip = "Will force and use Bear Form" },
     } })
-    br.ui:toggle("Prowl", { modes = {
+    ui.toggle("Prowl", { modes = {
         { name = "On", icon = "prowl", overlay = "Prowl Enabled", tip = "Rotation will use Prowl" },
         { name = "Off", icon = "prowl", overlay = "Prowl Disabled", tip = "Rotation will not use Prowl" },
     } })
@@ -42,115 +42,105 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
-    br.ui:spinner(section, "Shift Wait Time", { value = 2, max = 5, step = 1, checkbox = false,
+    section = ui.section("General")
+    ui.spinner(section, "Shift Wait Time", { value = 2, max = 5, step = 1, checkbox = false,
         tip = "Time in seconds the profile will wait while moving to shift. Combat is instant!" })
-    br.ui:checkbox(section, "Behind Debug", { tip = "Debug behind/facing checks for Shred/Ravage." })
+    ui.checkbox(section, "Behind Debug", { tip = "Debug behind/facing checks for Shred/Ravage." })
     -- Powershifting
-    br.ui:checkbox(section, "Powershifting", { tip = "Feral DPS In-Form Shifting for Energy" })
+    ui.checkbox(section, "Powershifting", { tip = "Feral DPS In-Form Shifting for Energy" })
     -- Prowl
-    br.ui:checkbox(section, "Prowl", { tip = "Uses Prowl when near aggro range" })
+    ui.checkbox(section, "Prowl", { tip = "Uses Prowl when near aggro range" })
     -- Cat Opener
-    br.ui:dropdown(section, "Cat Opener", { choices = { "Pounce", "Ravage", "Shred", "Rake" }, value = "Ravage",
+    ui.dropdown(section, "Cat Opener", { choices = { "Pounce", "Ravage", "Shred", "Rake" }, value = "Ravage",
         tip = "Select Spell to Open with from Stealth" })
     --------------------------
     --- FORM MANAGEMENT ---
     --------------------------
-    section = br.ui:section("Form Management")
+    section = ui.section("Form Management")
     -- Aquatic Form
-    br.ui:checkbox(section, "Aquatic Form", { tip = "Enable/Disable Using Aquatic Form" })
+    ui.checkbox(section, "Aquatic Form", { tip = "Enable/Disable Using Aquatic Form" })
     -- Travel Form
-    br.ui:checkbox(section, "Travel Form", { tip = "Enable/Disable Using Travel Form" })
+    ui.checkbox(section, "Travel Form", { tip = "Enable/Disable Using Travel Form" })
     -- Last Form
-    br.ui:checkbox(section, "Last Form", { tip = "Enable/Disable Returning to Last Form" })
+    ui.checkbox(section, "Last Form", { tip = "Enable/Disable Returning to Last Form" })
     -- Energy Threshold
-    br.ui:spinner(section, "Energy", { value = 30, min = 1, step = 1, tip = "Cat Form Energy Threshold to Break Form" })
+    ui.spinner(section, "Energy", { value = 30, min = 1, step = 1, tip = "Cat Form Energy Threshold to Break Form" })
     -- Rage Threshold
-    br.ui:spinner(section, "Rage", { value = 10, min = 1, step = 1, tip = "Bear Form Rage Threshold to Break Form" })
+    ui.spinner(section, "Rage", { value = 10, min = 1, step = 1, tip = "Bear Form Rage Threshold to Break Form" })
     ----------------------
     --- BLEED OPTIONS ---
     ----------------------
-    section = br.ui:section("Bleeds")
+    section = ui.section("Bleeds")
     -- Rake
-    br.ui:checkbox(section, "Rake", { tip = "Enable/Disable Using Rake" })
+    ui.checkbox(section, "Rake", { tip = "Enable/Disable Using Rake" })
     -- Rip
-    br.ui:checkbox(section, "Rip", { tip = "Enable/Disable Using Rip" })
+    ui.checkbox(section, "Rip", { tip = "Enable/Disable Using Rip" })
     ---------------------
     --- BUFF OPTIONS ---
     ---------------------
-    section = br.ui:section("Buffs")
+    section = ui.section("Buffs")
     -- Self-Innervate
-    br.ui:checkbox(section, "Self-Innervate", { tip = "Enable/Disable Using Innervate on Self" })
+    ui.checkbox(section, "Self-Innervate", { tip = "Enable/Disable Using Innervate on Self" })
     -- Mark of the Wild
-    br.ui:dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+    ui.dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
         tip = "Set how to use Mark of the Wild" })
     -- Omen of Clarity
-    br.ui:dropdown(section, "Omen of Clarity", { choices = { "Any", "Focus DPS", "Focus Healing", "None" }, value = "Any",
+    ui.dropdown(section, "Omen of Clarity", { choices = { "Any", "Focus DPS", "Focus Healing", "None" }, value = "Any",
         tip = "Select how to use Omen of Clarity procs" })
     -- Thorns
-    br.ui:dropdown(section, "Thorns", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+    ui.dropdown(section, "Thorns", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
         tip = "Set how to use Thorns" })
     -- Tiger's Fury
-    br.ui:checkbox(section, "Tiger's Fury", { tip = "Enable/Disable Using Tiger's Fury" })
+    ui.checkbox(section, "Tiger's Fury", { tip = "Enable/Disable Using Tiger's Fury" })
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Self-Heal In Group
-    br.ui:checkbox(section, "Self Heal In Group", { tip = "Enable/Disable Healing Self while Grouped" })
+    ui.checkbox(section, "Self Heal In Group", { tip = "Enable/Disable Healing Self while Grouped" })
     -- Healing Touch
-    br.ui:spinner(section, "Healing Touch", { value = 40, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Healing Touch", { value = 40, tip = "Health Percent to Cast At" })
     -- Regrowth
-    br.ui:spinner(section, "Regrowth", { value = 60, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Regrowth", { value = 60, tip = "Health Percent to Cast At" })
     -- Rejuvenation
-    br.ui:spinner(section, "Rejuvenation", { value = 80, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Rejuvenation", { value = 80, tip = "Health Percent to Cast At" })
     -- Barkskin
-    br.ui:spinner(section, "Barkskin", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Barkskin", { value = 50, tip = "Health Percent to Cast At" })
     -- Abolish Poison
-    br.ui:checkbox(section, "Abolish Poison", { tip = "Enable/Disable Using Abolish Poison" })
+    ui.checkbox(section, "Abolish Poison", { tip = "Enable/Disable Using Abolish Poison" })
     -- Cure Poison
-    br.ui:checkbox(section, "Cure Poison", { tip = "Enable/Disable Using Cure Poison" })
+    ui.checkbox(section, "Cure Poison", { tip = "Enable/Disable Using Cure Poison" })
     -- Remove Curse
-    br.ui:checkbox(section, "Remove Curse", { tip = "Enable/Disable Using Remove Curse" })
+    ui.checkbox(section, "Remove Curse", { tip = "Enable/Disable Using Remove Curse" })
     -- Entangling Roots
-    br.ui:checkbox(section, "Entangling Roots", { tip = "Enable/Disable Using Entangling Roots on fleeing enemies" })
+    ui.checkbox(section, "Entangling Roots", { tip = "Enable/Disable Using Entangling Roots on fleeing enemies" })
     -- Faerie Fire
-    br.ui:checkbox(section, "Faerie Fire", { tip = "Enable/Disable Using Faerie Fire/Faerie Fire Feral" })
+    ui.checkbox(section, "Faerie Fire", { tip = "Enable/Disable Using Faerie Fire/Faerie Fire Feral" })
     -- Nature's Grasp
-    br.ui:checkbox(section, "Nature's Grasp", { tip = "Enable/Disable Using Nature's Grasp" })
+    ui.checkbox(section, "Nature's Grasp", { tip = "Enable/Disable Using Nature's Grasp" })
     -- -- Health Potion
     -- br.ui:createCheckbox(section, "Health Potion", "|cffFFFFFFEnable/Disable Using Health Potion")
     -- -- Mana Potion
     -- br.ui:createCheckbox(section, "Mana Potion", "|cffFFFFFFEnable/Disable Using Mana Potion")
     -- Bash
-    br.ui:spinner(section, "Bash", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Bash", { value = 50, tip = "Health Percent to Cast At" })
     -------------------------
     --- Interrupt Options ---
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Bash
-    br.ui:checkbox(section, "Bash - Int")
+    ui.checkbox(section, "Bash - Int")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
-local buff
-local cast
-local cd
 local comboPoints
-local debuff
-local enemies
 local energy
 local rage
-local module
-local ui
-local unit
-local units
-local spell
 local var = {}
 -- General Locals - Common Non-BR API Locals used in profiles
 local haltProfile
@@ -198,17 +188,13 @@ local function debugBehind(label, thisUnit)
     local facingPlayer = unit.facing(thisUnit, "player")
     local behindPlayer = unit.isBehind(thisUnit, "player")
 
-    -- Raw unlocker-facing check (front 180 cone)
-    local rawFacing180
-    if br and br.game and br.game.ObjectIsFacing then
-        local ok, res = pcall(br.game.ObjectIsFacing, thisUnit, "player", 180)
-        rawFacing180 = ok and res or nil
-    end
+    -- The whole front half (180 degree cone)
+    local facing180 = unit.facing(thisUnit, "player", 180)
 
     ui.debug(string.format(
-        "%s | unit=%s (isTarget=%s, dist=%.1f) | target=%s | facingPlayer=%s | behindPlayer=%s | rawFacing180=%s",
+        "%s | unit=%s (isTarget=%s, dist=%.1f) | target=%s | facingPlayer=%s | behindPlayer=%s | facing180=%s",
         tostring(label), tostring(thisName), tostring(isTarget), tonumber(dist) or -1, tostring(targetName),
-        tostring(facingPlayer), tostring(behindPlayer), tostring(rawFacing180)
+        tostring(facingPlayer), tostring(behindPlayer), tostring(facing180)
     ))
 end
 
@@ -236,12 +222,12 @@ end
 -- Powershift for Energy
 local function powershift()
     if cd.global.remain() == 0 and unit.combatTime() > 1 then
-        for i = 1, br.game.GetNumShapeshiftForms() do
-            local _, name, active = br.game.GetShapeshiftFormInfo(i)
-            if name and active then
-                br.game.CancelShapeshiftForm()
+        for i = 1, unit.formCount() do
+            local _, active, castable = unit.formInfo(i)
+            if active and castable then
+                unit.cancelForm()
                 ui.debug("Powershift - Canceling Form")
-                br.game.CastShapeshiftForm(i)
+                cast.form(i)
                 return true
             end
         end
@@ -360,7 +346,7 @@ actionList.Extra = function()
     -- if unit.exists("target") and unit.friend("target") and not unit.deadOrGhost("target") and not unit.player("target")
     --     and unit.distance("target") < 8 and (buff.catForm.exists() or buff.bearForm.exists())
     -- then
-    --     br.game.RunMacroText("/CancelForm")
+    --     unit.cancelForm()
     --     ui.debug("Cancel Form [NPC]")
     --     br.game.InteractUnit("target")
     --     ui.debug("Interacting [NPC]")
@@ -369,7 +355,7 @@ actionList.Extra = function()
 
     -- Aquatic Form
     if ui.checked("Aquatic Form") and not unit.inCombat() and cast.able.aquaticForm()
-        and br.game.IsSwimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
+        and unit.swimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
         and unit.moving() and unit.movingTime() > 2 and not unit.anyInAggroRange()
         and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
         and not (buff.thorns.refresh() and ui.checked("Thorns"))
@@ -386,8 +372,8 @@ actionList.Extra = function()
     end
 
     -- Travel Form
-    if ui.checked("Travel Form") and not unit.inCombat() and not br.game.IsMounted()
-        and not br.game.IsSwimming() and not br.game.IsFalling() and cast.able.travelForm()
+    if ui.checked("Travel Form") and not unit.inCombat() and not unit.mounted()
+        and not unit.swimming() and not unit.falling() and cast.able.travelForm()
         and not buff.travelForm.exists() and not buff.prowl.exists()
         and unit.moving() and unit.movingTime() > 2 and not unit.anyInAggroRange()
         and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
@@ -406,7 +392,7 @@ actionList.Extra = function()
 
     -- Powershift for Energy (Cat Form with Furor talent)
     if ui.checked("Powershifting") and cast.able.catForm() and buff.catForm.exists() and unit.inCombat() and energy < 30
-        and comboPoints < 5 and not buff.clearcasting.exists() and br.player.power.mana.percent() > 30
+        and comboPoints < 5 and not buff.clearcasting.exists() and power.mana.percent() > 30
     then
         if powershift() then
             ui.debug("Powershift for Energy")
@@ -416,7 +402,7 @@ actionList.Extra = function()
 
     -- Keep Aquatic Form while swimming unless danger/enemy target.
     local keepAquatic = ui.checked("Aquatic Form")
-        and br.game.IsSwimming()
+        and unit.swimming()
         and buff.aquaticForm.exists()
         and not unit.anyInAggroRange()
         and (not unit.exists("target") or unit.friend("target"))
@@ -438,11 +424,7 @@ actionList.Extra = function()
         end
         -- Caster Form
         if formValue == 1 and (buff.bearForm.exists() or buff.catForm.exists()) then
-            if unit and unit.cancelForm then
-                unit.cancelForm()
-            else
-                br.game.RunMacroText("/CancelForm")
-            end
+            unit.cancelForm()
             ui.debug("Casting Caster Form")
             return true
         end
@@ -706,7 +688,7 @@ actionList.Defensive = function()
         --     and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         -- then
         --     if buff.catForm.exists() or buff.bearForm.exists() then
-        --         br.game.RunMacroText("/CancelForm")
+        --         unit.cancelForm()
         --         ui.debug("Cancel Form for Health Potion")
         --         return true
         --     end
@@ -717,10 +699,10 @@ actionList.Defensive = function()
         -- end
         -- -- Mana Potion
         -- if ui.checked("Mana Potion") and unit.canUseItem(2455)
-        --     and br.player.power.mana.percent() < 30
+        --     and power.mana.percent() < 30
         -- then
         --     if buff.catForm.exists() or buff.bearForm.exists() then
-        --         br.game.RunMacroText("/CancelForm")
+        --         unit.cancelForm()
         --         ui.debug("Cancel Form for Mana Potion")
         --         return true
         --     end
@@ -776,7 +758,7 @@ actionList.Cooldowns = function()
     if ui.useCDs() then
         -- Innervate
         if ui.checked("Self-Innervate") and cast.able.innervate()
-            and br.player.power.mana.percent() < 30
+            and power.mana.percent() < 30
         then
             if cast.innervate("player") then
                 ui.debug("Casting Innervate")
@@ -1097,7 +1079,7 @@ actionList.PreCombat = function()
                 end
                 -- Auto Attack (do not break Prowl)
                 if not buff.prowl.exists() and not cast.auto.autoAttack() and unit.valid("target") and not unit.deadOrGhost("target") and unit.distance("target") < 5 then
-                    StartAttack()
+                    unit.startAttack()
                     ui.debug("Casting Auto Attack [Precombat]")
                     return true
                 end
@@ -1115,17 +1097,17 @@ actionList.Combat = function()
         ------------------------
         -- Start Attack (do not break Prowl)
         if not buff.prowl.exists() and unit.exists(units.dyn5) and not cast.auto.autoAttack() and not unit.deadOrGhost("target") then
-            StartAttack()
+            unit.startAttack()
             ui.debug("Casting Auto Attack")
             return true
         end
 
         -- Wait for swing if in melee range
         if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-            local swing = (br.player.swing and br.player.swing.mh and br.player.swing.mh.timer) or 0
+            local swing = unit.swing() or 0
             -- ui.debug("Swing Timer: " .. tostring(swing) .. " | Distance: " .. tostring(unit.distance(units.dyn5)))
             if swing and swing > 0 and swing < 0.3 then
-                -- ui.debug("Waiting for swing: " .. br.functions.misc:round2(swing) .. "s")
+                -- ui.debug("Waiting for swing: " .. ui.round(swing) .. "s")
                 return true
             end
         end
@@ -1179,19 +1161,9 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff        = br.player.buff
-    cast        = br.player.cast
-    cd          = br.player.cd
-    comboPoints = br.player.power.comboPoints()
-    debuff      = br.player.debuff
-    enemies     = br.player.enemies
-    energy      = br.player.power.energy()
-    rage        = br.player.power.rage()
-    module      = br.player.module
-    ui          = br.player.ui
-    unit        = br.player.unit
-    units       = br.player.units
-    spell       = br.player.spell
+    comboPoints = power.comboPoints()
+    energy      = power.energy()
+    rage        = power.rage()
     -- General Locals
     profileStop = profileStop or false
     haltProfile = (unit.inCombat() and profileStop) or ui.pause() or ui.mode.rotation == 4 or unit.id("target") == 156716
@@ -1262,7 +1234,7 @@ local function runRotation()
     end         -- Pause
     return true
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 283,
     expansion = "Classic",

@@ -4,20 +4,20 @@ local rotationName = "Initial"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "On", icon = "tigerPalm", overlay = "Rotation Enabled", tip = "Enables Rotation" },
         { name = "Off", icon = "tigerPalm", overlay = "Rotation Disabled", tip = "Disables Rotation" },
     } })
-    br.ui:toggle("Cooldown", { modes = {
+    ui.toggle("Cooldown", { modes = {
         { name = "Auto", icon = "touchOfDeath", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "touchOfDeath", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "touchOfDeath", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "vivify", overlay = "Defensive Enabled", tip = "Enables Defensive" },
         { name = "Off", icon = "vivify", overlay = "Defensive Disabled", tip = "Disables Defensive" },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "legSweep", overlay = "Interrupt Enabled", tip = "Enables Interrupt" },
         { name = "Off", icon = "legSweep", overlay = "Interrupt Disabled", tip = "Interrupt Defensive" },
     } })
@@ -31,70 +31,60 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Crackling Jade lightning
-    br.ui:checkbox(section, "Crackling Jade Lightning")
-    br.ui:spinner(section, "Cancel CJL Range", { value = 10, min = 5, max = 40, checkbox = false,
+    ui.checkbox(section, "Crackling Jade Lightning")
+    ui.spinner(section, "Cancel CJL Range", { value = 10, min = 5, max = 40, checkbox = false,
         tip = "Cancels Crackling Jade Lightning below this range in yards." })
     -- Roll
-    br.ui:checkbox(section, "Roll")
+    ui.checkbox(section, "Roll")
     ------------------------
     --- COOLDOWN OPTIONS ---
     ------------------------
-    section = br.ui:section("Cooldown")
+    section = ui.section("Cooldown")
     -- Touch of Death
-    br.ui:dropdown(section, "Touch of Death", { choices = { "Always", "|cff0000ffCD", "|cffff0000Never" }, value = "CD", checkbox = false,
+    ui.dropdown(section, "Touch of Death", { choices = { "Always", "|cff0000ffCD", "|cffff0000Never" }, value = "CD", checkbox = false,
         tip = "When to use Touch of Death" })
     -- Trinkets
-    br.player.module.BasicTrinkets(nil, section)
+    module.BasicTrinkets(nil, section)
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Expel Harm
-    br.ui:spinner(section, "Expel Harm", { value = 40, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Expel Harm", { value = 40, tip = "Health Percent to Cast At" })
     -- Healthstone / Potion
-    br.ui:spinner(section, "Healthstone/Potion", { value = 30, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Healthstone/Potion", { value = 30, tip = "Health Percent to Cast At" })
     -- Heirloom Neck
-    br.ui:spinner(section, "Heirloom Neck", { value = 80, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Heirloom Neck", { value = 80, tip = "Health Percent to Cast At" })
     -- Leg Sweep
-    br.ui:spinner(section, "Leg Sweep - HP", { value = 50, tip = "Health Percent to Cast At" })
-    br.ui:spinner(section, "Leg Sweep - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
+    ui.spinner(section, "Leg Sweep - HP", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Leg Sweep - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
     -- Vivify
-    br.ui:spinner(section, "Vivify", { value = 60, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Vivify", { value = 60, tip = "Health Percent to Cast At" })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Pandaren Racial
-    if select(2, UnitRace("player")) == "Pandaren" then
-        br.ui:checkbox(section, "Quaking Palm", { tip = "|cffFFBB00Pandaren Racial" })
+    if unit.race() == "Pandaren" then
+        ui.checkbox(section, "Quaking Palm", { tip = "|cffFFBB00Pandaren Racial" })
     end
     -- Leg Sweep
-    br.ui:checkbox(section, "Leg Sweep")
+    ui.checkbox(section, "Leg Sweep")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
 local chi
-local enemies
 local energy
-local module
-local ui
-local unit
-local units
-local spell
 -- Profile Specific Locals
 local actionList = {}
 local var = {}
-var.getFacingDistance = br.functions.range.getFacingDistance
 var.haltProfile = false
 var.profileStop = false
 
@@ -116,7 +106,7 @@ actionList.Extra = function()
     -- Roll
     if ui.checked("Roll") and cast.able.roll() and unit.moving()
         and unit.distance("target") > 10 and unit.valid("target")
-        and var.getFacingDistance() < 5 and unit.facing("player", "target", 10)
+        and unit.facingDistance() < 5 and unit.facing("player", "target", 10)
     then
         if cast.roll() then
             ui.debug("Casting Roll")
@@ -187,7 +177,7 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 -- Quaking Palm (Pandaren Racial)
                 if ui.checked("Quaking Palm") and unit.race("Pandaren") and cast.able.racial(thisUnit) and unit.distance(thisUnit) < 5 then
                     if cast.racial(thisUnit) then
@@ -272,25 +262,14 @@ end         -- End Action List - Combat
 --- ROTATION ---
 ----------------
 local function runRotation()
-    -- This profile handles racials itself; skip the shared Racial module
-    if not br.player.localRacial then br.player.localRacial = true end
     ---------------------
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff            = br.player.buff
-    cast            = br.player.cast
-    cd              = br.player.cd
-    chi             = br.player.power.chi
-    enemies         = br.player.enemies
-    energy          = br.player.power.energy
-    module          = br.player.module
-    ui              = br.player.ui
-    unit            = br.player.unit
-    units           = br.player.units
-    spell           = br.player.spell
+    chi             = power.chi
+    energy          = power.energy
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 2
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or ui.pause() or ui.mode.rotation == 2
     -- Units
     units.get(5)
     units.get(40)
@@ -342,7 +321,8 @@ local function runRotation()
         end
     end -- Pause
 end     -- End runRotation
-br.loader.registerRotation({
+registerRotation({
+    handlesRacials = true,
     name      = rotationName,
     specID    = 1450,
     expansion = "MOP",

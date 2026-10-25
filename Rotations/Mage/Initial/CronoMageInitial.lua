@@ -4,15 +4,15 @@ local rotationName = "Crono" -- Change to name of profile listed in options drop
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "arcaneExplosion", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
         { name = "Sing", icon = "frostbolt", overlay = "Single Target Rotation", tip = "Single target rotation used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "frostNova", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "frostNova", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "counterspell", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "counterspell", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
@@ -26,32 +26,26 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS --- -- Define General Options
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
 
     -------------------------
     --- DEFENSIVE OPTIONS --- -- Define Defensive Options
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
 
     -------------------------
     --- INTERRUPT OPTIONS --- -- Define Interrupt Options
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
-local buff
-local cast
-local cd
 local mode
-local ui
-local unit
-local units
 -- General Locals
 local haltProfile
 local profileStop
@@ -131,23 +125,17 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff        = br.player.buff
-    cast        = br.player.cast
-    cd          = br.player.cd
-    mode        = br.player.ui.mode
-    ui          = br.player.ui
-    unit        = br.player.unit
-    units       = br.player.units
+    mode        = ui.mode
     -- General Locals
     profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or br.game.IsMounted() or br.functions.misc:pause() or mode.rotation == 4
+    haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or ui.pause() or mode.rotation == 4
     -- Units
     units.get(5)  -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
     units.get(40, true)
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = br.game.GetTime() end
+    if var.pauseTime == nil then var.pauseTime = ui.time() end
 
     ---------------------
     --- Begin Profile ---
@@ -156,7 +144,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        br.pauseTime = br.game.GetTime()
+        var.pauseTime = ui.time()
         return true
     else
         ---------------------------------
@@ -189,8 +177,8 @@ local function runRotation()
                 if actionList.Interrupt() then return true end
                 -- Start Attack
                 -- actions=auto_attack
-                if not br.game.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    br.game.StartAttack(units.dyn5)
+                if not cast.auto.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                    unit.startAttack(units.dyn5)
                 end
                 --Arcane Explosion
                 if cast.able.arcaneExplosion("player", "aoe", 1, 8) then
@@ -217,7 +205,7 @@ local function runRotation()
         end
     end         -- Pause
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 0, --1449 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
     expansion = "MOP",

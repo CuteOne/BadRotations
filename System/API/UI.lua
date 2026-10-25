@@ -1,20 +1,16 @@
 ---
 -- These functions help in retrieving information about or manipulating UI elements.
--- UI functions are stored in br.player.ui and can be utilized by `local ui = br.player.ui` in your profile.
--- @module br.player.ui
+-- UI functions are the profile API table `ui` (br.api.profile.ui); profiles use it by name.
+-- The profile's options page and toggle bar are built with ui.section, ui.checkbox, ui.spinner,
+-- ui.doubleSpinner, ui.dropdown, ui.text and ui.toggle in its options and toggles functions
+-- (Rotations/sample rotation.lua); every field each takes is listed in System/UI/Elements and
+-- System/UI/Toggles/ToggleFunctions.lua.
+-- @module ui
 local _, br = ...
-if br.api == nil then br.api = {} end
 
-br.api.ui = function(self)
-    local ui = self.ui
-    if ui ~= nil and ui.mode == nil then ui.mode = {} end
-
-    -- if ui.print == nil then
-    --     ui.print = function(text)
-    --         local Print = br.game["Print"]
-    --         return Print(text)
-    --     end
-    -- end
+br.api.build.ui = function(api)
+    local ui = api.ui
+    if ui.mode == nil then ui.mode = {} end
 
     --- Checks if the passed option is set to "Always, AOE/CD, CD, or Never"
     -- @function ui.alwaysCdAoENever
@@ -67,7 +63,7 @@ br.api.ui = function(self)
         if minUnits == nil then minUnits = 3 end
         if range == nil then range = 8 end
         if useTarget == nil then useTarget = "player" end
-        local _, enemyCount = self.enemies.get(range, useTarget)
+        local _, enemyCount = api.enemies.get(range, useTarget)
         return ui.alwaysCdAoENever(thisOption, minUnits, enemyCount)
     end
 
@@ -105,6 +101,11 @@ br.api.ui = function(self)
         end
     end
 
+    --- Adds a checkbox. Read it with ui.checked("Name").
+    -- @function ui.checkbox
+    -- @usage ui.checkbox(section, "Use Racial", { tip = "..." })
+    ui.checkbox = function(section, name, options) return br.ui:checkbox(section, name, options) end
+
     if ui.checked == nil then
         --- Checks if the passed option is enabled
         -- @function ui.checked
@@ -137,6 +138,19 @@ br.api.ui = function(self)
             return br.debug.timer:useTimer(delayName, delayTime)
         end
     end
+
+    --- Adds two spinners on one row.
+    -- @function ui.doubleSpinner
+    ui.doubleSpinner = function(section, name, options) return br.ui:doubleSpinner(section, name, options) end
+
+    --- Adds a dropdown (with a checkbox unless checkbox = false). Read it with ui.value("Name").
+    -- @function ui.dropdown
+    -- @usage ui.dropdown(section, "Pet Target", { choices = { "Dynamic", "Target", "Any" } })
+    ui.dropdown = function(section, name, options) return br.ui:dropdown(section, name, options) end
+
+    --- The choices of BR's shared dropdowns (Toggle: the key names, ...).
+    -- @table ui.dropOptions
+    ui.dropOptions = br.ui.dropOptions
 
     if ui.fullBags == nil then
         --- Checks if your bags are full
@@ -177,6 +191,30 @@ br.api.ui = function(self)
         end
     end
 
+    if ui.lastError == nil then
+        --- The game's last error message (the red text): its key as the game names it (ERR_NO_LOOT,
+        -- SPELL_FAILED_BAD_TARGETS, ...), the message shown and when (ui.time()); nil before the first.
+        -- @function ui.lastError
+        -- @return string, string, number
+        -- @usage local key, message, at = ui.lastError()
+        ui.lastError = function()
+            local lastError = br.readers.common.lastError
+            return lastError.key, lastError.message, lastError.at
+        end
+    end
+
+    if ui.lastLoot == nil then
+        --- The last loot or money message in chat: its text, when (ui.time()) and whether it was money;
+        -- nil before the first.
+        -- @function ui.lastLoot
+        -- @return string, number, boolean
+        -- @usage local message, at, money = ui.lastLoot()
+        ui.lastLoot = function()
+            local lastLoot = br.readers.common.lastLoot
+            return lastLoot.message, lastLoot.at, lastLoot.money
+        end
+    end
+
     if ui.pause == nil then
         --- Returns true if special conditions are met to pause
         -- @see br.functions.misc:pause for these conditions
@@ -187,6 +225,15 @@ br.api.ui = function(self)
             --local pause = br.game["pause"]
             if ignoreChannel == nil then ignoreChannel = false end
             return br.functions.misc:pause(ignoreChannel)
+        end
+    end
+
+    if ui.pauseKey == nil then
+        --- Returns true while the player holds the Pause Mode key (Base Options)
+        -- @function ui.pauseKey
+        -- @return boolean
+        ui.pauseKey = function()
+            return br.functions.misc:isPauseKeyDown()
         end
     end
 
@@ -221,6 +268,21 @@ br.api.ui = function(self)
         end
     end
 
+    --- Starts a group of options; pass it to each option after it.
+    -- @function ui.section
+    -- @string name
+    -- @usage local section = ui.section("General")
+    ui.section = function(name, options) return br.ui:section(name, options) end
+
+    --- Adds a spinner (with a checkbox unless checkbox = false). Read it with ui.value("Name").
+    -- @function ui.spinner
+    -- @usage ui.spinner(section, "Healing Touch", { value = 50, min = 0, max = 100 })
+    ui.spinner = function(section, name, options) return br.ui:spinner(section, name, options) end
+
+    --- Adds a line of text.
+    -- @function ui.text
+    ui.text = function(section, text) return br.ui:text(section, text) end
+
     if ui.time == nil then
         --- Returns the time, value of GetTime
         -- @function ui.time
@@ -241,13 +303,19 @@ br.api.ui = function(self)
         end
     end
 
-    if ui.toggle == nil then
-        --- Checks if the specified toggle from the toggle options is pressed
-        -- @function ui.toggle
-        -- @string thisToggle - Name of the toggle to check.
-        -- @return boolean - Returns true if the toggle is active
-        ui.toggle = function(thisToggle)
-            return not br.functions.misc:isTyping() and br.functions.misc:SpecificToggle(thisToggle) or false
+    --- Adds a button to the toggle bar. Read it in the rotation with ui.mode.<name>.
+    -- @function ui.toggle
+    -- @string name
+    -- @tparam table options modes = { { name = ..., icon = ..., overlay = ..., tip = ... }, ... }, key = ...
+    ui.toggle = function(name, options) return br.ui:toggle(name, options) end
+
+    if ui.toggleKey == nil then
+        --- Checks if the key chosen in a key option (a ui.dropOptions.Toggle dropdown) is held
+        -- @function ui.toggleKey
+        -- @string thisOption - Name of the key option to check.
+        -- @return boolean - Returns true while the key is held (never while typing)
+        ui.toggleKey = function(thisOption)
+            return not br.functions.misc:isTyping() and br.functions.misc:SpecificToggle(thisOption) or false
         end
     end
 
@@ -262,7 +330,7 @@ br.api.ui = function(self)
             if range == nil then range = 8 end
             if minCount == nil then minCount = 3 end
             if useTarget == nil then useTarget = "player" end
-            local _, enemyCount = self.enemies.get(range, useTarget)
+            local _, enemyCount = api.enemies.get(range, useTarget)
             return ((ui.mode.rotation == 1 and enemyCount >= minCount) or (ui.mode.rotation == 2 and enemyCount > 0))
         end
     end
@@ -310,7 +378,7 @@ br.api.ui = function(self)
             if range == nil then range = 8 end
             if minCount == nil then minCount = 3 end
             if useTarget == nil then useTarget = "player" end
-            local _, enemyCount = self.enemies.get(range, useTarget)
+            local _, enemyCount = api.enemies.get(range, useTarget)
             return ((ui.mode.rotation == 1 and enemyCount < minCount) or (ui.mode.rotation == 3 and enemyCount > 0))
         end
     end
@@ -323,9 +391,9 @@ br.api.ui = function(self)
         ui.useTrinkets = function(trinket)
             for slotID = 13, 14 do
                 -- local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
-                if self.use.able.slot(slotID)
+                if api.use.able.slot(slotID)
                     and ui.alwaysCdAoENever("Trinket " .. slotID - 12)
-                    and self.equiped.item(trinket, slotID)
+                    and api.equiped.item(trinket, slotID)
                 then
                     return true
                 end
@@ -355,7 +423,7 @@ br.api.ui = function(self)
         -- @function ui.fightStyle.dungeonRoute
         -- @return boolean
         ui.fightStyle.dungeonRoute = function()
-            return self.state.instance == "party" and br.functions.misc:isInMythicPlus()
+            return br.rotation.state.instance == "party" and br.functions.misc:isInMythicPlus()
         end
     end
 
@@ -364,7 +432,7 @@ br.api.ui = function(self)
         -- @function ui.fightStyle.dungeonSlice
         -- @return boolean
         ui.fightStyle.dungeonSlice = function()
-            return self.state.instance == "party" and not br.functions.misc:isInMythicPlus()
+            return br.rotation.state.instance == "party" and not br.functions.misc:isInMythicPlus()
         end
     end
 
@@ -373,7 +441,7 @@ br.api.ui = function(self)
         -- @function ui.fightStyle.patchwerk
         -- @return boolean
         ui.fightStyle.patchwerk = function()
-            return self.state.instance ~= "party"
+            return br.rotation.state.instance ~= "party"
         end
     end
 

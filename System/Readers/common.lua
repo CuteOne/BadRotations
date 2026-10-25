@@ -1,6 +1,11 @@
 local _, br = ...
 br.readers.common = br.readers.common or {}
 local common = br.readers.common
+-- The game's last error: its key (ERR_..., SPELL_FAILED_..., as GetGameMessageInfo names it), the
+-- message shown and when (ui.lastError)
+common.lastError = { key = nil, message = nil, at = 0 }
+-- The last loot or money message in chat: its text, when, and whether it was money (ui.lastLoot)
+common.lastLoot = { message = nil, at = 0, money = false }
 common.encounterID = 0
 
 -- Pre-register all event frames at module load time to avoid ADDON_ACTION_FORBIDDEN in NnLua runtime context
@@ -9,6 +14,7 @@ local _merchantFrame    = br.game.CreateFrame("Frame"); _merchantFrame:RegisterE
 local _regenDisFrame    = br.game.CreateFrame("Frame"); _regenDisFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 local _regenEnFrame     = br.game.CreateFrame("Frame"); _regenEnFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 local _uiErrFrame       = br.game.CreateFrame("Frame"); _uiErrFrame:RegisterEvent("UI_ERROR_MESSAGE")
+local _lootMsgFrame     = br.game.CreateFrame("Frame"); _lootMsgFrame:RegisterEvent("CHAT_MSG_LOOT"); _lootMsgFrame:RegisterEvent("CHAT_MSG_MONEY")
 local _superFrame       = br.game.CreateFrame("Frame")
 local autoAttackGUID      -- the unit auto attack started on (PLAYER_ENTER_COMBAT), for the Cast Debug stop line
 _superFrame:RegisterEvent("CHAT_MSG_ADDON")
@@ -162,9 +168,9 @@ function common:commonReaders()
 		-- Remember casts the game refused (stronger aura, line of sight, facing, range)
 		-- so they aren't retried endlessly against the same unit.
 		br.functions.cast:handleCastError(message)
-		br.lastError = br.game.GetGameMessageInfo(errorType)
-		br.lastErrorTime = br.game.GetTime()
-		local param = br.lastError
+		local param = br.game.GetGameMessageInfo(errorType)
+		local lastError = common.lastError
+		lastError.key, lastError.message, lastError.at = param, message, br.game.GetTime()
 		--br.game.print("|cffFF0000UI Error: " .. errorType .. " - " .. param)
 		if param == "ERR_PET_SPELL_DEAD" then
 			br.data.settings[br.loader.selectedSpec]["Pet Dead"] = true
@@ -210,6 +216,12 @@ function common:commonReaders()
 		end
 	end
 	Frame:SetScript("OnEvent", UiErrorMessages)
+	---------------------------
+	--[[ Loot Messages --]]
+	_lootMsgFrame:SetScript("OnEvent", function(_, event, message)
+		local lastLoot = common.lastLoot
+		lastLoot.message, lastLoot.at, lastLoot.money = message, br.game.GetTime(), event == "CHAT_MSG_MONEY"
+	end)
 	-- ------------------------
 	-- --[[ Spells Changed --]]
 	-- Frame = br.game.CreateFrame("Frame")
@@ -303,8 +315,8 @@ function common:commonReaders()
 			pcall(br.functions.unit.noteFleeEmote, br.functions.unit, text, (select(12, ...)), name)
 		end
 		-- Azerite Essence
-		if event == "AZERITE_ESSENCE_ACTIVATED" and br.player then
-			br.player.updatePlayer = true
+		if event == "AZERITE_ESSENCE_ACTIVATED" and br.rotation then
+			br.rotation:requestRebuild()
 		end
 		-- Auto-attack on / off
 		if event == "PLAYER_ENTER_COMBAT" or event == "PLAYER_LEAVE_COMBAT" then
@@ -361,8 +373,8 @@ function common:commonReaders()
 		-- 	br.loader.rotationChanged = true
 		-- end
 		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" --[[or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED"]] or event == "TRAIT_CONFIG_UPDATED" then
-			if br.player then
-				br.player.updatePlayer = true
+			if br.rotation then
+				br.rotation:requestRebuild()
 			end
 		end
 		-----------------------------

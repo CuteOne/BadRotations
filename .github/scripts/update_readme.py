@@ -8,8 +8,8 @@ from datetime import datetime
 import re
 
 
-# Rotation metadata comes from the br.loader.registerRotation({ ... }) table in each rotation file.
-REGISTER_BLOCK = re.compile(r"br\.loader\.registerRotation\s*\(\s*\{(.*?)\}\s*\)", re.S)
+# Rotation metadata comes from the registerRotation({ ... }) table in each rotation file.
+REGISTER_BLOCK = re.compile(r"(?<![\w.:])registerRotation\s*\(\s*\{(.*?)\}\s*\)", re.S)
 
 
 def register_field(name: str) -> re.Pattern:

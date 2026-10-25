@@ -1,14 +1,13 @@
 ---
 -- These functions help in retrieving information if you have an item or not.
--- Has functions are stored in br.player.has and can be utilized by `local has = br.player.has` in your profile.
+-- Has functions are the profile API table `has` (br.api.profile.has); profiles use it by name.
 -- For item has, `item` in the function represent the name in the items list defined in System/List/Items.lua
--- @module br.player.has
+-- @module has
 local _, br = ...
-if br.api == nil then br.api = {} end
 
-br.api.has = function(self,item,id)
-    if self[item] == nil then self[item] = {} end
-    local has = self
+br.api.build.has = function(api,item,id)
+    if api[item] == nil then api[item] = {} end
+    local has = api
 
     --- ### Item Has Functions
 

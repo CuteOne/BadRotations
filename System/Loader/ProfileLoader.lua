@@ -1,7 +1,8 @@
 local _, br = ...
 --- Profile Loader
 -- Finds rotation files for the current class/spec on disk and runs them, so they can
--- register themselves in br.loader.rotations. Also loads class Support files.
+-- register themselves in br.loader.rotations. Also loads class Support files. Every file runs with
+-- the profile API (br.api.profile, ProfileAPI.lua) as its environment.
 br.loader.profileLoader = br.loader.profileLoader or {}
 local profileLoader = br.loader.profileLoader
 
@@ -36,17 +37,16 @@ local function errorhandler(err)
     return br.log:reportError(err, br.game.debugstack and br.game.debugstack(2))
 end
 
--- Compiles and runs one rotation/support file. Its environment sees br, and reads globals through
--- br.game, so bare names get BR's versions (expansion shims, unlocker functions, tagged print).
+-- Compiles and runs one rotation/support file in the profile API. Returns true and what the file
+-- returned, or false.
 local function loadFile(profile, file)
-    local custom_env = setmetatable({ br = br }, { __index = br.game })
     local func, errorMessage = br.game.loadstring(profile, file);
     if not func then
         br.log:error(file .. " cannot load. Please inform devs! " .. tostring(errorMessage))
         errorhandler(errorMessage)
         return false
     end
-    br.game.setfenv(func, custom_env)
+    br.game.setfenv(func, br.api.profile)
     br.log.rotation:registerSource(file, profile) -- names where a cast came from (System/RotationLog.lua)
 
     -- Capture the actual error in the error handler
@@ -56,16 +56,17 @@ local function loadFile(profile, file)
         return errorhandler(err)
     end
 
-    local success = xpcall(func, captureError);
+    local success, result = xpcall(func, captureError);
     if not success then
         br.log:error(file .. " cannot run. Please inform devs! " .. tostring(actualError))
         return false
     end
-    return true
+    return true, result
 end
 
 local KNOWN_EXPANSIONS = { Retail = true, MOP = true, TBC = true, Classic = true, Forever = true }
 local METADATA_FIELDS = { "author", "patch", "coverage", "status", "readiness" }
+local FLAG_FIELDS = { "actsWhileCasting", "handlesRacials", "handlesTrinkets" }
 
 -- State for the load in progress: the file being run and what it registered
 local loading = { file = nil, seen = {} }
@@ -108,6 +109,9 @@ local function validate(def)
     for _, exp in ipairs(expansions) do
         if not KNOWN_EXPANSIONS[exp] then return "unknown expansion \"" .. tostring(exp) .. "\"" end
     end
+    for _, field in ipairs(FLAG_FIELDS) do
+        if def[field] ~= nil and type(def[field]) ~= "boolean" then return field .. " must be true or false" end
+    end
     -- README metadata is free text; it only has to be a string when present
     for _, field in ipairs(METADATA_FIELDS) do
         if def[field] ~= nil and type(def[field]) ~= "string" then return field .. " must be a string" end
@@ -115,11 +119,13 @@ local function validate(def)
     return nil
 end
 
---- Registers a rotation profile. Called by each rotation file (see Rotations/sample rotation.lua).
--- The rotation is offered only when its specID and expansion match the player.
+--- Registers a rotation profile. Called by each rotation file as registerRotation (see
+-- Rotations/sample rotation.lua). The rotation is offered only when its specID and expansion match the player.
 -- @tparam table def name, specID (number or list), expansion (string or list), run, and optional
 --   toggles, options, actsWhileCasting (true: the rotation keeps running while the player casts or
---   channels; it then checks casts itself), plus README metadata: author, patch, coverage, status, readiness
+--   channels; it then checks casts itself), handlesRacials / handlesTrinkets (true: the rotation uses
+--   racials / trinkets itself, so the shared modules don't), plus README metadata: author, patch,
+--   coverage, status, readiness
 function br.loader.registerRotation(def)
     local file = loading.file or "?"
     local problem = validate(def)
@@ -148,7 +154,7 @@ function br.loader.registerRotation(def)
     return true
 end
 
---- Runs every rotation file in the class/spec folder. Each file calls br.loader.registerRotation,
+--- Runs every rotation file in the class/spec folder. Each file calls registerRotation,
 -- which keeps the ones for the player's spec and expansion in br.loader.rotations[specID].
 function profileLoader:loadProfiles()
     br.game.wipe(br.loader.rotations)
@@ -190,22 +196,19 @@ function profileLoader:loadProfiles()
     end
 end
 
---- Loads a support file (e.g. "PetCuteOne") from Rotations/<Class>/Support/.
+--- Loads a support file (e.g. "PetCuteOne") from Rotations/<Class>/Support/ and returns what it
+-- returns (its options and run functions, for the profile that loaded it). Profiles call it as loadSupport.
 -- @string thisFile File name without .lua
 function profileLoader:loadSupport(thisFile)
-    if thisFile == nil then return end
-    br.loader.rotations.support = br.loader.rotations.support or {}
-    -- A support file sets a table or a function; a table is emptied before the file fills it again
-    if type(br.loader.rotations.support[thisFile]) == "table" then
-        br.game.wipe(br.loader.rotations.support[thisFile])
-    end
+    if thisFile == nil then return nil end
     local file = thisFile .. ".lua"
     local classPath, sep = getClassRotationsPath()
     local path = classPath .. 'Support' .. sep .. file
     local profile = br.game.ReadFile(path)
     if profile == nil then
         warn("support file not found: " .. path)
-        return
+        return nil
     end
-    loadFile(profile, file)
+    local _, support = loadFile(profile, file)
+    return support
 end

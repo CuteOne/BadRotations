@@ -4,22 +4,22 @@ local rotationName = "CuteOne" -- Change to name of profile listed in options dr
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "chainLightning", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
         { name = "Multi", icon = "chainLightning", overlay = "Multiple Target Rotation", tip = "Forces Multiple Target Rotation." },
         { name = "Single", icon = "lightningBolt", overlay = "Single Target Rotation", tip = "Forces Single Target Rotation." },
         { name = "Off", icon = "healingWave", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "heroism", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "heroism", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "heroism", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "healingWave", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "healingWave", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "earthShock", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "earthShock", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
@@ -32,98 +32,86 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
         -- Purge
-        br.ui:checkbox(section, "Purge")
+        ui.checkbox(section, "Purge")
     --------------------------
     --- TOTEM MANAGEMENT ---
     --------------------------
-    section = br.ui:section("Totem Management")
+    section = ui.section("Totem Management")
         -- Searing Totem (always-on fire slot)
-        br.ui:checkbox(section, "Searing Totem", { tip = "Maintain Searing Totem in the fire slot." })
+        ui.checkbox(section, "Searing Totem", { tip = "Maintain Searing Totem in the fire slot." })
         -- AoE Fire Totem — overrides Searing when enemy count meets threshold
-        br.ui:dropdown(section, "AoE Fire Totem", { choices = { "Magma Totem", "Fire Nova Totem", "None" }, value = "Magma Totem", checkbox = false,
+        ui.dropdown(section, "AoE Fire Totem", { choices = { "Magma Totem", "Fire Nova Totem", "None" }, value = "Magma Totem", checkbox = false,
             tip = "Overrides Searing Totem when enemies within 8 yards meets threshold." })
-        br.ui:spinner(section, "AoE Fire At", { value = 3, min = 2, max = 10, step = 1, checkbox = false,
+        ui.spinner(section, "AoE Fire At", { value = 3, min = 2, max = 10, step = 1, checkbox = false,
             tip = "Enemy count within 8 yards to trigger AoE fire override." })
         -- Fire Nova Cycling (Wowhead step 4: cycle FNT then Searing on single targets)
-        br.ui:checkbox(section, "Fire Nova Cycling", { tip = "Cycle Fire Nova Totem then Searing Totem on single targets (Wowhead guide)." })
+        ui.checkbox(section, "Fire Nova Cycling", { tip = "Cycle Fire Nova Totem then Searing Totem on single targets (Wowhead guide)." })
         -- Air Totem
-        br.ui:dropdown(section, "Air Totem", { choices = { "Windfury Totem", "Grace of Air Totem", "Wrath of Air Totem", "Tranquil Air Totem", "None" }, value = "Windfury Totem", checkbox = false,
+        ui.dropdown(section, "Air Totem", { choices = { "Windfury Totem", "Grace of Air Totem", "Wrath of Air Totem", "Tranquil Air Totem", "None" }, value = "Windfury Totem", checkbox = false,
             tip = "Air totem to maintain (used when Totem Twisting is OFF)." })
         -- Totem Twisting — cycles Windfury → Grace of Air every ~10s
-        br.ui:checkbox(section, "Totem Twisting", { tip = "Cycle Windfury Totem then Grace of Air Totem every ~10 seconds. Overrides Air Totem dropdown." })
+        ui.checkbox(section, "Totem Twisting", { tip = "Cycle Windfury Totem then Grace of Air Totem every ~10 seconds. Overrides Air Totem dropdown." })
         -- Tremor Totem (reactive — drops on fear or charm)
-        br.ui:checkbox(section, "Tremor Totem", { tip = "Reactively drop Tremor Totem when fear or charm is detected on the player." })
+        ui.checkbox(section, "Tremor Totem", { tip = "Reactively drop Tremor Totem when fear or charm is detected on the player." })
         -- Earth Totem (always-on)
-        br.ui:dropdown(section, "Earth Totem", { choices = { "Stoneskin Totem", "Strength of Earth Totem", "None" }, value = "Stoneskin Totem", checkbox = false })
+        ui.dropdown(section, "Earth Totem", { choices = { "Stoneskin Totem", "Strength of Earth Totem", "None" }, value = "Stoneskin Totem", checkbox = false })
         -- Water Totem
-        br.ui:dropdown(section, "Water Totem", { choices = { "Mana Spring Totem", "Healing Stream Totem", "None" }, value = "Mana Spring Totem", checkbox = false,
+        ui.dropdown(section, "Water Totem", { choices = { "Mana Spring Totem", "Healing Stream Totem", "None" }, value = "Mana Spring Totem", checkbox = false,
             tip = "Water totem to maintain." })
         -- Buff Totem Mana Floor (Option B)
-        br.ui:spinner(section, "Buff Totem Min Mana", { value = 60, checkbox = false,
+        ui.spinner(section, "Buff Totem Min Mana", { value = 60, checkbox = false,
             tip = "Skip Air/Earth/Water buff totems below this mana % in combat. (0 = always drop)" })
         -- Buff Totem TTD Gate (Option A)
-        br.ui:spinner(section, "Buff Totem Min TTD", { value = 12, max = 60, step = 3, checkbox = false,
+        ui.spinner(section, "Buff Totem Min TTD", { value = 12, max = 60, step = 3, checkbox = false,
             tip = "Skip buff totems when target TTD is below this many seconds. (0 = always drop)" })
     ---------------------
     --- BUFF OPTIONS ---
     ---------------------
-    section = br.ui:section("Buffs")
+    section = ui.section("Buffs")
     -- Shield's Up
-    br.ui:dropdown(section, "Shield's Up", { choices = { "Lightning Shield", "Water Shield", "None" }, value = "Lightning Shield", checkbox = false })
+    ui.dropdown(section, "Shield's Up", { choices = { "Lightning Shield", "Water Shield", "None" }, value = "Lightning Shield", checkbox = false })
     -- Weapon's Online (index matches imbueKeys table; option 5 = None / off)
-    br.ui:dropdown(section, "MH Weapon's Online", { choices = { "Rockbiter Weapon", "Flametongue Weapon", "Frostbrand Weapon", "Windfury Weapon", "None" }, value = "Rockbiter Weapon", checkbox = false })
-    br.ui:dropdown(section, "OH Weapon's Online", { choices = { "Rockbiter Weapon", "Flametongue Weapon", "Frostbrand Weapon", "Windfury Weapon", "None" }, value = "Flametongue Weapon", checkbox = false })
+    ui.dropdown(section, "MH Weapon's Online", { choices = { "Rockbiter Weapon", "Flametongue Weapon", "Frostbrand Weapon", "Windfury Weapon", "None" }, value = "Rockbiter Weapon", checkbox = false })
+    ui.dropdown(section, "OH Weapon's Online", { choices = { "Rockbiter Weapon", "Flametongue Weapon", "Frostbrand Weapon", "Windfury Weapon", "None" }, value = "Flametongue Weapon", checkbox = false })
     -- Water Shield Swap At
-    br.ui:spinner(section, "Water Shield Swap At", { value = 30, checkbox = false, tip = "Mana Percent to Swap to Water Shield" })
+    ui.spinner(section, "Water Shield Swap At", { value = 30, checkbox = false, tip = "Mana Percent to Swap to Water Shield" })
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
         -- Ancestral Spirit
-        br.ui:dropdown(section, "Ancestral Spirit", { choices = { "|cffFFFF00Selected Target", "|cffFF0000Mouseover Target" }, value = "Selected Target",
+        ui.dropdown(section, "Ancestral Spirit", { choices = { "|cffFFFF00Selected Target", "|cffFF0000Mouseover Target" }, value = "Selected Target",
             tip = "|ccfFFFFFFTarget to Cast On" })
         -- Healing Wave
-        br.ui:spinner(section, "Healing Wave", { value = 50, tip = "Health Percent to Cast At" })
+        ui.spinner(section, "Healing Wave", { value = 50, tip = "Health Percent to Cast At" })
         -- Stoneclaw Totem
-        br.ui:spinner(section, "Stoneclaw Totem Defensive", { value = 45, tip = "Health Percent to Cast At (requires no tank nearby)" })
+        ui.spinner(section, "Stoneclaw Totem Defensive", { value = 45, tip = "Health Percent to Cast At (requires no tank nearby)" })
         -- OOC Healing
-        br.ui:checkbox(section, "OOC Healing", { tip = "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00." })
+        ui.checkbox(section, "OOC Healing", { tip = "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00." })
         -- Shamanistic Rage (defensive — DR benefit, no melee requirement)
-        br.ui:spinner(section, "Shamanistic Rage HP", { value = 50, checkbox = false, tip = "Health Percent to Cast At (0 = disabled)" })
+        ui.spinner(section, "Shamanistic Rage HP", { value = 50, checkbox = false, tip = "Health Percent to Cast At (0 = disabled)" })
     --------------------------
     --- COOLDOWN OPTIONS ---
     --------------------------
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
         -- Shamanistic Rage (mana recovery — requires melee targets and enough TTD to benefit)
-        br.ui:dropdown(section, "Shamanistic Rage Mana", { choices = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }, value = "CD", checkbox = false,
+        ui.dropdown(section, "Shamanistic Rage Mana", { choices = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }, value = "CD", checkbox = false,
             tip = "When to use for mana recovery (requires melee targets with TTD > 10s)" })
     -------------------------
     --- Interrupt Options ---
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
-local buff
-local cast
-local cd
-local debuff
-local enemies
 local mana
-local module
-local ui
-local unit
-local units
-local spell
-local totem
-local imbues
 local imbueKeys = { "rockbiterWeapon", "flametongueWeapon", "frostbrandWeapon", "windfuryWeapon" } -- index matches MH/OH dropdown (1-4); index 5 = None
 local var = {}
 -- General Locals - Common Non-BR API Locals used in profiles
@@ -332,7 +320,7 @@ actionList.TotemManagement = function()
     local totemTwisting = ui.checked("Totem Twisting")
     -- Air totem re-drop distance threshold: in a group the totem must stay near party members;
     -- solo it only needs to cover the player. Use a tighter threshold in party/raid.
-    local inGroup      = br.player.unit.instance() == "party" or br.player.unit.instance() == "raid"
+    local inGroup      = unit.instance() == "party" or unit.instance() == "raid"
     local airRedropDist = inGroup and 20 or 40
     -- In combat: only re-drop when completely expired — never burn a GCD on a buff totem
     -- when Stormstrike or Earth Shock could fire instead.
@@ -575,19 +563,7 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff        = br.player.buff
-    cast        = br.player.cast
-    cd          = br.player.cd
-    debuff      = br.player.debuff
-    enemies     = br.player.enemies
-    mana        = br.player.power.mana
-    module      = br.player.module
-    ui          = br.player.ui
-    unit        = br.player.unit
-    units       = br.player.units
-    spell       = br.player.spell
-    totem       = br.player.totem
-    imbues      = br.player.imbues
+    mana        = power.mana
     -- General Locals
     profileStop = profileStop or false
     haltProfile = (unit.inCombat() and profileStop) or ui.pause() or ui.mode.rotation == 4 or unit.id("target") == 156716
@@ -654,7 +630,7 @@ local function runRotation()
     end         -- Pause
     return true
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 261,
     expansion = "TBC",

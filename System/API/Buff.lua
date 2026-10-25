@@ -1,12 +1,11 @@
 ---
 -- These functions help in retrieving information about buffs.
--- Buff functions are stored in br.player.buff and can be utilized by `local buff = br.player.buff` in your profile.
+-- Buff functions are the profile API table `buff` (br.api.profile.buff); profiles use it by name.
 -- `spell` in the function represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
--- @module br.player.buff
+-- @module buff
 local _, br = ...
-if br.api == nil then br.api = {} end
 
-br.api.buffs = function(buff, k, v)
+br.api.build.buffs = function(buff, k, v)
     local buff = buff[k]
     -- The spell list entry (a rank list on ranked clients); v is set to its current rank at the
     -- start of every function, so a newly learned rank counts straight away
@@ -163,7 +162,7 @@ br.api.buffs = function(buff, k, v)
         return math.abs(br.functions.aura:getBuffRemain(thisUnit, v, sourceUnit))
     end
 
-    --- Get the remaining time of a buff. (Duplicate of br.player.buff.spell.remain)
+    --- Get the remaining time of a buff. (Duplicate of buff.spell.remain)
     -- @function buff.spell.remains
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit "player": your own (on the player, a copy anyone cast on

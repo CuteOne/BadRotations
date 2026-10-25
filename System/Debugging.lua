@@ -95,7 +95,7 @@ local PROFILE_TARGETS = {
     { "enemyListCheck",                function() return br.functions.misc end,                 "enemyListCheck" },
     { "Healing engine",                function() return br.engines.healingEngine.friend end,   "Update" },
     { "Casts (cast.x / cast.able.x)",  function() return br.functions.cast end,                 "createCastFunction" },
-    { "Profile pulse (player:update)", function() return br.player end,                         "update" },
+    { "Profile pulse (rotation:update)", function() return br.rotation end,                       "update" },
 }
 local profiling = false
 
@@ -165,7 +165,7 @@ local rangeWatch = nil
 
 -- A known harmful spell with a 20-45 yd range from the player's spells, to compare spell range with.
 local function rangedTestSpell()
-    local abilities = br.player and br.player.spells and br.player.spells.abilities
+    local abilities = br.rotation and br.rotation.spells.abilities
     if abilities == nil then return nil end
     local keys = {}
     for key in pairs(abilities) do keys[#keys + 1] = key end
@@ -442,11 +442,11 @@ meleeEvents:SetScript("OnEvent", function(_, event, a, b, c, ...)
     if text and #episode.events < 20 then episode.events[#episode.events + 1] = text end
 end)
 
-local function meleeState(player)
-    local units = player and player.units
+local function meleeState()
+    local dyn5 = br.engines.enemiesEngineFunctions.dynamicPicks.dyn5
     local parts = {
         "target " .. meleeUnit("target"),
-        "BR melee pick (dyn5) " .. (units and units.dyn5 and meleeUnit(units.dyn5) or "none"),
+        "BR melee pick (dyn5) " .. (dyn5 and meleeUnit(dyn5) or "none"),
         "auto attack " .. (br.functions.unit:isAutoAttacking() and "on" or "off"),
         "target fleeing " .. tostring(br.functions.unit:isFleeing("target")),
     }
@@ -463,7 +463,7 @@ local function meleeState(player)
 end
 
 local meleeEnvironmentLogged = false
-function br.debug.melee:watch(player)
+function br.debug.melee:watch()
     local now = br.game.GetTime()
     -- Once a session: client facts the fleeing and eating checks depend on
     if not meleeEnvironmentLogged then
@@ -514,7 +514,7 @@ function br.debug.melee:watch(player)
             meleeWrite("  settings: Targeting Mode " .. tostring(misc:getValue("Targeting Mode"))
                 .. " (1 Off, 2 Assist, 3 Full), Only In Combat " .. tostring(misc:isChecked("Targeting Only In Combat"))
                 .. ", Don't break CCs " .. tostring(misc:isChecked("Don't break CCs")))
-            meleeWrite("  " .. meleeState(player))
+            meleeWrite("  " .. meleeState())
         end
         episode.lastSeen = now
         if now - episode.lastSnap >= 1 then
@@ -523,7 +523,7 @@ function br.debug.melee:watch(player)
                 if #decisions < 8 then decisions[#decisions + 1] = printable(name) .. (reason and (" refused " .. reason) or " passed") end
             end)
             episode.lastSnap = now
-            meleeWrite(("  +%.1fs %s"):format(now - episode.started, meleeState(player)))
+            meleeWrite(("  +%.1fs %s"):format(now - episode.started, meleeState()))
             if #decisions > 0 then meleeWrite("    BR: " .. table.concat(decisions, ", ")) end
             if #episode.events > 0 then
                 meleeWrite("    game: " .. table.concat(episode.events, ", "))
@@ -569,7 +569,7 @@ idleEvents:SetScript("OnEvent", function(_, event, a, b)
     end
 end)
 
-function br.debug.idle:watch(player, paused)
+function br.debug.idle:watch(paused)
     local now = br.game.GetTime()
     if not br.game.UnitAffectingCombat("player") then
         idleInCombat = false
@@ -588,11 +588,11 @@ function br.debug.idle:watch(player, paused)
     local targetDist = br.game.UnitExists("target") and br.functions.range:getDistance("target") or 99
     if br.functions.unit:isAutoAttacking() and targetDist < 5 then return end
     idleLogged = true
-    local units = player and player.units
+    local dyn5 = br.engines.enemiesEngineFunctions.dynamicPicks.dyn5
     local spec = br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
     idleLine(("=== idle %.1fs in combat ==="):format(now - lastActionAt))
     idleLine("  target " .. (br.game.UnitExists("target") and (unitName("target") .. (" %.1fyd"):format(plainNumber(targetDist))) or "none")
-        .. " | dyn5 " .. (units and units.dyn5 and unitName(units.dyn5) or "none")
+        .. " | dyn5 " .. (dyn5 and unitName(dyn5) or "none")
         .. " | auto attack " .. (br.functions.unit:isAutoAttacking() and "on" or "off")
         .. " | paused toggle " .. tostring(spec and spec.toggles and spec.toggles["Pause"]))
     local decisions = {}

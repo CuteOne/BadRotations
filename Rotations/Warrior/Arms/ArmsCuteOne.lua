@@ -4,26 +4,26 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "cleave", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
         { name = "Mult", icon = "whirlwind", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
         { name = "Sing", icon = "mortalStrike", overlay = "Single Target Rotation", tip = "Single target rotation used." },
         { name = "Off", icon = "victoryRush", overlay = "DPS Rotation Disabled", tip = "Disarm DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "avatar", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "avatar", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = true },
         { name = "Off", icon = "avatar", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "dieByTheSword", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "dieByTheSword", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "pummel", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "pummel", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
-    br.ui:toggle("Mover", { modes = {
+    ui.toggle("Mover", { modes = {
         { name = "On", icon = "charge", overlay = "Mover Enabled", tip = "Will use Charge/Heroic Leap." },
         { name = "Off", icon = "charge", overlay = "Mover Disabled", tip = "Will NOT use Charge/Heroic Leap." },
     } })
@@ -37,105 +37,90 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Dummy DPS Test
-    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+    ui.spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
         tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
     -- Pre-Pull Timer
-    br.ui:spinner(section, "Pre-Pull Timer", { value = 5, min = 1, max = 10, step = 1,
+    ui.spinner(section, "Pre-Pull Timer", { value = 5, min = 1, max = 10, step = 1,
         tip = "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1" })
     -- Battle Cry
-    br.ui:checkbox(section, "Battle Shout")
+    ui.checkbox(section, "Battle Shout")
     -- Berserker Rage
-    br.ui:checkbox(section, "Berserker Rage", { tip = "Check to use Berserker Rage" })
+    ui.checkbox(section, "Berserker Rage", { tip = "Check to use Berserker Rage" })
     -- Charge
-    br.ui:checkbox(section, "Charge", { tip = "Check to use Charge" })
+    ui.checkbox(section, "Charge", { tip = "Check to use Charge" })
     -- Heroic Leap
-    br.ui:checkbox(section, "Heroic Leap", { tip = "Check to use Heroic Leap" })
+    ui.checkbox(section, "Heroic Leap", { tip = "Check to use Heroic Leap" })
     -- Heroic Throw
-    br.ui:checkbox(section, "Heroic Throw", { tip = "Check to use Heroic Throw out of range" })
+    ui.checkbox(section, "Heroic Throw", { tip = "Check to use Heroic Throw out of range" })
     -- Piercing Howl
-    br.ui:checkbox(section, "Piercing Howl", { tip = "Use Piercing Howl on moving enemies not facing you." })
+    ui.checkbox(section, "Piercing Howl", { tip = "Use Piercing Howl on moving enemies not facing you." })
     -- Taunt
-    br.ui:checkbox(section, "Solo Taunt", { tip = "Only uses Taunt when not in a group." })
+    ui.checkbox(section, "Solo Taunt", { tip = "Only uses Taunt when not in a group." })
     ------------------------
     --- COOLDOWN OPTIONS ---
     ------------------------
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
     local alwaysCdNever = { "Always", "|cff0000ffCD", "|cffff0000Never" }
     local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
     -- Avatar
-    br.ui:dropdown(section, "Avatar", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Avatar." })
+    ui.dropdown(section, "Avatar", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Avatar." })
     -- Bladestorm
-    br.ui:dropdown(section, "Bladestorm", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Bladestorm." })
+    ui.dropdown(section, "Bladestorm", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Bladestorm." })
     -- Bloodbath
-    br.ui:dropdown(section, "Bloodbath", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Bloodbath." })
+    ui.dropdown(section, "Bloodbath", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Bloodbath." })
     -- Colossus Smash
-    br.ui:dropdown(section, "Colossus Smash", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Colossus Smash." })
+    ui.dropdown(section, "Colossus Smash", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Colossus Smash." })
     -- Dragon Roar
-    br.ui:dropdown(section, "Dragon Roar", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Dragon Roar." })
+    ui.dropdown(section, "Dragon Roar", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Dragon Roar." })
     -- Recklessness
-    br.ui:dropdown(section, "Recklessness", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Recklessness." })
+    ui.dropdown(section, "Recklessness", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Recklessness." })
     -- Skull Banner
-    br.ui:dropdown(section, "Skull Banner", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Skull Banner." })
+    ui.dropdown(section, "Skull Banner", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Skull Banner." })
     -- Shattering Throw
-    br.ui:dropdown(section, "Shattering Throw", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Shattering Throw." })
+    ui.dropdown(section, "Shattering Throw", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Shattering Throw." })
     -- Storm Bolt
-    br.ui:dropdown(section, "Storm Bolt", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Storm Bolt." })
+    ui.dropdown(section, "Storm Bolt", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Storm Bolt." })
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     local defTooltip = "|cffFFBB00Health Percentage to use at."
     -- Defensive Stance
-    br.ui:spinner(section, "Defensive Stance", { value = 60, tip = defTooltip })
+    ui.spinner(section, "Defensive Stance", { value = 60, tip = defTooltip })
     -- Disarm (CC fleeing enemies)
-    br.ui:checkbox(section, "Disarm", { tip = "Use Disarm on fleeing enemies" })
+    ui.checkbox(section, "Disarm", { tip = "Use Disarm on fleeing enemies" })
     -- Die By The Sword
-    br.ui:spinner(section, "Die By The Sword", { value = 60, tip = defTooltip })
+    ui.spinner(section, "Die By The Sword", { value = 60, tip = defTooltip })
     -- Intimidating Shout
-    br.ui:spinner(section, "Intimidating Shout", { value = 60, tip = defTooltip })
+    ui.spinner(section, "Intimidating Shout", { value = 60, tip = defTooltip })
     -- Rallying Cry
-    br.ui:spinner(section, "Rallying Cry", { value = 60, tip = defTooltip })
+    ui.spinner(section, "Rallying Cry", { value = 60, tip = defTooltip })
     -- Shield Wall
-    br.ui:spinner(section, "Shield Wall", { value = 30, tip = defTooltip })
+    ui.spinner(section, "Shield Wall", { value = 30, tip = defTooltip })
     -- Victory Rush
-    br.ui:spinner(section, "Victory Rush", { value = 60, tip = defTooltip })
+    ui.spinner(section, "Victory Rush", { value = 60, tip = defTooltip })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Pummel
-    br.ui:checkbox(section, "Pummel")
+    ui.checkbox(section, "Pummel")
     -- Intimidating Shout
-    br.ui:checkbox(section, "Intimidating Shout - Int")
+    ui.checkbox(section, "Intimidating Shout - Int")
     -- Storm Bolt Logic
-    br.ui:checkbox(section, "Storm Bolt - Int", { tip = "Stun specific Spells and Mobs" })
+    ui.checkbox(section, "Storm Bolt - Int", { tip = "Stun specific Spells and Mobs" })
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 70, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
+    ui.spinner(section, "Interrupt At", { value = 70, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
-local charges
-local debuff
-local enemies
-local equiped
-local module
 local race
 local rage
-local spell
-local talent
-local ui
-local unit
-local units
-local use
-local var
 
 --------------------
 --- Action Lists ---
@@ -178,9 +163,9 @@ actionList.Extras = function()
                 and (not debuff.disarm.exists(thisUnit))
             then
                 -- Get NPC ID to check blacklist
-                local npcID = br.functions.unit:GetObjectID(thisUnit)
+                local npcID = unit.id(thisUnit)
                 if not var.disarmBlacklist[npcID] then
-                    var.lastDisarmTarget = thisUnit
+                    var.lastDisarmTarget, var.lastDisarmAt = thisUnit, ui.time()
                     if cast.disarm(thisUnit) then
                         ui.debug("Casting Disarm on " .. unit.name(thisUnit) .. " [Extra]")
                         return true
@@ -806,45 +791,28 @@ local function runRotation()
     --------------
     --- Locals ---
     --------------
-    buff    = br.player.buff
-    cast    = br.player.cast
-    cd      = br.player.cd
-    charges = br.player.charges
-    debuff  = br.player.debuff
-    enemies = br.player.enemies
-    equiped = br.player.equiped
-    module  = br.player.module
-    race    = br.player.race
-    rage    = br.player.power.rage
-    spell   = br.player.spell
-    talent  = br.player.talent
-    ui      = br.player.ui
-    unit    = br.player.unit
-    units   = br.player.units
-    use     = br.player.use
-    var     = br.player.variables
+    race    = unit.race()
+    rage    = power.rage
 
     var.knownCS = spell.colossusSmash.known()
 
-    -- Ensure blacklist and error-frame for Disarm exist (persist across runs)
+    -- Disarm blacklist (persists across runs); the game's error after a Disarm means that NPC can't be disarmed
     if var.disarmBlacklist == nil then var.disarmBlacklist = {} end
-    var.lastDisarmTarget = var.lastDisarmTarget or nil
-    var.disarmErrorFrame = var.disarmErrorFrame or CreateFrame("Frame")
-    var.disarmErrorFrame:RegisterEvent("UI_ERROR_MESSAGE")
-    var.disarmErrorFrame:SetScript("OnEvent", function(self, event, errorType, message)
-        if message and var.lastDisarmTarget and var.disarmBlacklist then
+    if var.lastDisarmTarget then
+        local _, message, at = ui.lastError()
+        if message and at >= var.lastDisarmAt then
             local err = tostring(message):lower()
             local disarmError = err:find("disarm") or err:find("invalid target")
             if disarmError then
-                local npcID = br.functions.unit:GetObjectID(var.lastDisarmTarget)
+                local npcID = unit.id(var.lastDisarmTarget)
                 if npcID and not var.disarmBlacklist[npcID] then
                     var.disarmBlacklist[npcID] = true
-                    print("|cff8000FFBadRotations|r: Blacklisted " .. (UnitName(var.lastDisarmTarget) or "Unknown") .. " (ID: " .. npcID .. ") - Cannot Disarm")
+                    print("|cff8000FFBadRotations|r: Blacklisted " .. (unit.name(var.lastDisarmTarget) or "Unknown") .. " (ID: " .. npcID .. ") - Cannot Disarm")
                 end
             end
             var.lastDisarmTarget = nil
         end
-    end)
+    end
 
     units.get(5)
     units.get(8)
@@ -916,7 +884,7 @@ local function runRotation()
         if actionList.Combat() then return true end
     end -- Pause
 end     -- runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 71,
     expansion = "MOP",

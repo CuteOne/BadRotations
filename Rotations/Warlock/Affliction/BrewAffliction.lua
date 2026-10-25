@@ -15,15 +15,15 @@ local colors = {
 }
 
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "On", icon = "unendingResolve", overlay = "Rotation Enabled", tip = "Enable Rotation" },
         { name = "Off", icon = "unendingResolve", overlay = "Rotation Disabled", tip = "Disable Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "unendingResolve", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "unendingResolve", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("PetSummon", { modes = {
+    ui.toggle("PetSummon", { modes = {
         { name = "1", icon = "summonImp", overlay = "Imp", tip = "Summon Imp" },
         { name = "2", icon = "summonVoidwalker", overlay = "Voidwalker", tip = "Summon Voidwalker", highlight = true },
         { name = "3", icon = "summonFelhunter", overlay = "Felhunter", tip = "Summon Felhunter", highlight = true },
@@ -34,8 +34,8 @@ local function toggles()
 end
 
 local function PetId()
-    if br.game.UnitExists("pet") then
-        return tonumber(br.game.UnitGUID("pet"):match("-(%d+)-%x+$",10))
+    if unit.exists("pet") then
+        return tonumber(unit.guid("pet"):match("-(%d+)-%x+$",10))
     else
         return nil
     end
@@ -55,43 +55,27 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
         -- Corruption
-        br.ui:checkbox(section, "Use Corruption")
+        ui.checkbox(section, "Use Corruption")
         -- Curse of Weakness
-        br.ui:checkbox(section, "Use Curse of Weakness")
+        ui.checkbox(section, "Use Curse of Weakness")
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
         -- Drain Life
-        br.ui:spinner(section, "Drain Life", { value = 40, tip = "Pet Health Percent to Cast At" })
+        ui.spinner(section, "Drain Life", { value = 40, tip = "Pet Health Percent to Cast At" })
         -- Health Funnel
-        br.ui:spinner(section, "Health Funnel", { value = 30, max = 95, tip = "Pet Health Percent to Cast At" })
-        br.ui:spinner(section, "Player Limit", { value = 70, checkbox = false, tip = "Health Percent to not use below." })
+        ui.spinner(section, "Health Funnel", { value = 30, max = 95, tip = "Pet Health Percent to Cast At" })
+        ui.spinner(section, "Player Limit", { value = 70, checkbox = false, tip = "Health Percent to not use below." })
         -- Healthstone
-        br.ui:spinner(section, "Healthstone", { value = 60, max = 95, tip = "Health Percent to Cast At" })
+        ui.spinner(section, "Healthstone", { value = 60, max = 95, tip = "Health Percent to Cast At" })
         -- Unending Resolve
-        br.ui:spinner(section, "Unending Resolve", { value = 50, tip = "Health Percent to Cast At" })
+        ui.spinner(section, "Unending Resolve", { value = 50, tip = "Health Percent to Cast At" })
 end
 
-local cast
-local cd
-local debuff
-local has
 local mode
-local ui
-local pet
-local spell
-local unit
-local units
-local use
-local power
-local buff
-local var
-local equiped
-local enemies
-local talent
 local actionList = {}
 local activePet
 
@@ -145,8 +129,8 @@ end
 
 actionList.PreCombat = function()
     if not unit.moving() and unit.level() >= 3
-        and br.game.GetTime() - br.pauseTime > 0.5
-        and br.debug.timer:useTimer("summonPet", 1) then
+        and ui.time() - var.pauseTime > 0.5
+        and ui.timer("summonPet", 1) then
         if mode.petSummon == 1 and activePet ~= pets.imp and cast.able.summonImp() and not cast.last.summonImp() then
             if cast.summonImp("player") then return true end
         end
@@ -179,26 +163,9 @@ actionList.CoolDown = function()
 end
 
 local function runRotation()
-    cast                                          = br.player.cast
-    cd                                            = br.player.cd
-    debuff                                        = br.player.debuff
-    buff                                          = br.player.buff
-    has                                           = br.player.has
-    mode                                          = br.player.ui.mode
-    talent                                        = br.player.talent
-    ui                                            = br.player.ui
-    pet                                           = br.player.pet
-    spell                                         = br.player.spells
-    ui                                            = br.player.ui
-    unit                                          = br.player.unit
-    units                                         = br.player.units
-    use                                           = br.player.use
-    power                                         = br.player.power.soulShards()
-    var                                           = br.player.variables
-    equiped                                       = br.player.equiped
-    enemies                                       = br.player.enemies
-    var.inRaid                                    = br.player.unit.instance()=="raid"
-    var.inInstance                                = br.player.unit.instance()=="party"
+    mode                                          = ui.mode
+    var.inRaid                                    = unit.instance()=="raid"
+    var.inInstance                                = unit.instance()=="party"
     activePet                                     = PetId()
 
     var.demonicTyrant = false
@@ -225,7 +192,7 @@ local function runRotation()
     var.UnitNeedsAgony = nil
     var.AgonyCount = 0
     for i=1,#enemies.yards40f do
-        if not debuff.agony.exists(enemies.yards40f[i]) and br.game.UnitAffectingCombat(enemies.yards40f[i]) then
+        if not debuff.agony.exists(enemies.yards40f[i]) and unit.inCombat(enemies.yards40f[i]) then
             var.UnitNeedsAgony = enemies.yards40f[i]
         else
             var.AgonyCount = var.AgonyCount + 1
@@ -234,7 +201,7 @@ local function runRotation()
     var.UnitsNeedCorruption = nil
     var.CorruptionCount = 0
     for i=1,#enemies.yards40f do
-        if not debuff.corruption.exists(enemies.yards40f[i]) and br.game.UnitAffectingCombat(enemies.yards40f[i]) then
+        if not debuff.corruption.exists(enemies.yards40f[i]) and unit.inCombat(enemies.yards40f[i]) then
             var.UnitsNeedCorruption = enemies.yards40f[i]
         else
             var.CorruptionCount = var.CorruptionCount + 1
@@ -243,7 +210,7 @@ local function runRotation()
 
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = br.game.GetTime() end
+    if var.pauseTime == nil then var.pauseTime = ui.time() end
 
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
@@ -287,7 +254,7 @@ local function runRotation()
         end
     end
 end
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 265, -- Affliction Warlock
     expansion = "MOP",

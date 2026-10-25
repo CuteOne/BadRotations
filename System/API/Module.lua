@@ -1,21 +1,20 @@
 ---
 -- These functions helpful functions for commonly used features in all profiles.
--- Module functions are stored in br.player.module and can be utilized by `local module = br.player.module` in your profile.
+-- Module functions are the profile API table `module` (br.api.profile.module); profiles use it by name.
 -- Additionally module functions also have custom options you can add to your Profile Options by calling the function in the Profile Options and passing the section param.
--- @module br.player.module
+-- @module module
 local _, br = ...
-if br.api == nil then br.api = {} end
-br.api.module = function(self)
+br.api.build.module = function(api)
     -- Local reference to actionList
-    local buff      = self.buff
-    local cast      = self.cast
-    local module    = self.module
-    local has       = self.has
-    local item      = self.items
-    local ui        = self.ui
-    local enemies   = self.enemies
-    local unit      = self.unit
-    local use       = self.use
+    local buff      = api.buff
+    local cast      = api.cast
+    local module    = api.module
+    local has       = api.has
+    local item      = br.rotation.items
+    local ui        = api.ui
+    local enemies   = api.enemies
+    local unit      = api.unit
+    local use       = api.use
     local var       = {}
 
     --- Auto Put Keystone into Receptable during mythic+ dungeons. | Kinky BR Module Code example

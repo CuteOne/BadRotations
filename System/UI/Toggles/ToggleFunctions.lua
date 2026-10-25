@@ -181,9 +181,21 @@ end
 -- Toggles made with br.ui:toggle for the current rotation (for the Toggle Keys section)
 local declaredToggles = {}
 
+-- A mode's icon given by name: a spell or talent from the class spell list, or an item from the item
+-- list (its use spell, whose icon is the item's)
+local function iconByName(name)
+    local rotation = br.rotation
+    if rotation == nil then return nil end
+    local spells = rotation.spells
+    local spellID = spells[name] or (spells.talents and spells.talents[name])
+    if spellID ~= nil then return spellID end
+    return rotation.items[name] and br.functions.item:getSpell(rotation.items[name])
+end
+
 ---@class br.ui.ToggleMode
 ---@field name string Shown on the button
----@field icon? string|number|table A spell from the class spell list (e.g. "swipe"), or a spell/item ID
+---@field icon? string|number|table A spell or talent from the class spell list or an item from the item list
+---  (e.g. "swipe"), or a spell/item ID
 ---@field overlay? string Shown in the middle of the screen when picked (name)
 ---@field tip? string Tooltip
 ---@field highlight? boolean Lights up the button's border (only the first mode)
@@ -220,9 +232,9 @@ function br.ui:toggle(name, options)
         if mode == nil then return end
         local icon = mode.icon
         if type(icon) == "string" then
-            icon = br.player and br.player.spells and br.player.spells[icon]
+            icon = iconByName(icon)
             if icon == nil then
-                elementOptions.notice(what .. " mode \"" .. mode.name .. "\": no spell named \"" .. mode.icon .. "\" for its icon")
+                elementOptions.notice(what .. " mode \"" .. mode.name .. "\": no spell, talent or item named \"" .. mode.icon .. "\" for its icon")
             end
         end
         local highlight = i == 1

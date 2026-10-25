@@ -1,13 +1,14 @@
 local _, br = ...
 local class = select(3, br.game.UnitClass("player"))
 local guid = br.game.UnitGUID("player")
-local nextMH = nil
-local swingTimer = nil
 -- specific reader location
 br.readers = br.readers or {}
 br.readers.combatLog = br.readers.combatLog or {}
 br.readers.combatLog.debuffTracker = {}
 br.readers.combatLog.enraged = {}
+-- The player's swings, melee (mh) and ranged (Auto Shot): when the last landed, when the next is due and
+-- the weapon speed then; 0 before the first (unit.swing reads them)
+br.readers.combatLog.swing = { mh = { last = 0, next = 0, speed = 0 }, ranged = { last = 0, next = 0, speed = 0 } }
 local combatLog = br.readers.combatLog
 -- Feral and Assassination bleed snapshots per debuff key and unit: the damage value when it was
 -- applied (combatLog.bleed), and whether Exsanguinate sped it up (combatLog.exsa). debuff.X.applied /
@@ -108,8 +109,6 @@ function combatLog:combatLog()
             combatLog:Mage(...)
         elseif class == 9 then  -- Warlock
             combatLog:Warlock(...)
-        elseif class == 10 then -- Monk
-            combatLog:Monk(...)
         elseif class == 11 then -- Druid
             combatLog:Druid(...)
         elseif class == 12 then -- Demon Hunter
@@ -155,7 +154,7 @@ function combatLog:common(...)
         end
     end
     --[[Combat Validation]]
-    if br.player ~= nil then
+    if br.rotation ~= nil then
         local inInstance, instanceType = br.game.IsInInstance()
         if br.engines.enemiesEngine.damaged == nil then
             br.engines.enemiesEngine.damaged = {}
@@ -288,67 +287,35 @@ function combatLog:common(...)
     --
     ---------------------
     --[[ Swing Timers ]]
-    -- Initialise the combined swing table on br.player.
-    -- br.player may not be populated yet on the very first CLEU event;
-    -- guard defensively and skip silently when it isn't.
-    if br.player then
-        br.player.swing = br.player.swing or {}
-        local sw = br.player.swing
-
-        -- Melee (main-hand) sub-table
-        sw.mh = sw.mh or { timer = 0, next = 0, last = 0, speed = 0 }
-        if sw.mh.next == 0 then
-            local initSpeed = br.game.UnitAttackSpeed("player") or 0
-            sw.mh.next  = br.game.GetTime() + initSpeed
-            sw.mh.speed = initSpeed
+    local swing = combatLog.swing
+    -- Melee: the player starts auto-attacking (spell 6603 = Attack)
+    if param == "SPELL_CAST_SUCCESS" and source == guid and spell == 6603 then
+        local speed = br.game.UnitAttackSpeed("player") or 0
+        if speed > 0 then
+            swing.mh.last  = br.game.GetTime()
+            swing.mh.next  = swing.mh.last + speed
+            swing.mh.speed = speed
         end
+    end
 
-        -- Ranged (auto-shot) sub-table
-        sw.ranged = sw.ranged or { timer = 0, next = 0, last = 0, speed = 0 }
-
-        -- Melee: start timer when the player begins auto-attacking (spell 6603 = Attack)
-        if param == "SPELL_CAST_SUCCESS" and source == guid and spell == 6603 then
-            local speed = br.game.UnitAttackSpeed("player") or 0
-            if speed > 0 then
-                sw.mh.last  = br.game.GetTime()
-                sw.mh.next  = sw.mh.last + speed
-                sw.mh.speed = speed
-            end
+    -- Melee: each swing (hit or miss)
+    if (param == "SWING_DAMAGE" or param == "SWING_MISSED") and source == guid then
+        local speed = br.game.UnitAttackSpeed("player") or 0
+        swing.mh.last  = br.game.GetTime()
+        swing.mh.speed = speed
+        if speed > 0 then
+            swing.mh.next = swing.mh.last + speed
         end
+    end
 
-        -- Melee: reset on each swing (hit or miss)
-        if (param == "SWING_DAMAGE" or param == "SWING_MISSED") and source == guid then
-            local speed = br.game.UnitAttackSpeed("player") or 0
-            sw.mh.last  = br.game.GetTime()
-            sw.mh.speed = speed
-            sw.mh.timer = 0
-            if speed > 0 then
-                sw.mh.next = sw.mh.last + speed
-            end
-        end
-
-        -- Ranged: auto-shot fires as SPELL_CAST_SUCCESS with spellId 75.
-        -- UnitRangedDamage("player") returns: lo, hi, speed
-        if param == "SPELL_CAST_SUCCESS" and source == guid and spell == 75 then
-            local _, _, rangedSpeed = br.game.UnitRangedDamage("player")
-            rangedSpeed = rangedSpeed or 0
-            if rangedSpeed > 0 then
-                sw.ranged.last  = br.game.GetTime()
-                sw.ranged.next  = sw.ranged.last + rangedSpeed
-                sw.ranged.speed = rangedSpeed
-                sw.ranged.timer = rangedSpeed  -- just fired; full cycle ahead
-            end
-        end
-
-        -- Update both countdown timers every CLEU event
-        local now = br.game.GetTime()
-        if sw.mh.next > 0 then
-            local mhRemain = sw.mh.next - now
-            sw.mh.timer = mhRemain > 0 and mhRemain or 0
-        end
-        if sw.ranged.next > 0 then
-            local rRemain = sw.ranged.next - now
-            sw.ranged.timer = rRemain > 0 and rRemain or 0
+    -- Ranged: Auto Shot fires as SPELL_CAST_SUCCESS with spellId 75 (UnitRangedDamage: lo, hi, speed)
+    if param == "SPELL_CAST_SUCCESS" and source == guid and spell == 75 then
+        local _, _, rangedSpeed = br.game.UnitRangedDamage("player")
+        rangedSpeed = rangedSpeed or 0
+        if rangedSpeed > 0 then
+            swing.ranged.last  = br.game.GetTime()
+            swing.ranged.next  = swing.ranged.last + rangedSpeed
+            swing.ranged.speed = rangedSpeed
         end
     end
     -----------------------------------
@@ -384,8 +351,8 @@ function combatLog:common(...)
                     spell ~= 48020
                 then
                     local notOnCD = true
-                    if br ~= nil and br.player ~= nil then
-                        notOnCD = br.functions.spell:getSpellCD(spell) <= br.player.state.gcdMax
+                    if br.rotation ~= nil then
+                        notOnCD = br.functions.spell:getSpellCD(spell) <= br.rotation.state.gcdMax
                     end
                     -- set destination
                     if destination == "" then
@@ -618,8 +585,8 @@ function combatLog:Druid(...)
                     else
                         thisUnit = br.game.GetObjectWithGUID("player")
                     end
-                    if br.player ~= nil and br.functions.range:getDistance(thisUnit) < 40 then
-                        local debuffID = br.player.spells.debuffs
+                    if br.rotation ~= nil and br.functions.range:getDistance(thisUnit) < 40 then
+                        local debuffID = br.rotation.spells.debuffs
                         local spec = br.loader.selectedSpecID
                         local function snapshot(key)
                             return (spec == 103 or spec == 259) and br.functions.aura:getSnapshotValue(debuffID[key]) or 0
@@ -791,63 +758,6 @@ function combatLog:Mage(...)
             --Print("Spell Aura Removed " ..GetTime())
         end
     end
-end
-
-function combatLog:Monk(...)
-    local timeStamp,
-    param,
-    hideCaster,
-    source,
-    sourceName,
-    sourceFlags,
-    sourceRaidFlags,
-    destination,
-    destName,
-    destFlags,
-    destRaidFlags,
-    spell,
-    spellName,
-    _,
-    spellType = ... -- the event, read once by the dispatcher
-    -- if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
-    -- if br.player ~= nil and br.game.C_SpecializationInfo.GetSpecialization() == 3 and br.player.spells.fistsOfFury ~= nil then
-    --     local myspell = br.player.spells
-    --     local var = br.player.variables
-    --     local comboSpells = {
-    --         [myspell.bonedustBrew] = true,
-    --         [myspell.blackoutKick] = true,
-    --         [myspell.chiBurst] = true,
-    --         [myspell.chiWave] = true,
-    --         [myspell.cracklingJadeLightning] = true,
-    --         [myspell.expelHarm] = true,
-    --         [myspell.faelineStomp] = true,
-    --         [myspell.fistsOfFury] = true,
-    --         [myspell.flyingSerpentKick] = true,
-    --         [myspell.risingSunKick] = true,
-    --         [myspell.rushingJadeWind] = true,
-    --         [myspell.spinningCraneKick] = true,
-    --         [myspell.tigerPalm] = true,
-    --         [myspell.touchOfDeath] = true,
-    --         [myspell.weaponsOfOrder] = true,
-    --         [myspell.whirlingDragonPunch] = true,
-    --     }
-    --     if var.lastCombo == nil or not br.game.UnitAffectingCombat("player") then
-    --         var.lastCombo = 6603
-    --     end
-    --     if sourceName ~= nil then
-    --         if br.functions.misc:isInCombat("player") and br.functions.unit:GetUnitIsUnit(sourceName, "player") then
-    --             -- Last Combo
-    --             if param == "SPELL_CAST_SUCCESS" then
-    --                 -- Print("Last Successful Spell was "..GetSpellInfo(spell).." with ID: "..spell)
-    --                 if comboSpells[spell] and spell ~= var.lastCombo then
-    --                     -- prevCombo = lastCombo
-    --                     var.lastCombo = spell
-    --                     -- Print(GetSpellInfo(var.lastCombo).." Success! ")--- Prev Last Combo was: "..GetSpellInfo(prevCombo))
-    --                 end
-    --             end
-    --         end
-    --     end
-    -- end
 end
 
 function combatLog:Priest(...)
@@ -1025,13 +935,13 @@ function combatLog:Rogue(...)
                     else
                         thisUnit = br.game.GetObjectWithGUID(br.game.UnitGUID("player"))
                     end
-                    if br.player ~= nil and br.functions.range:getDistance(thisUnit) < 40 then
+                    if br.rotation ~= nil and br.functions.range:getDistance(thisUnit) < 40 then
                         local exsa = combatLog.exsa
                         for _, key in ipairs({ "crimsonTempest", "garrote", "rupture" }) do exsa[key] = exsa[key] or {} end
-                        local debuffID = br.player.spells.debuffs
+                        local debuffID = br.rotation.spells.debuffs
                         local k
                         if debuffID ~= nil then
-                            if spell == br.player.spells.exsanguinate then
+                            if spell == br.rotation.spells.exsanguinate then
                                 if exsa.crimsonTempest[thisUnit] == nil then exsa.crimsonTempest[thisUnit] = true end
                                 if exsa.garrote[thisUnit] == nil then exsa.garrote[thisUnit] = true end
                                 if exsa.rupture[thisUnit] == nil then exsa.rupture[thisUnit] = true end
@@ -1102,7 +1012,7 @@ function combatLog:Shaman(...) -- 7
     spellType = ... -- the event, read once by the dispatcher
     --------------------
     --[[ Fire Totem ]]
-    if source == guid and param == "SPELL_SUMMON" and (spell == br.player.spells.searingTotem or spell == br.player.spells.magmaTotem) then
+    if source == guid and param == "SPELL_SUMMON" and (spell == br.rotation.spells.searingTotem or spell == br.rotation.spells.magmaTotem) then
         br.activeTotem = destination
         br.activeTotemPosition = br.functions.unit:GetObjectPosition("player")
     end

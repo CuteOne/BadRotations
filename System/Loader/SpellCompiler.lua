@@ -1,6 +1,6 @@
 local _, br = ...
 --- Spell Compiler
--- Turns the expansion spell lists (br.lists.spells) into br.player.spells, maps talent and
+-- Turns the expansion spell lists (br.lists.spells) into br.rotation.spells, maps talent and
 -- hero tree state, and validates the lists against the client. Used by builder:new().
 br.loader.spellCompiler = br.loader.spellCompiler or {}
 local spellCompiler = br.loader.spellCompiler
@@ -39,11 +39,11 @@ local function getSources(spec)
 end
 
 -- Stores spellID under spells[spellType][spellRef] unless a spec entry already holds it.
-local function assign(player, spellType, spellRef, spellID, origin)
-    local existingSource = player.spellSource[spellType][spellRef]
+local function assign(rotation, spellType, spellRef, spellID, origin)
+    local existingSource = rotation.spellSource[spellType][spellRef]
     if existingSource == "spec" and origin ~= "spec" then return false end
-    player.spells[spellType][spellRef] = spellID
-    player.spellSource[spellType][spellRef] = origin or "shared"
+    rotation.spells[spellType][spellRef] = spellID
+    rotation.spellSource[spellType][spellRef] = origin or "shared"
     return true
 end
 
@@ -53,23 +53,23 @@ local function isActiveType(spellType, spec)
         or ((spellType == 'traits' or spellType == 'talents' or spellType == 'talentsHeroic') and not isInitialSpec(spec))
 end
 
--- Compile one spell list into player.spells
-local function compileList(player, spellTable, origin, spec)
+-- Compile one spell list into rotation.spells
+local function compileList(rotation, spellTable, origin, spec)
     for spellType, spellTypeTable in pairs(spellTable) do
-        player.spells[spellType] = player.spells[spellType] or {}
-        player.spellSource[spellType] = player.spellSource[spellType] or {}
+        rotation.spells[spellType] = rotation.spells[spellType] or {}
+        rotation.spellSource[spellType] = rotation.spellSource[spellType] or {}
         for spellRef, spellID in pairs(spellTypeTable) do
             if spellType == 'items' then
-                player.items = player.items or {}
-                player.items[spellRef] = spellID
+                rotation.items = rotation.items or {}
+                rotation.items[spellRef] = spellID
             else
-                assign(player, spellType, spellRef, spellID, origin)
+                assign(rotation, spellType, spellRef, spellID, origin)
                 -- (imbues are never active: their values are enchant IDs, not spell IDs)
                 if isActiveType(spellType, spec) and type(spellID) ~= 'table' and not br.game.C_Spell.IsSpellPassive(spellID) then
-                    player.spells.abilities = player.spells.abilities or {}
-                    player.spellSource["abilities"] = player.spellSource["abilities"] or {}
-                    if assign(player, "abilities", spellRef, spellID, origin) then
-                        player.spells[spellRef] = spellID
+                    rotation.spells.abilities = rotation.spells.abilities or {}
+                    rotation.spellSource["abilities"] = rotation.spellSource["abilities"] or {}
+                    if assign(rotation, "abilities", spellRef, spellID, origin) then
+                        rotation.spells[spellRef] = spellID
                     end
                 end
             end
@@ -109,29 +109,26 @@ local function validateList(spellTable)
     end
 end
 
---- Builds player.spells (and player.items / player.imbues) for the given spec.
--- @param player The br.player object being built
+--- Builds rotation.spells (and adds the lists' items to rotation.items) for the given spec.
+-- @param rotation br.rotation
 -- @param spec Spec ID
-function spellCompiler:compileSpells(player, spec)
-    player.spells = player.spells or {}
-    player.spellSource = player.spellSource or {}
+function spellCompiler:compileSpells(rotation, spec)
+    rotation.spells = rotation.spells or {}
+    rotation.spellSource = rotation.spellSource or {}
     for _, source in ipairs(getSources(spec)) do
         validateList(source.list)
-        compileList(player, source.list, source.origin, spec)
+        compileList(rotation, source.list, source.origin, spec)
     end
 
-    -- Expose imbues directly on br.player for clean profile access (br.player.imbues)
-    player.imbues = player.spells.imbues or {}
-
     -- Ending the Race War!
-    if player.spells.abilities["racial"] == nil then
+    if rotation.spells.abilities["racial"] == nil then
         -- 0 means "this race has no racial for cast.racial()". The key must still exist
         -- so a profile can call cast.racial() unconditionally; createCastFunction
         -- returns false for 0 without complaint.
         local racialID = br.functions.spell:getRacial() or 0
-        player.spells.abilities["racial"] = racialID
-        player.spells.buffs["racial"] = racialID
-        player.spells["racial"] = racialID
+        rotation.spells.abilities["racial"] = racialID
+        rotation.spells.buffs["racial"] = racialID
+        rotation.spells["racial"] = racialID
     end
 end
 
@@ -166,24 +163,22 @@ local function validateTalents(allTalents, spec)
     end
 end
 
---- Maps talent state into player.talent and adds active talents to player.spells.abilities.
--- @param player The br.player object being built
+--- Adds the active talents to rotation.spells.abilities (talent.X is set by the talent builder).
+-- @param rotation br.rotation
 -- @param spec Spec ID
 -- @return table allTalents as reported by the expansion's talent system
-function spellCompiler:compileTalents(player, spec)
-    local allTalents = br.client.getTalentInfo(spec, player.spells.talents)
-    if player.talent == nil then player.talent = {} end
+function spellCompiler:compileTalents(rotation, spec)
+    local allTalents = br.client.getTalentInfo(spec, rotation.spells.talents)
 
     validateTalents(allTalents, spec)
 
     -- Map defined spell talents to talent state
-    for name, spellID in pairs(player.spells.talents) do
+    for name, spellID in pairs(rotation.spells.talents) do
         local entry = allTalents[spellID]
         if entry then
-            player.talent[name] = entry.active
             if entry.active and not br.game.C_Spell.IsSpellPassive(spellID) then
-                player.spells.abilities[name] = spellID
-                player.spells[name] = spellID
+                rotation.spells.abilities[name] = spellID
+                rotation.spells[name] = spellID
             end
         elseif not isInitialSpec(spec) then
             warnOnce("talent_notfound_" .. name .. "_" .. tostring(spellID),
@@ -195,9 +190,9 @@ function spellCompiler:compileTalents(player, spec)
     return allTalents
 end
 
---- Sets player.heroTree[name] for the active hero talent tree (expansions with hero trees only).
--- @param player The br.player object being built
-function spellCompiler:compileHeroTree(player)
+--- Sets heroTree[name] for the active hero talent tree (expansions with hero trees only).
+-- @param heroTree the profile API's heroTree table
+function spellCompiler:compileHeroTree(heroTree)
     if not br.client.rules.hasHeroTalentTrees then return end
     if not br.game.C_ClassTalents or not br.game.C_ClassTalents.GetActiveHeroTalentSpec then return end
     if not br.lists or not br.lists.heroSpec then return end
@@ -206,9 +201,8 @@ function spellCompiler:compileHeroTree(player)
     local activeSpecID = br.game.C_ClassTalents.GetActiveHeroTalentSpec()
     local specs = br.lists.heroSpec[playerClass]
     if specs == nil then return end
-    player.heroTree = player.heroTree or {}
     for name, specID in pairs(specs) do
-        player.heroTree[name] = specID == activeSpecID
+        heroTree[name] = specID == activeSpecID
     end
 end
 

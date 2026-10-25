@@ -4,26 +4,26 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "fanOfKnives", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
         { name = "Mult", icon = "fanOfKnives", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
         { name = "Sing", icon = "backstab", overlay = "Single Target Rotation", tip = "Single target rotation used." },
         { name = "Off", icon = "stealth", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "shadowBlades", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "shadowBlades", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "shadowBlades", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "evasion", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "evasion", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "kick", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "kick", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
-    br.ui:toggle("PickPocket", { modes = {
+    ui.toggle("PickPocket", { modes = {
         { name = "Auto", icon = "pickPocket", overlay = "Pick Pocket Auto", tip = "Automatically Pick Pocket before engaging, minimal delay." },
         { name = "Only", icon = "pickPocket", overlay = "Pick Pocket Only", tip = "Only Pick Pocket targets (Sap > Pick Pocket > Clear Target)." },
         { name = "Off", icon = "pickPocket", overlay = "Pick Pocket Disabled", tip = "Never Pick Pocket." },
@@ -38,71 +38,71 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Dummy DPS Test
-    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+    ui.spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
         tip = "Set to desired time for test in minutes. Min: 5 / Max: 60 / Interval: 5" })
     -- Auto Stealth
-    br.ui:checkbox(section, "Auto Stealth")
+    ui.checkbox(section, "Auto Stealth")
     -- Stealth Breaker
-    br.ui:dropdown(section, "Stealth Breaker", { choices = { "|cff00FF00Ambush", "|cffFF0000Hemorrhage" }, value = "Ambush", checkbox = false,
+    ui.dropdown(section, "Stealth Breaker", { choices = { "|cff00FF00Ambush", "|cffFF0000Hemorrhage" }, value = "Ambush", checkbox = false,
         tip = "Set what to break Stealth with." })
     -- Poisons
-    br.ui:dropdown(section, "Lethal Poison", { choices = { "Instant", "Deadly", "Wound" }, value = "Deadly", checkbox = false,
+    ui.dropdown(section, "Lethal Poison", { choices = { "Instant", "Deadly", "Wound" }, value = "Deadly", checkbox = false,
         tip = "Select Lethal Poison to use." })
-    br.ui:dropdown(section, "Non-Lethal Poison", { choices = { "None", "Crippling", "Mind-Numbing", "Paralytic" }, value = "Crippling", checkbox = false,
+    ui.dropdown(section, "Non-Lethal Poison", { choices = { "None", "Crippling", "Mind-Numbing", "Paralytic" }, value = "Crippling", checkbox = false,
         tip = "Select Non-Lethal Poison to use." })
     ------------------------
     --- COOLDOWN OPTIONS ---
     ------------------------
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
     -- Shadowstep
-    br.ui:checkbox(section, "Shadowstep")
+    ui.checkbox(section, "Shadowstep")
     -- Shadow Blades
-    br.ui:dropdown(section, "Shadow Blades", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
+    ui.dropdown(section, "Shadow Blades", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
         tip = "When to use Shadow Blades." })
     -- Shadow Dance
-    br.ui:dropdown(section, "Shadow Dance", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false, tip = "When to use Shadow Dance." })
+    ui.dropdown(section, "Shadow Dance", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false, tip = "When to use Shadow Dance." })
     -- Vanish
-    br.ui:dropdown(section, "Vanish", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false, tip = "When to use Vanish." })
+    ui.dropdown(section, "Vanish", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false, tip = "When to use Vanish." })
     -- Preparation
-    br.ui:checkbox(section, "Preparation")
+    ui.checkbox(section, "Preparation")
     -- Premeditation
-    br.ui:checkbox(section, "Premeditation")
+    ui.checkbox(section, "Premeditation")
     -- Marked for Death
-    br.ui:checkbox(section, "Marked for Death")
+    ui.checkbox(section, "Marked for Death")
     -- Use Racial
-    br.ui:checkbox(section, "Use Racial")
+    ui.checkbox(section, "Use Racial")
     -- Use Combat Potion
-    br.ui:checkbox(section, "Use Combat Potion")
+    ui.checkbox(section, "Use Combat Potion")
     -- Trinkets
-    br.player.module.BasicTrinkets(section)
+    module.BasicTrinkets(section)
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Cloak of Shadows
-    br.ui:checkbox(section, "Cloak of Shadows")
+    ui.checkbox(section, "Cloak of Shadows")
     -- Combat Readiness
-    br.ui:spinner(section, "Combat Readiness", { value = 40, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Combat Readiness", { value = 40, tip = "Health Percent to Cast At" })
     -- Evasion
-    br.ui:spinner(section, "Evasion", { value = 35, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Evasion", { value = 35, tip = "Health Percent to Cast At" })
     -- Feint
-    br.ui:spinner(section, "Feint", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Feint", { value = 50, tip = "Health Percent to Cast At" })
     -- Recuperate
-    br.ui:spinner(section, "Recuperate", { value = 60, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Recuperate", { value = 60, tip = "Health Percent to Cast At" })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Kick
-    br.ui:checkbox(section, "Kick")
+    ui.checkbox(section, "Kick")
     -- Kidney Shot
-    br.ui:checkbox(section, "Kidney Shot")
+    ui.checkbox(section, "Kidney Shot")
     -- Gouge
-    br.ui:checkbox(section, "Gouge")
+    ui.checkbox(section, "Gouge")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percentage to use at. (0 is random)" })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percentage to use at. (0 is random)" })
 end
 
 --------------
@@ -110,23 +110,8 @@ end
 --------------
 -- BR API Locals
 local actionList = {}
-local buff
-local cast
-local cd
-local charges
 local comboPoints
-local debuff
-local enemies
 local energy
-local equiped
-local items
-local module
-local spell
-local talent
-local ui
-local unit
-local units
-local use
 local var = {}
 
 -- General Locals
@@ -152,7 +137,7 @@ end
 
 -- Pick Pocket Helper Functions
 local function getPickPocketMode()
-    return br.data.settings[br.loader.selectedSpec].toggles["PickPocket"] or 3
+    return ui.mode.pickPocket or 3
 end
 
 local function canPickPocket(thisUnit)
@@ -169,7 +154,7 @@ local function canPickPocket(thisUnit)
     end
 
     -- Get unit GUID
-    local guid = br.game.UnitGUID(thisUnit)
+    local guid = unit.guid(thisUnit)
     if not guid then
         return false
     end
@@ -203,7 +188,7 @@ local function canPickPocket(thisUnit)
 end
 
 local function markPickPocketResult(thisUnit, success, lootMsg, errorMsg)
-    local guid = br.game.UnitGUID(thisUnit)
+    local guid = unit.guid(thisUnit)
     if not guid then return end
 
     if success then
@@ -221,114 +206,48 @@ local function markPickPocketResult(thisUnit, success, lootMsg, errorMsg)
                 itemInfo = " (Money)"
             end
         end
-        -- Use br.player.ui directly since this may be called from event handler
-        if br.player and br.player.ui then
-            br.player.ui.debug("|cff00FF00[Pick Pocket]|r Success" .. itemInfo)
-        end
+        ui.debug("|cff00FF00[Pick Pocket]|r Success" .. itemInfo)
     else
         var.pickPocketFailed[guid] = true
         var.pickPocketAttempted[guid] = nil
-        -- Use br.player.ui and br.player.unit directly since this may be called from event handler
-        if br.player and br.player.ui then
-            if errorMsg then
-                br.player.ui.debug("|cffFF0000[Pick Pocket]|r Failed: " .. errorMsg)
-            else
-                local unitName = br.player.unit and br.player.unit.name(thisUnit) or thisUnit
-                br.player.ui.debug("|cffFF0000[Pick Pocket]|r Failed on " .. unitName)
-            end
+        if errorMsg then
+            ui.debug("|cffFF0000[Pick Pocket]|r Failed: " .. errorMsg)
+        else
+            ui.debug("|cffFF0000[Pick Pocket]|r Failed on " .. (unit.name(thisUnit) or thisUnit))
         end
     end
 end
 
--- Event handler for Pick Pocket detection
-local pickPocketFrame = br.game.CreateFrame("Frame")
-pickPocketFrame:RegisterEvent("UI_ERROR_MESSAGE")
-pickPocketFrame:RegisterEvent("CHAT_MSG_LOOT")
-pickPocketFrame:RegisterEvent("CHAT_MSG_MONEY")
-pickPocketFrame:SetScript("OnEvent", function(self, event, ...)
-    if event == "UI_ERROR_MESSAGE" then
-        local errorType, msg = ...
-        local currentTime = br.game.GetTime()
-
-        -- DEBUG: Log all errors to see what's coming through
-        local errorString = br.game.GetGameMessageInfo(errorType)
-
-        -- DEBUG: Try direct print to avoid br.player.ui issues
-        -- pcall(function()
-        --     if br.player and br.player.ui then
-        --         br.player.ui.debug("[PP Event] Error: " .. tostring(errorString) .. " | Type: " .. tostring(errorType) .. " | Msg: " .. tostring(msg))
-        --     end
-        -- end)
-
-        -- Try printing directly to see if br.player.ui is the issue
-        -- pcall(print, "[PP Event DEBUG] CastTime:", var.pickPocketCastTime, "CurrentTime:", currentTime)        -- Only process errors that occurred shortly after Pick Pocket cast
-        -- Extended window to 2.0s to account for GCD + network delay
-        -- AND verify we actually have a Pick Pocket in flight
-        if var.pickPocketCastTime > 0 and (currentTime - var.pickPocketCastTime) < 2.0
-            and var.pickPocketLastGUID then
-
-            -- pcall(function()
-            --     br.player.ui.debug("[PP Event] Within time window. Time since cast: " .. tostring(currentTime - var.pickPocketCastTime))
-            -- end)
-
-            -- Verify the target is still the same one we tried to Pick Pocket
-            local currentGUID = br.game.UnitGUID("target")
-            if currentGUID ~= var.pickPocketLastGUID then
-                -- Target changed, ignore this error
-                -- pcall(function()
-                --     br.player.ui.debug("[PP Event] Target changed, ignoring")
-                -- end)
-                return
-            end
-
-            -- pcall(function()
-            --     br.player.ui.debug("[PP Event] Checking error type: " .. tostring(errorString))
-            -- end)
-
-            -- Use language-agnostic error type IDs
-            -- ERR_SPELL_FAILED_S = Generic spell failure (covers "no pockets to pick")
-            -- ERR_ALREADY_PICKPOCKETED = Already pickpocketed this target
-            -- ERR_NO_LOOT = Target has no loot (empty pockets)
-            -- SPELL_FAILED_BAD_TARGETS = Invalid target
-            -- SPELL_FAILED_TARGET_ENEMY = Must be an enemy
-
-            if errorString == "ERR_SPELL_FAILED_S" or
-               errorString == "ERR_ALREADY_PICKPOCKETED" or
-               errorString == "ERR_NO_LOOT" or
-               errorString == "SPELL_FAILED_BAD_TARGETS" or
-               errorString == "SPELL_FAILED_TARGET_ENEMY" then
-                -- msg contains the actual localized error message shown to player
-                -- pcall(print, "[PP Event] Calling markPickPocketResult with error:", msg)
-                markPickPocketResult("target", false, nil, msg)
-                var.pickPocketCastTime = 0
-                var.pickPocketLastGUID = nil
-            end
-        end
-    elseif event == "CHAT_MSG_LOOT" or event == "CHAT_MSG_MONEY" then
-        local msg = ...
-        local currentTime = br.game.GetTime()
-
-        -- DEBUG: Print to see if we're catching money events
-        -- pcall(print, "[PP Event] Loot/Money:", event, "Msg:", msg, "CastTime:", var.pickPocketCastTime, "GetTime:", currentTime)
-
-        -- Detect successful Pick Pocket by loot message (language-agnostic item link detection)
-        -- Or money message (CHAT_MSG_MONEY fires when you get gold/silver/copper)
-        if msg and var.pickPocketCastTime > 0 and (currentTime - var.pickPocketCastTime) < 2.0
-            and var.pickPocketLastGUID then
-            -- pcall(print, "[PP Event] Conditions met - calling success")
-            -- Check if message contains item links [Item Name] OR if it's a money event
-            if msg:find("%[.+%]") or event == "CHAT_MSG_MONEY" then
-                markPickPocketResult("target", true, msg)
-                var.pickPocketCastTime = 0
-                var.pickPocketLastGUID = nil
-            else
-                -- pcall(print, "[PP Event] No item link found and not money event")
-            end
-        else
-            -- pcall(print, "[PP Event] Conditions NOT met - CastTime:", var.pickPocketCastTime, "Diff:", currentTime - var.pickPocketCastTime, "GUID:", var.pickPocketLastGUID)
-        end
+-- The game's answer to the Pick Pocket in flight, within 2 seconds of the cast: an error (no pockets,
+-- already picked, ...) means it failed, a loot or money message that it worked. Checked each tick.
+local PICK_POCKET_FAILURES = {
+    ERR_SPELL_FAILED_S = true,         -- Generic spell failure (covers "no pockets to pick")
+    ERR_ALREADY_PICKPOCKETED = true,   -- Already pickpocketed this target
+    ERR_NO_LOOT = true,                -- Target has no loot (empty pockets)
+    SPELL_FAILED_BAD_TARGETS = true,   -- Invalid target
+    SPELL_FAILED_TARGET_ENEMY = true,  -- Must be an enemy
+}
+local function checkPickPocketResult()
+    local castTime = var.pickPocketCastTime
+    if castTime == 0 or not var.pickPocketLastGUID then return end
+    local errorKey, errorMessage, errorAt = ui.lastError()
+    -- An error for the same target (one for a new target is ignored)
+    if errorAt >= castTime and errorAt - castTime < 2.0 and PICK_POCKET_FAILURES[errorKey]
+        and unit.guid("target") == var.pickPocketLastGUID
+    then
+        markPickPocketResult("target", false, nil, errorMessage)
+        var.pickPocketCastTime = 0
+        var.pickPocketLastGUID = nil
+        return
     end
-end)
+    -- Loot: an item link (any language) or money
+    local lootMessage, lootAt, money = ui.lastLoot()
+    if lootMessage and lootAt >= castTime and lootAt - castTime < 2.0 and (money or lootMessage:find("%[.+%]")) then
+        markPickPocketResult("target", true, lootMessage)
+        var.pickPocketCastTime = 0
+        var.pickPocketLastGUID = nil
+    end
+end
 
 --------------------
 --- Action Lists ---
@@ -361,7 +280,7 @@ actionList.PickPocket = function()
         end
 
         -- Get target GUID for tracking
-        local guid = br.game.UnitGUID("target")
+        local guid = unit.guid("target")
         if not guid then
             return false
         end
@@ -373,7 +292,7 @@ actionList.PickPocket = function()
                 return true
             end
             -- Clear target and stop
-            br.game.ClearTarget()
+            unit.clearTarget()
             ui.debug("[Pick Pocket] Complete - Target cleared")
             return true
         end
@@ -425,7 +344,7 @@ actionList.PickPocket = function()
             if canPickPocket("target") then
                 if cast.able.pickPocket("target") then
                     -- Set timing BEFORE attempting cast so event handler can match the error
-                    var.pickPocketCastTime = br.game.GetTime()
+                    var.pickPocketCastTime = ui.time()
                     var.pickPocketLastGUID = guid
                     var.pickPocketAttempted[guid] = true
 
@@ -458,8 +377,8 @@ actionList.PickPocket = function()
 
         -- Check if we can and should Pick Pocket
         if canPickPocket("target") and cast.able.pickPocket("target") then
-            local targetGUID = br.game.UnitGUID("target")
-            var.pickPocketCastTime = br.game.GetTime()
+            local targetGUID = unit.guid("target")
+            var.pickPocketCastTime = ui.time()
             var.pickPocketLastGUID = targetGUID
             var.pickPocketAttempted[targetGUID] = true
             if cast.pickPocket("target") then
@@ -1114,30 +1033,13 @@ end -- End Action List - Combat
 --- ROTATION ---
 ----------------
 local function runRotation()
-    -- This profile handles racials itself; skip the shared Racial module
-    if not br.player.localRacial then br.player.localRacial = true end
     --------------
     --- Locals ---
     --------------
     -- BR API
     if comboPoints == nil then
-        buff        = br.player.buff
-        cast        = br.player.cast
-        cd          = br.player.cd
-        charges     = br.player.charges
-        comboPoints = br.player.power.comboPoints
-        debuff      = br.player.debuff
-        enemies     = br.player.enemies
-        energy      = br.player.power.energy
-        equiped     = br.player.equiped
-        items       = br.player.items
-        module      = br.player.module
-        spell       = br.player.spell
-        talent      = br.player.talent
-        ui          = br.player.ui
-        unit        = br.player.unit
-        units       = br.player.units
-        use         = br.player.use
+        comboPoints = power.comboPoints
+        energy      = power.energy
     end
 
     -- Get Best Unit for Range
@@ -1152,8 +1054,9 @@ local function runRotation()
     enemies.get(30)
 
     -- General Vars
-    var.getTime = br.game.GetTime()
+    var.getTime = ui.time()
     var.stealthed = isStealthed()
+    checkPickPocketResult()
 
     -- Reset opener flag when out of combat
     if not unit.inCombat() then
@@ -1210,7 +1113,8 @@ local function runRotation()
     end
 end -- runRotation
 
-br.loader.registerRotation({
+registerRotation({
+    handlesRacials = true,
     name      = rotationName,
     specID    = 261,
     expansion = "MOP",

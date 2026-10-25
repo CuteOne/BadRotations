@@ -217,6 +217,13 @@ function item:getSlotLink(slotID)
 	return br.game.GetInventoryItemLink("player", slotID)
 end
 
+-- The spell an item casts when used (its icon is the item's), or nil
+-- local spellID = br.functions.item:getSpell(5512)
+function item:getSpell(itemID)
+	local _, spellID = br.game.C_Item.GetItemSpell(itemID)
+	return spellID
+end
+
 -- The name of the item's use spell
 function item:getSpellName(itemID)
 	return (br.game.C_Item.GetItemSpell(itemID))

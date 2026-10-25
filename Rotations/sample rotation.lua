@@ -1,31 +1,40 @@
 local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
 
+-- A profile sees the profile API by name, and nothing else: cast, buff, debuff, cd, charges, unit, units,
+-- enemies, ui, module, power, talent, spell, has, use, equiped, pet, totem, glyph, heroTree, imbues and
+-- var (all in System/API), plus registerRotation, loadSupport and Lua's standard library. There is no
+-- br and no game API; reading any other name, or setting a global, is an error that names the line.
+-- Keep your own names local.
+--   var        keeps values between ticks, is shared with the support files you load, and starts empty
+--              for each spec
+--   loadSupport("PetCuteOne") runs Rotations/<Class>/Support/PetCuteOne.lua and returns what it returns
+
 ---------------
 --- Toggles ---
 ---------------
--- The buttons on the toggle bar. br.ui:toggle(name, { modes = { ... } }) adds one; each click moves
+-- The buttons on the toggle bar. ui.toggle(name, { modes = { ... } }) adds one; each click moves
 -- to the next mode and the first mode is the default. Read the current mode in the rotation with
 -- ui.mode.<name>, e.g. ui.mode.rotation == 1 for "Auto".
 -- key (optional) is a keybind that also cycles the toggle; BR lists it in a "Toggle Keys" section.
 -- Every field (icon, overlay, tip, highlight, row, col, ...) is described in
 -- System/UI/Toggles/ToggleFunctions.lua.
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "whirlwind",           overlay = "Automatic Rotation",       tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
         { name = "Mult", icon = "bladestorm",          overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
         { name = "Sing", icon = "ragingBlow",          overlay = "Single Target Rotation",   tip = "Single target rotation used." },
         { name = "Off",  icon = "enragedRegeneration", overlay = "DPS Rotation Disabled",    tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "recklessness", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On",   icon = "recklessness", overlay = "Cooldowns Enabled",   tip = "Cooldowns used regardless of target." },
         { name = "Off",  icon = "recklessness", overlay = "Cooldowns Disabled",  tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On",  icon = "enragedRegeneration", overlay = "Defensive Enabled",  tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "enragedRegeneration", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On",  icon = "pummel", overlay = "Interrupts Enabled",  tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "pummel", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
@@ -34,64 +43,50 @@ end
 ---------------
 --- Options ---
 ---------------
--- The Rotation Options page. br.ui:section(name) starts a collapsible group and returns it; pass it
+-- The Rotation Options page. ui.section(name) starts a collapsible group and returns it; pass it
 -- to each option after it. Each option takes the section, its name, then only the settings you want
 -- to change from the defaults:
---   br.ui:checkbox(section, name, { checked, tip })
---   br.ui:spinner(section, name, { value, min, max, step, checkbox, checked, tip, boxTip })
---   br.ui:dropdown(section, name, { choices, value, checkbox, checked, tip, boxTip })
---   br.ui:doubleSpinner(section, name, { first = { value, ... }, second = { value, ... }, checkbox, checked })
---   br.ui:text(section, text)
+--   ui.checkbox(section, name, { checked, tip })
+--   ui.spinner(section, name, { value, min, max, step, checkbox, checked, tip, boxTip })
+--   ui.dropdown(section, name, { choices, value, checkbox, checked, tip, boxTip })
+--   ui.doubleSpinner(section, name, { first = { value, ... }, second = { value, ... }, checkbox, checked })
+--   ui.text(section, text)
 -- Spinners and dropdowns have a checkbox in front of them unless checkbox = false; checked = true
 -- starts a checkbox ticked. Every field and its default is described in System/UI/Elements.
 -- Read them in the rotation with ui.checked("Name") and ui.value("Name").
--- Module options (e.g. br.player.module.BasicHealing(section)) and any br.ui:create... call can go
--- between these. For more than one page, make options a list instead:
+-- Module options (e.g. module.BasicHealing(section)) can go between these. For more than one page,
+-- make options a list instead:
 --   local options = { { "Page Name", buildFunction }, { "Other Page", otherFunction } }
 local function options()
-    local section = br.ui:section("General")
-    br.ui:checkbox(section, "Example Checkbox", { tip = "Ticked or not - read with ui.checked(\"Example Checkbox\")" })
+    local section = ui.section("General")
+    ui.checkbox(section, "Example Checkbox", { tip = "Ticked or not - read with ui.checked(\"Example Checkbox\")" })
 
-    section = br.ui:section("Cooldowns")
-    br.ui:dropdown(section, "Example Cooldown", { choices = "AlwaysCdNever", value = "Cooldowns", checkbox = false,
+    section = ui.section("Cooldowns")
+    ui.dropdown(section, "Example Cooldown", { choices = "AlwaysCdNever", value = "Cooldowns", checkbox = false,
         tip = "When to use it - read with ui.value(\"Example Cooldown\") (1 = Always, 2 = Cooldowns, 3 = Never)" })
 
-    section = br.ui:section("Defensive")
-    br.ui:spinner(section, "Example Defensive", { value = 40, checked = true, tip = "Health Percent to Cast At" })
+    section = ui.section("Defensive")
+    ui.spinner(section, "Example Defensive", { value = 40, checked = true, tip = "Health Percent to Cast At" })
 
-    section = br.ui:section("Interrupts")
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
+    section = ui.section("Interrupts")
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
 --- Locals ---
 --------------
--- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
-local buff
-local cast
-local cd
-local charges
-local enemies
-local module
-local power
-local talent
-local ui
-local unit
-local units
-local var
-
--- Any variables/functions made should have a local here to prevent possible conflicts with other things.
+-- Any variables/functions made should have a local here (profiles can't set globals).
 
 
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
--- OPTIONAL: customTargetWeight hook — bias the automatic target scorer without editing core code.
+-- OPTIONAL: a target weight — bias the automatic target scorer without editing core code.
 -- Return a positive number to raise a unit's priority, negative to lower it, nil to leave unchanged.
--- Example: prefer targets that already have a debuff on them.
--- br.player.units.customTargetWeight = function(unit)
---     if debuff.someDebuff.exists(unit) then return 2.0 end
--- end
+-- Example: prefer targets that already have a debuff on them (set it once, in runRotation).
+-- units.setTargetWeight(function(thisUnit)
+--     if debuff.someDebuff.exists(thisUnit) then return 2.0 end
+-- end)
 
 --------------------
 --- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
@@ -138,23 +133,6 @@ end -- End Action List - PreCombat
 --- ROTATION ---
 ----------------
 local function runRotation() -- This is the main profile loop, any below this point is ran every cycle, everything above is ran only once during initialization.
-    ---------------------
-    --- Define Locals ---
-    ---------------------
-    -- BR API Locals - These are the same as the locals above just defined for use.
-    buff                                          = br.player.buff
-    cast                                          = br.player.cast
-    cd                                            = br.player.cd
-    charges                                       = br.player.charges
-    enemies                                       = br.player.enemies
-    module                                        = br.player.module
-    power                                         = br.player.power
-    talent                                        = br.player.talent
-    ui                                            = br.player.ui
-    unit                                          = br.player.unit
-    units                                         = br.player.units
-    var                                           = br.player.variables
-
     -- Explanations on the Units and Enemies functions can be found in System/API/Units.lua and System/API/Enemies.lua
     -------------
     --- Units ---
@@ -171,7 +149,6 @@ local function runRotation() -- This is the main profile loop, any below this po
     ------------------------
     --- Custom Variables ---
     ------------------------
-    -- Any other local varaible from above would also need to be defined here to be use.
     if var.profileStop == nil then var.profileStop = false end -- Trigger variable to help when needing to stop a profile.
 
 
@@ -222,7 +199,7 @@ end -- End runRotation
 -- Registers this profile with BadRotations. Any .lua file in Rotations/<Class>/<Spec>/ (or
 -- Rotations/<Class>/<Class>/ on expansions without specs) is loaded automatically; BR offers the
 -- rotation only when specID and expansion match the player.
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,   -- Shown in the rotation dropdown; must be unique for the spec
     specID    = 000,            -- Spec ID(s) this is for: https://wowpedia.fandom.com/wiki/SpecializationID
                                 -- (a list like { 103, 104 } also works)
@@ -234,6 +211,8 @@ br.loader.registerRotation({
     status    = "Full",         -- Full, Limited, Sporadic, Inactive or Unknown
     readiness = "Untested",     -- Raid, NoRaid, Basic, Development or Untested
     -- actsWhileCasting = true, -- Optional: keep running while casting or channelling (BR pauses otherwise)
+    -- handlesRacials = true,   -- Optional: the rotation uses racials itself (the shared Racial module doesn't)
+    -- handlesTrinkets = true,  -- Optional: the rotation uses trinkets itself (the shared Trinkets module doesn't)
     toggles   = toggles,        -- The toggles function above
     options   = options,        -- The options function above (or a list of pages)
     run       = runRotation,

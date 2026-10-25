@@ -4,31 +4,31 @@ local rotationName = "CuteOne" -- Change to name of profile listed in options dr
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "swipe", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
         { name = "Multi", icon = "swipe", overlay = "Multiple Target Rotation", tip = "Forces Multiple Target Rotation." },
         { name = "Single", icon = "shred", overlay = "Single Target Rotation", tip = "Forces Single Target Rotation." },
         { name = "Off", icon = "healingTouch", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "tigersFury", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "tigersFury", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "tigersFury", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "healingTouch", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "healingTouch", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "bash", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "bash", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
-    br.ui:toggle("Forms", { modes = {
+    ui.toggle("Forms", { modes = {
         { name = "Caster", icon = "moonkinForm", overlay = "Caster Form", tip = "Will force and use Caster Form" },
         { name = "Cat", icon = "catForm", overlay = "Cat Form", tip = "Will force and use Cat Form" },
         { name = "Bear", icon = "bearForm", overlay = "Bear Form", tip = "Will force and use Bear Form" },
     } })
-    br.ui:toggle("Prowl", { modes = {
+    ui.toggle("Prowl", { modes = {
         { name = "On", icon = "prowl", overlay = "Prowl Enabled", tip = "Rotation will use Prowl" },
         { name = "Off", icon = "prowl", overlay = "Prowl Disabled", tip = "Rotation will not use Prowl" },
     } })
@@ -41,138 +41,127 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
-    br.ui:spinner(section, "Shift Wait Time", { value = 2, max = 5, step = 1, checkbox = false,
+    section = ui.section("General")
+    ui.spinner(section, "Shift Wait Time", { value = 2, max = 5, step = 1, checkbox = false,
         tip = "Time in seconds the profile will wait while moving to shift. Combat is instant!" })
     -- Powershifting
-    br.ui:checkbox(section, "Powershifting", { tip = "Feral DPS In-Form Shifting for Energy" })
+    ui.checkbox(section, "Powershifting", { tip = "Feral DPS In-Form Shifting for Energy" })
     -- Cower
-    br.ui:checkbox(section, "Cower", { tip = "Use Cower (20 energy) to drop threat when being attacked while a tank is alive and nearby" })
+    ui.checkbox(section, "Cower", { tip = "Use Cower (20 energy) to drop threat when being attacked while a tank is alive and nearby" })
     -- Mangle Trick
-    br.ui:checkbox(section, "Mangle Trick", { tip = "At energy 60-61 with tick <1s away, cast Mangle instead of Shred to enable a double-Mangle combo-point cycle (advanced, Wolfshead recommended)." })
+    ui.checkbox(section, "Mangle Trick", { tip = "At energy 60-61 with tick <1s away, cast Mangle instead of Shred to enable a double-Mangle combo-point cycle (advanced, Wolfshead recommended)." })
     -- Rake/Bite Tricks
-    br.ui:checkbox(section, "Rake/Bite Tricks", { tip = "With Wolfshead at 35-39 energy and tick >1s away, cast Rake (no debuff) or Ferocious Bite (2+ CPs) instead of powershifting (advanced)." })
+    ui.checkbox(section, "Rake/Bite Tricks", { tip = "With Wolfshead at 35-39 energy and tick >1s away, cast Rake (no debuff) or Ferocious Bite (2+ CPs) instead of powershifting (advanced)." })
     -- Biteweave
-    br.ui:checkbox(section, "Biteweave", { checked = true, tip = "While Rip is up, spend finisher combo points on Ferocious Bite instead of building past them (wowsims default). Shred still comes first when energy is high." })
+    ui.checkbox(section, "Biteweave", { checked = true, tip = "While Rip is up, spend finisher combo points on Ferocious Bite instead of building past them (wowsims default). Shred still comes first when energy is high." })
     -- Finisher Combo Points
-    br.ui:spinner(section, "Finisher Combo Points", { value = 5, min = 1, max = 5, step = 1, checkbox = false,
+    ui.spinner(section, "Finisher Combo Points", { value = 5, min = 1, max = 5, step = 1, checkbox = false,
         tip = "Combo points for Rip and Ferocious Bite (wowsims: 4 in its full rotation, 5 in its simple one)" })
     --------------------------
     --- FORM MANAGEMENT ---
     --------------------------
-    section = br.ui:section("Form Management")
+    section = ui.section("Form Management")
     -- Aquatic Form
-    br.ui:checkbox(section, "Aquatic Form", { tip = "Enable/Disable Using Aquatic Form" })
+    ui.checkbox(section, "Aquatic Form", { tip = "Enable/Disable Using Aquatic Form" })
     -- Travel Form
-    br.ui:checkbox(section, "Travel Form", { tip = "Enable/Disable Using Travel Form" })
+    ui.checkbox(section, "Travel Form", { tip = "Enable/Disable Using Travel Form" })
     -- Last Form
-    br.ui:checkbox(section, "Last Form", { tip = "Enable/Disable Returning to Last Form" })
+    ui.checkbox(section, "Last Form", { tip = "Enable/Disable Returning to Last Form" })
     -- Energy Threshold
-    br.ui:spinner(section, "Energy", { value = 35, min = 1, step = 1,
+    ui.spinner(section, "Energy", { value = 35, min = 1, step = 1,
         tip = "Shift when energy drops below this. 35 = no Wolfshead (auto); 40 = Wolfshead Helm (auto-detected and raised). Covers the gap between post-ability energy and the cost of the next builder." })
     -- Rage Threshold
-    br.ui:spinner(section, "Rage", { value = 10, min = 1, step = 1, tip = "Bear Form Rage Threshold to Break Form" })
+    ui.spinner(section, "Rage", { value = 10, min = 1, step = 1, tip = "Bear Form Rage Threshold to Break Form" })
     ----------------------
     --- BLEED OPTIONS ---
     ----------------------
-    section = br.ui:section("Bleeds")
+    section = ui.section("Bleeds")
     -- Rake
-    br.ui:checkbox(section, "Rake", { tip = "Enable/Disable Using Rake" })
+    ui.checkbox(section, "Rake", { tip = "Enable/Disable Using Rake" })
     -- Rip
-    br.ui:checkbox(section, "Rip", { tip = "Enable/Disable Using Rip" })
+    ui.checkbox(section, "Rip", { tip = "Enable/Disable Using Rip" })
     ---------------------
     --- BUFF OPTIONS ---
     ---------------------
-    section = br.ui:section("Buffs")
+    section = ui.section("Buffs")
     -- Self-Innervate
-    br.ui:checkbox(section, "Self-Innervate", { tip = "Enable/Disable Using Innervate on Self" })
+    ui.checkbox(section, "Self-Innervate", { tip = "Enable/Disable Using Innervate on Self" })
     -- Mark of the Wild
-    br.ui:dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+    ui.dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
         tip = "Set how to use Mark of the Wild" })
     -- Omen of Clarity
-    br.ui:dropdown(section, "Omen of Clarity", { choices = { "Any", "Focus DPS", "Focus Healing", "None" }, value = "Any",
+    ui.dropdown(section, "Omen of Clarity", { choices = { "Any", "Focus DPS", "Focus Healing", "None" }, value = "Any",
         tip = "Select how to use Omen of Clarity procs" })
     -- Thorns
-    br.ui:dropdown(section, "Thorns", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+    ui.dropdown(section, "Thorns", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
         tip = "Set how to use Thorns" })
     -- Tiger's Fury
-    br.ui:checkbox(section, "Tiger's Fury", { tip = "Enable/Disable Using Tiger's Fury" })
+    ui.checkbox(section, "Tiger's Fury", { tip = "Enable/Disable Using Tiger's Fury" })
     -----------------
     --- BEAR FORM ---
     -----------------
-    section = br.ui:section("Bear Form")
-    br.ui:checkbox(section, "Bear Opener", { tip = "Open a Bear Form pull with Enrage, Demoralizing Roar, then Maul, in that order" })
-    br.ui:checkbox(section, "Feral Charge - Engage", { checked = true, tip = "Charge your target from 8-25 yards in Bear Form" })
-    br.ui:checkbox(section, "Growl", { tip = "In a group, taunt an enemy in melee range that is attacking someone else" })
-    br.ui:spinner(section, "Challenging Roar", { value = 3, min = 2, max = 10, step = 1,
+    section = ui.section("Bear Form")
+    ui.checkbox(section, "Bear Opener", { tip = "Open a Bear Form pull with Enrage, Demoralizing Roar, then Maul, in that order" })
+    ui.checkbox(section, "Feral Charge - Engage", { checked = true, tip = "Charge your target from 8-25 yards in Bear Form" })
+    ui.checkbox(section, "Growl", { tip = "In a group, taunt an enemy in melee range that is attacking someone else" })
+    ui.spinner(section, "Challenging Roar", { value = 3, min = 2, max = 10, step = 1,
         tip = "In a group, Challenging Roar when at least this many enemies within 10 yards are attacking others" })
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Self-Heal In Group
-    br.ui:checkbox(section, "Self Heal In Group", { tip = "Enable/Disable Healing Self while Grouped" })
+    ui.checkbox(section, "Self Heal In Group", { tip = "Enable/Disable Healing Self while Grouped" })
     -- Healing Touch
-    br.ui:spinner(section, "Healing Touch", { value = 40, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Healing Touch", { value = 40, tip = "Health Percent to Cast At" })
     -- Regrowth
-    br.ui:spinner(section, "Regrowth", { value = 60, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Regrowth", { value = 60, tip = "Health Percent to Cast At" })
     -- Rejuvenation
-    br.ui:spinner(section, "Rejuvenation", { value = 80, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Rejuvenation", { value = 80, tip = "Health Percent to Cast At" })
     -- Barkskin
-    br.ui:spinner(section, "Barkskin", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Barkskin", { value = 50, tip = "Health Percent to Cast At" })
     -- Frenzied Regeneration
-    br.ui:spinner(section, "Frenzied Regeneration", { value = 45, checked = true, tip = "Health Percent to Cast At (Bear Form)" })
+    ui.spinner(section, "Frenzied Regeneration", { value = 45, checked = true, tip = "Health Percent to Cast At (Bear Form)" })
     -- Abolish Poison
-    br.ui:checkbox(section, "Abolish Poison", { tip = "Enable/Disable Using Abolish Poison" })
+    ui.checkbox(section, "Abolish Poison", { tip = "Enable/Disable Using Abolish Poison" })
     -- Cure Poison
-    br.ui:checkbox(section, "Cure Poison", { tip = "Enable/Disable Using Cure Poison" })
+    ui.checkbox(section, "Cure Poison", { tip = "Enable/Disable Using Cure Poison" })
     -- Remove Curse
-    br.ui:checkbox(section, "Remove Curse", { tip = "Enable/Disable Using Remove Curse" })
+    ui.checkbox(section, "Remove Curse", { tip = "Enable/Disable Using Remove Curse" })
     -- Entangling Roots
-    br.ui:checkbox(section, "Entangling Roots", { tip = "Enable/Disable Using Entangling Roots on fleeing enemies" })
+    ui.checkbox(section, "Entangling Roots", { tip = "Enable/Disable Using Entangling Roots on fleeing enemies" })
     -- Faerie Fire
-    br.ui:checkbox(section, "Faerie Fire", { tip = "Enable/Disable Using Faerie Fire/Faerie Fire Feral" })
+    ui.checkbox(section, "Faerie Fire", { tip = "Enable/Disable Using Faerie Fire/Faerie Fire Feral" })
     -- Nature's Grasp
-    br.ui:checkbox(section, "Nature's Grasp", { tip = "Enable/Disable Using Nature's Grasp" })
+    ui.checkbox(section, "Nature's Grasp", { tip = "Enable/Disable Using Nature's Grasp" })
     -- -- Health Potion
     -- br.ui:createCheckbox(section, "Health Potion", "|cffFFFFFFEnable/Disable Using Health Potion")
     -- -- Mana Potion
     -- br.ui:createCheckbox(section, "Mana Potion", "|cffFFFFFFEnable/Disable Using Mana Potion")
     -- Bash
-    br.ui:spinner(section, "Bash", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Bash", { value = 50, tip = "Health Percent to Cast At" })
     -------------------------
     --- Interrupt Options ---
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Feral Charge
-    br.ui:checkbox(section, "Feral Charge - Int", { checked = true, tip = "Interrupt with Feral Charge (Bear) from 8-25 yards" })
+    ui.checkbox(section, "Feral Charge - Int", { checked = true, tip = "Interrupt with Feral Charge (Bear) from 8-25 yards" })
     -- Bash
-    br.ui:checkbox(section, "Bash - Int")
+    ui.checkbox(section, "Bash - Int")
     -- Maim
-    br.ui:checkbox(section, "Maim")
+    ui.checkbox(section, "Maim")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
-local buff
-local cast
-local cd
 local comboPoints
-local debuff
-local enemies
 local energy
-local has
 local rage
 local mana
-local module
-local ui
-local unit
-local units
-local spell
 local var = {}
 
 -- Profile Specific Locals - Any custom to profile locals
@@ -188,14 +177,14 @@ local actionList = {}
 local function timeToNextEnergyTick()
     if var.lastEnergyTickTime == nil then var.lastEnergyTickTime = 0 end
     if var.lastEnergyObserved == nil then var.lastEnergyObserved = 0 end
-    local current = br.player.power.energy() or 0
+    local current = power.energy() or 0
     local energyJump = current - var.lastEnergyObserved
     if energyJump >= 15 and energyJump <= 25 then
-        var.lastEnergyTickTime = br.game.GetTime()
+        var.lastEnergyTickTime = ui.time()
     end
     var.lastEnergyObserved = current
     if var.lastEnergyTickTime == 0 then return 2.0 end
-    return math.max(0, (var.lastEnergyTickTime + 2.0) - br.game.GetTime())
+    return math.max(0, (var.lastEnergyTickTime + 2.0) - ui.time())
 end
 
 
@@ -213,7 +202,7 @@ end
 local function engagedByGroup(thisUnit)
     local n = unit.groupCount()
     if n <= 1 then return false end
-    local inRaid = br.game.IsInRaid()
+    local inRaid = unit.inRaid()
     local prefix = inRaid and "raid" or "party"
     -- Raid tokens are raid1..raidN (include us, filtered out below); party tokens are
     -- party1..party(N-1) with the player addressed separately as "player".
@@ -221,7 +210,7 @@ local function engagedByGroup(thisUnit)
     for i = 1, last do
         local member = prefix .. i
         if not unit.isUnit(member, "player")
-            and br.game.UnitAffectingCombat(member)
+            and unit.inCombat(member)
             and unit.isUnit(member .. "target", thisUnit)
         then
             return true
@@ -256,7 +245,7 @@ local function inAggroRange(offset)
     for i = 1, #enemies.yards20nc do
         local thisUnit = enemies.yards20nc[i]
         if unit.canAttack(thisUnit) and not unit.deadOrGhost(thisUnit) then
-            local freshHostile = unit.enemy(thisUnit) and not br.game.UnitAffectingCombat(thisUnit)
+            local freshHostile = unit.enemy(thisUnit) and not unit.inCombat(thisUnit)
             if freshHostile or engagedByGroup(thisUnit) then
                 if unit.distance(thisUnit) < aggroRadius(thisUnit, offset) then
                     -- ui.debug("Prowl trigger: " .. unit.name(thisUnit) .. " at " .. tostring(unit.distance(thisUnit)) .. "y")
@@ -274,7 +263,7 @@ local function needsThorns(thisUnit) return buff.thorns.refresh(thisUnit) end
 -- Keep Aquatic Form while swimming unless danger/enemy target.
 var.keepAquatic = function()
     return ui.checked("Aquatic Form")
-        and br.game.IsSwimming()
+        and unit.swimming()
         and buff.aquaticForm.exists()
         and not inAggroRange()
         and (not unit.exists("target") or unit.friend("target"))
@@ -292,8 +281,8 @@ actionList.Extra = function()
         if inGroup and spell.giftOfTheWild.known() and mana() > cast.cost.giftOfTheWild() + var.formCost then
             -- Check if anyone in group needs the buff
             local needsGift = false
-            for i = 1, #br.engines.healingEngine.friend do
-                local u = br.engines.healingEngine.friend[i].unit
+            for i = 1, #units.friends do
+                local u = units.friends[i].unit
                 if buff.markOfTheWild.refresh(u) and not buff.giftOfTheWild.exists(u, "") and unit.distance(u) < 40 then
                     needsGift = true
                     break
@@ -581,7 +570,7 @@ actionList.Defensive = function()
         --     and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         -- then
         --     if buff.catForm.exists() or buff.bearForm.exists() then
-        --         br.game.RunMacroText("/CancelForm")
+        --         unit.cancelForm()
         --         ui.debug("Cancel Form for Health Potion")
         --         return true
         --     end
@@ -595,7 +584,7 @@ actionList.Defensive = function()
         --     and mana.percent() < 30
         -- then
         --     if buff.catForm.exists() or buff.bearForm.exists() then
-        --         br.game.RunMacroText("/CancelForm")
+        --         unit.cancelForm()
         --         ui.debug("Cancel Form for Mana Potion")
         --         return true
         --     end
@@ -681,7 +670,7 @@ end -- End Action List - Cooldowns
 actionList.FormManagement = function()
     -- Aquatic Form
     if ui.checked("Aquatic Form") and not unit.inCombat() and cast.able.aquaticForm()
-        and br.game.IsSwimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
+        and unit.swimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
         and unit.moving() and unit.movingTime() > 2 and not inAggroRange()
     then
         if buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() then
@@ -696,8 +685,8 @@ actionList.FormManagement = function()
     end
 
     -- Travel Form
-    if ui.checked("Travel Form") and not unit.inCombat() and not br.game.IsMounted()
-        and not br.game.IsSwimming() and not br.game.IsFalling() and cast.able.travelForm()
+    if ui.checked("Travel Form") and not unit.inCombat() and not unit.mounted()
+        and not unit.swimming() and not unit.falling() and cast.able.travelForm()
         and not buff.travelForm.exists() and not buff.prowl.exists()
         and unit.moving() and unit.movingTime() > 2 and not inAggroRange()
     then
@@ -894,9 +883,9 @@ local function waitForRavage(behind)
     if energy() < cost and (energy() + 20 < cost or timeToNextEnergyTick() > 1) then return false end
     local guid = unit.guid("target")
     if var.ravageWait == nil or var.ravageWait.guid ~= guid then
-        var.ravageWait = { guid = guid, since = br.game.GetTime() }
+        var.ravageWait = { guid = guid, since = ui.time() }
     end
-    if br.game.GetTime() - var.ravageWait.since > RAVAGE_WAIT then return false end
+    if ui.time() - var.ravageWait.since > RAVAGE_WAIT then return false end
     return behind or unit.standingTime() <= 1
 end
 
@@ -1457,31 +1446,19 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff        = br.player.buff
-    cast        = br.player.cast
-    has         = br.player.has
-    cd          = br.player.cd
-    comboPoints = br.player.power.comboPoints
-    debuff      = br.player.debuff
-    enemies     = br.player.enemies
-    energy      = br.player.power.energy
-    mana        = br.player.power.mana
-    rage        = br.player.power.rage
-    module      = br.player.module
-    ui          = br.player.ui
-    unit        = br.player.unit
-    units       = br.player.units
-    spell       = br.player.spell
+    comboPoints = power.comboPoints
+    energy      = power.energy
+    mana        = power.mana
+    rage        = power.rage
     -- General Locals
     var.profileStop = var.profileStop or false
     var.haltProfile = (unit.inCombat() and var.profileStop) or ui.pause() or ui.mode.rotation == 4
     var.formValue = ui.mode.forms
     var.formCost = 0
-    if not br.player.localTrinkets then br.player.localTrinkets = true end
     if ui.mode.forms == 2 then var.formCost = cast.cost.catForm() end
     if ui.mode.forms == 3 then var.formCost = spell.direBearForm.known() and cast.cost.direBearForm() or cast.cost.bearForm() end
     -- Wolfshead Helm (item 8345) detection: shifts grant +60 energy instead of +40, raising the optimal shift threshold.
-    var.hasWolfshead = (br.game.GetInventoryItemID and br.game.GetInventoryItemID("player", 1) == 8345)
+    var.hasWolfshead = equiped.item(8345, 1) -- Wolfshead Helm
     -- Derive the effective powershift threshold.
     -- Default 35 covers the gap between post-Rip/post-Bite energy (~25) and the min builder cost (Rake=35, Mangle=40).
     -- With Wolfshead (post-shift=60 vs no-Wolfshead post-shift=40), the break-even threshold rises to 40.
@@ -1540,7 +1517,8 @@ local function runRotation()
     end         -- Pause
     return true
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
+    handlesTrinkets = true,
     name      = rotationName,
     specID    = 283,
     expansion = "TBC",

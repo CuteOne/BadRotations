@@ -4,37 +4,31 @@
 local _, br = ...
 
 --[[
-  API TIER HIERARCHY — call the highest tier that meets your need.
+  LAYERS: each calls only the one below it (.tests/layering_check.lua enforces it).
 
-  Tier 1 — br.game
+  Profiles (Rotations/)
+    Run with the profile API as their environment and reach nothing else: cast.fireball(),
+    buff.combustion.up(), cd.pyroblast.remain(), ui.checked("Name"). No br, no game API.
+
+  Profile API — br.api.profile (System/API, built by System/Loader/ProfileAPI.lua)
+    The tables profiles use (buff, cast, unit, ui, ...), made by the br.api.build.* builders
+    from the spell lists. They call br.functions (and BR's engines and readers).
+
+  Functions — br.functions (System/Functions), with the engines and readers
+    The work: range checks, aura scans, unit queries, casting, with caching and the
+    differences between clients handled once. They call br.game.
+
+  Game — br.game (Expansions/Layers.lua)
     The game's API as BR sees it: the client's globals with the unlocker's functions,
-    the polyfills (the modern API where the client lacks it) and BR's own versions on
-    top (layers: Expansions/Layers.lua). Use it for WoW API calls that have no
-    higher-level wrapper. Write against the modern API; the polyfills cover older clients.
-    Example: br.game.UnitHealth("player")
+    the polyfills (the modern API where the client lacks it, Expansions/Polyfills.lua) and
+    BR's own versions on top. Write against the modern API; the polyfills cover older clients.
 
-  Tier 2 — br.client.polyfills
-    The polyfill layer of br.game (Expansions/Polyfills.lua, Expansions/<name>/Functions.lua).
-    Call br.game, not this table: only Expansions/ writes here.
-
-  Tier 3 — br.functions
-    Low-level manipulation helpers: range checks, aura scans, unit queries, etc.
-    These call Tier 1/2 and add caching, cross-version normalization, and logic
-    that is too low-level for rotation code to repeat inline.
-    Example: br.functions.range:getDistance("player", "target")
-
-  Tier 4 — br.player  (also br.player.cast, br.player.buff, etc.)
-    Rotation-facing clean API. Rotation authors should call this tier exclusively.
-    These wrap Tier 3 with per-spell/per-unit closures generated at load time.
-    Example: cast.fireball()   buff.combustion.up()   cd.pyroblast.remain()
-
-  Rule: never call a lower tier from a higher tier (e.g. don't call br.game directly
-  from a rotation file — use br.player.* instead). Reach down only when the
-  higher-tier wrapper does not exist yet.
+  The runner, br.rotation (System/Loader/Rotation.lua), sits beside the profile API: it builds it,
+  keeps the compiled spell lists (br.rotation.spells) and runs the selected rotation each tick.
 ]]
 
 -- BR's tables. Each module fills its own and keeps its own state there.
-br.api = {}
+br.api = { build = {} }
 br.bootstrap = {}
 br.client = {}
 br.core = {}

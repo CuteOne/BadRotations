@@ -4,15 +4,15 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "On", icon = "runeStrike", overlay = "Rotation Enabled", tip = "Enable Rotation" },
         { name = "Off", icon = "runeStrike", overlay = "Rotation Disabled", tip = "Disable Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "deathStrike", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "deathStrike", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "mindFreeze", overlay = "Interrupt Enabled", tip = "Enabled Interrupt" },
         { name = "Off", icon = "mindFreeze", overlay = "Interrupt Disabled", tip = "Disable Interrupt" },
     } })
@@ -26,53 +26,41 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Death Grip
-    br.ui:checkbox(section, "Death Grip")
+    ui.checkbox(section, "Death Grip")
     ------------------------
     --- COOLDOWN OPTIONS ---
     ------------------------
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
     -- Basic Trinkets Module
-    br.player.module.BasicTrinkets(nil, section)
+    module.BasicTrinkets(nil, section)
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Basic Healing Module
-    br.player.module.BasicHealing(section)
+    module.BasicHealing(section)
     -- Lichborne
-    br.ui:spinner(section, "Lichborne", { value = 30, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Lichborne", { value = 30, tip = "Health Percent to Cast At" })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupt")
+    section = ui.section("Interrupt")
     -- Death Grip
-    br.ui:checkbox(section, "Death Grip - Int")
+    ui.checkbox(section, "Death Grip - Int")
     -- Mind Freeze
-    br.ui:checkbox(section, "Mind Freeze")
+    ui.checkbox(section, "Mind Freeze")
     -- "Interrupt At"
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
-local charges
-local debuff
-local enemies
-local module
-local pet
 local runes
 local runicPower
-local talent
-local ui
-local unit
-local units
 -- Profile Specific Locals
 local actionList = {}
 local var = {}
@@ -158,7 +146,7 @@ actionList.PreCombat = function()
                 end
             end
             -- Death Coil - Ranged
-            if cast.able.deathCoil() and runicPower > 30 and unit.distance(units.dyn5) >= 5 then
+            if cast.able.deathCoil() and runicPower() > 30 and unit.distance(units.dyn5) >= 5 then
                 if cast.deathCoil() then
                     ui.debug("Casting Death Coil [Precombat")
                     return true
@@ -525,7 +513,7 @@ actionList.Standard = function()
     -- Death Strike
     -- death_strike,if=buff.coagulopathy.remains<=gcd|buff.icy_talons.remains<=gcd|runic_power>=variable.death_strike_dump_amount|runic_power.deficit<=variable.heart_strike_rp|target.time_to_die<10
     if cast.able.deathStrike() and ((buff.coagulopathy.remains() <= unit.gcd(true) or buff.icyTalons.remains() <= unit.gcd(true)
-            or runicPower() >= var.deathStrikeDumpAmount or runicPower.deficit() <= var.heartStrikeRp or unit.ttd(unit.dyn5) < 10))
+            or runicPower() >= var.deathStrikeDumpAmount or runicPower.deficit() <= var.heartStrikeRp or unit.ttd(units.dyn5) < 10))
     then
         if cast.deathStrike() then
             ui.debug("Casting Death Strike [Standard]")
@@ -654,22 +642,10 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff            = br.player.buff
-    cast            = br.player.cast
-    cd              = br.player.cd
-    charges         = br.player.charges
-    debuff          = br.player.debuff
-    enemies         = br.player.enemies
-    module          = br.player.module
-    pet             = br.player.pet
-    runes           = br.player.power.runes
-    runicPower      = br.player.power.runicPower
-    talent          = br.player.talent
-    ui              = br.player.ui
-    unit            = br.player.unit
-    units           = br.player.units
+    runes           = power.runes
+    runicPower      = power.runicPower
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 2
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or ui.pause() or ui.mode.rotation == 2
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40)
@@ -725,7 +701,7 @@ local function runRotation()
         if actionList.Combat() then return true end
     end -- Pause
 end     -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 250,
     expansion = "MOP",

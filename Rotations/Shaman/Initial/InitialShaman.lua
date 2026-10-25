@@ -4,11 +4,11 @@ local rotationName = "Initial"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "On", icon = "lightningBolt", overlay = "DPS Rotation Enabled", tip = "Enable DPS Rotation" },
         { name = "Off", icon = "primalStrike", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "healingSurge", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "healingSurge", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
@@ -22,36 +22,25 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Flametongue Weapon
-    br.ui:checkbox(section, "Flametongue Weapon", { tip = "|cff0070deCheck this to keep flametongue weapon enchant up." })
+    ui.checkbox(section, "Flametongue Weapon", { tip = "|cff0070deCheck this to keep flametongue weapon enchant up." })
     -- Lightning Shield
-    br.ui:checkbox(section, "Lightning Shield", { tip = "|cff0070deCheck this to keep lightning shield up." })
+    ui.checkbox(section, "Lightning Shield", { tip = "|cff0070deCheck this to keep lightning shield up." })
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Healing Surge
-    br.ui:spinner(section, "Healing Surge", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Healing Surge", { value = 50, tip = "Health Percent to Cast At" })
     -- OOC Healing
-    br.ui:checkbox(section, "OOC Healing", { tip = "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00." })
+    ui.checkbox(section, "OOC Healing", { tip = "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00." })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
-local debuff
-local enemies
-local module
-local spell
-local ui
-local unit
-local units
-local var
 local actionList = {}
 
 -----------------
@@ -203,17 +192,6 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff            = br.player.buff
-    cast            = br.player.cast
-    cd              = br.player.cd
-    debuff          = br.player.debuff
-    enemies         = br.player.enemies
-    module          = br.player.module
-    spell           = br.player.spell
-    ui              = br.player.ui
-    unit            = br.player.unit
-    units           = br.player.units
-    var             = br.player.variables
     -- General Locals
     var.profileStop = var.profileStop or false
     var.haltProfile = (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or ui.pause() or
@@ -263,7 +241,7 @@ local function runRotation()
     end     -- Pause
     return true
 end         -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 1444,
     expansion = "MOP",

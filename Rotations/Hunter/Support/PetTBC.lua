@@ -9,94 +9,82 @@
 -- Covers the TBC pet system: single pet slot, no pet talent specs,
 -- TBC-era abilities and all pet family special abilities.
 -- Does NOT replace PetCuteOne (Retail).
--- Loaded via: br.loader.profileLoader:loadSupport("Pet")
+-- Loaded via: loadSupport("PetTBC"), which returns this table
 -------------------------------------------------------
 
 -- BR API Locals
-local buff
-local cast
-local cd
-local debuff
-local enemies
 local mode
-local pet
-local spell
-local spells
-local ui
-local unit
-local units
-local var
 
 -- Module state
-local petAppearTimer        = br.game.GetTime()
+local petAppearTimer        = 0
 local petCalled             = false
 local petRevived            = false
 local petDead               = false
 local lastPetMode           = nil    -- Track applied pet stance; avoids redundant WoW API calls
-local targetSwitchTimer     = br.game.GetTime()
+local targetSwitchTimer     = 0
 local currentTarget         = nil
 local happinessWarnTimer    = 0      -- Rate-limit unhappy pet warning to once per 30 seconds
 
 local growlAutoCastDisabled = false  -- Disable Growl auto-cast once per session
 local PET_CALL_TIMEOUT      = 10     -- Seconds to wait for a called pet before retrying (not reviving)
 
-br.loader.rotations.support["PetTBC"] = {
+return {
     options = function()
-        local section = br.ui:section("Pet")
+        local section = ui.section("Pet")
 
         -- Pet Mode: controls the WoW pet stance applied once on change
-        br.ui:dropdown(section, "Pet Mode", { choices = { "Aggressive", "Defensive", "Passive" }, value = "Aggressive", checkbox = false,
+        ui.dropdown(section, "Pet Mode", { choices = { "Aggressive", "Defensive", "Passive" }, value = "Aggressive", checkbox = false,
             tip = "Aggressive: pet attacks nearby enemies. Defensive: responds to attacks on you/pet. Passive: player-directed only." })
 
         -- Summoning
-        br.ui:checkbox(section, "Summon Pet", { tip = "Call and maintain your active pet. Revives or re-calls if dead or missing." })
+        ui.checkbox(section, "Summon Pet", { tip = "Call and maintain your active pet. Revives or re-calls if dead or missing." })
 
         -- Healing
-        br.ui:spinner(section, "Mend Pet", { value = 60, tip = "Health % below which Mend Pet is cast." })
+        ui.spinner(section, "Mend Pet", { value = 60, tip = "Health % below which Mend Pet is cast." })
 
         -- ── Family Special Abilities ──────────────────────────────────────────
 
         -- Furious Howl (Wolf) — short-CD party +physical damage buff; highest DPS priority
-        br.ui:checkbox(section, "Furious Howl", { tip = "Wolf only. Buffs the physical damage of the next attack for all nearby party members. Use on cooldown." })
+        ui.checkbox(section, "Furious Howl", { tip = "Wolf only. Buffs the physical damage of the next attack for all nearby party members. Use on cooldown." })
 
         -- Screech (Bat / Owl / Carrion Bird) — AoE attack-speed debuff on 2+ targets near pet
-        br.ui:checkbox(section, "Screech", { tip = "Bat/Owl/Carrion Bird only. AoE melee attack-power debuff. Fires when 2+ enemies are within 8 yards of the pet." })
+        ui.checkbox(section, "Screech", { tip = "Bat/Owl/Carrion Bird only. AoE melee attack-power debuff. Fires when 2+ enemies are within 8 yards of the pet." })
 
         -- Thunderstomp (Gorilla) — AoE threat builder on 2+ targets near pet
-        br.ui:checkbox(section, "Thunderstomp", { tip = "Gorilla only. AoE Nature damage + threat builder. Fires when 2+ enemies are within 8 yards of the pet." })
+        ui.checkbox(section, "Thunderstomp", { tip = "Gorilla only. AoE Nature damage + threat builder. Fires when 2+ enemies are within 8 yards of the pet." })
 
         -- Fire Breath (Dragonhawk) — ranged fire damage on CD
-        br.ui:checkbox(section, "Fire Breath", { tip = "Dragonhawk only. Ranged fire damage ability used on cooldown." })
+        ui.checkbox(section, "Fire Breath", { tip = "Dragonhawk only. Ranged fire damage ability used on cooldown." })
 
         -- Shell Shield (Turtle) — large defensive CD triggered at pet health threshold
-        br.ui:checkbox(section, "Shell Shield", { tip = "Turtle only. Reduces pet damage taken by 50%. Activates below the configured health %." })
-        br.ui:spinner(section, "Shell Shield HP", { value = 40, tip = "Pet health % at which Shell Shield is activated." })
+        ui.checkbox(section, "Shell Shield", { tip = "Turtle only. Reduces pet damage taken by 50%. Activates below the configured health %." })
+        ui.spinner(section, "Shell Shield HP", { value = 40, tip = "Pet health % at which Shell Shield is activated." })
 
         -- Charge (Boar only) — gap-closing charge when pet is out of melee
-        br.ui:checkbox(section, "Charge", { tip = "Boar only (Crab has no abilities in TBC). Gap-closing charge + immobilize when the pet is more than 10 yards from its target." })
+        ui.checkbox(section, "Charge", { tip = "Boar only (Crab has no abilities in TBC). Gap-closing charge + immobilize when the pet is more than 10 yards from its target." })
 
         -- Gore (Boar / Ravager) — stacking bleed on CD
-        br.ui:checkbox(section, "Gore", { tip = "Boar/Ravager only. Stacking bleed attack used on cooldown." })
+        ui.checkbox(section, "Gore", { tip = "Boar/Ravager only. Stacking bleed attack used on cooldown." })
 
         -- Scorpid Poison (Scorpid) — stacking AP-reducing poison on CD
-        br.ui:checkbox(section, "Scorpid Poison", { tip = "Scorpid only. Stacking poison that reduces the target's attack power. Used on cooldown." })
+        ui.checkbox(section, "Scorpid Poison", { tip = "Scorpid only. Stacking poison that reduces the target's attack power. Used on cooldown." })
 
         -- ── Core Abilities ────────────────────────────────────────────────────
 
         -- Lightning Breath — higher DPE than basic attacks; fires before Bite/Claw
-        br.ui:checkbox(section, "Lightning Breath", { tip = "Wind Serpent only. Ranged nature attack. Prioritised over Bite/Claw due to higher damage-per-energy." })
+        ui.checkbox(section, "Lightning Breath", { tip = "Wind Serpent only. Ranged nature attack. Prioritised over Bite/Claw due to higher damage-per-energy." })
 
         -- Pet Attack Ability — Bite / Claw basic energy dump
-        br.ui:checkbox(section, "Pet Attack Ability", { tip = "Pet uses Bite or Claw as its primary melee energy-dump attack." })
+        ui.checkbox(section, "Pet Attack Ability", { tip = "Pet uses Bite or Claw as its primary melee energy-dump attack." })
 
         -- Auto Growl — manual per-target threat management
-        br.ui:checkbox(section, "Auto Growl", { tip = "Pet taunts enemies it does not hold threat on. Automatically suppressed when a tank is in range." })
+        ui.checkbox(section, "Auto Growl", { tip = "Pet taunts enemies it does not hold threat on. Automatically suppressed when a tank is in range." })
 
         -- Dash — gap closer when pet is chasing its target
-        br.ui:checkbox(section, "Dash", { tip = "Use Dash when the pet is moving and farther than 15 yards from its target." })
+        ui.checkbox(section, "Dash", { tip = "Use Dash when the pet is moving and farther than 15 yards from its target." })
 
         -- Dive (Bat / Owl / Carrion Bird) — aerial dash equivalent
-        br.ui:checkbox(section, "Dive", { tip = "Bat/Owl/Carrion Bird only. Speed burst used when the pet is moving and farther than 15 yards from its target." })
+        ui.checkbox(section, "Dive", { tip = "Bat/Owl/Carrion Bird only. Speed burst used when the pet is moving and farther than 15 yards from its target." })
 
     end,
 
@@ -104,28 +92,15 @@ br.loader.rotations.support["PetTBC"] = {
         ---------------------
         --- Define Locals ---
         ---------------------
-        buff    = br.player.buff
-        cast    = br.player.cast
-        cd      = br.player.cd
-        debuff  = br.player.debuff
-        enemies = br.player.enemies
-        mode    = br.player.ui.mode
-        pet     = br.player.pet
-        spell   = br.player.spell
-        spells  = br.player.spells
-        ui      = br.player.ui
-        unit    = br.player.unit
-        units   = br.player.units
-        var     = br.player.variables
+        mode    = ui.mode
 
         -- Pre-populate enemy tables used by pet family abilities.
         enemies.get(8, "pet")    -- enemies.yards8pet: AoE radius for Screech / Thunderstomp
 
         -- Halt conditions — actions where pet management should be suppressed entirely.
-        var.haltPetProfile = br.game.UnitCastingInfo("pet")
-            or br.game.UnitHasVehicleUI("player")
-            or br.game.CanExitVehicle("player")
-            or br.game.UnitOnTaxi("player")
+        var.haltPetProfile = unit.casting("pet")
+            or unit.inVehicle()
+            or unit.taxi()
             or unit.mounted()
             or unit.flying()
             or ui.pause()
@@ -144,10 +119,10 @@ br.loader.rotations.support["PetTBC"] = {
         -- TBC-exclusive: happiness 1=Unhappy (75% dmg), 2=Content (100%), 3=Happy (125%).
         -- Feed the pet manually to maintain Happy state and full damage output.
         if petExists and petActive then
-            local happiness = br.game.GetPetHappiness and br.game.GetPetHappiness() or 2
-            if happiness == 1 and br.game.GetTime() - happinessWarnTimer > 30 then
+            local happiness = pet.happiness()
+            if happiness == 1 and ui.time() - happinessWarnTimer > 30 then
                 ui.debug("|cffFF0000WARNING|r: Pet is Unhappy — suffering a 25% damage penalty. Feed your pet. [Pet]")
-                happinessWarnTimer = br.game.GetTime()
+                happinessWarnTimer = ui.time()
             end
         end
 
@@ -155,14 +130,14 @@ br.loader.rotations.support["PetTBC"] = {
         --- Pet Summoning / Revive ---
         ----------------------------
         if ui.checked("Summon Pet") and not var.haltPetProfile and not unit.falling()
-            and petAppearTimer < br.game.GetTime() - 2
+            and petAppearTimer < ui.time() - 2
         then
             -- Confirm pending Call Pet: clear flag on success, or after timeout (do NOT set petDead —
             -- a dismissed/missing pet is not the same as a dead one).
             if petCalled then
                 if petExists and petActive then
                     petCalled = false
-                elseif br.game.GetTime() - petAppearTimer > PET_CALL_TIMEOUT then
+                elseif ui.time() - petAppearTimer > PET_CALL_TIMEOUT then
                     petCalled = false  -- timed out; will retry Call Pet, not Revive Pet
                 end
             end
@@ -173,7 +148,7 @@ br.loader.rotations.support["PetTBC"] = {
                 if cast.able.revivePet("player") and cast.timeSinceLast.revivePet() > unit.gcd(true) then
                     if cast.revivePet("player") then
                         ui.debug("Casting Revive Pet [Pet]")
-                        petAppearTimer = br.game.GetTime(); petRevived = true; petCalled = false; growlAutoCastDisabled = false
+                        petAppearTimer = ui.time(); petRevived = true; petCalled = false; growlAutoCastDisabled = false
                         return true
                     end
                 end
@@ -183,12 +158,12 @@ br.loader.rotations.support["PetTBC"] = {
             -- GetPetExperience() returns non-nil for any pet in the active slot (summoned,
             -- dismissed, or dead). It returns nil only when no pet occupies the active slot
             -- (all stabled or no pets owned), in which case Call Pet would fail.
-            local hasActivePet = br.game.GetPetExperience() ~= nil
+            local hasActivePet = pet.hasActivePet()
             if not petExists and not petCalled and not petDead and hasActivePet then
                 if cast.able.callPet("player") then
                     if cast.callPet("player") then
                         ui.debug("Casting Call Pet [Pet]")
-                        petAppearTimer = br.game.GetTime(); petCalled = true; petRevived = false; growlAutoCastDisabled = false
+                        petAppearTimer = ui.time(); petCalled = true; petRevived = false; growlAutoCastDisabled = false
                         return true
                     end
                 end
@@ -221,13 +196,13 @@ br.loader.rotations.support["PetTBC"] = {
         local desiredMode = ui.value("Pet Mode")  -- 1=Assist, 2=Defensive, 3=Passive
         if desiredMode ~= lastPetMode then
             if desiredMode == 1 then
-                br.game.PetAggressiveMode()
+                pet.setMode("aggressive")
                 ui.debug("Pet Mode → Aggressive [Pet]")
             elseif desiredMode == 2 then
-                br.game.PetDefensiveMode()
+                pet.setMode("defensive")
                 ui.debug("Pet Mode → Defensive [Pet]")
             elseif desiredMode == 3 then
-                br.game.PetPassiveMode()
+                pet.setMode("passive")
                 ui.debug("Pet Mode → Passive [Pet]")
             end
             lastPetMode = desiredMode
@@ -241,7 +216,7 @@ br.loader.rotations.support["PetTBC"] = {
         -- currentTarget stores the GUID of the last directed target so that transient frame-drops
         -- (e.g. the pettarget token going nil for one tick while a mob fears) do not cause
         -- redundant PetAttack calls that interrupt the pet's current swing animation.
-        if targetSwitchTimer < br.game.GetTime() - 1 then
+        if targetSwitchTimer < ui.time() - 1 then
             if unit.valid("target") and not unit.friend("target")
                 and desiredMode ~= 3   -- Skip auto-direction in Passive; player controls directly
             then
@@ -253,37 +228,28 @@ br.loader.rotations.support["PetTBC"] = {
                     or targetGUID ~= currentTarget          -- player switched targets
                 then
                     ui.debug("Pet Attack → " .. (unit.name("target") or "target") .. " [Pet]")
-                    br.game.PetAttack("target")
+                    pet.attack("target")
                     currentTarget = targetGUID
                 end
             elseif not unit.inCombat()
-                and br.game.IsPetAttackActive and br.game.IsPetAttackActive()
+                and pet.attacking()
             then
                 -- Out of combat with no valid enemy target (e.g. target deselected pre-pull).
-                br.game.PetStopAttack()
-                br.game.PetFollow()
+                pet.stopAttack()
+                pet.follow()
                 currentTarget = nil
                 ui.debug("Pet Follow [Pet]")
             end
-            targetSwitchTimer = br.game.GetTime()
+            targetSwitchTimer = ui.time()
         end
 
         ----------------------------
         --- Growl Auto-Cast Disable ---
         ----------------------------
         -- Disable Growl's built-in auto-cast once per session so this module controls threat
-        -- manually. TBC WoW API: GetPetActionInfo(slot) / TogglePetAutocast(slot).
+        -- manually.
         if ui.checked("Auto Growl") and not growlAutoCastDisabled then
-            if br.game.NUM_PET_ACTION_SLOTS then
-                for i = 1, br.game.NUM_PET_ACTION_SLOTS do
-                    local name, _, _, _, _, autoCastEnabled = br.game.GetPetActionInfo(i)
-                    if name and (name == "Growl" or name == "PET_ACTION_GROWL") and autoCastEnabled then
-                        if br.game.TogglePetAutocast then
-                            br.game.TogglePetAutocast(i)
-                        end
-                    end
-                end
-            end
+            pet.setAutocast("growl", false)
             growlAutoCastDisabled = true
         end
 
@@ -451,5 +417,5 @@ br.loader.rotations.support["PetTBC"] = {
             end
         end
     end, -- run
-} -- br.loader.rotations.support["PetTBC"]
+}
 

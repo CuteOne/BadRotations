@@ -2,20 +2,18 @@
 -- @module Unit
 -- Provides unit-based check functionality for the rotation system.
 -- These calls help in retrieving information about unit-based checks.
--- @usage local unit = br.player.unit
 
 local _, br = ...
-if br.api == nil then br.api = {} end
 ----------------------
 --- ABOUT THIS API ---
 ----------------------
 
 -- These calls help in retrieving information about unit based checks.
--- unit is the table located at br.player.unit, call this in profile to use.
+-- unit is the profile API table `unit` (br.api.profile.unit).
 
-br.api.unit = function(self)
+br.api.build.unit = function(api)
     -- Local reference to unit
-    local unit = self.unit
+    local unit = api.unit
 
     ----------------
     --- Unit API ---
@@ -160,6 +158,14 @@ br.api.unit = function(self)
         return tostring(spellCasting) == tostring(spellName)
     end
 
+    --- True while the unit casts a spell from the tank buster list (System/Lists/TankBusters.lua)
+    -- @function unit.castingTankBuster
+    -- @param thisUnit The unit to check, defaults to "target"
+    -- @return boolean
+    unit.castingTankBuster = function(thisUnit)
+        return br.functions.unit:isCastingTankBuster(thisUnit or "target")
+    end
+
     --- Check if a unit is charmed
     -- @function unit.charmed
     -- @param thisUnit The unit to check
@@ -258,6 +264,22 @@ br.api.unit = function(self)
             otherUnit = thisUnit; thisUnit = "player"
         end
         return br.functions.unit:getFacing(thisUnit, otherUnit, degrees)
+    end
+
+    --- The direction the unit faces, in radians
+    -- @function unit.facingAngle
+    -- @param thisUnit The unit to check, defaults to "player"
+    -- @return number
+    unit.facingAngle = function(thisUnit)
+        return br.functions.unit:GetObjectFacing(thisUnit or "player")
+    end
+
+    --- How far to the side of the player's facing line the target stands (negative behind the player,
+    -- 1000 when either can't be seen)
+    -- @function unit.facingDistance
+    -- @return number Yards
+    unit.facingDistance = function()
+        return br.functions.range:getFacingDistance()
     end
 
     --- @return number Distance in yards the player has fallen
@@ -467,6 +489,13 @@ br.api.unit = function(self)
         return #br.engines.healingEngine.friend > 1
     end
 
+    --- True while the player is in a raid group
+    -- @function unit.inRaid
+    -- @return boolean
+    unit.inRaid = function()
+        return br.functions.unit:isInRaid()
+    end
+
     --- Check instance type or if in a specific instance type
     -- @function unit.instance
     -- @param thisInstance Optional specific instance type to check for
@@ -485,6 +514,13 @@ br.api.unit = function(self)
         if thisUnit == nil then thisUnit = "target" end
         if castPercent == nil then castPercent = 0 end
         return br.functions.spell:canInterrupt(thisUnit, castPercent)
+    end
+
+    --- True while the player rides a vehicle
+    -- @function unit.inVehicle
+    -- @return boolean
+    unit.inVehicle = function()
+        return br.functions.unit:inVehicle()
     end
 
     --- Check if a unit is behind another unit
@@ -668,7 +704,7 @@ br.api.unit = function(self)
     -- @function unit.timeSinceDismount
     -- @return number|nil Seconds since dismounting, nil while mounted or if not mounted since login
     unit.timeSinceDismount = function()
-        local dismountTime = br.player.state.dismountTime
+        local dismountTime = br.rotation.state.dismountTime
         return dismountTime and (br.functions.misc:getTime() - dismountTime) or nil
     end
 
@@ -717,6 +753,14 @@ br.api.unit = function(self)
     -- @return boolean True if the unit is a player
     unit.player = function(thisUnit)
         return br.functions.unit:isPlayer(thisUnit)
+    end
+
+    --- Where the unit stands
+    -- @function unit.position
+    -- @param thisUnit The unit to check, defaults to "player"
+    -- @return number, number, number x, y, z
+    unit.position = function(thisUnit)
+        return br.functions.unit:GetObjectPosition(thisUnit or "player")
     end
 
     --- Get unit's race
@@ -770,6 +814,13 @@ br.api.unit = function(self)
         return #br.engines.healingEngine.friend == 1
     end
 
+    --- The name of the player's spec as BR loads it ("Initial" before a spec is chosen)
+    -- @function unit.spec
+    -- @return string
+    unit.spec = function()
+        return br.loader.selectedSpec
+    end
+
     --- Get player's spell haste percentage
     -- @function unit.spellHaste
     -- @return number Spell haste percentage
@@ -787,8 +838,8 @@ br.api.unit = function(self)
     --- Start auto-attack
     -- @function unit.startAttack
     -- @return nil
-    unit.startAttack = function()
-        return br.functions.unit:startAttack()
+    unit.startAttack = function(thisUnit)
+        return br.functions.unit:startAttack(thisUnit)
     end
 
     --- Stop auto-attack
@@ -803,6 +854,16 @@ br.api.unit = function(self)
     -- @return boolean True if player is swimming
     unit.swimming = function()
         return br.functions.misc:isSwimming()
+    end
+
+    --- The player's swing timer: seconds until the next swing (nil before the first swing), the
+    -- weapon speed and when the last swing landed (ui.time())
+    -- @function unit.swing
+    -- @string[opt="mh"] hand "mh" for melee, "ranged" for Auto Shot
+    -- @return number, number, number
+    -- @usage local untilNext, speed, last = unit.swing("ranged")
+    unit.swing = function(hand)
+        return br.functions.unit:getSwing(hand)
     end
 
     --- Get the current target of a unit
@@ -831,12 +892,21 @@ br.api.unit = function(self)
         return br.functions.combat:hasThreat(thisUnit)
     end
 
-    --- Get the player's current threat status
+    --- Get the player's current threat status, on one enemy or on any
     -- @function unit.threatStatus
+    -- @param[opt] thisUnit The enemy; any enemy when nil
     -- @return number Threat status: 0=no/low threat, 1=high threat (not primary target),
     --   2=primary target (another unit has 100%+ threat), 3=primary target (sole aggro)
-    unit.threatStatus = function()
-        return br.functions.custom:getThreat()
+    unit.threatStatus = function(thisUnit)
+        return br.functions.custom:getThreat(thisUnit)
+    end
+
+    --- True for a totem
+    -- @function unit.totem
+    -- @param thisUnit The unit to check
+    -- @return boolean
+    unit.totem = function(thisUnit)
+        return br.engines.enemiesEngineFunctions:isTotem(thisUnit)
     end
 
     --- Estimate time until unit dies
@@ -856,7 +926,7 @@ br.api.unit = function(self)
     -- @return number Combined estimated time until death for all enemies in range
     unit.ttdGroup = function(range, percent)
         if range == nil then range = 5 end
-        local enemies = self.enemies.get(range)
+        local enemies = api.enemies.get(range)
         local groupTTD = 0
         for i = 1, #enemies do
             groupTTD = groupTTD + unit.ttd(enemies[i], percent)
@@ -973,10 +1043,10 @@ br.api.unit = function(self)
 
     --- Get the display name of a weapon imbue spell
     -- @function unit.weaponImbue.spellName
-    -- @param spellKey The spell key string (e.g. "rockbiterWeapon") used in br.player.spells
+    -- @param spellKey The spell key string (e.g. "rockbiterWeapon") used in br.rotation.spells
     -- @return string The localised spell name, or the key as a fallback
     unit.weaponImbue.spellName = function(spellKey)
-        local spellID = br.player.spells and br.player.spells[spellKey]
+        local spellID = br.rotation.spells and br.rotation.spells[spellKey]
         return (spellID and br.functions.spell:getName(spellID)) or spellKey
     end
 end

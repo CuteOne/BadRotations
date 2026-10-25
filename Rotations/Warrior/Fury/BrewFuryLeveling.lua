@@ -35,34 +35,34 @@ local text = {
 }
 
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "whirlwind", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
         { name = "Mult", icon = "bladestorm", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
         { name = "Sing", icon = "ragingBlow", overlay = "Single Target Rotation", tip = "Single target rotation used." },
         { name = "Off", icon = "enragedRegeneration", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "recklessness", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "recklessness", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "recklessness", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "enragedRegeneration", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "enragedRegeneration", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "pummel", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "pummel", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
-    br.ui:toggle("Debugs", { modes = {
+    ui.toggle("Debugs", { modes = {
         { name = "ON", icon = 200733, overlay = "Debugs On", tip = "Debug Messages On" },
         { name = "OFF", icon = 200733, overlay = "Debugs Off", tip = "Debug Messages Off" },
     } })
-    br.ui:toggle("HeroicLeap", { row = 1, col = 4, modes = {
+    ui.toggle("HeroicLeap", { row = 1, col = 4, modes = {
         { name = "ON", icon = "heroicLeap", overlay = "Heroic Leap On", tip = "Heroic Leap On" },
         { name = "OFF", icon = "heroicLeap", overlay = "Heroic Leap Off", tip = "Heroic Leap Off" },
     } })
-    br.ui:toggle("Charge", { row = 1, col = 3, modes = {
+    ui.toggle("Charge", { row = 1, col = 3, modes = {
         { name = "ON", icon = "charge", overlay = "Charge On", tip = "Charge On" },
         { name = "OFF", icon = "charge", overlay = "Charge Off", tip = "Charge Off" },
     } })
@@ -74,37 +74,25 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS --- -- Define General Options
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
 
-    section = br.ui:section(text.cooldowns.cooldowns)
-        br.ui:checkbox(section, text.cooldowns.useCooldowns)
-        br.ui:spinner(section, text.cooldowns.numberOfMobs, { value = 2, min = 2, max = 10, step = 1,
+    section = ui.section(text.cooldowns.cooldowns)
+        ui.checkbox(section, text.cooldowns.useCooldowns)
+        ui.spinner(section, text.cooldowns.numberOfMobs, { value = 2, min = 2, max = 10, step = 1,
             tip = "|cffFFBB00Number of enemies to use cooldowns on." })
-        br.ui:checkbox(section, text.cooldowns.enragedRegeneration)
+        ui.checkbox(section, text.cooldowns.enragedRegeneration)
 
-    section = br.ui:section(text.defensive.defensive)
-        br.ui:checkbox(section, text.defensive.useSpellReflection)
-        br.ui:checkbox(section, text.defensive.usePummel)
-        br.ui:checkbox(section, text.defensive.beserkerRage)
-        br.ui:spinner(section, colors.orange .. "Interrupt At", { value = 0, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
+    section = ui.section(text.defensive.defensive)
+        ui.checkbox(section, text.defensive.useSpellReflection)
+        ui.checkbox(section, text.defensive.usePummel)
+        ui.checkbox(section, text.defensive.beserkerRage)
+        ui.spinner(section, colors.orange .. "Interrupt At", { value = 0, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
-local buff
-local cast
-local cd
-local charges
-local enemies
-local module
-local power
-local talent
-local ui
-local unit
-local units
-local var
 local rage
 
 -- Any variables/functions made should have a local here to prevent possible conflicts with other things.
@@ -118,13 +106,13 @@ local function round(number, digit_position)
 
 local function printStats(message)
     local rageString
-     rageString = colors.red .. "[" .. tostring(br.game.UnitPower("player")) .. "]"
+     rageString = colors.red .. "[" .. tostring(power.rage()) .. "]"
      local lastTime = ui.time() - var.lastCast
-    br.game.print(colors.red.. date("%T") ..colors.aqua .."[+" .. string.format("%f2",round(lastTime,-2)) .. "] "  .. string.format("%f",unit.gcd())..colors.white .. rageString .. " : ".. message)
+    ui.print(colors.red.. string.format("%.1f", ui.time()) ..colors.aqua .."[+" .. string.format("%f2",round(lastTime,-2)) .. "] "  .. string.format("%f",unit.gcd())..colors.white .. rageString .. " : ".. message)
 end
 
 local debugMessage = function(message)
-    if ui.mode.Debug == 1 then printStats(message) end
+    if ui.mode.debugs == 1 then printStats(message) end
     var.lastCast = ui.time()
 end
 
@@ -188,7 +176,7 @@ actionList.PreCombat = function()
         end
         if unit.valid("target") then -- Abilities below this only used when target is valid
 
-            if ui.mode.HeroicLeap==1 and unit.distance("target") >=8 and unit.distance("target") <= 40
+            if ui.mode.heroicLeap==1 and unit.distance("target") >=8 and unit.distance("target") <= 40
                 and cast.able.heroicLeap("target")
                 and not cast.last.heroicLeap()
                 and not cast.last.charge()
@@ -202,7 +190,7 @@ actionList.PreCombat = function()
                 end
             end
 
-            if ui.mode.Charge==1 and unit.distance("target") >=8 and unit.distance("target") <= 25
+            if ui.mode.charge==1 and unit.distance("target") >=8 and unit.distance("target") <= 25
                 and cast.able.charge("target")
                 and not cast.last.heroicLeap()
                 and not cast.last.charge()
@@ -233,25 +221,10 @@ local function runRotation() -- This is the main profile loop, any below this po
     --- Define Locals ---
     ---------------------
     -- BR API Locals - These are the same as the locals above just defined for use.
-    buff                                          = br.player.buff
-    cast                                          = br.player.cast
-    cd                                            = br.player.cd
-    charges                                       = br.player.charges
-    enemies                                       = br.player.enemies
-    module                                        = br.player.module
-    power                                         = br.player.power
-    talent                                        = br.player.talent
-    ui                                            = br.player.ui
-    unit                                          = br.player.unit
-    units                                         = br.player.units
-    var                                           = br.player.variables
-    rage                                          = br.game.UnitPower("player")
+    rage                                          = power.rage()
 
 
     if var.lastCast == nil then var.lastCast=ui.time() end
-    ui.mode.Debug      = br.data.settings[br.loader.selectedSpec].toggles["Debugs"]
-    ui.mode.Charge     = br.data.settings[br.loader.selectedSpec].toggles["Charge"]
-    ui.mode.HeroicLeap = br.data.settings[br.loader.selectedSpec].toggles["HeroicLeap"]
 
     -- Explanations on the Units and Enemies functions can be found in System/API/Units.lua and System/API/Enemies.lua
     -------------
@@ -395,7 +368,7 @@ local function runRotation() -- This is the main profile loop, any below this po
         end -- End In Combat Rotation
     end -- Pause
 end -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 72,
     expansion = "MOP",

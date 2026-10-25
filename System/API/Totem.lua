@@ -1,6 +1,6 @@
 ---
 -- Totem handling functions for BadRotations.
--- Totem functions are stored in br.player.totem and can be utilized by `local totem = br.player.totem` in your profile.
+-- Totem functions are the profile API table `totem` (br.api.profile.totem); profiles use it by name.
 --
 -- This module provides a hierarchical API for totem checks:
 -- - totem.active(candidate)       -> checks if any totem matching candidate is active
@@ -8,9 +8,8 @@
 -- - totem.fire.searingTotem.active() -> checks if searing totem specifically is active
 --
 -- Slot indices: 1 = Fire, 2 = Earth, 3 = Water, 4 = Air.
--- @module br.player.totem
+-- @module totem
 local _, br = ...
-if br.api == nil then br.api = {} end
 
 local TOTEM_SLOT = {
     fire = 1,
@@ -19,9 +18,8 @@ local TOTEM_SLOT = {
     air = 4,
 }
 
-br.api.totem = function(self)
-    self.totem = self.totem or {}
-    local totem = self.totem
+br.api.build.totem = function(api)
+    local totem = api.totem
 
     local totemFn = br.functions and br.functions.totem
 
@@ -93,7 +91,7 @@ br.api.totem = function(self)
 
     ---
     -- Returns true if the specified slot currently matches any provided totem.
-    -- Candidates can be spell IDs (number), spell keys from br.player.spells (string), or literal localized names (string).
+    -- Candidates can be spell IDs (number), spell keys from br.rotation.spells (string), or literal localized names (string).
     -- @function totem.is
     -- @tparam number slot Totem slot (1-4)
     -- @tparam ... candidates
@@ -117,15 +115,15 @@ br.api.totem = function(self)
     -- Element-specific Totem Tables
     -- ========================================
 
-    totem.fire = br.api.totemElement(self, "fire", TOTEM_SLOT.fire)
-    totem.earth = br.api.totemElement(self, "earth", TOTEM_SLOT.earth)
-    totem.water = br.api.totemElement(self, "water", TOTEM_SLOT.water)
-    totem.air = br.api.totemElement(self, "air", TOTEM_SLOT.air)
+    totem.fire = br.api.build.totemElement(api, "fire", TOTEM_SLOT.fire)
+    totem.earth = br.api.build.totemElement(api, "earth", TOTEM_SLOT.earth)
+    totem.water = br.api.build.totemElement(api, "water", TOTEM_SLOT.water)
+    totem.air = br.api.build.totemElement(api, "air", TOTEM_SLOT.air)
 end
 
 ---
--- Builds an element subtable (e.g., totem.fire) for br.api.totem.
-br.api.totemElement = function(self, elementKey, slot)
+-- Builds an element subtable (e.g., totem.fire) for br.api.build.totem.
+br.api.build.totemElement = function(api, elementKey, slot)
     local totemFn = br.functions and br.functions.totem
     local element = {}
     element.slot = slot
@@ -187,13 +185,13 @@ br.api.totemElement = function(self, elementKey, slot)
     end
 
     -- Build specific totem subtables for this element from spell list
-    if self.spells and self.spells.totem and self.spells.totem[elementKey] then
-        for totemKey, _ in pairs(self.spells.totem[elementKey]) do
+    if br.rotation.spells and br.rotation.spells.totem and br.rotation.spells.totem[elementKey] then
+        for totemKey, _ in pairs(br.rotation.spells.totem[elementKey]) do
             -- Convert totemKey to camelCase if needed (e.g., searingTotem -> searing)
             -- Extract the totem name without "Totem" suffix for cleaner API
             local shortName = totemKey:gsub("Totem$", "")
             shortName = shortName:sub(1,1):lower() .. shortName:sub(2)
-            element[shortName] = br.api.totemSpecific(slot, totemKey)
+            element[shortName] = br.api.build.totemSpecific(slot, totemKey)
         end
     end
 
@@ -201,8 +199,8 @@ br.api.totemElement = function(self, elementKey, slot)
 end
 
 ---
--- Builds a specific totem subtable (e.g., totem.fire.searing) for br.api.totemElement.
-br.api.totemSpecific = function(slot, totemKey)
+-- Builds a specific totem subtable (e.g., totem.fire.searing) for br.api.build.totemElement.
+br.api.build.totemSpecific = function(slot, totemKey)
     local totemFn = br.functions and br.functions.totem
     local specific = {}
 

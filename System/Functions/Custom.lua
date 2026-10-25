@@ -17,7 +17,7 @@ local custom = br.functions.custom
 --   * The best spots are traced for line of sight in order; the first visible one is used. Spots close
 --     to one already found hidden are skipped, so the traces look at different places.
 -- Returns x, y, z and the number of units covered, or nil when no spot covers minUnits.
--- local x, y, z, count = br.functions.custom:findGroundLocation(br.player.spells.hurricane, 8, 3)
+-- local x, y, z, count = br.functions.custom:findGroundLocation(br.rotation.spells.hurricane, 8, 3)
 local GROUND_HEIGHT_TOLERANCE = 6 -- yards up or down a unit can be from the spot and still count
 
 local GROUND_MAX_UNITS = 30       -- nearest units considered (the search grows with the cube of this)
@@ -492,10 +492,9 @@ function custom:findGroundLocation(spellID, radius, minUnits, maxRange, minRange
 end
 
 -- get threat situation on player and return the number
-function custom:getThreat()
-    if br.game.UnitThreatSituation("player") ~= nil then
-        return br.game.UnitThreatSituation("player")
-    end
+function custom:getThreat(mobUnit)
+    local status = br.game.UnitThreatSituation("player", mobUnit)
+    if status ~= nil then return status end
     -- 0 - Unit has less than 100% raw threat (default UI shows no indicator)
     -- 1 - Unit has 100% or higher raw threat but isn't mobUnit's primary target (default UI shows yellow indicator)
     -- 2 - Unit is mobUnit's primary target, and another unit has 100% or higher raw threat (default UI shows orange indicator)

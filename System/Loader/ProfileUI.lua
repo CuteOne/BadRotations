@@ -1,24 +1,24 @@
 local _, br = ...
 --- Profile UI
 -- Builds the profile options window (Base Options + the rotation's own pages) and the toggle
--- bar, and copies toggle states into ui.mode each tick. br.player keeps createOptions /
--- createToggles / getToggleModes / createBaseOptions as forwards (Core calls them).
+-- bar, and copies toggle states into ui.mode each tick. br.rotation keeps createOptions /
+-- createToggles / getToggleModes as forwards (Bootstrap and the tick call them).
 br.loader.profileUI = br.loader.profileUI or {}
 local profileUI = br.loader.profileUI
 
 local rotationNames = {}
 
 --- Creates the "Base Options" page shared by every profile.
--- @param player br.player
-function profileUI:createBaseOptions(player)
+function profileUI:createBaseOptions()
     -- Sections created on this page are stored as "Base Options/<section>" (shared by all profiles)
     br.ui.sectionStoragePrefix = "Base Options/"
-    local ok, err = pcall(profileUI.buildBaseOptionsPage, profileUI, player)
+    local ok, err = pcall(profileUI.buildBaseOptionsPage, profileUI)
     br.ui.sectionStoragePrefix = nil
     if not ok then br.log:reportError(err) end
 end
 
-function profileUI:buildBaseOptionsPage(player)
+function profileUI:buildBaseOptionsPage()
+    local module = br.api.profile.module
     -----------------
     --- Base Wrap ---
     -----------------
@@ -34,26 +34,26 @@ function profileUI:buildBaseOptionsPage(player)
     br.ui:text(section_module, "|cffff0000Overridden by modules used")
     br.ui:text(section_module, "|cffff0000in Rotation Options")
     br.ui:text(section_module, "===General Options===")
-    player.module.autoKeystone(section_module) -- Retail
-    player.module.Racial(section_module)
-    player.module.TwoForms(section_module) -- Worgen
+    module.autoKeystone(section_module) -- Retail
+    module.Racial(section_module)
+    module.TwoForms(section_module) -- Worgen
     br.ui:text(section_module, "===Healing Options===")
-    player.module.BasicHealing(section_module)
+    module.BasicHealing(section_module)
     br.ui:text(section_module, "===Combat Options===")
-    player.module.CombatPotionUp(section_module) -- Mists of Pandaria
+    module.CombatPotionUp(section_module) -- Mists of Pandaria
     if br.client.isMOP then -- checked here too, so the primary stat (secret in combat on Forever) is only read on MoP
-        player.module.FlaskUp(br.functions.unit:getPrimaryStat(), section_module) -- Mists of Pandaria
+        module.FlaskUp(br.functions.unit:getPrimaryStat(), section_module) -- Mists of Pandaria
     end
-    player.module.BasicTrinkets(nil, section_module)
+    module.BasicTrinkets(nil, section_module)
 end
 
 --- Creates the profile options window: rotation dropdown, Base Options, and the rotation's pages.
--- @param player br.player
+-- @param rotation br.rotation
 -- @param spec Spec ID
-function profileUI:createOptions(player, spec)
+function profileUI:createOptions(rotation, spec)
     local specSettings = br.data.settings[br.loader.selectedSpec]
     if specSettings[br.loader.selectedProfile] == nil then specSettings[br.loader.selectedProfile] = {} end
-    br.ui:createProfileWindow(player.specName)
+    br.ui:createProfileWindow(rotation.specName)
 
     -- Rotation dropdown with the names of every profile for this spec
     br.game.wipe(rotationNames)
@@ -66,10 +66,10 @@ function profileUI:createOptions(player, spec)
     local optionTable = {
         {
             [1] = "Base Options",
-            [2] = function() profileUI:createBaseOptions(player) end,
+            [2] = function() profileUI:createBaseOptions() end,
         },
     }
-    br.functions.custom:insertTableIntoTable(optionTable, profileUI:rotationPages(player.rotation.options))
+    br.functions.custom:insertTableIntoTable(optionTable, profileUI:rotationPages(rotation.selected.options))
 
     br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
     br.ui:checkWindowStatus("profile")
@@ -149,18 +149,17 @@ function profileUI:rotationPages(options)
 end
 
 --- Creates the toggle bar defined by the rotation (br.ui:toggle or br.ui:createToggle calls).
--- @param player br.player
-function profileUI:createToggles(player)
+-- @param rotation br.rotation
+function profileUI:createToggles(rotation)
     br.ui:GarbageButtons()
     br.ui:forgetToggles()
-    if player.rotation ~= nil and player.rotation.toggles ~= nil then
-        player.rotation.toggles()
+    if rotation.selected.toggles ~= nil then
+        rotation.selected.toggles()
     end
 end
 
 --- Copies each saved toggle state into ui.mode (e.g. "Rotation" -> ui.mode.rotation) and
 -- refreshes the toggle buttons.
--- @param player br.player
 -- ui.mode names by toggle name ("Rotation" -> "rotation")
 local modeNames = setmetatable({}, { __index = function(t, k)
     local name = k:sub(1, 1):lower() .. k:sub(2)
@@ -168,11 +167,12 @@ local modeNames = setmetatable({}, { __index = function(t, k)
     return name
 end })
 
-function profileUI:updateToggleModes(player)
+function profileUI:updateToggleModes()
     local toggles = br.data.settings[br.loader.selectedSpec].toggles
     local made = br.ui.toggles.modes
+    local mode = br.api.profile.ui.mode
     for k, value in pairs(toggles) do
-        player.ui.mode[modeNames[k]] = value
+        mode[modeNames[k]] = value
         -- Only toggles the profile made have a key option and a button to cycle
         if made[k] then br.functions.misc:UpdateToggle(k, 0.25) end
     end

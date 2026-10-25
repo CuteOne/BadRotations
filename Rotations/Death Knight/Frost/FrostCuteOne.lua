@@ -4,22 +4,22 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "howlingBlast", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
         { name = "Mult", icon = "howlingBlast", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
         { name = "Sing", icon = "frostStrike", overlay = "Single Target Rotation", tip = "Single target rotation used." },
         { name = "Off", icon = "deathStrike", overlay = "DPS Rotation Disabled", tip = "Disarm DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "empowerRuneWeapon", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "empowerRuneWeapon", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = true },
         { name = "Off", icon = "empowerRuneWeapon", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "iceboundFortitude", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "iceboundFortitude", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "mindFreeze", overlay = "Interrupt Enabled", tip = "Enabled Interrupt" },
         { name = "Off", icon = "mindFreeze", overlay = "Interrupt Disabled", tip = "Disable Interrupt" },
     } })
@@ -33,79 +33,66 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Dummy DPS Test
-    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+    ui.spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
         tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
     -- Death Grip
-    br.ui:checkbox(section, "Death Grip")
+    ui.checkbox(section, "Death Grip")
     -- Horn of Winter
-    br.ui:checkbox(section, "Horn of Winter")
+    ui.checkbox(section, "Horn of Winter")
     -- Lichborne: allow breaking CC and enable self-heal via Death Coil
-    br.ui:checkbox(section, "Lichborne")
-    br.ui:spinner(section, "Lichborne Heal At", { value = 35, max = 95, checkbox = false,
+    ui.checkbox(section, "Lichborne")
+    ui.spinner(section, "Lichborne Heal At", { value = 35, max = 95, checkbox = false,
         tip = "Health percent to cast Lichborne+Death Coil on yourself" })
     ------------------------
     --- COOLDOWN OPTIONS ---
     ------------------------
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
     local alwaysCdNever = { "Always", "|cff0000ffCD", "|cffff0000Never" }
     local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
     -- Army of the Dead
-    br.ui:dropdown(section, "Army of the Dead", { choices = alwaysCdAoENever, value = 3, checkbox = false,
+    ui.dropdown(section, "Army of the Dead", { choices = alwaysCdAoENever, value = 3, checkbox = false,
         tip = "When to use Army of the Dead." })
     -- Empower Rune Weapon
-    br.ui:dropdown(section, "Empower Rune Weapon", { choices = alwaysCdAoENever, value = 3, checkbox = false,
+    ui.dropdown(section, "Empower Rune Weapon", { choices = alwaysCdAoENever, value = 3, checkbox = false,
         tip = "When to use Empower Rune Weapon." })
     -- Pillar of Frost
-    br.ui:dropdown(section, "Pillar of Frost", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Pillar of Frost." })
+    ui.dropdown(section, "Pillar of Frost", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Pillar of Frost." })
     -- Raise Dead
-    br.ui:dropdown(section, "Raise Dead", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Raise Dead." })
+    ui.dropdown(section, "Raise Dead", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Raise Dead." })
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Death Strike
-    br.ui:spinner(section, "Death Strike", { value = 50, max = 95, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Death Strike", { value = 50, max = 95, tip = "Health Percent to Cast At" })
     -- Death Pact
-    br.ui:spinner(section, "Death Pact", { value = 30, max = 95, tip = "Health Percent to Cast Death Pact At" })
+    ui.spinner(section, "Death Pact", { value = 30, max = 95, tip = "Health Percent to Cast Death Pact At" })
     -- Raise Dead to enable Death Pact
-    br.ui:spinner(section, "Death Pact Raise Dead", { value = 30, max = 95, tip = "Health Percent to Cast Raise Dead and Death Pact At" })
+    ui.spinner(section, "Death Pact Raise Dead", { value = 30, max = 95, tip = "Health Percent to Cast Raise Dead and Death Pact At" })
     -- Icebound Fortitude
-    br.ui:spinner(section, "Icebound Fortitude", { value = 40, max = 95, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Icebound Fortitude", { value = 40, max = 95, tip = "Health Percent to Cast At" })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupt")
+    section = ui.section("Interrupt")
     -- Death Grip (Interrupt)
-    br.ui:checkbox(section, "Death Grip (Interrupt)")
+    ui.checkbox(section, "Death Grip (Interrupt)")
     -- Mind Freeze
-    br.ui:checkbox(section, "Mind Freeze")
+    ui.checkbox(section, "Mind Freeze")
     -- Strangulate
-    br.ui:checkbox(section, "Strangulate")
+    ui.checkbox(section, "Strangulate")
     -- "Interrupt At"
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
-local debuff
-local enemies
-local module
 local runes
 local runicPower
-local ui
-local unit
-local units
-local spell
-local talent
-local use
-local var
 -- Profile Specific Locals
 local actionList = {}
 
@@ -132,7 +119,7 @@ actionList.Defensive = function()
         -- * Death Pact: try to use if available, otherwise optionally raise ghoul to enable
         if ui.checked("Death Pact") then
             -- If Death Pact is available, use it
-            if cast.able.deathPact() and GetTime() < var.raiseDeadExpiresAt
+            if cast.able.deathPact() and ui.time() < var.raiseDeadExpiresAt
                 and unit.hp("player") <= ui.value("Death Pact")
             then
                 if cast.deathPact() then
@@ -146,7 +133,7 @@ actionList.Defensive = function()
             then
                 if cast.raiseDead() then
                     ui.debug("Casting Raise Dead - to enable Death Pact [Defensive]")
-                    var.raiseDeadExpiresAt = GetTime() + 60
+                    var.raiseDeadExpiresAt = ui.time() + 60
                     return true
                 end
             end
@@ -509,7 +496,7 @@ actionList.PreCombat = function()
             if ui.alwaysCdAoENever("Raise Dead",3,#enemies.yards8) and cast.able.raiseDead() then
                 if cast.raiseDead() then
                     ui.debug("Casting Raise Dead [Precombat]")
-                    var.raiseDeadExpiresAt = GetTime() + 60
+                    var.raiseDeadExpiresAt = ui.time() + 60
                     return true
                 end
             end
@@ -589,14 +576,14 @@ actionList.Combat = function()
             if cast.empowerRuneWeapon() then ui.debug("Casting Empower Rune Weapon [Combat]") return true end
         end
         -- * Racials
-        -- if br.player and br.player.race then
-        --     if br.player.race == "Orc" and cast.able.bloodFury() then
+        -- if br.player and unit.race() then
+        --     if unit.race() == "Orc" and cast.able.bloodFury() then
         --         if cast.bloodFury() then ui.debug("Casting Blood Fury") return true end
         --     end
-        --     if br.player.race == "Troll" and cast.able.berserking() then
+        --     if unit.race() == "Troll" and cast.able.berserking() then
         --         if cast.berserking() then ui.debug("Casting Berserking") return true end
         --     end
-        --     if br.player.race == "BloodElf" and cast.able.arcaneTorrent() then
+        --     if unit.race() == "BloodElf" and cast.able.arcaneTorrent() then
         --         if cast.arcaneTorrent() then ui.debug("Casting Arcane Torrent") return true end
         --     end
         -- end
@@ -605,7 +592,7 @@ actionList.Combat = function()
         if ui.alwaysCdAoENever("Raise Dead", 3, #enemies.yards8) and cast.able.raiseDead() then
             if cast.raiseDead() then
                 ui.debug("Casting Raise Dead [Combat]")
-                var.raiseDeadExpiresAt = GetTime() + 60
+                var.raiseDeadExpiresAt = ui.time() + 60
                 return true
             end
         end
@@ -630,21 +617,8 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff            = br.player.buff
-    cast            = br.player.cast
-    cd              = br.player.cd
-    debuff          = br.player.debuff
-    enemies         = br.player.enemies
-    module          = br.player.module
-    runes           = br.player.power.runes
-    runicPower      = br.player.power.runicPower
-    spell           = br.player.spell
-    talent          = br.player.talent
-    ui              = br.player.ui
-    unit            = br.player.unit
-    units           = br.player.units
-    use             = br.player.use
-    var             = br.player.variables
+    runes           = power.runes
+    runicPower      = power.runicPower
 
     -- General Locals
     -- Units
@@ -696,7 +670,7 @@ local function runRotation()
         if actionList.Combat() then return true end
     end -- Pause
 end     -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 251,
     expansion = "MOP",

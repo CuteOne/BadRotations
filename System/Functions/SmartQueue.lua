@@ -15,7 +15,7 @@ local smartQueueFrame
 local ignoreKeys = { ["LALT"] = true, ["LSHIFT"] = true, ["LCTRL"] = true }
 
 local function checkKeys(self, key)
-	if br.player ~= nil and br.player.spells ~= nil and br.player.spells.bindings ~= nil and ignoreKeys[key] == nil and br.functions.misc:isChecked("Smart Queue") and br.game.UnitAffectingCombat("player") then
+	if br.rotation ~= nil and br.rotation.spells ~= nil and br.rotation.spells.bindings ~= nil and ignoreKeys[key] == nil and br.functions.misc:isChecked("Smart Queue") and br.game.UnitAffectingCombat("player") then
 		local pressedKey = ""
 		if br.game.IsLeftShiftKeyDown() then
 			pressedKey = "SHIFT-"
@@ -25,7 +25,7 @@ local function checkKeys(self, key)
 			pressedKey = "CTRL-"
 		end
 		pressedKey = pressedKey .. key
-		local spell = br.player.spells.bindings[pressedKey]
+		local spell = br.rotation.spells.bindings[pressedKey]
 		if spell ~= nil then
 			local cd = br.functions.spell:getSpellCD(spell)
 			if br.functions.spell:getName(br.functions.spell:getName(spell)) and cd <= br.functions.misc:getOptionValue("Smart Queue") and br.functions.misc:isChecked(br.functions.spell:getName(spell) .. " (Queue)") and (cd > 0 or br.game.C_Spell.IsSpellUsable(spell) == false or br.game.UnitCastingInfo("player")) then
@@ -79,9 +79,9 @@ local function GetKeyBindings()
 		end
 		return name
 	end
-	if br.player ~= nil and br.player.spells ~= nil then
-		br.player.spells.bindings = {}
-		for _, v in pairs(br.player.spells.abilities) do
+	if br.rotation ~= nil and br.rotation.spells ~= nil then
+		br.rotation.spells.bindings = {}
+		for _, v in pairs(br.rotation.spells.abilities) do
 			local slot = br.game.C_ActionBar.FindSpellActionButtons(v)
 			if slot ~= nil then
 				local _, id, _ = br.game.GetActionInfo(slot[1])
@@ -89,16 +89,16 @@ local function GetKeyBindings()
 					for _, y in pairs(slot) do
 						local key, key2 = br.game.GetBindingKey(GetActionbarSlot(y))
 						if key ~= nil then
-							br.player.spells.bindings[key] = v
+							br.rotation.spells.bindings[key] = v
 						end
 						if key2 ~= nil then
-							br.player.spells.bindings[key2] = v
+							br.rotation.spells.bindings[key2] = v
 						end
 					end
 				end
 			end
 		end
-		--for i,v in pairs(br.player.spells.bindings) do print(i,v) end
+		--for i,v in pairs(br.rotation.spells.bindings) do print(i,v) end
 	end
 end
 

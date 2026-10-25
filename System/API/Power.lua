@@ -1,12 +1,10 @@
 ---
 -- These functions help in retrieving information about player power.
--- Power functions are stored in br.player.power and can be utilized by `local power = br.player.power` in your profile.
--- power is the table located at br.player.power
+-- Power functions are the profile API table `power` (br.api.profile.power); profiles use it by name.
 -- powerType is the name of the power passed from the builder which cycles all the collected power from the power list
 -- powerIndex is the powerID passed from the builder which cycles all the collected power from the power list
--- @module br.player.power
+-- @module power
 local _, br = ...
-if br.api == nil then br.api = {} end
 
 --- Reference for powerIndex and powerType variables.
 -- @table powerList
@@ -29,7 +27,7 @@ if br.api == nil then br.api = {} end
 -- @field 18 = pain
 -- @field 19 = essence
 
-br.api.power = function(power,powerType,powerIndex)
+br.api.build.power = function(power,powerType,powerIndex)
     local isDKRunes = br.functions.unit:getClass("player") == "DEATHKNIGHT" and powerIndex == 5
     local isDestruction = br.loader.selectedSpecID == 267 and powerIndex == 7
 
@@ -153,7 +151,7 @@ br.api.power = function(power,powerType,powerIndex)
 
         power[powerType].deathPercent = function() return power[powerType].runes.deathPercent() end
 
-        -- Top-level aliases so callers can use br.player.power.runes.<type>() directly
+        -- Top-level aliases so callers can use power.runes.<type>() directly
         power[powerType].frost = function() return power[powerType].runes.frost() end
 
         power[powerType].frostPercent = function() return power[powerType].runes.frostPercent() end

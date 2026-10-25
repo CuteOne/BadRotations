@@ -1,11 +1,10 @@
 ---
 -- These functions help in casting spells and retrieving information about casts.
--- Cast functions are stored in br.player.cast and can be utilized by `local cast = br.player.cast` in your profile.
+-- Cast functions are the profile API table `cast` (br.api.profile.cast); profiles use it by name.
 -- `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
--- @module br.player.cast
+-- @module cast
 local _, br = ...
 
-if br.api == nil then br.api = {} end
 
 -- cast.<spell>() runs every check itself, so a profile needs no cast.able.<spell>() before it;
 -- cast.able only asks whether the spell could go out now, without casting it.
@@ -35,21 +34,21 @@ local FORMS = {
 
 local makeCaller
 local callerMeta = {
-    __call = function(self, ...) return self[CALL](...) end,
+    __call = function(api, ...) return api[CALL](...) end,
     -- Forms and .rank are made the first time a profile uses them
-    __index = function(self, key)
+    __index = function(api, key)
         local fn
         if FORMS[key] ~= nil then
-            local form, call = FORMS[key], rawget(self, CALL)
+            local form, call = FORMS[key], rawget(api, CALL)
             fn = function(...) return form(call, ...) end
-        elseif key == "rank" and rawget(self, RANK_CALL) ~= nil then
-            local callAtRank, rank = rawget(self, RANK_CALL), 1
+        elseif key == "rank" and rawget(api, RANK_CALL) ~= nil then
+            local callAtRank, rank = rawget(api, RANK_CALL), 1
             local ranked = makeCaller(function(...) return callAtRank(rank, ...) end)
             fn = function(n) rank = n; return ranked end
         else
             return nil
         end
-        rawset(self, key, fn)
+        rawset(api, key, fn)
         return fn
     end,
 }
@@ -59,11 +58,10 @@ makeCaller = function(call, callAtRank)
     return setmetatable({ [CALL] = call, [RANK_CALL] = callAtRank }, callerMeta)
 end
 
--- br.api.cast runs once per spell in the spell list. Per-spell functions (cast.<spell>, cast.able.<spell>,
+-- br.api.build.cast runs once per spell in the spell list. Per-spell functions (cast.<spell>, cast.able.<spell>,
 -- ...) are made every time; generic ones (cast.id, cast.name, cast.form, ...) only the first time.
-br.api.cast = function(self, spell, id)
-    if self.cast == nil then self.cast = {} end
-    local cast = self.cast
+br.api.build.cast = function(api, spell, id)
+    local cast = api.cast
     if cast.able == nil then cast.able = {} end
     if cast.active == nil then cast.active = {} end
     if cast.auto == nil then cast.auto = {} end
@@ -179,11 +177,17 @@ br.api.cast = function(self, spell, id)
         return br.functions.spell:isActive(currentRank())
     end
 
-    --- Cancels the current spell being cast if it matches the specified spell.
+    --- Cancels the current spell being cast if it matches the specified spell, or stops it repeating
+    -- (Auto Shot, Shoot).
     -- @function cast.cancel.spell
     -- @treturn boolean
     cast.cancel[spell] = function()
-        if self.cast.current[spell]() then
+        -- An auto-repeating spell (Auto Shot, Shoot) stops when cast again; stopping a cast doesn't stop it
+        if spell ~= "autoAttack" and br.functions.spell:isAutoRepeating(currentRank()) then
+            br.functions.cast:stopAutoRepeat(currentRank())
+            return true
+        end
+        if api.cast.current[spell]() then
             br.functions.cast:stopCasting()
             return true
         end
@@ -212,7 +216,7 @@ br.api.cast = function(self, spell, id)
         end
     end
 
-    --- Gets the currently cast spell for the target (Alternate to br.player.cast.active.spell()).
+    --- Gets the currently cast spell for the target (Alternate to cast.active.spell()).
     -- @function cast.current.spell
     -- @string thisUnit Acceptable parameters: nil (defaults to "player"), standard WoW units, or dynamic units.
     -- @treturn boolean
@@ -398,7 +402,7 @@ br.api.cast = function(self, spell, id)
     -- @return boolean
     cast.pool[spell] = function(altPower, specificAmt, multiplier)
         local powerType = br.functions.power:getPowerTypeName("player")
-        local power = br.player.power
+        local power = api.power
         specificAmt = specificAmt or 0
         multiplier = multiplier or 1
         if altPower == nil then altPower = false end
@@ -497,6 +501,17 @@ br.api.cast = function(self, spell, id)
             else
                 return true
             end
+        end
+    end
+
+    --- Casts with the movement animation cancelled: steps back with a jump while castFn runs (Havoc's
+    -- Fel Rush). This moves the character, so only use it behind a mode the player turns on.
+    -- @function cast.withAnimationCancel
+    -- @tparam function castFn Casts the spell, e.g. function() return cast.felRush() end
+    -- @treturn boolean What castFn returned
+    if cast.withAnimationCancel == nil then
+        cast.withAnimationCancel = function(castFn)
+            return br.functions.cast:withMoveAnimationCancel(castFn)
         end
     end
 end

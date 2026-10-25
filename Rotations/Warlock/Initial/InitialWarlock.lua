@@ -4,15 +4,15 @@ local rotationName = "Initial"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "On", icon = "shadowBolt", overlay = "Rotation Enabled", tip = "Enable Rotation" },
         { name = "Off", icon = "fear", overlay = "Rotation Disabled", tip = "Disable Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "unendingResolve", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "unendingResolve", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("PetSummon", { modes = {
+    ui.toggle("PetSummon", { modes = {
         { name = "1", icon = "summonImp", overlay = "Imp", tip = "Summon Imp" },
         { name = "2", icon = "summonVoidwalker", overlay = "Voidwalker", tip = "Summon Voidwalker", highlight = true },
         { name = "None", icon = "fear", overlay = "No pet", tip = "Dont Summon any Pet" },
@@ -27,43 +27,33 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Basic Trinket Module
-    br.player.module.BasicTrinkets(nil, section)
+    module.BasicTrinkets(nil, section)
     -- Corruption
-    br.ui:checkbox(section, "Use Corruption")
+    ui.checkbox(section, "Use Corruption")
     -- Curse of Weakness
-    br.ui:checkbox(section, "Use Curse of Weakness")
+    ui.checkbox(section, "Use Curse of Weakness")
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Basic Healing Module
-    br.player.module.BasicHealing(section)
+    module.BasicHealing(section)
     -- Drain Life
-    br.ui:spinner(section, "Drain Life", { value = 40, tip = "Pet Health Percent to Cast At" })
+    ui.spinner(section, "Drain Life", { value = 40, tip = "Pet Health Percent to Cast At" })
     -- Health Funnel
-    br.ui:spinner(section, "Health Funnel", { value = 30, max = 95, tip = "Pet Health Percent to Cast At" })
-    br.ui:spinner(section, "Player Limit", { value = 70, checkbox = false, tip = "Health Percent to not use below." })
+    ui.spinner(section, "Health Funnel", { value = 30, max = 95, tip = "Pet Health Percent to Cast At" })
+    ui.spinner(section, "Player Limit", { value = 70, checkbox = false, tip = "Health Percent to not use below." })
     -- Unending Resolve
-    br.ui:spinner(section, "Unending Resolve", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Unending Resolve", { value = 50, tip = "Health Percent to Cast At" })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local cast
-local cd
-local debuff
-local enemies
 local mode
-local module
-local ui
-local pet
-local spell
-local unit
-local units
 -- General Locals
 local haltProfile
 local profileStop
@@ -77,8 +67,8 @@ local actionList = {}
 -- Action List - Extra
 actionList.Extras = function()
     -- Summon Pet
-    if not unit.moving() and unit.level() >= 3 and GetTime() - br.pauseTime > 0.5
-        and br.debug.timer:useTimer("summonPet", 1)
+    if not unit.moving() and unit.level() >= 3 and ui.time() - var.pauseTime > 0.5
+        and ui.timer("summonPet", 1)
     then
         if (mode.petSummon == 1 or (mode.petSummon == 2 and not spell.summonVoidwalker.known())) and not pet.imp.active() then
             if cast.summonImp("player") then return true end
@@ -87,7 +77,7 @@ actionList.Extras = function()
             if cast.summonVoidwalker("player") then return true end
         end
         if mode.petSummon == 3 and (pet.imp.active() or pet.voidwalker.active()) then
-            PetDismiss()
+            pet.dismiss()
         end
     end
 end -- End Action List - Extra
@@ -208,18 +198,7 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    cast        = br.player.cast
-    cd          = br.player.cd
-    debuff      = br.player.debuff
-    enemies     = br.player.enemies
-    mode        = br.player.ui.mode
-    module      = br.player.module
-    ui          = br.player.ui
-    pet         = br.player.pet
-    spell       = br.player.spell
-    ui          = br.player.ui
-    unit        = br.player.unit
-    units       = br.player.units
+    mode        = ui.mode
     -- General Locals
     profileStop = profileStop or false
     haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or ui.pause() or mode.rotation == 2
@@ -231,7 +210,7 @@ local function runRotation()
     enemies.get(40, "player", false, true) -- Makes a variable called, enemies.yards40f
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = GetTime() end
+    if var.pauseTime == nil then var.pauseTime = ui.time() end
 
     ---------------------
     --- Begin Profile ---
@@ -240,7 +219,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        br.pauseTime = GetTime()
+        var.pauseTime = ui.time()
         return true
     else
         --------------
@@ -261,7 +240,7 @@ local function runRotation()
         if actionList.Combat() then return true end
     end         -- Pause
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 1454,
     expansion = "MOP",

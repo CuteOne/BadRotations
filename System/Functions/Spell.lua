@@ -233,7 +233,7 @@ function spell:canInterrupt(unit, percentint)
 		end
 		-- Return when interrupt time is met
 		if ((whitelistOnly and onWhitelist) or not whitelistOnly)
-			or not (br.player.state.instance == "party" or br.player.state.instance == "raid" or br.player.state.instance == "scenario")
+			or not (br.rotation.state.instance == "party" or br.rotation.state.instance == "raid" or br.rotation.state.instance == "scenario")
 		then
 			-- Nothing interruptible is being cast; also avoids 0/0, which raises "Division by zero" on Forever
 			if not interruptable or castDuration <= 0 then return false end
@@ -330,7 +330,7 @@ function spell:getCastingRegen(spellID)
 	local tooltip = tonumber(generates:sub(-2)) or 0
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
 	local castTime = br.functions.cast:getCastTime(spellID) or 0
-	local gcd = br.player.state.gcdMax
+	local gcd = br.rotation.state.gcdMax
 	local castSeconds = (castTime > gcd) and castTime or gcd
 	power = power + regenRate * castSeconds + tooltip
 
@@ -394,26 +394,17 @@ function spell:getDamageRacialName(race)
 	return nil
 end
 
+-- The empower stage the player's channel of this spell has reached (0 when not channelling it)
 function spell:getEmpoweredRank(spellID)
-	local stage = 0
-	if br.empowerID and spellID == br.empowerID then
-		local _, _, _, startTime, _, _, _, _, _, totalStages = br.game.UnitChannelInfo("player")
-		if totalStages and totalStages > 0 then
-			maxStage = totalStages
-			startTime = startTime / 1000 -- Doing this here so we don't divide by 1000 every loop index
-			local currentTime = br.game.GetTime() -- If you really want to get time each loop, go for it. But the time difference will be miniscule for a single frame loop
-			local stageDuration = 0
-			for i = 1, totalStages do
-				stageDuration = stageDuration + br.game.GetUnitEmpowerStageDuration("player", i - 1) / 1000
-				if startTime + stageDuration > currentTime then
-					break -- Break early so we don't keep checking, we haven't hit this stage yet
-				end
-				stage = i
-			end
-		end
-		if totalStages == nil then
-			stage = maxStage
-		end
+	local _, _, _, startTime, _, _, _, channelID, _, totalStages = br.game.UnitChannelInfo("player")
+	if channelID == nil or channelID ~= spellID or not totalStages or totalStages == 0 then return 0 end
+	startTime = startTime / 1000
+	local now = br.game.GetTime()
+	local stage, stageEnds = 0, startTime
+	for i = 1, totalStages do
+		stageEnds = stageEnds + br.game.GetUnitEmpowerStageDuration("player", i - 1) / 1000
+		if stageEnds > now then break end -- this stage isn't reached yet
+		stage = i
 	end
 	return stage
 end
@@ -506,7 +497,7 @@ function spell:getHighestSpellID(key)
     end
     local found = spell:findHighestSpellID(key)
     -- Only once the player's spells are compiled: before that the class lists may not be loaded yet
-    if br.player and br.player.spells then highestSpellIDs[key] = found == nil and NO_SPELL or found end
+    if br.rotation and br.rotation.spells then highestSpellIDs[key] = found == nil and NO_SPELL or found end
     return found
 end
 
@@ -660,8 +651,6 @@ function spell:getSpellCD(SpellID)
 	end
 end
 
--- Resolve a spell reference (id, name, or BR spell table with .id) to an id or name.
--- local id = br.functions.spell:getSpellIdFromRef(br.player.spell.regrowth)
 -- The spell ID the client answers for an ID or a name (by name: the highest rank the player knows)
 -- local id = br.functions.spell:getSpellID("Wrath")
 function spell:getSpellID(spellIDOrName)
@@ -670,6 +659,8 @@ function spell:getSpellID(spellIDOrName)
 	return info and info.spellID
 end
 
+-- Resolve a spell reference (id, name, or BR spell table with .id) to an id or name.
+-- local id = br.functions.spell:getSpellIdFromRef(br.rotation.spells.regrowth)
 function spell:getSpellIdFromRef(spellRef)
 	if spellRef == nil then return nil end
 	local refType = type(spellRef)
@@ -700,7 +691,7 @@ function spell:getSpellRange(spellID, option)
 	-- Modifiers
 	local rangeMod = 0
 	-- Balance Affinity range change (Druid - Not Balance)
-	if br.player ~= nil then
+	if br.rotation ~= nil then
 		if spell:hasTalent("balanceAffinity") and option ~= "noMod" then
 			rangeMod = 5
 		end
@@ -745,9 +736,9 @@ end
 
 -- The compiled talent state of a talent from the spell lists (by key, hero talents included)
 local function talentInfo(talentKey)
-	local player = br.player
-	local id = player and player.talentIDs and player.talentIDs[talentKey]
-	return id and player.talentInfo and player.talentInfo[id]
+	local rotation = br.rotation
+	local id = rotation and rotation.talentIDs and rotation.talentIDs[talentKey]
+	return id and rotation.talentInfo and rotation.talentInfo[id]
 end
 
 -- True when the talent from the spell lists (by key) is active, as talent.<key> answers
@@ -761,6 +752,11 @@ end
 -- (queued for the next swing, like Maul)
 function spell:isActive(spellID)
 	return br.game.C_Spell.IsAutoRepeatSpell(spell:getName(spellID)) or br.game.C_Spell.IsCurrentSpell(spellID)
+end
+
+-- True while the spell repeats on its own (Auto Shot, Shoot)
+function spell:isAutoRepeating(spellID)
+	return br.game.C_Spell.IsAutoRepeatSpell(spell:getName(spellID)) == true
 end
 
 function spell:isKnown(spellID)
@@ -855,7 +851,7 @@ end
 -- @param formSpellID - The form's spell ID
 -- @return boolean
 function spell:isTankForm(formSpellID)
-    local spells = br.player and br.player.spells
+    local spells = br.rotation and br.rotation.spells
     if spells == nil or formSpellID == nil then return false end
     return spell:isRankOf(formSpellID, spells.bearForm) or spell:isRankOf(formSpellID, spells.direBearForm)
         or spell:isRankOf(formSpellID, spells.defensiveStance)

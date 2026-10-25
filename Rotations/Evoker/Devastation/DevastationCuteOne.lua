@@ -5,22 +5,22 @@ local rotationName = "CuteOne" -- Change to name of profile listed in options dr
 ---------------
 
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "disintegrate", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
         { name = "Mult", icon = "azureStrike", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = true },
         { name = "Sing", icon = "livingFlame", overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = true },
         { name = "Off", icon = "blessingOfTheBronze", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "furyOfTheAspects", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "furyOfTheAspects", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "furyOfTheAspects", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "livingFlame", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "livingFlame", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "tailSwipe", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "tailSwipe", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
@@ -36,95 +36,82 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS --- -- Define General Options
     -----------------------
-    section = br.ui:section("General")
-    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+    section = ui.section("General")
+    ui.spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
         tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
     -- Blessing of the Bronze
-    br.ui:checkbox(section, "Blessing of the Bronze")
+    ui.checkbox(section, "Blessing of the Bronze")
     -- Source of Magic
-    br.ui:checkbox(section, "Source of Magic on Focus", { tip = "Will cast Source of Magic Ability on Focus." })
+    ui.checkbox(section, "Source of Magic on Focus", { tip = "Will cast Source of Magic Ability on Focus." })
     -- Stage Limiter
-    br.ui:checkbox(section, "Empower Stage Limiter", { tip = "Enable to set maximum stages to Empower to." })
-    br.ui:spinner(section, "Fire Breath Stage Limit", { value = 4, min = 1, max = 4, step = 1, checkbox = false, tip = "" })
-    br.ui:spinner(section, "Eternity Surge Stage Limit", { value = 4, min = 1, max = 4, step = 1, checkbox = false, tip = "" })
+    ui.checkbox(section, "Empower Stage Limiter", { tip = "Enable to set maximum stages to Empower to." })
+    ui.spinner(section, "Fire Breath Stage Limit", { value = 4, min = 1, max = 4, step = 1, checkbox = false, tip = "" })
+    ui.spinner(section, "Eternity Surge Stage Limit", { value = 4, min = 1, max = 4, step = 1, checkbox = false, tip = "" })
     -- Visage
-    br.ui:checkbox(section, "Maintain Visage", { tip = "Will use Visage Ability whenever possible." })
+    ui.checkbox(section, "Maintain Visage", { tip = "Will use Visage Ability whenever possible." })
     ------------------------
     --- COOLDOWN OPTIONS --- -- Define Cooldown Options
     ------------------------
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
     -- Eternity Surge
-    br.ui:dropdown(section, "Eternity Surge", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "When to use Eternity Surge." })
+    ui.dropdown(section, "Eternity Surge", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "When to use Eternity Surge." })
     -- Deep Breath
-    br.ui:dropdown(section, "Deep Breath", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Deep Breath Ability." })
+    ui.dropdown(section, "Deep Breath", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Deep Breath Ability." })
     -- Dragonrage
-    br.ui:dropdown(section, "Dragonrage", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Dragonrage Ability." })
+    ui.dropdown(section, "Dragonrage", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Dragonrage Ability." })
     -- Flame Breath
-    br.ui:dropdown(section, "Fire Breath", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "When to use Fire Breath." })
+    ui.dropdown(section, "Fire Breath", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "When to use Fire Breath." })
     -- Tip the Scales
-    br.ui:dropdown(section, "Tip the Scales", { choices = alwaysCdAoENever, value = 3, checkbox = false,
+    ui.dropdown(section, "Tip the Scales", { choices = alwaysCdAoENever, value = 3, checkbox = false,
         tip = "When to use Tip the Scales Ability." })
     -------------------------
     --- DEFENSIVE OPTIONS --- -- Define Defensive Options
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Cauterizing Flame
-    br.ui:checkbox(section, "Cauterizing Flame")
-    br.ui:dropdown(section, "Cauterizing Flame - Target", { choices = { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, value = "Player", checkbox = false,
+    ui.checkbox(section, "Cauterizing Flame")
+    ui.dropdown(section, "Cauterizing Flame - Target", { choices = { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, value = "Player", checkbox = false,
         tip = "Target to cast on" })
     -- Emerald Blossom
-    br.ui:spinner(section, "Emerald Blossom", { value = 35, max = 99, tip = "Use Emerald Blossom to Heal below this threshold" })
+    ui.spinner(section, "Emerald Blossom", { value = 35, max = 99, tip = "Use Emerald Blossom to Heal below this threshold" })
     -- Expunge
-    br.ui:checkbox(section, "Expunge")
-    br.ui:dropdown(section, "Expunge - Target", { choices = { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, value = "Player", checkbox = false,
+    ui.checkbox(section, "Expunge")
+    ui.dropdown(section, "Expunge - Target", { choices = { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, value = "Player", checkbox = false,
         tip = "Target to cast on" })
     -- Living Flame
-    br.ui:spinner(section, "Living Flame Heal", { value = 45, max = 99, tip = "Use Living Flame to Heal below this threshold" })
-    br.ui:spinner(section, "Living Flame OoC", { value = 80, max = 99, checkbox = false,
+    ui.spinner(section, "Living Flame Heal", { value = 45, max = 99, tip = "Use Living Flame to Heal below this threshold" })
+    ui.spinner(section, "Living Flame OoC", { value = 80, max = 99, checkbox = false,
         tip = "Use Living Flame to Heal Out of Combat below this threshold" })
     -- Obsidian Scales
-    br.ui:spinner(section, "Obsidian Scales", { value = 50, max = 99, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Obsidian Scales", { value = 50, max = 99, tip = "Health Percent to Cast At" })
     -- Renewing Blaze
-    br.ui:spinner(section, "Renewing Blaze", { value = 40, max = 99, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Renewing Blaze", { value = 40, max = 99, tip = "Health Percent to Cast At" })
     -- Return
-    br.ui:checkbox(section, "Return")
-    br.ui:dropdown(section, "Return - Target", { choices = { "|cff00FF00Target", "|cffFF0000Mouseover" }, value = "Target", checkbox = false,
+    ui.checkbox(section, "Return")
+    ui.dropdown(section, "Return - Target", { choices = { "|cff00FF00Target", "|cffFF0000Mouseover" }, value = "Target", checkbox = false,
         tip = "Target to cast on" })
     -- Verdant Embrace
-    br.ui:spinner(section, "Verdant Embrace", { value = 55, max = 99, tip = "Use Verdant Embrace to Heal below this threshold" })
+    ui.spinner(section, "Verdant Embrace", { value = 55, max = 99, tip = "Use Verdant Embrace to Heal below this threshold" })
     -- Wing Buffet
-    br.ui:spinner(section, "Wing Buffet - HP", { value = 50, tip = "Health Percent to Cast At" })
-    br.ui:spinner(section, "Wing Buffet - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
+    ui.spinner(section, "Wing Buffet - HP", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Wing Buffet - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
     -------------------------
     --- INTERRUPT OPTIONS --- -- Define Interrupt Options
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Quell
-    br.ui:checkbox(section, "Quell")
+    ui.checkbox(section, "Quell")
     -- Tail Swipe
-    br.ui:checkbox(section, "Tail Swipe")
+    ui.checkbox(section, "Tail Swipe")
     -- Interrupt Percentage
-    br.ui:spinner(section, "InterruptAt", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
+    ui.spinner(section, "InterruptAt", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
-local buff
-local cast
-local cd
-local debuff
-local enemies
 local essence
-local equiped
-local spell
-local talent
-local ui
-local unit
-local units
-local use
-local var
 -- General Locals - Common Non-BR API Locals used in profiles
 
 -- Profile Specific Locals - Any custom to profile locals
@@ -144,10 +131,9 @@ end
 
 custom.getDeepBreathLocation = function(minUnits)
     for i = 21, 50 do
-        local enemies = #br.player.enemies.rect.get(6, i, false)
-        if enemies >= minUnits then
-            local playerX, playerY, playerZ = br.functions.unit:GetObjectPosition("player")
-            local playerFacing = br.functions.unit:GetObjectFacing("player")
+        if #enemies.rect.get(6, i, false) >= minUnits then
+            local playerX, playerY, playerZ = unit.position("player")
+            local playerFacing = unit.facingAngle("player")
             local x = playerX + (i * math.cos(playerFacing))
             local y = playerY + (i * math.sin(playerFacing))
             return x, y, playerZ
@@ -173,8 +159,8 @@ actionList.Extra = function()
     end -- End Dummy Test-- Dummy DPS Test
     -- Blessing of the Bronze
     if ui.checked("Blessing of the Bronze") and cast.able.blessingOfTheBronze("player") then
-        for i = 1, #br.engines.healingEngine.friend do
-            local thisUnit = br.engines.healingEngine.friend[i].unit
+        for i = 1, #units.friends do
+            local thisUnit = units.friends[i].unit
             if not unit.deadOrGhost(thisUnit) and unit.distance(thisUnit) < 40 and buff.blessingOfTheBronze.remain(thisUnit) < 600 then
                 if cast.blessingOfTheBronze("player") then
                     ui.debug("Casting Blessing of the Bronze")
@@ -744,10 +730,10 @@ actionList.ST = function()
     end
     -- Shattering Star
     -- shattering_star,if=(buff.essence_burst.stack<buff.essence_burst.max_stack|!talent.arcane_vigor)&(!cooldown.eternity_surge.up|!buff.dragonrage.up|!talent.event_horizon)
-    if cast.able.shatteringStar(unit.dyn25) and (((buff.essenceBurst.stack() < var.essenceBurstMaxStacks or not talent.arcaneVigor)
+    if cast.able.shatteringStar(units.dyn25) and (((buff.essenceBurst.stack() < var.essenceBurstMaxStacks or not talent.arcaneVigor)
             and (cd.eternitySurge.exists() or not buff.dragonrage.exists() or not talent.eventHorizon)))
     then
-        if cast.shatteringStar(unit.dyn25) then
+        if cast.shatteringStar(units.dyn25) then
             ui.debug("Casting Shattering Star [St]")
             return true
         end
@@ -834,7 +820,7 @@ actionList.ST = function()
     -- Firestorm
     -- firestorm,if=!buff.dragonrage.up&debuff.shattering_star_debuff.down
     if cast.able.firestorm("target", "ground", 1, 8) and not buff.dragonrage.exists()
-        and not debuff.shatteringStar.exists(unit.dyn25f)
+        and not debuff.shatteringStar.exists(units.dyn25)
     then
         if cast.firestorm("target", "ground", 1, 8) then
             ui.debug("Casting Firestorm [St]")
@@ -965,20 +951,7 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff                                              = br.player.buff
-    cast                                              = br.player.cast
-    cd                                                = br.player.cd
-    debuff                                            = br.player.debuff
-    enemies                                           = br.player.enemies
-    equiped                                           = br.player.equiped
-    essence                                           = br.player.power.essence
-    spell                                             = br.player.spell
-    talent                                            = br.player.talent
-    ui                                                = br.player.ui
-    unit                                              = br.player.unit
-    units                                             = br.player.units
-    use                                               = br.player.use
-    var                                               = br.player.variables
+    essence                                           = power.essence
     -- General Locals
 
     -- Deep Breath Cast Location
@@ -986,7 +959,7 @@ local function runRotation()
 
     -- Fire Breath Stage
     if var.stageFireBreath == nil then var.stageFireBreath = 0 end
-    if var.fireBreathStage == nil or br.empowerID ~= spell.fireBreath.id() then var.fireBreathStage = 0; end
+    var.fireBreathStage = 0
     if cast.empowered.fireBreath() > 0 then
         var.fireBreathStage = cast.empowered.fireBreath()
     end
@@ -994,7 +967,7 @@ local function runRotation()
 
     -- Eternity Surge Stage
     if var.stageEternitySurge == nil then var.stageEternitySurge = 0 end
-    if var.eternitySurgeStage == nil or br.empowerID ~= spell.eternitySurge.id() then var.eternitySurgeStage = 0; end
+    var.eternitySurgeStage = 0
     if cast.empowered.eternitySurge() > 0 then
         var.eternitySurgeStage = cast.empowered.eternitySurge()
     end
@@ -1002,7 +975,7 @@ local function runRotation()
 
     var.moveCast = (not unit.moving() or buff.hover.exists())
     var.profileStop = false
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 4
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or ui.pause() or ui.mode.rotation == 4
     -- Units
     units.get(25)
     units.get(40)
@@ -1117,7 +1090,7 @@ local function runRotation()
         if actionList.Combat() then return true end
     end         -- Pause
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 1467,
     expansion = "MOP",

@@ -4,34 +4,34 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "spinningCraneKick", overlay = "Automatic Rotation Enabled", tip = "Swaps between Single and Multiple based on number of targets in range." },
         { name = "AOE", icon = "spinningCraneKick", overlay = "AOE Rotation Enabled", tip = "AOE Rotation Used" },
         { name = "Single", icon = "tigerPalm", overlay = "Single Target Rotation Enabled", tip = "Single Target Rotation Used" },
         { name = "Off", icon = "expelHarm", overlay = "Rotation Disabled", tip = "No Rotation will be used." },
     } })
-    br.ui:toggle("Cooldown", { modes = {
+    ui.toggle("Cooldown", { modes = {
         { name = "Auto", icon = "touchOfDeath", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "touchOfDeath", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "touchOfDeath", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "expelHarm", overlay = "Defensive Enabled", tip = "Enables Defensive" },
         { name = "Off", icon = "expelHarm", overlay = "Defensive Disabled", tip = "Disables Defensive" },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "legSweep", overlay = "Interrupt Enabled", tip = "Enables Interrupt" },
         { name = "Off", icon = "legSweep", overlay = "Interrupt Disabled", tip = "Interrupt Defensive" },
     } })
-    br.ui:toggle("StormEarthAndFire", { modes = {
+    ui.toggle("StormEarthAndFire", { modes = {
         { name = "On", icon = "stormEarthAndFire", overlay = "Storm, Earth, and Fire Enabled", tip = "Enables Storm, Earth, and Fire" },
         { name = "Off", icon = "stormEarthAndFire", overlay = "Storm, Earth, and Fire Disabled", tip = "Disables Storm, Earth, and Fire" },
     } })
-    br.ui:toggle("FlyingSerpentKick", { modes = {
+    ui.toggle("FlyingSerpentKick", { modes = {
         { name = "On", icon = "flyingSerpentKick", overlay = "Auto Flying Serpent Kick Enabled", tip = "Enables Flying Serpent Kick" },
         { name = "Off", icon = "flyingSerpentKick", overlay = "Auto Flying Serpent Kick Disabled", tip = "Disables Flying Serpent Kick" },
     } })
-    br.ui:toggle("ChiBuilder", { modes = {
+    ui.toggle("ChiBuilder", { modes = {
         { name = "On", icon = "expelHarm", overlay = "Chi Builder Enabled", tip = "Enables Chi Builder" },
         { name = "Off", icon = "expelHarm", overlay = "Chi Builder Disabled", tip = "Disables Chi Builder" },
     } })
@@ -45,103 +45,90 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
         -- Dummy DPS Test
-        br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+        ui.spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
             tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
         -- Crackling Jade lightning
-        br.ui:checkbox(section, "Crackling Jade Lightning")
-        br.ui:spinner(section, "Cancel CJL Range", { value = 10, min = 5, max = 40, checkbox = false,
+        ui.checkbox(section, "Crackling Jade Lightning")
+        ui.spinner(section, "Cancel CJL Range", { value = 10, min = 5, max = 40, checkbox = false,
             tip = "Cancels Crackling Jade Lightning below this range in yards." })
         -- Grapple Weapon
-        br.ui:checkbox(section, "Grapple Weapon", { tip = "Automatically disarms dangerous melee enemies in PvE." })
+        ui.checkbox(section, "Grapple Weapon", { tip = "Automatically disarms dangerous melee enemies in PvE." })
         -- Legacy of the Emperor
-        br.ui:dropdown(section, "Legacy of the Emperor", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+        ui.dropdown(section, "Legacy of the Emperor", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
             tip = "Set how to use Legacy of the Emperor" })
         -- Legacy of the White Tiger
-        br.ui:dropdown(section, "Legacy of the White Tiger", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+        ui.dropdown(section, "Legacy of the White Tiger", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
             tip = "Set how to use Legacy of the White Tiger" })
         -- Roll
-        br.ui:checkbox(section, "Roll")
+        ui.checkbox(section, "Roll")
     ------------------------
     --- COOLDOWN OPTIONS ---
     ------------------------
-    section = br.ui:section("Cooldown")
+    section = ui.section("Cooldown")
         -- Invoke Xuen the White Tiger
-        br.ui:dropdown(section, "Invoke Xuen", { choices = "AlwaysCdAoeNever", value = "AOE/CD", checkbox = false,
+        ui.dropdown(section, "Invoke Xuen", { choices = "AlwaysCdAoeNever", value = "AOE/CD", checkbox = false,
             tip = "When to use Invoke Xuen the White Tiger" })
         -- Touch of Death
-        br.ui:dropdown(section, "Touch of Death", { choices = "AlwaysCdAoeNever", value = "AOE/CD", checkbox = false,
+        ui.dropdown(section, "Touch of Death", { choices = "AlwaysCdAoeNever", value = "AOE/CD", checkbox = false,
             tip = "When to use Touch of Death" })
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
         -- Dampen Harm / Diffuse Magic
-        br.ui:spinner(section, "Dampen Harm / Diffuse Magic", { value = 60, tip = "Health Percent to Cast At" })
+        ui.spinner(section, "Dampen Harm / Diffuse Magic", { value = 60, tip = "Health Percent to Cast At" })
         -- Detox
-        br.ui:checkbox(section, "Detox")
-        br.ui:dropdown(section, "Detox - Target", { choices = { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, value = "Player", checkbox = false,
+        ui.checkbox(section, "Detox")
+        ui.dropdown(section, "Detox - Target", { choices = { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, value = "Player", checkbox = false,
             tip = "Target to cast on" })
         -- Disable
-        br.ui:checkbox(section, "Disable", { tip = "Disables all defensive abilities." })
+        ui.checkbox(section, "Disable", { tip = "Disables all defensive abilities." })
         -- Expel Harm
-        br.ui:spinner(section, "Expel Harm", { value = 40, tip = "Health Percent to Cast At" })
+        ui.spinner(section, "Expel Harm", { value = 40, tip = "Health Percent to Cast At" })
         -- Fortifying Brew
-        br.ui:spinner(section, "Fortifying Brew", { value = 30, tip = "Health Percent to Cast At" })
+        ui.spinner(section, "Fortifying Brew", { value = 30, tip = "Health Percent to Cast At" })
         -- Healing Sphere
-        br.ui:spinner(section, "Healing Sphere", { value = 50, tip = "Health Percent to Cast At" })
-        br.ui:dropdown(section, "Healing Sphere - Target", { choices = { "|cff00FF00Self", "|cffFFFF00Lowest" }, value = "Self", checkbox = false,
+        ui.spinner(section, "Healing Sphere", { value = 50, tip = "Health Percent to Cast At" })
+        ui.dropdown(section, "Healing Sphere - Target", { choices = { "|cff00FF00Self", "|cffFFFF00Lowest" }, value = "Self", checkbox = false,
             tip = "Target to cast Healing Sphere on" })
         -- Leg Sweep
-        br.ui:spinner(section, "Leg Sweep - HP", { value = 50, tip = "Health Percent to Cast At" })
-        br.ui:spinner(section, "Leg Sweep - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
+        ui.spinner(section, "Leg Sweep - HP", { value = 50, tip = "Health Percent to Cast At" })
+        ui.spinner(section, "Leg Sweep - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
         -- Nimble Brew
-        br.ui:checkbox(section, "Nimble Brew")
+        ui.checkbox(section, "Nimble Brew")
         -- Resuscitate
-        br.ui:checkbox(section, "Resuscitate")
-        br.ui:dropdown(section, "Resuscitate - Target", { choices = { "|cff00FF00Target", "|cffFF0000Mouseover" }, value = "Target", checkbox = false,
+        ui.checkbox(section, "Resuscitate")
+        ui.dropdown(section, "Resuscitate - Target", { choices = { "|cff00FF00Target", "|cffFF0000Mouseover" }, value = "Target", checkbox = false,
             tip = "Target to cast on" })
         -- Touch of Karma
-        br.ui:spinner(section, "Touch of Karma", { value = 60, tip = "Health Percent to Cast At" })
+        ui.spinner(section, "Touch of Karma", { value = 60, tip = "Health Percent to Cast At" })
         -- Tiger's Lust
-        br.ui:checkbox(section, "Tiger's Lust", { tip = "Auto-cast Tiger's Lust to free movement impairment." })
+        ui.checkbox(section, "Tiger's Lust", { tip = "Auto-cast Tiger's Lust to free movement impairment." })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
         -- Leg Sweep
-        br.ui:checkbox(section, "Leg Sweep")
+        ui.checkbox(section, "Leg Sweep")
         -- Paralysis
-        br.ui:checkbox(section, "Paralysis")
+        ui.checkbox(section, "Paralysis")
         -- Spear Hand Strike
-        br.ui:checkbox(section, "Spear Hand Strike")
+        ui.checkbox(section, "Spear Hand Strike")
         -- Interrupt Percentage
-        br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
+        ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
-local charges
 local chi
-local debuff
-local enemies
 local energy
-local module
-local ui
-local unit
-local units
-local spell
-local talent
 -- Profile Specific Locals
 local actionList = {}
 local var = {}
-var.getFacingDistance = br.functions.range.getFacingDistance
 var.haltProfile = false
 var.profileStop = false
 var.grappleWeaponBlacklist = {} -- Stores NPC IDs that don't have weapons
@@ -170,21 +157,21 @@ local getBuffUnitOption = function(option, buffObject)
         -- 3. Group size has been stable for at least 3 seconds (prevents buffing when someone just left)
 
         -- Don't buff if group size changed recently (within 3 seconds)
-        if not br.engines.healingEngine:isGroupStable(3) then
+        if not units.groupStable(3) then
             return nil
         end
 
         local allAliveAndInRange = true
         local someoneNeedsBuff = false
         local unitNeedingBuff = nil
-        local currentGroupSize = #br.engines.healingEngine.friend
+        local currentGroupSize = #units.friends
 
         if currentGroupSize == 1 then return "player" end
 
         if currentGroupSize > 1 then
             -- First pass: Check if all members are alive and in range
             for i = 1, currentGroupSize do
-                local checkUnit = br.engines.healingEngine.friend[i].unit
+                local checkUnit = units.friends[i].unit
                 if unit.deadOrGhost(checkUnit) or unit.distance(checkUnit) >= 40 then
                     allAliveAndInRange = false
                     break
@@ -194,7 +181,7 @@ local getBuffUnitOption = function(option, buffObject)
             -- Second pass: Check if anyone needs the buff
             if allAliveAndInRange then
                 for i = 1, currentGroupSize do
-                    local nextUnit = br.engines.healingEngine.friend[i].unit
+                    local nextUnit = units.friends[i].unit
                     if buffObject.refresh(nextUnit) and unit.distance(nextUnit) < 40 then
                         someoneNeedsBuff = true
                         if unitNeedingBuff == nil then
@@ -233,7 +220,7 @@ actionList.Extra = function()
     -- * Roll
     if ui.checked("Roll") and cast.able.roll() and unit.moving()
         and var.targetDistance > 10 and unit.valid("target")
-        and var.getFacingDistance() < 5 and unit.facing("player", "target", 10)
+        and unit.facingDistance() < 5 and unit.facing("player", "target", 10)
     then
         if cast.roll() then
             ui.debug("Casting Roll")
@@ -248,10 +235,10 @@ actionList.Extra = function()
                 and not debuff.grappleWeapon.exists(thisUnit)
             then
                 -- Get NPC ID to check blacklist
-                local npcID = br.functions.unit:GetObjectID(thisUnit)
+                local npcID = unit.id(thisUnit)
                 -- Skip if this NPC type is blacklisted (known to not have weapons)
                 if not var.grappleWeaponBlacklist[npcID] then
-                    var.lastGrappleTarget = thisUnit
+                    var.lastGrappleTarget, var.lastGrappleAt = thisUnit, ui.time()
                     if cast.grappleWeapon(thisUnit) then
                         ui.debug("Casting Grapple Weapon on " .. unit.name(thisUnit) .. " [Extra]")
                         return true
@@ -454,9 +441,9 @@ actionList.Defensive = function()
                 local lowestHP = unit.hp()
 
                 -- Check party/raid members
-                if #br.engines.healingEngine.friend > 1 then
-                    for i = 1, #br.engines.healingEngine.friend do
-                        local friendUnit = br.engines.healingEngine.friend[i].unit
+                if #units.friends > 1 then
+                    for i = 1, #units.friends do
+                        local friendUnit = units.friends[i].unit
                         local friendHP = unit.hp(friendUnit)
                         if friendHP < lowestHP and unit.distance(friendUnit) < 40 then
                             lowestHP = friendHP
@@ -833,48 +820,33 @@ end -- End Action List - Combat
 ----------------
 --- ROTATION ---
 ----------------
--- Event frame for error detection
-var.grappleWeaponErrorFrame = var.grappleWeaponErrorFrame or CreateFrame("Frame")
-
-var.grappleWeaponErrorFrame:RegisterEvent("UI_ERROR_MESSAGE")
-var.grappleWeaponErrorFrame:SetScript("OnEvent", function(self, event, errorType, message)
-    if message and var.lastGrappleTarget and var.grappleWeaponBlacklist then
-        -- Check for weapon-related errors (common messages: "Target has no weapons", "Can't do that")
-        local weaponError = message:lower():find("weapon") or message:lower():find("disarm")
-        if weaponError then
-            local npcID = br.functions.unit:GetObjectID(var.lastGrappleTarget)
-            if npcID and not var.grappleWeaponBlacklist[npcID] then
-                var.grappleWeaponBlacklist[npcID] = true
-                print("|cff8000FFBadRotations|r: Blacklisted " .. (UnitName(var.lastGrappleTarget) or "Unknown") .. " (ID: " .. npcID .. ") - No weapons to grapple")
-            end
+-- The game's error after a Grapple Weapon: a weapon-related one means that NPC has no weapon to grapple
+local function checkGrappleError()
+    if not var.lastGrappleTarget then return end
+    local _, message, at = ui.lastError()
+    if message == nil or at < var.lastGrappleAt then return end
+    -- Check for weapon-related errors (common messages: "Target has no weapons", "Can't do that")
+    local weaponError = message:lower():find("weapon") or message:lower():find("disarm")
+    if weaponError then
+        local npcID = unit.id(var.lastGrappleTarget)
+        if npcID and not var.grappleWeaponBlacklist[npcID] then
+            var.grappleWeaponBlacklist[npcID] = true
+            print("|cff8000FFBadRotations|r: Blacklisted " .. (unit.name(var.lastGrappleTarget) or "Unknown") .. " (ID: " .. npcID .. ") - No weapons to grapple")
         end
-        var.lastGrappleTarget = nil
     end
-end)
+    var.lastGrappleTarget = nil
+end
 
 local function runRotation()
-    -- This profile handles racials itself; skip the shared Racial module
-    if not br.player.localRacial then br.player.localRacial = true end
     ---------------------
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff            = br.player.buff
-    cast            = br.player.cast
-    cd              = br.player.cd
-    charges         = br.player.charges
-    chi             = br.player.power.chi
-    debuff          = br.player.debuff
-    enemies         = br.player.enemies
-    energy          = br.player.power.energy
-    module          = br.player.module
-    ui              = br.player.ui
-    unit            = br.player.unit
-    units           = br.player.units
-    spell           = br.player.spell
-    talent          = br.player.talent
+    chi             = power.chi
+    energy          = power.energy
     -- General Locals
     var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or ui.pause() or ui.mode.rotation == 4
+    checkGrappleError()
     -- Dynamic Units
     -- Units
     units.get(5)
@@ -933,7 +905,8 @@ local function runRotation()
         end
     end -- Pause
 end     -- End runRotation
-br.loader.registerRotation({
+registerRotation({
+    handlesRacials = true,
     name      = rotationName,
     specID    = 269,
     expansion = "MOP",

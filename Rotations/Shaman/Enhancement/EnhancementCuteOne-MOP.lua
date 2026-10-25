@@ -3,22 +3,22 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "stormstrike", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
         { name = "Mult", icon = "fireNova", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
         { name = "Sing", icon = "stormstrike", overlay = "Single Target Rotation", tip = "Single target rotation used." },
         { name = "Off", icon = "healingSurge", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "feralSpirit", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "feralSpirit", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "feralSpirit", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "astralShift", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "astralShift", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "windShear", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "windShear", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
@@ -31,111 +31,97 @@ local function options()
     local section
     local alwaysCdNever = {"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}
     -- General Options
-    section = br.ui:section("General")
+    section = ui.section("General")
         -- Dummy DPS Test
-        br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+        ui.spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
             tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
         -- Pre-Pull Timer
-        br.ui:spinner(section, "Pre-Pull Timer", { value = 5, min = 1, max = 10, step = 1,
+        ui.spinner(section, "Pre-Pull Timer", { value = 5, min = 1, max = 10, step = 1,
             tip = "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1" })
         -- Ghost Wolf
-        br.ui:dropdown(section, "Ghost Wolf", { choices = { "|cff00FF00Always", "|cffFFFF00OoC Only", "|cffFF0000Never" }, value = "Always", checkbox = false,
+        ui.dropdown(section, "Ghost Wolf", { choices = { "|cff00FF00Always", "|cffFFFF00OoC Only", "|cffFF0000Never" }, value = "Always", checkbox = false,
             tip = "When to use Ghost Wolf." })
         -- Feral Lunge
-        br.ui:checkbox(section, "Feral Lunge")
+        ui.checkbox(section, "Feral Lunge")
         -- Lightning Bolt OOC
-        br.ui:checkbox(section, "Lightning Bolt Out of Combat")
+        ui.checkbox(section, "Lightning Bolt Out of Combat")
         -- Lightning Filler
-        br.ui:checkbox(section, "Lightning Filler", { tip = "Select to use LB/CL when all other abilities are on CD and can cast before any available." })
+        ui.checkbox(section, "Lightning Filler", { tip = "Select to use LB/CL when all other abilities are on CD and can cast before any available." })
         -- Lightning Shield
-        br.ui:checkbox(section, "Lightning Shield")
+        ui.checkbox(section, "Lightning Shield")
         -- Water Shield
-        br.ui:spinner(section, "Water Shield", { value = 30, tip = "Mana percent to swap to Water Shield." })
+        ui.spinner(section, "Water Shield", { value = 30, tip = "Mana percent to swap to Water Shield." })
         -- Spirit Walk
-        br.ui:checkbox(section, "Spirit Walk")
+        ui.checkbox(section, "Spirit Walk")
         -- Water Walking
-        br.ui:checkbox(section, "Water Walking")
+        ui.checkbox(section, "Water Walking")
         -- Weapon Imbues
-        br.ui:checkbox(section, "Windfury Weapon")
-        br.ui:checkbox(section, "Flametongue Weapon")
+        ui.checkbox(section, "Windfury Weapon")
+        ui.checkbox(section, "Flametongue Weapon")
     -- Cooldown Options
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
         -- Ascendance
-        br.ui:dropdown(section, "Ascendance", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Ascendance." })
+        ui.dropdown(section, "Ascendance", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Ascendance." })
         -- Ancestral Swiftness
-        br.ui:dropdown(section, "Ancestral Swiftness", { choices = alwaysCdNever, value = 1, checkbox = false,
+        ui.dropdown(section, "Ancestral Swiftness", { choices = alwaysCdNever, value = 1, checkbox = false,
             tip = "When to use Ancestral Swiftness." })
         -- Earth Elemental Totem
-        br.ui:dropdown(section, "Earth Elemental", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Earth Elemental." })
+        ui.dropdown(section, "Earth Elemental", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Earth Elemental." })
         -- Elemental Mastery
-        br.ui:dropdown(section, "Elemental Mastery", { choices = alwaysCdNever, value = 1, checkbox = false,
+        ui.dropdown(section, "Elemental Mastery", { choices = alwaysCdNever, value = 1, checkbox = false,
             tip = "When to use Elemental Mastery." })
         -- Feral Spirit
-        br.ui:dropdown(section, "Feral Spirit", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Feral Spirit." })
+        ui.dropdown(section, "Feral Spirit", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Feral Spirit." })
         -- Fire Elemental Totem
-        br.ui:dropdown(section, "Fire Elemental", { choices = alwaysCdNever, value = 1, checkbox = false,
+        ui.dropdown(section, "Fire Elemental", { choices = alwaysCdNever, value = 1, checkbox = false,
             tip = "When to use Fire Elemental Totem." })
         -- Stormlash Totem
-        br.ui:dropdown(section, "Stormlash", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Stormlash Totem." })
+        ui.dropdown(section, "Stormlash", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Stormlash Totem." })
     -- Defensive Options
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
         -- Ancestral Spirit
-        br.ui:dropdown(section, "Ancestral Spirit", { choices = { "|cffFFFF00Selected Target", "|cffFF0000Mouseover Target" }, value = "Selected Target",
+        ui.dropdown(section, "Ancestral Spirit", { choices = { "|cffFFFF00Selected Target", "|cffFF0000Mouseover Target" }, value = "Selected Target",
             tip = "|ccfFFFFFFTarget to Cast On" })
         -- Astral Shift
-        br.ui:spinner(section, "Astral Shift", { value = 40, tip = "Health Percent to Cast At" })
+        ui.spinner(section, "Astral Shift", { value = 40, tip = "Health Percent to Cast At" })
         -- Cleanse Spirit
-        br.ui:dropdown(section, "Cleanse Spirit", { choices = { "|cff00FF00Player Only", "|cffFFFF00Selected Target", "|cffFF0000Mouseover Target" }, value = "Player Only",
+        ui.dropdown(section, "Cleanse Spirit", { choices = { "|cff00FF00Player Only", "|cffFFFF00Selected Target", "|cffFF0000Mouseover Target" }, value = "Player Only",
             tip = "|ccfFFFFFFTarget to Cast On" })
         -- Healing Surge
-        br.ui:spinner(section, "Healing Surge", { value = 50, tip = "Health Percent to Cast At" })
-        br.ui:spinner(section, "Healing Surge OoC", { value = 90, checkbox = false, tip = "Health Percent to Cast At" })
+        ui.spinner(section, "Healing Surge", { value = 50, tip = "Health Percent to Cast At" })
+        ui.spinner(section, "Healing Surge OoC", { value = 90, checkbox = false, tip = "Health Percent to Cast At" })
         -- Auto/Insta-Heal
-        br.ui:dropdown(section, "Heal Target", { choices = { "|cffFFDD11LowestHP", "|cffFFDD11Player" }, value = "LowestHP", checkbox = false,
+        ui.dropdown(section, "Heal Target", { choices = { "|cffFFDD11LowestHP", "|cffFFDD11Player" }, value = "LowestHP", checkbox = false,
             tip = "Select Target to Heal" })
-        br.ui:dropdown(section, "Instant Behavior", { choices = { "|cff00FF00Always", "|cffFFFF00Combat Only", "|cffFF0000Never" }, value = "Combat Only", checkbox = false,
+        ui.dropdown(section, "Instant Behavior", { choices = { "|cff00FF00Always", "|cffFFFF00Combat Only", "|cffFF0000Never" }, value = "Combat Only", checkbox = false,
             tip = "Select how to use Instant Heal proc." })
         -- Healing Steam Totem
-        br.ui:spinner(section, "Healing Stream Totem", { value = 35, tip = "Health Percent to Cast At" })
-        br.ui:checkbox(section, "Use HST While Solo")
-        br.ui:spinner(section, "Healing Stream Totem - Min Units", { value = 1, max = 5, step = 1, checkbox = false,
+        ui.spinner(section, "Healing Stream Totem", { value = 35, tip = "Health Percent to Cast At" })
+        ui.checkbox(section, "Use HST While Solo")
+        ui.spinner(section, "Healing Stream Totem - Min Units", { value = 1, max = 5, step = 1, checkbox = false,
             tip = "Number of Units below HP Level to Cast At" })
         -- Lightning Surge Totem
-        br.ui:spinner(section, "Capacitor Totem - HP", { value = 30, tip = "Health Percent to Cast At" })
-        br.ui:spinner(section, "Capacitor Totem - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
+        ui.spinner(section, "Capacitor Totem - HP", { value = 30, tip = "Health Percent to Cast At" })
+        ui.spinner(section, "Capacitor Totem - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
         -- Purge
-        br.ui:checkbox(section, "Purge")
+        ui.checkbox(section, "Purge")
     -- Interrupt Options
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
         -- Wind Shear
-        br.ui:checkbox(section, "Wind Shear")
+        ui.checkbox(section, "Wind Shear")
         -- Hex
-        br.ui:checkbox(section, "Hex")
+        ui.checkbox(section, "Hex")
         -- Lightning Surge Totem
-        br.ui:checkbox(section, "Capacitor Totem")
+        ui.checkbox(section, "Capacitor Totem")
         -- Interrupt Percentage
-        br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At" })
+        ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At" })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
-local debuff
-local enemies
-local equiped
-local glyph
 local mana
-local spell
-local talent
-local totem
-local ui
-local unit
-local units
-local var
 
 -- General API Locals
 local actionList = {}
@@ -250,7 +236,6 @@ end
 
 -- Action List - Extras
 actionList.Extras = function()
-    local startTime = br.game.debugprofilestop()
     -- * Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
@@ -315,12 +300,10 @@ actionList.Extras = function()
     then
         if cast.totemicRecall() then ui.debug("Casting Totemic Recall [Extra]") return true end
     end
-    br.debug.cpu:updateDebug(startTime,"rotation.profile.extras")
 end -- End Action List - Extras
 
 -- Action List - Defensive
 actionList.Defensive = function()
-    local startTime = br.game.debugprofilestop()
     if ui.useDefensive() then
         -- * Ancestral Spirit
         if ui.checked("Ancestral Spirit") and cast.timeSinceLast.ancestralSpirit() > 5 then
@@ -361,7 +344,7 @@ actionList.Defensive = function()
         -- * Healing Surge
         if ui.checked("Healing Surge") and cast.able.healingSurge(var.healUnit) and not (unit.mounted() or unit.flying())
             and (ui.value("Heal Target") ~= 1 or (ui.value("Heal Target") == 1
-            and unit.distance(br.engines.healingEngine.friend[1].unit) < 40)) and not cast.current.healingSurge()
+            and unit.distance(units.friends[1].unit) < 40)) and not cast.current.healingSurge()
         then
             if not unit.inCombat() then
                 -- Lowest Party/Raid or Player
@@ -390,7 +373,6 @@ actionList.Defensive = function()
             if cast.healingStreamTotem("player") then ui.debug("Casting Healing Stream Totem [Defensive]") return true end
         end
     end -- End Defensive Toggle
-    br.debug.cpu:updateDebug(startTime,"rotation.profile.defensive")
 end -- End Action List - Defensive
 
 -- Action List - Interrupts
@@ -412,7 +394,6 @@ end -- End Action List - Interrupts
 
 -- Action List - AOE
 actionList.AOE = function()
-    local startTime = br.game.debugprofilestop()
     -- * Fire Nova
     -- fire_nova,if=active_flame_shock>=4
     if cast.able.fireNova("player","aoe",1,10) and debuff.flameShock.count() >= 4 then
@@ -538,12 +519,10 @@ actionList.AOE = function()
             return true
         end
     end
-    br.debug.cpu:updateDebug(startTime,"rotation.profile.aoe")
 end -- End Action List - AOE
 
 -- Action List - Single
 actionList.Single = function()
-    local startTime = br.game.debugprofilestop()
     -- * Searing Totem
     -- searing_totem,if=!totem.fire.active
     if cast.able.searingTotem("player") and not totem.fire.active() and unit.standingTime() > 1 then
@@ -685,12 +664,10 @@ actionList.Single = function()
             return true
         end
     end
-    br.debug.cpu:updateDebug(startTime,"rotation.profile.single")
 end -- End Action List - Single
 
 -- Action List - PreCombat
 actionList.PreCombat = function()
-    local startTime = br.game.debugprofilestop()
     if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then
         -- * Flask
         -- flask,type=spring_blossoms
@@ -725,12 +702,10 @@ actionList.PreCombat = function()
             end
         end
     end -- End No Combat
-    br.debug.cpu:updateDebug(startTime,"rotation.profile.precombat")
 end -- End Action List - PreCombat
 
 -- Action List - Combat
 actionList.Combat = function()
-    local startTime = br.game.debugprofilestop()
     if (unit.inCombat() --[[or (not unit.inCombat() and unit.valid(units.dyn5))]]) and not var.profileStop
         and unit.exists(units.dyn5) and cd.global.remain() == 0
     then
@@ -866,34 +841,17 @@ actionList.Combat = function()
             if actionList.AOE() then return true end
         end
     end
-    br.debug.cpu:updateDebug(startTime,"rotation.profile.combat")
 end -- End Action List - Combat
 
 ----------------
 --- ROTATION ---
 ----------------
 local function runRotation()
-    -- This profile handles racials itself; skip the shared Racial module
-    if not br.player.localRacial then br.player.localRacial = true end
     --------------
     --- Locals ---
     --------------
     -- BR API
-    buff                                          = br.player.buff
-    cast                                          = br.player.cast
-    cd                                            = br.player.cd
-    debuff                                        = br.player.debuff
-    enemies                                       = br.player.enemies
-    equiped                                       = br.player.equiped
-    glyph                                         = br.player.glyph
-    mana                                          = br.player.power.mana
-    spell                                         = br.player.spell
-    talent                                        = br.player.talent
-    totem                                         = br.player.totem
-    ui                                            = br.player.ui
-    unit                                          = br.player.unit
-    units                                         = br.player.units
-    var                                           = br.player.variables
+    mana                                          = power.mana
 
     -- Dynamic Units
     units.get(5)
@@ -933,12 +891,12 @@ local function runRotation()
     var.healUnit = ui.value("Heal Target") == 1 and unit.lowest(40) or "player"
     var.healHP = unit.hp(var.healUnit)
     var.unitsNeedingHealing = 0
-    if ui.checked("Use HST While Solo") and br.functions.unit:getHP("player") <= ui.value("Healing Stream Totem") then
+    if ui.checked("Use HST While Solo") and unit.hp("player") <= ui.value("Healing Stream Totem") then
         var.unitsNeedingHealing = var.unitsNeedingHealing + 1
     end
-    if #br.engines.healingEngine.friend > 1 then
-        for i = 1, #br.engines.healingEngine.friend do
-            local thisFriend = br.engines.healingEngine.friend[i].unit
+    if #units.friends > 1 then
+        for i = 1, #units.friends do
+            local thisFriend = units.friends[i].unit
             local thisDistance = unit.distance(thisFriend)
             if not unit.isUnit(thisFriend,"player") and thisDistance < 40 and unit.hp(thisFriend) <= ui.value("Healing Stream Totem") then
                 var.unitsNeedingHealing = var.unitsNeedingHealing + 1
@@ -979,7 +937,8 @@ local function runRotation()
         if actionList.Combat() then return true end
     end --End Rotation Logic
 end -- End runRotation
-br.loader.registerRotation({
+registerRotation({
+    handlesRacials = true,
     name      = rotationName,
     specID    = 263,
     expansion = "MOP",

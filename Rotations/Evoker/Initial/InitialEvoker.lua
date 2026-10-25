@@ -4,22 +4,22 @@ local rotationName = "Initial" -- Change to name of profile listed in options dr
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "disintegrate", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
         { name = "Mult", icon = "azureStrike", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = true },
         { name = "Sing", icon = "livingFlame", overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = true },
         { name = "Off", icon = "blessingOfTheBronze", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "furyOfTheAspects", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "furyOfTheAspects", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "furyOfTheAspects", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "livingFlame", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "livingFlame", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "tailSwipe", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "tailSwipe", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
@@ -33,62 +33,51 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS --- -- Define General Options
     -----------------------
-    section = br.ui:section("General")
-    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+    section = ui.section("General")
+    ui.spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
         tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
     -- Blessing of the Bronze
-    br.ui:checkbox(section, "Blessing of the Bronze")
+    ui.checkbox(section, "Blessing of the Bronze")
     -- Stage Limiter
-    br.ui:checkbox(section, "Empower Stage Limiter", { tip = "Enable to set maximum stages to Empower to." })
-    br.ui:spinner(section, "Fire Breath Stage Limit", { value = 4, min = 1, max = 4, step = 1, checkbox = false, tip = "" })
+    ui.checkbox(section, "Empower Stage Limiter", { tip = "Enable to set maximum stages to Empower to." })
+    ui.spinner(section, "Fire Breath Stage Limit", { value = 4, min = 1, max = 4, step = 1, checkbox = false, tip = "" })
     ------------------------
     --- COOLDOWN OPTIONS --- -- Define Cooldown Options
     ------------------------
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
     local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
     -- Deep Breath
-    br.ui:dropdown(section, "Deep Breath", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Deep Breath Ability." })
+    ui.dropdown(section, "Deep Breath", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Deep Breath Ability." })
     -------------------------
     --- DEFENSIVE OPTIONS --- -- Define Defensive Options
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Emerald Blossom
-    br.ui:spinner(section, "Emerald Blossom", { value = 35, max = 99, tip = "Use Emerald Blossom to Heal below this threshold" })
+    ui.spinner(section, "Emerald Blossom", { value = 35, max = 99, tip = "Use Emerald Blossom to Heal below this threshold" })
     -- Living Flame
-    br.ui:spinner(section, "Living Flame Heal", { value = 45, max = 99, tip = "Use Living Flame to Heal below this threshold" })
+    ui.spinner(section, "Living Flame Heal", { value = 45, max = 99, tip = "Use Living Flame to Heal below this threshold" })
     -- Return
-    br.ui:checkbox(section, "Return")
-    br.ui:dropdown(section, "Return - Target", { choices = { "|cff00FF00Target", "|cffFF0000Mouseover" }, value = "Target", checkbox = false,
+    ui.checkbox(section, "Return")
+    ui.dropdown(section, "Return - Target", { choices = { "|cff00FF00Target", "|cffFF0000Mouseover" }, value = "Target", checkbox = false,
         tip = "Target to cast on" })
     -- Wing Buffet
-    br.ui:spinner(section, "Wing Buffet - HP", { value = 50, tip = "Health Percent to Cast At" })
-    br.ui:spinner(section, "Wing Buffet - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
+    ui.spinner(section, "Wing Buffet - HP", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Wing Buffet - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
     -------------------------
     --- INTERRUPT OPTIONS --- -- Define Interrupt Options
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Tail Swipe
-    br.ui:checkbox(section, "Tail Swipe")
+    ui.checkbox(section, "Tail Swipe")
     -- Interrupt Percentage
-    br.ui:spinner(section, "InterruptAt", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
+    ui.spinner(section, "InterruptAt", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
-local buff
-local cast
-local cd
-local debuff
-local enemies
 local essence
-local module
-local spell
-local ui
-local unit
-local units
-local var
 -- General Locals - Common Non-BR API Locals used in profiles
 -- Profile Specific Locals - Any custom to profile locals
 local actionList = {}
@@ -123,8 +112,8 @@ actionList.Extra = function()
     end -- End Dummy Test-- Dummy DPS Test
     -- Blessing of the Bronze
     if ui.checked("Blessing of the Bronze") and cast.able.blessingOfTheBronze("player") then
-        for i = 1, #br.engines.healingEngine.friend do
-            local thisUnit = br.engines.healingEngine.friend[i].unit
+        for i = 1, #units.friends do
+            local thisUnit = units.friends[i].unit
             if not unit.deadOrGhost(thisUnit) and unit.distance(thisUnit) < 40 and buff.blessingOfTheBronze.remain(thisUnit) < 600 then
                 if cast.blessingOfTheBronze("player") then
                     ui.debug("Casting Blessing of the Bronze")
@@ -201,7 +190,7 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
-            if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 -- Tail Swipe
                 if ui.checked("Tail Swipe") and cast.able.tailSwipe(thisUnit) and unit.distance(thisUnit) < 8 then
                     if cast.tailSwipe(thisUnit) then
@@ -351,30 +340,19 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff    = br.player.buff
-    cast    = br.player.cast
-    cd      = br.player.cd
-    debuff  = br.player.debuff
-    enemies = br.player.enemies
-    essence = br.player.power.essence
-    module  = br.player.module
-    spell   = br.player.spells
-    ui      = br.player.ui
-    unit    = br.player.unit
-    units   = br.player.units
-    var     = br.player.variables
+    essence = power.essence
     -- General Locals
-    if var.fireBreathStage == nil or br.empowerID ~= spell.fireBreath then var.fireBreathStage = 0 end
+    var.fireBreathStage = 0
     if cast.empowered.fireBreath() > 0 then
         var.fireBreathStage = cast.empowered.fireBreath()
     end
     var.moveCast = (not unit.moving() or buff.hover.exists())
     var.profileStop = false
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 4
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or ui.pause() or ui.mode.rotation == 4
 
     -- Fire Breath Stage
     if var.stageFireBreath == nil then var.stageFireBreath = 0 end
-    if var.fireBreathStage == nil or br.empowerID ~= spell.fireBreath then var.fireBreathStage = 0; end
+    var.fireBreathStage = 0
     if cast.empowered.fireBreath() > 0 then
         var.fireBreathStage = cast.empowered.fireBreath()
     end
@@ -413,7 +391,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif var.haltProfile and cast.current.id() ~= br.empowerID then
+    elseif var.haltProfile and cast.empowered.fireBreath() == 0 then
         return true
     else
         -------------
@@ -434,7 +412,7 @@ local function runRotation()
         if actionList.Combat() then return true end
     end         -- Pause
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 1465,
     expansion = "MOP",

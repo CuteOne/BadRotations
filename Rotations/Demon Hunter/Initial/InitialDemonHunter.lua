@@ -4,15 +4,15 @@ local rotationName = "Initial"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "On", icon = "chaosStrike", overlay = "Rotation Enabled", tip = "Enable Rotation" },
         { name = "Off", icon = "chaosStrike", overlay = "Rotation Disabled", tip = "Disable Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
-        { name = "On", icon = select(2, br.game.C_Item.GetItemSpell(br.player.items.legionHealthstone)), overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
-        { name = "Off", icon = select(2, br.game.C_Item.GetItemSpell(br.player.items.legionHealthstone)), overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    ui.toggle("Defensive", { modes = {
+        { name = "On", icon = "legionHealthstone", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "legionHealthstone", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Cooldown", { modes = {
+    ui.toggle("Cooldown", { modes = {
         { name = "On", icon = "metamorphosis", overlay = "Cooldown Enabled", tip = "Includes Offensive Cooldowns." },
         { name = "Off", icon = "metamorphosis", overlay = "Cooldown Disabled", tip = "No Offensive Cooldowns Used." },
     } })
@@ -27,48 +27,38 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Inquisitor's Menacing Eye
-    br.ui:checkbox(section, "Inquisitor's Menacing Eye")
+    ui.checkbox(section, "Inquisitor's Menacing Eye")
     -- Sigil of Flame
-    br.ui:checkbox(section, "Sigil of Flame")
+    ui.checkbox(section, "Sigil of Flame")
     -- Torment
-    br.ui:checkbox(section, "Torment")
+    ui.checkbox(section, "Torment")
     ------------------------
     --- COOLDOWN OPTIONS ---
     ------------------------
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
     -- Basic Trinkets Module
-    br.player.module.BasicTrinkets(nil, section)
+    module.BasicTrinkets(nil, section)
     -- Fel Crystal Fragments
-    br.ui:dropdown(section, "Fel Crystal Fragments", { choices = alwaysCdNever, value = 1, checkbox = false,
+    ui.dropdown(section, "Fel Crystal Fragments", { choices = alwaysCdNever, value = 1, checkbox = false,
         tip = "|cffFFBB00When to use Fel Crystal Fragments." })
     -- Twisted Heard
-    br.ui:dropdown(section, "Twisted Heart", { choices = alwaysCdNever, value = 1, checkbox = false,
+    ui.dropdown(section, "Twisted Heart", { choices = alwaysCdNever, value = 1, checkbox = false,
         tip = "|cffFFBB00When to use Twisted Heart." })
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Basic Healing Module
-    br.player.module.BasicHealing(section)
+    module.BasicHealing(section)
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
-local enemies
 local furyDeficit
-local has
-local module
-local ui
-local unit
-local units
-local use
 -- Profile Specific Locals
 local actionList = {}
 local var = {}
@@ -122,7 +112,7 @@ end -- End Action List - Cooldowns
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
-    if not unit.inCombat() and not br.game.IsMounted() then
+    if not unit.inCombat() and not unit.mounted() then
         if unit.valid("target") then
             -- Torment
             if cast.able.torment("target") and ui.checked("Torment") then
@@ -191,19 +181,9 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff            = br.player.buff
-    cast            = br.player.cast
-    cd              = br.player.cd
-    enemies         = br.player.enemies
-    furyDeficit     = br.player.power.fury.deficit()
-    has             = br.player.has
-    module          = br.player.module
-    ui              = br.player.ui
-    unit            = br.player.unit
-    units           = br.player.units
-    use             = br.player.use
+    furyDeficit     = power.fury.deficit()
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or br.game.IsMounted() or br.functions.misc:pause() or ui.mode.rotation == 2
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or ui.pause() or ui.mode.rotation == 2
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40)
@@ -240,7 +220,7 @@ local function runRotation()
         if actionList.Combat() then return end
     end -- Pause
 end     -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 1456,
     expansion = "MOP",

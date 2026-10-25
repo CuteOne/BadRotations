@@ -161,7 +161,7 @@ end
 
 -- The spell's cast time in seconds, for what it currently is (spells that turn into another, like
 -- New Moon's cycle, report the spell they've become); 0 for an instant or unknown spell.
--- if br.functions.cast:getCastTime(br.player.spells.healingTouch) < 3 then
+-- if br.functions.cast:getCastTime(br.rotation.spells.healingTouch) < 3 then
 function cast:getCastTime(spellID)
 	spellID = br.game.C_Spell.GetOverrideSpell(spellID) or spellID
 	local info = br.game.C_Spell.GetSpellInfo(spellID)
@@ -272,37 +272,6 @@ function cast:setCastTimer(spellID, duration)
     E.castTimers[spellID] = br.game.GetTime() + duration
 end
 
--- ─────────────────────────────────────────────────────────────────────────────
--- SECTION: Pet action bar cache
---
--- FindSpellBookSlotBySpellID and IsSpellKnown(id, true) do not exist on
--- TBC Classic 2.5.x clients, making it impossible to determine whether a pet
--- knows a spell through the standard spell-knowledge APIs.
--- Instead we scan the pet action bar (GetPetActionInfo) by name — this is the
--- only reliable TBC-compatible way to discover pet spell knowledge.
--- The cache is rebuilt at most once every 5 seconds (the bar never changes
--- mid-fight except when the pet learns a new rank between pulls).
--- ─────────────────────────────────────────────────────────────────────────────
-local petBarCache     = nil  -- map: ability name → slot index
-local petBarCacheTime = 0
-
--- @param refresh true to re-read the bar now (before casting from a slot)
-function E.getPetBarSlot(spellName, refresh)
-	if not spellName then return nil end
-	local now = br.game.GetTime()
-	if refresh or not petBarCache or now - petBarCacheTime > 5 then
-		petBarCache     = {}
-		petBarCacheTime = now
-		if br.game.NUM_PET_ACTION_SLOTS then
-			for i = 1, br.game.NUM_PET_ACTION_SLOTS do
-				local name = br.game.GetPetActionInfo(i)
-				if name and not petBarCache[name] then petBarCache[name] = i end
-			end
-		end
-	end
-	return petBarCache[spellName]
-end
-
 -- Runs a macro's text (/cast, /use, ...)
 function cast:runMacro(text)
 	br.game.RunMacroText(text)
@@ -321,4 +290,24 @@ end
 -- Stops the player's cast or channel
 function cast:stopCasting()
 	return br.game.SpellStopCasting()
+end
+
+-- Stops an auto-repeating spell (Auto Shot, Shoot): casting it again turns it off
+function cast:stopAutoRepeat(spellID)
+	local name = br.functions.spell:getName(spellID)
+	if name then br.game.CastSpellByName(name) end
+end
+
+-- Runs castFn while stepping back with a jump, which cancels a movement spell's animation
+-- (Havoc's Fel Rush). Only for a profile mode the player turns on: BR doesn't move the character
+-- otherwise. Returns what castFn returns.
+function cast:withMoveAnimationCancel(castFn)
+	br.game.MoveBackwardStart()
+	br.game.JumpOrAscendStart()
+	-- The movement always stops, even when castFn errors
+	local ok, result = pcall(castFn)
+	br.game.MoveBackwardStop()
+	br.game.AscendStop()
+	if not ok then error(result, 0) end
+	return result
 end

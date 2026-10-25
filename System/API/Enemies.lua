@@ -1,7 +1,7 @@
 ---
 -- These functions return a table of enemies for the provided parameters.
 --
--- Enemies functions are stored in br.player.enemies and can be utilized by `local enemies = br.player.enemies` in your profile.
+-- Enemies functions are the profile API table `enemies` (br.api.profile.enemies); profiles use it by name.
 --
 -- After defining enemies you would place the below functions in the main profile loop to populate and update the enemy tables.
 --
@@ -19,12 +19,11 @@
 --
 -- For enemies in a rectangle it is the same as above but you use the `r` tag instead of `t`. Ex function: enemies.rect.get(5,8)
 --
--- @module br.player.enemies
+-- @module enemies
 
 local _, br = ...
-if br.api == nil then br.api = {} end
-br.api.enemies = function(self)
-    local enemies = self.enemies
+br.api.build.enemies = function(api)
+    local enemies = api.enemies
     -- enemies.yards8, enemies.yards8t, ...: this tick's lists, kept by the enemies engine
     setmetatable(enemies, { __index = br.engines.enemiesEngine.lists })
     enemies.cone = enemies.cone or {}

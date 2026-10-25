@@ -35,7 +35,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 			-- pet knows: GetPetActionInfo always exposes the pet's current learned rank.
 			for i = #spellID, 1, -1 do
 				local name = br.functions.spell:getName(spellID[i])
-				if name and E.getPetBarSlot(name) then
+				if name and br.functions.pet:getBarSlot(name) then
 					spellID = spellID[i]
 					break
 				end
@@ -261,11 +261,11 @@ end
 -- Cast Spell Queue
 function cast:castQueue()
 	-- Catch for spells not registering on Combat log
-	if br.player ~= nil then
+	if br.rotation ~= nil then
 		if #cast.queue > 0 and not br.game.IsAoEPending() then
 			local now = br.game.GetTime()
 			-- TTL: expire queue entries older than 3 GCDs to prevent indefinite retry of stale spells
-			local ttl = (br.player.state.gcdMax or 1.5) * 3
+			local ttl = (br.rotation.state.gcdMax or 1.5) * 3
 			local i = 1
 			while i <= #cast.queue do
 				local entry = cast.queue[i]

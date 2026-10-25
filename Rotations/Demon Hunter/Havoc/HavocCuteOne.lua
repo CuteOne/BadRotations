@@ -3,35 +3,35 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "bladeDance", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
         { name = "Mult", icon = "bladeDance", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
         { name = "Sing", icon = "chaosStrike", overlay = "Single Target Rotation", tip = "Single target rotation used." },
         { name = "Off", icon = "spectralSight", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "metamorphosis", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "metamorphosis", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "metamorphosis", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "darkness", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "darkness", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "consumeMagic", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "consumeMagic", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
-    br.ui:toggle("Mover", { modes = {
+    ui.toggle("Mover", { modes = {
         { name = "AC", icon = "felRush", overlay = "Movement Animation Cancel Enabled", tip = "Will Cancel Movement Animation." },
         { name = "On", icon = "felRush", overlay = "Auto Movement Enabled", tip = "Will Cast Movement Abilities." },
         { name = "Off", icon = "felRush", overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities" },
     } })
-    br.ui:toggle("EyeBeam", { modes = {
+    ui.toggle("EyeBeam", { modes = {
         { name = "On", icon = "eyeBeam", overlay = "Use Eye beam", tip = "Use Eye beam" },
         { name = "Off", icon = "eyeBeam", overlay = "Don't use Eye beam", tip = "Don't use Eye beam" },
     } })
-    br.ui:toggle("FelBarrage", { modes = {
+    ui.toggle("FelBarrage", { modes = {
         { name = "On", icon = "felBarrage", overlay = "Use Fel Barrage", tip = "Use Fel Barrage" },
         { name = "Off", icon = "felBarrage", overlay = "Don't use Fel Barrage", tip = "Don't use Fel Barrage" },
     } })
@@ -45,111 +45,91 @@ local function options()
     local alwaysCdNever = { "|cff0000FFAlways", "|cffFFFFFFCD Only", "|cffFF0000Never" }
     local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
     -- General Options
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- APL
-    br.ui:dropdown(section, "APL Mode", { choices = { "SimC" }, value = "SimC", checkbox = false, tip = "Set APL Mode to use." })
+    ui.dropdown(section, "APL Mode", { choices = { "SimC" }, value = "SimC", checkbox = false, tip = "Set APL Mode to use." })
     -- Dummy DPS Test
-    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+    ui.spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
         tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
     -- Pre-Pull Timer
     -- br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
     -- M+ Meta Pre-Pull Timer
     -- br.ui:createSpinner(section, "M+ Pre-Pull",  3,  1,  10,  1,  "|cffFFFFFFSet to desired time to Meta Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
     -- Auto Engage
-    br.ui:checkbox(section, "Auto Engage")
+    ui.checkbox(section, "Auto Engage")
     -- Eye Beam Targets
     -- br.ui:createDropdownWithout(section,"Eye Beam Usage",{"|cff00FF00Per APL","|cffFFFFFFAoE Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Eye Beam.")
-    br.ui:spinner(section, "Units To AoE", { value = 3, min = 1, max = 10, step = 1, checkbox = false,
+    ui.spinner(section, "Units To AoE", { value = 3, min = 1, max = 10, step = 1, checkbox = false,
         tip = "|cffFFBB00Number of Targets to use AoE spells on." })
     -- Fel Rush Charge Hold
-    br.ui:spinner(section, "Hold Fel Rush Charge", { value = 1, max = 2, step = 1, checkbox = false,
+    ui.spinner(section, "Hold Fel Rush Charge", { value = 1, max = 2, step = 1, checkbox = false,
         tip = "|cffFFBB00Number of Fel Rush charges the bot will hold for manual use." });
     -- Fel Rush Only In Melee
-    br.ui:checkbox(section, "Fel Rush Only In Melee")
+    ui.checkbox(section, "Fel Rush Only In Melee")
     -- Fel Rush After Vengeful Retreat
-    br.ui:checkbox(section, "Auto Fel Rush After Retreat")
+    ui.checkbox(section, "Auto Fel Rush After Retreat")
     -- Throw Glaive
-    br.ui:checkbox(section, "Throw Glaive")
+    ui.checkbox(section, "Throw Glaive")
     -- Vengeful Retreat
-    br.ui:checkbox(section, "Vengeful Retreat")
+    ui.checkbox(section, "Vengeful Retreat")
     -- Glide Fall Time
-    br.ui:spinner(section, "Glide", { value = 2, max = 10, step = 1, tip = "|cffFFBB00Seconds until Glide will be used while falling." })
+    ui.spinner(section, "Glide", { value = 2, max = 10, step = 1, tip = "|cffFFBB00Seconds until Glide will be used while falling." })
     -- Cooldown Options
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
     -- Augment Rune
-    br.ui:checkbox(section, "Augment Rune")
+    ui.checkbox(section, "Augment Rune")
     -- Potion
-    br.ui:checkbox(section, "Potion")
+    ui.checkbox(section, "Potion")
     -- Racial
-    br.ui:dropdown(section, "Racial", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "|cffFFBB00When to use Racial." })
+    ui.dropdown(section, "Racial", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "|cffFFBB00When to use Racial." })
     -- Metamorphosis
-    br.ui:dropdown(section, "Metamorphosis", { choices = alwaysCdAoENever, value = 1, checkbox = false,
+    ui.dropdown(section, "Metamorphosis", { choices = alwaysCdAoENever, value = 1, checkbox = false,
         tip = "|cffFFBB00When to use Metamorphosis." })
     -- br.ui:createCheckbox(section,"Metamorphosis M+ Pre-pull","Uses Meta during M+ pre-pull, regardless of CD setting.")
     -- The Hunt
-    br.ui:dropdown(section, "The Hunt", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "|cffFFBB00When to use The Hunt." })
+    ui.dropdown(section, "The Hunt", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "|cffFFBB00When to use The Hunt." })
     -- Elysian Decree
-    br.ui:dropdown(section, "Elysian Decree", { choices = alwaysCdAoENever, value = 1, checkbox = false,
+    ui.dropdown(section, "Elysian Decree", { choices = alwaysCdAoENever, value = 1, checkbox = false,
         tip = "|cffFFBB00When to use Elysian Decree." })
     -- Defensive Options
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Blur
-    br.ui:spinner(section, "Blur", { value = 50, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.spinner(section, "Blur", { value = 50, tip = "|cffFFBB00Health Percentage to use at." })
     -- Darkness
-    br.ui:spinner(section, "Darkness", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.spinner(section, "Darkness", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
     -- Chaos Nova
-    br.ui:spinner(section, "Chaos Nova - HP", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
-    br.ui:spinner(section, "Chaos Nova - AoE", { value = 3, min = 1, max = 10, step = 1, tip = "|cffFFBB00Number of Targets to use at." })
+    ui.spinner(section, "Chaos Nova - HP", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.spinner(section, "Chaos Nova - AoE", { value = 3, min = 1, max = 10, step = 1, tip = "|cffFFBB00Number of Targets to use at." })
     -- Consume Magic
-    br.ui:checkbox(section, "Consume Magic")
+    ui.checkbox(section, "Consume Magic")
     -- Sigil of Misery
-    br.ui:spinner(section, "Sigil of Misery - HP", { value = 50, tip = "|cffFFBB00Health Percentage to use at." });
-    br.ui:spinner(section, "Sigil of Misery - AoE", { value = 3, max = 10, step = 1, tip = "Number of Units in 8 Yards to Cast At" })
+    ui.spinner(section, "Sigil of Misery - HP", { value = 50, tip = "|cffFFBB00Health Percentage to use at." });
+    ui.spinner(section, "Sigil of Misery - AoE", { value = 3, max = 10, step = 1, tip = "Number of Units in 8 Yards to Cast At" })
     -- Interrupt Options
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Chaos Nova
-    br.ui:checkbox(section, "Chaos Nova")
+    ui.checkbox(section, "Chaos Nova")
     -- Disrupt
-    br.ui:checkbox(section, "Disrupt")
+    ui.checkbox(section, "Disrupt")
     -- Fel Eruption
-    br.ui:checkbox(section, "Fel Eruption")
+    ui.checkbox(section, "Fel Eruption")
     -- Sigil of Misery
-    br.ui:checkbox(section, "Sigil of Misery")
+    ui.checkbox(section, "Sigil of Misery")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At" })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At" })
 end
 
 --------------
 --- Locals ---
 --------------
 local actionList = {}
-local buff
-local cast
-local cd
-local charges
-local debuff
-local enemies
-local equiped
 local fury
-local has
-local module
-local talent
-local ui
-local unit
-local units
-local use
-local var
 
 -- Custom Functions
+-- Fel Rush with its movement animation cancelled (the Mover toggle's AC mode)
 local function cancelRushAnimation(debugMessage)
-    -- if cast.able.felRush() and GetUnitSpeed("player") == 0 then
-    br.game.MoveBackwardStart()
-    br.game.JumpOrAscendStart()
-    cast.felRush()
-    br.game.MoveBackwardStop()
-    br.game.AscendStop()
+    cast.withAnimationCancel(function() return cast.felRush() end)
     ui.debug(debugMessage)
-    -- end
     return true
 end
 -- local function cancelRetreatAnimation()
@@ -188,10 +168,10 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if br.functions.combat:getCombatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and unit.isDummy("target") then
-                br.game.StopAttack()
-                br.game.ClearTarget()
-                br.game.Print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and unit.isDummy("target") then
+                unit.stopAttack()
+                unit.clearTarget()
+                ui.print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end
@@ -282,7 +262,7 @@ actionList.Interrupts = function()
         if ui.checked("Fel Eruption") and talent.felEruption then
             for i = 1, #enemies.yards20 do
                 local thisUnit = enemies.yards20[i]
-                if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) and cast.able.felEruption(thisUnit) then
+                if unit.interruptable(thisUnit, ui.value("Interrupt At")) and cast.able.felEruption(thisUnit) then
                     if cast.felEruption(thisUnit) then
                         ui.debug("Casting Fel Eruption")
                         return true
@@ -294,7 +274,7 @@ actionList.Interrupts = function()
         if ui.checked("Disrupt") then
             for i = 1, #enemies.yards10 do
                 local thisUnit = enemies.yards10[i]
-                if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) and cast.able.disrupt(thisUnit) then
+                if unit.interruptable(thisUnit, ui.value("Interrupt At")) and cast.able.disrupt(thisUnit) then
                     if cast.disrupt(thisUnit) then
                         ui.debug("Casting Disrupt")
                         return true
@@ -306,7 +286,7 @@ actionList.Interrupts = function()
         if ui.checked("Chaos Nova") then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if br.functions.spell:canInterrupt(thisUnit, ui.value("InterruptAt")) and cast.able.chaosNova(thisUnit) then
+                if unit.interruptable(thisUnit, ui.value("InterruptAt")) and cast.able.chaosNova(thisUnit) then
                     if cast.chaosNova(thisUnit) then
                         ui.debug("Casting Chaos Nova [Int]")
                         return true
@@ -1287,45 +1267,27 @@ end -- End Action List - MetaEnd
 --- ROTATION ---
 ----------------
 local function runRotation()
-    -- This profile handles racials itself; skip the shared Racial module
-    if not br.player.localRacial then br.player.localRacial = true end
     --------------
     --- BR API ---
     --------------
     -- Initialize
-    if not br.player.initialized then
+    if not var.initialized then
         -- BR API
-        br.player.actionList  = actionList
-        buff                  = br.player.buff
-        cast                  = br.player.cast
-        cd                    = br.player.cd
-        charges               = br.player.charges
-        debuff                = br.player.debuff
-        enemies               = br.player.enemies
-        equiped               = br.player.equiped
-        fury                  = br.player.power.fury
-        has                   = br.player.has
-        module                = br.player.module
-        ui                    = br.player.ui
-        unit                  = br.player.unit
-        units                 = br.player.units
-        use                   = br.player.use
-        talent                = br.player.talent
-        var                   = br.player.variables
+        fury                  = power.fury
 
         var.lastRune          = ui.time()
         var.profileStop       = false
-        br.player.initialized = true
+        var.initialized = true
     end
 
     ------------
     --- Vars ---
     ------------
-    var.falling            = br.getFallTime()
+    var.falling            = unit.fallTime()
     var.inRaid             = unit.instance == "raid"
     -- target_if=min:debuff.burning_wound.remains
     var.lowestBurningWound = debuff.burningWound.lowest(5, "remain") or "target"
-    var.solo               = #br.engines.healingEngine.friend == 1
+    var.solo               = #units.friends == 1
 
     units.get(5)
     units.get(8, true)
@@ -1407,7 +1369,8 @@ local function runRotation()
         end
     end --End Rotation Logic
 end     -- End runRotation
-br.loader.registerRotation({
+registerRotation({
+    handlesRacials = true,
     name      = rotationName,
     specID    = 577,
     expansion = "MOP",

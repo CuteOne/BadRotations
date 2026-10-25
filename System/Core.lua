@@ -1,7 +1,7 @@
 local _, br = ...
 --- Core: BR's rotating body
 -- One frame loop. It runs the startup stages (System/Bootstrap.lua) every frame; once an unlocker is
--- found it runs the frame steps every frame, and once the player is built it runs the tick steps at
+-- found it runs the frame steps every frame, and once the rotation is built it runs the tick steps at
 -- the Bot Update Rate. Core decides only whether BR may run; what each step does belongs to the module
 -- that registered it (br.lifecycle, BadRotations.lua).
 --   frame steps   fn(elapsed, active): active is false while Power is off or values are hidden
@@ -10,7 +10,7 @@ local _, br = ...
 --                 the tick there
 --                 1 dev mode (Misc/Debug.lua)  5 expansion work (Expansions/Retail: quaking, bait)
 --                 10 queued casts (Cast/CastFunction.lua)  15 smart queue (SmartQueue.lua)
---                 20 healing engine (HealingEngine.lua)  50 the player and its rotation (Loader/Player.lua)
+--                 20 healing engine (HealingEngine.lua)  50 the rotation (Loader/Rotation.lua)
 --                 60 auto loot (LootEngine.lua)  70 main button (UI/Toggles/Toggles.lua)
 --                 75 healer line of sight (HealingEngineFunctions.lua)  80 boss mod timers (Custom.lua)
 --                 85 dungeon queues (Misc/Player.lua)  90 profession helper (Misc/ProfessionHelper)
@@ -90,7 +90,7 @@ local function update(_, elapsed)
     -- Paused while the game hides values from BR (secret values, System/Secrets.lua)
     local readable = br.secrets.canPulse == nil or br.secrets.canPulse()
     br.lifecycle:run("frame", elapsed or 0, core:isPowerOn() and readable)
-    if bootstrap:isPlayerReady() then
+    if bootstrap:isRotationReady() then
         if core:isPowerOff() then
             if powerWasOn then br.lifecycle:run("powerOff") end
             powerWasOn = false

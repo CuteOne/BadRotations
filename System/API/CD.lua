@@ -1,13 +1,12 @@
 ---
 -- These functions help in retrieving information about spell and item cooldowns.
--- CD functions are stored in br.player.cd and can be utilized by `local cd = br.player.cd` in your profile.
+-- CD functions are the profile API table `cd` (br.api.profile.cd); profiles use it by name.
 -- For spell CDs, `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 -- For item CDs, `item` in the function represent the name in the item list defined in System/List/Items.lua
 -- For slot CDs, `slot` in the function represents equipement slots, pass the ID matching the equipement slot id you wish to check.
--- @module br.player.cd
+-- @module cd
 local _, br = ...
 
-if br.api == nil then br.api = {} end
 
 -- The spell a cooldown is read from (the global cooldown's spell for "global"), and whether the player's
 -- level has reached the level it's learned at
@@ -16,9 +15,8 @@ local function cooldownSpell(spell, id)
     return spellID, br.functions.spell:isLevelReached(spellID)
 end
 
-br.api.cd = function(self, spell, id)
-    self.cd = self.cd or {}
-    local cd = self.cd
+br.api.build.cd = function(api, spell, id)
+    local cd = api.cd
 
     --- Spell Cooldown Functions
     -- @section cd.spell
@@ -85,9 +83,9 @@ br.api.cd = function(self, spell, id)
     end
 end
 
-br.api.itemCD = function(self, item, id)
-    --if self[item] == nil then self[item] = {} end
-    local cd = self
+br.api.build.itemCD = function(api, item, id)
+    --if api[item] == nil then api[item] = {} end
+    local cd = api
 
     --- Item Cooldown Functions
     -- @section cd.item

@@ -4,30 +4,30 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "soulCleave", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
         { name = "Mult", icon = "soulCleave", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
         { name = "Sing", icon = "shear", overlay = "Single Target Rotation", tip = "Single target rotation used." },
         { name = "Off", icon = "spectralSight", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+    ui.toggle("Cooldown", { key = "RightCtrl", modes = {
         { name = "Auto", icon = "metamorphosis", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "metamorphosis", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "metamorphosis", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "demonSpikes", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "demonSpikes", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "consumeMagic", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "consumeMagic", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
-    br.ui:toggle("Mover", { modes = {
+    ui.toggle("Mover", { modes = {
         { name = "On", icon = "infernalStrike", overlay = "Auto Movement Enabled", tip = "Will Cast Movement Abilities." },
         { name = "Off", icon = "infernalStrike", overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities" },
     } })
-    br.ui:toggle("Tankbuster", { modes = {
+    ui.toggle("Tankbuster", { modes = {
         { name = "On", icon = "demonSpikes", overlay = "M+ Tankbuster Enabled", tip = "Will use Demon Spikes to Mitigate Tank Busters" },
         { name = "Off", icon = "demonSpikes", overlay = "M+ Tankbuster Disabled", tip = "Will NOT use Demon Spikes to Mitigate Tank Busters" },
     } })
@@ -41,81 +41,81 @@ local function options()
     local alwaysCdNever = { "|cff0000FFAlways", "|cffFFFFFFCD Only", "|cffFF0000Never" }
     local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
     -- General Options
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Dummy DPS Test
-    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+    ui.spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
         tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
     -- Auto Engage
-    br.ui:checkbox(section, "Auto Engage")
+    ui.checkbox(section, "Auto Engage")
     -- Pre-Pull Timer
-    br.ui:spinner(section, "Pre-Pull Timer", { value = 5, min = 1, max = 10, step = 1,
+    ui.spinner(section, "Pre-Pull Timer", { value = 5, min = 1, max = 10, step = 1,
         tip = "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1" })
     -- Fel Devastation
-    br.ui:dropdown(section, "Fel Devastation", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Fel Devastation" })
+    ui.dropdown(section, "Fel Devastation", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Fel Devastation" })
     -- Immolation Aura
-    br.ui:checkbox(section, "Immolation Aura")
+    ui.checkbox(section, "Immolation Aura")
     -- Sigil of Chains
-    br.ui:checkbox(section, "Sigil of Chains - Filler")
+    ui.checkbox(section, "Sigil of Chains - Filler")
     -- Sigil of Flame
-    br.ui:checkbox(section, "Sigil of Flame")
+    ui.checkbox(section, "Sigil of Flame")
     -- Sigil of Misery
-    br.ui:checkbox(section, "Sigil of Misery - Filler")
+    ui.checkbox(section, "Sigil of Misery - Filler")
     -- Sigil of Silence
-    br.ui:checkbox(section, "Sigil of Silence - Filler")
+    ui.checkbox(section, "Sigil of Silence - Filler")
     -- Torment
-    br.ui:checkbox(section, "Torment")
+    ui.checkbox(section, "Torment")
     -- Throw Glaive
-    br.ui:checkbox(section, "Throw Glaive")
+    ui.checkbox(section, "Throw Glaive")
     -- Cooldown Options
-    section = br.ui:section("Cooldowns")
+    section = ui.section("Cooldowns")
     -- Augment Rune
-    br.ui:checkbox(section, "Augment Rune")
+    ui.checkbox(section, "Augment Rune")
     -- Potion
-    br.ui:checkbox(section, "Potion")
+    ui.checkbox(section, "Potion")
     -- Basic Flask Module
-    br.player.module.FlaskUp("Strength", section)
+    module.FlaskUp("Strength", section)
     -- Basic Trinkets
-    br.player.module.BasicTrinkets(nil, section)
+    module.BasicTrinkets(nil, section)
     -- Soul Carver
-    br.ui:dropdown(section, "Soul Carver", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Soul Carver" })
+    ui.dropdown(section, "Soul Carver", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Soul Carver" })
     -- The Hunt
-    br.ui:dropdown(section, "The Hunt", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "When to use The Hunt" })
+    ui.dropdown(section, "The Hunt", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "When to use The Hunt" })
     -- Elysian Decree
-    br.ui:dropdown(section, "Elysian Decree", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "When to use Elysian Decree" })
+    ui.dropdown(section, "Elysian Decree", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "When to use Elysian Decree" })
     -- Defensive Options
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Basic Healing Module
-    br.player.module.BasicHealing(section)
-    br.ui:spinner(section, "PoS removes Necrotic", { value = 20, max = 50, step = 1, checkbox = false,
+    module.BasicHealing(section)
+    ui.spinner(section, "PoS removes Necrotic", { value = 20, max = 50, step = 1, checkbox = false,
         tip = "", boxTip = "Necrotic stacks Phial of Serenity to use at" })
     -- Fiery Brand
-    br.ui:spinner(section, "Fiery Brand", { value = 50, tip = "|cffFFBB00Health Percentage to use at." });
+    ui.spinner(section, "Fiery Brand", { value = 50, tip = "|cffFFBB00Health Percentage to use at." });
     -- Demon Spikes
-    br.ui:spinner(section, "Demon Spikes", { value = 90, tip = "|cffFFBB00Health Percentage to use at." });
-    br.ui:spinner(section, "Hold Demon Spikes", { value = 1, max = 2, step = 1, checkbox = false,
+    ui.spinner(section, "Demon Spikes", { value = 90, tip = "|cffFFBB00Health Percentage to use at." });
+    ui.spinner(section, "Hold Demon Spikes", { value = 1, max = 2, step = 1, checkbox = false,
         tip = "|cffFFBB00Number of Demon Spikes the bot will hold for manual use." });
     -- Metamorphosis
-    br.ui:spinner(section, "Metamorphosis", { value = 40, tip = "|cffFFBB00Health Percentage to use at." });
+    ui.spinner(section, "Metamorphosis", { value = 40, tip = "|cffFFBB00Health Percentage to use at." });
     -- Sigil of Chains
-    br.ui:spinner(section, "Sigil of Chains - HP", { value = 50, tip = "|cffFFBB00Health Percentage to use at." });
-    br.ui:spinner(section, "Sigil of Chains - AoE", { value = 3, max = 10, step = 1, tip = "Number of Units in 8 Yards to Cast At" })
+    ui.spinner(section, "Sigil of Chains - HP", { value = 50, tip = "|cffFFBB00Health Percentage to use at." });
+    ui.spinner(section, "Sigil of Chains - AoE", { value = 3, max = 10, step = 1, tip = "Number of Units in 8 Yards to Cast At" })
     -- Sigil of Misery
-    br.ui:spinner(section, "Sigil of Misery - HP", { value = 50, tip = "|cffFFBB00Health Percentage to use at." });
-    br.ui:spinner(section, "Sigil of Misery - AoE", { value = 3, max = 10, step = 1, tip = "Number of Units in 8 Yards to Cast At" })
+    ui.spinner(section, "Sigil of Misery - HP", { value = 50, tip = "|cffFFBB00Health Percentage to use at." });
+    ui.spinner(section, "Sigil of Misery - AoE", { value = 3, max = 10, step = 1, tip = "Number of Units in 8 Yards to Cast At" })
     -- Soul Barrier
-    br.ui:spinner(section, "Soul Barrier", { value = 70, tip = "|cffFFBB00Health Percentage to use at." });
+    ui.spinner(section, "Soul Barrier", { value = 70, tip = "|cffFFBB00Health Percentage to use at." });
     -- Interrupt Options
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Consume Magic
-    br.ui:checkbox(section, "Disrupt")
+    ui.checkbox(section, "Disrupt")
     -- Imprison
-    br.ui:checkbox(section, "Imprison")
+    ui.checkbox(section, "Imprison")
     -- Sigil of Silence
-    br.ui:checkbox(section, "Sigil of Silence")
+    ui.checkbox(section, "Sigil of Silence")
     -- Sigil of Misery
-    br.ui:checkbox(section, "Sigil of Misery")
+    ui.checkbox(section, "Sigil of Misery")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At" })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At" })
 end
 
 --------------
@@ -123,21 +123,7 @@ end
 --------------
 -- BR API
 local actionList = {}
-local buff
-local cast
-local casting
-local cd
-local charges
-local debuff
-local enemies
 local fury
-local module
-local talent
-local ui
-local unit
-local units
-local use
-local var
 
 --------------------
 --- Action Lists ---
@@ -183,19 +169,17 @@ actionList.Extras = function()
     if ui.mode.tankbuster == 1 and unit.inCombat() then
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if br.game.UnitThreatSituation("player", thisUnit) == 3 and br.game.UnitCastingInfo("target") then
-                if br.lists.tankBuster[select(9, br.game.UnitCastingInfo("target"))] ~= nil then
-                    if cd.demonSpikes.ready() and not debuff.fieryBrand.exists(thisUnit) then
-                        if cast.demonSpikes() then
-                            br.log:debug("[TANKBUST] Demon Spike")
-                            return true
-                        end
+            if unit.threatStatus(thisUnit) == 3 and unit.castingTankBuster(thisUnit) then
+                if cd.demonSpikes.ready() and not debuff.fieryBrand.exists(thisUnit) then
+                    if cast.demonSpikes() then
+                        ui.debug("[TANKBUST] Demon Spike")
+                        return true
                     end
-                    if cast.able.fieryBrand() and not buff.demonSpikes.exists() then
-                        if cast.fieryBrand(thisUnit) then
-                            br.log:debug("[TANKBUST] Fiery Brand")
-                            return true
-                        end
+                end
+                if cast.able.fieryBrand() and not buff.demonSpikes.exists() then
+                    if cast.fieryBrand(thisUnit) then
+                        ui.debug("[TANKBUST] Fiery Brand")
+                        return true
                     end
                 end
             end
@@ -246,7 +230,7 @@ actionList.Defensive = function()
         end
         -- Basic Healing Module
         module.BasicHealing()
-        if ui.checked("PoS removes Necrotic") and unit.instance() and debuff.necroticWound.stacks() >= ui.value("PoS removes Necrotic") and use.able.phialOfSerenity() then
+        if ui.checked("PoS removes Necrotic") and unit.instance() and debuff.necroticWound.stack() >= ui.value("PoS removes Necrotic") and use.able.phialOfSerenity() then
             if use.phialOfSerenity() then return true end
         end
         -- Sigil of Misery
@@ -1003,31 +987,16 @@ local function runRotation()
     ---------------
     -- BR API
     -- Initialize
-    if not br.player.initialized then
+    if not var.initialized then
         -- BR API
-        br.player.actionList = actionList
-        buff = br.player.buff
-        cast = br.player.cast
-        casting = br.player.casting
-        cd = br.player.cd
-        charges = br.player.charges
-        debuff = br.player.debuff
-        enemies = br.player.enemies
-        fury = br.player.power.fury
-        module = br.player.module
-        talent = br.player.talent
-        ui = br.player.ui
-        unit = br.player.unit
-        units = br.player.units
-        use = br.player.use
-        var = br.player.variables
+        fury = power.fury
 
         var.lastRune = ui.time()
         var.profileStop = false
-        br.player.initialized = true
+        var.initialized = true
     end
     -- Variable List
-    var.inRaid = br.player.unit.instance() == "raid"
+    var.inRaid = unit.instance() == "raid"
     -- Dynamic Units
     units.get(5)
     units.get(8, true)
@@ -1074,7 +1043,7 @@ local function runRotation()
         end
     end --End Rotation Logic
 end     -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 581,
     expansion = "MOP",

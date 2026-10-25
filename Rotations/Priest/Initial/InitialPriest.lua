@@ -4,11 +4,11 @@ local rotationName = "Initial"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "On", icon = "smite", overlay = "Rotation Enabled", tip = "Enable Rotation" },
         { name = "Off", icon = "smite", overlay = "Rotation Disabled", tip = "Disable Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "powerWordShield", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "powerWordShield", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
@@ -22,32 +22,25 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
-    br.ui:checkbox(section, "Power Word: Fortitude")
+    section = ui.section("General")
+    ui.checkbox(section, "Power Word: Fortitude")
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
-    br.ui:spinner(section, "Desperate Prayer", { value = 30, tip = "Health Percent to Cast At" })
-    br.ui:spinner(section, "Fade", { value = 25, tip = "Health Percent to Cast At" })
-    br.ui:spinner(section, "Power Word: Shield", { value = 50, tip = "Health Percent to Cast At" })
-    br.ui:spinner(section, "Flash Heal", { value = 80, tip = "Health Percent to Cast At" })
-    br.ui:spinner(section, "Psychic Scream", { value = 40, tip = "Health Percent to Cast At" })
-    br.ui:checkbox(section, "Resurrection")
+    section = ui.section("Defensive")
+    ui.spinner(section, "Desperate Prayer", { value = 30, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Fade", { value = 25, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Power Word: Shield", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Flash Heal", { value = 80, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Psychic Scream", { value = 40, tip = "Health Percent to Cast At" })
+    ui.checkbox(section, "Resurrection")
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
-local debuff
 local mode
-local ui
-local unit
-local units
 -- General Locals
 local haltProfile
 local profileStop
@@ -132,14 +125,14 @@ actionList.PreCombat = function()
             -- Smite
             if cast.able.smite("target") and not unit.moving() then
                 if cast.smite("target") then
-                    br.log:debug("Casting Smite [Precombat]")
+                    ui.debug("Casting Smite [Precombat]")
                     return true
                 end
             end
             -- Shadow Word: Pain
             if cast.able.shadowWordPain("target") and debuff.shadowWordPain.refresh("target") then
                 if cast.shadowWordPain("target") then
-                    br.log:debug("Casting Shadow Word: Pain [Precombat]")
+                    ui.debug("Casting Shadow Word: Pain [Precombat]")
                     return true
                 end
             end
@@ -171,7 +164,7 @@ actionList.Combat = function()
             -- Shadow Word: Pain
             if cast.able.shadowWordPain(units.dyn40) and debuff.shadowWordPain.refresh(units.dyn40) then
                 if cast.shadowWordPain(units.dyn40) then
-                    br.log:debug("Casting Shadow Word: Pain")
+                    ui.debug("Casting Shadow Word: Pain")
                     return true
                 end
             end
@@ -185,7 +178,7 @@ actionList.Combat = function()
             -- Smite
             if cast.able.smite() and not unit.moving() then
                 if cast.smite() then
-                    br.log:debug("Casting Smite")
+                    ui.debug("Casting Smite")
                     return true
                 end
             end
@@ -201,17 +194,10 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff           = br.player.buff
-    cast           = br.player.cast
-    cd             = br.player.cd
-    debuff         = br.player.debuff
-    mode           = br.player.ui.mode
-    ui             = br.player.ui
-    unit           = br.player.unit
-    units          = br.player.units
+    mode           = ui.mode
     -- General Locals
     profileStop    = profileStop or false
-    haltProfile    = (unit.inCombat() and profileStop) or IsMounted() or br.functions.misc:pause() or mode.rotation == 2
+    haltProfile    = (unit.inCombat() and profileStop) or unit.mounted() or ui.pause() or mode.rotation == 2
     var.friendUnit = (unit.player("target") and unit.friend("target")) and "target" or "player"
     -- Units
     units.get(5)  -- Makes a variable called, units.dyn5
@@ -219,7 +205,7 @@ local function runRotation()
     units.get(40, true)
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = GetTime() end
+    if var.pauseTime == nil then var.pauseTime = ui.time() end
 
     ---------------------
     --- Begin Profile ---
@@ -228,7 +214,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        br.pauseTime = GetTime()
+        var.pauseTime = ui.time()
         return true
     else
         ---------------------------------
@@ -254,7 +240,7 @@ local function runRotation()
         end
     end         -- Pause
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 1452,
     expansion = "MOP",

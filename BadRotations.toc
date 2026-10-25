@@ -101,6 +101,7 @@ System\Functions\Misc\Toggles.lua
 System\Functions\Misc\Pause.lua
 System\Functions\Misc\Options.lua
 System\Functions\Misc\Debug.lua
+System\Functions\Pet.lua
 System\Functions\Power.lua
 System\Functions\Range.lua
 System\Functions\Spell.lua
@@ -205,12 +206,11 @@ System\API\Use.lua
 
 ## Loader
 
-System\Loader\Player.lua
 System\Loader\ProfileLoader.lua
 System\Loader\SpellCompiler.lua
-System\Loader\PlayerAPI.lua
+System\Loader\ProfileAPI.lua
 System\Loader\ProfileUI.lua
-System\Loader\Builder.lua
+System\Loader\Rotation.lua
 
 ## Misc
 

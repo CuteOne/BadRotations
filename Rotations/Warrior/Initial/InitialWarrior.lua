@@ -4,19 +4,19 @@ local rotationName = "Initial"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { modes = {
+    ui.toggle("Rotation", { modes = {
         { name = "On", icon = "slam", overlay = "Rotation Enabled", tip = "Enable Rotation" },
         { name = "Off", icon = "victoryRush", overlay = "Rotation Disabled", tip = "Disable Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "shieldBlock", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "shieldBlock", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "pummel", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
         { name = "Off", icon = "pummel", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
-    br.ui:toggle("Mover", { modes = {
+    ui.toggle("Mover", { modes = {
         { name = "On", icon = "charge", overlay = "Mover Enabled", tip = "Will use Charge." },
         { name = "Off", icon = "charge", overlay = "Mover Disabled", tip = "Will NOT use Charge." },
     } })
@@ -30,51 +30,42 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Basic Trinket Module
-    -- br.player.module.BasicTrinkets(nil, section)
+    -- module.BasicTrinkets(nil, section)
     -- Battle Shout
     -- br.ui:createCheckbox(section, "Battle Shout")
     -- Charge
-    br.ui:checkbox(section, "Charge")
+    ui.checkbox(section, "Charge")
     -- Hamstring
     -- br.ui:createCheckbox(section, "Hamstring")
     -- Heroic Throw
     -- br.ui:createCheckbox(section, "Heroic Throw")
     -- Victory Rush
-    br.ui:checkbox(section, "Victory Rush")
+    ui.checkbox(section, "Victory Rush")
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Basic Healing Module
-    -- br.player.module.BasicHealing(section)
+    -- module.BasicHealing(section)
     -- Shield Block
     -- br.ui:createSpinner(section, "Shield Block", 30, 0, 100, 5, "|cffFFFFFFPet Health Percent to Cast At")
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupt")
+    section = ui.section("Interrupt")
     -- Pummel
     -- br.ui:createCheckbox(section, "Pummel", "|cffFFFFFFUse Pummel")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
-local enemies
 local mode
-local module
-local ui
-local unit
-local units
-local var
 -- General Locals
 
 -- Profile Specific Locals
@@ -245,23 +236,14 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    if not br.player.initialized then
-        buff        = br.player.buff
-        cast        = br.player.cast
-        cd          = br.player.cd
-        enemies     = br.player.enemies
-        mode        = br.player.ui.mode
-        module      = br.player.module
-        ui          = br.player.ui
-        unit        = br.player.unit
-        units       = br.player.units
-        var         = br.player.variables
+    if not var.initialized then
+        mode        = ui.mode
         -- General Locals
         var.profileStop = false
 
-        br.player.initialized = true
+        var.initialized = true
     end
-    -- haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or br.functions.misc:pause() or mode.rotation == 2
+    -- haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or ui.pause() or mode.rotation == 2
     -- Units
     units.get(5)  -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -274,7 +256,7 @@ local function runRotation()
     end
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = ui.time() end
+    if var.pauseTime == nil then var.pauseTime = ui.time() end
 
     ---------------------
     --- Begin Profile ---
@@ -307,7 +289,7 @@ local function runRotation()
         if actionList.Combat() then return true end
     end         -- Pause
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 1446,
     expansion = "MOP",

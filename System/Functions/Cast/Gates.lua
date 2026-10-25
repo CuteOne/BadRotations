@@ -365,7 +365,7 @@ local function gateCooldownTimer(ctx, thisUnit, castType, allTalents, allSpells)
 	-- side.  Use GetPetActionCooldown on the actual bar slot — the only TBC-compatible
 	-- source of truth for per-ability cooldown state.
 	if castType == "pet" then
-		local slot = E.getPetBarSlot(ctx.spellName)
+		local slot = br.functions.pet:getBarSlot(ctx.spellName)
 		if slot and br.game.GetPetActionCooldown then
 			local cdStart, cdDuration = br.game.GetPetActionCooldown(slot)
 			if cdStart and cdDuration and cdDuration > 0
@@ -446,7 +446,7 @@ local function gateKnownTalent(ctx, thisUnit, castType, allTalents, allSpells) -
 	-- way to verify the pet actually has this ability (spell-knowledge APIs that
 	-- accept isPetSpell do not exist on TBC Classic 2.5.x).
 	if castType == "pet" then
-		if not E.getPetBarSlot(ctx.spellName) then
+		if not br.functions.pet:getBarSlot(ctx.spellName) then
 			return false, "NOT_KNOWN",
 				"Pet ability '" .. tostring(ctx.spellName) .. "' not found on pet action bar"
 		end
@@ -565,8 +565,8 @@ local GATE_FUNCTIONS = {
 -- Returns true on full pass, or false with the failing reason code.
 -- isAbleCheck: when true (cast.able calls), gate failures are expected and not printed.
 function E.runGates(ctx, thisUnit, castType, isAbleCheck)
-	local allTalents = br.player and br.player.spells and br.player.spells.talents
-	local allSpells  = br.player and br.player.spells
+	local allTalents = br.rotation and br.rotation.spells and br.rotation.spells.talents
+	local allSpells  = br.rotation and br.rotation.spells
 	for _, gateFn in ipairs(GATE_FUNCTIONS) do
 		local pass, reason, detail = gateFn(ctx, thisUnit, castType, allTalents, allSpells)
 		if not pass then

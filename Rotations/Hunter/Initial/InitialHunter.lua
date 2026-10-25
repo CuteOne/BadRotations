@@ -1,23 +1,23 @@
 local rotationName = "Initial"
-br.loader.profileLoader:loadSupport("PetCuteOne")
+local petSupport = loadSupport("PetCuteOne")
 
 ---------------
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "On", icon = "steadyShot", overlay = "Rotation Enabled", tip = "Enables Rotation" },
         { name = "Off", icon = "steadyShot", overlay = "Rotation Disabled", tip = "Disables Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "exhilaration", overlay = "Defensive Enabled", tip = "Enables Defensive" },
         { name = "Off", icon = "exhilaration", overlay = "Defensive Disabled", tip = "Disables Defensive" },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "freezingTrap", overlay = "Interrupt Enabled", tip = "Enables Interrupt" },
         { name = "Off", icon = "freezingTrap", overlay = "Interrupt Disabled", tip = "Disables Interrupt" },
     } })
-    br.ui:toggle("PetSummon", { modes = {
+    ui.toggle("PetSummon", { modes = {
         { name = "1", icon = "callPet1", overlay = "Summon Pet 1", tip = "Summon Pet 1" },
         { name = "2", icon = "callPet2", overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = true },
         { name = "3", icon = "callPet3", overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = true },
@@ -35,63 +35,50 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Hunter's Mark
-    br.ui:checkbox(section, "Hunter's Mark")
+    ui.checkbox(section, "Hunter's Mark")
     -- Basic Trinkets Module
-    br.player.module.BasicTrinkets(nil, section)
+    module.BasicTrinkets(nil, section)
     -------------------
     --- PET OPTIONS ---
     -------------------
-    br.loader.rotations.support["PetCuteOne"].options()
+    petSupport.options()
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Basic Healing Module
-    br.player.module.BasicHealing(section)
+    module.BasicHealing(section)
     -- Aspect of the Turtle
-    br.ui:spinner(section, "Aspect of the Turtle", { value = 25, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Aspect of the Turtle", { value = 25, tip = "Health Percent to Cast At" })
     -- Disengage
-    br.ui:checkbox(section, "Disengage")
+    ui.checkbox(section, "Disengage")
     -- Exhilaration
-    br.ui:spinner(section, "Exhilaration", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Exhilaration", { value = 50, tip = "Health Percent to Cast At" })
     -- Feign Death
-    br.ui:spinner(section, "Feign Death", { value = 30, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Feign Death", { value = 30, tip = "Health Percent to Cast At" })
     -- Wing Clip
-    br.ui:checkbox(section, "Wing Clip")
+    ui.checkbox(section, "Wing Clip")
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Freezing Trap
-    br.ui:checkbox(section, "Freezing Trap")
+    ui.checkbox(section, "Freezing Trap")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
-local debuff
-local enemies
-local module
-local ui
-local unit
-local units
 -- Profile Specific Locals
 local actionList = {}
 local var = {}
-var.getFacingDistance = br.game["getFacingDistance"]
-var.getItemInfo = br.game["GetItemInfo"]
 var.haltProfile = false
-var.loadSupport = br.game["loadSupport"]
 var.profileStop = false
-var.specificToggle = br.game["SpecificToggle"]
 
 --------------------
 --- Action Lists ---
@@ -163,9 +150,9 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 -- Freezing Trap
-                if ui.hecked("Freezing Trap") and cast.able.freezingTrap() then
+                if ui.checked("Freezing Trap") and cast.able.freezingTrap() then
                     for j = 1, #enemies.yards40 do
                         thisUnit = enemies.yards40[j]
                         if unit.distance(thisUnit) > 8 and cast.timeRemain(thisUnit) > 3 then
@@ -215,24 +202,15 @@ local function runRotation()
     --- Load Additional Rotation Files ---
     --------------------------------------
     if actionList.PetManagement == nil then
-        actionList.PetManagement = br.loader.rotations.support["PetCuteOne"].run
+        actionList.PetManagement = petSupport.run
     end
 
     ---------------------
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff            = br.player.buff
-    cast            = br.player.cast
-    cd              = br.player.cd
-    debuff          = br.player.debuff
-    enemies         = br.player.enemies
-    module          = br.player.module
-    ui              = br.player.ui
-    unit            = br.player.unit
-    units           = br.player.units
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or buff.feignDeath.exists() or
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or ui.pause() or buff.feignDeath.exists() or
         ui.mode.rotation == 2
     -- Units
     units.get(5)
@@ -310,7 +288,7 @@ local function runRotation()
         end
     end         -- Pause
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 1448,
     expansion = "MOP",

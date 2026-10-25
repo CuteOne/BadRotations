@@ -1,15 +1,14 @@
 ---
 -- These functions help in retrieving information about spell and item charges.
--- Charge functions are stored in br.player.charges and can be utilized by `local charges = br.player.charges` in your profile.
+-- Charge functions are the profile API table `charges` (br.api.profile.charges); profiles use it by name.
 -- For spell charges, `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 -- For item charges, `item` in the function represent the name in the item list defined in System/List/Items.lua
--- @module br.player.charges
+-- @module charges
 local _, br = ...
-if br.api == nil then br.api = {} end
 
-br.api.charges = function(self, spell, id)
-    if self[spell] == nil then self[spell] = {} end
-    local charges = self[spell]
+br.api.build.charges = function(api, spell, id)
+    if api[spell] == nil then api[spell] = {} end
+    local charges = api[spell]
 
     --- Gets the number of charges remaining on spell.
     -- @function charges.spell.count
@@ -70,9 +69,9 @@ br.api.charges = function(self, spell, id)
     end
 end
 
-br.api.itemCharges = function(self, item, id)
-    if self[item] == nil then self[item] = {} end
-    local charges = self[item]
+br.api.build.itemCharges = function(api, item, id)
+    if api[item] == nil then api[item] = {} end
+    local charges = api[item]
 
     --- Gets the number of charges remaining on item.
     -- @function charges.item.count

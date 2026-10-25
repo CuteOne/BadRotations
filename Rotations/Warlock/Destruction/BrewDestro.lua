@@ -4,15 +4,15 @@ local rotationName = "BrewDestro"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "On", icon = "shadowBolt", overlay = "Rotation Enabled", tip = "Enable Rotation" },
         { name = "Off", icon = "soulShards", overlay = "Rotation Disabled", tip = "Disable Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "unendingResolve", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "unendingResolve", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("PetSummon", { modes = {
+    ui.toggle("PetSummon", { modes = {
         { name = "1", icon = "summonImp", overlay = "Imp", tip = "Summon Imp" },
         { name = "2", icon = "summonVoidwalker", overlay = "Voidwalker", tip = "Summon Voidwalker", highlight = true },
         { name = "None", icon = "fear", overlay = "No pet", tip = "Dont Summon any Pet" },
@@ -27,46 +27,36 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Corruption
-    br.ui:checkbox(section, "Use Corruption")
+    ui.checkbox(section, "Use Corruption")
     -- Curse of Weakness
-    br.ui:checkbox(section, "Use Curse of Weakness")
+    ui.checkbox(section, "Use Curse of Weakness")
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Drain Life
-    br.ui:spinner(section, "Drain Life", { value = 40, tip = "Pet Health Percent to Cast At" })
+    ui.spinner(section, "Drain Life", { value = 40, tip = "Pet Health Percent to Cast At" })
     -- Health Funnel
-    br.ui:spinner(section, "Health Funnel", { value = 30, max = 95, tip = "Pet Health Percent to Cast At" })
-    br.ui:spinner(section, "Player Limit", { value = 70, checkbox = false, tip = "Health Percent to not use below." })
+    ui.spinner(section, "Health Funnel", { value = 30, max = 95, tip = "Pet Health Percent to Cast At" })
+    ui.spinner(section, "Player Limit", { value = 70, checkbox = false, tip = "Health Percent to not use below." })
     -- Healthstone
-    br.ui:spinner(section, "Healthstone", { value = 60, max = 95, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Healthstone", { value = 60, max = 95, tip = "Health Percent to Cast At" })
     -- Unending Resolve
-    br.ui:spinner(section, "Unending Resolve", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Unending Resolve", { value = 50, tip = "Health Percent to Cast At" })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local cast
-local cd
-local debuff
-local has
 local mode
-local ui
-local pet
-local spell
-local unit
-local units
-local use
-local power
 -- General Locals
 local haltProfile
 local profileStop
 -- Profile Specific Locals
+local shards
 local actionList = {}
 
 --------------------
@@ -115,17 +105,17 @@ end -- End Action List - Defensive
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     --actions.precombat+=/summon_pet
-    if not unit.moving() and unit.level() >= 3 and GetTime() - br.pauseTime > 0.5
-        and br.debug.timer:useTimer("summonPet", 1)
+    if not unit.moving() and unit.level() >= 3 and ui.time() - var.pauseTime > 0.5
+        and ui.timer("summonPet", 1)
     then
-        if (mode.petSummon == 1 or (mode.petSummon == 2 and not spell.summonVoidwalker.known())) and not UnitExists("pet") then
+        if (mode.petSummon == 1 or (mode.petSummon == 2 and not spell.summonVoidwalker.known())) and not unit.exists("pet") then
             if cast.summonImp("player") then return true end
         end
-        if mode.petSummon == 2 and spell.summonVoidwalker.known() and not UnitExists("pet") then
+        if mode.petSummon == 2 and spell.summonVoidwalker.known() and not unit.exists("pet") then
             if cast.summonVoidwalker("player") then return true end
         end
-        if mode.petSummon == 3 and (UnitExists("pet")) then
-            PetDismiss()
+        if mode.petSummon == 3 and (unit.exists("pet")) then
+            pet.dismiss()
         end
     end
 end -- End Action List - PreCombat
@@ -138,29 +128,18 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    cast        = br.player.cast
-    cd          = br.player.cd
-    debuff      = br.player.debuff
-    has         = br.player.has
-    mode        = br.player.ui.mode
-    ui          = br.player.ui
-    pet         = br.player.pet
-    spell       = br.player.spells
-    ui          = br.player.ui
-    unit        = br.player.unit
-    units       = br.player.units
-    use         = br.player.use
-    power       = br.player.power.soulShards()
+    mode        = ui.mode
+    shards      = power.soulShards()
     -- General Locals
     profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or IsMounted() or br.functions.misc:pause() or mode.rotation == 4
+    haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or ui.pause() or mode.rotation == 4
     -- Units
     units.get(5)  -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
     units.get(40, true)
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = GetTime() end
+    if var.pauseTime == nil then var.pauseTime = ui.time() end
 
     ---------------------
     --- Begin Profile ---
@@ -169,7 +148,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        br.pauseTime = GetTime()
+        var.pauseTime = ui.time()
         return true
     else
         ---------------------------------
@@ -194,8 +173,8 @@ local function runRotation()
                 ------------------------------
                 -- Start Attack
                 -- actions=auto_attack
-                if not C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(29722)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    br.game.StartAttack(units.dyn5)
+                if not cast.auto.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                    unit.startAttack(units.dyn5)
                 end
 
                 -- Curse of Weakness
@@ -213,7 +192,7 @@ local function runRotation()
                     end
                 end
 
-                if power > 2 and cast.able.chaosBolt() then
+                if shards > 2 and cast.able.chaosBolt() then
                     if cast.chaosBolt("target") then
                         ui.debug("Casting Chaos Bolt")
                         return true
@@ -233,7 +212,7 @@ local function runRotation()
         end
     end         -- Pause
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 267,
     expansion = "MOP",

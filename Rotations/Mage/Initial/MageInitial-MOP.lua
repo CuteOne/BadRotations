@@ -4,15 +4,15 @@ local rotationName = "Initial"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "On", icon = "frostfireBolt", overlay = "Rotation Enabled", tip = "Enable Rotation" },
         { name = "Off", icon = "frostfireBolt", overlay = "Rotation Disabled", tip = "Disable Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "frostNova", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "frostNova", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "counterspell", overlay = "Interrupt Enabled", tip = "Enables Interrupt" },
         { name = "Off", icon = "counterspell", overlay = "Interrupt Disabled", tip = "Disables Interrupt" },
     } })
@@ -26,35 +26,28 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
 
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Forst Nova
-    br.ui:spinner(section, "Frost Nova", { value = 30, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Frost Nova", { value = 30, tip = "Health Percent to Cast At" })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Counterspell
-    br.ui:checkbox(section, "Counterspell")
+    ui.checkbox(section, "Counterspell")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
-local enemies
-local ui
-local unit
-local units
 -- Profile Specific Locals
 local profileStop
 local haltProfile
@@ -83,9 +76,9 @@ actionList.Interrupts = function()
     if ui.useInterrupt() then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 -- Counterspell
-                if br.functions.spell:canInterrupt() then
+                if unit.interruptable() then
                     if cast.able.counterspell(thisUnit) and unit.distance(thisUnit) then
                         if cast.counterspell(thisUnit) then
                             ui.debug("Casting Counterspell")
@@ -161,16 +154,9 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff        = br.player.buff
-    cast        = br.player.cast
-    cd          = br.player.cd
-    enemies     = br.player.enemies
-    ui          = br.player.ui
-    unit        = br.player.unit
-    units       = br.player.units
     -- General Locals
     profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 2
+    haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or ui.pause() or ui.mode.rotation == 2
     -- Units
     units.get(40) -- Makes a variable called, units.dyn40
     units.get(40, true)
@@ -178,7 +164,7 @@ local function runRotation()
     enemies.get(40)
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = br.game.GetTime() end
+    if var.pauseTime == nil then var.pauseTime = ui.time() end
 
     ---------------------
     --- Begin Profile ---
@@ -187,7 +173,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        br.pauseTime = br.game.GetTime()
+        var.pauseTime = ui.time()
         return true
     else
         ---------------------------------
@@ -215,7 +201,7 @@ local function runRotation()
         if actionList.Combat() then return true end
     end         -- Pause
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 1449,
     expansion = "MOP",

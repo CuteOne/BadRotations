@@ -240,8 +240,8 @@ function br.ui:createConfigWindow()
         section = br.ui:section("Smart Queue", { window = br.ui.window.config })
         br.ui:spinner(section, "Smart Queue", { value = 2, min = 0.5, max = 3, step = 0.1,
             tip = "Auto cast spells you press (Only EWT support)", boxTip = "Seconds to attempt cast" })
-        if br.player ~= nil and br.player.spells ~= nil and br.player.spells.abilities ~= nil then
-            for _, v in pairsByKeys(br.player.spells.abilities) do
+        if br.rotation ~= nil and br.rotation.spells ~= nil and br.rotation.spells.abilities ~= nil then
+            for _, v in pairsByKeys(br.rotation.spells.abilities) do
                 local id = type(v) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(v) or v[1]) or v
                 local spellName = br.functions.spell:getName(id)
                 if id ~= br.functions.spell:getGCDSpellID() and spellName ~= nil then

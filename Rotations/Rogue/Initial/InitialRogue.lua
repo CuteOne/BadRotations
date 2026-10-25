@@ -4,15 +4,15 @@ local rotationName = "Initial"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { modes = {
+    ui.toggle("Rotation", { modes = {
         { name = "On", icon = "sinisterStrike", overlay = "Rotation Enabled", tip = "Enable Rotation" },
         { name = "Off", icon = "sinisterStrike", overlay = "Rotation Disabled", tip = "Disable Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "crimsonVial", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "crimsonVial", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "kick", overlay = "Interrupts Enabled", tip = "Use Interrupt Abilities" },
         { name = "Off", icon = "kick", overlay = "Interrupts Disabled", tip = "Do Not Use Interrupt Abilities" },
     } })
@@ -26,43 +26,36 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Eviscerate Execute
-    br.ui:dropdown(section, "Eviscerate Execute", { choices = { "|cffFFFF00Enabled Notify", "|cff00FF00Enabled", "|cffFF0000Disabled" }, value = "Enabled", checkbox = false,
+    ui.dropdown(section, "Eviscerate Execute", { choices = { "|cffFFFF00Enabled Notify", "|cff00FF00Enabled", "|cffFF0000Disabled" }, value = "Enabled", checkbox = false,
         tip = "Options for using Eviscerate when the damage from it will kill the unit." })
     -- Stealth
-    br.ui:checkbox(section, "Stealth", { tip = "Will use stealth at all times." })
+    ui.checkbox(section, "Stealth", { tip = "Will use stealth at all times." })
     -- Stealth Breaker
-    br.ui:dropdown(section, "Stealth Breaker", { choices = { "|cff00FF00Ambush", "|cffFF0000Sinister Strike" }, checkbox = false,
+    ui.dropdown(section, "Stealth Breaker", { choices = { "|cff00FF00Ambush", "|cffFF0000Sinister Strike" }, checkbox = false,
         tip = "Set what to break Stealth with." })
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Crimson Vial
-    br.ui:spinner(section, "Crimson Vial", { value = 70, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Crimson Vial", { value = 70, tip = "Health Percent to Cast At" })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupt")
+    section = ui.section("Interrupt")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
 local combo
-local enemies
 local energy
 local mode
-local ui
-local spell
-local unit
-local units
 -- General Locals
 local haltProfile
 local profileStop
@@ -75,7 +68,7 @@ local actionList = {}
 -----------------
 -- Eviscerate Finish
 local function eviscerateFinish(thisUnit)
-    return ui.value("Eviscerate Execute") ~= 3 and br.player.spell.eviscerate.kills(thisUnit)
+    return ui.value("Eviscerate Execute") ~= 3 and spell.eviscerate.kills(thisUnit)
 end
 
 --------------------
@@ -199,20 +192,12 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff        = br.player.buff
-    cast        = br.player.cast
-    combo       = br.player.power.comboPoints
-    enemies     = br.player.enemies
-    energy      = br.player.power.energy
-    mode        = br.player.ui.mode
-    ui          = br.player.ui
-    spell       = br.player.spells
-    ui          = br.player.ui
-    unit        = br.player.unit
-    units       = br.player.units
+    combo       = power.comboPoints
+    energy      = power.energy
+    mode        = ui.mode
     -- General Locals
     profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or br.functions.misc:pause() or mode.rotation == 2
+    haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or ui.pause() or mode.rotation == 2
     -- Units
     units.get(5)  -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -223,7 +208,7 @@ local function runRotation()
     finishHim = eviscerateFinish(units.dyn5)
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = ui.time() end
+    if var.pauseTime == nil then var.pauseTime = ui.time() end
 
     ---------------------
     --- Begin Profile ---
@@ -232,7 +217,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        br.pauseTime = ui.time()
+        var.pauseTime = ui.time()
         return true
     else
         ---------------------------------
@@ -259,7 +244,7 @@ local function runRotation()
         end
     end         -- Pause
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 1453,
     expansion = "MOP",

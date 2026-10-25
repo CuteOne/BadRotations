@@ -4,22 +4,22 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = "divineStorm", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
         { name = "Mult", icon = "divineStorm", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
         { name = "Sing", icon = "crusaderStrike", overlay = "Single Target Rotation", tip = "Single target rotation used." },
         { name = "Off", icon = "flashOfLight", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
     } })
-    br.ui:toggle("Cooldown", { modes = {
+    ui.toggle("Cooldown", { modes = {
         { name = "Auto", icon = "avengingWrath", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
         { name = "On", icon = "avengingWrath", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
         { name = "Off", icon = "avengingWrath", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "flashOfLight", overlay = "Defensive Enabled", tip = "Enables Defensive" },
         { name = "Off", icon = "flashOfLight", overlay = "Defensive Disabled", tip = "Disables Defensive" },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "hammerOfJustice", overlay = "Interrupt Enabled", tip = "Enables Interrupt" },
         { name = "Off", icon = "hammerOfJustice", overlay = "Interrupt Disabled", tip = "Disables Interrupt" },
     } })
@@ -35,85 +35,73 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Dummy DPS Test
-    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+    ui.spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
         tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
     -- Seal of Command
-    br.ui:checkbox(section, "Seal of Command/Truth")
+    ui.checkbox(section, "Seal of Command/Truth")
     ------------------------
     --- COOLDOWN OPTIONS ---
     ------------------------
-    section = br.ui:section("Cooldown")
+    section = ui.section("Cooldown")
     -- Avenging Wrath
-    br.ui:dropdown(section, "Avenging Wrath", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
+    ui.dropdown(section, "Avenging Wrath", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
         tip = "Set when to use Avenging Wrath" })
     -- Execution Sentence
-    br.ui:dropdown(section, "Execution Sentence", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
+    ui.dropdown(section, "Execution Sentence", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
         tip = "Set when to use Execution Sentence" })
     -- Exorcism
-    br.ui:checkbox(section, "Exorcism")
+    ui.checkbox(section, "Exorcism")
     -- Guardian of Ancient Kings
-    br.ui:dropdown(section, "Guardian of Ancient Kings", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
+    ui.dropdown(section, "Guardian of Ancient Kings", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
         tip = "Set when to use Guardian of Ancient Kings" })
     -- Holy Avenger
-    br.ui:dropdown(section, "Holy Avenger", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
+    ui.dropdown(section, "Holy Avenger", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
         tip = "Set when to use Holy Avenger" })
     -- Holy Prism
-    br.ui:checkbox(section, "Holy Prism")
+    ui.checkbox(section, "Holy Prism")
     -- Light's Hammer
-    br.ui:dropdown(section, "Light's Hammer", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
+    ui.dropdown(section, "Light's Hammer", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
         tip = "Set when to use Light's Hammer" })
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Cleanse
-    br.ui:dropdown(section, "Cleanse", { choices = playTarMouseFocLow, value = 1, tip = "Target to Cast On" })
+    ui.dropdown(section, "Cleanse", { choices = playTarMouseFocLow, value = 1, tip = "Target to Cast On" })
     -- Divine Shield
-    br.ui:spinner(section, "Divine Shield", { value = 35, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.spinner(section, "Divine Shield", { value = 35, tip = "|cffFFBB00Health Percentage to use at." })
     -- Flash of Light
-    br.ui:spinner(section, "Flash of Light", { value = 50, tip = "|cffFFBB00Health Percentage to use at." })
-    br.ui:dropdown(section, "Flash of Light Target", { choices = playTarMouseFocLow, value = 5, checkbox = false,
+    ui.spinner(section, "Flash of Light", { value = 50, tip = "|cffFFBB00Health Percentage to use at." })
+    ui.dropdown(section, "Flash of Light Target", { choices = playTarMouseFocLow, value = 5, checkbox = false,
         tip = "Target for Flash of Light" })
     -- Hammer of Justice
-    br.ui:spinner(section, "Hammer of Justice - Defensive", { value = 30, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Hammer of Justice - Defensive", { value = 30, tip = "Health Percent to Cast At" })
     -- Lay On Hands
-    br.ui:spinner(section, "Lay On Hands", { value = 20, tip = "", boxTip = "Health Percentage to use at" })
-    br.ui:dropdown(section, "Lay on Hands Target", { choices = playTarMouseFocLow, value = 5, checkbox = false, tip = "Target for Lay On Hands" })
+    ui.spinner(section, "Lay On Hands", { value = 20, tip = "", boxTip = "Health Percentage to use at" })
+    ui.dropdown(section, "Lay on Hands Target", { choices = playTarMouseFocLow, value = 5, checkbox = false, tip = "Target for Lay On Hands" })
     -- Redemption
-    br.ui:dropdown(section, "Redemption", { choices = { "Target", "Mouseover", "Focus" }, value = "Target", tip = "Target to Cast On" })
+    ui.dropdown(section, "Redemption", { choices = { "Target", "Mouseover", "Focus" }, value = "Target", tip = "Target to Cast On" })
    -- Word of Glory
-    br.ui:spinner(section, "Word of Glory", { value = 40, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Word of Glory", { value = 40, tip = "Health Percent to Cast At" })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupts")
+    section = ui.section("Interrupts")
     -- Hammer of Justice
-    br.ui:checkbox(section, "Hammer of Justice")
+    ui.checkbox(section, "Hammer of Justice")
     -- Rebuke
-    br.ui:checkbox(section, "Rebuke")
+    ui.checkbox(section, "Rebuke")
     -- Interrupt Percentage
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local buff
-local cast
-local cd
-local debuff
-local enemies
 local holyPower
-local module
-local spell
-local spells
-local talent
-local ui
-local unit
-local units
 -- Profile Specific Locals
 local actionList     = {}
 local var            = {}
@@ -142,9 +130,9 @@ local getHealUnitOption = function(option, checkForbearance)
     if thisTar == 5 then
         thisUnit = var.lowestUnit
         -- Get the next lowest unit if lowest unit has Forbearance debuff
-        if checkForbearance and #br.engines.healingEngine.friend > 1 and debuff.forbearance.exists(thisUnit) then
-            for i = 1, #br.engines.healingEngine.friend do
-                local nextUnit = br.engines.healingEngine.friend[i].unit
+        if checkForbearance and #units.friends > 1 and debuff.forbearance.exists(thisUnit) then
+            for i = 1, #units.friends do
+                local nextUnit = units.friends[i].unit
                 if not debuff.forbearance.exists(nextUnit) then
                     thisUnit = nextUnit
                     break
@@ -173,14 +161,14 @@ actionList.Extras = function()
         end
     end
     -- * Seal of Command
-    if ui.checked("Seal of Command/Truth") and cast.able.sealOfCommand("player") and not unit.formActive(spells.sealOfCommand) and not spell.sealOfTruth.known() then
+    if ui.checked("Seal of Command/Truth") and cast.able.sealOfCommand("player") and not unit.formActive(spell.sealOfCommand.id()) and not spell.sealOfTruth.known() then
         if cast.sealOfCommand("player") then
             ui.debug("Casting Seal of Command")
             return true
         end
     end
     -- * Seal of Truth
-    if not ui.checked("Seal of Command/Truth") and cast.able.sealOfTruth("player") and not unit.formActive(spells.sealOfTruth) then
+    if not ui.checked("Seal of Command/Truth") and cast.able.sealOfTruth("player") and not unit.formActive(spell.sealOfTruth.id()) then
         if cast.sealOfTruth("player") then
             ui.debug("Casting Seal of Truth")
             return true
@@ -296,7 +284,7 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i = 1, #enemies.yards10 do
             local thisUnit = enemies.yards10[i]
-            if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 -- * Hammer of Justice
                 if ui.checked("Hammer of Justice") and cast.able.hammerOfJustice(thisUnit) then
                     if cast.hammerOfJustice(thisUnit) then
@@ -308,7 +296,7 @@ actionList.Interrupt = function()
         end
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 -- * Rebuke
                 -- rebuke
                 if ui.checked("Rebuke") and cast.able.rebuke(thisUnit) then
@@ -375,7 +363,7 @@ actionList.Combat    = function()
             -- inquisition,if=(buff.inquisition.down|buff.inquisition.remains<=2)&(holy_power>=3|target.time_to_die<holy_power*20|buff.divine_purpose.react)
             if cast.able.inquisition() then
                 if debuff.remain.inquisition(units.dyn5) <= 2
-                    and (holyPower() >= 3 or unit.timeToDie(units.dyn5) < holyPower() * 20 or buff.divinePurpose.exists())
+                    and (holyPower() >= 3 or unit.ttd(units.dyn5) < holyPower() * 20 or buff.divinePurpose.exists())
                 then
                     if cast.inquisition() then
                         ui.debug("Casting Inquisition")
@@ -647,25 +635,11 @@ end -- End Action List - Combat
 --- ROTATION ---
 ----------------
 local function runRotation()
-    -- This profile handles racials itself; skip the shared Racial module
-    if not br.player.localRacial then br.player.localRacial = true end
     ---------------------
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff        = br.player.buff
-    cast        = br.player.cast
-    cd          = br.player.cd
-    debuff      = br.player.debuff
-    enemies     = br.player.enemies
-    holyPower   = br.player.power.holyPower
-    module      = br.player.module
-    spell       = br.player.spell
-    spells      = br.player.spells
-    talent      = br.player.talent
-    ui          = br.player.ui
-    unit        = br.player.unit
-    units       = br.player.units
+    holyPower   = power.holyPower
     -- Units
     units.get(5)
     units.get(30)
@@ -674,7 +648,7 @@ local function runRotation()
     enemies.get(8)
     enemies.get(10)
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or unit.flying() or br.functions.misc:pause() or ui.mode.rotation == 4
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or unit.flying() or ui.pause() or ui.mode.rotation == 4
 
 
     ---------------------
@@ -717,7 +691,8 @@ local function runRotation()
         end
     end -- Pause
 end -- End runRotation
-br.loader.registerRotation({
+registerRotation({
+    handlesRacials = true,
     name      = rotationName,
     specID    = 70,
     expansion = "MOP",

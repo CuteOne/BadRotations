@@ -1,13 +1,12 @@
 ---
 -- These functions help in retrieving information if you can use an item or not.
--- Use functions are stored in br.player.use and can be utilized by `local use = br.player.use` in your profile.
+-- Use functions are the profile API table `use` (br.api.profile.use); profiles use it by name.
 -- For item use, `item` in the function represent the name in the items list defined in System/List/Items.lua
--- @module br.player.use
+-- @module use
 local _, br = ...
-if br.api == nil then br.api = {} end
 
-br.api.use = function(self,item,id)
-    local use = self
+br.api.build.use = function(api,item,id)
+    local use = api
 
     --- ### Item Use Functions
 

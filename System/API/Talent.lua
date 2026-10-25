@@ -1,32 +1,31 @@
 ---
 -- Talent handling functions for BadRotations.
 -- These calls help in retrieving information about talent based checks.
--- talent is the table located at br.player.talent, call this in profile to use.
+-- talent is the profile API table `talent` (br.api.profile.talent).
 --
--- @module br.player.talent
+-- @module talent
 --
 -- @usage
 -- -- Check if a talent is active
--- if br.player.talent.talentName then
+-- if talent.talentName then
 --     -- Do something
 -- end
 --
 -- -- Get the rank of a talent
--- local rank = br.player.talent.rank.talentName
+-- local rank = talent.rank.talentName
 -- if rank > 1 then
 --     -- Do something
 -- end
 
 local _, br = ...
-if br.api == nil then br.api = {} end
 ----------------------
 --- ABOUT THIS API ---
 ----------------------
 
 -- These calls help in retrieving information about talent based checks.
--- talent is the table located at br.player.talent, call this in profile to use.
+-- talent is the profile API table `talent` (br.api.profile.talent).
 
-br.api.talent = function(talent, name, id, allTalents, spellList)
+br.api.build.talent = function(talent, name, id, allTalents, spellList)
     if talent == nil then talent = {} end
     if talent[name] == nil then talent[name] = false end
     if talent.rank == nil then talent.rank = {} end

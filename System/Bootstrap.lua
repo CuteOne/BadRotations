@@ -5,7 +5,7 @@ local _, br = ...
 -- stage does its work once and names the next stage.
 --
 --   WAITING_FOR_WORLD → WAITING_FOR_UNLOCK → SPELL_LISTS → ROTATIONS → SELECT_PROFILE
---     → SETTINGS → PLAYER → UI → UI_CLEANUP → RUNNING
+--     → SETTINGS → BUILD → UI → UI_CLEANUP → RUNNING
 --   ROTATIONS with no matching rotation → NO_ROTATION (waits for a spec change or reload)
 --   Spec change → back to ROTATIONS (settings saved first)
 --   Profile change / reload request → back to SETTINGS
@@ -91,7 +91,7 @@ end
 stages.ROTATIONS = function()
 	br.loader.selectedSpecID, br.loader.selectedSpec = resolveSpec()
 	if specSettings() == nil then br.data.settings[br.loader.selectedSpec] = {} end
-	br.player = nil
+	br.rotation = nil
 	br.loader.profileLoader:loadProfiles()
 	local rotations = br.loader.rotations[br.loader.selectedSpecID]
 	if rotations and #rotations > 0 then
@@ -128,18 +128,17 @@ stages.SETTINGS = function()
 		br.ui.chatOverlay:Show("-= BadRotations Loaded =-")
 		br.game.print("Initialization Complete.")
 	end
-	setStage("PLAYER")
+	setStage("BUILD")
 end
 
-stages.PLAYER = function()
+stages.BUILD = function()
 	-- Nothing is built while BR's Power toggle is off; still follow spec changes meanwhile
 	if br.core:isPowerOff() then
 		bootstrap:checkSpecChange()
 		return
 	end
 	br.loader.selectedProfile = specSettings()["RotationDrop"] or 1
-	br.player = br.loader.builder:new(br.loader.selectedSpecID, br.loader.selectedSpec)
-	if br.player == nil then
+	if br.loader.Rotation:new(br.loader.selectedSpecID, br.loader.selectedSpec) == nil then
 		setStage("NO_ROTATION")
 		return
 	end
@@ -163,8 +162,8 @@ stages.UI = function()
 	if waitForCombat() then return end
 	br.ui:closeWindow("profile")
 	-- Toggles first: the options window adds a Toggle Keys section for toggles made with br.ui:toggle
-	br.player:createToggles()
-	br.player:createOptions()
+	br.rotation:createToggles()
+	br.rotation:createOptions()
 	br.ui:recreateWindows()
 	br.game.print("Profile Load Complete")
 	setStage("UI_CLEANUP")
@@ -210,8 +209,8 @@ end
 --- True when Core may run the per-tick body: once startup has finished, or while the UI stages
 -- are waiting out combat (so the rotation keeps running in combat). Out of combat the UI is
 -- built first, as the tick's helpers (e.g. the debug window) expect it.
-function bootstrap:isPlayerReady()
-	if br.player == nil then return false end
+function bootstrap:isRotationReady()
+	if br.rotation == nil then return false end
 	if self.stage == "RUNNING" then return true end
 	return (self.stage == "UI" or self.stage == "UI_CLEANUP") and br.game.InCombatLockdown()
 end
@@ -251,7 +250,7 @@ end
 --- Re-selects and reloads the current profile (profile dropdown, profile buttons, settings import).
 -- Settings reload only when the spec/profile actually changed (loadSettings' own check).
 function bootstrap:reloadProfile()
-	if self.stage == "PLAYER" or self.stage == "UI" or self.stage == "UI_CLEANUP" or self.stage == "RUNNING" then
+	if self.stage == "BUILD" or self.stage == "UI" or self.stage == "UI_CLEANUP" or self.stage == "RUNNING" then
 		setStage("SETTINGS")
 	end
 end

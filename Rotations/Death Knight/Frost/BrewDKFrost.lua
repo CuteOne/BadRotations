@@ -4,15 +4,15 @@ local rotationName = "BrewDKFrost"
 --- Toggles ---
 ---------------
 local function toggles()
-    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+    ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "On", icon = "runeStrike", overlay = "Rotation Enabled", tip = "Enable Rotation" },
         { name = "Off", icon = "runeStrike", overlay = "Rotation Disabled", tip = "Disable Rotation" },
     } })
-    br.ui:toggle("Defensive", { modes = {
+    ui.toggle("Defensive", { modes = {
         { name = "On", icon = "deathStrike", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
         { name = "Off", icon = "deathStrike", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
     } })
-    br.ui:toggle("Interrupt", { modes = {
+    ui.toggle("Interrupt", { modes = {
         { name = "On", icon = "mindFreeze", overlay = "Interrupt Enabled", tip = "Enabled Interrupt" },
         { name = "Off", icon = "mindFreeze", overlay = "Interrupt Disabled", tip = "Disable Interrupt" },
     } })
@@ -26,49 +26,39 @@ local function options()
     -----------------------
     --- GENERAL OPTIONS ---
     -----------------------
-    section = br.ui:section("General")
+    section = ui.section("General")
     -- Death Grip
-    br.ui:checkbox(section, "Death Grip")
+    ui.checkbox(section, "Death Grip")
     -- Trinkets
-    br.ui:checkbox(section, "Trinkets")
+    ui.checkbox(section, "Trinkets")
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
-    section = br.ui:section("Defensive")
+    section = ui.section("Defensive")
     -- Basic Healing Module
-    br.player.module.BasicHealing(section)
+    module.BasicHealing(section)
     -- Anti-Magic Shell
-    br.ui:spinner(section, "Anti-Magic Shell", { value = 50, tip = "Health Percent to use at." })
+    ui.spinner(section, "Anti-Magic Shell", { value = 50, tip = "Health Percent to use at." })
     -- Death Strike
-    br.ui:spinner(section, "Death Strike", { value = 50, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Death Strike", { value = 50, tip = "Health Percent to Cast At" })
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
-    section = br.ui:section("Interrupt")
+    section = ui.section("Interrupt")
     -- Death Grip
-    br.ui:checkbox(section, "Death Grip - Int")
+    ui.checkbox(section, "Death Grip - Int")
     -- Mind Freeze
-    br.ui:checkbox(section, "Mind Freeze")
+    ui.checkbox(section, "Mind Freeze")
     -- "Interrupt At"
-    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
 --- Locals ---
 --------------
 -- BR API Locals
-local cast
-local cd
-local enemies
-local module
 local runes
 local runicPower
-local ui
-local unit
-local units
-local use
-local talent
-local buff
 -- Profile Specific Locals
 local actionList = {}
 local var = {}
@@ -107,7 +97,7 @@ actionList.Interrupts = function()
         if ui.checked("Mind Freeze") and cast.able.mindFreeze() then
             for i = 1, #enemies.yards15 do
                 local thisUnit = enemies.yards15[i]
-                if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
+                if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                     if cast.mindFreeze(thisUnit) then
                         ui.debug("Casting Mind Freeze")
                         return true
@@ -119,7 +109,7 @@ actionList.Interrupts = function()
         if ui.checked("Death Grip (Interrupt)") and cast.able.deathGrip() then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
-                if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) and unit.distance(thisUnit) > 8 then
+                if unit.interruptable(thisUnit, ui.value("Interrupt At")) and unit.distance(thisUnit) > 8 then
                     if cast.deathGrip(thisUnit) then
                         ui.debug("Casting Death Grip [Int]")
                         return true
@@ -145,8 +135,8 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             -- actions=auto_attack
-            if not br.game.C_Spell.IsAutoRepeatSpell(br.functions.spell:getName(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                br.game.StartAttack(units.dyn5)
+            if not cast.auto.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                unit.startAttack(units.dyn5)
             end
         end
     end
@@ -160,20 +150,10 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    cast            = br.player.cast
-    cd              = br.player.cd
-    enemies         = br.player.enemies
-    module          = br.player.module
-    runes           = br.player.power.runes()
-    runicPower      = br.player.power.runicPower()
-    ui              = br.player.ui
-    unit            = br.player.unit
-    units           = br.player.units
-    use             = br.player.use
-    talent          = br.player.talent
-    buff            = br.player.buff
+    runes           = power.runes()
+    runicPower      = power.runicPower()
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 4
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or ui.pause() or ui.mode.rotation == 4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40)
@@ -214,8 +194,8 @@ local function runRotation()
                 -- Start Attack
 
                 -- actions=auto_attack
-                if not br.game.C_Spell.IsCurrentSpell(6603) and unit.distance("target") <= 5 then
-                    br.game.StartAttack("target")
+                if not cast.auto.autoAttack() and unit.distance("target") <= 5 then
+                    unit.startAttack("target")
                 end
 
                 -- Death Grip
@@ -287,7 +267,7 @@ local function runRotation()
         end
     end         -- Pause
 end             -- End runRotation
-br.loader.registerRotation({
+registerRotation({
     name      = rotationName,
     specID    = 0,
     expansion = "MOP",

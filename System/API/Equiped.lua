@@ -1,15 +1,14 @@
 ---
 -- These functions help in retrieving information about equiped items.
--- Equiped Item functions are stored in br.player.equiped and can be utilized by `local equiped = br.player.equiped` in your profile.
+-- Equiped Item functions are the profile API table `equiped` (br.api.profile.equiped); profiles use it by name.
 -- `item` in the function represent the name in the item list defined in System/List/Items.lua
--- @module br.player.equiped
+-- @module equiped
 
 local _, br = ...
-if br.api == nil then br.api = {} end
 
-br.api.equiped = function(self, item, id)
-    if self[item] == nil then self[item] = {} end
-    local equiped = self
+br.api.build.equiped = function(api, item, id)
+    if api[item] == nil then api[item] = {} end
+    local equiped = api
 
     --- Checks if item is equiped or not.
     -- @function equiped.item

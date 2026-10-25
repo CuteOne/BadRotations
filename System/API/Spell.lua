@@ -1,14 +1,12 @@
 ---
 -- These functions help in retrieving information about spells.
--- Spell functions are stored in br.player.spell and can be utilized by `local spell = br.player.spell in your profile.
+-- Spell functions are the profile API table `spell` (br.api.profile.spell); profiles use it by name.
 -- `k` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
--- @module br.player.spell
+-- @module spell
 local _, br = ...
-if br.api == nil then br.api = {} end
 
-br.api.spell = function(self, k, v)
-    self.spell = self.spell or {}
-    local spell = self.spell
+br.api.build.spell = function(api, k, v)
+    local spell = api.spell
 
     -- Spell Functions - [k] denotes placeholder for name of spell listed in System/Lists/Spells.lua
     -- @section spell[k]
