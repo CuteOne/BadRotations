@@ -58,28 +58,30 @@ api.IsPassiveSpell = function(spellID)
     return false
 end
 
--- UnitAura wrapper
--- Retail: C_UnitAuras.GetAuraDataByIndex, returns table
-api.UnitAura = function(unit, index, filter)
+-- UnitAura / UnitBuff / UnitDebuff wrappers
+-- Retail: the C_UnitAuras record unpacked into the old multi-return. UnitBuff and UnitDebuff
+-- read only helpful / only harmful auras, as the old globals did, whatever the filter.
+local function unpackAura(method, unit, index, filter)
     local cua = br._G.C_UnitAuras
-    if cua and cua.GetAuraDataByIndex then
-        local auraData = cua.GetAuraDataByIndex(unit, index, filter)
+    if cua and cua[method] then
+        local auraData = cua[method](unit, index, filter)
         if auraData and AuraUtil and AuraUtil.UnpackAuraData then
             return AuraUtil.UnpackAuraData(auraData)
         end
-        return nil
     end
     return nil
 end
 
--- UnitBuff wrapper (uses UnitAura in Retail)
-api.UnitBuff = function(unit, index, filter)
-    return api.UnitAura(unit, index, filter)
+api.UnitAura = function(unit, index, filter)
+    return unpackAura("GetAuraDataByIndex", unit, index, filter)
 end
 
--- UnitDebuff wrapper (uses UnitAura in Retail)
+api.UnitBuff = function(unit, index, filter)
+    return unpackAura("GetBuffDataByIndex", unit, index, filter)
+end
+
 api.UnitDebuff = function(unit, index, filter)
-    return api.UnitAura(unit, index, filter)
+    return unpackAura("GetDebuffDataByIndex", unit, index, filter)
 end
 
 
