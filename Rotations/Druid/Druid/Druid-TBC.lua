@@ -97,6 +97,9 @@ local function options()
     -- Mark of the Wild
     ui.dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
         tip = "Set how to use Mark of the Wild" })
+    -- Gift of the Wild
+    ui.checkbox(section, "Gift of the Wild", { checked = true,
+        tip = "Buff a party with Gift of the Wild (uses a reagent) while in a group; unticked, Mark of the Wild is cast one by one instead" })
     -- Omen of Clarity
     ui.dropdown(section, "Omen of Clarity", { choices = { "Any", "Focus DPS", "Focus Healing", "None" }, value = "Any",
         tip = "Select how to use Omen of Clarity procs" })
@@ -283,20 +286,24 @@ end
 
 -- Action List - Extra
 actionList.Extra = function()
-    -- Gift of the Wild (group buff; each rank needs its reagent, which cast.able checks)
+    -- Gift of the Wild (each rank needs its reagent, which cast.able checks). It buffs the target's
+    -- party only, so it goes on a member who needs it: cast on the player, raid members in other
+    -- parties never got it and it was cast again and again (2026-10-26, a raid)
     if ui.checked("Mark of the Wild") and not unit.flying() and not buff.prowl.exists() then
         local inGroup = unit.inGroup()
-        if inGroup and spell.giftOfTheWild.known() and mana() > cast.cost.giftOfTheWild() + var.formCost then
-            -- Check if anyone in group needs the buff
-            local needsGift = false
+        if inGroup and ui.checked("Gift of the Wild") and spell.giftOfTheWild.known() and mana() > cast.cost.giftOfTheWild() + var.formCost then
+            -- Someone who needs the buff and can be given it now
+            local giftUnit
             for i = 1, #units.friends do
                 local u = units.friends[i].unit
-                if buff.markOfTheWild.refresh(u) and not buff.giftOfTheWild.exists(u, "") and unit.distance(u) < 40 then
-                    needsGift = true
+                if buff.markOfTheWild.refresh(u) and not buff.giftOfTheWild.exists(u, "") and not unit.deadOrGhost(u)
+                    and unit.distance(u) < 40 and cast.able.giftOfTheWild(u)
+                then
+                    giftUnit = u
                     break
                 end
             end
-            if needsGift and cast.able.giftOfTheWild("player") then
+            if giftUnit then
                 -- Cancel form if needed to buff
                 local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
                 if needsCancel then
@@ -304,7 +311,7 @@ actionList.Extra = function()
                         return true
                     end
                 else
-                    if cast.giftOfTheWild("player") then
+                    if cast.giftOfTheWild(giftUnit) then
                         ui.debug("Casting Gift of the Wild")
                         return true
                     end
