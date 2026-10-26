@@ -17,7 +17,7 @@ The codebase follows strict **layers** — each calls only the one below it (`.t
 | Functions | `br.functions.*` | Range checks, aura scans, unit queries, casting (`System/Functions/`), with the engines and readers; they call `br.game` |
 | Game | `br.game` | The game's API as BR sees it: BR's own versions, polyfills, the unlocker, the client (`Expansions/Layers.lua`); write against the modern API. Polyfills (`br.client.polyfills`, `Expansions/Polyfills.lua`) give the modern API where a client lacks it; code calls `br.game`, not them |
 
-The runner, `br.rotation` (`System/Loader/Rotation.lua`), sits beside the profile API: it builds it, keeps the spec's compiled spell lists (`br.rotation.spells`) and per-tick state (`br.rotation.state`), and runs the selected rotation each tick.
+The runner, `br.runner` (`System/Loader/Rotation.lua`), sits beside the profile API: it builds it, keeps the spec's compiled spell lists (`br.runner.spells`) and per-tick state (`br.runner.state`), and runs the selected rotation each tick.
 
 **Key directories:**
 
@@ -30,7 +30,7 @@ The runner, `br.rotation` (`System/Loader/Rotation.lua`), sits beside the profil
 | `System/API/` | 20 API modules (Buff, Cast, CD, Unit, Spell, Enemies, Power, Talent, …) |
 | `System/Engines/` | Game systems: EnemiesEngine, HealingEngine, Tracker, LootEngine |
 | `System/Readers/` | Event readers: the combat log and other game events |
-| `System/Loader/` | `ProfileLoader` (finds/runs rotation files in the profile API, `registerRotation`, `loadSupport`), `SpellCompiler` (spell lists, talents, ranks), `ProfileAPI` (`br.api.profile`: the profile environment and its build), `ProfileUI` (options window pages, toggle bar), `Rotation` (`br.rotation`: the runner and its per-tick update) |
+| `System/Loader/` | `ProfileLoader` (finds/runs rotation files in the profile API, `registerRotation`, `loadSupport`), `SpellCompiler` (spell lists, talents, ranks), `ProfileAPI` (`br.api.profile`: the profile environment and its build), `ProfileUI` (options window pages, toggle bar), `Rotation` (`br.runner`: the runner and its per-tick update) |
 | `System/UI/` | Windows, option elements (`Elements/`: `br.ui:section`, `br.ui:checkbox`, `br.ui:spinner`, `br.ui:dropdown`, …), toggles (`Toggles/`: `br.ui:toggle`), settings storage (`SettingsManagement`) |
 | `Rotations/{Class}/{Spec}/` | Rotation profile Lua files |
 | `Settings/{Flavour}/{Class}/{Spec}/` | Saved settings per flavour and spec/profile |
@@ -183,7 +183,7 @@ At the end of startup BR runs every options page once without building frames (`
 - Module registration pattern: `br.functions.X = br.functions.X or {}`.
 - Method syntax: use `:` for self-methods, `.` for stateless helpers.
 - `System/API/` files contain **only** API functions — no `local function` helpers; put those in `System/Functions/` (API factories are `br.api.build.*` builders, each filling its table in `br.api.profile`). Within each builder, functions are **sorted alphabetically**, because the API docs are generated from these files.
-- Per-tick player state lives in `br.rotation.state` (`gcd`, `gcdMax`, `health`, `inCombat`, `instance`, position); profiles use the API (`unit.inCombat()`, `unit.instance()`, `unit.hp()`) instead.
+- Per-tick player state lives in `br.runner.state` (`gcd`, `gcdMax`, `health`, `inCombat`, `instance`, position); profiles use the API (`unit.inCombat()`, `unit.instance()`, `unit.hp()`) instead.
 - When renaming or moving an API, update every caller in the repo; do not leave compatibility aliases or shims.
 
 ---

@@ -233,7 +233,7 @@ function spell:canInterrupt(unit, percentint)
 		end
 		-- Return when interrupt time is met
 		if ((whitelistOnly and onWhitelist) or not whitelistOnly)
-			or not (br.rotation.state.instance == "party" or br.rotation.state.instance == "raid" or br.rotation.state.instance == "scenario")
+			or not (br.runner.state.instance == "party" or br.runner.state.instance == "raid" or br.runner.state.instance == "scenario")
 		then
 			-- Nothing interruptible is being cast; also avoids 0/0, which raises "Division by zero" on Forever
 			if not interruptable or castDuration <= 0 then return false end
@@ -330,7 +330,7 @@ function spell:getCastingRegen(spellID)
 	local tooltip = tonumber(generates:sub(-2)) or 0
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
 	local castTime = br.functions.cast:getCastTime(spellID) or 0
-	local gcd = br.rotation.state.gcdMax
+	local gcd = br.runner.state.gcdMax
 	local castSeconds = (castTime > gcd) and castTime or gcd
 	power = power + regenRate * castSeconds + tooltip
 
@@ -497,7 +497,7 @@ function spell:getHighestSpellID(key)
     end
     local found = spell:findHighestSpellID(key)
     -- Only once the player's spells are compiled: before that the class lists may not be loaded yet
-    if br.rotation and br.rotation.spells then highestSpellIDs[key] = found == nil and NO_SPELL or found end
+    if br.runner and br.runner.spells then highestSpellIDs[key] = found == nil and NO_SPELL or found end
     return found
 end
 
@@ -660,7 +660,7 @@ function spell:getSpellID(spellIDOrName)
 end
 
 -- Resolve a spell reference (id, name, or BR spell table with .id) to an id or name.
--- local id = br.functions.spell:getSpellIdFromRef(br.rotation.spells.regrowth)
+-- local id = br.functions.spell:getSpellIdFromRef(br.runner.spells.regrowth)
 function spell:getSpellIdFromRef(spellRef)
 	if spellRef == nil then return nil end
 	local refType = type(spellRef)
@@ -691,7 +691,7 @@ function spell:getSpellRange(spellID, option)
 	-- Modifiers
 	local rangeMod = 0
 	-- Balance Affinity range change (Druid - Not Balance)
-	if br.rotation ~= nil then
+	if br.runner ~= nil then
 		if spell:hasTalent("balanceAffinity") and option ~= "noMod" then
 			rangeMod = 5
 		end
@@ -726,7 +726,7 @@ end
 
 -- The compiled talent state of a talent from the spell lists (by key, hero talents included)
 local function talentInfo(talentKey)
-	local rotation = br.rotation
+	local rotation = br.runner
 	local id = rotation and rotation.talentIDs and rotation.talentIDs[talentKey]
 	return id and rotation.talentInfo and rotation.talentInfo[id]
 end
@@ -852,7 +852,7 @@ end
 -- @param formSpellID - The form's spell ID
 -- @return boolean
 function spell:isTankForm(formSpellID)
-    local spells = br.rotation and br.rotation.spells
+    local spells = br.runner and br.runner.spells
     if spells == nil or formSpellID == nil then return false end
     return spell:isRankOf(formSpellID, spells.bearForm) or spell:isRankOf(formSpellID, spells.direBearForm)
         or spell:isRankOf(formSpellID, spells.defensiveStance)

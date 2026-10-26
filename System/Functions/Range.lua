@@ -52,7 +52,7 @@ local function resolveMeleeSpellName(listKey)
         end
     end
     -- Only once the player's spells are compiled: before that the class lists may not be loaded
-    if br.rotation and br.rotation.spells then meleeSpellNames[listKey] = name end
+    if br.runner and br.runner.spells then meleeSpellNames[listKey] = name end
     return name or nil
 end
 

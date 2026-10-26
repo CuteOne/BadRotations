@@ -1,10 +1,10 @@
 local _, br = ...
 --- Rotation
--- br.rotation runs the selected rotation: it holds the spec's compiled spell lists and per-tick
+-- br.runner runs the selected rotation: it holds the spec's compiled spell lists and per-tick
 -- state, keeps the profile API (br.api.profile, ProfileAPI.lua) built, and each tick runs the shared
 -- modules and the rotation. Bootstrap creates it (Rotation:new) once the profiles are loaded.
----@class br.loader.Rotation
 br.loader.Rotation = br.loader.Rotation or {}
+---@class br.loader.Rotation
 local Rotation = br.loader.Rotation
 Rotation.__index = Rotation
 
@@ -48,7 +48,7 @@ function Rotation:new(spec, specName)
 		-- mounted, dismountTime: mount state and when the player last landed (getCharacterInfo)
 		-- pauseReason: why the rotation is paused this tick, nil when it runs (startRotation)
 	}
-	br.rotation = self
+	br.runner = self
 	br.loader.profileAPI:reset()
 	self:rebuild()
 	br.debug.cpu:updateDebug(loadStart, "rotation.loadTime")
@@ -216,7 +216,7 @@ end
 
 -- The rotation, each tick (in a vehicle only with the target in melee)
 br.lifecycle:onTick(50, "rotation", function()
-	local rotation = br.rotation
+	local rotation = br.runner
 	if rotation == nil then return end
 	if not br.game.CanExitVehicle() or (br.functions.unit:GetUnitExists("target") and br.functions.range:getDistance("target") < 5) then
 		rotation:update()

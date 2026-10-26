@@ -423,7 +423,7 @@ br.api.build.ui = function(api)
         -- @function ui.fightStyle.dungeonRoute
         -- @return boolean
         ui.fightStyle.dungeonRoute = function()
-            return br.rotation.state.instance == "party" and br.functions.misc:isInMythicPlus()
+            return br.runner.state.instance == "party" and br.functions.misc:isInMythicPlus()
         end
     end
 
@@ -432,7 +432,7 @@ br.api.build.ui = function(api)
         -- @function ui.fightStyle.dungeonSlice
         -- @return boolean
         ui.fightStyle.dungeonSlice = function()
-            return br.rotation.state.instance == "party" and not br.functions.misc:isInMythicPlus()
+            return br.runner.state.instance == "party" and not br.functions.misc:isInMythicPlus()
         end
     end
 
@@ -441,7 +441,7 @@ br.api.build.ui = function(api)
         -- @function ui.fightStyle.patchwerk
         -- @return boolean
         ui.fightStyle.patchwerk = function()
-            return br.rotation.state.instance ~= "party"
+            return br.runner.state.instance ~= "party"
         end
     end
 

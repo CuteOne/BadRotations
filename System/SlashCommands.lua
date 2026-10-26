@@ -167,7 +167,7 @@ local function handler(message, editbox)
 	elseif msg1 == "cooldowns" then
 		local specSettings = br.data.settings[br.loader.selectedSpec]
 		local toggles = specSettings and specSettings.toggles
-		if not (br.rotation and toggles) then return false end
+		if not (br.runner and toggles) then return false end
 		br.ui:ToggleToValue("Cooldown", toggles["Cooldown"] == 2 and 3 or 2)
 	elseif msg1 == "blacklist" then
 		-- Blacklist
@@ -251,7 +251,7 @@ local function handler(message, editbox)
 		end
 	elseif msg1 == "queue" then
 		-- Queue
-		if br.rotation == nil then
+		if br.runner == nil then
 			br.game.print("The queue is available once a rotation is loaded.")
 		elseif msg2 == "clear" then
 			if #br.functions.cast.queue == 0 then
@@ -277,8 +277,8 @@ local function handler(message, editbox)
 			else
 				local spellName, spellId = br.functions.spell:getName(msg3), br.functions.spell:getSpellID(msg3)
 				local notOnCD = true
-				if br.rotation ~= nil and spellName ~= nil then
-					notOnCD = br.functions.spell:getSpellCD(spellName) <= br.rotation.state.gcdMax
+				if br.runner ~= nil and spellName ~= nil then
+					notOnCD = br.functions.spell:getSpellCD(spellName) <= br.runner.state.gcdMax
 				end
 				if msg4 ~= nil then
 					targetUnit = tostring(msg4)

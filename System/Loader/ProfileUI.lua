@@ -1,7 +1,7 @@
 local _, br = ...
 --- Profile UI
 -- Builds the profile options window (Base Options + the rotation's own pages) and the toggle
--- bar, and copies toggle states into ui.mode each tick. br.rotation keeps createOptions /
+-- bar, and copies toggle states into ui.mode each tick. br.runner keeps createOptions /
 -- createToggles / getToggleModes as forwards (Bootstrap and the tick call them).
 br.loader.profileUI = br.loader.profileUI or {}
 local profileUI = br.loader.profileUI
@@ -48,7 +48,7 @@ function profileUI:buildBaseOptionsPage()
 end
 
 --- Creates the profile options window: rotation dropdown, Base Options, and the rotation's pages.
--- @param rotation br.rotation
+-- @param rotation br.runner
 -- @param spec Spec ID
 function profileUI:createOptions(rotation, spec)
     local specSettings = br.data.settings[br.loader.selectedSpec]
@@ -112,7 +112,7 @@ function profileUI:rotationPages(options)
 end
 
 --- Creates the toggle bar defined by the rotation (br.ui:toggle or br.ui:createToggle calls).
--- @param rotation br.rotation
+-- @param rotation br.runner
 function profileUI:createToggles(rotation)
     br.ui:GarbageButtons()
     br.ui:forgetToggles()

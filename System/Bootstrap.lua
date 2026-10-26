@@ -91,7 +91,7 @@ end
 stages.ROTATIONS = function()
 	br.loader.selectedSpecID, br.loader.selectedSpec = resolveSpec()
 	if specSettings() == nil then br.data.settings[br.loader.selectedSpec] = {} end
-	br.rotation = nil
+	br.runner = nil
 	br.loader.profileLoader:loadProfiles()
 	local rotations = br.loader.rotations[br.loader.selectedSpecID]
 	if rotations and #rotations > 0 then
@@ -162,8 +162,8 @@ stages.UI = function()
 	if waitForCombat() then return end
 	br.ui:closeWindow("profile")
 	-- Toggles first: the options window adds a Toggle Keys section for toggles made with br.ui:toggle
-	br.rotation:createToggles()
-	br.rotation:createOptions()
+	br.runner:createToggles()
+	br.runner:createOptions()
 	br.ui:recreateWindows()
 	br.game.print("Profile Load Complete")
 	setStage("UI_CLEANUP")
@@ -210,7 +210,7 @@ end
 -- are waiting out combat (so the rotation keeps running in combat). Out of combat the UI is
 -- built first, as the tick's helpers (e.g. the debug window) expect it.
 function bootstrap:isRotationReady()
-	if br.rotation == nil then return false end
+	if br.runner == nil then return false end
 	if self.stage == "RUNNING" then return true end
 	return (self.stage == "UI" or self.stage == "UI_CLEANUP") and br.game.InCombatLockdown()
 end

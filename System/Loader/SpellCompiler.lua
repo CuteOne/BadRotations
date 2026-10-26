@@ -1,6 +1,6 @@
 local _, br = ...
 --- Spell Compiler
--- Turns the expansion spell lists (br.lists.spells) into br.rotation.spells, maps talent and
+-- Turns the expansion spell lists (br.lists.spells) into br.runner.spells, maps talent and
 -- hero tree state, and validates the lists against the client. Used by builder:new().
 br.loader.spellCompiler = br.loader.spellCompiler or {}
 local spellCompiler = br.loader.spellCompiler
@@ -110,7 +110,7 @@ local function validateList(spellTable)
 end
 
 --- Builds rotation.spells (and adds the lists' items to rotation.items) for the given spec.
--- @param rotation br.rotation
+-- @param rotation br.runner
 -- @param spec Spec ID
 function spellCompiler:compileSpells(rotation, spec)
     rotation.spells = rotation.spells or {}
@@ -164,7 +164,7 @@ local function validateTalents(allTalents, spec)
 end
 
 --- Adds the active talents to rotation.spells.abilities (talent.X is set by the talent builder).
--- @param rotation br.rotation
+-- @param rotation br.runner
 -- @param spec Spec ID
 -- @return table allTalents as reported by the expansion's talent system
 function spellCompiler:compileTalents(rotation, spec)

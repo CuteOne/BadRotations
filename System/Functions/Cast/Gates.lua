@@ -565,8 +565,8 @@ local GATE_FUNCTIONS = {
 -- Returns true on full pass, or false with the failing reason code.
 -- isAbleCheck: when true (cast.able calls), gate failures are expected and not printed.
 function E.runGates(ctx, thisUnit, castType, isAbleCheck)
-	local allTalents = br.rotation and br.rotation.spells and br.rotation.spells.talents
-	local allSpells  = br.rotation and br.rotation.spells
+	local allTalents = br.runner and br.runner.spells and br.runner.spells.talents
+	local allSpells  = br.runner and br.runner.spells
 	for _, gateFn in ipairs(GATE_FUNCTIONS) do
 		local pass, reason, detail = gateFn(ctx, thisUnit, castType, allTalents, allSpells)
 		if not pass then

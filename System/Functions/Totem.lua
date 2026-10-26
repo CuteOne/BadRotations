@@ -11,7 +11,7 @@ local function resolveCandidateName(candidate)
     end
 
     if type(candidate) == "string" then
-        local idFromKey = br.rotation and br.rotation.spells and br.rotation.spells[candidate]
+        local idFromKey = br.runner and br.runner.spells and br.runner.spells[candidate]
         if type(idFromKey) == "number" then
             return br.functions.spell:getName(idFromKey)
         end
@@ -139,7 +139,7 @@ end
 
 -- Candidates can be:
 -- - spell IDs (number)
--- - spell keys from br.rotation.spells (string)
+-- - spell keys from br.runner.spells (string)
 -- - literal localized names (string)
 function totem:slotMatchesAny(slot, ...)
     local haveTotem, activeName = self:getSlotInfo(slot)

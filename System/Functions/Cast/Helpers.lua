@@ -161,7 +161,7 @@ end
 
 -- The spell's cast time in seconds, for what it currently is (spells that turn into another, like
 -- New Moon's cycle, report the spell they've become); 0 for an instant or unknown spell.
--- if br.functions.cast:getCastTime(br.rotation.spells.healingTouch) < 3 then
+-- if br.functions.cast:getCastTime(br.runner.spells.healingTouch) < 3 then
 function cast:getCastTime(spellID)
 	spellID = br.game.C_Spell.GetOverrideSpell(spellID) or spellID
 	local info = br.game.C_Spell.GetSpellInfo(spellID)

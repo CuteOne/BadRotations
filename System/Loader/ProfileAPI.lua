@@ -128,7 +128,7 @@ local function buildOnce()
     br.api.build.enemies(profile)
     br.api.build.unit(profile)
     br.api.build.totem(profile)
-    br.api.build.pet(profile, br.rotation and br.rotation.pets or br.lists.pets)
+    br.api.build.pet(profile, br.runner and br.runner.pets or br.lists.pets)
     br.api.build.glyph(profile)
     br.api.build.ui(profile)
     br.api.build.module(profile)
@@ -190,7 +190,7 @@ local function buildAbilities(rotation)
 end
 
 --- Builds the profile API for the rotation's spec (rotation.spells already compiled).
--- @param rotation br.rotation
+-- @param rotation br.runner
 -- @param spec Spec ID
 function profileAPI:build(rotation, spec)
     buildTalents(rotation, spec)

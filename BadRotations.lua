@@ -23,8 +23,8 @@ local _, br = ...
     the polyfills (the modern API where the client lacks it, Expansions/Polyfills.lua) and
     BR's own versions on top. Write against the modern API; the polyfills cover older clients.
 
-  The runner, br.rotation (System/Loader/Rotation.lua), sits beside the profile API: it builds it,
-  keeps the compiled spell lists (br.rotation.spells) and runs the selected rotation each tick.
+  The runner, br.runner (System/Loader/Rotation.lua), sits beside the profile API: it builds it,
+  keeps the compiled spell lists (br.runner.spells) and runs the selected rotation each tick.
 ]]
 
 -- BR's tables. Each module fills its own and keeps its own state there.

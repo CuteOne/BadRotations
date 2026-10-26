@@ -10,7 +10,7 @@ function power:getCombo(thisUnit)
 end
 
 -- Mana cost of a spell reference (id, name, or BR spell table); 0 if free, not mana, or treatAsFree.
--- local cost = br.functions.power:getManaCostFromRef(br.rotation.spells.regrowth)
+-- local cost = br.functions.power:getManaCostFromRef(br.runner.spells.regrowth)
 function power:getManaCostFromRef(spellRef, treatAsFree)
 	if treatAsFree then return 0 end
 	local id = br.functions.spell:getSpellIdFromRef(spellRef)
@@ -219,7 +219,7 @@ function power:getTimeToMax(Unit, Limit)
 	local curr2 = curr
 	local _, regen = br.game.GetPowerRegen(Unit)
 	-- Feral's Soul of the Forest gives energy back per combo point spent
-	local soulOfTheForest = br.rotation and br.rotation.spells and br.rotation.spells.soulOfTheForest
+	local soulOfTheForest = br.runner and br.runner.spells and br.runner.spells.soulOfTheForest
 	if select(3, br.game.UnitClass("player")) == 11 and br.game.C_SpecializationInfo.GetSpecialization() == 2
 		and soulOfTheForest and br.functions.spell:isKnown(soulOfTheForest)
 	then

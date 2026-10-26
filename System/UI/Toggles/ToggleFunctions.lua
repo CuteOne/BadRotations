@@ -184,7 +184,7 @@ local declaredToggles = {}
 -- A mode's icon given by name: a spell or talent from the class spell list, or an item from the item
 -- list (its use spell, whose icon is the item's)
 local function iconByName(name)
-    local rotation = br.rotation
+    local rotation = br.runner
     if rotation == nil then return nil end
     local spells = rotation.spells
     local spellID = spells[name] or (spells.talents and spells.talents[name])

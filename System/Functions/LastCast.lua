@@ -33,7 +33,7 @@ local IGNORED = { "counterspell", "iceBarrier", "shimmer" }
 local abilityIDs, ignoredIDs
 
 local function buildAbilityIDs()
-    local abilities = br.rotation and br.rotation.spells and br.rotation.spells.abilities
+    local abilities = br.runner and br.runner.spells and br.runner.spells.abilities
     if abilities == nil then return false end
     abilityIDs, ignoredIDs = {}, {}
     for _, v in pairs(abilities) do
@@ -82,7 +82,7 @@ end
 local function eventTracker(_, event, ...)
     local sourceUnit = select(1, ...)
     local spellID = event == "UNIT_SPELLCAST_SENT" and select(4, ...) or select(3, ...)
-    if sourceUnit == "player" and br.rotation and not isIgnored(spellID) then
+    if sourceUnit == "player" and br.runner and not isIgnored(spellID) then
         if event == "UNIT_SPELLCAST_SENT" or event == "UNIT_SPELLCAST_START"
             or event == "UNIT_SPELLCAST_CHANNEL_START" --or event == "UNIT_SPELLCAST_EMPOWER_START"
         then

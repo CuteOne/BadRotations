@@ -51,7 +51,8 @@
             "undefined-field",
             "inject-field",
             "param-type-mismatch",
-            "assign-type-mismatch"
+            "assign-type-mismatch",
+            "unknown-diag-code"
         ]
     },
     "workspace": {

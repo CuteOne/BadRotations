@@ -217,7 +217,7 @@ end
 
 function br.ui:recreateWindows()
     -- Close only config and debug windows, not profile window
-    -- Profile window is created by br.rotation:createOptions() and should not be destroyed here
+    -- Profile window is created by br.runner:createOptions() and should not be destroyed here
     br.ui:closeWindow("config")
     -- Hidden, not closed: closing the Rotation Log unticks its option
     if br.ui.window.debug and br.ui.window.debug.parent then br.ui.window.debug.parent:Hide() end

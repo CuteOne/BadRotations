@@ -51,7 +51,7 @@ br.api.build.pet = function(api, petList)
     -- @function pet.callName
     -- @string spellKey A Call Pet spell in the class spell list (callPet1 ... callPet5)
     -- @return string
-    pet.callName = function(spellKey) return functions:getCallPetName(br.rotation.spells[spellKey]) end
+    pet.callName = function(spellKey) return functions:getCallPetName(br.runner.spells[spellKey]) end
 
     --- True when the combat log saw the pet die and it hasn't been revived.
     -- @function pet.dead

@@ -300,8 +300,8 @@ function common:commonReaders()
 			pcall(br.functions.unit.noteFleeEmote, br.functions.unit, text, (select(12, ...)), name)
 		end
 		-- Azerite Essence
-		if event == "AZERITE_ESSENCE_ACTIVATED" and br.rotation then
-			br.rotation:requestRebuild()
+		if event == "AZERITE_ESSENCE_ACTIVATED" and br.runner then
+			br.runner:requestRebuild()
 		end
 		-- Auto-attack on / off
 		if event == "PLAYER_ENTER_COMBAT" or event == "PLAYER_LEAVE_COMBAT" then
@@ -358,8 +358,8 @@ function common:commonReaders()
 		-- 	br.loader.rotationChanged = true
 		-- end
 		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" --[[or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED"]] or event == "TRAIT_CONFIG_UPDATED" then
-			if br.rotation then
-				br.rotation:requestRebuild()
+			if br.runner then
+				br.runner:requestRebuild()
 			end
 		end
 		-----------------------------

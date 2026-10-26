@@ -17,7 +17,7 @@ local custom = br.functions.custom
 --   * The best spots are traced for line of sight in order; the first visible one is used. Spots close
 --     to one already found hidden are skipped, so the traces look at different places.
 -- Returns x, y, z and the number of units covered, or nil when no spot covers minUnits.
--- local x, y, z, count = br.functions.custom:findGroundLocation(br.rotation.spells.hurricane, 8, 3)
+-- local x, y, z, count = br.functions.custom:findGroundLocation(br.runner.spells.hurricane, 8, 3)
 local GROUND_HEIGHT_TOLERANCE = 6 -- yards up or down a unit can be from the spot and still count
 
 local GROUND_MAX_UNITS = 30       -- nearest units considered (the search grows with the cube of this)

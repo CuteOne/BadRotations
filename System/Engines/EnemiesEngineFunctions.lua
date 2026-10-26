@@ -240,7 +240,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	if thisUnit == "player" then
 		local sourceKey = checkNoCombat and "units" or "enemy"
 		local pCache = partitionCache[sourceKey]
-		if not (isPartitionCacheValid(pCache, radius, now, inCombat, inRaid) and pCache.maxRadius >= radius) then
+		if not (pCache and isPartitionCacheValid(pCache, radius, now, inCombat, inRaid) and pCache.maxRadius >= radius) then
 			-- Cache miss, expired, moved, or radius wider than cached: rebuild.
 			-- Widen to max(requested radius, prior cache max) so we don't shrink
 			-- the cache if a smaller-radius call follows a larger one.

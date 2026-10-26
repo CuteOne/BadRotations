@@ -48,7 +48,7 @@ end
 
 --- A pet ability's name, from its key in the class spell list (every rank of a ranked one has it).
 function pet:getAbilityName(spellKey)
-    local spellID = br.rotation and br.rotation.spells[spellKey]
+    local spellID = br.runner and br.runner.spells[spellKey]
     if type(spellID) == "table" then spellID = spellID[1] end
     return br.functions.spell:getName(spellID)
 end

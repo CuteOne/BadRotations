@@ -154,7 +154,7 @@ function combatLog:common(...)
         end
     end
     --[[Combat Validation]]
-    if br.rotation ~= nil then
+    if br.runner ~= nil then
         local inInstance, instanceType = br.game.IsInInstance()
         if br.engines.enemiesEngine.damaged == nil then
             br.engines.enemiesEngine.damaged = {}
@@ -351,8 +351,8 @@ function combatLog:common(...)
                     spell ~= 48020
                 then
                     local notOnCD = true
-                    if br.rotation ~= nil then
-                        notOnCD = br.functions.spell:getSpellCD(spell) <= br.rotation.state.gcdMax
+                    if br.runner ~= nil then
+                        notOnCD = br.functions.spell:getSpellCD(spell) <= br.runner.state.gcdMax
                     end
                     -- set destination
                     if destination == "" then
@@ -585,8 +585,8 @@ function combatLog:Druid(...)
                     else
                         thisUnit = br.game.GetObjectWithGUID("player")
                     end
-                    if br.rotation ~= nil and br.functions.range:getDistance(thisUnit) < 40 then
-                        local debuffID = br.rotation.spells.debuffs
+                    if br.runner ~= nil and br.functions.range:getDistance(thisUnit) < 40 then
+                        local debuffID = br.runner.spells.debuffs
                         local spec = br.loader.selectedSpecID
                         local function snapshot(key)
                             return (spec == 103 or spec == 259) and br.functions.aura:getSnapshotValue(debuffID[key]) or 0
@@ -923,13 +923,13 @@ function combatLog:Rogue(...)
                     else
                         thisUnit = br.game.GetObjectWithGUID(br.game.UnitGUID("player"))
                     end
-                    if br.rotation ~= nil and br.functions.range:getDistance(thisUnit) < 40 then
+                    if br.runner ~= nil and br.functions.range:getDistance(thisUnit) < 40 then
                         local exsa = combatLog.exsa
                         for _, key in ipairs({ "crimsonTempest", "garrote", "rupture" }) do exsa[key] = exsa[key] or {} end
-                        local debuffID = br.rotation.spells.debuffs
+                        local debuffID = br.runner.spells.debuffs
                         local k
                         if debuffID ~= nil then
-                            if spell == br.rotation.spells.exsanguinate then
+                            if spell == br.runner.spells.exsanguinate then
                                 if exsa.crimsonTempest[thisUnit] == nil then exsa.crimsonTempest[thisUnit] = true end
                                 if exsa.garrote[thisUnit] == nil then exsa.garrote[thisUnit] = true end
                                 if exsa.rupture[thisUnit] == nil then exsa.rupture[thisUnit] = true end
@@ -1000,7 +1000,7 @@ function combatLog:Shaman(...) -- 7
     spellType = ... -- the event, read once by the dispatcher
     --------------------
     --[[ Fire Totem ]]
-    if source == guid and param == "SPELL_SUMMON" and (spell == br.rotation.spells.searingTotem or spell == br.rotation.spells.magmaTotem) then
+    if source == guid and param == "SPELL_SUMMON" and (spell == br.runner.spells.searingTotem or spell == br.runner.spells.magmaTotem) then
         br.activeTotem = destination
         br.activeTotemPosition = br.functions.unit:GetObjectPosition("player")
     end

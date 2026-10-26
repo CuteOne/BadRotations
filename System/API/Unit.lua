@@ -704,7 +704,7 @@ br.api.build.unit = function(api)
     -- @function unit.timeSinceDismount
     -- @return number|nil Seconds since dismounting, nil while mounted or if not mounted since login
     unit.timeSinceDismount = function()
-        local dismountTime = br.rotation.state.dismountTime
+        local dismountTime = br.runner.state.dismountTime
         return dismountTime and (br.functions.misc:getTime() - dismountTime) or nil
     end
 
@@ -1043,10 +1043,10 @@ br.api.build.unit = function(api)
 
     --- Get the display name of a weapon imbue spell
     -- @function unit.weaponImbue.spellName
-    -- @param spellKey The spell key string (e.g. "rockbiterWeapon") used in br.rotation.spells
+    -- @param spellKey The spell key string (e.g. "rockbiterWeapon") used in br.runner.spells
     -- @return string The localised spell name, or the key as a fallback
     unit.weaponImbue.spellName = function(spellKey)
-        local spellID = br.rotation.spells and br.rotation.spells[spellKey]
+        local spellID = br.runner.spells and br.runner.spells[spellKey]
         return (spellID and br.functions.spell:getName(spellID)) or spellKey
     end
 end

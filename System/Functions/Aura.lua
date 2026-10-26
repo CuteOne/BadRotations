@@ -226,7 +226,7 @@ function aura:canDispel(Unit, spellID)
 	local typesList = {}
 	local HasValidDispel = false
 	-- What the spell removes (br.lists.dispelTypes), found by matching it to the player's own spells
-	local abilities = br.rotation and br.rotation.spells and br.rotation.spells.abilities or {}
+	local abilities = br.runner and br.runner.spells and br.runner.spells.abilities or {}
 	local function isSpell(key)
 		local v = abilities[key]
 		if type(v) == "table" then
@@ -362,7 +362,7 @@ end
 
 function aura:cleanBleedSnapshots(spec)
 	if spec ~= 103 and spec ~= 259 then return end
-	local combatLog, ids = br.readers.combatLog, br.rotation and br.rotation.spells and br.rotation.spells.debuffs
+	local combatLog, ids = br.readers.combatLog, br.runner and br.runner.spells and br.runner.spells.debuffs
 	if ids == nil then return end
 	for k in pairs(bleedSnapshotKeys) do
 		local bleed = combatLog.bleed[k]
@@ -644,7 +644,7 @@ function aura:getLustID()
 end
 
 -- Snapshot strength of a bleed/DoT (Feral) used by debuff.calc; 0 when not applicable.
--- local value = br.functions.aura:getSnapshotValue(br.rotation.spells.debuffs.rip)
+-- local value = br.functions.aura:getSnapshotValue(br.runner.spells.debuffs.rip)
 function aura:getSnapshotValue(dot)
 	-- Feral Bleeds
 	if br.loader.selectedSpecID == 103 then
@@ -661,11 +661,11 @@ function aura:getSnapshotValue(dot)
 		local ap = base + posBuff + negBuff
 
 		-- * Rip: 768% AP over 16 seconds (8 ticks, one every 2 seconds)
-		if dot == br.rotation.spells.debuffs.rip then
+		if dot == br.runner.spells.debuffs.rip then
 			return ((7.68 * ap) / 8) * multiplier
 		end
 		-- * Rake: 155% AP over 15 seconds (9 ticks, one every 3 seconds)
-		if dot == br.rotation.spells.debuffs.rake then
+		if dot == br.runner.spells.debuffs.rake then
 			local rakeMultiplier = 1.0
 			-- Incarnation/Prowl/Shadowmeld bonus — only present on expansions that have them
 			if aura:isBuffUp("incarnationAvatarOfAshamane") or aura:isBuffUp("prowl") or aura:isBuffUp("shadowmeld")
@@ -694,7 +694,7 @@ end
 -- class's lists have no such buff
 -- if br.functions.aura:isBuffUp("clearcasting") then
 function aura:isBuffUp(buffKey)
-	local buffs = br.rotation and br.rotation.spells and br.rotation.spells.buffs
+	local buffs = br.runner and br.runner.spells and br.runner.spells.buffs
 	local id = buffs and buffs[buffKey]
 	return id ~= nil and aura:UnitBuffID("player", id) ~= nil
 end

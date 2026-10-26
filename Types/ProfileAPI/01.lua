@@ -9450,7 +9450,7 @@ function C83.exists(candidate) end
 function C83.get(slot) end
 
 --- Returns true if the specified slot currently matches any provided totem.
---- Candidates can be spell IDs (number), spell keys from br.rotation.spells (string), or literal localized names (string).
+--- Candidates can be spell IDs (number), spell keys from br.runner.spells (string), or literal localized names (string).
 ---@param slot? number Totem slot (1-4)
 ---@param ...? ...
 ---@return boolean
@@ -9741,7 +9741,7 @@ function C86.needed(imbueId, offHand) end
 function C86.remain(imbueId, offHand) end
 
 --- Get the display name of a weapon imbue spell
----@param spellKey? any The spell key string (e.g. "rockbiterWeapon") used in br.rotation.spells
+---@param spellKey? any The spell key string (e.g. "rockbiterWeapon") used in br.runner.spells
 ---@return string # The localised spell name, or the key as a fallback
 function C86.spellName(spellKey) end
 

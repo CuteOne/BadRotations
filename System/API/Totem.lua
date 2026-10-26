@@ -91,7 +91,7 @@ br.api.build.totem = function(api)
 
     ---
     -- Returns true if the specified slot currently matches any provided totem.
-    -- Candidates can be spell IDs (number), spell keys from br.rotation.spells (string), or literal localized names (string).
+    -- Candidates can be spell IDs (number), spell keys from br.runner.spells (string), or literal localized names (string).
     -- @function totem.is
     -- @tparam number slot Totem slot (1-4)
     -- @tparam ... candidates
@@ -185,8 +185,8 @@ br.api.build.totemElement = function(api, elementKey, slot)
     end
 
     -- Build specific totem subtables for this element from spell list
-    if br.rotation.spells and br.rotation.spells.totem and br.rotation.spells.totem[elementKey] then
-        for totemKey, _ in pairs(br.rotation.spells.totem[elementKey]) do
+    if br.runner.spells and br.runner.spells.totem and br.runner.spells.totem[elementKey] then
+        for totemKey, _ in pairs(br.runner.spells.totem[elementKey]) do
             -- Convert totemKey to camelCase if needed (e.g., searingTotem -> searing)
             -- Extract the totem name without "Totem" suffix for cleaner API
             local shortName = totemKey:gsub("Totem$", "")

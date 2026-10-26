@@ -95,7 +95,7 @@ local PROFILE_TARGETS = {
     { "enemyListCheck",                function() return br.functions.misc end,                 "enemyListCheck" },
     { "Healing engine",                function() return br.engines.healingEngine.friend end,   "Update" },
     { "Casts (cast.x / cast.able.x)",  function() return br.functions.cast end,                 "createCastFunction" },
-    { "Profile pulse (rotation:update)", function() return br.rotation end,                       "update" },
+    { "Profile pulse (rotation:update)", function() return br.runner end,                       "update" },
 }
 local profiling = false
 
@@ -165,7 +165,7 @@ local rangeWatch = nil
 
 -- A known harmful spell with a 20-45 yd range from the player's spells, to compare spell range with.
 local function rangedTestSpell()
-    local abilities = br.rotation and br.rotation.spells.abilities
+    local abilities = br.runner and br.runner.spells.abilities
     if abilities == nil then return nil end
     local keys = {}
     for key in pairs(abilities) do keys[#keys + 1] = key end
@@ -276,7 +276,11 @@ function br.debug.range:probe(arg)
     local last, stopAt = nil, br.game.GetTime() + 120
     say("Watching the target for 2 minutes (/br range stop to end). Walk in and out of range.")
     rangeWatch = br.game.C_Timer.NewTicker(0.1, function()
-        if br.game.GetTime() > stopAt then rangeWatch:Cancel(); rangeWatch = nil; return say("Stopped (2 minutes).") end
+        if br.game.GetTime() > stopAt then
+            if rangeWatch then rangeWatch:Cancel() end
+            rangeWatch = nil
+            return say("Stopped (2 minutes).")
+        end
         local m = measure()
         if m == nil then return end
         local key = m.listKey .. inOut(m.meleeBR) .. inOut(m.autoGame) .. inOut(m.meleeGame) .. inOut(m.spellBR) .. inOut(m.spellGame)
