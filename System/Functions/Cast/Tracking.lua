@@ -204,12 +204,20 @@ function cast:handleCastError(message)
 			local expected, mismatch = E.expectedRefusal(message, lastCastGUID)
 			local kind = expected == nil and "problem" or mismatch and "mismatch" or "expected"
 			if not E.showRefusal(kind) then return end
-			local text = "[CAST FAIL][SERVER] " .. tostring(br.functions.spell:getName(spellID)) .. " — game said: " .. message
+			local spellName = tostring(br.functions.spell:getName(spellID))
+			local text = "[CAST FAIL][SERVER] " .. spellName .. " — game said: " .. message
 			-- Expected and nothing BR could have known (the target died, a stronger aura): Gate.log
 			if kind == "expected" then
 				return E.writeGateLine(spellID, "SERVER", br.functions.misc:plainText(text .. " (expected: " .. expected .. ")"))
 			end
-			br.log:systemDebug(text .. (expected and (" — BR's own check had allowed it (" .. expected .. ")") or ""))
+			-- BR's own check allowed it and the game didn't: a gap in BR's check (range and behind have
+			-- what BR saw in Cast.log)
+			if kind == "mismatch" then
+				local kindName = rejectionKindForError(message)
+				return br.log:systemDebug("[BR vs GAME] " .. spellName .. ": BR's check allowed it, the game said \"" .. message .. "\""
+					.. ((kindName == "range" or kindName == "behind") and " (Logs\\Cast.log has what BR saw)" or ""))
+			end
+			br.log:systemDebug(text)
 		end)
 	end
 	local kind = rejectionKindForError(message)
