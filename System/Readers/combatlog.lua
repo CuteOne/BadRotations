@@ -89,6 +89,7 @@ function combatLog:combatLog()
         -- with as few checks as possible per class/spec as in raiding environment we have already enough to check
         -- pulse common stuff for all classes
         combatLog:common(...)
+        br.log.fights:combatEvent(...) -- the fight's scorecard (Fights.log)
 
         -- best way is to split per class so lets make a selector for it
         if class == 1 then      -- Warrior
