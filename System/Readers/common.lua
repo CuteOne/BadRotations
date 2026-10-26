@@ -21,6 +21,8 @@ _superFrame:RegisterEvent("CHAT_MSG_ADDON")
 _superFrame:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
 -- Auto-attack starting and stopping (unit:isAutoAttacking)
 _superFrame:RegisterEvent("PLAYER_ENTER_COMBAT")
+-- The player's target changing (unit:getTargetHeldTime, for Delay Neutral Targets)
+_superFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 _superFrame:RegisterEvent("PLAYER_LEAVE_COMBAT")
 _superFrame:RegisterEvent("PLAYER_TOTEM_UPDATE")
 _superFrame:RegisterEvent("UNIT_AURA")
@@ -303,6 +305,7 @@ function common:commonReaders()
 		if event == "AZERITE_ESSENCE_ACTIVATED" and br.runner then
 			br.runner:requestRebuild()
 		end
+		if event == "PLAYER_TARGET_CHANGED" then br.functions.unit:noteTargetChanged() end
 		-- Auto-attack on / off
 		if event == "PLAYER_ENTER_COMBAT" or event == "PLAYER_LEAVE_COMBAT" then
 			br.functions.unit:setAutoAttacking(event == "PLAYER_ENTER_COMBAT")

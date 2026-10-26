@@ -50,6 +50,9 @@ local autoAttacking = false
 -- StartAttacks in 0.3 s at 88 ms latency).
 local attackSentAt, attackSentGUID = -math.huge, nil
 
+-- When the player's target last changed (PLAYER_TARGET_CHANGED, Readers/common.lua)
+local targetChangedAt = 0
+
 -- Kept apart from the cast throttles (castTimers / intent locks): a cancel isn't a cast, and locking
 -- the form's spell would also block casting that form and be cleared by unrelated cast errors.
 local formCancelSentAt = -math.huge
@@ -472,6 +475,11 @@ function unit:getSwing(hand)
 	return math.max(0, swing.next - br.game.GetTime()), swing.speed, swing.last
 end
 
+-- Seconds the player has kept their current target (since the last target change)
+function unit:getTargetHeldTime()
+	return br.game.GetTime() - targetChangedAt
+end
+
 -- The unit's target (as the unlocker gives it)
 function unit:getTarget(Unit)
 	return br.game.UnitTarget(Unit)
@@ -740,6 +748,9 @@ end
 --- guid: the emote's sender GUID. Forever's client leaves it empty, so
 --- the mob is then found by name: an enemy in the enemies engine with that name, the player's target
 --- first, otherwise the one lowest on health (mobs flee at low health).
+-- The player's target changed (Readers/common.lua): starts unit:getTargetHeldTime again
+function unit:noteTargetChanged() targetChangedAt = br.game.GetTime() end
+
 function unit:noteFleeEmote(text, guid, name)
 	if not (text and br.lists.fleeEmotes[text]) then return end
 	if guid == nil and name ~= nil then

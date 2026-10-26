@@ -108,6 +108,8 @@ function br.ui:createConfigWindow()
         section = br.ui:section("Safety", { window = br.ui.window.config })
         br.ui:checkbox(section, "Safe Damage Check", { tip = "Don't damage units that must not be attacked (whitelisted mechanics)." })
         br.ui:checkbox(section, "Hostiles Only", { tip = "Only attack hostile units (not neutral ones), unless they're your target or attacking you." })
+        br.ui:spinner(section, "Delay Neutral Targets", { value = 1.5, min = 0.5, max = 5, step = 0.5,
+            tip = "A neutral (yellow) unit you target isn't attacked until it has been your target this many seconds, unless it's already fighting you or your group: a click on one by accident can be clicked off first. Off: attacked the moment you target it." })
         br.ui:checkbox(section, "Attack MC Targets", { tip = "Allow attacking charmed / mind-controlled players." })
     end
 

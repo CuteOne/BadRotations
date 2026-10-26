@@ -262,6 +262,13 @@ function misc:isValidUnit(Unit)
 		if not br.engines.enemiesEngineFunctions:isSafeToAttack(Unit) then
 			return rememberValid(guid, now, false, "Not Safe to Attack (CC candidate or a unit not to touch)")
 		end
+		-- Delay Neutral Targets: a neutral unit you target that isn't fighting you or your group counts only
+		-- once it has been your target that long, so a click on one by accident can be clicked off first
+		if reaction == 4 and playerTarget and not targeting and misc:isChecked("Delay Neutral Targets")
+			and br.functions.unit:getTargetHeldTime() < misc:getValue("Delay Neutral Targets")
+		then
+			return rememberValid(guid, now, false, "Neutral, not your target long enough yet (Delay Neutral Targets)")
+		end
 		if not ((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting) then
 			return rememberValid(guid, now, false, hostileOnly and "Not hostile (Hostiles Only)" or "Friendly reaction")
 		end
