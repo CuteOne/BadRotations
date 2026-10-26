@@ -5,35 +5,19 @@
 -- @module has
 local _, br = ...
 
-br.api.build.has = function(api,item,id)
-    if api[item] == nil then api[item] = {} end
-    local has = api
+-- The functions that take an item ID or slot, built once per spec
+br.api.build.has = function(api)
+    local has = api.has
+    has.stats = has.stats or {}
 
-    --- ### Item Has Functions
-
-    if has.stats == nil then has.stats = {} end
-
-    --- Checks if item is in your bags or not.
-    -- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
-    -- @function has.<item>
-    -- @return boolean
-    has[item] = function()
-        if type(id) == "table" then
-            return br.functions.item:getHighestHeldRank(id) ~= nil
-        end
-        return br.functions.item:hasItem(id)
-    end
-
-    if has.item == nil then
-        --- Checks if the specified `itemID` is in your bags or not.
-        -- Note: `item` here is literally item, you pass the itemID to specify the item
-        -- @function has.item
-        -- @number itemID The ID of the item to check for.
-        -- @treturn boolean
-        has.item = function(itemID)
-            if itemID == nil then return end
-            return br.functions.item:hasItem(itemID)
-        end
+    --- Checks if the specified `itemID` is in your bags or not.
+    -- Note: `item` here is literally item, you pass the itemID to specify the item
+    -- @function has.item
+    -- @number itemID The ID of the item to check for.
+    -- @treturn boolean
+    has.item = function(itemID)
+        if itemID == nil then return false end
+        return br.functions.item:hasItem(itemID)
     end
 
     --- Checks if an inventory item has any of chosen DPS stats.
@@ -44,28 +28,22 @@ br.api.build.has = function(api,item,id)
     -- 'anyDps' checks for any DPS-related stat. If `desiredStat` is not recognized, it defaults to 'anyDps'.
     -- @treturn boolean True if the item has the chosen DPS stat, False otherwise.
     has.stats.dps = function(itemSlot, desiredStat)
-        local statMap = {
-            agility = "ITEM_MOD_AGILITY_SHORT",
-            strength = "ITEM_MOD_STRENGTH_SHORT",
-            intellect = "ITEM_MOD_INTELLECT_SHORT",
-            crit = "ITEM_MOD_CRIT_RATING_SHORT",
-            haste = "ITEM_MOD_HASTE_RATING_SHORT",
-            mastery = "ITEM_MOD_MASTERY_RATING_SHORT",
-            versatility = "ITEM_MOD_VERSATILITY"
-        }
-
         local itemLink = br.functions.item:getSlotLink(itemSlot)
-        if itemLink then
-            local statStr = statMap[desiredStat]
+        if not itemLink then return false end
+        return br.functions.item:hasDPSStats(itemLink, desiredStat)
+    end
+end
 
-            if statStr or desiredStat == "anyDps" then
-                return br.functions.item:hasDPSStats(itemLink, statStr)
-            else
-                -- If desiredStat isn't found in the map, check for any DPS stat.
-                return br.functions.item:hasDPSStats(itemLink)
-            end
+-- has.<item>, for each item in the item list
+br.api.build.hasItem = function(has, item, id)
+    --- Checks if item is in your bags or not.
+    -- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
+    -- @function has.<item>
+    -- @return boolean
+    has[item] = function()
+        if type(id) == "table" then
+            return br.functions.item:getHighestHeldRank(id) ~= nil
         end
-
-        return false
+        return br.functions.item:hasItem(id)
     end
 end

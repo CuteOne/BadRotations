@@ -2,48 +2,68 @@
 -- These functions help in retrieving information if you can use an item or not.
 -- Use functions are the profile API table `use` (br.api.profile.use); profiles use it by name.
 -- For item use, `item` in the function represent the name in the items list defined in System/List/Items.lua
+-- An item list entry may be a table of ranks: the best one held is used.
 -- @module use
 local _, br = ...
 
-br.api.build.use = function(api,item,id)
-    local use = api
+-- Uses an item (ID, rank list or equipment slot) when it can be used
+local function useWhenAble(itemOrSlot, thisUnit)
+    if itemOrSlot == nil or not br.functions.item:canUseItem(itemOrSlot) then return false end
+    return br.functions.item:useItem(itemOrSlot, thisUnit or "target")
+end
 
-    --- ### Item Use Functions
+-- The functions that take an item ID or slot, built once per spec
+br.api.build.use = function(api)
+    local use = api.use
+    use.able = use.able or {}
 
-    if use.able == nil then use.able = {} end
+    --- Checks if item is usable or not.
+    -- Note: `item` here is literally item, you pass the itemID to specify the item
+    -- @function use.able.item
+    -- @number itemID The ID of the item check.
+    -- @treturn boolean
+    use.able.item = function(itemID)
+        if itemID == nil then return false end
+        return br.functions.item:canUseItem(itemID)
+    end
 
+    --- Checks if item in the specified equipment slot is usable or not.
+    -- @function use.able.slot
+    -- @number slotID The ID of the equipment slot to check.
+    -- @treturn boolean
+    use.able.slot = function(slotID)
+        return br.functions.item:canUseItem(slotID)
+    end
+
+    --- Uses the item.
+    -- Note: `item` here is literally item, you pass the itemID to specify the item
+    -- @function use.item
+    -- @number itemID The ID of the item to use.
+    -- @string[opt="target"] thisUnit The unit to use the item on.
+    -- @treturn boolean
+    use.item = function(itemID, thisUnit)
+        return useWhenAble(itemID, thisUnit)
+    end
+
+    --- Uses the item in the specified equipment slot.
+    -- @function use.slot
+    -- @number slotID The ID of the equipment slot to use the item from.
+    -- @string[opt="target"] thisUnit The unit to use the item on.
+    -- @treturn boolean
+    use.slot = function(slotID, thisUnit)
+        return useWhenAble(slotID, thisUnit)
+    end
+end
+
+-- use.<item> and use.able.<item>, for each item in the item list
+br.api.build.useItem = function(use, item, id)
     --- Checks if item is usable or not.
     -- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
     -- @function use.able.<item>
     -- @number[opt] slotID The ID of the equipment slot to check.
     -- @treturn boolean
     use.able[item] = function(slotID)
-        if slotID ~= nil then return br.functions.item:canUseItem(slotID) end
-        local resolvedID = type(id) == "table" and br.functions.item:getHighestHeldRank(id) or id
-        if resolvedID == nil then return false end
-        return br.functions.item:canUseItem(resolvedID)
-    end
-
-    if use.able.item == nil then
-        --- Checks if item is usable or not.
-        -- Note: `item` here is literally item, you pass the itemID to specify the item
-        -- @function use.able.item
-        -- @number itemID The ID of the item check.
-        -- @treturn boolean
-        use.able.item = function(itemID)
-            if itemID == nil then return false end
-            return br.functions.item:canUseItem(itemID)
-        end
-    end
-
-    if use.able.slot == nil then
-        --- Checks if item in the specified equipment slot is usable or not.
-        -- @function use.able.slot
-        -- @number slotID The ID of the equipment slot to check.
-        -- @treturn boolean
-        use.able.slot = function(slotID)
-            return br.functions.item:canUseItem(slotID)
-        end
+        return br.functions.item:canUseItem(slotID or id)
     end
 
     --- Uses the item.
@@ -51,44 +71,7 @@ br.api.build.use = function(api,item,id)
     -- @number[opt] slotID The equipment slot number to use the item from.
     -- @string[opt="target"] thisUnit The unit to use the item on.
     -- @treturn boolean
-    use[item] = function(slotID,thisUnit)
-        if thisUnit == nil then thisUnit = "target" end
-        if slotID == nil then
-            local resolvedID = type(id) == "table" and br.functions.item:getHighestHeldRank(id) or id
-            if resolvedID == nil then return false end
-            if br.functions.item:canUseItem(resolvedID) then return br.functions.item:useItem(resolvedID,thisUnit) else return end
-        else
-            if br.functions.item:canUseItem(slotID) then return br.functions.item:useItem(slotID,thisUnit) else return end
-        end
-    end
-
-    if use.item == nil then
-        --- Uses the item.
-        -- Note: `item` here is literally item, you pass the itemID to specify the item
-        -- @function use.item
-        -- @number itemID The ID of the item to use.
-        -- @string[opt="target"] thisUnit The unit to use the item on.
-        -- @treturn boolean
-        use.item = function(itemID,thisUnit)
-            if itemID == nil then return false end
-            if thisUnit == nil then thisUnit = "target" end
-            if br.functions.item:canUseItem(itemID) then
-                return br.functions.item:useItem(itemID,thisUnit)
-            else
-                return
-            end
-        end
-    end
-
-    if use.slot == nil then
-        --- Uses the item in the specified equipment slot.
-        -- @function use.slot
-        -- @number slotID The ID of the equipment slot to use the item from.
-        -- @string[opt="target"] thisUnit The unit to use the item on.
-        -- @treturn boolean
-        use.slot = function(slotID,thisUnit)
-            if thisUnit == nil then thisUnit = "target" end
-            if br.functions.item:canUseItem(slotID) then return br.functions.item:useItem(slotID,thisUnit) else return end
-        end
+    use[item] = function(slotID, thisUnit)
+        return useWhenAble(slotID or id, thisUnit)
     end
 end

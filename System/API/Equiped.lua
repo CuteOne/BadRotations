@@ -6,21 +6,9 @@
 
 local _, br = ...
 
-br.api.build.equiped = function(api, item, id)
-    if api[item] == nil then api[item] = {} end
-    local equiped = api
-
-    --- Checks if item is equiped or not.
-    -- @function equiped.<item>
-    -- @number[opt] slotID The equipment slot number to check.
-    -- @treturn boolean
-    equiped[item] = function(slotID)
-        if slotID == nil then
-            return br.functions.item:hasEquiped(id)
-        else
-            return br.functions.item:hasEquiped(id, slotID)
-        end
-    end
+-- The functions that take an item ID, tier or type, built once per spec
+br.api.build.equiped = function(api)
+    local equiped = api.equiped
 
     --- This function checks if the specified itemID is equipped or not.
     -- It can also check a specific slotID.
@@ -32,31 +20,38 @@ br.api.build.equiped = function(api, item, id)
     -- @usage equiped.item(12345) -- true if item 12345 is equipped anywhere
     -- @usage equiped.item(12345, 1) -- true if item 12345 is equipped in slot 1
     equiped.item = function(itemID, slotID)
-        if slotID == nil then
-            return br.functions.item:hasEquiped(itemID)
-        else
-            return br.functions.item:hasEquiped(itemID, slotID)
-        end
+        return br.functions.item:hasEquiped(itemID, slotID)
     end
 
-    --- Gets the number of equiped items for the specified `tierLevel`.
+    --- Gets the number of equiped items for the specified `tierLevel`, or with numEquiped whether
+    -- at least that many are equiped.
     -- @function equiped.tier
     -- @param tierLevel string|number The tier level to check for. (e.g. "T20" or 20)
-    -- @treturn number
+    -- @number[opt] numEquiped How many pieces to require
+    -- @treturn number|boolean
     equiped.tier = function(tierLevel, numEquiped)
         if type(tierLevel) == "number" then tierLevel = "T" .. tierLevel end
         if numEquiped == nil then return br.functions.item:TierScan(tierLevel) end
         return br.functions.item:TierScan(tierLevel) >= numEquiped
     end
 
-    if equiped.type == nil then
-        --- Checks if you have the specified `itemType` equiped or not.
-        -- @function equiped.type
-        -- @string itemType The type of item to check for. (e.g. "Weapon" or "Trinket")
-        -- @treturn boolean
-        equiped.type = function(itemType)
-            if itemType == nil then return false end
-            return br.functions.item:isEquippedType(itemType)
-        end
+    --- Checks if you have the specified `itemType` equiped or not.
+    -- @function equiped.type
+    -- @string itemType The type of item to check for. (e.g. "Weapon" or "Trinket")
+    -- @treturn boolean
+    equiped.type = function(itemType)
+        if itemType == nil then return false end
+        return br.functions.item:isEquippedType(itemType)
+    end
+end
+
+-- equiped.<item>, for each item in the item list
+br.api.build.equipedItem = function(equiped, item, id)
+    --- Checks if item is equiped or not.
+    -- @function equiped.<item>
+    -- @number[opt] slotID The equipment slot number to check.
+    -- @treturn boolean
+    equiped[item] = function(slotID)
+        return br.functions.item:hasEquiped(id, slotID)
     end
 end

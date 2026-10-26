@@ -226,24 +226,27 @@ function item:getWeaponEnchants()
 	return br.game.GetWeaponEnchantInfo()
 end
 
--- True if the item has matchStat (a GetItemStats key), or any DPS stat when matchStat is nil.
--- if br.functions.item:hasDPSStats(itemLink, "ITEM_MOD_AGILITY_SHORT") then
-function item:hasDPSStats(itemLink, matchStat)
+-- The stats that make DPS, by the names has.stats.dps takes -> their GetItemStats keys
+local DPS_STATS = {
+	agility = "ITEM_MOD_AGILITY_SHORT",
+	strength = "ITEM_MOD_STRENGTH_SHORT",
+	intellect = "ITEM_MOD_INTELLECT_SHORT",
+	crit = "ITEM_MOD_CRIT_RATING_SHORT",
+	haste = "ITEM_MOD_HASTE_RATING_SHORT",
+	mastery = "ITEM_MOD_MASTERY_RATING_SHORT",
+	versatility = "ITEM_MOD_VERSATILITY",
+}
+
+-- True if the item has the named DPS stat (agility, crit, ...), or any DPS stat when statName is nil
+-- or not one of them.
+-- if br.functions.item:hasDPSStats(itemLink, "agility") then
+function item:hasDPSStats(itemLink, statName)
 	local stats = br.game.C_Item.GetItemStats(itemLink) or {}
-
-	-- Define the stats that contribute to DPS.
-	local dpsStats = {"ITEM_MOD_AGILITY_SHORT", "ITEM_MOD_STRENGTH_SHORT", "ITEM_MOD_INTELLECT_SHORT",
-						"ITEM_MOD_CRIT_RATING_SHORT", "ITEM_MOD_HASTE_RATING_SHORT",
-						"ITEM_MOD_MASTERY_RATING_SHORT", "ITEM_MOD_VERSATILITY"}
-
-	-- If a desired stat is specified, check if the item has that stat.
-	if matchStat then return stats[matchStat] end
-
-	-- If no desired stat is specified, check if the item has any DPS stats.
-	for _, stat in ipairs(dpsStats) do
-		if stats[stat] then return true end
+	local key = statName and DPS_STATS[statName]
+	if key then return stats[key] ~= nil end
+	for _, statKey in pairs(DPS_STATS) do
+		if stats[statKey] then return true end
 	end
-
 	return false
 end
 

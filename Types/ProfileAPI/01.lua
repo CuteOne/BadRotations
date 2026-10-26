@@ -7160,10 +7160,11 @@ local C39 = {}
 ---@return boolean # whether the item is equipped (in the slot, if given)
 function C39.item(itemID, slotID) end
 
---- Gets the number of equiped items for the specified `tierLevel`.
+--- Gets the number of equiped items for the specified `tierLevel`, or with numEquiped whether
+--- at least that many are equiped.
 ---@param tierLevel? any string|number The tier level to check for. (e.g. "T20" or 20)
----@param numEquiped? any
----@return number
+---@param numEquiped? number How many pieces to require
+---@return number|boolean
 function C39.tier(tierLevel, numEquiped) end
 
 --- Checks if you have the specified `itemType` equiped or not.
@@ -7225,21 +7226,21 @@ function C41.socketCount() end
 
 
 
---- Checks if item is in your bags or not.
---- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
----@class BR.has.Item
----@overload fun(): boolean
-local C42 = {}
-
-
 ---@class BR.has.stats
-local C43 = {}
+local C42 = {}
 
 --- Checks if an inventory item has any of chosen DPS stats.
 ---@param itemSlot? number The slot number in the player's inventory where the item is located.
 ---@param desiredStat? string A string representing the desired stat to check. It can be one of:
 ---@return boolean # True if the item has the chosen DPS stat, False otherwise.
-function C43.dps(itemSlot, desiredStat) end
+function C42.dps(itemSlot, desiredStat) end
+
+
+--- Checks if item is in your bags or not.
+--- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
+---@class BR.has.Item
+---@overload fun(): boolean
+local C43 = {}
 
 ---@class BR.has.Base
 ---@field stats BR.has.stats

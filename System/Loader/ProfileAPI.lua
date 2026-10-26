@@ -103,7 +103,8 @@ local function buildAuras(rotation)
     end
 end
 
--- Builds the parts made once per spec: units, enemies, unit, totem, pet, glyph, ui and module
+-- Builds the parts made once per spec: units, enemies, unit, totem, the item-ID functions of
+-- equiped/has/use, pet, glyph, ui and module
 -- (module captures ui, so ui comes first).
 local function buildOnce()
     if builtOnce then return end
@@ -112,6 +113,9 @@ local function buildOnce()
     br.api.build.enemies(profile)
     br.api.build.unit(profile)
     br.api.build.totem(profile)
+    br.api.build.equiped(profile)
+    br.api.build.has(profile)
+    br.api.build.use(profile)
     br.api.build.pet(profile, br.runner and br.runner.pets or br.lists.pets)
     br.api.build.glyph(profile)
     br.api.build.ui(profile)
@@ -144,9 +148,9 @@ local function buildItems(rotation)
         if profile.charges[item] == nil then profile.charges[item] = {} end
         br.api.build.itemCD(profile.cd, item, id)
         br.api.build.itemCharges(profile.charges, item, id)
-        br.api.build.equiped(profile.equiped, item, id)
-        br.api.build.has(profile.has, item, id)
-        br.api.build.use(profile.use, item, id)
+        br.api.build.equipedItem(profile.equiped, item, id)
+        br.api.build.hasItem(profile.has, item, id)
+        br.api.build.useItem(profile.use, item, id)
     end
 end
 
