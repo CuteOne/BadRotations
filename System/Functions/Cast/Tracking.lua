@@ -389,7 +389,8 @@ function E.promiseCosts(spellID, untilTime, swing)
 	end
 end
 
--- Power of one type promised to casts other than spellID (call after prunePromised)
+-- Power of one type promised to casts other than spellID (all of them when spellID is nil; call after
+-- prunePromised)
 local function promisedPower(powerType, spellID)
 	local promised = 0
 	for _, entry in ipairs(E.promised) do
@@ -405,9 +406,14 @@ function E.affordableAfterPromised(spellID)
 	prunePromised(br.game.GetTime())
 	if #E.promised == 0 then return true end
 	local costs = br.functions.power:getSpellCosts(spellID)
+	-- A spell's own promise is left out (it isn't another cast), except while the player is casting it:
+	-- then the one asked for now is a second, pre-cast behind the first, and the first's cost is charged
+	-- only when it ends (2026-10-26: a Lightning Bolt queued behind a Lightning Bolt on 21 mana came back
+	-- "Not enough mana")
+	local exclude = not br.functions.cast:isCastingSpell(spellID, "player") and spellID or nil
 	for i = 1, #costs do
 		local cost = costs[i]
-		local promised = promisedPower(cost.type, spellID)
+		local promised = promisedPower(cost.type, exclude)
 		if promised > 0 then
 			local current = br.game.UnitPower("player", cost.type)
 			if type(current) == "number" and br.functions.misc:canUseValue(current) and current - promised < cost.amount then
