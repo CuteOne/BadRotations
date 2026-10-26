@@ -1,0 +1,63 @@
+{
+    "runtime": {
+        "version": "Lua 5.1"
+    },
+    "diagnostics": {
+        "globals": [
+            "br",
+            "C_Spell",
+            "C_SpellBook",
+            "C_SpecializationInfo",
+            "C_Timer",
+            "C_UnitAuras",
+            "GetSpellInfo",
+            "GetSpellCooldown",
+            "GetSpellCharges",
+            "IsUsableSpell",
+            "IsSpellInRange",
+            "IsPassiveSpell",
+            "GetBonusBarOffset",
+            "GetDodgeChance",
+            "GetPrimaryTalentTree",
+            "GetCombatRatingBonus",
+            "GetShapeshiftForm",
+            "GetNumQuestLogEntries",
+            "GetQuestLogTitle",
+            "FindBaseSpellByID",
+            "UnitClass",
+            "UnitExists",
+            "UnitInPhase",
+            "GameTooltip",
+            "FHAugment",
+            "DiesalFontNormal",
+            "DiesalFontPixel",
+            "DiesalFontPixelOutLine",
+            "DiesalFontPixel2",
+            "this",
+            "debugstack",
+            "WOW_PROJECT_MISTS_CLASSIC",
+            "WOW_PROJECT_ID",
+            "WOW_PROJECT_MAINLINE",
+            "WOW_PROJECT_CLASSIC",
+            "WOW_PROJECT_BURNING_CRUSADE_CLASSIC",
+            "WOW_PROJECT_WRATH_CLASSIC",
+            "WOW_PROJECT_CATACLYSM_CLASSIC",
+            "WOW_PROJECT_CAMELOT",
+            "GetBuildInfo",
+            "issecretvalue",
+            "canaccessvalue"
+        ],
+        "disable": [
+            "undefined-field",
+            "inject-field",
+            "param-type-mismatch",
+            "assign-type-mismatch"
+        ]
+    },
+    "workspace": {
+        "ignoreDir": [
+            "Libs",
+            "3rd Party Files"
+        ]
+    }
+}

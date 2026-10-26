@@ -1,0 +1,6 @@
+{
+    "addonRoot": true,
+    "ignore": ["3rd Party Files", ".tests"],
+    "library": ["Libs"],
+    "flavors": ["retail", "classic", "classic_era", "forever"]
+}

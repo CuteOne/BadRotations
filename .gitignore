@@ -1,4 +1,6 @@
 .*
+!.luarc.json
+!.wowluarc.json
 Simc.lua
 System/SimC/aplList.lua
 System/SimC/parser.lua
