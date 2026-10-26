@@ -6,9 +6,10 @@ br.readers = br.readers or {}
 br.readers.combatLog = br.readers.combatLog or {}
 br.readers.combatLog.debuffTracker = {}
 br.readers.combatLog.enraged = {}
--- The player's swings, melee (mh) and ranged (Auto Shot): when the last landed, when the next is due and
--- the weapon speed then; 0 before the first (unit.swing reads them)
-br.readers.combatLog.swing = { mh = { last = 0, next = 0, speed = 0 }, ranged = { last = 0, next = 0, speed = 0 } }
+-- The player's swings, melee (mh, and oh for the off hand) and ranged (Auto Shot): when the last landed,
+-- when the next is due and the weapon speed then; 0 before the first (unit.swing reads them)
+br.readers.combatLog.swing = { mh = { last = 0, next = 0, speed = 0 }, oh = { last = 0, next = 0, speed = 0 },
+    ranged = { last = 0, next = 0, speed = 0 } }
 local combatLog = br.readers.combatLog
 -- Feral and Assassination bleed snapshots per debuff key and unit: the damage value when it was
 -- applied (combatLog.bleed), and whether Exsanguinate sped it up (combatLog.exsa). debuff.X.applied /
@@ -289,28 +290,37 @@ function combatLog:common(...)
     ---------------------
     --[[ Swing Timers ]]
     local swing = combatLog.swing
-    -- Melee: the player starts auto-attacking (spell 6603 = Attack)
-    if param == "SPELL_CAST_SUCCESS" and source == guid and spell == 6603 then
-        local speed = br.game.UnitAttackSpeed("player") or 0
-        if speed > 0 then
-            swing.mh.last  = br.game.GetTime()
-            swing.mh.next  = swing.mh.last + speed
-            swing.mh.speed = speed
+    local shared = br.lists.spells and br.lists.spells.Shared and br.lists.spells.Shared.Shared
+    local sharedAbilities = shared and shared.abilities or {}
+    -- Melee: the player starts auto-attacking (the Attack spell): both hands' timers start
+    if param == "SPELL_CAST_SUCCESS" and source == guid and spell == sharedAbilities.autoAttack then
+        local mainSpeed, offSpeed = br.game.UnitAttackSpeed("player")
+        local now = br.game.GetTime()
+        for hand, speed in pairs({ mh = mainSpeed or 0, oh = offSpeed or 0 }) do
+            if speed > 0 then
+                swing[hand].last, swing[hand].next, swing[hand].speed = now, now + speed, speed
+            end
         end
     end
 
-    -- Melee: each swing (hit or miss)
+    -- Melee: each swing (hit or miss), on its own hand's timer. The event says which hand: isOffHand is
+    -- argument 21 of SWING_DAMAGE (after the 9 damage values) and 13 of SWING_MISSED (after missType).
+    -- Off-hand swings used to restart the main hand's timer, so dual wielding scrambled it.
     if (param == "SWING_DAMAGE" or param == "SWING_MISSED") and source == guid then
-        local speed = br.game.UnitAttackSpeed("player") or 0
-        swing.mh.last  = br.game.GetTime()
-        swing.mh.speed = speed
+        local isOffHand
+        if param == "SWING_DAMAGE" then isOffHand = select(21, ...) else isOffHand = select(13, ...) end
+        local mainSpeed, offSpeed = br.game.UnitAttackSpeed("player")
+        local hand, speed = swing.mh, mainSpeed or 0
+        if isOffHand == true then hand, speed = swing.oh, offSpeed or 0 end
+        hand.last  = br.game.GetTime()
+        hand.speed = speed
         if speed > 0 then
-            swing.mh.next = swing.mh.last + speed
+            hand.next = hand.last + speed
         end
     end
 
-    -- Ranged: Auto Shot fires as SPELL_CAST_SUCCESS with spellId 75 (UnitRangedDamage: lo, hi, speed)
-    if param == "SPELL_CAST_SUCCESS" and source == guid and spell == 75 then
+    -- Ranged: Auto Shot fires as SPELL_CAST_SUCCESS (UnitRangedDamage: lo, hi, speed)
+    if param == "SPELL_CAST_SUCCESS" and source == guid and spell == sharedAbilities.autoShot then
         local _, _, rangedSpeed = br.game.UnitRangedDamage("player")
         rangedSpeed = rangedSpeed or 0
         if rangedSpeed > 0 then

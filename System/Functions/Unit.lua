@@ -468,7 +468,7 @@ function unit:getSpellUnit(spellCast, aoe, minRange, maxRange, spellType)
 end
 
 -- The player's swing timer: seconds until the next swing (nil before the first), the weapon speed and
--- when the last swing landed. hand: "mh" (melee, the default) or "ranged" (Auto Shot)
+-- when the last swing landed. hand: "mh" (melee, the default), "oh" (off hand) or "ranged" (Auto Shot)
 function unit:getSwing(hand)
 	local swing = br.readers.combatLog.swing[hand or "mh"]
 	if swing == nil or swing.next == 0 then return nil, swing and swing.speed or 0, 0 end

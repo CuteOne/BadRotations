@@ -831,7 +831,7 @@ br.api.build.unit = function(api)
     --- The player's swing timer: seconds until the next swing (nil before the first swing), the
     -- weapon speed and when the last swing landed (util.time())
     -- @function unit.swing
-    -- @string[opt="mh"] hand "mh" for melee, "ranged" for Auto Shot
+    -- @string[opt="mh"] hand "mh" for melee (the main hand), "oh" for the off hand, "ranged" for Auto Shot
     -- @return number, number, number
     -- @usage local untilNext, speed, last = unit.swing("ranged")
     unit.swing = function(hand)
