@@ -472,9 +472,11 @@ actionList.PreCombat = function()
         end
         if leftBehind and cast.totemicRecall() then ui.debug("Casting Totemic Call") return true end
     end
-    -- Pull: from range with Lightning Bolt, or start swinging at a mob you walked up to. Neutral
-    -- mobs count (you targeted it); players never do (it would flag you for PvP).
-    if unit.valid("target") and unit.canAttack("target") and not unit.player("target") then
+    -- Pull: from range with Lightning Bolt, or start swinging at a mob you walked up to. Hostile (red)
+    -- mobs only: a neutral one may be clicked just to look (2026-10-26: auto attack started on a yellow
+    -- mob clicked by accident), so for those you make the first move and the rotation takes over in
+    -- combat. Players never (it would flag you for PvP).
+    if unit.valid("target") and unit.enemy("target") and not unit.player("target") then
         local distance = unit.distance("target")
         if distance > 8 and not unit.moving() and (not melee or ui.checked("Pull with Lightning Bolt")) then
             if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Pull]") return true end
