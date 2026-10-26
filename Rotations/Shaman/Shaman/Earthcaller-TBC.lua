@@ -88,8 +88,8 @@ local function options()
     ui.dropdown(section, "Air Totem", { choices = { "Auto", "Windfury", "Grace of Air", "Wrath of Air", "None" }, value = "Auto", checkbox = false,
         tip = "Auto: Windfury Totem (Melee, Grace of Air when the main hand holds Windfury), Wrath of Air (Caster)." })
     ui.checkbox(section, "Area Fire Totems", { checked = true, tip = "Magma or Fire Nova Totem when the rotation counts enough enemies within 8 yards." })
-    ui.checkbox(section, "Totemic Call", { checked = true,
-        tip = "Out of combat, recall totems you have left 30+ yards behind (gives back some of their mana)." })
+    ui.checkbox(section, "Remove Totems Left Behind", { checked = true,
+        tip = "Out of combat, remove totems you have left 30+ yards behind, so a mob wandering into one doesn't pull you back into a fight: Totemic Call once known (level 30, gives back some mana), destroyed before that." })
     -- Cooldowns
     section = ui.section("Cooldowns")
     ui.checkbox(section, "Bloodlust / Heroism", { checked = true, tip = "In a group, when cooldowns are used." })
@@ -231,7 +231,7 @@ end
 --------------------
 --- Action Lists ---
 --------------------
--- Action List - Extra: shields, imbues, Earth Shield, resurrection, Totemic Call
+-- Action List - Extra: shields and imbues
 actionList.Extra = function()
     -- Shield (in and out of combat)
     local shield = shieldKey()
@@ -468,13 +468,18 @@ actionList.PreCombat = function()
         local dead = unit.deadGroupMember(30)
         if dead and cast.ancestralSpirit(dead) then ui.debug("Casting Ancestral Spirit on " .. unit.name(dead)) return true end
     end
-    -- Totemic Call for totems left behind
-    if ui.checked("Totemic Call") and spell.totemicRecall.known() and #enemies.yards40 == 0 then
-        local leftBehind = false
+    -- Totems left behind (30+ yd, nothing fighting you): of no use where they stand, and a mob that walks
+    -- into one pulls you back into a fight. Totemic Call once known; destroyed before that (level 30)
+    if ui.checked("Remove Totems Left Behind") and #enemies.yards40 == 0 then
         for _, element in ipairs({ totem.fire, totem.earth, totem.water, totem.air }) do
-            if element.active() and element.distance() >= 30 then leftBehind = true end
+            if element.active() and element.distance() >= 30 then
+                if spell.totemicRecall.known() then
+                    if cast.totemicRecall() then ui.debug("Casting Totemic Call") return true end
+                elseif element.destroy() then
+                    ui.debug("Destroying " .. tostring(element.name()) .. " (left behind)")
+                end
+            end
         end
-        if leftBehind and cast.totemicRecall() then ui.debug("Casting Totemic Call") return true end
     end
     -- Pull: from range with Lightning Bolt, or start swinging at a mob you walked up to. Hostile (red)
     -- mobs only: a neutral one may be clicked just to look (2026-10-26: auto attack started on a yellow
