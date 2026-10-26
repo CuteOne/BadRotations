@@ -472,10 +472,10 @@ actionList.Defensive = function()
             end
         end
         -- Faerie Fire (Caster)
-        if ui.checked("Faerie Fire") and cast.able.faerieFire("target") and not buff.prowl.exists() and var.formValue == 1
+        if ui.checked("Faerie Fire") and not buff.prowl.exists() and var.formValue == 1
             and unit.exists("target") and unit.enemy("target") and unit.canAttack("target") and not debuff.faerieFire.exists("target", "any") and not debuff.faerieFireFeral.exists("target", "any")
             and not (buff.catForm.exists() or buff.bearForm.exists())
-            and unit.distance("target") > 8 and mana() > cast.cost.faerieFire() + var.formCost
+            and unit.distance("target") > 8 and mana() > cast.cost.faerieFire() + var.formCost and cast.able.faerieFire("target")
         then
             if cast.faerieFire("target") then
                 ui.debug("Casting Faerie Fire")
@@ -517,8 +517,8 @@ actionList.Defensive = function()
         end
         -- Rejuvenation
         if ui.checked("Rejuvenation") and not cast.current.rejuvenation("target") and mana() > cast.cost.rejuvenation() + var.formCost then
-            if cast.able.rejuvenation("target") and unit.friend("target") and unit.hp("target") <= ui.value("Rejuvenation")
-                and unit.player("target") and buff.rejuvenation.refresh("target")
+            if unit.friend("target") and unit.hp("target") <= ui.value("Rejuvenation")
+                and unit.player("target") and buff.rejuvenation.refresh("target") and cast.able.rejuvenation("target")
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     if leaveFormFor(spell.rejuvenation, buff.clearcasting.exists()) then
@@ -552,7 +552,7 @@ actionList.Defensive = function()
             and (buff.clearcasting.exists() or mana() > cast.cost.healingTouch() + var.formCost)
             and cast.timeSinceLast.healingTouch() > unit.gcd(true)
         then
-            if cast.able.healingTouch("target") and unit.friend("target") and unit.hp("target") <= ui.value("Healing Touch") and unit.player("target") then
+            if unit.friend("target") and unit.hp("target") <= ui.value("Healing Touch") and unit.player("target") and cast.able.healingTouch("target") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     if leaveFormFor(spell.healingTouch, buff.clearcasting.exists()) then
                         return true
@@ -564,8 +564,8 @@ actionList.Defensive = function()
                     end
                 end
             end
-            if cast.able.healingTouch("player") and not unit.friend("target") and unit.hp() <= ui.value("Healing Touch")
-                and (not unit.inGroup() or ui.checked("Self Heal In Group"))
+            if not unit.friend("target") and unit.hp() <= ui.value("Healing Touch")
+                and (not unit.inGroup() or ui.checked("Self Heal In Group")) and cast.able.healingTouch("player")
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     if leaveFormFor(spell.healingTouch, buff.clearcasting.exists()) then
