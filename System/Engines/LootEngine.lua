@@ -278,10 +278,13 @@ if not lootEngine.metaTable then
 		if not br.functions.misc:useTimer("autoLoot", delay) then return end
 		self:releaseStaleInteract(GetTime())
 
-		-- Combat policy: loot out of combat, or in combat only when no enemies are within
-		-- 10y (e.g. AoE farming where the mobs we're looting are already dead). getLoot no
-		-- longer hard-blocks on combat, so this single gate now actually governs the policy.
+		-- Combat policy: loot out of combat, or solo in combat only when no enemies are within
+		-- 10y (e.g. AoE farming where the mobs we're looting are already dead). Never in combat in a
+		-- group: the fight goes on elsewhere (2026-10-26, Gruul's Lair: Maulgar was looted with his
+		-- council 23-34 yd away, the window up 7 s). getLoot doesn't block on combat, so this single
+		-- gate governs the policy.
 		if br.functions.misc:isInCombat("player") then
+			if br.functions.unit:isInGroup() then return end
 			local nearbyEnemies = br.engines.enemiesEngineFunctions:getEnemies("player", 10)
 			if nearbyEnemies and nearbyEnemies[1] ~= nil then
 				return
