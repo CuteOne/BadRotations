@@ -229,8 +229,10 @@ function rotation:checked(spellName, reason)
 	end
 end
 
+-- "— fight 1 · Moonstalker —". An em dash, which the game's fonts have: the box-drawing line used
+-- before (U+2500) showed as empty boxes in the Rotation Log window (2026-10-26)
 local function divider(text)
-	addLine("── " .. text .. " ──", log.colors.muted .. "── |r" .. log.colors.text .. text .. "|r" .. log.colors.muted .. " ──|r")
+	addLine("— " .. text .. " —", log.colors.muted .. "— |r" .. log.colors.text .. text .. "|r" .. log.colors.muted .. " —|r")
 end
 
 --- A spell the cast system refused (Gates.lua recordRefusal). One row per spell and reason: again
