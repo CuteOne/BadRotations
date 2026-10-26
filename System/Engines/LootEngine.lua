@@ -59,10 +59,17 @@ if not lootEngine.metaTable then
 		return br.debug.loot and br.debug.loot:tag(guid) or ""
 	end
 
-	-- "N.N yd edge to edge" for the debug lines: the distance the interact range is checked on
+	-- "N.N yd edge to edge (centre ..., flat ..., height ..., its reach ...)" for the debug lines: the
+	-- distance the interact range is checked on, and its parts. 2026-10-26: interacts at 2.7 yd edge on
+	-- a Vale Moth (a flyer) got no window 4 times, 0.5 yd worked; the parts tell height from reach.
 	function lootEngine:edgeText(unit)
-		local edge = br.functions.range:getEdgeDistance("player", unit)
-		return edge and ("%.1f yd edge to edge"):format(br.functions.misc:plainNumber(edge)) or "no position"
+		local range, misc = br.functions.range, br.functions.misc
+		local function plain(n) return misc:plainNumber(n) end
+		local edge = range:getEdgeDistance("player", unit)
+		if not edge then return "no position" end
+		local centre, flat, dz = range:getCenterDistance("player", unit)
+		return ("%.1f yd edge to edge (centre %.1f, flat %.1f, height %+.1f, its reach %.1f)"):format(plain(edge),
+			plain(centre), plain(flat), plain(dz), plain(range:getCombatReach(unit)))
 	end
 
 	-- Check if available bag slots, return number of free slots
