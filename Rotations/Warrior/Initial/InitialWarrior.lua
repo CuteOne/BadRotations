@@ -272,7 +272,7 @@ local function runRotation()
     end
 
     -- Pause Timer
-    if var.pauseTime == nil then var.pauseTime = ui.time() end
+    if var.pauseTime == nil then var.pauseTime = util.time() end
 
     ---------------------
     --- Begin Profile ---

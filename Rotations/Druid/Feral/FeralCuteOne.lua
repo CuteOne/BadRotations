@@ -600,7 +600,7 @@ end     -- End Action List - Defensive
 
 -- Action List - Interrupts
 actionList.Interrupts = function()
-    if ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true)) then
+    if ui.useInterrupt() and util.timer("Interrupts", unit.gcd(true)) then
         local thisUnit
         -- Skull Bash
         if ui.checked("Skull Bash") and cast.able.skullBash() then
@@ -647,7 +647,7 @@ end     -- End Action List - Interrupts
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
         if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
-            if (ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer")) or unit.isDummy("target") then
+            if (ui.checked("Pre-Pull Timer") and unit.pullTimer() <= ui.value("Pre-Pull Timer")) or unit.isDummy("target") then
                 -- Heart of the Wild
                 -- heart_of_the_wild
                 if cast.able.heartOfTheWild() then --and unit.valid("target") and unit.exists("target") and unit.distance("target") < 5 then
@@ -686,7 +686,7 @@ actionList.PreCombat = function()
                 return true
             end
         end
-        if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
+        if ui.checked("Pre-Pull Timer") and unit.pullTimer() <= ui.value("Pre-Pull Timer") then
         end -- End Pre-Pull
         -- Pull
         if unit.valid("target") and unit.exists("target") and unit.distance("target") < 5 then
@@ -787,7 +787,7 @@ actionList.Combat = function()
                 if ferociousBiteFinish(thisUnit) and not usePrimalWrath() then
                     if ui.value("Ferocious Bite Execute") == 1 and ferociousBiteFinish(thisUnit) then
                         ui.print("Ferocious Bite Finished! " ..
-                            unit.name(thisUnit) .. " with " .. ui.round(unit.hp(thisUnit), 0) .. "% health remaining.")
+                            unit.name(thisUnit) .. " with " .. util.round(unit.hp(thisUnit), 0) .. "% health remaining.")
                     end
                     if cast.ferociousBite(thisUnit) then
                         ui.debug("Casting Ferocious Bite on " .. unit.name(thisUnit) .. " [Execute]"); return true
@@ -839,7 +839,7 @@ actionList.Combat = function()
         if ui.checked("Tiger's Fury") and cast.able.tigersFury()
             and (((bsIncCd.remains() <= 1 or bsIncCd.remains() > 10)
                     and (cd.franticFrenzy.remains() < buff.tigersFury.duration() - 1.5 or cd.franticFrenzy.remains() > 22
-                        or not talent.franticFrenzy or ui.useST(8, 1) or ui.fightStyle.dungeonRoute() or ui.fightStyle.dungeonSlice())
+                        or not talent.franticFrenzy or ui.useST(8, 1) or unit.fightStyle.dungeonRoute() or unit.fightStyle.dungeonSlice())
                     and not var.useCustomTimers)
                 or var.tfNow)
         then
@@ -1128,7 +1128,7 @@ actionList.Cooldown = function()
         -- Frantic Frenzy (replaces Feral Frenzy when talented)
         -- frantic_frenzy,if=(!fight_style.dungeonroute&!fight_style.dungeonslice|raid_event.adds.remains>5)&(buff.tigers_fury.up&spell_targets>=2|combo_points<=2+(2*buff.bs_inc.up))
         if cast.able.franticFrenzy() and talent.franticFrenzy
-            and ((not ui.fightStyle.dungeonRoute() and not ui.fightStyle.dungeonSlice())
+            and ((not unit.fightStyle.dungeonRoute() and not unit.fightStyle.dungeonSlice())
                 or (#enemies.yards8 > 1 and unit.ttd(var.minTTDUnit) > 5))
             and (buff.tigersFury.exists() and #enemies.yards8 >= 2
                 or comboPoints() <= 2 + (bsInc.exists() and 2 or 0))
@@ -1286,7 +1286,7 @@ local function runRotation()
 
         -- General Variables - Init
         var.friendsInRange      = false
-        var.getTime             = ui.time()
+        var.getTime             = util.time()
         var.htTimer             = var.getTime
         var.lastForm            = 0
         var.lastRune            = var.getTime
@@ -1346,7 +1346,7 @@ local function runRotation()
 
     -- General Vars
     var.multidot  = ui.mode.cleave == 1 and ui.mode.rotation < 3
-    var.getTime   = ui.time()
+    var.getTime   = util.time()
     var.lootDelay = ui.checked("Auto Loot") and ui.value("Auto Loot") or 0
     var.minCount  = ui.useCDs() and 1 or 3
     if not unit.inCombat() and not unit.exists("target") then

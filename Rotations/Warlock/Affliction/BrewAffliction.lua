@@ -120,7 +120,7 @@ actionList.Defensive = function()
         if use.able.healthstone() and unit.inCombat() and has.healthstone() and unit.hp() <= ui.value("Healthstone") then
             if use.healthstone() then ui.debug("Using Healthstone") return true end
         end
-        if cast.able.createHealthstone() and not has.healthstone() and not ui.fullBags() then
+        if cast.able.createHealthstone() and not has.healthstone() and not has.fullBags() then
             if cast.createHealthstone() then ui.debug("Casting Create Healthstone") return true end
         end
     end
@@ -132,7 +132,7 @@ actionList.Defensive = function()
 end
 
 actionList.Extra = function()
-    if cast.able.createHealthstone() and not has.healthstone() and not ui.fullBags() then
+    if cast.able.createHealthstone() and not has.healthstone() and not has.fullBags() then
         if cast.createHealthstone() then ui.debug("Casting Create Healthstone") return true end
     end
 end
@@ -145,8 +145,8 @@ end
 
 actionList.PreCombat = function()
     if not unit.moving() and unit.level() >= 3
-        and ui.time() - var.pauseTime > 0.5
-        and ui.timer("summonPet", 1) then
+        and util.time() - var.pauseTime > 0.5
+        and util.timer("summonPet", 1) then
         if mode.petSummon == 1 and activePet ~= pets.imp and cast.able.summonImp() and not cast.last.summonImp() then
             if cast.summonImp("player") then return true end
         end
@@ -226,7 +226,7 @@ local function runRotation()
 
 
     -- Pause Timer
-    if var.pauseTime == nil then var.pauseTime = ui.time() end
+    if var.pauseTime == nil then var.pauseTime = util.time() end
 
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false

@@ -136,9 +136,9 @@ return {
         -- Feed the pet manually to maintain Happy state and full damage output.
         if petExists and petActive then
             local happiness = pet.happiness()
-            if happiness == 1 and ui.time() - happinessWarnTimer > 30 then
+            if happiness == 1 and util.time() - happinessWarnTimer > 30 then
                 ui.debug("|cffFF0000WARNING|r: Pet is Unhappy — suffering a 25% damage penalty. Feed your pet. [Pet]")
-                happinessWarnTimer = ui.time()
+                happinessWarnTimer = util.time()
             end
         end
 
@@ -146,14 +146,14 @@ return {
         --- Pet Summoning / Revive ---
         ----------------------------
         if ui.checked("Summon Pet") and not var.haltPetProfile and not unit.falling()
-            and petAppearTimer < ui.time() - 2
+            and petAppearTimer < util.time() - 2
         then
             -- Confirm pending Call Pet: clear flag on success, or after timeout (do NOT set petDead —
             -- a dismissed/missing pet is not the same as a dead one).
             if petCalled then
                 if petExists and petActive then
                     petCalled = false
-                elseif ui.time() - petAppearTimer > PET_CALL_TIMEOUT then
+                elseif util.time() - petAppearTimer > PET_CALL_TIMEOUT then
                     petCalled = false  -- timed out; will retry Call Pet, not Revive Pet
                 end
             end
@@ -164,7 +164,7 @@ return {
                 if cast.able.revivePet("player") and cast.timeSinceLast.revivePet() > unit.gcd(true) then
                     if cast.revivePet("player") then
                         ui.debug("Casting Revive Pet [Pet]")
-                        petAppearTimer = ui.time(); petRevived = true; petCalled = false; growlAutoCastDisabled = false
+                        petAppearTimer = util.time(); petRevived = true; petCalled = false; growlAutoCastDisabled = false
                         return true
                     end
                 end
@@ -179,7 +179,7 @@ return {
                 if cast.able.callPet("player") then
                     if cast.callPet("player") then
                         ui.debug("Casting Call Pet [Pet]")
-                        petAppearTimer = ui.time(); petCalled = true; petRevived = false; growlAutoCastDisabled = false
+                        petAppearTimer = util.time(); petCalled = true; petRevived = false; growlAutoCastDisabled = false
                         return true
                     end
                 end
@@ -232,7 +232,7 @@ return {
         -- currentTarget stores the GUID of the last directed target so that transient frame-drops
         -- (e.g. the pettarget token going nil for one tick while a mob fears) do not cause
         -- redundant PetAttack calls that interrupt the pet's current swing animation.
-        if targetSwitchTimer < ui.time() - 1 then
+        if targetSwitchTimer < util.time() - 1 then
             if unit.valid("target") and not unit.friend("target")
                 and desiredMode ~= 3   -- Skip auto-direction in Passive; player controls directly
             then
@@ -256,7 +256,7 @@ return {
                 currentTarget = nil
                 ui.debug("Pet Follow [Pet]")
             end
-            targetSwitchTimer = ui.time()
+            targetSwitchTimer = util.time()
         end
 
         ----------------------------

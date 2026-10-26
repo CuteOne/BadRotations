@@ -103,7 +103,7 @@ end -- End Action List - Cooldowns
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then -- Only run when not in combat and not flying/mounted/taxi
-        if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
+        if ui.checked("Pre-Pull Timer") and unit.pullTimer() <= ui.value("Pre-Pull Timer") then
             -- Logic based on pull timers (IE: DBM/BigWigs)
         end                                     -- End Pre-Pull
         if unit.valid("target") then            -- Abilities below this only used when target is valid
@@ -138,7 +138,7 @@ local function runRotation()
     units.get(40, true)
 
     -- Pause Timer
-    if var.pauseTime == nil then var.pauseTime = ui.time() end
+    if var.pauseTime == nil then var.pauseTime = util.time() end
 
     ---------------------
     --- Begin Profile ---
@@ -147,7 +147,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        var.pauseTime = ui.time()
+        var.pauseTime = util.time()
         return true
     else
         ---------------------------------

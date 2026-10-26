@@ -7246,6 +7246,10 @@ local C43 = {}
 ---@field stats BR.has.stats
 local C44 = {}
 
+--- Checks if your bags are full
+---@return boolean # - Returns true if bags are full
+function C44.fullBags() end
+
 --- Checks if the specified `itemID` is in your bags or not.
 --- Note: `item` here is literally item, you pass the itemID to specify the item
 ---@param itemID? number The ID of the item to check for.
@@ -9449,28 +9453,10 @@ function C56.remain(slot) end
 ---@class BR.totem : BR.totem.Base, BR.Keys.Elements<BR.totem.Element>
 
 
-
-
----@class BR.ui.fightStyle
-local C57 = {}
-
---- Returns true when inside an active Mythic+ key run.
----@return boolean
-function C57.dungeonRoute() end
-
---- Returns true when inside a regular (non-Mythic+) 5-man dungeon.
----@return boolean
-function C57.dungeonSlice() end
-
---- Returns true when not in a 5-man party instance (raid, outdoor, etc.).
----@return boolean
-function C57.patchwerk() end
-
 ---@class BR.ui
 ---@field mode table<string, integer> Each toggle's current mode, by the toggle's name with a lower-case first letter: ui.mode.rotation
 ---@field dropOptions table<string, string[]> The choices of BR's shared dropdowns (Toggle: the key names, ...)
----@field fightStyle BR.ui.fightStyle
-local C58 = {}
+local C57 = {}
 
 --- Checks if the passed option is set to "Always, AOE/CD, CD, or Never"
 --- ```lua
@@ -9486,7 +9472,7 @@ local C58 = {}
 ---@param minUnits? number - Minimum number of units required to treat this as AOE.
 ---@param enemyCount? number - A precomputed enemy count (e.g. `#enemies.yards8`) provided by the caller.
 ---@return boolean # - Returns true based on selected option and current combat conditions
-function C58.alwaysCdAoENever(thisOption, minUnits, enemyCount) end
+function C57.alwaysCdAoENever(thisOption, minUnits, enemyCount) end
 
 --- Convenience wrapper: compute enemy count from a range and delegate to ui.alwaysCdAoENever
 ---@param thisOption? string - Name of the option from the defined profile options.
@@ -9494,24 +9480,17 @@ function C58.alwaysCdAoENever(thisOption, minUnits, enemyCount) end
 ---@param range? number - Range in yards to check for enemies.
 ---@param useTarget? string - Reference unit used to evaluate range (defaults to `player`).
 ---@return boolean
-function C58.alwaysCdAoENeverRange(thisOption, minUnits, range, useTarget) end
+function C57.alwaysCdAoENeverRange(thisOption, minUnits, range, useTarget) end
 
 --- Checks if the passed option is set to "Always, CD, or Never"
 ---@param thisOption? string - Name of the option from the defined profile options.
 ---@return boolean # - Returns true if the option is set to Always or if CD is selected and CDs are enabled
-function C58.alwaysCdNever(thisOption) end
-
---- Gets the unit to buff from a "Player/Target/Mouseover/Focus/Group" dropdown option.
----@param thisOption? string - Name of the dropdown option.
----@param needsBuff? any - function(unit) returning true if that group member needs the buff (Group mode).
----@param range? number - Maximum range for group members.
----@return string # - Unit token; falls back to "player" when the chosen unit doesn't exist.
-function C58.buffUnit(thisOption, needsBuff, range) end
+function C57.alwaysCdNever(thisOption) end
 
 --- Displays the passed text as an overlay on the chat windows
 ---@param text? string - The text to display.
 ---@return nil
-function C58.chatOverlay(text) end
+function C57.chatOverlay(text) end
 
 --- Adds a checkbox. Read it with ui.checked("Name").
 --- ```lua
@@ -9520,30 +9499,24 @@ function C58.chatOverlay(text) end
 ---@param section? any
 ---@param name? any
 ---@param options? any
-function C58.checkbox(section, name, options) end
+function C57.checkbox(section, name, options) end
 
 --- Checks if the passed option is enabled
 ---@param thisOption? string - Name of the option from the defined profile options.
 ---@param optionPage? string - The page where the option is located.
 ---@return boolean # - Returns true if the option is checked
-function C58.checked(thisOption, optionPage) end
+function C57.checked(thisOption, optionPage) end
 
 --- Displays the text as a debug message in chat (if Addon Debug Messages option is enabled)
 ---@param text? string - The message to show in chat.
 ---@return nil
-function C58.debug(text) end
-
---- Returns false unless the specified delay time has passed since it was last true
----@param delayName? string - The name of the delay check, should be unique.
----@param delayTime? number - The length of time to wait until true, in seconds.
----@return boolean # - Returns true if the delay time has passed
-function C58.delay(delayName, delayTime) end
+function C57.debug(text) end
 
 --- Adds two spinners on one row.
 ---@param section? any
 ---@param name? any
 ---@param options? any
-function C58.doubleSpinner(section, name, options) end
+function C57.doubleSpinner(section, name, options) end
 
 --- Adds a dropdown (with a checkbox unless checkbox = false). Read it with ui.value("Name").
 --- ```lua
@@ -9552,28 +9525,24 @@ function C58.doubleSpinner(section, name, options) end
 ---@param section? any
 ---@param name? any
 ---@param options? any
-function C58.dropdown(section, name, options) end
-
---- Checks if your bags are full
----@return boolean # - Returns true if bags are full
-function C58.fullBags() end
+function C57.dropdown(section, name, options) end
 
 --- Checks if the mouse button specified is down, or any if none are specified
 ---@param mouseButton? string - Name of the mouse button.
 ---@return boolean # - Returns true if the specified mouse button is down
-function C58.isMouseDown(mouseButton) end
+function C57.isMouseDown(mouseButton) end
 
 --- The game's last error message (the red text): its key as the game names it (ERR_NO_LOOT,
---- SPELL_FAILED_BAD_TARGETS, ...), the message shown and when (ui.time()); nil before the first.
+--- SPELL_FAILED_BAD_TARGETS, ...), the message shown and when (util.time()); nil before the first.
 --- ```lua
 --- local key, message, at = ui.lastError()
 --- ```
 ---@return string
 ---@return string
 ---@return number
-function C58.lastError() end
+function C57.lastError() end
 
---- The last loot or money message in chat: its text, when (ui.time()) and whether it was money;
+--- The last loot or money message in chat: its text, when (util.time()) and whether it was money;
 --- nil before the first.
 --- ```lua
 --- local message, at, money = ui.lastLoot()
@@ -9581,31 +9550,21 @@ function C58.lastError() end
 ---@return string
 ---@return number
 ---@return boolean
-function C58.lastLoot() end
+function C57.lastLoot() end
 
 --- Returns true if special conditions are met to pause
 ---@param ignoreChannel? boolean - Set to true to ignore pausing on channel casts
 ---@return boolean # - Returns true if rotation should be paused
-function C58.pause(ignoreChannel) end
+function C57.pause(ignoreChannel) end
 
 --- Returns true while the player holds the Pause Mode key (Base Options)
 ---@return boolean
-function C58.pauseKey() end
+function C57.pauseKey() end
 
 --- Shows the specified message in chat.
 ---@param msg? string - The message to show in chat.
 ---@return nil
-function C58.print(msg) end
-
---- Returns the time remaining on the pull timer (DBM/BigWigs)
----@return number # - Returns seconds remaining on pull timer
-function C58.pullTimer() end
-
---- Rounds a number to the specified number of decimal places (default 2)
----@param num? number - The number to round.
----@param numDecimalPlaces? number - The number of decimal places to round to.
----@return number # - Returns the rounded number
-function C58.round(num, numDecimalPlaces) end
+function C57.print(msg) end
 
 --- Starts a group of options; pass it to each option after it.
 --- ```lua
@@ -9613,7 +9572,7 @@ function C58.round(num, numDecimalPlaces) end
 --- ```
 ---@param name? string
 ---@param options? any
-function C58.section(name, options) end
+function C57.section(name, options) end
 
 --- Adds a spinner (with a checkbox unless checkbox = false). Read it with ui.value("Name").
 --- ```lua
@@ -9622,77 +9581,83 @@ function C58.section(name, options) end
 ---@param section? any
 ---@param name? any
 ---@param options? any
-function C58.spinner(section, name, options) end
+function C57.spinner(section, name, options) end
 
 --- Adds a line of text.
 ---@param section? any
 ---@param text? any
-function C58.text(section, text) end
-
---- Returns the time, value of GetTime
----@return number # - Returns the current game time
-function C58.time() end
-
---- Returns false unless the specified interval has passed since it was last true
----@param timerName? string - The name of the timer check, should be unique.
----@param interval? number - The length of time to wait until true, in seconds.
----@return boolean # - Returns true if the interval has passed
-function C58.timer(timerName, interval) end
+function C57.text(section, text) end
 
 --- Adds a button to the toggle bar. Read it in the rotation with ui.mode.<name>.
 ---@param name? string
 ---@param options? table modes = { { name = ..., icon = ..., overlay = ..., tip = ... }, ... }, key = ...
-function C58.toggle(name, options) end
+function C57.toggle(name, options) end
 
 --- Checks if the key chosen in a key option (a ui.dropOptions.Toggle dropdown) is held
 ---@param thisOption? string - Name of the key option to check.
 ---@return boolean # - Returns true while the key is held (never while typing)
-function C58.toggleKey(thisOption) end
+function C57.toggleKey(thisOption) end
 
 --- Checks if the specified parameters are valid for AOE, based on Rotation toggle setting.
 ---@param range? number - The range of the AOE damage in yards.
 ---@param minCount? number - The minimum number of units to be in range before true
 ---@param useTarget? string - the reference unit to check range and units against.
 ---@return boolean # - Returns true if AOE should be used
-function C58.useAOE(range, minCount, useTarget) end
+function C57.useAOE(range, minCount, useTarget) end
 
 --- Check if Cooldowns should be used or not based on CD toggle setting.
 ---@return boolean # - Returns true if cooldowns should be used
-function C58.useCDs() end
+function C57.useCDs() end
 
 --- Check if Defensives should be used or not based on Defensive toggle setting.
 ---@return boolean # - Returns true if defensive abilities should be used
-function C58.useDefensive() end
+function C57.useDefensive() end
 
 --- Check if Interrupts should be used or not based on Interrupt toggle setting.
 ---@return boolean # - Returns true if interrupts should be used
-function C58.useInterrupt() end
+function C57.useInterrupt() end
 
 --- Checks if the specified parameters are valid for Single Target, based on Rotation toggle setting.
 ---@param range? number - The range of the AOE damage in yards.
 ---@param minCount? number - The minimum number of units to be in range before true
 ---@param useTarget? string - the reference unit to check range and units against.
 ---@return boolean # - Returns true if single target abilities should be used
-function C58.useST(range, minCount, useTarget) end
+function C57.useST(range, minCount, useTarget) end
 
 --- Checks if the option to use trinkets are valid per each Trinket slot.
 ---@param trinket? number - The item id of the trinket to check for.
 ---@return boolean # - Returns true if the trinket should be used
-function C58.useTrinkets(trinket) end
+function C57.useTrinkets(trinket) end
 
 --- Returns the value of the specified option.
 ---@param thisOption? string - The name of the option specified in the options section
 ---@param optionPage? string - The page where the option is located.
 ---@return number # - Returns the value of the specified option
-function C58.value(thisOption, optionPage) end
+function C57.value(thisOption, optionPage) end
 
 --- Sets a toggle to the specified value and updates the UI
 ---@param toggleName? string - The name of the toggle to set
 ---@param toggleValue? number - The value to set the toggle to (1, 2, 3, etc.)
 ---@return nil
-function C58.setToggle(toggleName, toggleValue) end
+function C57.setToggle(toggleName, toggleValue) end
 
 
+
+
+---@class BR.unit.fightStyle
+local C58 = {}
+
+--- Returns true when inside an active Mythic+ key run.
+---@return boolean
+function C58.dungeonRoute() end
+
+--- Returns true when inside a regular (non-Mythic+) 5-man dungeon.
+---@return boolean
+function C58.dungeonSlice() end
+
+--- Returns true when not in a 5-man party instance (raid, outdoor, etc.).
+---@return boolean
+function C58.patchwerk() end
 
 
 ---@class BR.unit.weaponImbue
@@ -9728,6 +9693,7 @@ function C59.remain(imbueId, offHand) end
 function C59.spellName(spellKey) end
 
 ---@class BR.unit
+---@field fightStyle BR.unit.fightStyle
 ---@field weaponImbue BR.unit.weaponImbue
 local C60 = {}
 
@@ -10136,6 +10102,10 @@ function C60.player(thisUnit) end
 ---@return number # x, y, z
 function C60.position(thisUnit) end
 
+--- Returns the time remaining on the pull timer (DBM/BigWigs)
+---@return number # - Returns seconds remaining on pull timer
+function C60.pullTimer() end
+
 --- Get unit's race
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return string # The race of the unit
@@ -10192,7 +10162,7 @@ function C60.stopAttack() end
 function C60.swimming() end
 
 --- The player's swing timer: seconds until the next swing (nil before the first swing), the
---- weapon speed and when the last swing landed (ui.time())
+--- weapon speed and when the last swing landed (util.time())
 --- ```lua
 --- local untilNext, speed, last = unit.swing("ranged")
 --- ```
@@ -10278,6 +10248,13 @@ function C60.weaponDamage(thisUnit) end
 ---@field dyn40 string? The best unit within 40 yards you face (units.get(40))
 ---@field dyn40AOE string? The best unit within 40 yards (units.get(40, true))
 local C61 = {}
+
+--- Gets the unit to buff from a "Player/Target/Mouseover/Focus/Group" dropdown option.
+---@param thisOption? string - Name of the dropdown option.
+---@param needsBuff? any - function(unit) returning true if that group member needs the buff (Group mode).
+---@param range? number - Maximum range for group members.
+---@return string # - Unit token; falls back to "player" when the chosen unit doesn't exist.
+function C61.buffUnit(thisOption, needsBuff, range) end
 
 --- Gets the "best" unit within a specified range in front or around the player.
 --- Call once per profile rotation and use the variable it creates in units
@@ -10372,6 +10349,29 @@ function C65.slot(slotID, thisUnit) end
 
 ---@class BR.use : BR.use.Base, BR.Keys.Items<BR.use.Item>
 ---@field able BR.use.able
+
+
+---@class BR.util
+local C66 = {}
+
+--- Rounds a number to the specified number of decimal places (default 2)
+---@param num? number - The number to round.
+---@param numDecimalPlaces? number - The number of decimal places to round to.
+---@return number # - Returns the rounded number
+function C66.round(num, numDecimalPlaces) end
+
+--- Returns the time, value of GetTime
+---@return number # - Returns the current game time
+function C66.time() end
+
+--- True the first time, then again each time the interval has passed since it was last true
+--- ```lua
+--- if util.timer("Hunter's Mark", 2) then
+--- ```
+---@param timerName? string - The name of the timer check, should be unique.
+---@param interval? number - The length of time to wait until true, in seconds.
+---@return boolean # - Returns true if the interval has passed
+function C66.timer(timerName, interval) end
 
 ---@class BR.Keys.Classic.Druid.Abilities<T>
 ---@field abolishPoison T

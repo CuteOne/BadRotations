@@ -259,7 +259,7 @@ local function needsThorns(thisUnit) return buff.thorns.refresh(thisUnit) end
 local function needsFormBreak()
     -- Buffs
     if ui.checked("Mark of the Wild") then
-        var.markUnit = ui.buffUnit("Mark of the Wild", needsMarkOfTheWild, 40)
+        var.markUnit = units.buffUnit("Mark of the Wild", needsMarkOfTheWild, 40)
         if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.markUnit) < 40
             and (var.markUnit == "player" or unit.player(var.markUnit))
@@ -268,7 +268,7 @@ local function needsFormBreak()
         end
     end
     if ui.checked("Thorns") then
-        var.thornUnit = ui.buffUnit("Thorns", needsThorns, 40)
+        var.thornUnit = units.buffUnit("Thorns", needsThorns, 40)
         if cast.able.thorns(var.thornUnit) and buff.thorns.refresh(var.thornUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.thornUnit) < 40
             and (var.thornUnit == "player" or unit.player(var.thornUnit))
@@ -458,7 +458,7 @@ actionList.Extra = function()
     end
     -- Mark of the Wild
     if ui.checked("Mark of the Wild") then
-        var.markUnit = ui.buffUnit("Mark of the Wild", needsMarkOfTheWild, 40)
+        var.markUnit = units.buffUnit("Mark of the Wild", needsMarkOfTheWild, 40)
         if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.markUnit) < 40
             and (var.markUnit == "player" or unit.player(var.markUnit))
@@ -479,7 +479,7 @@ actionList.Extra = function()
     end
     -- Thorns
     if ui.checked("Thorns") then
-        var.thornUnit = ui.buffUnit("Thorns", needsThorns, 40)
+        var.thornUnit = units.buffUnit("Thorns", needsThorns, 40)
         if cast.able.thorns(var.thornUnit) and buff.thorns.refresh(var.thornUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.thornUnit) < 40
             and (var.thornUnit == "player" or unit.player(var.thornUnit))
@@ -741,7 +741,7 @@ end -- End Action List - Defensive
 
 -- * Action List - Interrupts
 actionList.Interrupts = function()
-    if ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true))
+    if ui.useInterrupt() and util.timer("Interrupts", unit.gcd(true))
         -- and not (buff.prowl.exists() or buff.shadowmeld.exists())
     then
         local thisUnit
@@ -1123,7 +1123,7 @@ actionList.Combat = function()
             local swing = unit.swing() or 0
             -- ui.debug("Swing Timer: " .. tostring(swing) .. " | Distance: " .. tostring(unit.distance(units.dyn5)))
             if swing and swing > 0 and swing < 0.3 then
-                -- ui.debug("Waiting for swing: " .. ui.round(swing) .. "s")
+                -- ui.debug("Waiting for swing: " .. util.round(swing) .. "s")
                 return true
             end
         end

@@ -192,7 +192,6 @@ System\API\Enemies.lua
 System\API\Equiped.lua
 System\API\Glyph.lua
 System\API\Has.lua
-System\API\Item.lua
 System\API\Module.lua
 System\API\Pet.lua
 System\API\Power.lua
@@ -203,6 +202,7 @@ System\API\UI.lua
 System\API\Unit.lua
 System\API\Units.lua
 System\API\Use.lua
+System\API\Util.lua
 
 ## Loader
 

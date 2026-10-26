@@ -12,7 +12,7 @@ local spellCompiler = br.loader.spellCompiler
 -- The API tables. Each keeps its identity for the session, so a profile may hold on to one; a new
 -- spec empties them (profileAPI:reset) and the build fills them again.
 local TABLES = { "buff", "cast", "cd", "charges", "debuff", "enemies", "equiped", "glyph", "has", "heroTree",
-    "imbues", "module", "pet", "power", "spell", "talent", "totem", "ui", "unit", "units", "use", "var" }
+    "imbues", "module", "pet", "power", "spell", "talent", "totem", "ui", "unit", "units", "use", "util", "var" }
 -- Lua's standard library, as profiles may use it
 local LUA = { "assert", "error", "getmetatable", "ipairs", "math", "next", "pairs", "pcall", "rawequal", "rawget",
     "rawset", "select", "setmetatable", "string", "table", "tonumber", "tostring", "type", "unpack", "xpcall" }
@@ -104,7 +104,7 @@ local function buildAuras(rotation)
 end
 
 -- Builds the parts made once per spec: units, enemies, unit, totem, the item-ID functions of
--- equiped/has/use, pet, glyph, ui and module
+-- equiped/has/use, pet, glyph, ui, util and module
 -- (module captures ui, so ui comes first).
 local function buildOnce()
     if builtOnce then return end
@@ -119,6 +119,7 @@ local function buildOnce()
     br.api.build.pet(profile, br.runner and br.runner.pets or br.lists.pets)
     br.api.build.glyph(profile)
     br.api.build.ui(profile)
+    br.api.build.util(profile)
     br.api.build.module(profile)
 end
 

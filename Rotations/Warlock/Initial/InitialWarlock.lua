@@ -83,8 +83,8 @@ local actionList = {}
 -- Action List - Extra
 actionList.Extras = function()
     -- Summon Pet
-    if not unit.moving() and unit.level() >= 3 and ui.time() - var.pauseTime > 0.5
-        and ui.timer("summonPet", 1)
+    if not unit.moving() and unit.level() >= 3 and util.time() - var.pauseTime > 0.5
+        and util.timer("summonPet", 1)
     then
         if (mode.petSummon == 1 or (mode.petSummon == 2 and not spell.summonVoidwalker.known())) and not pet.imp.active() then
             if cast.summonImp("player") then return true end
@@ -226,7 +226,7 @@ local function runRotation()
     enemies.get(40, "player", false, true) -- Makes a variable called, enemies.yards40f
 
     -- Pause Timer
-    if var.pauseTime == nil then var.pauseTime = ui.time() end
+    if var.pauseTime == nil then var.pauseTime = util.time() end
 
     ---------------------
     --- Begin Profile ---
@@ -235,7 +235,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        var.pauseTime = ui.time()
+        var.pauseTime = util.time()
         return true
     else
         --------------

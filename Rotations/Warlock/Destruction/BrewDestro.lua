@@ -102,7 +102,7 @@ actionList.Defensive = function()
                 return true
             end
         end
-        if cast.able.createHealthstone() and not has.healthstone() and not ui.fullBags() then
+        if cast.able.createHealthstone() and not has.healthstone() and not has.fullBags() then
             if cast.createHealthstone() then
                 ui.debug("Casting Create Healthstone")
                 return true
@@ -121,8 +121,8 @@ end -- End Action List - Defensive
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     --actions.precombat+=/summon_pet
-    if not unit.moving() and unit.level() >= 3 and ui.time() - var.pauseTime > 0.5
-        and ui.timer("summonPet", 1)
+    if not unit.moving() and unit.level() >= 3 and util.time() - var.pauseTime > 0.5
+        and util.timer("summonPet", 1)
     then
         if (mode.petSummon == 1 or (mode.petSummon == 2 and not spell.summonVoidwalker.known())) and not unit.exists("pet") then
             if cast.summonImp("player") then return true end
@@ -155,7 +155,7 @@ local function runRotation()
     units.get(40, true)
 
     -- Pause Timer
-    if var.pauseTime == nil then var.pauseTime = ui.time() end
+    if var.pauseTime == nil then var.pauseTime = util.time() end
 
     ---------------------
     --- Begin Profile ---
@@ -164,7 +164,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        var.pauseTime = ui.time()
+        var.pauseTime = util.time()
         return true
     else
         ---------------------------------

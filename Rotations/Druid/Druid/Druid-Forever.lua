@@ -274,7 +274,7 @@ actionList.Buffs = function()
     if unit.inCombat() or unit.resting() then return false end
     -- Mark of the Wild
     if ui.checked("Mark of the Wild") then
-        var.markUnit = ui.buffUnit("Mark of the Wild", needsMarkOfTheWild, 30)
+        var.markUnit = units.buffUnit("Mark of the Wild", needsMarkOfTheWild, 30)
         if cast.able.markOfTheWild(var.markUnit) and needsMarkOfTheWild(var.markUnit)
             and unit.distance(var.markUnit) < 30 and (var.markUnit == "player" or unit.player(var.markUnit))
         then
@@ -283,7 +283,7 @@ actionList.Buffs = function()
     end
     -- Thorns
     if ui.checked("Thorns") then
-        var.thornUnit = ui.buffUnit("Thorns", buff.thorns.refresh, 30)
+        var.thornUnit = units.buffUnit("Thorns", buff.thorns.refresh, 30)
         if cast.able.thorns(var.thornUnit) and buff.thorns.refresh(var.thornUnit)
             and unit.distance(var.thornUnit) < 30 and (var.thornUnit == "player" or unit.player(var.thornUnit))
         then
@@ -558,7 +558,7 @@ end -- End Action List - Utility
 
 -- Action List - Interrupts
 actionList.Interrupts = function()
-    if not (ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true))) then return false end
+    if not (ui.useInterrupt() and util.timer("Interrupts", unit.gcd(true))) then return false end
     local thisUnit
     local inBear = buff.bearForm.exists()
     local interruptAt = ui.value("Interrupt At")

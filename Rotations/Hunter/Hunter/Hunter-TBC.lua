@@ -218,7 +218,7 @@ actionList.Aspects = function()
     local sinceDismount = unit.timeSinceDismount()
     if sinceDismount and sinceDismount < 2.0 then return end
 
-    local now      = ui.time()
+    local now      = util.time()
     local inCombat = unit.inCombat()
     local inGroup  = unit.groupCount() > 0
     local inMelee  = enemies.yards5 ~= nil and #enemies.yards5 > 0
@@ -227,7 +227,7 @@ actionList.Aspects = function()
     if inMelee then var.lastMeleeTime = now end
     local inMeleeRecent = inMelee or (now - (var.lastMeleeTime or 0)) < 1.0
 
-    local movingDuration = unit.moving() and var.moveStart and (ui.time() - var.moveStart) or 0
+    local movingDuration = unit.moving() and var.moveStart and (util.time() - var.moveStart) or 0
     local movingLong     = movingDuration >= ui.value("Travel Delay")
 
     -- Viper: intent based purely on mana % and buff state
@@ -418,7 +418,7 @@ end
 
 -- Action List - Interrupts / CC
 actionList.Interrupts = function()
-    if ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true)) then
+    if ui.useInterrupt() and util.timer("Interrupts", unit.gcd(true)) then
         -- Viper Sting: drain mana off casting enemies (SV/ranged utility; not a CC break)
         if ui.checked("Viper Sting") and unit.valid(units.dyn40)
             and not unit.friend(units.dyn40)
@@ -708,7 +708,7 @@ actionList.Melee = function()
     if unit.valid(units.dyn5) and not unit.deadOrGhost(units.dyn5) then
         if not var.inMeleeRange then
             var.inMeleeRange  = true
-            var.lastMeleeTime = ui.time()
+            var.lastMeleeTime = util.time()
             unit.startAttack()
         end
     end
@@ -964,14 +964,14 @@ actionList.Ranged = function()
     if targetDist > 8 then
         local _, swingSpeed, lastShot = unit.swing("ranged")
         local rangedSpeed  = swingSpeed > 0 and swingSpeed or 2.5
-        local timeSinceShot = lastShot > 0 and (ui.time() - lastShot) or nil
+        local timeSinceShot = lastShot > 0 and (util.time() - lastShot) or nil
         -- Stuck: Auto Shot is "active" but hasn't fired for > one full cycle + 1.5 s
         -- after a recent melee engagement (var.lastMeleeTime set by Melee branch).
         local autoShotStuck = cast.auto.autoShot()
             and timeSinceShot ~= nil
             and timeSinceShot > (rangedSpeed + 1.5)
             and var.lastMeleeTime ~= nil
-            and (ui.time() - var.lastMeleeTime) <= 30
+            and (util.time() - var.lastMeleeTime) <= 30
         if autoShotStuck then
             -- Toggle Auto Shot off.  gateAutoRepeat is bypassed here intentionally:
             -- IsAutoRepeatSpell=true even though nothing is firing.  On the next tick
@@ -1078,7 +1078,7 @@ local function runRotation()
     -- movement begins and is cleared the moment it stops, giving a clean elapsed time.
     local isMovingNow = unit.moving()
     if isMovingNow and not var.wasMoving then
-        var.moveStart = ui.time()
+        var.moveStart = util.time()
     elseif not isMovingNow then
         var.moveStart = nil
     end

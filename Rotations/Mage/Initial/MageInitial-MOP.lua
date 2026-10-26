@@ -180,7 +180,7 @@ local function runRotation()
     enemies.get(40)
 
     -- Pause Timer
-    if var.pauseTime == nil then var.pauseTime = ui.time() end
+    if var.pauseTime == nil then var.pauseTime = util.time() end
 
     ---------------------
     --- Begin Profile ---
@@ -189,7 +189,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        var.pauseTime = ui.time()
+        var.pauseTime = util.time()
         return true
     else
         ---------------------------------

@@ -10,6 +10,13 @@ br.api.build.has = function(api)
     local has = api.has
     has.stats = has.stats or {}
 
+    --- Checks if your bags are full
+    -- @function has.fullBags
+    -- @return boolean - Returns true if bags are full
+    has.fullBags = function()
+        return br.engines.lootEngine:emptySlots() == 0
+    end
+
     --- Checks if the specified `itemID` is in your bags or not.
     -- Note: `item` here is literally item, you pass the itemID to specify the item
     -- @function has.item

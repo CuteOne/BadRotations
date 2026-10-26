@@ -473,7 +473,7 @@ actionList.Precombat = function()
         -- Use Item - Augmentation
         -- augmentation
         if ui.checked("Augment Rune") and var.inRaid and not buff.augmentation.exists()
-            and use.able.augmentation() and var.lastRune + unit.gcd() < ui.time()
+            and use.able.augmentation() and var.lastRune + unit.gcd() < util.time()
         then
             if use.augmentation() then
                 ui.debug("Using Augmentation [Precombat]")
@@ -579,7 +579,7 @@ actionList.Combat = function()
 
     -- Auto Attack
     -- retarget_auto_attack,line_cd=1,target_if=min:debuff.burning_wound.remains,if=talent.burning_wound&talent.demon_blades&active_dot.burning_wound<(spell_targets>?3)
-    if cast.able.autoAttack(var.lowestBurningWound) and ui.delay("AutoAttack0", 1) and talent.burningWound and talent.demonBlades
+    if cast.able.autoAttack(var.lowestBurningWound) and util.timer("AutoAttack0", 1) and talent.burningWound and talent.demonBlades
         and debuff.burningWound.count() < (math.max(#enemies.yards5, 3))
     then
         -- unit.target(var.lowestBurningWound)
@@ -591,7 +591,7 @@ actionList.Combat = function()
 
     -- Auto Attack
     -- retarget_auto_attack,line_cd=1,target_if=min:!target.is_boss,if=talent.burning_wound&talent.demon_blades&active_dot.burning_wound=(spell_targets>?3)
-    if cast.able.autoAttack(var.minTTDUnit) and ui.delay("AutoAttack1", 1) and talent.burningWound and talent.demonBlades
+    if cast.able.autoAttack(var.minTTDUnit) and util.timer("AutoAttack1", 1) and talent.burningWound and talent.demonBlades
         and debuff.burningWound.count() == (math.max(#enemies.yards5, 3))
     then
         -- unit.target(var.minTTDUnit)
@@ -1277,7 +1277,7 @@ local function runRotation()
         -- BR API
         fury                  = power.fury
 
-        var.lastRune          = ui.time()
+        var.lastRune          = util.time()
         var.profileStop       = false
         var.initialized = true
     end

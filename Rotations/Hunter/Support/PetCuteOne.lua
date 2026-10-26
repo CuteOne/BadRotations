@@ -150,7 +150,7 @@ return {
 
         -- Pet Summoning (Call, Dismiss, Revive)
         if not var.haltPetProfile and not ui.pause() and not unit.falling() then
-            if petAppearTimer < ui.time() - 2 then
+            if petAppearTimer < util.time() - 2 then
                 -- Check for Pet
                 -- if (petCalled or petRevived) and petExists and petActive then petCalled = false; petRevived = false end
                 if petCalled and petExists and petActive then petCalled = false else petDead = true end
@@ -162,7 +162,7 @@ return {
                 if cast.able.dismissPet("player") and petExists and petActive and (callPet == nil or unit.name("pet") ~= callPetName) then
                     if cast.dismissPet("player") then
                         ui.debug("[Pet] Casting Dismiss Pet")
-                        petAppearTimer = ui.time(); return true
+                        petAppearTimer = util.time(); return true
                     end
                 end
                 if mode.petSummon < 6 and callPetName ~= "" then
@@ -170,25 +170,25 @@ return {
                     if (not petExists or not petActive) and not buff.playDead.exists("pet") and not petCalled then
                         if cast["callPet" .. mode.petSummon]("player") then
                             ui.debug("[Pet] Casting Call Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]]
-                            petAppearTimer = ui.time(); petCalled = true; petRevived = false; return true
+                            petAppearTimer = util.time(); petCalled = true; petRevived = false; return true
                         end
                     end
                     if (not petExists or not petActive or unit.hp("pet") == 0) and petDead then
                         if cast.able.revivePet("player") and cast.timeSinceLast.revivePet() > unit.gcd(true) then
                             if cast.revivePet("player") then
                                 ui.debug("[Pet] Casting Revive Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]]
-                                petAppearTimer = ui.time(); petRevived = true; petCalled = false; return true
+                                petAppearTimer = util.time(); petRevived = true; petCalled = false; return true
                             end
                         end
                     end
                     -- -- Call Pet
                     -- if ((not pet.dead() and not petExists) or not petActive) and not buff.playDead.exists("pet") and not petCalled then
-                    --     if cast["callPet"..mode.petSummon]("player") then ui.debug("[Pet] Casting Call Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = ui.time(); petCalled = true; petRevived = false; return true end
+                    --     if cast["callPet"..mode.petSummon]("player") then ui.debug("[Pet] Casting Call Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = util.time(); petCalled = true; petRevived = false; return true end
                     -- end
                     -- -- Revive Pet
                     -- if pet.dead() or (petExists and petHealth == 0) or petCalled == true then
                     --     if cast.able.revivePet("player") and cast.timeSinceLast.revivePet() > unit.gcd(true) then
-                    --         if cast.revivePet("player") then ui.debug("[Pet] Casting Revive Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = ui.time(); petRevived = true; petCalled = false; return true end
+                    --         if cast.revivePet("player") then ui.debug("[Pet] Casting Revive Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = util.time(); petRevived = true; petCalled = false; return true end
                     --     end
                     -- end
                 end
@@ -196,7 +196,7 @@ return {
         end
 
         -- Pet Combat Modes
-        if ui.checked("Auto Attack/Passive") and petActive and petExists and not cast.last.dismissPet() and targetSwitchTimer < ui.time() - 1 then
+        if ui.checked("Auto Attack/Passive") and petActive and petExists and not cast.last.dismissPet() and targetSwitchTimer < util.time() - 1 then
             -- Set Pet Modes
             if ui.value("Pet Target") == 4 and unit.inCombat() and (petMode == "Defensive" or petMode == "Passive") and not var.haltPetProfile and petMode ~= "Assist" then
                 ui.debug("[Pet] Pet is now Assisting")
@@ -239,7 +239,7 @@ return {
                     pet.follow()
                 end
             end
-            targetSwitchTimer = ui.time()
+            targetSwitchTimer = util.time()
         end
 
         -- Manage Pet Abilities

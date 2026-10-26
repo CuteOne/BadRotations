@@ -242,7 +242,7 @@ end -- End Action List - Defensive
 
 -- * Action List - Interrupts
 actionList.Interrupts = function()
-    if ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true)) then
+    if ui.useInterrupt() and util.timer("Interrupts", unit.gcd(true)) then
         local thisUnit
         -- * Earth Shock (20-yard instant interrupt, locks spell school for 2 sec)
         for i = 1, #enemies.yards20 do

@@ -13,6 +13,16 @@ br.api.build.units = function(api)
     -- The profile's own target weight is cleared whenever the profile is built
     br.engines.targeting.customWeight = nil
 
+    --- Gets the unit to buff from a "Player/Target/Mouseover/Focus/Group" dropdown option.
+    -- @function units.buffUnit
+    -- @string thisOption - Name of the dropdown option.
+    -- @param needsBuff - function(unit) returning true if that group member needs the buff (Group mode).
+    -- @number[opt=40] range - Maximum range for group members.
+    -- @return string - Unit token; falls back to "player" when the chosen unit doesn't exist.
+    units.buffUnit = function(thisOption, needsBuff, range)
+        return br.functions.unit:getBuffUnit(br.functions.misc:getValue(thisOption), needsBuff, range)
+    end
+
     --- Gets the "best" unit within a specified range in front or around the player.
     -- Call once per profile rotation and use the variable it creates in units
     -- IE: units.get(5,false) makes units.dyn5, units.get(8,true) makes units.dyn8AOE

@@ -345,10 +345,10 @@ actionList.Precombat = function()
             end
         end
         -- Pre-Pull
-        if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
+        if ui.checked("Pre-Pull Timer") and unit.pullTimer() <= ui.value("Pre-Pull Timer") then
             -- Potion
             -- potion
-            if ui.value("Potion") ~= 5 and ui.pullTimer() <= 1 and (var.inRaid or var.inInstance) then
+            if ui.value("Potion") ~= 5 and unit.pullTimer() <= 1 and (var.inRaid or var.inInstance) then
                 if ui.value("Potion") == 1 and use.able.potionOfUnbridledFury() then
                     use.potionOfUnbridledFury()
                     ui.debug("Using Potion of Unbridled Fury")
@@ -541,7 +541,7 @@ actionList.BigAoe = function()
     -- Elysian Decree
     -- elysian_decree,line_cd=1.85,if=fury>=40&(soul_fragments.total<=1|soul_fragments.total>=4)
     if ui.alwaysCdAoENever("Elysian Decree", ui.value("Units to AoE"), #enemies.yards30) and cast.able.elysianDecree("target", "ground", 1, 8) and unit.standingTime() > 2
-        and ((ui.delay("ElysianDecree0", 1) and (fury() >= 40 and (buff.soulFragments.stack() <= 1 or buff.soulFragments.stack() >= 4))))
+        and ((util.timer("ElysianDecree0", 1) and (fury() >= 40 and (buff.soulFragments.stack() <= 1 or buff.soulFragments.stack() >= 4))))
     then
         if cast.elysianDecree("target", "ground", 1, 8) then
             ui.debug("Casting Elysian Decree [Big Aoe]")
@@ -667,7 +667,7 @@ actionList.FieryDemise = function()
     -- Elysian Decree
     -- elysian_decree,line_cd=1.85,if=fury>=40
     if ui.alwaysCdAoENever("Elysian Decree", ui.value("Units to AoE"), #enemies.yards30) and cast.able.elysianDecree("target", "ground", 1, 8) and unit.standingTime() > 2
-        and ui.delay("ElysianDecree1", 1) and fury() >= 40
+        and util.timer("ElysianDecree1", 1) and fury() >= 40
     then
         if cast.elysianDecree("target", "ground", 1, 8) then
             ui.debug("Casting Elysian Decree [Fiery Demise]")
@@ -936,7 +936,7 @@ actionList.SmallAoe = function()
     -- Elysian Decree
     -- elysian_decree,line_cd=1.85,if=fury>=40&(soul_fragments.total<=1|soul_fragments.total>=4)
     if ui.alwaysCdAoENever("Elysian Decree", ui.value("Units to AoE"), #enemies.yards30) and cast.able.elysianDecree("target", "ground", 1, 8) and unit.standingTime() > 2
-        and ((ui.delay("ElysianDecree2", 1) and (fury() >= 40 and (buff.soulFragments.stack() <= 1 or buff.soulFragments.stack() >= 4))))
+        and ((util.timer("ElysianDecree2", 1) and (fury() >= 40 and (buff.soulFragments.stack() <= 1 or buff.soulFragments.stack() >= 4))))
     then
         if cast.elysianDecree("target", "ground", 1, 8) then
             ui.debug("Casting Elysian Decree [Small Aoe]")
@@ -1007,7 +1007,7 @@ local function runRotation()
         -- BR API
         fury = power.fury
 
-        var.lastRune = ui.time()
+        var.lastRune = util.time()
         var.profileStop = false
         var.initialized = true
     end

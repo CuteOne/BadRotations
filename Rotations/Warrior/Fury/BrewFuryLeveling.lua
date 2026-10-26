@@ -123,13 +123,13 @@ local function round(number, digit_position)
 local function printStats(message)
     local rageString
      rageString = colors.red .. "[" .. tostring(power.rage()) .. "]"
-     local lastTime = ui.time() - var.lastCast
-    ui.print(colors.red.. string.format("%.1f", ui.time()) ..colors.aqua .."[+" .. string.format("%f2",round(lastTime,-2)) .. "] "  .. string.format("%f",unit.gcd())..colors.white .. rageString .. " : ".. message)
+     local lastTime = util.time() - var.lastCast
+    ui.print(colors.red.. string.format("%.1f", util.time()) ..colors.aqua .."[+" .. string.format("%f2",round(lastTime,-2)) .. "] "  .. string.format("%f",unit.gcd())..colors.white .. rageString .. " : ".. message)
 end
 
 local debugMessage = function(message)
     if ui.mode.debugs == 1 then printStats(message) end
-    var.lastCast = ui.time()
+    var.lastCast = util.time()
 end
 
 -----------------
@@ -158,7 +158,7 @@ end -- End Action List - Defensive
 
 -- Action List - Interrrupt
 actionList.Interrupt = function()
-    if  ui.delay("Interrupts",unit.gcd(true)) then
+    if  util.timer("Interrupts",unit.gcd(true)) then
         local thisUnit
             for i=1, #enemies.yards5f do
                 thisUnit = enemies.yards5f[i]
@@ -240,7 +240,7 @@ local function runRotation() -- This is the main profile loop, any below this po
     rage                                          = power.rage()
 
 
-    if var.lastCast == nil then var.lastCast=ui.time() end
+    if var.lastCast == nil then var.lastCast=util.time() end
 
     -- Explanations on the Units and Enemies functions can be found in System/API/Units.lua and System/API/Enemies.lua
     -------------

@@ -298,7 +298,7 @@ end
 -- * Action List - Extras
 actionList.Extras = function()
     -- * Shapeshift Form Management
-    if ui.checked("Auto Shapeshifts") then --and ui.timer("debugShapeshift", 0.25) then
+    if ui.checked("Auto Shapeshifts") then --and util.timer("debugShapeshift", 0.25) then
         -- Flight Form
         if cast.able.travelForm("player") and not unit.inCombat() and unit.canFly() and not unit.swimming() and unit.fallDist() > 90
             --[[falling > ui.value("Fall Timer")]] and unit.level() >= 24 and not buff.prowl.exists()
@@ -651,7 +651,7 @@ end -- End Action List - Defensive
 
 -- * Action List - Interrupts
 actionList.Interrupts = function()
-    if ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true))
+    if ui.useInterrupt() and util.timer("Interrupts", unit.gcd(true))
         and not (buff.prowl.exists() or buff.shadowmeld.exists())
     then
         local thisUnit
@@ -1048,7 +1048,7 @@ actionList.Combat = function()
             if cast.ferociousBite(units.dyn5) then
                 if ui.value("Ferocious Bite Execute") == 1 then
                     ui.print("Ferocious Bite Finished! " ..
-                    unit.name(units.dyn5) .. " with " .. ui.round(unit.hp(units.dyn5), 0) .. "% health remaining.")
+                    unit.name(units.dyn5) .. " with " .. util.round(unit.hp(units.dyn5), 0) .. "% health remaining.")
                 else
                     ui.debug("Casting Ferocious Bite on " .. unit.name(units.dyn5) .. " [Execute]")
                 end
@@ -1718,7 +1718,7 @@ local function runRotation()
         energy                  = power.energy
 
         -- General Variables - Init
-        var.getTime              = ui.time()
+        var.getTime              = util.time()
         var.lastForm             = 0
         var.leftCombat           = var.getTime
         var.lootDelay            = 0
@@ -1752,7 +1752,7 @@ local function runRotation()
     enemies.get(5)
 
     -- * General Vars
-    var.getTime   = ui.time()
+    var.getTime   = util.time()
     var.lootDelay = ui.checked("Auto Loot") and ui.value("Auto Loot") or 0
     var.minCount  = ui.useCDs() and 1 or 3
 

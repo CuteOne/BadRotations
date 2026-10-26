@@ -286,6 +286,32 @@ br.api.build.unit = function(api)
         return br.functions.misc:getFallTime()
     end
 
+    --- The kind of fight, as SimC names them: fightStyle.dungeonRoute() in a Mythic+ key run,
+    -- fightStyle.dungeonSlice() in another 5-man dungeon, fightStyle.patchwerk() anywhere else
+    -- @table unit.fightStyle
+    unit.fightStyle = {}
+
+    --- Returns true when inside an active Mythic+ key run.
+    -- @function unit.fightStyle.dungeonRoute
+    -- @return boolean
+    unit.fightStyle.dungeonRoute = function()
+        return br.runner.state.instance == "party" and br.functions.misc:isInMythicPlus()
+    end
+
+    --- Returns true when inside a regular (non-Mythic+) 5-man dungeon.
+    -- @function unit.fightStyle.dungeonSlice
+    -- @return boolean
+    unit.fightStyle.dungeonSlice = function()
+        return br.runner.state.instance == "party" and not br.functions.misc:isInMythicPlus()
+    end
+
+    --- Returns true when not in a 5-man party instance (raid, outdoor, etc.).
+    -- @function unit.fightStyle.patchwerk
+    -- @return boolean
+    unit.fightStyle.patchwerk = function()
+        return br.runner.state.instance ~= "party"
+    end
+
     --- Check if player is flying
     -- @function unit.flying
     -- @return boolean True if player is flying
@@ -726,6 +752,13 @@ br.api.build.unit = function(api)
         return br.functions.unit:GetObjectPosition(thisUnit or "player")
     end
 
+    --- Returns the time remaining on the pull timer (DBM/BigWigs)
+    -- @function unit.pullTimer
+    -- @return number - Returns seconds remaining on pull timer
+    unit.pullTimer = function()
+        return br.functions.custom:PullTimerRemain()
+    end
+
     --- Get unit's race
     -- @function unit.race
     -- @param thisUnit The unit to check, defaults to "player" if nil
@@ -820,7 +853,7 @@ br.api.build.unit = function(api)
     end
 
     --- The player's swing timer: seconds until the next swing (nil before the first swing), the
-    -- weapon speed and when the last swing landed (ui.time())
+    -- weapon speed and when the last swing landed (util.time())
     -- @function unit.swing
     -- @string[opt="mh"] hand "mh" for melee, "ranged" for Auto Shot
     -- @return number, number, number

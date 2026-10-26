@@ -362,7 +362,7 @@ actionList.PickPocket = function()
             if canPickPocket("target") then
                 if cast.able.pickPocket("target") then
                     -- Set timing BEFORE attempting cast so event handler can match the error
-                    var.pickPocketCastTime = ui.time()
+                    var.pickPocketCastTime = util.time()
                     var.pickPocketLastGUID = guid
                     var.pickPocketAttempted[guid] = true
 
@@ -396,7 +396,7 @@ actionList.PickPocket = function()
         -- Check if we can and should Pick Pocket
         if canPickPocket("target") and cast.able.pickPocket("target") then
             local targetGUID = unit.guid("target")
-            var.pickPocketCastTime = ui.time()
+            var.pickPocketCastTime = util.time()
             var.pickPocketLastGUID = targetGUID
             var.pickPocketAttempted[targetGUID] = true
             if cast.pickPocket("target") then
@@ -1072,7 +1072,7 @@ local function runRotation()
     enemies.get(30)
 
     -- General Vars
-    var.getTime = ui.time()
+    var.getTime = util.time()
     var.stealthed = isStealthed()
     checkPickPocketResult()
 

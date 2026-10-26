@@ -692,7 +692,7 @@ actionList.PreCombat = function()
         -- # Snapshot raid buffed stats before combat begins and pre-potting is done.
         -- snapshot_stats
         -- virmens_bite_potion
-        if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
+        if ui.checked("Pre-Pull Timer") and unit.pullTimer() <= ui.value("Pre-Pull Timer") then
             -- * Potion
             -- potion
             -- if ui.checked("Potion") and br.functions.item:canUseItem(142117) and unit.instance("raid") then

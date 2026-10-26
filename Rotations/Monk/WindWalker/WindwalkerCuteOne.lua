@@ -254,7 +254,7 @@ actionList.Extra = function()
                 local npcID = unit.id(thisUnit)
                 -- Skip if this NPC type is blacklisted (known to not have weapons)
                 if not var.grappleWeaponBlacklist[npcID] then
-                    var.lastGrappleTarget, var.lastGrappleAt = thisUnit, ui.time()
+                    var.lastGrappleTarget, var.lastGrappleAt = thisUnit, util.time()
                     if cast.grappleWeapon(thisUnit) then
                         ui.debug("Casting Grapple Weapon on " .. unit.name(thisUnit) .. " [Extra]")
                         return true

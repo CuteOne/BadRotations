@@ -11,8 +11,6 @@ local _, br = ...
 br.api.build.ui = function(api)
     local ui = api.ui
     ui.mode = ui.mode or {}
-    -- The profile's ui.timer / ui.delay names, kept apart from BR's own timers
-    local profileTimers = {}
 
     --- Checks if the passed option is set to "Always, AOE/CD, CD, or Never"
     -- @function ui.alwaysCdAoENever
@@ -77,16 +75,6 @@ br.api.build.ui = function(api)
         return optVal == 1 or (optVal == 2 and ui.useCDs())
     end
 
-    --- Gets the unit to buff from a "Player/Target/Mouseover/Focus/Group" dropdown option.
-    -- @function ui.buffUnit
-    -- @string thisOption - Name of the dropdown option.
-    -- @param needsBuff - function(unit) returning true if that group member needs the buff (Group mode).
-    -- @number[opt=40] range - Maximum range for group members.
-    -- @return string - Unit token; falls back to "player" when the chosen unit doesn't exist.
-    ui.buffUnit = function(thisOption, needsBuff, range)
-        return br.functions.unit:getBuffUnit(ui.value(thisOption), needsBuff, range)
-    end
-
     --- Displays the passed text as an overlay on the chat windows
     -- @function ui.chatOverlay
     -- @string text - The text to display.
@@ -118,15 +106,6 @@ br.api.build.ui = function(api)
         return br.log:debug(text)
     end
 
-    --- Returns false unless the specified delay time has passed since it was last true
-    -- @function ui.delay
-    -- @string delayName - The name of the delay check, should be unique.
-    -- @number delayTime - The length of time to wait until true, in seconds.
-    -- @return boolean - Returns true if the delay time has passed
-    ui.delay = function(delayName, delayTime)
-        return br.functions.misc:useTimer(delayName, delayTime, profileTimers)
-    end
-
     --- Adds two spinners on one row.
     -- @function ui.doubleSpinner
     ui.doubleSpinner = function(section, name, options) return br.ui:doubleSpinner(section, name, options) end
@@ -140,13 +119,6 @@ br.api.build.ui = function(api)
     -- @table ui.dropOptions
     ui.dropOptions = br.ui.dropOptions
 
-    --- Checks if your bags are full
-    -- @function ui.fullBags
-    -- @return boolean - Returns true if bags are full
-    ui.fullBags = function()
-        return br.engines.lootEngine:emptySlots() == 0
-    end
-
     --- Checks if the mouse button specified is down, or any if none are specified
     -- @function ui.isMouseDown
     -- @string[opt] mouseButton - Name of the mouse button.
@@ -156,7 +128,7 @@ br.api.build.ui = function(api)
     end
 
     --- The game's last error message (the red text): its key as the game names it (ERR_NO_LOOT,
-    -- SPELL_FAILED_BAD_TARGETS, ...), the message shown and when (ui.time()); nil before the first.
+    -- SPELL_FAILED_BAD_TARGETS, ...), the message shown and when (util.time()); nil before the first.
     -- @function ui.lastError
     -- @return string, string, number
     -- @usage local key, message, at = ui.lastError()
@@ -165,7 +137,7 @@ br.api.build.ui = function(api)
         return lastError.key, lastError.message, lastError.at
     end
 
-    --- The last loot or money message in chat: its text, when (ui.time()) and whether it was money;
+    --- The last loot or money message in chat: its text, when (util.time()) and whether it was money;
     -- nil before the first.
     -- @function ui.lastLoot
     -- @return string, number, boolean
@@ -201,23 +173,6 @@ br.api.build.ui = function(api)
         return br.log:print(msg)
     end
 
-    --- Returns the time remaining on the pull timer (DBM/BigWigs)
-    -- @function ui.pullTimer
-    -- @return number - Returns seconds remaining on pull timer
-    ui.pullTimer = function()
-        return br.functions.custom:PullTimerRemain()
-    end
-
-    --- Rounds a number to the specified number of decimal places (default 2)
-    -- @function ui.round
-    -- @number num - The number to round.
-    -- @number[opt=2] numDecimalPlaces - The number of decimal places to round to.
-    -- @return number - Returns the rounded number
-    ui.round = function(num, numDecimalPlaces)
-        if numDecimalPlaces == nil then numDecimalPlaces = 2 end
-        return br.functions.misc:round2(num, numDecimalPlaces)
-    end
-
     --- Starts a group of options; pass it to each option after it.
     -- @function ui.section
     -- @string name
@@ -232,22 +187,6 @@ br.api.build.ui = function(api)
     --- Adds a line of text.
     -- @function ui.text
     ui.text = function(section, text) return br.ui:text(section, text) end
-
-    --- Returns the time, value of GetTime
-    -- @function ui.time
-    -- @return number - Returns the current game time
-    ui.time = function()
-        return br.functions.misc:getTime()
-    end
-
-    --- Returns false unless the specified interval has passed since it was last true
-    -- @function ui.timer
-    -- @string timerName - The name of the timer check, should be unique.
-    -- @number interval - The length of time to wait until true, in seconds.
-    -- @return boolean - Returns true if the interval has passed
-    ui.timer = function(timerName, interval)
-        return br.functions.misc:useTimer(timerName, interval, profileTimers)
-    end
 
     --- Adds a button to the toggle bar. Read it in the rotation with ui.mode.<name>.
     -- @function ui.toggle
@@ -342,29 +281,6 @@ br.api.build.ui = function(api)
     ui.value = function(thisOption, optionPage)
         if thisOption == nil then return 0 end
         return br.functions.misc:getValue(thisOption, optionPage)
-    end
-
-    ui.fightStyle = {}
-
-    --- Returns true when inside an active Mythic+ key run.
-    -- @function ui.fightStyle.dungeonRoute
-    -- @return boolean
-    ui.fightStyle.dungeonRoute = function()
-        return br.runner.state.instance == "party" and br.functions.misc:isInMythicPlus()
-    end
-
-    --- Returns true when inside a regular (non-Mythic+) 5-man dungeon.
-    -- @function ui.fightStyle.dungeonSlice
-    -- @return boolean
-    ui.fightStyle.dungeonSlice = function()
-        return br.runner.state.instance == "party" and not br.functions.misc:isInMythicPlus()
-    end
-
-    --- Returns true when not in a 5-man party instance (raid, outdoor, etc.).
-    -- @function ui.fightStyle.patchwerk
-    -- @return boolean
-    ui.fightStyle.patchwerk = function()
-        return br.runner.state.instance ~= "party"
     end
 
     --- Sets a toggle to the specified value and updates the UI

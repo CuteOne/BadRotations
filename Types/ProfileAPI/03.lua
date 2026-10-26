@@ -11590,5 +11590,7 @@ unit = {}
 units = {}
 ---@type BR.use
 use = {}
+---@type BR.util
+util = {}
 ---@type table
 var = {}

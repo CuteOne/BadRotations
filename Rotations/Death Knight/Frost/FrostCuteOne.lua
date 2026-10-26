@@ -135,7 +135,7 @@ actionList.Defensive = function()
         -- * Death Pact: try to use if available, otherwise optionally raise ghoul to enable
         if ui.checked("Death Pact") then
             -- If Death Pact is available, use it
-            if cast.able.deathPact() and ui.time() < var.raiseDeadExpiresAt
+            if cast.able.deathPact() and util.time() < var.raiseDeadExpiresAt
                 and unit.hp("player") <= ui.value("Death Pact")
             then
                 if cast.deathPact() then
@@ -149,7 +149,7 @@ actionList.Defensive = function()
             then
                 if cast.raiseDead() then
                     ui.debug("Casting Raise Dead - to enable Death Pact [Defensive]")
-                    var.raiseDeadExpiresAt = ui.time() + 60
+                    var.raiseDeadExpiresAt = util.time() + 60
                     return true
                 end
             end
@@ -267,13 +267,13 @@ actionList.AOE = function()
     -- * Pestilence (spread plague if blood_plague ticking and talent)
     -- pestilence,if=dot.blood_plague.ticking&talent.plague_leech.enabled,line_cd=28
     if talent.plagueLeech and cast.able.pestilence() and debuff.bloodPlague.exists(units.dyn5) and debuff.frostFever.exists(units.dyn5)
-        and ui.delay("pestilenceLineCD",28)
+        and util.timer("pestilenceLineCD",28)
     then
         if cast.pestilence() then ui.debug("Casting Pestilence - Plague Leech [AOE]") return true end
     end
     -- pestilence,if=dot.blood_plague.ticking&talent.unholy_blight.enabled&cooldown.unholy_blight.remains<49,line_cd=28
     if talent.unholyBlight and cast.able.pestilence() and debuff.bloodPlague.exists(units.dyn5) and debuff.frostFever.exists(units.dyn5)
-        and cd.unholyBlight.remains() < 49 and ui.delay("pestilenceLineCD2",28)
+        and cd.unholyBlight.remains() < 49 and util.timer("pestilenceLineCD2",28)
     then
         if cast.pestilence() then ui.debug("Casting Pestilence - Unholy Blight [AOE]") return true end
     end
@@ -512,7 +512,7 @@ actionList.PreCombat = function()
             if ui.alwaysCdAoENever("Raise Dead",3,#enemies.yards8) and cast.able.raiseDead() then
                 if cast.raiseDead() then
                     ui.debug("Casting Raise Dead [Precombat]")
-                    var.raiseDeadExpiresAt = ui.time() + 60
+                    var.raiseDeadExpiresAt = util.time() + 60
                     return true
                 end
             end
@@ -608,7 +608,7 @@ actionList.Combat = function()
         if ui.alwaysCdAoENever("Raise Dead", 3, #enemies.yards8) and cast.able.raiseDead() then
             if cast.raiseDead() then
                 ui.debug("Casting Raise Dead [Combat]")
-                var.raiseDeadExpiresAt = ui.time() + 60
+                var.raiseDeadExpiresAt = util.time() + 60
                 return true
             end
         end

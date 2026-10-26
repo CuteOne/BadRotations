@@ -185,7 +185,7 @@ actionList.Extras = function()
                 -- Get NPC ID to check blacklist
                 local npcID = unit.id(thisUnit)
                 if not var.disarmBlacklist[npcID] then
-                    var.lastDisarmTarget, var.lastDisarmAt = thisUnit, ui.time()
+                    var.lastDisarmTarget, var.lastDisarmAt = thisUnit, util.time()
                     if cast.disarm(thisUnit) then
                         ui.debug("Casting Disarm on " .. unit.name(thisUnit) .. " [Extra]")
                         return true
@@ -593,7 +593,7 @@ end -- End Action List - Single
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then
         -- Pre-Pull
-        if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
+        if ui.checked("Pre-Pull Timer") and unit.pullTimer() <= ui.value("Pre-Pull Timer") then
 
         end -- End Pre-Pull
         -- -- Battle Stance

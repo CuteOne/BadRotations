@@ -196,11 +196,11 @@ local function timeToNextEnergyTick()
     local current = power.energy() or 0
     local energyJump = current - var.lastEnergyObserved
     if energyJump >= 15 and energyJump <= 25 then
-        var.lastEnergyTickTime = ui.time()
+        var.lastEnergyTickTime = util.time()
     end
     var.lastEnergyObserved = current
     if var.lastEnergyTickTime == 0 then return 2.0 end
-    return math.max(0, (var.lastEnergyTickTime + 2.0) - ui.time())
+    return math.max(0, (var.lastEnergyTickTime + 2.0) - util.time())
 end
 
 
@@ -321,7 +321,7 @@ actionList.Extra = function()
         end
         -- Fallback to Mark of the Wild (single buff or no reagent)
         if mana() > cast.cost.markOfTheWild() + var.formCost then
-            var.markUnit = ui.buffUnit("Mark of the Wild", needsMarkOfTheWild, 40)
+            var.markUnit = units.buffUnit("Mark of the Wild", needsMarkOfTheWild, 40)
             if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
                 and not unit.inCombat() and not unit.resting() and unit.distance(var.markUnit) < 40
                 and (var.markUnit == "player" or unit.player(var.markUnit)) and unit.friend(var.markUnit)
@@ -344,7 +344,7 @@ actionList.Extra = function()
     end
     -- Thorns
     if ui.checked("Thorns") and not unit.flying() and not buff.prowl.exists() and mana() > cast.cost.thorns() + var.formCost then
-        var.thornUnit = ui.buffUnit("Thorns", needsThorns, 40)
+        var.thornUnit = units.buffUnit("Thorns", needsThorns, 40)
         if cast.able.thorns(var.thornUnit) and buff.thorns.refresh(var.thornUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.thornUnit) < 40
             and (var.thornUnit == "player" or unit.player(var.thornUnit))
@@ -623,7 +623,7 @@ end -- End Action List - Defensive
 
 -- * Action List - Interrupts
 actionList.Interrupts = function()
-    if not (ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true))) then return false end
+    if not (ui.useInterrupt() and util.timer("Interrupts", unit.gcd(true))) then return false end
     local interruptAt = ui.value("Interrupt At")
     local isBearForm  = buff.bearForm.exists() or buff.direBearForm.exists()
     -- Feral Charge (Bear): a caster 8-25 yards away
@@ -899,9 +899,9 @@ local function waitForRavage(behind)
     if energy() < cost and (energy() + 20 < cost or timeToNextEnergyTick() > 1) then return false end
     local guid = unit.guid("target")
     if var.ravageWait == nil or var.ravageWait.guid ~= guid then
-        var.ravageWait = { guid = guid, since = ui.time() }
+        var.ravageWait = { guid = guid, since = util.time() }
     end
-    if ui.time() - var.ravageWait.since > RAVAGE_WAIT then return false end
+    if util.time() - var.ravageWait.since > RAVAGE_WAIT then return false end
     return behind or unit.standingTime() <= 1
 end
 
@@ -1496,7 +1496,7 @@ local function runRotation()
         if var.profileStop then var.profileStop = false end
     end
 
-    -- ui.chatOverlay("Shift At: "..tostring(ui.round(math.max(10, ui.value("Energy")*(mana.percent()/100)),0)))
+    -- ui.chatOverlay("Shift At: "..tostring(util.round(math.max(10, ui.value("Energy")*(mana.percent()/100)),0)))
 
     ---------------------
     --- Begin Profile ---

@@ -1263,7 +1263,7 @@ actionList.PreCombat = function()
         var.treacherousTransmitterPrecombatCast = 2
 
         -- Pre-Pull
-        if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
+        if ui.checked("Pre-Pull Timer") and unit.pullTimer() <= ui.value("Pre-Pull Timer") then
             -- Use Item - Treacherous Transmitter
             -- use_item,name=treacherous_transmitter
             if use.able.treacherousTransmitter() then
