@@ -5637,13 +5637,13 @@ function C1.stackMax(thisUnit, sourceUnit) end
 --- Checks if a spell can be cast based on various parameters.
 --- The function name is dynamically generated based on the spell name.
 ---@class BR.cast.able.Spell
----@overload fun(thisUnit?: string, castType?: string, minUnits?: number, effectRng?: number, predict?: boolean, predictPad?: boolean, enemies?: table): boolean
+---@overload fun(thisUnit?: string, castType?: string, minUnits?: number, effectRng?: number, predict?: boolean|number, predictPad?: boolean, enemies?: table): boolean
 ---@field aoe fun(range?: number, minUnits?: number, unit?: string): boolean
----@field cone fun(range?: number, minUnits?: number): boolean
+---@field cone fun(range?: number, angle?: number, minUnits?: number): boolean
 ---@field dead fun(unit?: string): boolean
 ---@field ground fun(range?: number, minUnits?: number, unit?: string, predict?: boolean, predictPad?: boolean): boolean
 ---@field pet fun(unit?: string): boolean
----@field rect fun(range?: number, minUnits?: number): boolean
+---@field rect fun(range?: number, width?: number, minUnits?: number): boolean
 ---@field targetAOE fun(range?: number, minUnits?: number, unit?: string): boolean
 ---@field rank fun(rank: integer): BR.cast.able.Spell The spell at a rank (or the highest known below it)
 local C2 = {}
@@ -5656,8 +5656,8 @@ local C3 = {}
 ---@param thisUnit? string The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
 ---@param castType? string Defines the type of AoE or special cast conditions.
 ---@param minUnits? number Minimum number of units needed to be hit by AoE spell.
----@param effectRng? number The AoE's effect range.
----@param predict? boolean If true, will attempt to predict enemy movements for ground location AoE spells.
+---@param effectRng? number The AoE's reach: the radius for aoe/ground/targetAOE, the length for cone/rect.
+---@param predict? boolean|number ground: true to predict enemy movement. cone: its angle in degrees;
 ---@param predictPad? boolean Pads the prediction cast time. 'predict' must be true.
 ---@param enemies? table A table of enemy units that the spell should be cast on.
 ---@return boolean
@@ -5668,8 +5668,8 @@ function C3.id(spellID, thisUnit, castType, minUnits, effectRng, predict, predic
 ---@param thisUnit? string The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
 ---@param castType? string Defines the type of AoE or special cast conditions.
 ---@param minUnits? number Minimum number of units needed to be hit by AoE spell.
----@param effectRng? number The AoE's effect range.
----@param predict? boolean If true, will attempt to predict enemy movements for ground location AoE spells.
+---@param effectRng? number The AoE's reach: the radius for aoe/ground/targetAOE, the length for cone/rect.
+---@param predict? boolean|number ground: true to predict enemy movement. cone: its angle in degrees;
 ---@param predictPad? boolean Pads the prediction cast time. 'predict' must be true.
 ---@param enemies? table A table of enemy units that the spell should be cast on.
 ---@return boolean
@@ -5841,11 +5841,11 @@ local C17 = {}
 ---@class BR.cast.opener.Spell
 ---@overload fun(): boolean
 ---@field aoe fun(range?: number, minUnits?: number, unit?: string): boolean
----@field cone fun(range?: number, minUnits?: number): boolean
+---@field cone fun(range?: number, angle?: number, minUnits?: number): boolean
 ---@field dead fun(unit?: string): boolean
 ---@field ground fun(range?: number, minUnits?: number, unit?: string, predict?: boolean, predictPad?: boolean): boolean
 ---@field pet fun(unit?: string): boolean
----@field rect fun(range?: number, minUnits?: number): boolean
+---@field rect fun(range?: number, width?: number, minUnits?: number): boolean
 ---@field targetAOE fun(range?: number, minUnits?: number, unit?: string): boolean
 ---@field rank fun(rank: integer): BR.cast.opener.Spell The spell at a rank (or the highest known below it)
 local C18 = {}
@@ -5898,7 +5898,7 @@ local C22 = {}
 
 --- Checks if safe to cast specified aoe spell on unit given the aoe dimensions.
 ---@class BR.cast.safe.Spell
----@overload fun(thisUnit?: string, aoeType?: string, minUnits?: number, effectRng?: number): boolean
+---@overload fun(thisUnit?: string, aoeType?: string, minUnits?: number, effectRng?: number, shape?: number): boolean
 local C23 = {}
 
 ---@class BR.cast.safe : BR.Keys.Abilities<BR.cast.safe.Spell>
@@ -5916,13 +5916,13 @@ local C23 = {}
 --- cast.consecration.rank(1).aoe(8, 3)           -- the forms work at a rank, and on cast.able / cast.opener
 --- ```
 ---@class BR.cast.Spell
----@overload fun(thisUnit?: string, castType?: string, minUnits?: number, effectRng?: number, predict?: boolean, predictPad?: boolean, enemies?: table): boolean
+---@overload fun(thisUnit?: string, castType?: string, minUnits?: number, effectRng?: number, predict?: boolean|number, predictPad?: boolean, enemies?: table): boolean
 ---@field aoe fun(range?: number, minUnits?: number, unit?: string): boolean
----@field cone fun(range?: number, minUnits?: number): boolean
+---@field cone fun(range?: number, angle?: number, minUnits?: number): boolean
 ---@field dead fun(unit?: string): boolean
 ---@field ground fun(range?: number, minUnits?: number, unit?: string, predict?: boolean, predictPad?: boolean): boolean
 ---@field pet fun(unit?: string): boolean
----@field rect fun(range?: number, minUnits?: number): boolean
+---@field rect fun(range?: number, width?: number, minUnits?: number): boolean
 ---@field targetAOE fun(range?: number, minUnits?: number, unit?: string): boolean
 ---@field rank fun(rank: integer): BR.cast.Spell The spell at a rank (or the highest known below it)
 local C24 = {}
@@ -5959,8 +5959,8 @@ function C27.form(formIndex) end
 ---@param thisUnit? string The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
 ---@param castType? string Defines the type of AoE or special cast conditions.
 ---@param minUnits? number Minimum number of units needed to be hit by AoE spell.
----@param effectRng? number The AoE's effect range.
----@param predict? boolean If true, will attempt to predict enemy movements for ground location AoE spells.
+---@param effectRng? number The AoE's reach: the radius for aoe/ground/targetAOE, the length for cone/rect.
+---@param predict? boolean|number ground: true to predict enemy movement. cone: its angle in degrees;
 ---@param predictPad? boolean Pads the prediction cast time. 'predict' must be true.
 ---@param enemies? table A table of enemy units that the spell should be cast on.
 ---@return boolean
@@ -5979,8 +5979,8 @@ function C27.macro(macroText, associatedSpellID, lockDuration) end
 ---@param thisUnit? string The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
 ---@param castType? string Defines the type of AoE or special cast conditions.
 ---@param minUnits? number Minimum number of units needed to be hit by AoE spell.
----@param effectRng? number The AoE's effect range.
----@param predict? boolean If true, will attempt to predict enemy movements for ground location AoE spells.
+---@param effectRng? number The AoE's reach: the radius for aoe/ground/targetAOE, the length for cone/rect.
+---@param predict? boolean|number ground: true to predict enemy movement. cone: its angle in degrees;
 ---@param predictPad? boolean Pads the prediction cast time. 'predict' must be true.
 ---@param enemies? table A table of enemy units that the spell should be cast on.
 ---@return boolean

@@ -263,30 +263,28 @@ function range:invalidateMeleeSpellCache()
     br.game.wipe(meleeSpellNames)
 end
 
-function range:isSafeToAoE(spellID, Unit, effectRng, minUnits, aoeType, enemies)
+--- True when an AoE would hit only units BR may attack (Safe Damage Check): every unit in its area
+-- (in combat or not) is a valid enemy, and there are at least minUnits of them.
+-- effectRng: the reach (aoe/ground/targetAOE radius, cone/rect length); shape: a cone's angle in
+-- degrees or a rect's full width in yards.
+function range:isSafeToAoE(spellID, Unit, effectRng, minUnits, aoeType, shape)
     if not br.functions.misc:isChecked("Safe Damage Check") then return true end
+    if minUnits == nil then minUnits = 1 end
+    local reach = tonumber(effectRng) or 5
+    local engine = br.engines.enemiesEngineFunctions
     local enemiesValid, enemiesAll
-    local info = br.game.C_Spell.GetSpellInfo(spellID)
-    local maxRange = info and info.maxRange
-    if effectRng == nil then effectRng = 5 end
-    if maxRange == nil or maxRange == 0 then
+    if aoeType == "rect" or aoeType == "cone" then
+        if shape == nil then return false end
+        local count = aoeType == "rect" and engine.getEnemiesInRect or engine.getEnemiesInCone
+        enemiesValid = count(engine, reach, shape, false)
+        enemiesAll   = count(engine, reach, shape, true)
+    else
         -- No range: an AoE around the unit, the call's radius (at least 8 yards). It used to be 8
         -- whatever the call asked for.
-        maxRange = tonumber(effectRng)
-        effectRng = math.max(tonumber(effectRng) or 5, 8)
-    else
-        maxRange = tonumber(maxRange)
-    end
-    if minUnits == nil then minUnits = 1 end
-    if aoeType == "rect" then
-        enemiesValid = br.engines.enemiesEngineFunctions:getEnemiesInRect(maxRange, effectRng, false)
-        enemiesAll   = not enemies and br.engines.enemiesEngineFunctions:getEnemiesInRect(maxRange, effectRng, true) or enemies
-    elseif aoeType == "cone" then
-        enemiesValid = br.engines.enemiesEngineFunctions:getEnemiesInCone(maxRange, effectRng, false)
-        enemiesAll   = not enemies and br.engines.enemiesEngineFunctions:getEnemiesInCone(maxRange, effectRng, true) or enemies
-    else
-        enemiesValid = #br.engines.enemiesEngineFunctions:getEnemies(Unit, effectRng)
-        enemiesAll   = not enemies and #br.engines.enemiesEngineFunctions:getEnemies(Unit, effectRng, true) or enemies
+        local info = br.game.C_Spell.GetSpellInfo(spellID)
+        if info == nil or info.maxRange == nil or info.maxRange == 0 then reach = math.max(reach, 8) end
+        enemiesValid = #engine:getEnemies(Unit, reach)
+        enemiesAll   = #engine:getEnemies(Unit, reach, true)
     end
     return enemiesValid >= minUnits and enemiesValid >= enemiesAll
 end

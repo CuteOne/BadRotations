@@ -14,15 +14,19 @@ local _, br = ...
 --   cast.demoralizingRoar.aoe(10)          an AoE around you, 10 yards
 --   cast.swipe.aoe(8, 3)                   3+ enemies within 8 yards
 --   cast.flamestrike.ground(8, 3)          on the ground where it covers 3+ enemies
--- Area forms take range, minimum units (default 1), then the unit (default per type). .rank(n)
+--   cast.fireBreath.cone(25, 90, 2)        2+ enemies in a 90 degree cone reaching 25 yards
+--   cast.eyeBeam.rect(20, 4)               a line 20 yards long and 4 wide in front of you
+-- Area forms take range, minimum units (default 1), then the unit (default per type); cone and
+-- rect take their shape after the range (the angle in degrees, the full width in yards, as the
+-- spell data has them: SpellTargetRestrictions ConeDegrees / Width). .rank(n)
 -- gives the spell at a rank (or the highest known below it), with the same forms:
 --   cast.healingTouch.rank(3)("player")    cast.consecration.rank(1).aoe(8, 3)
 local CALL, RANK_CALL = {}, {} -- private keys: the spell's full call, and its call at a rank
 
 local FORMS = {
     aoe       = function(call, range, minUnits, unit) return call(unit or "player", "aoe", minUnits or 1, range) end,
-    cone      = function(call, range, minUnits) return call("player", "cone", minUnits or 1, range) end,
-    rect      = function(call, range, minUnits) return call("player", "rect", minUnits or 1, range) end,
+    cone      = function(call, range, angle, minUnits) return call("player", "cone", minUnits or 1, range, angle) end,
+    rect      = function(call, range, width, minUnits) return call("player", "rect", minUnits or 1, range, width) end,
     -- Without a unit: the spot covering the most units ("best"); with one: centred on that unit
     ground    = function(call, range, minUnits, unit, predict, predictPad)
         return call(unit or "best", "ground", minUnits or 1, range, predict, predictPad)
@@ -97,8 +101,9 @@ br.api.build.cast = function(api, spell, id)
     -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
     -- @string castType Defines the type of AoE or special cast conditions.
     -- @number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @number effectRng The AoE's effect range.
-    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @number effectRng The AoE's reach: the radius for aoe/ground/targetAOE, the length for cone/rect.
+    -- @tparam boolean|number predict ground: true to predict enemy movement. cone: its angle in degrees;
+    -- rect: its full width in yards (from spell data; the cast is refused without it).
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
@@ -115,8 +120,9 @@ br.api.build.cast = function(api, spell, id)
     -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
     -- @string castType Defines the type of AoE or special cast conditions.
     -- @number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @number effectRng The AoE's effect range.
-    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @number effectRng The AoE's reach: the radius for aoe/ground/targetAOE, the length for cone/rect.
+    -- @tparam boolean|number predict ground: true to predict enemy movement. cone: its angle in degrees;
+    -- rect: its full width in yards (from spell data; the cast is refused without it).
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
@@ -134,8 +140,9 @@ br.api.build.cast = function(api, spell, id)
     -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
     -- @string castType Defines the type of AoE or special cast conditions.
     -- @number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @number effectRng The AoE's effect range.
-    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @number effectRng The AoE's reach: the radius for aoe/ground/targetAOE, the length for cone/rect.
+    -- @tparam boolean|number predict ground: true to predict enemy movement. cone: its angle in degrees;
+    -- rect: its full width in yards (from spell data; the cast is refused without it).
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
@@ -249,8 +256,9 @@ br.api.build.cast = function(api, spell, id)
     -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
     -- @string castType Defines the type of AoE or special cast conditions.
     -- @number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @number effectRng The AoE's effect range.
-    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @number effectRng The AoE's reach: the radius for aoe/ground/targetAOE, the length for cone/rect.
+    -- @tparam boolean|number predict ground: true to predict enemy movement. cone: its angle in degrees;
+    -- rect: its full width in yards (from spell data; the cast is refused without it).
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
@@ -339,8 +347,9 @@ br.api.build.cast = function(api, spell, id)
     -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
     -- @string castType Defines the type of AoE or special cast conditions.
     -- @number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @number effectRng The AoE's effect range.
-    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @number effectRng The AoE's reach: the radius for aoe/ground/targetAOE, the length for cone/rect.
+    -- @tparam boolean|number predict ground: true to predict enemy movement. cone: its angle in degrees;
+    -- rect: its full width in yards (from spell data; the cast is refused without it).
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
@@ -429,10 +438,11 @@ br.api.build.cast = function(api, spell, id)
     -- @string thisUnit The target unit to check for safety. Defaults to "target" if not provided.
     -- @string aoeType The type of AoE to check for safety. Can be "rect", "cone", "ground", or "aoe".
     -- @number minUnits Specify minimal number of units needed to be hit by AoE spell before it will use.
-    -- @number effectRng Specify the AoE's effect range to determine units hit by it.
+    -- @number effectRng The AoE's reach: the radius, or the length of a cone or rect.
+    -- @number shape A cone's angle in degrees or a rect's full width in yards.
     -- @treturn boolean
-    cast.safe[spell] = function(thisUnit, aoeType, minUnits, effectRng)
-        return br.functions.range:isSafeToAoE(currentRank(), thisUnit, effectRng, minUnits, aoeType)
+    cast.safe[spell] = function(thisUnit, aoeType, minUnits, effectRng, shape)
+        return br.functions.range:isSafeToAoE(currentRank(), thisUnit, effectRng, minUnits, aoeType, shape)
     end
 
     --- Cast a spell based on various parameters.
@@ -442,8 +452,9 @@ br.api.build.cast = function(api, spell, id)
     -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
     -- @string castType Defines the type of AoE or special cast conditions.
     -- @number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @number effectRng The AoE's effect range.
-    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @number effectRng The AoE's reach: the radius for aoe/ground/targetAOE, the length for cone/rect.
+    -- @tparam boolean|number predict ground: true to predict enemy movement. cone: its angle in degrees;
+    -- rect: its full width in yards (from spell data; the cast is refused without it).
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean

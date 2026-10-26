@@ -144,14 +144,11 @@ local function runCastFunction(self, thisUnit, castType, minUnits, effectRng, sp
 	if castType == "known" then castType = "norm" end
 
 	-- ── Step 9: Pre-fill enemies count from pre-calculated tables ─────────────
+	-- Not for cone or rect: their lists are keyed by reach only, and the cast's shape may differ
 	if enemies == nil then
 		local eKey, lists = "yards" .. effectRng, br.engines.enemiesEngine.lists
 		if (castType == "norm" or castType == "pet") and lists[eKey .. "f"] ~= nil then
 			enemies = #lists[eKey .. "f"]
-		elseif castType == "cone" and lists[eKey .. "c"] ~= nil then
-			enemies = #lists[eKey .. "c"]
-		elseif castType == "rect" and lists[eKey .. "r"] ~= nil then
-			enemies = #lists[eKey .. "r"]
 		elseif castType == "aoe" then
 			if thisUnit == "player" and lists[eKey] ~= nil then
 				enemies = #lists[eKey]
@@ -165,6 +162,8 @@ local function runCastFunction(self, thisUnit, castType, minUnits, effectRng, sp
 
 	-- ── Step 10: What this call asked for, for printReport ─────────────────────
 	ctx.debug, ctx.minUnits, ctx.effectRng = debug, minUnits, effectRng
+	-- A cone's angle (degrees) or a rect's full width (yards): the slot after the reach
+	ctx.shape = (castType == "cone" or castType == "rect") and tonumber(predict) or nil
 
 	-- ── Step 11: Unit resolution ──────────────────────────────────────────────
 	if thisUnit == nil then

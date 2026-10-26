@@ -20,6 +20,7 @@ local REPORT_CODES = {
 	["Below Min Units Facing"]= "MIN_UNITS_FACING",
 	["Below Min Units Cone"]  = "MIN_UNITS_CONE",
 	["Below Min Units Rect"]  = "MIN_UNITS_RECT",
+	["No Shape"]              = "NO_SHAPE",
 	["Not Dead"]              = "NOT_DEAD",
 	["No Range"]              = "NO_RANGE",
 	["Not Safe"]              = "NOT_SAFE",
@@ -65,10 +66,15 @@ function E.printReport(ctx, debugOnly, debugReason, thisCount)
 				" facing enemies in " .. ctx.maxRange .. " yrds, need " .. minUnits .. ".")
 		elseif debugReason == "Below Min Units Cone" then
 			br.log:systemDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
-				" enemies in " .. effectRng .. "° cone/" .. ctx.maxRange .. " yrds, need " .. minUnits .. ".")
+				" enemies in " .. ctx.shape .. "° cone/" .. effectRng .. " yrds, need " .. minUnits .. ".")
 		elseif debugReason == "Below Min Units Rect" then
 			br.log:systemDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
-				" enemies in " .. ctx.maxRange .. "×" .. effectRng .. " yrd rect, need " .. minUnits .. ".")
+				" enemies in " .. effectRng .. "×" .. ctx.shape .. " yrd rect, need " .. minUnits .. ".")
+		elseif debugReason == "No Shape" then
+			br.log:error(prefix .. ctx.spellName .. " — a " .. tostring(thisCount) .. " cast needs its "
+				.. (thisCount == "cone" and "angle in degrees" or "full width in yards")
+				.. " after the reach: cast.<spell>." .. tostring(thisCount) .. "(reach, "
+				.. (thisCount == "cone" and "angle" or "width") .. ", minUnits).")
 		elseif debugReason == "Not Dead" then
 			br.log:systemDebug(prefix .. ctx.spellName .. " — unit is not dead.")
 		elseif debugReason == "No Range" then
@@ -379,18 +385,22 @@ end
 -- ─────────────────────────────────────────────────────────────────────────────
 
 function E.dispatchAoE(ctx, thisUnit, castType, minUnits, effectRng, enemies, debug)
+	-- A cone or rect without its shape can't be counted: guessing one would count wrong units
+	if (castType == "cone" or castType == "rect") and ctx.shape == nil then
+		return E.printReport(ctx, false, "No Shape", castType)
+	end
 	local enemyCount = enemies
 		or (castType == "ground"    and #br.engines.enemiesEngineFunctions:getEnemies(thisUnit, effectRng)) -- around the spot
 		or (castType == "aoe"       and #br.engines.enemiesEngineFunctions:getEnemies("player", ctx.maxRange))
-		or (castType == "cone"      and br.engines.enemiesEngineFunctions:getEnemiesInCone(ctx.maxRange, effectRng))
-		or (castType == "rect"      and br.engines.enemiesEngineFunctions:getEnemiesInRect(ctx.maxRange, effectRng))
+		or (castType == "cone"      and br.engines.enemiesEngineFunctions:getEnemiesInCone(effectRng, ctx.shape))
+		or (castType == "rect"      and br.engines.enemiesEngineFunctions:getEnemiesInRect(effectRng, ctx.shape))
 		or (castType == "targetAOE" and #br.engines.enemiesEngineFunctions:getEnemies(thisUnit, effectRng))
 		or 0
 	if enemyCount >= minUnits then
 		-- The safety check counts every unit in reach itself. It used to be handed this count of
 		-- valid enemies as its "all units" count, so it compared the count with itself and an AoE
 		-- was always safe: in game, Demoralizing Roar pulled a neutral mob standing nearby.
-		if br.functions.range:isSafeToAoE(ctx.spellID, thisUnit, effectRng, minUnits, castType)
+		if br.functions.range:isSafeToAoE(ctx.spellID, thisUnit, effectRng, minUnits, castType, ctx.shape)
 			or br.functions.unit:isDummy("target")
 		then
 			return E.castingSpell(ctx, thisUnit, castType, debug)

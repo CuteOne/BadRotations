@@ -51,9 +51,10 @@ local WAITING_REASONS = {
 	INTENT_LOCK = true, OPENER = true,
 }
 
--- Refusals that last until the character learns something (a spell, a talent): shown once a
--- session in the Rotation Log, not again every fight
-local LASTING_REASONS = { NOT_KNOWN = true, NO_TALENT = true }
+-- Refusals that last until the character learns something (a spell, a talent) or the profile is
+-- fixed (a cone/rect cast without its shape): shown once a session in the Rotation Log, not again
+-- every fight
+local LASTING_REASONS = { NOT_KNOWN = true, NO_TALENT = true, NO_SHAPE = true }
 
 function E.recordRefusal(spellID, reason, detail)
 	local entry = refusalEntry(spellID)
@@ -248,6 +249,9 @@ local contextMeta = {
 
 -- spellCD: the cooldown the precheck already read, if it did.
 function E.buildSpellContext(spellID, predict, predictPad, castType, effectRng, spellCD)
+	-- For cone and rect casts the slot after the reach is their shape (createCastFunction), not
+	-- ground prediction
+	if castType == "cone" or castType == "rect" then predict = nil end
 	return setmetatable({
 		spellID      = spellID,
 		predict      = predict,
