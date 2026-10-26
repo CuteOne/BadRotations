@@ -10,6 +10,7 @@ local _, br = ...
 --                 of every page and the toggles, one per line.
 --   Changes       every option the player changes while playing, once it settles (a spinner being
 --                 scrolled or a box being typed in is one change), and every toggle change.
+--   Startup       each startup stage BR moves through (Bootstrap.lua).
 br.log.session = br.log.session or {}
 local session = br.log.session
 local log = br.log
@@ -154,6 +155,11 @@ function session:optionChanged(page, key, value)
 	local waiting = next(unsettled) ~= nil
 	unsettled[tostring(page) .. " | " .. tostring(key)] = { value = value, at = br.game.GetTime() }
 	if not waiting then br.game.C_Timer.After(SETTLE, writeSettled) end
+end
+
+--- A startup stage change (System/Bootstrap.lua): startup's steps, for the log rather than chat
+function session:stageChanged(from, to)
+	line(("startup stage: %s -> %s"):format(tostring(from), tostring(to)))
 end
 
 --- A toggle changed (by the player, a keybind or the profile)

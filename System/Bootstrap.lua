@@ -20,7 +20,7 @@ bootstrap.specDirty = true
 
 local function setStage(stage)
 	if bootstrap.stage ~= stage then
-		br.log:systemDebug("stage: " .. tostring(bootstrap.stage) .. " -> " .. stage)
+		br.log.session:stageChanged(bootstrap.stage, stage)
 		bootstrap.stage = stage
 	end
 end
