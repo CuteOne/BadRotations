@@ -377,6 +377,19 @@ local function gateUsable(ctx, thisUnit, castType, allTalents, allSpells) -- lua
 		"IsSpellUsable=false (wrong form / insufficient power)"
 end
 
+-- The GCD ends with the player's cast, and that cast ends inside the spell queue window: the game
+-- queues whatever is sent now, instant or not, so the GCD isn't a reason to hold it. Not for channels
+-- (a send would cut them). 2026-10-26: at each Lightning Bolt's end, Earth Shock (instant, own
+-- cooldown) was held for the GCD left and the next bolt (cast time) went first, three times running,
+-- though the profile asked for the shock first.
+local GCD_WITH_CAST_SLACK = 0.05
+local function gcdEndsWithQueuedCast(gcd)
+	local castName, _, _, _, endTime = br.game.UnitCastingInfo("player")
+	if castName == nil or endTime == nil then return false end
+	local castRemain = endTime / 1000 - br.game.GetTime()
+	return castRemain > 0 and castRemain <= br.functions.cast:getQueueWindow() and gcd <= castRemain + GCD_WITH_CAST_SLACK
+end
+
 local function gateCooldownTimer(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
 	-- Pet abilities: GetSpellCooldown does not reflect pet bar state from the player
 	-- side.  Use GetPetActionCooldown on the actual bar slot — the only TBC-compatible
@@ -412,6 +425,7 @@ local function gateCooldownTimer(ctx, thisUnit, castType, allTalents, allSpells)
 		-- is the GCD, not the spell's own cooldown
 		local gcd = plain(br.functions.spell:getGlobalCD() or 0)
 		if plain(ctx.spellCD) <= gcd + 0.01 then
+			if gcdEndsWithQueuedCast(gcd) then return true end
 			return false, "GCD_BLOCKED", string.format("GCD %.2fs", gcd)
 		end
 		return false, "ON_COOLDOWN",
@@ -458,6 +472,8 @@ local function gateGCD(ctx, thisUnit, castType, allTalents, allSpells) -- luache
 		local castTimeRemain = br.functions.cast:getCastTimeRemain("player")
 		if castTimeRemain <= ctx.updateRate then return true end
 	end
+	-- Only the GCD holds it, and that ends with a cast inside the queue window: instants queue too
+	if plain(ctx.spellCD) <= plain(ctx.globalCD) + 0.01 and gcdEndsWithQueuedCast(plain(ctx.globalCD)) then return true end
 	return false, "GCD_BLOCKED",
 		string.format("globalCD=%.2fs spellCD=%.2fs baseCooldown=%d",
 			plain(ctx.globalCD), plain(ctx.spellCD), plain(ctx.baseCooldown))
