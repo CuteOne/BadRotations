@@ -186,12 +186,10 @@ br.api.build.unit = function(api)
         return br.functions.combat:getCombatTime()
     end
 
-    --- Get player's critical strike chance
+    --- Get the player's melee critical strike chance
     -- @function unit.critChance
-    -- @param thisUnit The unit to check, defaults to "player" if nil
     -- @return number Critical strike chance percentage
-    unit.critChance = function(thisUnit)
-        if thisUnit == nil then thisUnit = "player" end
+    unit.critChance = function()
         return br.functions.misc:getCritChance()
     end
 
@@ -420,9 +418,6 @@ br.api.build.unit = function(api)
     -- @return number Current health of the unit
     unit.health = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        if unit.isDummy(thisUnit) then
-            return br.functions.unit:getHealthMax(thisUnit)
-        end
         return br.functions.unit:getHealth(thisUnit)
     end
 
@@ -441,9 +436,6 @@ br.api.build.unit = function(api)
     -- @return number Health percentage of the unit (0-100)
     unit.hp = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        if unit.isDummy(thisUnit) then
-            return 100
-        end
         return br.functions.misc:round2(br.functions.unit:getHP(thisUnit), 2)
     end
 

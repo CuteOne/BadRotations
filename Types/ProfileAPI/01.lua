@@ -9834,10 +9834,9 @@ function C61.clearTarget() end
 ---@return number # Time in combat in seconds
 function C61.combatTime() end
 
---- Get player's critical strike chance
----@param thisUnit? string The unit to check, defaults to "player" if nil
+--- Get the player's melee critical strike chance
 ---@return number # Critical strike chance percentage
-function C61.critChance(thisUnit) end
+function C61.critChance() end
 
 --- Check if a unit is dead or ghost
 ---@param thisUnit? string The unit to check

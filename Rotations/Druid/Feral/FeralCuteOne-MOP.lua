@@ -195,7 +195,7 @@ local function getMangleDamage()
     end
 
     -- Apply crit as expected value (200% crit damage = 100% extra damage)
-    local critChance = unit.critChance("player") / 100
+    local critChance = unit.critChance() / 100
     local critMultiplier = 1 + (critChance * 1.0)
 
     return baseDmg * multiplier * critMultiplier
