@@ -67,11 +67,11 @@ local function options()
     -- Weapons and shields
     section = ui.section("Self Buffs")
     ui.dropdown(section, "Main Hand Imbue", { choices = IMBUE_CHOICES, value = "Auto", checkbox = false,
-        tip = "Auto: Windfury, else Flametongue, else Rockbiter (Melee); Flametongue, else Rockbiter (Caster)." })
+        tip = "Auto: Windfury, else Rockbiter (Melee); Flametongue, else Rockbiter (Caster)." })
     ui.dropdown(section, "Off Hand Imbue", { choices = IMBUE_CHOICES, value = "Auto", checkbox = false,
         tip = "Dual wielding only. Auto: Flametongue, else Rockbiter." })
     ui.dropdown(section, "Shield", { choices = { "Auto", "Lightning Shield", "Water Shield", "None" }, value = "Auto", checkbox = false,
-        tip = "Auto: Water Shield for Caster style or below 50% mana once it's known, Lightning Shield otherwise." })
+        tip = "Auto: Water Shield once it's known (level 62), Lightning Shield before. A shield already up is kept until it fades." })
     ui.checkbox(section, "Earth Shield", { checked = true, tip = "In a group, keep Earth Shield on the tank (TBC doesn't allow it on yourself)." })
     -- Totems
     section = ui.section("Totems")
@@ -158,7 +158,11 @@ local IMBUE_KEYS = { Windfury = "windfuryWeapon", Flametongue = "flametongueWeap
 local function imbueFor(choice, offHand)
     if choice == "None" then return nil end
     if choice ~= "Auto" then return IMBUE_KEYS[choice] end
-    if not offHand and melee and spell.windfuryWeapon.known() then return "windfuryWeapon" end
+    -- Melee main hand: Rockbiter until Windfury (the usual leveling choice); off hand and Caster:
+    -- Flametongue
+    if not offHand and melee then
+        return spell.windfuryWeapon.known() and "windfuryWeapon" or "rockbiterWeapon"
+    end
     if spell.flametongueWeapon.known() then return "flametongueWeapon" end
     return "rockbiterWeapon"
 end
@@ -199,8 +203,8 @@ local function applyImbue(optionName, offHand)
     return false
 end
 
--- The shield to keep up, by the Shield option. Auto keeps whichever shield is up (so the two
--- never take turns as mana goes up and down) and picks one only when neither is.
+-- The shield to keep up, by the Shield option. Auto keeps whichever shield is up (a Lightning
+-- Shield up when Water Shield is learned runs out first) and picks one only when neither is.
 local function shieldKey()
     local choice = ui.value("Shield")
     if choice == 4 then return nil end
@@ -208,7 +212,7 @@ local function shieldKey()
     if choice == 3 then return "waterShield" end
     if buff.waterShield.exists() then return "waterShield" end
     if buff.lightningShield.exists() then return "lightningShield" end
-    if spell.waterShield.known() and (not melee or power.mana.percent() < 50) then return "waterShield" end
+    if spell.waterShield.known() then return "waterShield" end
     return "lightningShield"
 end
 
