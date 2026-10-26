@@ -186,7 +186,7 @@ end
 function cast:handleCastError(message)
 	if type(message) ~= "string" or isSwingError(message) then return end
 	if not (br.botSpell and br.botGUID and br.botCastTime) then return end
-	-- With Cast Debug on, show the game error behind a refused cast, so a cast that was sent but refused
+	-- At Debug Level problems and up, show the game error behind a refused cast, so a cast that was sent but refused
 	-- by the server (shapeshifted, no mana, ...) shows why instead of only "Casting". The error doesn't
 	-- say which spell it's about; a spell-failed event naming one within a frame or two does (an
 	-- on-next-swing Maul failing at the swing, after BR has cast something else), so the line waits a
@@ -442,10 +442,8 @@ function E.affordableWithReshift(spellID, spellName)
 		plain(reserve), br.functions.misc:plainText(tostring(owed.formName)), plain(cost))
 end
 
--- The two debug options:
---   Cast Debug         every refusal and check, routine ones tagged, for troubleshooting
---   Display Failcasts  only refusals that point at a problem (a profile, BR, or the setup)
--- Debug Level trace: routine refusals are written to Gate.log
+-- What a refusal shows at which Debug Level (Bot Options > Debug Options, misc:debugAt) is below
+-- (E.showRefusal). At trace, routine refusals are written to Gate.log.
 function E.traceOn()
 	return br.functions.misc ~= nil and br.functions.misc:debugAt("trace")
 end

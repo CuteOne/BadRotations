@@ -16,7 +16,7 @@ local _regenEnFrame     = br.game.CreateFrame("Frame"); _regenEnFrame:RegisterEv
 local _uiErrFrame       = br.game.CreateFrame("Frame"); _uiErrFrame:RegisterEvent("UI_ERROR_MESSAGE")
 local _lootMsgFrame     = br.game.CreateFrame("Frame"); _lootMsgFrame:RegisterEvent("CHAT_MSG_LOOT"); _lootMsgFrame:RegisterEvent("CHAT_MSG_MONEY")
 local _superFrame       = br.game.CreateFrame("Frame")
-local autoAttackGUID      -- the unit auto attack started on (PLAYER_ENTER_COMBAT), for the Cast Debug stop line
+local autoAttackGUID      -- the unit auto attack started on (PLAYER_ENTER_COMBAT), for the auto attack stop line
 _superFrame:RegisterEvent("CHAT_MSG_ADDON")
 _superFrame:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
 -- Auto-attack starting and stopping (unit:isAutoAttacking)
@@ -310,7 +310,7 @@ function common:commonReaders()
 			local targetGUID = br.game.UnitGUID("target")
 			if not br.functions.misc:canUseValue(targetGUID) then targetGUID = nil end
 			if event == "PLAYER_ENTER_COMBAT" then autoAttackGUID = targetGUID end
-			-- Cast Debug: when auto attack stops mid-fight (a queued Maul / Heroic Strike goes with it,
+			-- Debug Level developer: when auto attack stops mid-fight (a queued Maul / Heroic Strike goes with it,
 			-- "Interrupted"), say what was going on, so the cause can be told from the log. Not when the
 			-- unit it started on died: the game drops a dead target, the fight's normal end.
 			-- Checked half a second later: when the attacked unit dies, auto attack stops before the game

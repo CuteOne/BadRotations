@@ -103,7 +103,7 @@ local function plain(value) return br.functions.misc:plainNumber(value) end
 -- go to Logs\Gate.log, not chat (chat shows outcomes and problems)
 local gateWrite = br.log:file("Gate.log", 300)
 
---- Writes a routine refusal line to Gate.log (Cast Debug on), at most once per spell and reason per
+--- Writes a routine refusal line to Gate.log (Debug Level trace), at most once per spell and reason per
 -- throttle window. Also used for the expected refusals after the gates (printReport: out of range,
 -- no unit, ...), which the cast system handles itself.
 function E.writeGateLine(spellID, reason, msg)

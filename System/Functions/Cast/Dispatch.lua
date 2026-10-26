@@ -8,7 +8,7 @@ local E = cast.internal
 -- ─────────────────────────────────────────────────────────────────────────────
 -- SECTION: printReport (failure messages after the gates)
 --
--- Records why a cast was refused for "/br why" and, with Display Failcasts / Cast Debug on,
+-- Records why a cast was refused for "/br why" and, by the Debug Level,
 -- prints it. Reads the call's unit and options from ctx (ctx.unit, ctx.debug, ctx.minUnits,
 -- ctx.effectRng), set by createCastFunction. Always returns false.
 -- ─────────────────────────────────────────────────────────────────────────────
