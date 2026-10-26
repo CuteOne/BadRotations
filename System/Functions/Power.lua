@@ -50,9 +50,12 @@ function power:getPowerTypeName(Unit)
 	return token and token:lower()
 end
 
--- if br.functions.power:getRegen("player") > 15 then
-function power:getRegen(Unit)
-	return select(2, br.game.GetPowerRegen(Unit))
+-- The player's regeneration per second of a power type (Enum.PowerType), or of the power shown when
+-- powerType is nil; the in-combat (casting) rate.
+-- if br.functions.power:getRegen(3) > 15 then
+function power:getRegen(powerType)
+	if powerType == nil then return select(2, br.game.GetPowerRegen()) end
+	return select(2, br.game.GetPowerRegenForPowerType(powerType))
 end
 
 -- Get Count of Specific Rune Time
@@ -211,22 +214,16 @@ function power:getSpellCosts(spellID)
 	return costs
 end
 
--- if getTimeToMax("player") < 3 then
-function power:getTimeToMax(Unit, Limit)
-	local timeTill = 999
-	local max = Limit or br.game.UnitPowerMax(Unit)
-	local curr = br.game.UnitPower(Unit)
-	local curr2 = curr
-	local _, regen = br.game.GetPowerRegen(Unit)
-	-- Feral's Soul of the Forest gives energy back per combo point spent
-	local soulOfTheForest = br.runner and br.runner.spells and br.runner.spells.soulOfTheForest
-	if select(3, br.game.UnitClass("player")) == 11 and br.game.C_SpecializationInfo.GetSpecialization() == 2
-		and soulOfTheForest and br.functions.spell:isKnown(soulOfTheForest)
-	then
-		curr2 = curr + 4 * br.functions.power:getCombo()
-	end
-	timeTill = (curr2 > max) and 0 or (max - curr2) * (1.0 / regen)
-	return timeTill
+-- Seconds until the player's power of a type (Enum.PowerType) regenerates to limit (default: its
+-- maximum); 0 when already there, 999 when it doesn't regenerate.
+-- if br.functions.power:getTimeToMax(3) < 1 then
+function power:getTimeToMax(powerType, limit)
+	local max = limit or br.game.UnitPowerMax("player", powerType)
+	local missing = max - br.game.UnitPower("player", powerType)
+	if missing <= 0 then return 0 end
+	local regen = power:getRegen(powerType)
+	if regen == nil or regen <= 0 then return 999 end
+	return missing / regen
 end
 
 -- Count total ready runes (simple helper)

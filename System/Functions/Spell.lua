@@ -323,7 +323,7 @@ function spell:getCastCount(spellID)
 end
 
 function spell:getCastingRegen(spellID)
-	local regenRate = br.functions.power:getRegen("player")
+	local regenRate = br.functions.power:getRegen()
 	local power = 0
 	local desc = br.game.C_Spell.GetSpellDescription(spellID)
 	local generates = desc:gsub("%D+", "")

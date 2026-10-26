@@ -71,22 +71,23 @@ br.api.build.power = function(power,powerType,powerIndex)
         end
     end
 
-    --- Gets the current rate of regeneration for the specified power
+    --- Gets the current rate of regeneration for the specified power, per second (in combat)
     -- @function power.<powerType>.regen
     -- @return number
     power[powerType].regen = function()
-        return br.functions.power:getRegen("player")
+        return br.functions.power:getRegen(powerIndex)
     end
 
-    --- Gets the time in seconds until the specified power is maxed
+    --- Gets the time in seconds until the specified power is maxed (999 if it doesn't regenerate)
     -- @function power.<powerType>.ttm
+    -- @number[opt] amount Time until this amount instead of the maximum (Death Knight runes: how many runes, default 6)
     -- @return number
     power[powerType].ttm = function(amount)
         if isDKRunes then
             if amount == nil then amount = 6 end
             return br.functions.power:runeTimeTill(amount)
         else
-            return br.functions.power:getTimeToMax("player",amount)
+            return br.functions.power:getTimeToMax(powerIndex, amount)
         end
     end
 

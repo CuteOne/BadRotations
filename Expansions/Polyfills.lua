@@ -20,6 +20,15 @@ if not base.UnitPhaseReason then
     end
 end
 
+-- GetPowerRegenForPowerType: base and casting regeneration of one power type. On a client without
+-- it, from the old GetPowerRegen for the power shown; other power types read as not regenerating.
+if not base.GetPowerRegenForPowerType then
+    api.GetPowerRegenForPowerType = function(powerType)
+        if base.UnitPowerType("player") == powerType then return base.GetPowerRegen() end
+        return 0, 0
+    end
+end
+
 -- C_UnitAuras namespace shims: the aura readers on clients without them, built from the
 -- pre-Shadowlands multi-return UnitAura/UnitBuff/UnitDebuff (the AuraData table's fields).
 do

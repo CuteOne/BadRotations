@@ -7471,12 +7471,12 @@ function C50.max() end
 ---@return number
 function C50.percent() end
 
---- Gets the current rate of regeneration for the specified power
+--- Gets the current rate of regeneration for the specified power, per second (in combat)
 ---@return number
 function C50.regen() end
 
---- Gets the time in seconds until the specified power is maxed
----@param amount? any
+--- Gets the time in seconds until the specified power is maxed (999 if it doesn't regenerate)
+---@param amount? number Time until this amount instead of the maximum (Death Knight runes: how many runes, default 6)
 ---@return number
 function C50.ttm(amount) end
 
