@@ -1006,10 +1006,11 @@ br.api.build.unit = function(api)
             end
             -- ID matching failed (IDs may be nil, zero, or incorrect for this game version).
             -- Fall back to presence-only: if any enchant exists on the configured hand,
-            -- accept it rather than looping with endless reapplication attempts.
-            if not offHand and hasMain then return true end
-            if offHand     and hasOff  then return true end
-            return false
+            -- accept it rather than looping with endless reapplication attempts (Imbue.log
+            -- records the enchant, to correct the list).
+            local present = (offHand and hasOff) or (not offHand and hasMain)
+            if present and br.debug.imbue then br.debug.imbue:noteUnlisted(offHand, offHand and offId or mainId, imbueId) end
+            return present and true or false
         end
         if imbueId == nil then
             if offHand then imbueId = offId else imbueId = mainId end
@@ -1034,10 +1035,10 @@ br.api.build.unit = function(api)
     -- @param offHand Boolean whether to check offhand (true) or main hand (false, default)
     -- @return number Time remaining on the weapon imbue in seconds
     unit.weaponImbue.remain = function(imbueId, offHand)
-        local _, mainExp, _, _, _, offExp = br.functions.item:getWeaponEnchants()
-        local timeRemain = 0
-        if offHand and unit.weaponImbue.exists(imbueId, true) then timeRemain = offExp - br.functions.misc:getTime() end
-        if not offHand and unit.weaponImbue.exists(imbueId) then timeRemain = mainExp - br.functions.misc:getTime() end
+        if not unit.weaponImbue.exists(imbueId, offHand) then return 0 end
+        -- The game gives the time left in milliseconds
+        local _, mainLeft, _, _, _, offLeft = br.functions.item:getWeaponEnchants()
+        local timeRemain = ((offHand and offLeft or mainLeft) or 0) / 1000
         return timeRemain > 0 and timeRemain or 0
     end
 

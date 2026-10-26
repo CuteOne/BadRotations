@@ -925,3 +925,27 @@ function br.debug.loot:tag(guid)
     if guid == nil then return "#?" end
     return "#" .. (printable(guid):match("(%x%x%x%x%x%x)$") or "?")
 end
+
+----------------------------------------------------------------------------------------------------
+-- Imbue recorder (diagnostic, 2026-10-25): unit.weaponImbue.exists accepts any temporary enchant
+-- on the hand when none of the imbue's listed enchant IDs match, so a wrong ID in a list can't
+-- make BR reapply the imbue forever. Imbue.log gets, once per hand and enchant ID, each time that
+-- fallback is used: the enchant the weapon has and the IDs the list gave, to correct the lists.
+----------------------------------------------------------------------------------------------------
+br.debug.imbue = br.debug.imbue or {}
+local imbueWrite = br.log:file("Imbue.log", 100)
+local imbueNoted = {}
+
+-- API/Unit.lua, when the presence-only fallback answers
+function br.debug.imbue:noteUnlisted(offHand, enchantID, listed)
+    local hand = offHand and "off hand" or "main hand"
+    local key = hand .. ":" .. tostring(enchantID)
+    if imbueNoted[key] then return end
+    imbueNoted[key] = true
+    local ids = {}
+    for i = 1, #listed do ids[i] = tostring(listed[i]) end
+    local spells = {}
+    for i = 1, #(listed.spells or {}) do spells[i] = tostring(listed.spells[i]) end
+    imbueWrite(("%s enchant %s is not in the list {%s} (spells {%s}); counted as the imbue"):format(hand,
+        tostring(enchantID), table.concat(ids, ","), table.concat(spells, ",")))
+end
