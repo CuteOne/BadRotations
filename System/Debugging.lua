@@ -436,8 +436,62 @@ local function meleeState()
 end
 
 local meleeEnvironmentLogged = false
+-- Swing around a cast (2026-10-26): does a cast-time spell reset the melee swing timer at its end,
+-- pause it for the cast, or leave it alone? Each such cast while auto-attacking (15 a session) writes,
+-- once the next main-hand swing lands, when that swing came against what each answer predicts. The
+-- swing reader (unit.swing) and weave timing in profiles follow from the answer.
+local SWING_CAST_LINES, SWING_MATCH = 15, 0.25
+local swingCast, swingCastLines = nil, 0 -- { name, start, finished, due, speed, lastAtStart }
+local swingCastEvents = br.game.CreateFrame("Frame")
+swingCastEvents:RegisterEvent("UNIT_SPELLCAST_START")
+swingCastEvents:RegisterEvent("UNIT_SPELLCAST_STOP")
+swingCastEvents:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+swingCastEvents:SetScript("OnEvent", function(_, event, unitToken, _, spellID)
+    if unitToken ~= "player" or swingCastLines >= SWING_CAST_LINES then return end
+    local mh = br.readers.combatLog.swing.mh
+    local now = br.game.GetTime()
+    if event == "UNIT_SPELLCAST_START" then
+        if not br.functions.unit:isAutoAttacking() or (mh.speed or 0) <= 0 or (mh.next or 0) <= 0 then return end
+        swingCast = { name = printable(br.functions.spell:getName(spellID)), start = now, due = mh.next, speed = mh.speed,
+            lastAtStart = mh.last }
+    elseif swingCast and not swingCast.finished then
+        swingCast.finished = now
+        swingCast.interrupted = event == "UNIT_SPELLCAST_INTERRUPTED"
+    end
+end)
+
+local function watchSwingAroundCast()
+    local c = swingCast
+    if c == nil then return end
+    local mh = br.readers.combatLog.swing.mh
+    local now = br.game.GetTime()
+    if mh.last == c.lastAtStart then
+        if now - c.start > 10 then swingCast = nil end -- no swing came (combat ended, auto attack off)
+        return
+    end
+    local swungAt = mh.last
+    swingCast = nil
+    swingCastLines = swingCastLines + 1
+    local finished = c.finished or swungAt
+    local castFor = finished - c.start
+    local resetAt, pauseAt = finished + c.speed, c.due + castFor
+    local verdict
+    if not c.finished or swungAt < finished then verdict = "swung during the cast"
+    elseif math.abs(resetAt - pauseAt) < SWING_MATCH and math.abs(swungAt - resetAt) < SWING_MATCH then
+        -- a cast started just after a swing: both answers predict the same time
+        verdict = "reset or pause (the cast started just after a swing: can't tell)"
+    elseif math.abs(swungAt - resetAt) < SWING_MATCH then verdict = "reset at the cast's end"
+    elseif math.abs(swungAt - pauseAt) < SWING_MATCH then verdict = "paused for the cast"
+    elseif math.abs(swungAt - c.due) < SWING_MATCH then verdict = "not affected"
+    else verdict = "unclear" end
+    meleeLine(("SWING AROUND CAST %s%s: swing due %.2fs after the cast started (speed %.2fs), cast %.2fs, swing came %.2fs after the cast ended | reset predicts %.2f, pause %.2f, none %.2f -> %s"):format(
+        c.name, c.interrupted and " (interrupted)" or "", c.due - c.start, c.speed, castFor, swungAt - finished,
+        c.speed, c.due + castFor - finished, c.due - finished, verdict))
+end
+
 function br.debug.melee:watch()
     local now = br.game.GetTime()
+    watchSwingAroundCast()
     -- Once a session: client facts the fleeing and eating checks depend on
     if not meleeEnvironmentLogged then
         meleeEnvironmentLogged = true
