@@ -306,6 +306,17 @@ local function siteLines(ended)
 	end
 end
 
+-- Called as fn(phase, fight) when a fight starts ("start"), when combat ends ("end") and when its
+-- summary is written ("close", once its last casts are answered). fight: n, startedAt, duration (from
+-- "end"), the casts' counts (sent, done, failed, interrupted, noAnswer, channelling, refused, you).
+local fightListeners = {}
+function rotation:onFight(fn)
+	fightListeners[#fightListeners + 1] = fn
+end
+local function tellFight(phase, which)
+	for _, fn in ipairs(fightListeners) do fn(phase, which) end
+end
+
 -- The fight's closing divider: how long it lasted and what came of its casts
 local function closeFight()
 	local ended = fight
@@ -330,6 +341,7 @@ local function closeFight()
 		local text = "checked only: " .. table.concat(checked, ", ")
 		addLine("    " .. text, "    " .. log.colors.muted .. text .. "|r")
 	end
+	tellFight("close", ended)
 	if fight == ended then fight = nil end
 end
 
@@ -342,12 +354,14 @@ local function startFight()
 	end
 	local target = br.game.UnitExists("target") and unitName("target")
 	divider(("fight %d%s"):format(fights, target and (" · " .. target) or ""))
+	tellFight("start", fight)
 end
 
 local function endFight()
 	if fight == nil or fight.duration then return end
 	fight.duration = GetTime() - fight.startedAt
 	local ended = fight
+	tellFight("end", ended)
 	-- the summary waits for the last casts' answers
 	br.game.C_Timer.After(ANSWER_WAIT + 0.1, function()
 		if fight == ended then closeFight() end
