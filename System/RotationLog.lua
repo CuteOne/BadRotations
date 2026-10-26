@@ -236,8 +236,8 @@ end
 --- A spell the cast system refused (Gates.lua recordRefusal). One row per spell and reason: again
 -- only after the spell was sent or refused for something else. Called for every refusal, so the
 -- repeat check comes first and is cheap.
--- lasting: a refusal that holds until the character learns something (not known yet): shown once
--- a session rather than again every fight
+-- lasting: a refusal that holds until the profile is fixed (a cone/rect cast without its shape):
+-- shown once a session rather than again every fight
 function rotation:refused(spellID, spellName, reason, detail, lasting)
 	local shown = refusedShown[spellID]
 	if shown and shown.reason == reason then return end

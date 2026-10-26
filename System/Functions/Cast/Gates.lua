@@ -51,10 +51,14 @@ local WAITING_REASONS = {
 	INTENT_LOCK = true, OPENER = true,
 }
 
--- Refusals that last until the character learns something (a spell, a talent) or the profile is
--- fixed (a cone/rect cast without its shape): shown once a session in the Rotation Log, not again
--- every fight
-local LASTING_REASONS = { NOT_KNOWN = true, NO_TALENT = true, NO_SHAPE = true }
+-- Refusals of a spell the character doesn't have (not learned yet, talent not taken): left out of
+-- the Rotation Log too. Profiles that play at every level cast what they'll learn later, so these
+-- were rows for every spell above the character's level; /br why and Gate.log still have them
+local NOT_THIS_CHARACTER = { NOT_KNOWN = true, NO_TALENT = true }
+
+-- Refusals that last until the profile is fixed (a cone/rect cast without its shape): shown once a
+-- session in the Rotation Log, not again every fight
+local LASTING_REASONS = { NO_SHAPE = true }
 
 function E.recordRefusal(spellID, reason, detail)
 	local entry = refusalEntry(spellID)
@@ -63,7 +67,7 @@ function E.recordRefusal(spellID, reason, detail)
 	-- The Rotation Log shows a refusal of a cast the profile asked for, always, so Rotation.log has it
 	-- when a user reports a problem they can't reproduce. cast.able only asks (profiles often ask
 	-- before their own conditions, every tick): those count toward the fight's summary instead.
-	if not WAITING_REASONS[reason] and br.log.rotation then
+	if not WAITING_REASONS[reason] and not NOT_THIS_CHARACTER[reason] and br.log.rotation then
 		if E.asking then
 			br.log.rotation:checked(entry.name, reason)
 		else
