@@ -612,10 +612,10 @@ actionList.SingleTarget = function()
     end
     -- * Fists of Fury
     -- fists_of_fury,if=buff.energizing_brew.down&energy.time_to_max>4&buff.tiger_power.remains>4
-    if cast.able.fistsOfFury("player","cone",1,90) and unit.standingTime() > 1 and (unit.ttdGroup(5) > 5 or unit.isDummy())
+    if cast.able.fistsOfFury("player","cone",1,8,60) and unit.standingTime() > 1 and (unit.ttdGroup(5) > 5 or unit.isDummy())
         and not buff.energizingBrew.exists() and energy.ttm() > 4 and buff.tigerPower.remain() > 4
     then
-        if cast.fistsOfFury("player","cone",1,90) then
+        if cast.fistsOfFury("player","cone",1,8,60) then
             ui.debug("Casting Fists of Fury [Single Target]")
             return true
         end

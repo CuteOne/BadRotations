@@ -515,8 +515,8 @@ end -- End Action List - Combat
 actionList.BigAoe = function()
     -- Fel Devastation
     -- fel_devastation,if=talent.collective_anguish|talent.stoke_the_flames
-    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 8) and ((talent.collectiveAnguish or talent.stokeTheFlames)) then
-        if cast.felDevastation("player", "cone", 1, 8) then
+    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 13, 75) and ((talent.collectiveAnguish or talent.stokeTheFlames)) then
+        if cast.felDevastation("player", "cone", 1, 13, 75) then
             ui.debug("Casting Fel Devastation - Collective Anguish | Stoke the Flames [Big Aoe]")
             return true
         end
@@ -544,8 +544,8 @@ actionList.BigAoe = function()
 
     -- Fel Devastation
     -- fel_devastation
-    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 8) then
-        if cast.felDevastation("player", "cone", 1, 8) then
+    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 13, 75) then
+        if cast.felDevastation("player", "cone", 1, 13, 75) then
             ui.debug("Casting Fel Devastation [Big Aoe]")
             return true
         end
@@ -632,8 +632,8 @@ actionList.FieryDemise = function()
 
     -- Fel Devastation
     -- fel_devastation
-    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 8) then
-        if cast.felDevastation("player", "cone", 1, 8) then
+    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 13, 75) then
+        if cast.felDevastation("player", "cone", 1, 13, 75) then
             ui.debug("Casting Fel Devastation [Fiery Demise]")
             return true
         end
@@ -845,10 +845,10 @@ actionList.SingleTarget = function()
 
     -- Fel Devastation
     -- fel_devastation,if=talent.collective_anguish|(talent.stoke_the_flames&talent.burning_blood)
-    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 8)
+    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 13, 75)
         and ((talent.collectiveAnguish or (talent.stokeTheFlames and talent.burningBlood)))
     then
-        if cast.felDevastation("player", "cone", 1, 8) then
+        if cast.felDevastation("player", "cone", 1, 13, 75) then
             ui.debug("Casting Fel Devastation - CA or (StF and BB) [Single Target]")
             return true
         end
@@ -865,8 +865,8 @@ actionList.SingleTarget = function()
 
     -- Fel Devastation
     -- fel_devastation
-    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 8) then
-        if cast.felDevastation("player", "cone", 1, 8) then
+    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 13, 75) then
+        if cast.felDevastation("player", "cone", 1, 13, 75) then
             ui.debug("Casting Fel Devastation [Single Target]")
             return true
         end
@@ -917,10 +917,10 @@ actionList.SmallAoe = function()
 
     -- Fel Devastation
     -- fel_devastation,if=talent.collective_anguish.enabled|(talent.stoke_the_flames.enabled&talent.burning_blood.enabled)
-    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 8)
+    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 13, 75)
         and ((talent.collectiveAnguish or (talent.stokeTheFlames and talent.burningBlood)))
     then
-        if cast.felDevastation("player", "cone", 1, 8) then
+        if cast.felDevastation("player", "cone", 1, 13, 75) then
             ui.debug("Casting Fel Devastation - CA or (StF and BB) [Small Aoe]")
             return true
         end
@@ -939,8 +939,8 @@ actionList.SmallAoe = function()
 
     -- Fel Devastation
     -- fel_devastation
-    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 8) then
-        if cast.felDevastation("player", "cone", 1, 8) then
+    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player", "cone", 1, 13, 75) then
+        if cast.felDevastation("player", "cone", 1, 13, 75) then
             ui.debug("Casting Fel Devastation [Small Aoe]")
             return true
         end

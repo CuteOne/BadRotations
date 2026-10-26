@@ -140,7 +140,7 @@ end
 
 custom.getDeepBreathLocation = function(minUnits)
     for i = 21, 50 do
-        if #enemies.rect.get(i, 6) >= minUnits then
+        if #enemies.rect.get(i, 12) >= minUnits then -- Deep Breath hits 6 yd around its path
             local playerX, playerY, playerZ = unit.position("player")
             local playerFacing = unit.facingAngle("player")
             local x = playerX + (i * math.cos(playerFacing))
@@ -573,12 +573,12 @@ end -- End Action List - ES
 -- Action List - FB
 actionList.Fb = function()
     -- Fire Breath
-    if cast.able.fireBreath("player", "cone", 1, 25) and not cast.current.fireBreath() then
+    if cast.able.fireBreath("player", "cone", 1, 30, 30) and not cast.current.fireBreath() then
         -- fire_breath,empower_to=1,target_if=max:target.health.pct,if=(buff.dragonrage.up&active_enemies<=2)|(active_enemies=1&!talent.everburning_flame)|(buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste)
         if (((buff.dragonrage.exists() and #enemies.yards25f <= 2) or (#enemies.yards25f == 1 and not talent.everburningFlame)
                 or (buff.dragonrage.remains() < 1.75 * var.spellHaste and buff.dragonrage.remains() >= 1 * var.spellHaste)))
         then
-            if cast.fireBreath("player", "cone", 1, 25) then
+            if cast.fireBreath("player", "cone", 1, 30, 30) then
                 var.stageFireBreath = custom.stageLimit("FB", 1)
                 ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")
                 return true
@@ -589,7 +589,7 @@ actionList.Fb = function()
                 and not talent.everburningFlame) or (buff.dragonrage.remains() < 2.5 * var.spellHaste
                 and buff.dragonrage.remains() >= 1.75 * var.spellHaste)))
         then
-            if cast.fireBreath("player", "cone", 1, 25) then
+            if cast.fireBreath("player", "cone", 1, 30, 30) then
                 var.stageFireBreath = custom.stageLimit("FB", 2)
                 ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")
                 return true
@@ -599,14 +599,14 @@ actionList.Fb = function()
         if (((talent.everburningFlame and buff.dragonrage.exists() and #enemies.yards25f >= 5) or not talent.fontOfMagic
                 or (buff.dragonrage.remains() <= 3.25 * var.spellHaste and buff.dragonrage.remains() >= 2.5 * var.spellHaste)))
         then
-            if cast.fireBreath("player", "cone", 1, 25) then
+            if cast.fireBreath("player", "cone", 1, 30, 30) then
                 var.stageFireBreath = custom.stageLimit("FB", 3)
                 ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")
                 return true
             end
         end
         -- fire_breath,empower_to=4,target_if=max:target.health.pct
-        if cast.fireBreath("player", "cone", 1, 25) then
+        if cast.fireBreath("player", "cone", 1, 30, 30) then
             var.stageFireBreath = custom.stageLimit("FB", 4)
             ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")
             return true
@@ -993,8 +993,7 @@ local function runRotation()
     enemies.get(15, "player", false, true) -- makes enemies.yards15f
     enemies.get(25)
     enemies.get(25, "player", false, true)
-    enemies.rect.get(15, 8)
-    enemies.rect.get(50, 6)
+    enemies.rect.get(50, 12) -- Deep Breath: 6 yd around its path
 
     -- Cancel if casting with no enemies
     if #enemies.yards25f == 0 then

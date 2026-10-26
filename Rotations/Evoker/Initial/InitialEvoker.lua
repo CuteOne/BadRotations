@@ -212,8 +212,8 @@ end     -- End Action List - Interrupt
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
     -- Deep Breath
-    if ui.alwaysCdAoENever("Deep Breath", 1, 20) and cast.able.deepBreath("player", "rect", 1, 20) then
-        if cast.deepBreath("player", "rect", 1, 20) then
+    if ui.alwaysCdAoENever("Deep Breath", 1, 20) and cast.able.deepBreath("player", "rect", 1, 20, 12) then
+        if cast.deepBreath("player", "rect", 1, 20, 12) then
             ui.debug("Casting Deep Breath [Cooldowns]")
             return true
         end
@@ -275,12 +275,12 @@ actionList.Combat = function()
             --     end
             -- end
             -- Fire Breath
-            if cast.able.fireBreath("player", "cone", 1, 25) and var.moveCast and not cast.current.fireBreath() then
+            if cast.able.fireBreath("player", "cone", 1, 30, 30) and var.moveCast and not cast.current.fireBreath() then
                 -- fire_breath,empower_to=1,if=(20+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste|active_enemies<=2
                 -- (no Dragonrage before Devastation, so its parts are left out)
                 if 20 + debuff.fireBreath.remains(units.dyn25) < 20 * 1.3 or #enemies.yards25f <= 2
                 then
-                    if cast.fireBreath("player", "cone", 1, 25) then
+                    if cast.fireBreath("player", "cone", 1, 30, 30) then
                         var.stageFireBreath = custom.stageLimit("FB", 1)
                         ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")
                         return true
@@ -288,7 +288,7 @@ actionList.Combat = function()
                 end
                 -- fire_breath,empower_to=2,if=(14+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
                 if 14 + debuff.fireBreath.remains(units.dyn25) < 20 * 1.3 then
-                    if cast.fireBreath("player", "cone", 1, 25) then
+                    if cast.fireBreath("player", "cone", 1, 30, 30) then
                         var.stageFireBreath = custom.stageLimit("FB", 2)
                         ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")
                         return true
@@ -296,14 +296,14 @@ actionList.Combat = function()
                 end
                 -- fire_breath,empower_to=3,if=(8+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
                 if 8 + debuff.fireBreath.remains(units.dyn25) < 20 * 1.3 then
-                    if cast.fireBreath("player", "cone", 1, 25) then
+                    if cast.fireBreath("player", "cone", 1, 30, 30) then
                         var.stageFireBreath = custom.stageLimit("FB", 3)
                         ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")
                         return true
                     end
                 end
                 -- fire_breath,empower_to=4
-                if cast.fireBreath("player", "cone", 1, 25) then
+                if cast.fireBreath("player", "cone", 1, 30, 30) then
                     var.stageFireBreath = custom.stageLimit("FB", 4)
                     ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")
                     return true

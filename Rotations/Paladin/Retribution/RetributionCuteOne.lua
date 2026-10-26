@@ -640,11 +640,11 @@ actionList.Generators = function()
 
     -- Wake Of Ashes
     -- wake_of_ashes,if=holy_power<=2&(cooldown.avenging_wrath.remains>6|cooldown.crusade.remains>6)&(!talent.execution_sentence|cooldown.execution_sentence.remains>4|target.time_to_die<8)&(!raid_event.adds.exists|raid_event.adds.in>20|raid_event.adds.up)
-    if ui.alwaysCdNever("Wake of Ashes") and cast.able.wakeOfAshes(units.dyn12, "cone", 1, 12)
+    if ui.alwaysCdNever("Wake of Ashes") and cast.able.wakeOfAshes(units.dyn12, "cone", 1, 14, 120)
         and ((holyPower() <= 2 and (cd.avengingWrath.remains() > 6 or cd.crusade.remains() > 6)
             and (not talent.executionSentence or (cd.executionSentence.remains() > 4 or not ui.alwaysCdNever("Execution Sentence")) or unit.ttd(units.dyn12) < 8)))
     then
-        if cast.wakeOfAshes(units.dyn12, "cone", 1, 12) then
+        if cast.wakeOfAshes(units.dyn12, "cone", 1, 14, 120) then
             ui.debug("Casting Wake Of Ashes [Generators]")
             return true
         end
@@ -946,7 +946,6 @@ local runRotation = function()
     enemies.get(8)
     enemies.get(10)
     enemies.get(12)
-    enemies.cone.get(12, 45)
     enemies.get(20)
     enemies.get(30, "player", false, true)
     enemies.get(40)

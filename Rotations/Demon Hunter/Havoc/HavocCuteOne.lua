@@ -961,7 +961,7 @@ actionList.Combat = function()
 
     -- Eye Beam
     -- eye_beam,if=active_enemies>desired_targets|raid_event.adds.in>(40-talent.cycle_of_hatred*15)&!debuff.essence_break.up&(cooldown.metamorphosis.remains>30-talent.cycle_of_hatred*15|cooldown.metamorphosis.remains<gcd.max*2&(!talent.essence_break|cooldown.essence_break.remains<gcd.max*1.5))&(buff.metamorphosis.down|buff.metamorphosis.remains>gcd.max|!talent.restless_hunter)&(talent.cycle_of_hatred|!talent.initiative|cooldown.vengeful_retreat.remains>5|time<10)&buff.inner_demon.down|fight_remains<15
-    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player", "rect", 1, 20)
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player", "rect", 1, 20, 6)
         and #enemies.yards20r > 0 and not unit.moving() and (eyebeamTTD() or unit.isDummy(units.dyn5))
         and ((not debuff.essenceBreak.exists(units.dyn5) and (cd.metamorphosis.remains() > 30 - var.cycleOfHatred * 15 or cd.metamorphosis.remains() < unit.gcd(true) * 2
                 and (not talent.essenceBreak or cd.essenceBreak.remains() < unit.gcd(true) * 1.5))
@@ -1295,8 +1295,8 @@ local function runRotation()
     enemies.get(10, "target", true)
     enemies.get(20)
     enemies.get(30)
-    enemies.rect.get(20, 8)
-    enemies.rect.get(23, 3)
+    enemies.rect.get(20, 6) -- Eye Beam: 20 yd line, 6 wide
+    enemies.rect.get(23, 10) -- Fel Rush: 23 yd line, 10 wide
     enemies.rect.get(50, 8)
 
     -- Talent to Number

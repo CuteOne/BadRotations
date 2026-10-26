@@ -14,8 +14,8 @@ local _, br = ...
 --   cast.demoralizingRoar.aoe(10)          an AoE around you, 10 yards
 --   cast.swipe.aoe(8, 3)                   3+ enemies within 8 yards
 --   cast.flamestrike.ground(8, 3)          on the ground where it covers 3+ enemies
---   cast.fireBreath.cone(25, 90, 2)        2+ enemies in a 90 degree cone reaching 25 yards
---   cast.eyeBeam.rect(20, 4)               a line 20 yards long and 4 wide in front of you
+--   cast.fireBreath.cone(30, 30, 2)        2+ enemies in a 30 degree cone reaching 30 yards
+--   cast.eyeBeam.rect(20, 6)               a line 20 yards long and 6 wide in front of you
 -- Area forms take range, minimum units (default 1), then the unit (default per type); cone and
 -- rect take their shape after the range (the angle in degrees, the full width in yards, as the
 -- spell data has them: SpellTargetRestrictions ConeDegrees / Width). .rank(n)

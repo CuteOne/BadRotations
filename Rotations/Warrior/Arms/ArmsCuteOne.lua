@@ -340,8 +340,8 @@ actionList.AOE = function()
     end
     -- Cleave
     -- cleave,if=rage>110&active_enemies<=4
-    if cast.able.cleave(units.dyn5,"cone",1,8) and (rage() > 110 or (rage.max() == 100 and rage() > 90)) and #enemies.yards5f <= 4 then
-        if cast.cleave("player","cone",1,8) then
+    if cast.able.cleave(units.dyn5,"cone",1,8,102) and (rage() > 110 or (rage.max() == 100 and rage() > 90)) and #enemies.yards5f <= 4 then
+        if cast.cleave("player","cone",1,8,102) then
             ui.debug("Casting Cleave [AOE]")
             return true
         end
