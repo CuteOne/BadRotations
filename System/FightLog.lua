@@ -8,7 +8,9 @@ local _, br = ...
 --   combat log    damage done by you and by your pets, guardians and totems (minus overkill), per
 --                 spell; healing done (minus overhealing) and overhealing; damage taken; deaths of
 --                 you and your group
---   4x a second   busy (casting, channelling or the GCD running) or swinging at a target in melee;
+--   4x a second   BR off (Power) or paused (pause key/toggle, mounted, dead, ...; not its own casts):
+--                 the time BR wasn't playing, so a fight it didn't play isn't scored as one;
+--                 busy (casting, channelling or the GCD running) or swinging at a target in melee;
 --                 idle with an enemy within 8 yd (Idle.log's rule); time at full energy, rage,
 --                 focus or runic power; each 30 s+ cooldown among the profile's abilities while it
 --                 is ready and usable
@@ -30,6 +32,8 @@ local MINE = 0x00000001     -- COMBATLOG_OBJECT_AFFILIATION_MINE: you, your pets
 local GROUP = 0x00000006    -- COMBATLOG_OBJECT_AFFILIATION_PARTY | _RAID
 local PLAYER = 0x00000400   -- COMBATLOG_OBJECT_TYPE_PLAYER
 local CAPPED_POWER = { [1] = "rage", [2] = "focus", [3] = "energy", [6] = "runicPower" }
+-- Pause reasons that are BR playing (its rotation waits while a cast or channel runs), not BR stopped
+local PLAYING_PAUSES = { casting = true, channelling = true, ["item channel"] = true }
 
 local GetTime = br.game.GetTime
 local fightLine = log:file("Fights.log")
@@ -70,6 +74,16 @@ local function sample()
 	local dt = now - f.sampledAt
 	f.sampledAt = now
 	local unitFns = br.functions.unit
+	-- BR not playing: Power off (2026-10-26: a death on purpose with Power off was scored as the
+	-- profile's 0 dps, 16.8 s idle fight), or paused for something other than its own cast
+	local pauseReason = br.runner and br.runner.state and br.runner.state.pauseReason
+	if br.core and not br.core:isPowerOn() then
+		f.brOff = f.brOff + dt
+		return
+	elseif pauseReason and not PLAYING_PAUSES[pauseReason] then
+		f.brPaused = f.brPaused + dt
+		return
+	end
 	local busy = br.game.UnitCastingInfo("player") ~= nil or br.game.UnitChannelInfo("player") ~= nil
 		or (br.functions.spell:getGlobalCD() or 0) > 0
 	local swinging = not busy and unitFns:isAutoAttacking() and br.game.UnitExists("target")
@@ -106,7 +120,7 @@ local function start(rotationFight)
 	end
 	current = {
 		n = rotationFight.n, startedAt = rotationFight.startedAt, sampledAt = GetTime(), target = target,
-		busy = 0, swinging = 0, idleNear = 0, capped = {}, ready = {}, watched = watchedCooldowns(),
+		busy = 0, swinging = 0, idleNear = 0, brOff = 0, brPaused = 0, capped = {}, ready = {}, watched = watchedCooldowns(),
 		damage = 0, petDamage = 0, bySpell = {}, taken = 0, healing = 0, overhealing = 0, hidden = 0,
 		manaSpent = 0, manaGained = 0, lastMana = usable(mana) and mana or nil, manaStart = mana,
 		deaths = 0, groupDeaths = 0,
@@ -164,7 +178,7 @@ local function write(rotationFight)
 		"failed", rotationFight.failed or 0, "interrupted", rotationFight.interrupted or 0,
 		"noAnswer", rotationFight.noAnswer or 0, "refused", rotationFight.refused or 0, "you", rotationFight.you or 0,
 		"perMinute", perSecond(rotationFight.sent or 0) * 60 }))
-	local timeParts = { "busy", f.busy, "swinging", f.swinging, "idleNear", f.idleNear }
+	local timeParts = { "busy", f.busy, "swinging", f.swinging, "idleNear", f.idleNear, "brOff", f.brOff, "brPaused", f.brPaused }
 	for powerName, seconds in pairs(f.capped) do
 		timeParts[#timeParts + 1] = "capped." .. powerName
 		timeParts[#timeParts + 1] = seconds
@@ -187,9 +201,12 @@ local function write(rotationFight)
 	-- Debug Level developer: the fight in one chat line, so a profile change shows its effect at once
 	if br.functions.misc:debugAt("developer") then
 		local failed = (rotationFight.failed or 0) + (rotationFight.interrupted or 0) + (rotationFight.noAnswer or 0)
-		br.log:systemDebug(("[FIGHT] %.1fs%s: %.1f dps, %d casts%s, %s mana, idle %.1fs"):format(duration,
+		local notPlaying = (f.brOff > 0 and (", BR off %.1fs"):format(f.brOff) or "")
+			.. (f.brPaused > 0 and (", BR paused %.1fs"):format(f.brPaused) or "")
+		br.log:systemDebug(("[FIGHT] %.1fs%s: %.1f dps, %d casts%s, %s mana, idle %.1fs%s"):format(duration,
 			f.target and (" vs " .. f.target) or "", perSecond(f.damage), rotationFight.sent or 0,
-			failed > 0 and (" (" .. failed .. " didn't land)") or "", tostring(math.floor(f.manaSpent + 0.5)), f.idleNear))
+			failed > 0 and (" (" .. failed .. " didn't land)") or "", tostring(math.floor(f.manaSpent + 0.5)), f.idleNear,
+			notPlaying))
 	end
 end
 
