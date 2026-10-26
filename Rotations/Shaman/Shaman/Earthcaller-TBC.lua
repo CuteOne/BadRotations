@@ -62,6 +62,8 @@ local function options()
         tip = "Open on an enemy you target, out of combat and standing still, with Lightning Bolt (Melee style; Caster style always pulls)." })
     ui.spinner(section, "Shock Mana", { value = 40, min = 0, max = 100, step = 5, checkbox = false,
         tip = "Melee style: shocks for damage only above this mana percent (Focused procs, interrupts and fleeing enemies always may). One heal's mana is always kept back." })
+    ui.spinner(section, "Weave Lightning Bolt", { value = 50, min = 0, max = 100, step = 5, checked = true,
+        tip = "Melee style, until Windfury Weapon (level 30): Lightning Bolt between swings while mana is above this percent. At low levels a bolt out-damages several swings, and mana left at the end of a fight is wasted." })
     ui.checkbox(section, "Purge", { checked = true, tip = "Purge a magic buff from your target." })
     ui.checkbox(section, "Ancestral Spirit", { checked = true, tip = "Out of combat, resurrect a dead group member." })
     -- Weapons and shields
@@ -96,7 +98,6 @@ local function options()
     ui.checkbox(section, "Elemental Mastery", { checked = true })
     -- Defensive
     section = ui.section("Defensive")
-    module.BasicHealing(section)
     ui.spinner(section, "Healing Wave", { value = 40, checked = true, tip = "Health percent, in combat (Lesser Healing Wave once known)." })
     ui.spinner(section, "Out of Combat Healing", { value = 70, checked = true, tip = "Health percent to top up to with Healing Wave after a fight." })
     ui.spinner(section, "Nature's Swiftness", { value = 25, checked = true, tip = "Health percent for an instant Healing Wave." })
@@ -235,7 +236,6 @@ end
 -- Action List - Defensive
 actionList.Defensive = function()
     if not ui.useDefensive() then return false end
-    if module.BasicHealing() then return true end
     local hp = unit.hp()
     if unit.inCombat() then
         local onMe = #enemies.yards8
@@ -391,8 +391,9 @@ end
 -- Action List - Melee style
 actionList.Melee = function()
     local distance = unit.distance("target")
-    -- Auto attack
-    if distance < 5 and not cast.auto.autoAttack() then
+    -- Auto attack: on once the target is close; the game swings as soon as it's in reach (BR's
+    -- distance can read a few yards out for a mob that hovers or has a large reach)
+    if distance < 8 and not cast.auto.autoAttack() then
         unit.startAttack()
         ui.debug("Casting Auto Attack")
     end
@@ -400,9 +401,17 @@ actionList.Melee = function()
     if distance < 5 and cast.stormstrike("target") then ui.debug("Casting Stormstrike") return true end
     -- Shocks
     if actionList.Shocks(power.mana.percent() >= ui.value("Shock Mana")) then return true end
+    if unit.moving() then return false end
     -- An enemy standing off at range (a caster): bolt it rather than wait
-    if distance > 10 and not unit.moving() and not unit.moving("target") then
+    if distance > 10 and not unit.moving("target") then
         if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Range]") return true end
+    end
+    -- Weave: spare mana into Lightning Bolt until Windfury Weapon makes the swings worth more
+    if ui.checked("Weave Lightning Bolt") and not spell.windfuryWeapon.known()
+        and power.mana.percent() >= ui.value("Weave Lightning Bolt") and fightLength("target") > 3
+        and affordable(cast.cost.lightningBolt())
+    then
+        if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Weave]") return true end
     end
 end
 
