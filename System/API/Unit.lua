@@ -1013,13 +1013,16 @@ br.api.build.unit = function(api)
     -- @function unit.weaponImbue.needed
     -- @param imbueId The imbue list (imbues.<key>) or enchant ID to check for
     -- @param offHand Boolean whether to check offhand (true) or main hand (false, default)
-    -- @return boolean True if the imbue is NOT currently applied to the specified weapon, and applying it would
-    unit.weaponImbue.needed = function(imbueId, offHand)
+    -- @param[opt] refreshUnder Seconds: also true when the imbue is on with less than this left (a top-up)
+    -- @return boolean True if the imbue is NOT currently applied to the specified weapon (or is about to run
+    -- out), and applying it would take
+    unit.weaponImbue.needed = function(imbueId, offHand, refreshUnder)
         local key = type(imbueId) == "table" and br.functions.item:getImbueKeyOf(imbueId) or nil
         if key and (br.functions.item:isImbueWatched(key) or not br.functions.item:imbueTakes(key, offHand and 17 or 16)) then
             return false
         end
-        return not unit.weaponImbue.exists(imbueId, offHand)
+        if not unit.weaponImbue.exists(imbueId, offHand) then return true end
+        return refreshUnder ~= nil and unit.weaponImbue.remain(imbueId, offHand) < refreshUnder
     end
 
     --- Get weapon imbue remaining time

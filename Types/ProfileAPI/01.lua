@@ -9732,8 +9732,9 @@ function C58.exists(imbueId, offHand) end
 --- (it doesn't hold it, e.g. a profession tool).
 ---@param imbueId? number The imbue list (imbues.<key>) or enchant ID to check for
 ---@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
----@return boolean # True if the imbue is NOT currently applied to the specified weapon, and applying it would
-function C58.needed(imbueId, offHand) end
+---@param refreshUnder? any Seconds: also true when the imbue is on with less than this left (a top-up)
+---@return boolean # True if the imbue is NOT currently applied to the specified weapon (or is about to run
+function C58.needed(imbueId, offHand, refreshUnder) end
 
 --- Get weapon imbue remaining time
 ---@param imbueId? number The ID of the imbue to check
