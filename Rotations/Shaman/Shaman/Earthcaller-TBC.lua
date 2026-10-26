@@ -63,7 +63,7 @@ local function options()
     ui.checkbox(section, "Pull on the Move", { checked = true,
         tip = "Open on a hostile enemy you target while you're moving with Earth Shock (instant), so you tag it first. Standing still it's Lightning Bolt (cheaper)." })
     ui.checkbox(section, "Spend Mana When Safe", { checked = true,
-        tip = "While nothing threatens you (health 60%+, one enemy at most on you, and you're winning), shocks and Lightning Bolt ignore the mana thresholds below and no heal's mana is held back. They come back the moment that changes." })
+        tip = "While nothing threatens you (health 60%+, one enemy at most on you, and it dies in under half the time you would), shocks and Lightning Bolt ignore the mana thresholds below and no heal's mana is held back. They come back the moment that changes." })
     ui.spinner(section, "Shock Mana", { value = 40, min = 0, max = 100, step = 5, checkbox = false,
         tip = "Melee style: shocks for damage only above this mana percent (Focused procs, interrupts and fleeing enemies always may). One heal's mana is always kept back." })
     ui.spinner(section, "Weave Lightning Bolt", { value = 50, min = 0, max = 100, step = 5, checked = true,
@@ -144,13 +144,15 @@ local function fightLength(thisUnit)
     return unit.level(thisUnit) <= unit.level() - 4 and 0 or 999
 end
 
--- Nothing in this fight threatens you: health 60%+, one enemy at most on you, and you're winning (its
--- health no higher than yours, or it's about to die). Then the mana held back for a heal, and the shock
--- and weave thresholds, are mana left unspent: it comes back before the next pull anyway
+-- Nothing in this fight threatens you: health 60%+, one enemy at most on you, and you're winning: you
+-- aren't losing health, it's about to die, or it dies in under half the time you would (unit.ttd on
+-- both; the tester's idea, 2026-10-26). Then the mana held back for a heal, and the shock and weave
+-- thresholds, are mana left unspent: it comes back before the next pull anyway
 local function safe()
     if not ui.checked("Spend Mana When Safe") or enemy == nil then return false end
-    local hp = unit.hp()
-    return hp >= 60 and #enemies.yards8 <= 1 and (unit.hp(enemy) <= hp or fightLength(enemy) < 8)
+    if unit.hp() < 60 or #enemies.yards8 > 1 then return false end
+    local mine, theirs = unit.ttd("player"), fightLength(enemy)
+    return mine >= 999 or theirs < 8 or mine >= 2 * theirs
 end
 
 -- True when a spell costing this much still leaves the mana for one heal (or there's no need for one)
