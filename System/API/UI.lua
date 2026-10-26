@@ -29,10 +29,7 @@ br.api.build.ui = function(api)
     ui.alwaysCdAoENever = function(thisOption, minUnits, enemyCount)
         -- Option Dropdown Requires
         -- {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
-        local settings = br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-        if not settings or settings["Rotation Options"] == nil then return false end
-
-        local optVal = settings["Rotation Options"][thisOption] ~= nil and ui.value(thisOption, "Rotation Options") or ui.value(thisOption, "Base Options")
+        local optVal = ui.value(thisOption) -- on whichever page holds it (0 when none does)
         minUnits = minUnits or 3
 
         -- If explicitly Always/ Never/ CD-only selected, handle those first.
@@ -74,10 +71,7 @@ br.api.build.ui = function(api)
     ui.alwaysCdNever = function(thisOption)
         -- Option Dropdown Requires
         -- {"|cff008000Always", "|cff0000ffCD", "|cffff0000Never"}
-        local settings = br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-        if not settings or settings["Rotation Options"] == nil then return false end
-
-        local optVal = settings["Rotation Options"][thisOption] ~= nil and ui.value(thisOption, "Rotation Options") or ui.value(thisOption, "Base Options")
+        local optVal = ui.value(thisOption) -- on whichever page holds it (0 when none does)
         return optVal == 1 or (optVal == 2 and ui.useCDs())
     end
 
