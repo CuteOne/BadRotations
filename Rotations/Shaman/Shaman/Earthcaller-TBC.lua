@@ -63,7 +63,7 @@ local function options()
     ui.spinner(section, "Shock Mana", { value = 40, min = 0, max = 100, step = 5, checkbox = false,
         tip = "Melee style: shocks for damage only above this mana percent (Focused procs, interrupts and fleeing enemies always may). One heal's mana is always kept back." })
     ui.spinner(section, "Weave Lightning Bolt", { value = 50, min = 0, max = 100, step = 5, checked = true,
-        tip = "Melee style, until Windfury Weapon (level 30): Lightning Bolt between swings while mana is above this percent. At low levels a bolt out-damages several swings, and mana left at the end of a fight is wasted." })
+        tip = "Melee style, until Windfury Weapon (level 30): Lightning Bolt between swings while mana is above this percent, started just after a swing lands so it costs the least swing time. At low levels a bolt out-damages several swings, and mana left at the end of a fight is wasted." })
     ui.checkbox(section, "Purge", { checked = true, tip = "Purge a magic buff from your target." })
     ui.checkbox(section, "Ancestral Spirit", { checked = true, tip = "Out of combat, resurrect a dead group member." })
     -- Weapons and shields
@@ -139,6 +139,13 @@ local function fightLength(thisUnit)
     local ttd = unit.ttd(thisUnit)
     if ttd < 999 then return ttd end
     return unit.level(thisUnit) <= unit.level() - 4 and 0 or 999
+end
+
+-- A cast-time spell stalls the melee swing, so a weave goes out just after a swing lands (or
+-- before the first one), where it costs the least swing time. Instants don't touch the swing.
+local function justSwung()
+    local untilNext, _, last = unit.swing()
+    return untilNext == nil or util.time() - last <= 0.4
 end
 
 -- Totems are worth their mana: the fight lasts long enough, or 2+ enemies are on you
@@ -409,7 +416,7 @@ actionList.Melee = function()
     -- Weave: spare mana into Lightning Bolt until Windfury Weapon makes the swings worth more
     if ui.checked("Weave Lightning Bolt") and not spell.windfuryWeapon.known()
         and power.mana.percent() >= ui.value("Weave Lightning Bolt") and fightLength("target") > 3
-        and affordable(cast.cost.lightningBolt())
+        and affordable(cast.cost.lightningBolt()) and (distance >= 5 or justSwung())
     then
         if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Weave]") return true end
     end
