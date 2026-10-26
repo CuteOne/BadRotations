@@ -575,6 +575,14 @@ function br.debug.idle:watch(paused)
         end
     end) end
     idleLine("  BR since the last action: " .. (#decisions > 0 and table.concat(decisions, ", ") or "nothing tried"))
+    -- Debug Level developer: the same in one chat line
+    if br.functions.misc:debugAt("developer") then
+        br.log:systemDebug(("[IDLE] %.1fs in combat doing nothing: target %s, auto attack %s; %s (Logs\\Idle.log)"):format(
+            now - lastActionAt,
+            br.game.UnitExists("target") and (unitName("target") .. (" %.1fyd"):format(plainNumber(targetDist))) or "none",
+            br.functions.unit:isAutoAttacking() and "on" or "off",
+            #decisions > 0 and ("BR tried " .. table.concat(decisions, ", ", 1, math.min(3, #decisions))) or "the profile asked for nothing"))
+    end
     if #idleErrors > 0 then idleLine("  game errors: " .. table.concat(idleErrors, ", ")) end
     -- "nothing tried" with runs > 0: the profile ran but stopped itself (its own halt, a toggle) or
     -- reached no cast line
@@ -600,6 +608,73 @@ function br.debug.idle:watch(paused)
         end
     end
 end
+
+----------------------------------------------------------------------------------------------------
+-- Spells learned but unused (Debug Level developer, 2026-10-26): a spell the character learns during
+-- the session (a level, a trainer, a talent) that the profile hasn't asked for in UNUSED_FIGHTS fights
+-- of UNUSED_MIN_FIGHT seconds or more gets one chat line, so a profile that plays at every level shows
+-- where it misses a new spell. Every cast.<spell>() and cast.able.<spell>() counts as asking, whatever
+-- the answer. Spells known before the first fight don't count: there's no list of what a profile
+-- leaves out on purpose.
+----------------------------------------------------------------------------------------------------
+br.debug.unused = br.debug.unused or {}
+local UNUSED_FIGHTS, UNUSED_MIN_FIGHT = 3, 5
+local knownNames, knownFor -- name -> true: the known, castable abilities at the last fight start; for which runner
+local watchedNames = {}    -- name -> fights it went unasked
+local askedNames = {}      -- name -> true: asked this fight
+
+-- The names of the character's known, castable abilities in the profile's spell lists
+local function knownAbilityNames()
+    local names = {}
+    local abilities = br.runner and br.runner.spells and br.runner.spells.abilities
+    if abilities == nil then return names end
+    local spellFns = br.functions.spell
+    for _, ref in pairs(abilities) do
+        local id = spellFns:resolveRank(ref)
+        if type(id) == "number" and id > 0 and spellFns:isKnown(id) and not spellFns:isPassive(id) then
+            local name = spellFns:getName(id)
+            if name then names[name] = true end
+        end
+    end
+    return names
+end
+
+--- The profile asked for a spell (cast:createCastFunction)
+function br.debug.unused:asked(spellID)
+    if next(watchedNames) == nil then return end
+    local name = br.functions.spell:getName(spellID)
+    if name then askedNames[name] = true end
+end
+
+br.log.rotation:onFight(function(phase, fight)
+    if phase == "start" then
+        local now = knownAbilityNames()
+        if knownFor ~= br.runner then
+            br.game.wipe(watchedNames) -- a new spec or profile starts over
+        elseif knownNames then
+            for name in pairs(now) do
+                if not knownNames[name] and watchedNames[name] == nil then watchedNames[name] = 0 end
+            end
+        end
+        knownNames, knownFor = now, br.runner
+        br.game.wipe(askedNames)
+        return
+    end
+    if phase ~= "close" or (fight.duration or 0) < UNUSED_MIN_FIGHT then return end
+    for name, fights in pairs(watchedNames) do
+        if askedNames[name] then
+            watchedNames[name] = nil
+        elseif fights + 1 >= UNUSED_FIGHTS then
+            watchedNames[name] = nil
+            if br.functions.misc:debugAt("developer") then
+                br.log:systemDebug(("[UNUSED] %s: learned this session, and %s hasn't asked for it in %d fights."):format(
+                    printable(name), printable(tostring(br.loader.selectedProfileName)), UNUSED_FIGHTS))
+            end
+        else
+            watchedNames[name] = fights + 1
+        end
+    end
+end)
 
 ----------------------------------------------------------------------------------------------------
 -- Combo point probe (diagnostic): are combo points kept on the target (Classic) or on the player

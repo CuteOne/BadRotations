@@ -252,6 +252,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 								 debug)
 	local was = E.asking
 	E.asking = debug == true
+	if br.debug.unused then br.debug.unused:asked(spellID) end
 	return finishAsking(was, runCastFunction(self, thisUnit, castType, minUnits, effectRng, spellID, index, predict,
 		predictPad, enemies, debug))
 end
