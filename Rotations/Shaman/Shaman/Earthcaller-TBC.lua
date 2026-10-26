@@ -214,8 +214,20 @@ local function applyImbue(optionName, offHand)
         if var.offHandSent and util.time() - var.offHandSent <= 2 then return false end
     end
     if present and (var.imbued[hand] == nil or var.imbued[hand] == key) then return false end
+    -- Sent and nothing showed: some weapons don't hold an imbue (2026-10-26: Rockbiter on a Mining Pick went
+    -- out 7 times in 11 s, each "done", never on the weapon). Wait a minute before trying that hand again
+    var.imbueSentAt = var.imbueSentAt or {}
+    local sentAt = var.imbueSentAt[hand]
+    if sentAt and not present and util.time() - sentAt < 60 then
+        if util.time() - sentAt > 3 and not var.imbueToldFailed then
+            var.imbueToldFailed = true
+            ui.print(spell[key].name() .. " didn't take on your " .. (offHand and "off-hand" or "main-hand") .. " weapon; trying again in a minute.")
+        end
+        return false
+    end
     if cast[key]("player") then
         var.imbued[hand] = key
+        var.imbueSentAt[hand], var.imbueToldFailed = util.time(), false
         if offHand then var.offHandSent = util.time() end
         ui.debug("Casting " .. spell[key].name() .. (offHand and " [Off Hand]" or " [Main Hand]"))
         return true
