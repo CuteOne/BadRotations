@@ -509,6 +509,17 @@ function spell:getInfo(spellIDOrName)
 	return br.game.C_Spell.GetSpellInfo(spellIDOrName)
 end
 
+-- The name of a spell list key (a ranked key by its first rank: every rank has the name), known or
+-- not; nil for a key the lists don't have
+-- local name = br.functions.spell:getKeyName("rockbiterWeapon") -- "Rockbiter Weapon"
+function spell:getKeyName(key)
+    local spells = br.runner and br.runner.spells
+    local ref = spells and ((spells.abilities and spells.abilities[key]) or spells[key])
+    if type(ref) == "table" then ref = ref[1] end
+    if type(ref) ~= "number" then return nil end
+    return self:getName(ref)
+end
+
 -- Get the current rank the player knows for a spell
 -- @param spellIDOrTable - A spell ID (number) or table of spell IDs
 -- @return number - The highest rank number known (1-based), or 0 if none known

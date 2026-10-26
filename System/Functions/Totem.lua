@@ -13,13 +13,7 @@ local function resolveCandidateName(candidate)
     end
 
     if type(candidate) == "string" then
-        local spells = br.runner and br.runner.spells
-        local ref = spells and ((spells.abilities and spells.abilities[candidate]) or spells[candidate])
-        if type(ref) == "table" then ref = ref[1] end
-        if type(ref) == "number" then
-            return br.functions.spell:getName(ref)
-        end
-        return candidate
+        return br.functions.spell:getKeyName(candidate) or candidate
     end
 
     return nil

@@ -1027,7 +1027,6 @@ br.api.build.unit = function(api)
     -- @param spellKey The spell key string (e.g. "rockbiterWeapon") used in br.runner.spells
     -- @return string The localised spell name, or the key as a fallback
     unit.weaponImbue.spellName = function(spellKey)
-        local spellID = br.runner.spells and br.runner.spells[spellKey]
-        return (spellID and br.functions.spell:getName(spellID)) or spellKey
+        return br.functions.spell:getKeyName(spellKey) or spellKey
     end
 end
