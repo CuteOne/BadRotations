@@ -435,6 +435,12 @@ function E.cooldownPrecheck(spellID, castType, isAbleCheck)
 	precheckCtx.updateRate = E.getFrameValues().updateRate
 	local pass, reason, detail = gateCooldownTimer(precheckCtx, nil, castType)
 	if pass then return true, precheckCtx.spellCD end
+	-- The game gives a spell the character doesn't have the GCD as its cooldown, so during the GCD it
+	-- would be refused as GCD_BLOCKED here, before the known gate: say it isn't known (2026-10-26:
+	-- Earth Shock at level 3 went NOT_KNOWN / GCD_BLOCKED by turns in Gate.log)
+	if castType ~= "known" and not br.functions.spell:isKnown(spellID) then
+		reason, detail = "NOT_KNOWN", "isKnown=false castType=" .. tostring(castType)
+	end
 	E.recordRefusal(spellID, reason, detail)
 	if not isAbleCheck then
 		emitGateDebug(spellID, br.functions.spell:getName(spellID), reason, detail)
