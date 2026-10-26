@@ -37,7 +37,7 @@ local LEEWAY = 8 / 3                -- extra reach while both units run
 local LEEWAY_MIN_SPEED = 4.97       -- faster than walking
 local OUT_OF_MELEE = 5.01           -- getDistance's least answer outside melee: just over 5
 local ACROBATIC_STRIKES = 3         -- the Rogue talent's extra melee reach
-local INTERACT_DISTANCE = 5         -- the client's interact range (looting a corpse), edge to edge
+local INTERACT_DISTANCE = 5.5       -- the interact range (looting a corpse), centre to centre
 
 local function resolveMeleeSpellName(listKey)
     local known = meleeSpellNames[listKey]
@@ -113,13 +113,15 @@ function range:isInMelee(unit1, unit2)
     return centre ~= nil and centre <= range:getMeleeReach(unit1, unit2)
 end
 
--- True when the player can interact with the unit (loot its corpse). The server allows more (modern
--- TrinityCore loots creatures from 30 yd); this is the client's limit. BRLoot.log 2026-10-12, Forever:
--- every interact at 5 yd or more edge to edge opened no window, every one at 0-1 yd did.
+-- True when the player can interact with the unit (loot its corpse), measured centre to centre: the
+-- combat reaches don't widen it. Loot.log 2026-10-26, TBC: every window opened at a centre distance of
+-- 4.8 yd or less, both misses were at 7.1 yd, which the old edge-to-edge rule (centre less both reaches)
+-- called 4.6 yd and in range. Forever 2026-10-12 agrees: misses at 5+ yd edge (about 8 centre), opens
+-- at 0-1 yd edge. Loot.log's lines give the centre distance, so a miss inside 5.5 refines the limit.
 -- if br.functions.range:isInInteractRange(corpse) then
 function range:isInInteractRange(unit)
-    local edge = range:getEdgeDistance("player", unit)
-    return edge ~= nil and edge <= INTERACT_DISTANCE
+    local centre = range:getCenterDistance("player", unit)
+    return centre ~= nil and centre <= INTERACT_DISTANCE
 end
 
 -- How far a unit is from an AoE's centre, as the AoE sees it: the 2D distance from the centre unit to
