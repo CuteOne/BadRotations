@@ -52,6 +52,15 @@ br.api.build.unit = function(api)
         return br.functions.unit:anyInAggroRange(offset, radius)
     end
 
+    --- Check if an enemy is attacking someone other than you
+    -- @function unit.attackingOthers
+    -- @param thisUnit The enemy to check
+    -- @return boolean True when it's in combat, not attacking you, and its target is friendly
+    -- @usage local thisUnit = enemies.first(enemies.yards5, unit.attackingOthers) -- a mob to taunt
+    unit.attackingOthers = function(thisUnit)
+        return br.functions.unit:isAttackingOthers(thisUnit)
+    end
+
     --- Get player's attack power
     -- @function unit.attackPower
     -- @param thisUnit The unit to check, defaults to "player" if nil
@@ -68,15 +77,6 @@ br.api.build.unit = function(api)
     unit.beast = function(thisUnit)
         if thisUnit == nil then thisUnit = "target" end
         return br.functions.unit:isBeast(thisUnit)
-    end
-
-    --- Check if a unit is Dragonkin
-    -- @function unit.dragonkin
-    -- @param thisUnit The unit to check, defaults to "target" if nil
-    -- @return boolean True if the unit is Dragonkin
-    unit.dragonkin = function(thisUnit)
-        if thisUnit == nil then thisUnit = "target" end
-        return br.functions.unit:isDragonkin(thisUnit)
     end
 
     --- Check if a unit can be attacked
@@ -159,6 +159,15 @@ br.api.build.unit = function(api)
         return br.functions.unit:isCharmed(thisUnit)
     end
 
+    --- Check if you're running away from an enemy that is chasing you
+    -- @function unit.chased
+    -- @number[opt=10] range How close the chasing enemy is
+    -- @return boolean True while an enemy within range chases you as you move away from it
+    -- @usage if unit.chased(10) and cast.able.dash() then
+    unit.chased = function(range)
+        return br.functions.unit:isChased(range)
+    end
+
     --- Clear current target
     -- @function unit.clearTarget
     -- @return nil
@@ -179,6 +188,16 @@ br.api.build.unit = function(api)
     -- @return number Critical strike chance percentage
     unit.critChance = function()
         return br.functions.misc:getCritChance()
+    end
+
+    --- Get a dead player in your group, to resurrect
+    -- @function unit.deadGroupMember
+    -- @number range Yards to look within
+    -- @param ... Optional roles to pick from ("TANK", "HEALER", "DAMAGER"); anyone when none are given
+    -- @return string|nil The unit, or nil when there's none
+    -- @usage local thisUnit = unit.deadGroupMember(30, "TANK", "HEALER")
+    unit.deadGroupMember = function(range, ...)
+        return br.functions.unit:getDeadGroupMember(range, ...)
     end
 
     --- Check if a unit is dead or ghost
@@ -211,6 +230,15 @@ br.api.build.unit = function(api)
         return br.functions.range:getDistance(thisUnit, otherUnit)
     end
 
+    --- Check if a unit is Dragonkin
+    -- @function unit.dragonkin
+    -- @param thisUnit The unit to check, defaults to "target" if nil
+    -- @return boolean True if the unit is Dragonkin
+    unit.dragonkin = function(thisUnit)
+        if thisUnit == nil then thisUnit = "target" end
+        return br.functions.unit:isDragonkin(thisUnit)
+    end
+
     --- Check if player is dual wielding weapons
     -- @function unit.dualWielding
     -- @return boolean True if player is dual wielding
@@ -226,6 +254,15 @@ br.api.build.unit = function(api)
     unit.enemy = function(thisUnit, playerUnit)
         if playerUnit == nil then playerUnit = "player" end
         return br.functions.unit:isEnemy(thisUnit, playerUnit)
+    end
+
+    --- Check if an enemy is close enough to start a fight
+    -- @function unit.enemyNear
+    -- @number range Yards to look within
+    -- @return boolean True when an enemy is already fighting within range, or an idle one's aggro range reaches you
+    -- @usage if not unit.inCombat() and unit.enemyNear(20) and cast.able.prowl() then
+    unit.enemyNear = function(range)
+        return br.functions.unit:isEnemyNear(range)
     end
 
     --- Check if a unit exists
@@ -331,26 +368,8 @@ br.api.build.unit = function(api)
     -- @param spellID Optional spell ID to check for a specific form. If nil, checks if any form is active
     -- @return boolean True if the specified form (or any form if no spellID provided) is active
     unit.formActive = function(spellID)
-        local numForms = unit.formCount()
-        if spellID then
-            -- Check for specific form by spell ID
-            for i = 1, numForms do
-                local _, isActive, _, formSpellID = unit.formInfo(i)
-                if isActive and formSpellID == spellID then
-                    return true
-                end
-            end
-            return false
-        else
-            -- Check if any form is active
-            for i = 1, numForms do
-                local _, isActive = unit.formInfo(i)
-                if isActive then
-                    return true
-                end
-            end
-            return false
-        end
+        if spellID then return br.functions.unit:getFormSpellID() == spellID end
+        return (br.functions.misc:getShapeshiftForm() or 0) > 0
     end
 
     --- Get number of available shapeshift forms
@@ -474,7 +493,7 @@ br.api.build.unit = function(api)
     -- @function unit.inGroup
     -- @return boolean True if player is in a group
     unit.inGroup = function()
-        return #br.engines.healingEngine.friend > 1
+        return br.functions.unit:isInGroup()
     end
 
     --- True while the player is in a raid group
@@ -592,51 +611,6 @@ br.api.build.unit = function(api)
         return br.functions.unit:isFleeingFrom(thisUnit, fromUnit)
     end
 
-    --- Check if you're running away from an enemy that is chasing you
-    -- @function unit.chased
-    -- @number[opt=10] range How close the chasing enemy is
-    -- @return boolean True while an enemy within range chases you as you move away from it
-    -- @usage if unit.chased(10) and cast.able.dash() then
-    unit.chased = function(range)
-        return br.functions.unit:isChased(range)
-    end
-
-    --- Check if an enemy is close enough to start a fight
-    -- @function unit.enemyNear
-    -- @number range Yards to look within
-    -- @return boolean True when an enemy is already fighting within range, or an idle one's aggro range reaches you
-    -- @usage if not unit.inCombat() and unit.enemyNear(20) and cast.able.prowl() then
-    unit.enemyNear = function(range)
-        return br.functions.unit:isEnemyNear(range)
-    end
-
-    --- Check if it's a good moment to start a fight
-    -- @function unit.readyToFight
-    -- @return boolean True when you aren't low on health or mana or eating or drinking, and in a group the tanks aren't low (Ready To Fight options, Targeting page)
-    -- @usage if not unit.inCombat() and unit.readyToFight() and cast.able.faerieFire("target") then
-    unit.readyToFight = function()
-        return br.functions.combat:isReadyToFight()
-    end
-
-    --- Check if an enemy is attacking someone other than you
-    -- @function unit.attackingOthers
-    -- @param thisUnit The enemy to check
-    -- @return boolean True when it's in combat, not attacking you, and its target is friendly
-    -- @usage local thisUnit = enemies.first(enemies.yards5, unit.attackingOthers) -- a mob to taunt
-    unit.attackingOthers = function(thisUnit)
-        return br.functions.unit:isAttackingOthers(thisUnit)
-    end
-
-    --- Get a dead player in your group, to resurrect
-    -- @function unit.deadGroupMember
-    -- @number range Yards to look within
-    -- @param ... Optional roles to pick from ("TANK", "HEALER", "DAMAGER"); anyone when none are given
-    -- @return string|nil The unit, or nil when there's none
-    -- @usage local thisUnit = unit.deadGroupMember(30, "TANK", "HEALER")
-    unit.deadGroupMember = function(range, ...)
-        return br.functions.unit:getDeadGroupMember(range, ...)
-    end
-
     --- Check if a unit is tanking
     -- @function unit.isTanking
     -- @param thisUnit The unit to check, defaults to "player" if nil
@@ -687,14 +661,6 @@ br.api.build.unit = function(api)
     -- @return boolean True if player is mounted
     unit.mounted = function()
         return br.functions.misc:isMounted()
-    end
-
-    --- Seconds since the player last landed from a mount
-    -- @function unit.timeSinceDismount
-    -- @return number|nil Seconds since dismounting, nil while mounted or if not mounted since login
-    unit.timeSinceDismount = function()
-        local dismountTime = br.runner.state.dismountTime
-        return dismountTime and (br.functions.misc:getTime() - dismountTime) or nil
     end
 
     --- Check if a unit is moving
@@ -787,6 +753,14 @@ br.api.build.unit = function(api)
         return br.functions.unit:GetUnitReaction(thisUnit, playerUnit)
     end
 
+    --- Check if it's a good moment to start a fight
+    -- @function unit.readyToFight
+    -- @return boolean True when you aren't low on health or mana or eating or drinking, and in a group the tanks aren't low (Ready To Fight options, Targeting page)
+    -- @usage if not unit.inCombat() and unit.readyToFight() and cast.able.faerieFire("target") then
+    unit.readyToFight = function()
+        return br.functions.combat:isReadyToFight()
+    end
+
     --- Check if player is resting
     -- @function unit.resting
     -- @return boolean True if player is resting
@@ -807,7 +781,7 @@ br.api.build.unit = function(api)
     -- @function unit.solo
     -- @return boolean True if player is solo
     unit.solo = function()
-        return #br.engines.healingEngine.friend == 1
+        return not br.functions.unit:isInGroup()
     end
 
     --- The name of the player's spec as BR loads it ("Initial" before a spec is chosen)
@@ -895,6 +869,14 @@ br.api.build.unit = function(api)
     --   2=primary target (another unit has 100%+ threat), 3=primary target (sole aggro)
     unit.threatStatus = function(thisUnit)
         return br.functions.custom:getThreat(thisUnit)
+    end
+
+    --- Seconds since the player last landed from a mount
+    -- @function unit.timeSinceDismount
+    -- @return number|nil Seconds since dismounting, nil while mounted or if not mounted since login
+    unit.timeSinceDismount = function()
+        local dismountTime = br.runner.state.dismountTime
+        return dismountTime and (br.functions.misc:getTime() - dismountTime) or nil
     end
 
     --- True for a totem

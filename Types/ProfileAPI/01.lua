@@ -9674,6 +9674,14 @@ function C59.aggroRange(thisUnit) end
 ---@return boolean # True if any enemy (in combat or not) is within its aggro radius
 function C59.anyInAggroRange(offset, radius) end
 
+--- Check if an enemy is attacking someone other than you
+--- ```lua
+--- local thisUnit = enemies.first(enemies.yards5, unit.attackingOthers) -- a mob to taunt
+--- ```
+---@param thisUnit? string The enemy to check
+---@return boolean # True when it's in combat, not attacking you, and its target is friendly
+function C59.attackingOthers(thisUnit) end
+
 --- Get player's attack power
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return number # Total attack power (base + positive buffs + negative buffs)
@@ -9683,11 +9691,6 @@ function C59.attackPower(thisUnit) end
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@return boolean # True if the unit is a Beast
 function C59.beast(thisUnit) end
-
---- Check if a unit is Dragonkin
----@param thisUnit? string The unit to check, defaults to "target" if nil
----@return boolean # True if the unit is Dragonkin
-function C59.dragonkin(thisUnit) end
 
 --- Check if a unit can be attacked
 ---@param thisUnit? string The unit to check
@@ -9731,6 +9734,14 @@ function C59.castingTankBuster(thisUnit) end
 ---@return boolean # True if the unit is charmed
 function C59.charmed(thisUnit) end
 
+--- Check if you're running away from an enemy that is chasing you
+--- ```lua
+--- if unit.chased(10) and cast.able.dash() then
+--- ```
+---@param range? number How close the chasing enemy is
+---@return boolean # True while an enemy within range chases you as you move away from it
+function C59.chased(range) end
+
 --- Clear current target
 ---@return nil
 function C59.clearTarget() end
@@ -9742,6 +9753,15 @@ function C59.combatTime() end
 --- Get the player's melee critical strike chance
 ---@return number # Critical strike chance percentage
 function C59.critChance() end
+
+--- Get a dead player in your group, to resurrect
+--- ```lua
+--- local thisUnit = unit.deadGroupMember(30, "TANK", "HEALER")
+--- ```
+---@param range? number Yards to look within
+---@param ...? any Optional roles to pick from ("TANK", "HEALER", "DAMAGER"); anyone when none are given
+---@return string # |nil The unit, or nil when there's none
+function C59.deadGroupMember(range, ...) end
 
 --- Check if a unit is dead or ghost
 ---@param thisUnit? string The unit to check
@@ -9759,6 +9779,11 @@ function C59.demon(thisUnit) end
 ---@return number # Distance between units in yards
 function C59.distance(thisUnit, otherUnit) end
 
+--- Check if a unit is Dragonkin
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@return boolean # True if the unit is Dragonkin
+function C59.dragonkin(thisUnit) end
+
 --- Check if player is dual wielding weapons
 ---@return boolean # True if player is dual wielding
 function C59.dualWielding() end
@@ -9768,6 +9793,14 @@ function C59.dualWielding() end
 ---@param playerUnit? string The reference unit, defaults to "player" if nil
 ---@return boolean # True if thisUnit is an enemy to playerUnit
 function C59.enemy(thisUnit, playerUnit) end
+
+--- Check if an enemy is close enough to start a fight
+--- ```lua
+--- if not unit.inCombat() and unit.enemyNear(20) and cast.able.prowl() then
+--- ```
+---@param range? number Yards to look within
+---@return boolean # True when an enemy is already fighting within range, or an idle one's aggro range reaches you
+function C59.enemyNear(range) end
 
 --- Check if a unit exists
 ---@param thisUnit? string The unit to check
@@ -9955,46 +9988,6 @@ function C59.isFleeing(thisUnit) end
 ---@return boolean # True if thisUnit is running from fromUnit
 function C59.isFleeingFrom(thisUnit, fromUnit) end
 
---- Check if you're running away from an enemy that is chasing you
---- ```lua
---- if unit.chased(10) and cast.able.dash() then
---- ```
----@param range? number How close the chasing enemy is
----@return boolean # True while an enemy within range chases you as you move away from it
-function C59.chased(range) end
-
---- Check if an enemy is close enough to start a fight
---- ```lua
---- if not unit.inCombat() and unit.enemyNear(20) and cast.able.prowl() then
---- ```
----@param range? number Yards to look within
----@return boolean # True when an enemy is already fighting within range, or an idle one's aggro range reaches you
-function C59.enemyNear(range) end
-
---- Check if it's a good moment to start a fight
---- ```lua
---- if not unit.inCombat() and unit.readyToFight() and cast.able.faerieFire("target") then
---- ```
----@return boolean # True when you aren't low on health or mana or eating or drinking, and in a group the tanks aren't low (Ready To Fight options, Targeting page)
-function C59.readyToFight() end
-
---- Check if an enemy is attacking someone other than you
---- ```lua
---- local thisUnit = enemies.first(enemies.yards5, unit.attackingOthers) -- a mob to taunt
---- ```
----@param thisUnit? string The enemy to check
----@return boolean # True when it's in combat, not attacking you, and its target is friendly
-function C59.attackingOthers(thisUnit) end
-
---- Get a dead player in your group, to resurrect
---- ```lua
---- local thisUnit = unit.deadGroupMember(30, "TANK", "HEALER")
---- ```
----@param range? number Yards to look within
----@param ...? any Optional roles to pick from ("TANK", "HEALER", "DAMAGER"); anyone when none are given
----@return string # |nil The unit, or nil when there's none
-function C59.deadGroupMember(range, ...) end
-
 --- Check if a unit is tanking
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return boolean # True if the unit is tanking
@@ -10024,10 +10017,6 @@ function C59.lowest(range) end
 --- Check if player is mounted
 ---@return boolean # True if player is mounted
 function C59.mounted() end
-
---- Seconds since the player last landed from a mount
----@return number # |nil Seconds since dismounting, nil while mounted or if not mounted since login
-function C59.timeSinceDismount() end
 
 --- Check if a unit is moving
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
@@ -10083,6 +10072,13 @@ function C59.rangedAttackSpeed() end
 ---@param playerUnit? string The reference unit, defaults to "player" if nil
 ---@return number # Reaction level (1-hostile to 8-friendly)
 function C59.reaction(thisUnit, playerUnit) end
+
+--- Check if it's a good moment to start a fight
+--- ```lua
+--- if not unit.inCombat() and unit.readyToFight() and cast.able.faerieFire("target") then
+--- ```
+---@return boolean # True when you aren't low on health or mana or eating or drinking, and in a group the tanks aren't low (Ready To Fight options, Targeting page)
+function C59.readyToFight() end
 
 --- Check if player is resting
 ---@return boolean # True if player is resting
@@ -10152,6 +10148,10 @@ function C59.threat(thisUnit) end
 ---@param thisUnit? string The enemy; any enemy when nil 2=primary target (another unit has 100%+ threat), 3=primary target (sole aggro)
 ---@return number # Threat status: 0=no/low threat, 1=high threat (not primary target),
 function C59.threatStatus(thisUnit) end
+
+--- Seconds since the player last landed from a mount
+---@return number # |nil Seconds since dismounting, nil while mounted or if not mounted since login
+function C59.timeSinceDismount() end
 
 --- True for a totem
 ---@param thisUnit? string The unit to check

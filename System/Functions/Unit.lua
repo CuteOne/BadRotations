@@ -703,6 +703,11 @@ function unit:isFleeingFrom(thisUnit, fromUnit)
 	return unit:getFacing(thisUnit, fromUnit) == false and unit:getFacing(fromUnit, thisUnit) == true
 end
 
+-- True while the player is in a party or raid
+function unit:isInGroup()
+	return br.game.IsInGroup() == true
+end
+
 -- True while the player is in a raid group
 function unit:isInRaid()
 	return br.game.IsInRaid() == true
