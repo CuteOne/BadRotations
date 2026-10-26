@@ -36,6 +36,12 @@ local EXPECTED_REPORTS = {
 	["Not Safe"] = true, ["Invalid Unit"] = true, ["No Control"] = true,
 }
 
+-- One refusal line: an expected one to Gate.log, a problem to chat (isError: red)
+local function reportLine(expected, spellID, reasonCode, isError, msg)
+	if expected then return E.writeGateLine(spellID, reasonCode, br.functions.misc:plainText(msg)) end
+	if isError then br.log:error(msg) else br.log:systemDebug(msg) end
+end
+
 function E.printReport(ctx, debugOnly, debugReason, thisCount)
 	if debugReason == nil then debugReason = "" end
 	local thisUnit, spellID, minUnits, effectRng = ctx.unit, ctx.spellID, ctx.minUnits, ctx.effectRng
@@ -54,56 +60,58 @@ function E.printReport(ctx, debugOnly, debugReason, thisCount)
 	if ctx.debug then return false end -- never print for cast.able checks
 	local prefix = "[CAST FAIL][" .. reasonCode .. "] "
 	-- Routine refusals (no unit, not enough units, out of range, unsafe, out of sight, crowd controlled)
-	-- show with Cast Debug only; the rest (cast failed, not dead, ...) with Display Failcasts too
-	if E.showRefusal(debugOnly or EXPECTED_REPORTS[debugReason] == true) then
+	-- are the cast system handling it: with Cast Debug they go to Gate.log, never chat. The rest (cast
+	-- failed, not dead, a profile mistake, ...) show in chat with Display Failcasts or Cast Debug.
+	local expected = debugOnly or EXPECTED_REPORTS[debugReason] == true
+	if E.showRefusal(expected) then
 		if debugReason == "No Unit" then
-			br.log:systemDebug(prefix .. ctx.spellName .. " — no unit found in " .. ctx.maxRange .. " yrds.")
+			reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — no unit found in " .. ctx.maxRange .. " yrds.")
 		elseif debugReason == "Below Min Units" then
-			br.log:systemDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
+			reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
 				" enemies in " .. ctx.maxRange .. " yrds, need " .. minUnits .. ".")
 		elseif debugReason == "Below Min Units Facing" then
-			br.log:systemDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
+			reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
 				" facing enemies in " .. ctx.maxRange .. " yrds, need " .. minUnits .. ".")
 		elseif debugReason == "Below Min Units Cone" then
-			br.log:systemDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
+			reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
 				" enemies in " .. ctx.shape .. "° cone/" .. effectRng .. " yrds, need " .. minUnits .. ".")
 		elseif debugReason == "Below Min Units Rect" then
-			br.log:systemDebug(prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
+			reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — " .. tostring(thisCount) ..
 				" enemies in " .. effectRng .. "×" .. ctx.shape .. " yrd rect, need " .. minUnits .. ".")
 		elseif debugReason == "No Shape" then
-			br.log:error(prefix .. ctx.spellName .. " — a " .. tostring(thisCount) .. " cast needs its "
+			reportLine(expected, spellID, reasonCode, true, prefix .. ctx.spellName .. " — a " .. tostring(thisCount) .. " cast needs its "
 				.. (thisCount == "cone" and "angle in degrees" or "full width in yards")
 				.. " after the reach: cast.<spell>." .. tostring(thisCount) .. "(reach, "
 				.. (thisCount == "cone" and "angle" or "width") .. ", minUnits).")
 		elseif debugReason == "Not Dead" then
-			br.log:systemDebug(prefix .. ctx.spellName .. " — unit is not dead.")
+			reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — unit is not dead.")
 		elseif debugReason == "No Range" then
-			br.log:systemDebug(prefix .. ctx.spellName .. " — unit not in range"
+			reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — unit not in range"
 				.. (type(thisCount) == "string" and (" (" .. thisCount .. ")") or "") .. ".")
 		elseif debugReason == "Not Safe" then
-			br.log:systemDebug(prefix .. ctx.spellName .. " — not safe to AoE.")
+			reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — not safe to AoE.")
 		elseif debugReason == "Invalid Unit" then
 			if cast:isRejected("los", nil, thisUnit) then
-				br.log:systemDebug(prefix .. ctx.spellName .. " — game reported unit out of line of sight.")
+				reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — game reported unit out of line of sight.")
 			elseif not br.functions.misc:canSee(thisUnit) then
-				br.log:systemDebug(prefix .. ctx.spellName .. " — unit out of line of sight.")
+				reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — unit out of line of sight.")
 			else
-				br.log:systemDebug(prefix .. ctx.spellName .. " — unit invalid (unknown reason).")
+				reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — unit invalid (unknown reason).")
 			end
 		elseif debugReason == "No Control" then
-			br.log:systemDebug(prefix .. ctx.spellName .. " — player is crowd controlled.")
+			reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — player is crowd controlled.")
 		elseif debugReason == "Cast Failed" then
 			local wowReason = br.functions.lastCast
 				and br.functions.lastCast.lastCastTable
 				and br.functions.lastCast.lastCastTable.lastFailedReason
 				and br.functions.lastCast.lastCastTable.lastFailedReason[ctx.spellID]
 			if wowReason and wowReason ~= "" then
-				br.log:systemDebug(prefix .. ctx.spellName .. " — WoW rejected: " .. wowReason)
+				reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — WoW rejected: " .. wowReason)
 			else
-				br.log:systemDebug(prefix .. ctx.spellName .. " — no GCD/cast/channel signal after cast attempt.")
+				reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — no GCD/cast/channel signal after cast attempt.")
 			end
 		else
-			br.log:error(prefix ..
+			reportLine(expected, spellID, reasonCode, true, prefix ..
 				ctx.spellName .. " ID:" .. spellID ..
 				" type:" .. ctx.spellType ..
 				" range:[" .. ctx.minRange .. "-" .. ctx.maxRange .. "]" ..

@@ -102,18 +102,27 @@ local function plain(value) return br.functions.misc:plainNumber(value) end
 -- Gate refusals (on cooldown, GCD, not enough power, ...) are routine waits, so with Cast Debug on they
 -- go to Logs\Gate.log, not chat (chat shows outcomes and problems)
 local gateWrite = br.log:file("Gate.log", 300)
-local function emitGateDebug(spellID, spellName, reason, detail)
+
+--- Writes a routine refusal line to Gate.log (Cast Debug on), at most once per spell and reason per
+-- throttle window. Also used for the expected refusals after the gates (printReport: out of range,
+-- no unit, ...), which the cast system handles itself.
+function E.writeGateLine(spellID, reason, msg)
 	if not E.castDebugOn() then return end
 	local now = br.game.GetTime()
 	if now < E.gateDebugSilentUntil then return end
 	local key = spellID .. reason
 	if gateDebugThrottle[key] and now < gateDebugThrottle[key] then return end
 	gateDebugThrottle[key] = now + GATE_DEBUG_THROTTLE_SECS
+	gateWrite(msg)
+end
+
+local function emitGateDebug(spellID, spellName, reason, detail)
+	if not E.castDebugOn() then return end
 	local msg = "[GATE: " .. reason .. "] " .. tostring(br.functions.misc:plainText(spellName)) .. " (" .. tostring(spellID) .. ")"
 	-- Detail numbers are made printable where they're built (plain); anything still flagged would
 	-- hide the whole line, so only the detail is left out
 	if detail then msg = msg .. " — " .. (br.functions.misc:isFlagged(detail) and "(detail holds a secret value)" or detail) end
-	gateWrite(msg)
+	E.writeGateLine(spellID, reason, msg)
 end
 
 -- Facts about a spell that only change when the character's spells or talents do. Kept until
