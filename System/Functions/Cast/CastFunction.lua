@@ -97,7 +97,6 @@ local function runCastFunction(self, thisUnit, castType, minUnits, effectRng, sp
 		-- Initialise shared tables on first use.
 		if E.castTimers == nil then
 			E.castTimers = {}
-			E.gateDebugSilentUntil = br.game.GetTime() + 5 -- suppress gate debug burst after reload
 		end
 		if E.castTimers[spellID] == nil then E.castTimers[spellID] = 0 end -- 0 so t < GetTime() is immediately true
 		if E.rangeDelayTimers == nil then E.rangeDelayTimers = {} end

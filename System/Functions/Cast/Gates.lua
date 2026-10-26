@@ -13,10 +13,10 @@ local E = cast.internal
 -- once per call) and can be read, tested, and debugged independently.
 -- ─────────────────────────────────────────────────────────────────────────────
 
--- Gate debug message throttle: emit at most once per 2s per spell to avoid flooding chat.
+-- Gate.log throttle: a line at most once per 2 s per spell and reason, so a spell asked for every
+-- tick doesn't fill the file. (No quiet time after a reload: the first fight's refusals count too.)
 local gateDebugThrottle = {}
 local GATE_DEBUG_THROTTLE_SECS = 2.0
-E.gateDebugSilentUntil = 0 -- suppresses gate debug for N seconds after castTimers reset
 
 -- Last reason each spell was refused, for "/br why <spell>". cast.able failures
 -- never reach chat (they're expected on most ticks), so this is the only way to see
@@ -109,7 +109,6 @@ local gateWrite = br.log:file("Gate.log", 300)
 function E.writeGateLine(spellID, reason, msg)
 	if not E.traceOn() then return end
 	local now = br.game.GetTime()
-	if now < E.gateDebugSilentUntil then return end
 	local key = spellID .. reason
 	if gateDebugThrottle[key] and now < gateDebugThrottle[key] then return end
 	gateDebugThrottle[key] = now + GATE_DEBUG_THROTTLE_SECS
