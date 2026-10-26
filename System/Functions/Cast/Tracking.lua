@@ -154,15 +154,22 @@ end
 
 E.castTimers = nil -- per-spell cast throttle; created on first createCastFunction call
 
+-- Game refusals that contradict a check BR made before sending (range, sight, facing, behind): BR
+-- said yes, the game said no. Expected and handled, but each one points at a gap in BR's own check,
+-- so they stay in chat (a Vale Moth bolt at 29.9 yd found the moving-target range gap, 2026-10-26)
+local MISMATCH_KINDS = { range = true, los = true, facing = true, behind = true }
+
 -- Why a game refusal is expected (the fight caused it, or BR already handles it), or nil when it
 -- points at a problem worth seeing. Unknown messages count as problems, so nothing new is hidden.
+-- Second return: true when it contradicts BR's own pre-send check (MISMATCH_KINDS).
 function E.expectedRefusal(message, castGUID)
 	local kind = rejectionKindForError(message)
+	local mismatch = MISMATCH_KINDS[kind] == true
 	if kind == "aura" then return "a stronger aura is active; BR leaves the spell until it ends" end
-	if kind == "los" then return "out of sight; BR waits until the unit is back in view" end
-	if kind == "facing" then return "not facing; BR turns to other units meanwhile" end
-	if kind == "behind" then return "not behind; BR uses attacks that work from the front meanwhile" end
-	if kind == "range" then return "out of range" end
+	if kind == "los" then return "out of sight; BR waits until the unit is back in view", mismatch end
+	if kind == "facing" then return "not facing; BR turns to other units meanwhile", mismatch end
+	if kind == "behind" then return "not behind; BR uses attacks that work from the front meanwhile", mismatch end
+	if kind == "range" then return "out of range", mismatch end
 	if message == errorText("SPELL_FAILED_INTERRUPTED", "Interrupted") then
 		-- An on-next-swing attack is dropped when the target dies or changes, or auto attack stops
 		local unit = castGUID and br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(castGUID)
@@ -194,10 +201,14 @@ function cast:handleCastError(message)
 				return
 			end
 			local spellID = failed.lastFailedSpellID
-			local expected = E.expectedRefusal(message, lastCastGUID)
+			local expected, mismatch = E.expectedRefusal(message, lastCastGUID)
 			if not E.showRefusal(expected ~= nil) then return end
-			br.log:systemDebug("[CAST FAIL][SERVER] " .. tostring(br.functions.spell:getName(spellID)) .. " — game said: " .. message
-				.. (expected and (" (expected: " .. expected .. ")") or ""))
+			local text = "[CAST FAIL][SERVER] " .. tostring(br.functions.spell:getName(spellID)) .. " — game said: " .. message
+			-- Expected and nothing BR could have known (the target died, a stronger aura): Gate.log
+			if expected and not mismatch then
+				return E.writeGateLine(spellID, "SERVER", br.functions.misc:plainText(text .. " (expected: " .. expected .. ")"))
+			end
+			br.log:systemDebug(text .. (expected and (" — BR's own check had allowed it (" .. expected .. ")") or ""))
 		end)
 	end
 	local kind = rejectionKindForError(message)
