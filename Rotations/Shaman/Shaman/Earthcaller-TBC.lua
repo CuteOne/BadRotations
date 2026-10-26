@@ -119,6 +119,10 @@ end
 --------------
 local mana
 local melee -- Style: true for Melee, false for Caster
+-- The enemy the combat lines act on: BR's pick within 30 yd (units.dyn30), which is your target whenever it
+-- can take the spell (Bot Options > Targeting decides the rest). Aiming at "target" by name left the
+-- rotation idle with the target dead and another mob hitting you (2026-10-26: 4-5 s twice)
+local enemy
 local actionList = {}
 
 -----------------
@@ -156,7 +160,7 @@ end
 -- aggroed a passing Blood Elf Scout after the player had run off; no Totemic Call before level 30).
 local function totemsWorthIt()
     if #enemies.yards8 >= 2 then return true end
-    return unit.hp("target") > 50 and fightLength("target") >= ui.value("Totem Fight Length")
+    return unit.hp(enemy) > 50 and fightLength(enemy) >= ui.value("Totem Fight Length")
 end
 
 -- An element needs a totem: none up, or the one up was left 30+ yards behind (0 = can't be
@@ -272,7 +276,7 @@ actionList.Defensive = function()
         end
         -- Heal, unless the target dies first
         if ui.checked("Healing Wave") and hp <= ui.value("Healing Wave") and not unit.moving()
-            and not (unit.ttd("target") < 3 and hp > 20)
+            and not (unit.ttd(enemy) < 3 and hp > 20)
         then
             if spell.lesserHealingWave.known() then
                 if cast.lesserHealingWave("player") then ui.debug("Casting Lesser Healing Wave") return true end
@@ -321,7 +325,7 @@ end
 -- Action List - Totems (in combat)
 actionList.Totems = function()
     if not totemsWorthIt() then return false end
-    local inMelee = unit.distance("target") < 8
+    local inMelee = unit.distance(enemy) < 8
     -- Fire: area totems where the enemies are around you, else the single-target one
     if ui.checked("Area Fire Totems") and ui.useAOE(8, 3) and (needsTotem(totem.fire) or totem.fire.searing.active()) then
         if cast.magmaTotem.aoe(8, 3) then ui.debug("Casting Magma Totem") return true end
@@ -342,7 +346,7 @@ actionList.Totems = function()
     end
     -- Fire: single target (Searing Totem reaches 20 yards)
     local fire = ui.value("Fire Totem")
-    if fire ~= 5 and needsTotem(totem.fire) and unit.distance("target") < 20 then
+    if fire ~= 5 and needsTotem(totem.fire) and unit.distance(enemy) < 20 then
         local key
         if fire == 2 then key = "searingTotem"
         elseif fire == 3 then key = "totemOfWrath"
@@ -384,26 +388,26 @@ end
 -- Action List - Shocks: fleeing enemies, Focused procs, Flame Shock and Earth Shock
 actionList.Shocks = function(manaGate)
     -- A fleeing enemy: slow it or finish it, whatever the mana
-    if unit.isFleeing("target") then
-        if cast.frostShock("target") then ui.debug("Casting Frost Shock [Fleeing]") return true end
-        if cast.earthShock("target") then ui.debug("Casting Earth Shock [Fleeing]") return true end
+    if unit.isFleeing(enemy) then
+        if cast.frostShock(enemy) then ui.debug("Casting Frost Shock [Fleeing]") return true end
+        if cast.earthShock(enemy) then ui.debug("Casting Earth Shock [Fleeing]") return true end
     end
     local focused = buff.focused.exists()
     if not focused and not manaGate then return false end
     -- Flame Shock when it has time to tick
-    if not debuff.flameShock.exists("target") and fightLength("target") >= 12
+    if not debuff.flameShock.exists(enemy) and fightLength(enemy) >= 12
         and (focused or affordable(cast.cost.flameShock()))
     then
-        if cast.flameShock("target") then ui.debug("Casting Flame Shock") return true end
+        if cast.flameShock(enemy) then ui.debug("Casting Flame Shock") return true end
     end
     if focused or affordable(cast.cost.earthShock()) then
-        if cast.earthShock("target") then ui.debug("Casting Earth Shock") return true end
+        if cast.earthShock(enemy) then ui.debug("Casting Earth Shock") return true end
     end
 end
 
 -- Action List - Melee style
 actionList.Melee = function()
-    local distance = unit.distance("target")
+    local distance = unit.distance(enemy)
     -- Auto attack: on once the target is close; the game swings as soon as it's in reach (BR's
     -- distance can read a few yards out for a mob that hovers or has a large reach)
     if distance < 8 and not cast.auto.autoAttack() then
@@ -411,28 +415,28 @@ actionList.Melee = function()
         ui.debug("Casting Auto Attack")
     end
     -- Stormstrike
-    if distance < 5 and cast.stormstrike("target") then ui.debug("Casting Stormstrike") return true end
+    if units.dyn5 and cast.stormstrike(units.dyn5) then ui.debug("Casting Stormstrike") return true end
     -- Shocks
     if actionList.Shocks(power.mana.percent() >= ui.value("Shock Mana")) then return true end
     if unit.moving() then return false end
     -- Out of melee with an enemy that isn't coming closer (a caster, a mob that stops just out of
     -- reach): no swing to lose, so bolt it rather than stand idle, keeping a heal's mana. 2026-10-26: 6.3 s
     -- idle at 5.9 yd from a Mutated Root Lasher with 72 mana (the rule was 10 yd+, the weave needs 50%)
-    if distance >= 5 and not unit.moving("target") and affordable(cast.cost.lightningBolt()) then
-        if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Range]") return true end
+    if distance >= 5 and not unit.moving(enemy) and affordable(cast.cost.lightningBolt()) then
+        if cast.lightningBolt(enemy) then ui.debug("Casting Lightning Bolt [Range]") return true end
     end
     -- Weave: spare mana into Lightning Bolt until Windfury Weapon makes the swings worth more
     if ui.checked("Weave Lightning Bolt") and not spell.windfuryWeapon.known()
-        and power.mana.percent() >= ui.value("Weave Lightning Bolt") and fightLength("target") > 3
+        and power.mana.percent() >= ui.value("Weave Lightning Bolt") and fightLength(enemy) > 3
         and affordable(cast.cost.lightningBolt()) and (distance >= 5 or justSwung())
     then
-        if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Weave]") return true end
+        if cast.lightningBolt(enemy) then ui.debug("Casting Lightning Bolt [Weave]") return true end
     end
 end
 
 -- Action List - Caster style
 actionList.Caster = function()
-    if unit.distance("target") < 5 and not cast.auto.autoAttack() then
+    if unit.distance(enemy) < 5 and not cast.auto.autoAttack() then
         unit.startAttack()
         ui.debug("Casting Auto Attack")
     end
@@ -441,16 +445,16 @@ actionList.Caster = function()
         return actionList.Shocks(true)
     end
     -- Flame Shock when it has time to tick
-    if not debuff.flameShock.exists("target") and fightLength("target") >= 12 and affordable(cast.cost.flameShock()) then
-        if cast.flameShock("target") then ui.debug("Casting Flame Shock") return true end
+    if not debuff.flameShock.exists(enemy) and fightLength(enemy) >= 12 and affordable(cast.cost.flameShock()) then
+        if cast.flameShock(enemy) then ui.debug("Casting Flame Shock") return true end
     end
     -- Chain Lightning: on several enemies, or while the mana is plentiful
-    local nearTarget = #enemies.get(10, "target")
-    if (nearTarget >= 2 and ui.mode.rotation ~= 3) or (power.mana.percent() > 50 and fightLength("target") > 5) then
-        if cast.chainLightning("target") then ui.debug("Casting Chain Lightning") return true end
+    local nearTarget = #enemies.get(10, enemy)
+    if (nearTarget >= 2 and ui.mode.rotation ~= 3) or (power.mana.percent() > 50 and fightLength(enemy) > 5) then
+        if cast.chainLightning(enemy) then ui.debug("Casting Chain Lightning") return true end
     end
     if actionList.Shocks(false) then return true end
-    if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt") return true end
+    if cast.lightningBolt(enemy) then ui.debug("Casting Lightning Bolt") return true end
 end
 
 -- Action List - Pre-Combat
@@ -515,16 +519,20 @@ local function runRotation()
     enemies.get(8)
     enemies.get(20)
     enemies.get(40)
+    -- BR's picks (Targeting Mode): melee (it also switches your target to a mob attacking you when yours
+    -- can't take melee, as auto attack only hits your target) and the 30 yd one the rotation acts on
+    units.get(5)
+    enemy = units.get(30)
 
     if ui.pause() or ui.mode.rotation == 4 or unit.mounted() or unit.flying() or unit.taxi() then return true end
 
     if actionList.Defensive() then return true end
     if actionList.Extra() then return true end
     if actionList.PreCombat() then return true end
-    if unit.inCombat() and unit.valid("target") then
+    if unit.inCombat() and enemy then
         if actionList.Interrupt() then return true end
-        if ui.checked("Purge") and power.mana.percent() > 35 and cast.dispel.purge("target") then
-            if cast.purge("target") then ui.debug("Casting Purge") return true end
+        if ui.checked("Purge") and power.mana.percent() > 35 and cast.dispel.purge(enemy) then
+            if cast.purge(enemy) then ui.debug("Casting Purge") return true end
         end
         if actionList.Cooldown() then return true end
         if actionList.Totems() then return true end
