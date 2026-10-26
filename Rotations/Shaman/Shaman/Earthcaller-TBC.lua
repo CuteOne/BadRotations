@@ -60,6 +60,8 @@ local function options()
     section = ui.section("General")
     ui.checkbox(section, "Pull with Lightning Bolt", { checked = true,
         tip = "Open on an enemy you target, out of combat and standing still, with Lightning Bolt (Melee style; Caster style always pulls)." })
+    ui.checkbox(section, "Pull on the Move", { checked = true,
+        tip = "Open on a hostile enemy you target while you're moving with Earth Shock (instant), so you tag it first. Standing still it's Lightning Bolt (cheaper)." })
     ui.spinner(section, "Shock Mana", { value = 40, min = 0, max = 100, step = 5, checkbox = false,
         tip = "Melee style: shocks for damage only above this mana percent (Focused procs, interrupts and fleeing enemies always may). One heal's mana is always kept back." })
     ui.spinner(section, "Weave Lightning Bolt", { value = 50, min = 0, max = 100, step = 5, checked = true,
@@ -486,6 +488,12 @@ actionList.PreCombat = function()
         local distance = unit.distance("target")
         if distance > 8 and not unit.moving() and (not melee or ui.checked("Pull with Lightning Bolt")) then
             if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Pull]") return true end
+        end
+        -- On the move there's no casting a bolt: tag it with an instant, as a player running in on a
+        -- contested mob would (2026-10-26: a mob lost to another player while running at it). Earth
+        -- Shock, keeping a heal's mana
+        if unit.moving() and ui.checked("Pull on the Move") and affordable(cast.cost.earthShock()) then
+            if cast.earthShock("target") then ui.debug("Casting Earth Shock [Pull]") return true end
         end
         if distance < 5 and not cast.auto.autoAttack() then
             unit.startAttack()
