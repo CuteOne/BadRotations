@@ -674,8 +674,10 @@ print(("%s: %d files, %d documented functions, %d ability keys, %d buffs, %d deb
 local MARK = "-- Editor types: "
 
 -- The code alone: comments and string literals blanked, so words in them don't count as uses
+---@param text string
+---@return string
 local function codeOnly(text)
-    local out, i, n = {}, 1, #text
+    local parts, i, n = {}, 1, #text
     while i <= n do
         local c = text:sub(i, i)
         local long = text:match("^%-%-%[(=*)%[", i) or (c == "[" and text:match("^%[(=*)%[", i))
@@ -683,7 +685,7 @@ local function codeOnly(text)
             local open = text:match("^%-%-%[=*%[", i) or text:match("^%[=*%[", i)
             local close = text:find("]" .. long .. "]", i + #open, true)
             i = (close or n) + #long + 2
-            out[#out + 1] = " "
+            parts[#parts + 1] = " "
         elseif text:sub(i, i + 1) == "--" then
             local eol = text:find("\n", i, true) or n + 1
             i = eol
@@ -694,22 +696,25 @@ local function codeOnly(text)
                 j = j + 1
             end
             i = j + 1
-            out[#out + 1] = " "
+            parts[#parts + 1] = " "
         else
-            out[#out + 1] = c
+            parts[#parts + 1] = c
             i = i + 1
         end
     end
-    return table.concat(out)
+    return table.concat(parts)
 end
 
 -- body: the profile without its block; only the tables its code uses get a local (no unused-local hints)
+---@param scope table
+---@param body string
+---@return string[]|nil
 local function profileBlock(scope, body)
-    body = codeOnly(body)
+    local code = codeOnly(body)
     local result = { MARK .. "the keys of " .. scope.name:gsub("%.", " ") .. "'s spell lists (written by Types/generate.lua)" }
     for _, tableName in ipairs(TABLES) do
         local cls = scopedClass[scope.name][tableName]
-        if cls and body:find("%f[%w_.:]" .. tableName .. "%s*[%.%[(]") then
+        if cls and code:find("%f[%w_.:]" .. tableName .. "%s*[%.%[(]") then
             result[#result + 1] = ("local %s = %s --[[@as %s]]"):format(tableName, tableName, cls)
         end
     end
@@ -717,6 +722,9 @@ local function profileBlock(scope, body)
 end
 
 -- The file with its block put in (replacing the one there): after the comments it starts with
+---@param text string
+---@param blockLines string[]|nil
+---@return string
 local function withBlock(text, blockLines)
     local nl = text:find("\r\n", 1, true) and "\r\n" or "\n"
     local src = {}
