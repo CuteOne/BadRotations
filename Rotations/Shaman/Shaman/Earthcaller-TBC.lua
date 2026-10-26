@@ -401,7 +401,10 @@ actionList.Shocks = function(manaGate)
     if unit.isFleeing(enemy) then
         if cast.frostShock(enemy) then ui.debug("Casting Frost Shock [Fleeing]") return true end
         if cast.earthShock(enemy) then ui.debug("Casting Earth Shock [Fleeing]") return true end
-        if unit.distance(enemy) < 8 and not totem.earth.earthbind.active() then
+        -- (an Earthbind still up from an earlier fight counts only within its 10 yd of you: 2026-10-26, one
+        -- left 35 s before where the last mob died kept a new one from going down; 0 = can't be located)
+        local earthbind = totem.earth.earthbind
+        if unit.distance(enemy) < 8 and not (earthbind.active() and earthbind.distance() < 10) then
             if cast.earthbindTotem() then ui.debug("Casting Earthbind Totem [Fleeing]") return true end
         end
     end
