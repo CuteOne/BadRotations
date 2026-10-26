@@ -34,6 +34,7 @@ if not lootEngine.metaTable then
 	lootEngine.isLooting = false      -- Interact fired, awaiting loot window
 	lootEngine.lootWindowOpen = false -- Track if loot window is currently open
 	lootEngine.lootShown = false      -- LOOT_READY/LOOT_OPENED already handled for this loot
+	lootEngine.windowClosedAt = 0     -- GetTime() the last loot window closed (anyone's)
 	lootEngine.lootStartTime = 0      -- GetTime() the current interact was fired (timeout ref)
 	lootEngine.metaTable = {}         -- MetaTable for the engine
 	lootEngine.metaTable.__index = {
@@ -140,6 +141,12 @@ if not lootEngine.metaTable then
 			.. ("%.1f"):format(now - self.lootStartTime) .. "s - will retry", true)
 		self.isLooting = false
 		self.lootGUID = nil
+	end
+
+	-- True while a loot window is open or closed under REINTERACT_GAP ago (anyone's window: BR's, the
+	-- tracker's or the player's). Another interact then gets "Item is already being used" or nothing.
+	function lootEngine:isWindowBusy(now)
+		return self.lootWindowOpen or (now or GetTime()) - self.windowClosedAt < REINTERACT_GAP
 	end
 
 	-- The corpse a loot window belongs to: BR's interact, else the game's loot source (a window the
@@ -460,6 +467,7 @@ if not lootEngine.metaTable then
 				lootEngine.lootShown = false
 				lootEngine.isLooting = false
 				lootEngine.lootStartTime = 0
+				lootEngine.windowClosedAt = GetTime()
 				-- If the corpse we just looted is now empty, clear its open-count so the
 				-- tracking starts fresh next time. If loot remains (a blocked unique item),
 				-- keep the count so getLoot can skip it after MAX_LOOT_OPENS.

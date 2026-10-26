@@ -36,47 +36,66 @@ local KIND_COLOR = {
 local Z_FAR_COLOR = { 1, 0.15, 0.15 }
 
 ----------------------------------------------------------------------------------------------------
--- Interaction helpers
+-- Interaction
 ----------------------------------------------------------------------------------------------------
-local interactTime
+-- One interact at a time, each waiting for its answer: a loot window, or a cast (Opening, Herb
+-- Gathering) and then the window. Clicking again meanwhile, or while any loot window was up, got
+-- "Item is already being used" about once a second (2026-10-26). Each interact and its answer goes
+-- to Loot.log.
+local ANSWER_WAIT = 1.0    -- seconds after the interact (or the cast it started) for the loot window
+local MAX_NO_WINDOW = 3    -- interacts on one object without a window before it is left alone
+local NO_WINDOW_SKIP = 60  -- seconds it is then left alone
+local pending              -- { e, at, error } the interact waiting for its answer
 local lastInteractTime = 0
 local nextInteractDelay = 0
 
-local function getCastTime(unit)
-    if br.game.UnitCastingInfo(unit) ~= nil then
-        return select(5, br.game.UnitCastingInfo(unit)) / 1000 - br.game.GetTime()
-    elseif br.game.UnitChannelInfo(unit) ~= nil then
-        return select(5, br.game.UnitChannelInfo(unit)) / 1000 - br.game.GetTime()
-    else
-        return 0
-    end
+local function interactLine(e, text)
+    if br.debug.loot then br.debug.loot:line("Tracker: " .. e.name .. " " .. br.debug.loot:tag(e.guid) .. " " .. text) end
 end
 
-local function isInteracting(unit)
-    local time = br.game.GetTime()
-    if interactTime == nil then interactTime = 0 end
-    local castTime = getCastTime(unit)
-    if castTime > 0 and interactTime == 0 then
-        interactTime = time + castTime + 1
+-- The pending interact's answer, once there is one: a loot window means it worked; none ANSWER_WAIT
+-- after it (or after the cast it started) counts against the object, with the game's error if any.
+local function settlePending(now)
+    if not pending then return end
+    local e, loot = pending.e, br.engines.lootEngine
+    if loot.lootWindowOpen or loot.windowClosedAt >= pending.at then
+        interactLine(e, "opened its loot")
+        e.noWindow = nil
+        pending = nil
+        return
     end
-    if castTime == 0 and interactTime < time then interactTime = 0 end
-    return interactTime > time
+    if br.functions.cast:isUnitCasting("player") then pending.at = now return end
+    if now - pending.at < ANSWER_WAIT then return end
+    e.noWindow = (e.noWindow or 0) + 1
+    local text = "opened no loot window" .. (pending.error and (", game said \"" .. pending.error .. "\"") or "")
+    if e.noWindow >= MAX_NO_WINDOW then
+        e.skipUntil = now + NO_WINDOW_SKIP
+        e.noWindow = nil
+        text = text .. "; " .. MAX_NO_WINDOW .. " in a row, left alone for " .. NO_WINDOW_SKIP .. "s"
+    end
+    interactLine(e, text)
+    pending = nil
 end
 
-local function tryInteract(e)
-    if not opts.autoInteract or not e.interact or e.unit then return end
-    if e.dist > INTERACT_RANGE then return end
-    local misc = br.functions.misc
-    if br.functions.cast:isUnitCasting("player") or misc:isMoving("player") or isInteracting("player") then return end
-    local now = br.game.GetTime()
-    -- Human-like delay: only interact if enough time has passed since last interaction
-    if now >= lastInteractTime + nextInteractDelay then
-        br.game.ObjectInteract(e.obj)
-        lastInteractTime = now
-        -- 0.5 to 1.0 seconds between interactions
-        nextInteractDelay = 0.5 + (br.game.math.random() * 0.5)
-    end
+local function tryInteract(e, now)
+    if not opts.autoInteract or not e.interact or e.unit or e.dist > INTERACT_RANGE then return end
+    if pending or br.engines.lootEngine:isWindowBusy(now) then return end
+    if br.functions.cast:isUnitCasting("player") or br.functions.misc:isMoving("player") then return end
+    -- Human-like delay: 0.5 to 1.0 seconds between interactions
+    if now < lastInteractTime + nextInteractDelay then return end
+    br.game.ObjectInteract(e.obj)
+    interactLine(e, ("interacted at %.1f yd"):format(e.dist))
+    pending = { e = e, at = now }
+    lastInteractTime = now
+    nextInteractDelay = 0.5 + (br.game.math.random() * 0.5)
 end
+
+-- UI_ERROR_MESSAGE: errorType, message. Kept with the pending interact for its Loot.log line.
+local errorEvents = br.game.CreateFrame("Frame")
+errorEvents:RegisterEvent("UI_ERROR_MESSAGE")
+errorEvents:SetScript("OnEvent", function(_, _, _, message)
+    if pending and message ~= nil then pending.error = br.log.plain(message) end
+end)
 
 ----------------------------------------------------------------------------------------------------
 -- Options
@@ -276,10 +295,14 @@ local function scan()
     end
 
     -- Auto-interact is for game objects (chests, herbs, quest items), never NPCs: take the nearest one
+    -- not being left alone
+    local now = br.game.GetTime()
+    settlePending(now)
     if not inCombat and opts.autoInteract then
         for i = 1, #tracked do
-            if not tracked[i].unit then
-                tryInteract(tracked[i])
+            local e = tracked[i]
+            if not e.unit and not (e.skipUntil and now < e.skipUntil) then
+                tryInteract(e, now)
                 break
             end
         end
