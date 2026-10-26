@@ -29,7 +29,7 @@ local _, br = ...
 
 br.api.build.power = function(power,powerType,powerIndex)
     local isDKRunes = br.functions.unit:getClass("player") == "DEATHKNIGHT" and powerIndex == 5
-    local isDestruction = br.loader.selectedSpecID == 267 and powerIndex == 7
+    local isSoulShards = powerIndex == 7
 
     --- Gets the amount of specified power until max is reached
     -- @function power.<powerType>.deficit
@@ -38,7 +38,8 @@ br.api.build.power = function(power,powerType,powerIndex)
         return br.functions.power:getPowerMax("player",powerIndex) - br.functions.power:getPower("player",powerIndex)
     end
 
-    --- Gets the fractional counts of their available runes - Used by DKs
+    --- Gets the amount with its fraction: Death Knight runes counting the next rune's recharge,
+    -- soul shards with fragments (Destruction); other powers as power.<powerType>()
     -- @function power.<powerType>.frac
     -- @return number
     power[powerType].frac = function()
@@ -46,8 +47,8 @@ br.api.build.power = function(power,powerType,powerIndex)
         if isDKRunes then
             return br.functions.power:getRuneFrac()
         end
-        -- Destruction Warlocks
-        if isDestruction then
+        -- Warlocks
+        if isSoulShards then
             return br.functions.power:getSoulShardFrac()
         end
         return br.functions.power:getPower("player",powerIndex)

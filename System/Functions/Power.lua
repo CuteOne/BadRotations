@@ -151,12 +151,12 @@ function power:getRunePercent(Type)
 end
 
 -- Destruction Warlock soul shards with their fragments, as one number (3.4 = 3 shards, 4 fragments)
+-- Soul shards with fragments (Destruction's 3.5); whole shards where the client has no fragments.
 function power:getSoulShardFrac()
 	local soulShards = br.game.Enum.PowerType.SoulShards
-	local shardPower = br.game.UnitPower("player", soulShards, true)
-	local shardModifier = br.game.UnitPowerDisplayMod(soulShards)
-	local fragmentCount = (shardModifier ~= 0) and (shardPower / shardModifier) or 0
-	return (shardPower + fragmentCount) / 10
+	local displayMod = br.game.UnitPowerDisplayMod and br.game.UnitPowerDisplayMod(soulShards) or 0
+	if displayMod <= 0 then return br.game.UnitPower("player", soulShards) end
+	return br.game.UnitPower("player", soulShards, true) / displayMod
 end
 
 function power:getSpellCost(spell)

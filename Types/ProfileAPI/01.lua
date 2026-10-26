@@ -7459,7 +7459,8 @@ local C50 = {}
 ---@return number
 function C50.deficit() end
 
---- Gets the fractional counts of their available runes - Used by DKs
+--- Gets the amount with its fraction: Death Knight runes counting the next rune's recharge,
+--- soul shards with fragments (Destruction); other powers as power.<powerType>()
 ---@return number
 function C50.frac() end
 
