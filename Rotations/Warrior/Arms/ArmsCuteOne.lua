@@ -2,17 +2,10 @@
 local buff = buff --[[@as BR.MOP.Warrior.Arms.buff]]
 local cast = cast --[[@as BR.MOP.Warrior.Arms.cast]]
 local cd = cd --[[@as BR.MOP.Warrior.Arms.cd]]
-local charges = charges --[[@as BR.MOP.Warrior.Arms.charges]]
 local debuff = debuff --[[@as BR.MOP.Warrior.Arms.debuff]]
 local equiped = equiped --[[@as BR.MOP.Warrior.Arms.equiped]]
-local glyph = glyph --[[@as BR.MOP.Warrior.Arms.glyph]]
-local has = has --[[@as BR.MOP.Warrior.Arms.has]]
-local heroTree = heroTree --[[@as BR.MOP.Warrior.Arms.heroTree]]
-local imbues = imbues --[[@as BR.MOP.Warrior.Arms.imbues]]
 local spell = spell --[[@as BR.MOP.Warrior.Arms.spell]]
 local talent = talent --[[@as BR.MOP.Warrior.Arms.talent]]
-local totem = totem --[[@as BR.MOP.Warrior.Arms.totem]]
-local use = use --[[@as BR.MOP.Warrior.Arms.use]]
 
 local rotationName = "CuteOne"
 

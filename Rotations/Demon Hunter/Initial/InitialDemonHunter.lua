@@ -2,16 +2,7 @@
 local buff = buff --[[@as BR.Retail.DemonHunter.Initial.buff]]
 local cast = cast --[[@as BR.Retail.DemonHunter.Initial.cast]]
 local cd = cd --[[@as BR.Retail.DemonHunter.Initial.cd]]
-local charges = charges --[[@as BR.Retail.DemonHunter.Initial.charges]]
-local debuff = debuff --[[@as BR.Retail.DemonHunter.Initial.debuff]]
-local equiped = equiped --[[@as BR.Retail.DemonHunter.Initial.equiped]]
-local glyph = glyph --[[@as BR.Retail.DemonHunter.Initial.glyph]]
 local has = has --[[@as BR.Retail.DemonHunter.Initial.has]]
-local heroTree = heroTree --[[@as BR.Retail.DemonHunter.Initial.heroTree]]
-local imbues = imbues --[[@as BR.Retail.DemonHunter.Initial.imbues]]
-local spell = spell --[[@as BR.Retail.DemonHunter.Initial.spell]]
-local talent = talent --[[@as BR.Retail.DemonHunter.Initial.talent]]
-local totem = totem --[[@as BR.Retail.DemonHunter.Initial.totem]]
 local use = use --[[@as BR.Retail.DemonHunter.Initial.use]]
 
 local rotationName = "Initial"

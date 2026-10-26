@@ -1,18 +1,7 @@
 -- Editor types: the keys of Retail Rogue's spell lists (written by Types/generate.lua)
 local buff = buff --[[@as BR.Retail.Rogue.buff]]
 local cast = cast --[[@as BR.Retail.Rogue.cast]]
-local cd = cd --[[@as BR.Retail.Rogue.cd]]
-local charges = charges --[[@as BR.Retail.Rogue.charges]]
-local debuff = debuff --[[@as BR.Retail.Rogue.debuff]]
-local equiped = equiped --[[@as BR.Retail.Rogue.equiped]]
-local glyph = glyph --[[@as BR.Retail.Rogue.glyph]]
-local has = has --[[@as BR.Retail.Rogue.has]]
-local heroTree = heroTree --[[@as BR.Retail.Rogue.heroTree]]
-local imbues = imbues --[[@as BR.Retail.Rogue.imbues]]
 local spell = spell --[[@as BR.Retail.Rogue.spell]]
-local talent = talent --[[@as BR.Retail.Rogue.talent]]
-local totem = totem --[[@as BR.Retail.Rogue.totem]]
-local use = use --[[@as BR.Retail.Rogue.use]]
 
 local rotationName = "Initial"
 

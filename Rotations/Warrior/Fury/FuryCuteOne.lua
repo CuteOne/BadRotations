@@ -2,16 +2,9 @@
 local buff = buff --[[@as BR.Retail.Warrior.Fury.buff]]
 local cast = cast --[[@as BR.Retail.Warrior.Fury.cast]]
 local cd = cd --[[@as BR.Retail.Warrior.Fury.cd]]
-local charges = charges --[[@as BR.Retail.Warrior.Fury.charges]]
 local debuff = debuff --[[@as BR.Retail.Warrior.Fury.debuff]]
 local equiped = equiped --[[@as BR.Retail.Warrior.Fury.equiped]]
-local glyph = glyph --[[@as BR.Retail.Warrior.Fury.glyph]]
-local has = has --[[@as BR.Retail.Warrior.Fury.has]]
-local heroTree = heroTree --[[@as BR.Retail.Warrior.Fury.heroTree]]
-local imbues = imbues --[[@as BR.Retail.Warrior.Fury.imbues]]
-local spell = spell --[[@as BR.Retail.Warrior.Fury.spell]]
 local talent = talent --[[@as BR.Retail.Warrior.Fury.talent]]
-local totem = totem --[[@as BR.Retail.Warrior.Fury.totem]]
 local use = use --[[@as BR.Retail.Warrior.Fury.use]]
 
 local rotationName = "CuteOne"

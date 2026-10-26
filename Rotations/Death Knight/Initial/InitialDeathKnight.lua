@@ -1,18 +1,6 @@
 -- Editor types: the keys of Retail DeathKnight's spell lists (written by Types/generate.lua)
-local buff = buff --[[@as BR.Retail.DeathKnight.buff]]
 local cast = cast --[[@as BR.Retail.DeathKnight.cast]]
 local cd = cd --[[@as BR.Retail.DeathKnight.cd]]
-local charges = charges --[[@as BR.Retail.DeathKnight.charges]]
-local debuff = debuff --[[@as BR.Retail.DeathKnight.debuff]]
-local equiped = equiped --[[@as BR.Retail.DeathKnight.equiped]]
-local glyph = glyph --[[@as BR.Retail.DeathKnight.glyph]]
-local has = has --[[@as BR.Retail.DeathKnight.has]]
-local heroTree = heroTree --[[@as BR.Retail.DeathKnight.heroTree]]
-local imbues = imbues --[[@as BR.Retail.DeathKnight.imbues]]
-local spell = spell --[[@as BR.Retail.DeathKnight.spell]]
-local talent = talent --[[@as BR.Retail.DeathKnight.talent]]
-local totem = totem --[[@as BR.Retail.DeathKnight.totem]]
-local use = use --[[@as BR.Retail.DeathKnight.use]]
 
 local rotationName = "Initial"
 

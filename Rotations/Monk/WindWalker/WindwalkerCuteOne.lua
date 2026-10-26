@@ -4,15 +4,8 @@ local cast = cast --[[@as BR.MOP.Monk.Windwalker.cast]]
 local cd = cd --[[@as BR.MOP.Monk.Windwalker.cd]]
 local charges = charges --[[@as BR.MOP.Monk.Windwalker.charges]]
 local debuff = debuff --[[@as BR.MOP.Monk.Windwalker.debuff]]
-local equiped = equiped --[[@as BR.MOP.Monk.Windwalker.equiped]]
-local glyph = glyph --[[@as BR.MOP.Monk.Windwalker.glyph]]
-local has = has --[[@as BR.MOP.Monk.Windwalker.has]]
-local heroTree = heroTree --[[@as BR.MOP.Monk.Windwalker.heroTree]]
-local imbues = imbues --[[@as BR.MOP.Monk.Windwalker.imbues]]
 local spell = spell --[[@as BR.MOP.Monk.Windwalker.spell]]
 local talent = talent --[[@as BR.MOP.Monk.Windwalker.talent]]
-local totem = totem --[[@as BR.MOP.Monk.Windwalker.totem]]
-local use = use --[[@as BR.MOP.Monk.Windwalker.use]]
 
 local rotationName = "CuteOne"
 

@@ -2,17 +2,9 @@
 local buff = buff --[[@as BR.TBC.Shaman.buff]]
 local cast = cast --[[@as BR.TBC.Shaman.cast]]
 local cd = cd --[[@as BR.TBC.Shaman.cd]]
-local charges = charges --[[@as BR.TBC.Shaman.charges]]
 local debuff = debuff --[[@as BR.TBC.Shaman.debuff]]
-local equiped = equiped --[[@as BR.TBC.Shaman.equiped]]
-local glyph = glyph --[[@as BR.TBC.Shaman.glyph]]
-local has = has --[[@as BR.TBC.Shaman.has]]
-local heroTree = heroTree --[[@as BR.TBC.Shaman.heroTree]]
 local imbues = imbues --[[@as BR.TBC.Shaman.imbues]]
-local spell = spell --[[@as BR.TBC.Shaman.spell]]
-local talent = talent --[[@as BR.TBC.Shaman.talent]]
 local totem = totem --[[@as BR.TBC.Shaman.totem]]
-local use = use --[[@as BR.TBC.Shaman.use]]
 
 local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
 

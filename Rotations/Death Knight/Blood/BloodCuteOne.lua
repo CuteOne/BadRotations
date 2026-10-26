@@ -4,15 +4,7 @@ local cast = cast --[[@as BR.Retail.DeathKnight.Blood.cast]]
 local cd = cd --[[@as BR.Retail.DeathKnight.Blood.cd]]
 local charges = charges --[[@as BR.Retail.DeathKnight.Blood.charges]]
 local debuff = debuff --[[@as BR.Retail.DeathKnight.Blood.debuff]]
-local equiped = equiped --[[@as BR.Retail.DeathKnight.Blood.equiped]]
-local glyph = glyph --[[@as BR.Retail.DeathKnight.Blood.glyph]]
-local has = has --[[@as BR.Retail.DeathKnight.Blood.has]]
-local heroTree = heroTree --[[@as BR.Retail.DeathKnight.Blood.heroTree]]
-local imbues = imbues --[[@as BR.Retail.DeathKnight.Blood.imbues]]
-local spell = spell --[[@as BR.Retail.DeathKnight.Blood.spell]]
 local talent = talent --[[@as BR.Retail.DeathKnight.Blood.talent]]
-local totem = totem --[[@as BR.Retail.DeathKnight.Blood.totem]]
-local use = use --[[@as BR.Retail.DeathKnight.Blood.use]]
 
 local rotationName = "CuteOne"
 

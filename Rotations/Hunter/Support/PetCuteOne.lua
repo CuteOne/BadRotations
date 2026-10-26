@@ -4,17 +4,8 @@
 local buff = buff --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.buff]]
 local cast = cast --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.cast]]
 local cd = cd --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.cd]]
-local charges = charges --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.charges]]
 local debuff = debuff --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.debuff]]
-local equiped = equiped --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.equiped]]
-local glyph = glyph --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.glyph]]
-local has = has --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.has]]
-local heroTree = heroTree --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.heroTree]]
-local imbues = imbues --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.imbues]]
 local spell = spell --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.spell]]
-local talent = talent --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.talent]]
-local totem = totem --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.totem]]
-local use = use --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.use]]
 
 local mode
 local currentTarget

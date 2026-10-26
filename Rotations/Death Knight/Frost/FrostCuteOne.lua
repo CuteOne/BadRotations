@@ -2,17 +2,9 @@
 local buff = buff --[[@as BR.MOP.DeathKnight.Frost.buff]]
 local cast = cast --[[@as BR.MOP.DeathKnight.Frost.cast]]
 local cd = cd --[[@as BR.MOP.DeathKnight.Frost.cd]]
-local charges = charges --[[@as BR.MOP.DeathKnight.Frost.charges]]
 local debuff = debuff --[[@as BR.MOP.DeathKnight.Frost.debuff]]
-local equiped = equiped --[[@as BR.MOP.DeathKnight.Frost.equiped]]
-local glyph = glyph --[[@as BR.MOP.DeathKnight.Frost.glyph]]
-local has = has --[[@as BR.MOP.DeathKnight.Frost.has]]
-local heroTree = heroTree --[[@as BR.MOP.DeathKnight.Frost.heroTree]]
-local imbues = imbues --[[@as BR.MOP.DeathKnight.Frost.imbues]]
 local spell = spell --[[@as BR.MOP.DeathKnight.Frost.spell]]
 local talent = talent --[[@as BR.MOP.DeathKnight.Frost.talent]]
-local totem = totem --[[@as BR.MOP.DeathKnight.Frost.totem]]
-local use = use --[[@as BR.MOP.DeathKnight.Frost.use]]
 
 local rotationName = "CuteOne"
 

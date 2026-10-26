@@ -2,17 +2,7 @@
 local buff = buff --[[@as BR.MOP.Shaman.buff]]
 local cast = cast --[[@as BR.MOP.Shaman.cast]]
 local cd = cd --[[@as BR.MOP.Shaman.cd]]
-local charges = charges --[[@as BR.MOP.Shaman.charges]]
-local debuff = debuff --[[@as BR.MOP.Shaman.debuff]]
-local equiped = equiped --[[@as BR.MOP.Shaman.equiped]]
-local glyph = glyph --[[@as BR.MOP.Shaman.glyph]]
-local has = has --[[@as BR.MOP.Shaman.has]]
-local heroTree = heroTree --[[@as BR.MOP.Shaman.heroTree]]
-local imbues = imbues --[[@as BR.MOP.Shaman.imbues]]
 local spell = spell --[[@as BR.MOP.Shaman.spell]]
-local talent = talent --[[@as BR.MOP.Shaman.talent]]
-local totem = totem --[[@as BR.MOP.Shaman.totem]]
-local use = use --[[@as BR.MOP.Shaman.use]]
 
 local rotationName = "Initial"
 

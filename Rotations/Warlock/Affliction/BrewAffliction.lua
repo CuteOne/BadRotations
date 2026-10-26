@@ -1,17 +1,7 @@
 -- Editor types: the keys of Retail Warlock Affliction's spell lists (written by Types/generate.lua)
-local buff = buff --[[@as BR.Retail.Warlock.Affliction.buff]]
 local cast = cast --[[@as BR.Retail.Warlock.Affliction.cast]]
-local cd = cd --[[@as BR.Retail.Warlock.Affliction.cd]]
-local charges = charges --[[@as BR.Retail.Warlock.Affliction.charges]]
 local debuff = debuff --[[@as BR.Retail.Warlock.Affliction.debuff]]
-local equiped = equiped --[[@as BR.Retail.Warlock.Affliction.equiped]]
-local glyph = glyph --[[@as BR.Retail.Warlock.Affliction.glyph]]
 local has = has --[[@as BR.Retail.Warlock.Affliction.has]]
-local heroTree = heroTree --[[@as BR.Retail.Warlock.Affliction.heroTree]]
-local imbues = imbues --[[@as BR.Retail.Warlock.Affliction.imbues]]
-local spell = spell --[[@as BR.Retail.Warlock.Affliction.spell]]
-local talent = talent --[[@as BR.Retail.Warlock.Affliction.talent]]
-local totem = totem --[[@as BR.Retail.Warlock.Affliction.totem]]
 local use = use --[[@as BR.Retail.Warlock.Affliction.use]]
 
 local rotationName = "BrewAffliction"

@@ -1,18 +1,5 @@
 -- Editor types: the keys of Classic Hunter's spell lists (written by Types/generate.lua)
-local buff = buff --[[@as BR.Classic.Hunter.buff]]
 local cast = cast --[[@as BR.Classic.Hunter.cast]]
-local cd = cd --[[@as BR.Classic.Hunter.cd]]
-local charges = charges --[[@as BR.Classic.Hunter.charges]]
-local debuff = debuff --[[@as BR.Classic.Hunter.debuff]]
-local equiped = equiped --[[@as BR.Classic.Hunter.equiped]]
-local glyph = glyph --[[@as BR.Classic.Hunter.glyph]]
-local has = has --[[@as BR.Classic.Hunter.has]]
-local heroTree = heroTree --[[@as BR.Classic.Hunter.heroTree]]
-local imbues = imbues --[[@as BR.Classic.Hunter.imbues]]
-local spell = spell --[[@as BR.Classic.Hunter.spell]]
-local talent = talent --[[@as BR.Classic.Hunter.talent]]
-local totem = totem --[[@as BR.Classic.Hunter.totem]]
-local use = use --[[@as BR.Classic.Hunter.use]]
 
 local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
 

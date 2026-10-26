@@ -2,17 +2,7 @@
 local buff = buff --[[@as BR.Retail.Evoker.Initial.buff]]
 local cast = cast --[[@as BR.Retail.Evoker.Initial.cast]]
 local cd = cd --[[@as BR.Retail.Evoker.Initial.cd]]
-local charges = charges --[[@as BR.Retail.Evoker.Initial.charges]]
 local debuff = debuff --[[@as BR.Retail.Evoker.Initial.debuff]]
-local equiped = equiped --[[@as BR.Retail.Evoker.Initial.equiped]]
-local glyph = glyph --[[@as BR.Retail.Evoker.Initial.glyph]]
-local has = has --[[@as BR.Retail.Evoker.Initial.has]]
-local heroTree = heroTree --[[@as BR.Retail.Evoker.Initial.heroTree]]
-local imbues = imbues --[[@as BR.Retail.Evoker.Initial.imbues]]
-local spell = spell --[[@as BR.Retail.Evoker.Initial.spell]]
-local talent = talent --[[@as BR.Retail.Evoker.Initial.talent]]
-local totem = totem --[[@as BR.Retail.Evoker.Initial.totem]]
-local use = use --[[@as BR.Retail.Evoker.Initial.use]]
 
 local rotationName = "Initial" -- Change to name of profile listed in options drop down
 

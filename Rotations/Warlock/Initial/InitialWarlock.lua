@@ -1,18 +1,8 @@
 -- Editor types: the keys of Retail Warlock Initial's spell lists (written by Types/generate.lua)
-local buff = buff --[[@as BR.Retail.Warlock.Initial.buff]]
 local cast = cast --[[@as BR.Retail.Warlock.Initial.cast]]
 local cd = cd --[[@as BR.Retail.Warlock.Initial.cd]]
-local charges = charges --[[@as BR.Retail.Warlock.Initial.charges]]
 local debuff = debuff --[[@as BR.Retail.Warlock.Initial.debuff]]
-local equiped = equiped --[[@as BR.Retail.Warlock.Initial.equiped]]
-local glyph = glyph --[[@as BR.Retail.Warlock.Initial.glyph]]
-local has = has --[[@as BR.Retail.Warlock.Initial.has]]
-local heroTree = heroTree --[[@as BR.Retail.Warlock.Initial.heroTree]]
-local imbues = imbues --[[@as BR.Retail.Warlock.Initial.imbues]]
 local spell = spell --[[@as BR.Retail.Warlock.Initial.spell]]
-local talent = talent --[[@as BR.Retail.Warlock.Initial.talent]]
-local totem = totem --[[@as BR.Retail.Warlock.Initial.totem]]
-local use = use --[[@as BR.Retail.Warlock.Initial.use]]
 
 local rotationName = "Initial"
 

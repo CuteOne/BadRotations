@@ -2,17 +2,12 @@
 local buff = buff --[[@as BR.MOP.Shaman.Enhancement.buff]]
 local cast = cast --[[@as BR.MOP.Shaman.Enhancement.cast]]
 local cd = cd --[[@as BR.MOP.Shaman.Enhancement.cd]]
-local charges = charges --[[@as BR.MOP.Shaman.Enhancement.charges]]
 local debuff = debuff --[[@as BR.MOP.Shaman.Enhancement.debuff]]
 local equiped = equiped --[[@as BR.MOP.Shaman.Enhancement.equiped]]
 local glyph = glyph --[[@as BR.MOP.Shaman.Enhancement.glyph]]
-local has = has --[[@as BR.MOP.Shaman.Enhancement.has]]
-local heroTree = heroTree --[[@as BR.MOP.Shaman.Enhancement.heroTree]]
-local imbues = imbues --[[@as BR.MOP.Shaman.Enhancement.imbues]]
 local spell = spell --[[@as BR.MOP.Shaman.Enhancement.spell]]
 local talent = talent --[[@as BR.MOP.Shaman.Enhancement.talent]]
 local totem = totem --[[@as BR.MOP.Shaman.Enhancement.totem]]
-local use = use --[[@as BR.MOP.Shaman.Enhancement.use]]
 
 local rotationName = "CuteOne"
 ---------------

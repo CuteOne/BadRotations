@@ -672,13 +672,48 @@ print(("%s: %d files, %d documented functions, %d ability keys, %d buffs, %d deb
 -- editor completes only what the profile has. Written in place; with another out folder only checked
 ---------------------------------------------------------------------------------------------------
 local MARK = "-- Editor types: "
-local function profileBlock(scope)
+
+-- The code alone: comments and string literals blanked, so words in them don't count as uses
+local function codeOnly(text)
+    local out, i, n = {}, 1, #text
+    while i <= n do
+        local c = text:sub(i, i)
+        local long = text:match("^%-%-%[(=*)%[", i) or (c == "[" and text:match("^%[(=*)%[", i))
+        if long then
+            local open = text:match("^%-%-%[=*%[", i) or text:match("^%[=*%[", i)
+            local close = text:find("]" .. long .. "]", i + #open, true)
+            i = (close or n) + #long + 2
+            out[#out + 1] = " "
+        elseif text:sub(i, i + 1) == "--" then
+            local eol = text:find("\n", i, true) or n + 1
+            i = eol
+        elseif c == '"' or c == "'" then
+            local j = i + 1
+            while j <= n and text:sub(j, j) ~= c and text:sub(j, j) ~= "\n" do
+                if text:sub(j, j) == "\\" then j = j + 1 end
+                j = j + 1
+            end
+            i = j + 1
+            out[#out + 1] = " "
+        else
+            out[#out + 1] = c
+            i = i + 1
+        end
+    end
+    return table.concat(out)
+end
+
+-- body: the profile without its block; only the tables its code uses get a local (no unused-local hints)
+local function profileBlock(scope, body)
+    body = codeOnly(body)
     local result = { MARK .. "the keys of " .. scope.name:gsub("%.", " ") .. "'s spell lists (written by Types/generate.lua)" }
     for _, tableName in ipairs(TABLES) do
         local cls = scopedClass[scope.name][tableName]
-        if cls then result[#result + 1] = ("local %s = %s --[[@as %s]]"):format(tableName, tableName, cls) end
+        if cls and body:find("%f[%w_.:]" .. tableName .. "%s*[%.%[(]") then
+            result[#result + 1] = ("local %s = %s --[[@as %s]]"):format(tableName, tableName, cls)
+        end
     end
-    return result
+    return #result > 1 and result or nil
 end
 
 -- The file with its block put in (replacing the one there): after the comments it starts with
@@ -708,7 +743,7 @@ end
 local writeProfiles = OUT_DIR == "Types/ProfileAPI"
 local stale = 0
 for _, p in ipairs(profiles) do
-    local new = withBlock(p.text, p.scope and profileBlock(p.scope))
+    local new = withBlock(p.text, p.scope and profileBlock(p.scope, withBlock(p.text, nil)))
     if new ~= p.text then
         if writeProfiles then
             local f = assert(io.open(p.path, "wb")); f:write(new); f:close()

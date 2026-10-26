@@ -4,15 +4,7 @@ local cast = cast --[[@as BR.Retail.Hunter.Marksmanship.cast]]
 local cd = cd --[[@as BR.Retail.Hunter.Marksmanship.cd]]
 local charges = charges --[[@as BR.Retail.Hunter.Marksmanship.charges]]
 local debuff = debuff --[[@as BR.Retail.Hunter.Marksmanship.debuff]]
-local equiped = equiped --[[@as BR.Retail.Hunter.Marksmanship.equiped]]
-local glyph = glyph --[[@as BR.Retail.Hunter.Marksmanship.glyph]]
-local has = has --[[@as BR.Retail.Hunter.Marksmanship.has]]
-local heroTree = heroTree --[[@as BR.Retail.Hunter.Marksmanship.heroTree]]
-local imbues = imbues --[[@as BR.Retail.Hunter.Marksmanship.imbues]]
-local spell = spell --[[@as BR.Retail.Hunter.Marksmanship.spell]]
 local talent = talent --[[@as BR.Retail.Hunter.Marksmanship.talent]]
-local totem = totem --[[@as BR.Retail.Hunter.Marksmanship.totem]]
-local use = use --[[@as BR.Retail.Hunter.Marksmanship.use]]
 
 local rotationName = "CuteOne"
 local petSupport = loadSupport("PetCuteOne")

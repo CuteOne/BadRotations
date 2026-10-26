@@ -2,17 +2,7 @@
 local buff = buff --[[@as BR.Retail.Priest.buff]]
 local cast = cast --[[@as BR.Retail.Priest.cast]]
 local cd = cd --[[@as BR.Retail.Priest.cd]]
-local charges = charges --[[@as BR.Retail.Priest.charges]]
 local debuff = debuff --[[@as BR.Retail.Priest.debuff]]
-local equiped = equiped --[[@as BR.Retail.Priest.equiped]]
-local glyph = glyph --[[@as BR.Retail.Priest.glyph]]
-local has = has --[[@as BR.Retail.Priest.has]]
-local heroTree = heroTree --[[@as BR.Retail.Priest.heroTree]]
-local imbues = imbues --[[@as BR.Retail.Priest.imbues]]
-local spell = spell --[[@as BR.Retail.Priest.spell]]
-local talent = talent --[[@as BR.Retail.Priest.talent]]
-local totem = totem --[[@as BR.Retail.Priest.totem]]
-local use = use --[[@as BR.Retail.Priest.use]]
 
 local rotationName = "Initial"
 

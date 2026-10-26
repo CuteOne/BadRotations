@@ -2,17 +2,8 @@
 local buff = buff --[[@as BR.MOP.Rogue.Subtlety.buff]]
 local cast = cast --[[@as BR.MOP.Rogue.Subtlety.cast]]
 local cd = cd --[[@as BR.MOP.Rogue.Subtlety.cd]]
-local charges = charges --[[@as BR.MOP.Rogue.Subtlety.charges]]
 local debuff = debuff --[[@as BR.MOP.Rogue.Subtlety.debuff]]
-local equiped = equiped --[[@as BR.MOP.Rogue.Subtlety.equiped]]
-local glyph = glyph --[[@as BR.MOP.Rogue.Subtlety.glyph]]
-local has = has --[[@as BR.MOP.Rogue.Subtlety.has]]
-local heroTree = heroTree --[[@as BR.MOP.Rogue.Subtlety.heroTree]]
-local imbues = imbues --[[@as BR.MOP.Rogue.Subtlety.imbues]]
-local spell = spell --[[@as BR.MOP.Rogue.Subtlety.spell]]
 local talent = talent --[[@as BR.MOP.Rogue.Subtlety.talent]]
-local totem = totem --[[@as BR.MOP.Rogue.Subtlety.totem]]
-local use = use --[[@as BR.MOP.Rogue.Subtlety.use]]
 
 local rotationName = "CuteOne"
 

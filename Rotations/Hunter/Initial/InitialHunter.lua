@@ -2,17 +2,7 @@
 local buff = buff --[[@as BR.Retail.Hunter.buff]]
 local cast = cast --[[@as BR.Retail.Hunter.cast]]
 local cd = cd --[[@as BR.Retail.Hunter.cd]]
-local charges = charges --[[@as BR.Retail.Hunter.charges]]
 local debuff = debuff --[[@as BR.Retail.Hunter.debuff]]
-local equiped = equiped --[[@as BR.Retail.Hunter.equiped]]
-local glyph = glyph --[[@as BR.Retail.Hunter.glyph]]
-local has = has --[[@as BR.Retail.Hunter.has]]
-local heroTree = heroTree --[[@as BR.Retail.Hunter.heroTree]]
-local imbues = imbues --[[@as BR.Retail.Hunter.imbues]]
-local spell = spell --[[@as BR.Retail.Hunter.spell]]
-local talent = talent --[[@as BR.Retail.Hunter.talent]]
-local totem = totem --[[@as BR.Retail.Hunter.totem]]
-local use = use --[[@as BR.Retail.Hunter.use]]
 
 local rotationName = "Initial"
 local petSupport = loadSupport("PetCuteOne")

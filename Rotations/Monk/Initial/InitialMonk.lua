@@ -2,17 +2,6 @@
 local buff = buff --[[@as BR.MOP.Monk.buff]]
 local cast = cast --[[@as BR.MOP.Monk.cast]]
 local cd = cd --[[@as BR.MOP.Monk.cd]]
-local charges = charges --[[@as BR.MOP.Monk.charges]]
-local debuff = debuff --[[@as BR.MOP.Monk.debuff]]
-local equiped = equiped --[[@as BR.MOP.Monk.equiped]]
-local glyph = glyph --[[@as BR.MOP.Monk.glyph]]
-local has = has --[[@as BR.MOP.Monk.has]]
-local heroTree = heroTree --[[@as BR.MOP.Monk.heroTree]]
-local imbues = imbues --[[@as BR.MOP.Monk.imbues]]
-local spell = spell --[[@as BR.MOP.Monk.spell]]
-local talent = talent --[[@as BR.MOP.Monk.talent]]
-local totem = totem --[[@as BR.MOP.Monk.totem]]
-local use = use --[[@as BR.MOP.Monk.use]]
 
 local rotationName = "Initial"
 
