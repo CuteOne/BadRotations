@@ -184,6 +184,13 @@ local function write(rotationFight)
 		for _, watched in ipairs(f.watched) do ready[watched.name] = f.ready[watched.name] or 0 end
 		fightLine("ready " .. namedList(ready, nil, true))
 	end
+	-- Debug Level developer: the fight in one chat line, so a profile change shows its effect at once
+	if br.functions.misc:debugAt("developer") then
+		local failed = (rotationFight.failed or 0) + (rotationFight.interrupted or 0) + (rotationFight.noAnswer or 0)
+		br.log:systemDebug(("[FIGHT] %.1fs%s: %.1f dps, %d casts%s, %s mana, idle %.1fs"):format(duration,
+			f.target and (" vs " .. f.target) or "", perSecond(f.damage), rotationFight.sent or 0,
+			failed > 0 and (" (" .. failed .. " didn't land)") or "", tostring(math.floor(f.manaSpent + 0.5)), f.idleNear))
+	end
 end
 
 br.log.rotation:onFight(function(phase, rotationFight)
