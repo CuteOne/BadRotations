@@ -883,14 +883,24 @@ function br.debug.cast:noteNotBehind(spellID, guid)
     local victim = br.game.UnitTarget and br.game.UnitTarget(unit)
     local targetsYou = victim ~= nil and br.game.UnitIsUnit(victim, "player")
     local flags = br.game.UnitFlags and br.game.UnitFlags(unit)
-    castWrite(("NOT BEHIND %s → %s: BR's check said %s | its target %s, unit flags %s | you stand %s off its facing (%s), centres %s apart, edge %.1fyd%s"):format(
+    -- 2026-10-26 (Gruul's Lair): refused at 110-128° off the facing towards its target while it moved and
+    -- targeted someone else, where the server (CMaNGOS TBC) takes anything past 90°: how fast it moved,
+    -- where the client's own facing puts you, and whether you faced it (the server needs that too)
+    local clientAngle = fromTarget and unitFns:getFacingAngle(unit, "player", true)
+    local yourAngle = unitFns:getFacingAngle("player", unit, true)
+    local speed = br.game.GetUnitSpeed and br.game.GetUnitSpeed(unit)
+    local function degrees(a) return a and ("%d°"):format(plainNumber(a)) or "?" end
+    castWrite(("NOT BEHIND %s → %s: BR's check said %s | its target %s, unit flags %s | you stand %s off its facing (%s), centres %s apart, edge %.1fyd%s | it moving %s yd/s%s | it is %s off your facing"):format(
         printable(br.functions.spell:getName(spellID)), unitName(unit),
         facing == false and "behind" or facing == true and "in front" or "unknown",
         targetsYou and "you" or (victim == nil and "none" or "not you"),
         type(flags) == "number" and ("0x%08X"):format(plainNumber(flags)) or "?",
-        angle and ("%d°"):format(plainNumber(angle)) or "?", fromTarget and "towards its target" or "as the client has it", centres and ("%.2fyd"):format(plainNumber(centres)) or "?",
+        degrees(angle), fromTarget and "towards its target" or "as the client has it", centres and ("%.2fyd"):format(plainNumber(centres)) or "?",
         plainNumber(br.functions.range:getEdgeDistance("player", unit) or 0),
-        br.game.ObjectIsFacing ~= nil and ", unlocker facing check" or ""))
+        br.game.ObjectIsFacing ~= nil and ", unlocker facing check" or "",
+        speed and ("%.1f"):format(plainNumber(speed)) or "?",
+        clientAngle and (", the client's facing puts you %s off"):format(degrees(clientAngle)) or "",
+        degrees(yourAngle)))
 end
 
 local inProgressText = br.game.SPELL_FAILED_SPELL_IN_PROGRESS or "Another action is in progress"

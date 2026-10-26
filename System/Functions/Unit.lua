@@ -302,11 +302,13 @@ function unit:getServerFacing(Unit)
 	return br.functions.unit:GetObjectFacing(Unit), false
 end
 
---- How far Unit2 is off Unit1's facing (as the server has it, see getServerFacing), in degrees
--- (0 = straight ahead, 180 = right behind), and the distance between their centres (the angle means
--- little when the centres nearly meet). nil when the positions or the facing can't be read.
-function unit:getFacingAngle(Unit1, Unit2)
-	local facing = br.functions.unit:getServerFacing(Unit1)
+--- How far Unit2 is off Unit1's facing (as the server has it, see getServerFacing; with asClient, the
+-- facing the client reports), in degrees (0 = straight ahead, 180 = right behind), and the distance
+-- between their centres (the angle means little when the centres nearly meet). nil when the positions
+-- or the facing can't be read.
+function unit:getFacingAngle(Unit1, Unit2, asClient)
+	local facing
+	if asClient then facing = br.functions.unit:GetObjectFacing(Unit1) else facing = br.functions.unit:getServerFacing(Unit1) end
 	local x1, y1 = br.functions.unit:GetObjectPosition(Unit1)
 	local x2, y2 = br.functions.unit:GetObjectPosition(Unit2)
 	if facing == nil or x1 == nil or y1 == nil or x2 == nil or y2 == nil then
