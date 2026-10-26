@@ -88,8 +88,8 @@ local function options()
     ui.dropdown(section, "Air Totem", { choices = { "Auto", "Windfury", "Grace of Air", "Wrath of Air", "None" }, value = "Auto", checkbox = false,
         tip = "Auto: Windfury Totem (Melee, Grace of Air when the main hand holds Windfury), Wrath of Air (Caster)." })
     ui.checkbox(section, "Area Fire Totems", { checked = true, tip = "Magma or Fire Nova Totem when the rotation counts enough enemies within 8 yards." })
-    ui.checkbox(section, "Remove Totems Left Behind", { checked = true,
-        tip = "Out of combat, remove totems you have left 30+ yards behind, so a mob wandering into one doesn't pull you back into a fight: Totemic Call once known (level 30, gives back some mana), destroyed before that." })
+    ui.checkbox(section, "Totemic Call", { checked = true,
+        tip = "Out of combat, recall totems you have left 30+ yards behind (level 30): a mob wandering into one would pull you back into a fight, and it gives back some of their mana. Before then there's no way to remove a totem in TBC." })
     -- Cooldowns
     section = ui.section("Cooldowns")
     ui.checkbox(section, "Bloodlust / Heroism", { checked = true, tip = "In a group, when cooldowns are used." })
@@ -469,15 +469,12 @@ actionList.PreCombat = function()
         if dead and cast.ancestralSpirit(dead) then ui.debug("Casting Ancestral Spirit on " .. unit.name(dead)) return true end
     end
     -- Totems left behind (30+ yd, nothing fighting you): of no use where they stand, and a mob that walks
-    -- into one pulls you back into a fight. Totemic Call once known; destroyed before that (level 30)
-    if ui.checked("Remove Totems Left Behind") and #enemies.yards40 == 0 then
+    -- into one pulls you back into a fight. Totemic Call (level 30); before it a TBC player can't remove a
+    -- totem at all, so neither does BR (a totem destroyed there would be a bot's tell)
+    if ui.checked("Totemic Call") and spell.totemicRecall.known() and #enemies.yards40 == 0 then
         for _, element in ipairs({ totem.fire, totem.earth, totem.water, totem.air }) do
             if element.active() and element.distance() >= 30 then
-                if spell.totemicRecall.known() then
-                    if cast.totemicRecall() then ui.debug("Casting Totemic Call") return true end
-                elseif element.destroy() then
-                    ui.debug("Destroying " .. tostring(element.name()) .. " (left behind)")
-                end
+                if cast.totemicRecall() then ui.debug("Casting Totemic Call") return true end
             end
         end
     end
