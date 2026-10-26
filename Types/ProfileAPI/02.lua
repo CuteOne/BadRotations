@@ -5819,6 +5819,8 @@
 ---@class BR.MOP.Shaman.imbues
 ---@field earthlivingWeapon integer # the weapon enchant ID
 ---@field flametongueWeapon integer # the weapon enchant ID
+---@field frostbrandWeapon integer # the weapon enchant ID
+---@field rockbiterWeapon integer # the weapon enchant ID
 ---@field windfuryWeapon integer # the weapon enchant ID
 
 
@@ -6294,6 +6296,8 @@
 ---@class BR.MOP.Shaman.Enhancement.imbues
 ---@field earthlivingWeapon integer # the weapon enchant ID
 ---@field flametongueWeapon integer # the weapon enchant ID
+---@field frostbrandWeapon integer # the weapon enchant ID
+---@field rockbiterWeapon integer # the weapon enchant ID
 ---@field windfuryWeapon integer # the weapon enchant ID
 
 
@@ -12244,6 +12248,3 @@
 
 
 ---@class BR.Retail.Druid.Initial.cast.safe : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.safe.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.time : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.time.Spell>

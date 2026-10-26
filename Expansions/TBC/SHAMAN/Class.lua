@@ -64,7 +64,10 @@ br.lists.spells.SHAMAN.Shared = {
                                      spells = {8024, 8027, 8030, 16339, 16341, 16342, 25489}},
                 frostbrandWeapon  = {2, 12, 524, 1667, 1668, 2635,                -- r1-r6 enchant IDs (lvl 20-66)
                                      spells = {8033, 8038, 10456, 16355, 16356, 25500}},
-                rockbiterWeapon   = {29, 6, 3029, 503, 1663, 683, 1664, 2632, 2633,  -- r1-r9 enchant IDs (lvl 1-70); r3 confirmed via /dump GetWeaponEnchantInfo()
+                -- Rockbiter is a server script on TBC (Wowhead shows no enchant): only r3 is confirmed (in game,
+                -- /dump GetWeaponEnchantInfo()); the others are unconfirmed (r1-r7 are Classic's except r3), and
+                -- Imbue.log records the enchant a rank really applies
+                rockbiterWeapon   = {29, 6, 3029, 503, 1663, 683, 1664, 2632, 2633,  -- r1-r9 enchant IDs (lvl 1-70)
                                      spells = {8017, 8018, 8019, 10399, 16314, 16315, 16316, 25479, 25485}},
             },
             buffs         = {

@@ -6,6 +6,9 @@
 -- profiles use. The game never loads these files.
 
 
+---@class BR.Retail.Druid.Initial.cast.time : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.time.Spell>
+
+
 ---@class BR.Retail.Druid.Initial.cast.timeSinceLast : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.timeSinceLast.Spell>
 
 ---@class BR.Retail.Druid.Initial.cast : BR.cast.Base, BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.Spell>

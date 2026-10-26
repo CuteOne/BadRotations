@@ -46,10 +46,12 @@ br.lists.spells.SHAMAN.Shared = {
                 windShear           = 57994,
             },
             imbues        = {
-                windfuryWeapon    = 283,   -- r1 (spell 8232)
-                flametongueWeapon = 5,     -- r1 (spell 8024)
-                earthlivingWeapon = 3345,  -- r1 (spell 51730)
-                -- Note: Frostbrand and Rockbiter removed in Cataclysm 4.0.1
+                -- Enchant IDs from Wowhead MoP Classic (each spell's "Enchant Item - Temporary" effect)
+                earthlivingWeapon = 3345,  -- spell 51730
+                flametongueWeapon = 5,     -- spell 8024
+                frostbrandWeapon  = 2,     -- spell 8033 (level 46)
+                rockbiterWeapon   = 3021,  -- spell 8017 (level 75: threat and damage taken)
+                windfuryWeapon    = 283,   -- spell 8232
             },
             buffs         = {
                 ancestralSwiftness  = 16188,
