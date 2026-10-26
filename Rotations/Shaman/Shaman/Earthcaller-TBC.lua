@@ -148,9 +148,13 @@ local function justSwung()
     return untilNext == nil or util.time() - last <= 0.4
 end
 
--- Totems are worth their mana: the fight lasts long enough, or 2+ enemies are on you
+-- Totems are worth their mana: 2+ enemies are on you, or the target has over half its health left and
+-- the fight should last long enough. A totem dropped in a fight's last seconds buys nothing and is left
+-- standing to pull the next mob that wanders by (2026-10-26: a Stoneskin dropped 2 s before the kill
+-- aggroed a passing Blood Elf Scout after the player had run off; no Totemic Call before level 30).
 local function totemsWorthIt()
-    return #enemies.yards8 >= 2 or fightLength("target") >= ui.value("Totem Fight Length")
+    if #enemies.yards8 >= 2 then return true end
+    return unit.hp("target") > 50 and fightLength("target") >= ui.value("Totem Fight Length")
 end
 
 -- An element needs a totem: none up, or the one up was left 30+ yards behind (0 = can't be
