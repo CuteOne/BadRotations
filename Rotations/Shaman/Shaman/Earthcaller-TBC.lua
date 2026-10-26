@@ -62,6 +62,8 @@ local function options()
         tip = "Open on an enemy you target, out of combat and standing still, with Lightning Bolt (Melee style; Caster style always pulls)." })
     ui.checkbox(section, "Pull on the Move", { checked = true,
         tip = "Open on a hostile enemy you target while you're moving with Earth Shock (instant), so you tag it first. Standing still it's Lightning Bolt (cheaper)." })
+    ui.checkbox(section, "Spend Mana When Safe", { checked = true,
+        tip = "While nothing threatens you (health 60%+, one enemy at most on you, and you're winning), shocks and Lightning Bolt ignore the mana thresholds below and no heal's mana is held back. They come back the moment that changes." })
     ui.spinner(section, "Shock Mana", { value = 40, min = 0, max = 100, step = 5, checkbox = false,
         tip = "Melee style: shocks for damage only above this mana percent (Focused procs, interrupts and fleeing enemies always may). One heal's mana is always kept back." })
     ui.spinner(section, "Weave Lightning Bolt", { value = 50, min = 0, max = 100, step = 5, checked = true,
@@ -134,17 +136,27 @@ local function healCost()
     return cast.cost.healingWave()
 end
 
--- True when a spell costing this much still leaves the mana for one heal
-local function affordable(cost)
-    return mana() - cost >= healCost()
-end
-
 -- Seconds the fight against thisUnit should last. While BR is still measuring (999 = unknown), a
 -- mob 4+ levels below you counts as a short fight and any other as a long one.
 local function fightLength(thisUnit)
     local ttd = unit.ttd(thisUnit)
     if ttd < 999 then return ttd end
     return unit.level(thisUnit) <= unit.level() - 4 and 0 or 999
+end
+
+-- Nothing in this fight threatens you: health 60%+, one enemy at most on you, and you're winning (its
+-- health no higher than yours, or it's about to die). Then the mana held back for a heal, and the shock
+-- and weave thresholds, are mana left unspent: it comes back before the next pull anyway
+local function safe()
+    if not ui.checked("Spend Mana When Safe") or enemy == nil then return false end
+    local hp = unit.hp()
+    return hp >= 60 and #enemies.yards8 <= 1 and (unit.hp(enemy) <= hp or fightLength(enemy) < 8)
+end
+
+-- True when a spell costing this much still leaves the mana for one heal (or there's no need for one)
+local function affordable(cost)
+    if safe() then return mana() >= cost end
+    return mana() - cost >= healCost()
 end
 
 -- A cast-time spell stalls the melee swing, so a weave goes out just after a swing lands (or
@@ -416,7 +428,7 @@ actionList.Melee = function()
     -- Stormstrike
     if units.dyn5 and cast.stormstrike(units.dyn5) then ui.debug("Casting Stormstrike") return true end
     -- Shocks
-    if actionList.Shocks(power.mana.percent() >= ui.value("Shock Mana")) then return true end
+    if actionList.Shocks(safe() or power.mana.percent() >= ui.value("Shock Mana")) then return true end
     if unit.moving() then return false end
     -- Out of melee with an enemy that isn't coming closer (a caster, a mob that stops just out of
     -- reach): no swing to lose, so bolt it rather than stand idle, keeping a heal's mana. 2026-10-26: 6.3 s
@@ -426,7 +438,7 @@ actionList.Melee = function()
     end
     -- Weave: spare mana into Lightning Bolt until Windfury Weapon makes the swings worth more
     if ui.checked("Weave Lightning Bolt") and not spell.windfuryWeapon.known()
-        and power.mana.percent() >= ui.value("Weave Lightning Bolt") and fightLength(enemy) > 3
+        and (safe() or power.mana.percent() >= ui.value("Weave Lightning Bolt")) and fightLength(enemy) > 3
         and affordable(cast.cost.lightningBolt()) and (distance >= 5 or justSwung())
     then
         if cast.lightningBolt(enemy) then ui.debug("Casting Lightning Bolt [Weave]") return true end
