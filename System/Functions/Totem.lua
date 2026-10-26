@@ -43,12 +43,13 @@ function totem:anySlotMatchesAny(...)
     return false
 end
 
--- Destroys the player's totem in a slot (what right-clicking its icon does), where the client has
--- DestroyTotem. True when it was asked; false with no totem there, no DestroyTotem, or a destroy asked
--- under a second ago (the game may ignore it, and a profile asks every tick).
+-- Destroys the player's totem in a slot (what right-clicking its icon does), on clients where the
+-- player can do that themselves (br.client.rules.canDestroyTotems: not before Wrath; BR does only what a
+-- player could). True when it was asked; false otherwise, with no totem there, or a destroy asked under
+-- a second ago (the game may ignore it, and a profile asks every tick).
 local destroyAskedAt = {}
 function totem:destroy(slot)
-	if not br.game.DestroyTotem or not self:getSlotInfo(slot) then return false end
+	if not br.client.rules.canDestroyTotems or not br.game.DestroyTotem or not self:getSlotInfo(slot) then return false end
 	local now = br.game.GetTime()
 	if destroyAskedAt[slot] and now - destroyAskedAt[slot] < 1 then return false end
 	destroyAskedAt[slot] = now

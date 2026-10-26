@@ -9455,8 +9455,9 @@ local C55 = {}
 ---@return boolean
 function C55.active(candidate) end
 
---- Destroys your totem in a slot, as right-clicking its icon does (clients with DestroyTotem only).
---- True when it was asked; false with no totem there, no DestroyTotem, or one asked under a second ago.
+--- Destroys your totem in a slot, as right-clicking its icon does, on clients where a player can (Wrath
+--- on; not Classic, TBC or Forever). True when it was asked; false otherwise, with no totem there, or
+--- one asked under a second ago.
 ---@param slot? number Totem slot (1-4), e.g. totem.fire.slot
 ---@return boolean
 function C55.destroy(slot) end
