@@ -215,7 +215,6 @@ function br.ui:createConfigWindow()
         br.ui:checkbox(section, "Debug Timers", { tip = "Useless to users, for Devs." })
         br.ui:checkbox(section, "Cache Debuffs", { tip = "Experimental feature still in testing" })
         br.ui:checkbox(section, "Unit ID In Tooltip", { tip = "Show/Hide Unit IDs in Tooltip" })
-        br.ui:checkbox(section, "Show Drawings", { tip = "Show drawings on screen using Lib Draw" })
     end
 
     local function callQueueEngine()
