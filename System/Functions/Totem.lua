@@ -3,6 +3,8 @@ local _, br = ...
 ---@class br.functions.totem
 br.functions.totem = br.functions.totem or {}
 local totem = br.functions.totem
+-- A candidate's spell name: a spell ID, a spell list key (a ranked key resolves through its first
+-- rank, since every rank shares the name) or a localized name as given.
 local function resolveCandidateName(candidate)
     if not candidate then return nil end
 
@@ -11,14 +13,25 @@ local function resolveCandidateName(candidate)
     end
 
     if type(candidate) == "string" then
-        local idFromKey = br.runner and br.runner.spells and br.runner.spells[candidate]
-        if type(idFromKey) == "number" then
-            return br.functions.spell:getName(idFromKey)
+        local spells = br.runner and br.runner.spells
+        local ref = spells and ((spells.abilities and spells.abilities[candidate]) or spells[candidate])
+        if type(ref) == "table" then ref = ref[1] end
+        if type(ref) == "number" then
+            return br.functions.spell:getName(ref)
         end
         return candidate
     end
 
     return nil
+end
+
+-- True when a totem's name is the spell's name, with or without a rank numeral after it
+-- ("Searing Totem VII" for Searing Totem on clients with spell ranks).
+local function isTotemNamed(totemName, spellName)
+    if not totemName or not spellName or spellName == "" then return false end
+    if totemName == spellName then return true end
+    return totemName:sub(1, #spellName + 1) == spellName .. " "
+        and totemName:sub(#spellName + 2):match("^[IVXL]+$") ~= nil
 end
 
 function totem:anySlotMatchesAny(...)
@@ -33,11 +46,10 @@ end
 -- Returns distance from player to a specific totem type (spell key/id/name).
 -- Returns 0 if the totem isn't active (any slot) or can't be located.
 function totem:distanceTo(candidate)
-    local name = resolveCandidateName(candidate)
-    if not name or name == "" then return 0 end
-    if not self:anySlotMatchesAny(candidate) then return 0 end
-    local _, dist = self:getObjectByName(name)
-    return dist or 0
+    for slot = 1, 4 do
+        if self:slotMatchesAny(slot, candidate) then return self:slotDistance(slot) end
+    end
+    return 0
 end
 
 -- Returns the closest world object that matches the active totem name in this slot.
@@ -59,7 +71,7 @@ function totem:getActiveObject(slot)
         local obj = br.game.GetObjectWithIndex(i)
         if obj and br.functions.unit:GetObjectExists(obj) then
             local objName = br.game.UnitName(obj)
-            if objName == name then
+            if isTotemNamed(objName, name) or isTotemNamed(name, objName) then
                 local creator = br.game.UnitCreator and br.game.UnitCreator(obj) or nil
                 local isMine = creator == "player" or creator == "Player"
                 if not isMine and creator and br.game.UnitIsUnit then
@@ -81,42 +93,6 @@ function totem:getActiveObject(slot)
     end
 
     return bestObj, bestDist, name
-end
-
--- Returns the closest world object with the given localized name created by the player.
-function totem:getObjectByName(name)
-    if not name or name == "" then return nil, nil end
-    if not br.unlocked or not br.game.GetObjectCount or not br.game.GetObjectWithIndex then
-        return nil, nil
-    end
-
-    local pX, pY, pZ = br.functions.unit:GetObjectPosition("player")
-    if not pX or not pY or not pZ then return nil, nil end
-
-    local bestObj, bestDist
-    for i = 1, br.game.GetObjectCount() do
-        local obj = br.game.GetObjectWithIndex(i)
-        if obj and br.functions.unit:GetObjectExists(obj) and br.game.UnitName(obj) == name then
-            local creator = br.game.UnitCreator and br.game.UnitCreator(obj) or nil
-            local isMine = creator == "player" or creator == "Player"
-            if not isMine and creator and br.game.UnitIsUnit then
-                isMine = br.game.UnitIsUnit(creator, "player")
-            end
-
-            if isMine then
-                local x, y, z = br.functions.unit:GetObjectPosition(obj)
-                if x and y and z then
-                    local dx, dy, dz = x - pX, y - pY, z - pZ
-                    local dist = math.sqrt((dx * dx) + (dy * dy) + (dz * dz))
-                    if not bestDist or dist < bestDist then
-                        bestObj, bestDist = obj, dist
-                    end
-                end
-            end
-        end
-    end
-
-    return bestObj, bestDist
 end
 
 function totem:getSlotInfo(slot)
@@ -151,7 +127,7 @@ function totem:slotMatchesAny(slot, ...)
 
         candidateName = resolveCandidateName(candidate)
 
-        if candidateName and candidateName ~= "" and activeName == candidateName then
+        if isTotemNamed(activeName, candidateName) then
             return true
         end
     end
