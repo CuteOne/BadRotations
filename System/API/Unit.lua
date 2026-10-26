@@ -889,7 +889,8 @@ br.api.build.unit = function(api)
         return br.engines.enemiesEngineFunctions:isTotem(thisUnit)
     end
 
-    --- Estimate time until unit dies
+    --- Estimate time until unit dies: an enemy, or the player ("player", from their own health), 999 when
+    -- it isn't known to be dying
     -- @function unit.ttd
     -- @param thisUnit The unit to check, defaults to "target" if nil
     -- @param percent Optional health percentage to calculate time to

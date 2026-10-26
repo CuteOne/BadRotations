@@ -10253,7 +10253,8 @@ function C59.timeSinceDismount() end
 ---@return boolean
 function C59.totem(thisUnit) end
 
---- Estimate time until unit dies
+--- Estimate time until unit dies: an enemy, or the player ("player", from their own health), 999 when
+--- it isn't known to be dying
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@param percent? any Optional health percentage to calculate time to
 ---@return number # Estimated time until death in seconds

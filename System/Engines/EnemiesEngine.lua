@@ -143,57 +143,9 @@ function Record:unitTtd(targetPercentage)
 	if self.hp == nil then return 999 end
 	if self.hp == 0 then return 0 end -- dead: no time left (0, not a misleading negative)
 	if self.hp == 100 or br.functions.unit:isDummy(self.unit) then return 999 end
-	local timeNow = GetTime()
-	local samples = engine.ttd[self.unit]
-	-- Reset when HP went up (or the samples hold no health)
-	if samples ~= nil and (samples.lasthp == nil or samples.lasthp < self.hp or #samples.values == 0) then
-		engine.ttd[self.unit] = nil
-		samples = nil
-	end
-	if samples == nil then
-		engine.ttd[self.unit] = { values = { { time = 0, hp = self.hp } }, lasthp = self.hp, startTime = timeNow, lastTime = 0 }
-		return 999
-	end
-	-- Add a sample when HP changed or every 0.5 s
-	if self.hp ~= samples.lasthp or (timeNow - samples.startTime - samples.lastTime) > 0.5 then
-		tinsert(samples.values, 1, { time = timeNow - samples.startTime, hp = self.hp })
-		samples.lasthp = self.hp
-		samples.lastTime = timeNow - samples.startTime
-	end
-	-- Drop samples beyond 100 or older than 10 s
-	local valueCount = #samples.values
-	while valueCount > 0 and (valueCount > 100 or (timeNow - samples.startTime - samples.values[valueCount].time) > 10) do
-		samples.values[valueCount] = nil
-		valueCount = valueCount - 1
-	end
-	if valueCount > 1 then
-		-- linear regression over the 20 most recent samples (from https://github.com/herotc/hero-lib/)
-		local count = math.min(valueCount, 20)
-		local Ex2, Ex, Exy, Ey = 0, 0, 0, 0
-		for i = 1, count do
-			local x, y = samples.values[i].time, samples.values[i].hp
-			Ex2 = Ex2 + x * x
-			Ex = Ex + x
-			Exy = Exy + x * y
-			Ey = Ey + y
-		end
-		local denom = (Ex2 * count - Ex * Ex)
-		if denom ~= 0 then
-			local invariant = 1 / denom
-			local a = (-Ex * Exy * invariant) + (Ex2 * Ey * invariant)
-			local b = (count * Exy * invariant) - (Ex * Ey * invariant)
-			if b ~= 0 then
-				local ttdSec = math.min(999, (targetPercentage - a) / b - (timeNow - samples.startTime))
-				-- A slope that projects the unit as already dead while it's alive is an unreliable
-				-- estimate (damage gaps); report 999 so `ttd < N` checks don't fire on a healthy target.
-				br.debug.cpu:updateDebug(startTime, "enemiesEngine.record.ttd")
-				if ttdSec > 0 then return ttdSec end
-				return 999
-			end
-		end
-	end
+	local ttd = br.engines.ttdTable:estimate(engine.ttd, self.unit, self.hp, targetPercentage)
 	br.debug.cpu:updateDebug(startTime, "enemiesEngine.record.ttd")
-	return 999 -- not enough samples
+	return ttd
 end
 
 -- ─────────────────────────────────────────────────────────────────────────────
