@@ -157,8 +157,8 @@ local function write(rotationFight)
 	fightLine(("=== fight %d ==="):format(f.n))
 	local profile = name(br.loader.selectedProfileName):gsub("%s", "_")
 	local spec = tostring(br.loader.selectedSpec):gsub("%s", "_")
-	fightLine("fight " .. fields({ "n", f.n, "duration", duration, "profile", profile, "spec", spec,
-		"level", br.game.UnitLevel("player"), "group", group }))
+	fightLine("fight " .. fields({ "n", f.n, "duration", duration, "flavour", tostring(br.client.flavourName),
+		"profile", profile, "spec", spec, "level", br.game.UnitLevel("player"), "group", group }))
 	if f.target then fightLine("target " .. f.target) end
 	fightLine("casts " .. fields({ "sent", rotationFight.sent or 0, "done", rotationFight.done or 0,
 		"failed", rotationFight.failed or 0, "interrupted", rotationFight.interrupted or 0,
