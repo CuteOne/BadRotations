@@ -387,10 +387,15 @@ end
 
 -- Action List - Shocks: fleeing enemies, Focused procs, Flame Shock and Earth Shock
 actionList.Shocks = function(manaGate)
-    -- A fleeing enemy: slow it or finish it, whatever the mana
+    -- A fleeing enemy (low health, about to bring friends): Frost Shock slows and hurts it; Earth Shock
+    -- finishes it (it doesn't slow). With the shocks on cooldown, Earthbind Totem slows it while it's still
+    -- inside the totem's 10 yd: the Stoneskin it replaces has next to nothing left to stop at a fight's end
     if unit.isFleeing(enemy) then
         if cast.frostShock(enemy) then ui.debug("Casting Frost Shock [Fleeing]") return true end
         if cast.earthShock(enemy) then ui.debug("Casting Earth Shock [Fleeing]") return true end
+        if unit.distance(enemy) < 8 and not totem.earth.earthbind.active() then
+            if cast.earthbindTotem() then ui.debug("Casting Earthbind Totem [Fleeing]") return true end
+        end
     end
     local focused = buff.focused.exists()
     if not focused and not manaGate then return false end
