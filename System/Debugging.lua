@@ -603,8 +603,9 @@ function br.debug.idle:watch(paused)
         return
     end
     -- the clock starts when the fight does (also after a /reload mid-fight), and again when a
-    -- pause ends: a paused rotation isn't idle
-    if not idleInCombat or paused then
+    -- pause or crowd control ends: a paused or feared/stunned player isn't idle (2026-10-26, Gruul's
+    -- Lair: Maulgar's fear and Gruul's Stoned logged as 13 s and 11 s idle)
+    if not idleInCombat or paused or br.functions.combat:hasHardControl() then
         idleInCombat, lastActionAt, idleLogged, idleRuns = true, now, false, 0
         return
     end
@@ -950,6 +951,8 @@ function br.debug.form:noteUsable(spellID, isUsable, insufficientPower)
         return
     end
     if isUsable ~= false or insufficientPower then return end
+    -- crowd controlled, every spell is unusable whatever the form (2026-10-26: a fear listed 17)
+    if br.functions.combat:hasHardControl() then return end
     local key = spellID .. ":" .. form
     if formNoted[key] then return end
     formNoted[key], blockedInForm[spellID] = true, true

@@ -84,6 +84,12 @@ local function sample()
 		f.brPaused = f.brPaused + dt
 		return
 	end
+	-- Crowd controlled (feared, stunned...): nothing to play, so neither idle nor capped (2026-10-26,
+	-- Gruul's Lair: Maulgar's fear and Gruul's Stoned were scored as 13 s and 11 s idle)
+	if br.functions.combat:hasHardControl() then
+		f.controlled = f.controlled + dt
+		return
+	end
 	local busy = br.game.UnitCastingInfo("player") ~= nil or br.game.UnitChannelInfo("player") ~= nil
 		or (br.functions.spell:getGlobalCD() or 0) > 0
 	local swinging = not busy and unitFns:isAutoAttacking() and br.game.UnitExists("target")
@@ -120,7 +126,7 @@ local function start(rotationFight)
 	end
 	current = {
 		n = rotationFight.n, startedAt = rotationFight.startedAt, sampledAt = GetTime(), target = target,
-		busy = 0, swinging = 0, idleNear = 0, brOff = 0, brPaused = 0, capped = {}, ready = {}, watched = watchedCooldowns(),
+		busy = 0, swinging = 0, idleNear = 0, controlled = 0, brOff = 0, brPaused = 0, capped = {}, ready = {}, watched = watchedCooldowns(),
 		damage = 0, petDamage = 0, bySpell = {}, taken = 0, healing = 0, overhealing = 0, hidden = 0,
 		manaSpent = 0, manaGained = 0, lastMana = usable(mana) and mana or nil, manaStart = mana,
 		deaths = 0, groupDeaths = 0,
@@ -178,7 +184,7 @@ local function write(rotationFight)
 		"failed", rotationFight.failed or 0, "interrupted", rotationFight.interrupted or 0,
 		"noAnswer", rotationFight.noAnswer or 0, "refused", rotationFight.refused or 0, "you", rotationFight.you or 0,
 		"perMinute", perSecond(rotationFight.sent or 0) * 60 }))
-	local timeParts = { "busy", f.busy, "swinging", f.swinging, "idleNear", f.idleNear, "brOff", f.brOff, "brPaused", f.brPaused }
+	local timeParts = { "busy", f.busy, "swinging", f.swinging, "idleNear", f.idleNear, "controlled", f.controlled, "brOff", f.brOff, "brPaused", f.brPaused }
 	for powerName, seconds in pairs(f.capped) do
 		timeParts[#timeParts + 1] = "capped." .. powerName
 		timeParts[#timeParts + 1] = seconds
@@ -201,7 +207,8 @@ local function write(rotationFight)
 	-- Debug Level developer: the fight in one chat line, so a profile change shows its effect at once
 	if br.functions.misc:debugAt("developer") then
 		local failed = (rotationFight.failed or 0) + (rotationFight.interrupted or 0) + (rotationFight.noAnswer or 0)
-		local notPlaying = (f.brOff > 0 and (", BR off %.1fs"):format(f.brOff) or "")
+		local notPlaying = (f.controlled > 0 and (", crowd controlled %.1fs"):format(f.controlled) or "")
+			.. (f.brOff > 0 and (", BR off %.1fs"):format(f.brOff) or "")
 			.. (f.brPaused > 0 and (", BR paused %.1fs"):format(f.brPaused) or "")
 		br.log:systemDebug(("[FIGHT] %.1fs%s: %.1f dps, %d casts%s, %s mana, idle %.1fs%s"):format(duration,
 			f.target and (" vs " .. f.target) or "", perSecond(f.damage), rotationFight.sent or 0,

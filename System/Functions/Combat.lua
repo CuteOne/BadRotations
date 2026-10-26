@@ -183,25 +183,28 @@ function combat:getOoCTime()
 	return math.floor((br.game.GetTime() - combatEndedAt) * 1000) / 1000
 end
 
+-- Loss-of-control types that count as "hard" (typically prevent casting/attacking)
+local HARD_CONTROL_TYPES = {
+	STUN = true,
+	STUN_MECHANIC = true,
+	FEAR = true,
+	FEAR_MECHANIC = true,
+	CHARM = true,
+	SLEEP = true,
+	SILENCE = true,
+	PACIFY = true,
+	PACIFYSILENCE = true,
+	INCAPACITATE = true,
+	INCAPACITATE_MECHANIC = true,
+	DISORIENT = true,
+	HORROR = true,
+}
+
 -- Returns true if the player is under a "hard" loss-of-control effect (typically prevents casting/attacking).
 -- Also returns the matching event table (or nil).
 function combat:hasHardControl()
 	if not br.game.C_LossOfControl then return false, nil end
-	local hardTypes = {
-		STUN = true,
-		STUN_MECHANIC = true,
-		FEAR = true,
-		FEAR_MECHANIC = true,
-		CHARM = true,
-		SLEEP = true,
-		SILENCE = true,
-		PACIFY = true,
-		PACIFYSILENCE = true,
-		INCAPACITATE = true,
-		INCAPACITATE_MECHANIC = true,
-		DISORIENT = true,
-		HORROR = true,
-	}
+	local hardTypes = HARD_CONTROL_TYPES
 	local eventIndex = br.game.C_LossOfControl.GetActiveLossOfControlDataCount()
 	if eventIndex > 0 then
 		for i = 0, eventIndex do
