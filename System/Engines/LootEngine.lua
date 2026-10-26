@@ -60,15 +60,25 @@ if not lootEngine.metaTable then
 		return br.debug.loot and br.debug.loot:tag(guid) or ""
 	end
 
-	-- "N.N yd centre to centre (flat ..., height ..., its reach ...)" for the debug lines: the distance
-	-- the interact range is checked on (range:isInInteractRange), and its parts
+	-- "N.N yd centre to centre (flat ..., height ..., its reach ..., bounding ...)" for the debug lines:
+	-- the distance the interact range is checked on (range:isInInteractRange), and its parts
 	function lootEngine:edgeText(unit)
 		local range, misc = br.functions.range, br.functions.misc
 		local function plain(n) return misc:plainNumber(n) end
 		local centre, flat, dz = range:getCenterDistance("player", unit)
 		if not centre then return "no position" end
-		return ("%.1f yd centre to centre (flat %.1f, height %+.1f, its reach %.1f)"):format(plain(centre),
-			plain(flat), plain(dz), plain(range:getCombatReach(unit)))
+		local bounding = br.game.UnitBoundingRadius and br.game.UnitBoundingRadius(unit)
+		return ("%.1f yd centre to centre (flat %.1f, height %+.1f, its reach %.1f%s)"):format(plain(centre),
+			plain(flat), plain(dz), plain(range:getCombatReach(unit)),
+			bounding and (", bounding %.1f"):format(plain(bounding)) or "")
+	end
+
+	-- The lootable corpse with this GUID (a unit the enemies engine keeps), or nil
+	function lootEngine:corpseFor(guid)
+		if guid == nil then return nil end
+		for unit, entry in pairs(br.engines.enemiesEngine.lootable) do
+			if entry.guid == guid then return unit end
+		end
 	end
 
 	-- Check if available bag slots, return number of free slots
@@ -428,6 +438,9 @@ if not lootEngine.metaTable then
 			if lootEngine.lootShown then return end
 			lootEngine.lootShown = true
 			lootEngine.windowGUID = lootEngine:windowSource()
+			-- Where the window opened from, the player's windows too: the interact range on big corpses
+			-- (2026-10-26: Gruul, reach 10, opened by hand at ~11 yd centre to centre; BR's rule is 5.5)
+			local corpse = lootEngine.lootUnit or lootEngine:corpseFor(lootEngine.windowGUID)
 			-- Count this successful open against the GUID we interacted with. Repeated
 			-- opens with loot still remaining are how getLoot detects unlootable
 			-- (unique/quest/already-owned) items — see MAX_LOOT_OPENS.
@@ -436,7 +449,8 @@ if not lootEngine.metaTable then
 			end
 			lootEngine:debug("Loot window opened" .. (lootEngine.lootGUID
 				and (" (BR's interact on " .. lootEngine:tag(lootEngine.lootGUID) .. ")")
-				or (" (not BR's interact) on " .. (lootEngine.windowGUID and lootEngine:tag(lootEngine.windowGUID) or "an unknown corpse"))))
+				or (" (not BR's interact) on " .. (lootEngine.windowGUID and lootEngine:tag(lootEngine.windowGUID) or "an unknown corpse")))
+				.. (corpse and br.functions.unit:GetObjectExists(corpse) and (" at " .. lootEngine:edgeText(corpse)) or ""))
 
 			-- Remove the unit from lootable table now that loot window opened successfully
 			if lootEngine.lootUnit then
