@@ -8,6 +8,11 @@ local rotationName = "CuteOne" -- Change to name of profile listed in options dr
 --   var        keeps values between ticks, is shared with the support files you load, and starts empty
 --              for each spec
 --   loadSupport("PetCuteOne") runs Rotations/<Class>/Support/PetCuteOne.lua and returns what it returns
+--
+-- Debugging: tick Bot Options > Debug Options > Addon Debug Messages (All) and set Debug Level to
+-- Developer. Chat then shows idle stretches ([IDLE]), spells you've learned but never cast ([UNUSED]),
+-- a line per fight ([FIGHT]) and casts the game refused. /br why <spell> says why BR last refused a
+-- spell; the Rotation Log option lists every cast. More in AGENTS.md, "Debugging a Profile".
 
 ---------------
 --- Toggles ---

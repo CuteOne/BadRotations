@@ -101,7 +101,7 @@ registerRotation({
 **Rules:**
 - Action lists **must return `true`** after a successful cast.
 - Always call `unit.valid("target")` before targeting operations.
-- Use `ui.debug("msg")` for debug prints (tied to the "Enable Debug" option).
+- Use `ui.debug("msg")` for debug prints (shown when Bot Options > Debug Options > **Addon Debug Messages** is ticked and set to Profile Only or All; see "Debugging a Profile").
 - Spell references: number `123456`, string `"Fireball"`, or ranked table `{123456, 123457}` (highest known rank is auto-selected).
 - A profile sees only the profile API: the tables in `System/API/` by name (`cast`, `buff`, `debuff`, `cd`, `charges`, `unit`, `units`, `enemies`, `ui`, `module`, `power`, `talent`, `spell`, `has`, `use`, `equiped`, `pet`, `totem`, `glyph`, `heroTree`, `imbues`, `var`), `registerRotation`, `loadSupport` and Lua's standard library (`System/Loader/ProfileAPI.lua`). No `br`, no game API: reading any other name, or setting a global, is an error that names the line (`.tests/profile_env_check.lua` checks every profile). If a profile needs something the API lacks, add it to the API (and Functions below it).
 - `var` keeps values between ticks, is shared with the support files the profile loads, and starts empty for each spec.
@@ -174,6 +174,37 @@ At the end of startup BR runs every options page once without building frames (`
 | `pet` | `System/API/Pet.lua` | `pet.active.exists()`, `pet.attack(unit)`, `pet.setMode("passive")` |
 
 **Casting:** write the profile's own conditions, then `cast.<spell>()`. The cast system runs every check itself (known, usable, power, cooldown, unit, range, sight, facing) and the Rotation Log records why a cast it refused didn't go out, so `cast.able.<spell>()` isn't needed before it. Use `cast.able` only to ask without casting (choosing between spells, or deciding to leave a form first); its refusals are only counted in a fight's summary, never logged as rows.
+
+---
+
+## Debugging a Profile
+
+A profile only says what to cast; BR checks the rest (known, usable, power, cooldown, range, sight, facing) and tells you about it. Chat is for what needs your attention now; the files in `Logs/` keep the history (`Logs/README.md` lists them).
+
+**Seeing it:** Bot Options > Debug Options.
+
+| Option | What it does |
+|--------|--------------|
+| **Addon Debug Messages** | Switches debug lines in chat on, and picks whose: *Profile Only* (your `ui.debug` lines and "Casting ..."), *System Only* (BR's lines below), or *All*. Nothing below reaches chat while it's unticked. |
+| **Debug Level** | How much BR says about casts (System lines): *Off*, *Problems* (default), *Developer*, *Trace*. |
+| **Rotation Log** | A window listing every cast the rotation sent, from which profile line, and the game's answer, with a summary per fight (also `Logs/Rotation.log`). |
+
+What each Debug Level adds:
+
+| Level | You see | Example |
+|-------|---------|---------|
+| Problems | Casts that failed for a reason worth fixing: not enough power, wrong form, a cast the game refused | `[CAST FAIL][SERVER] Maul — game said: Not enough rage` |
+| Developer | Problems, plus where BR's own check allowed what the game refused (a gap in BR, report it), idle stretches, newly learned spells the profile never uses, a line per fight | `[BR vs GAME] Lightning Bolt: BR's check allowed it, the game said "Out of range."` · `[IDLE] 4.5s in combat doing nothing: target Vale Moth 5.9yd, auto attack off; ...` · `[UNUSED] Earth Shock: learned this session, and MyProfile hasn't asked for it in 3 fights.` · `[FIGHT] 4.2s vs Vale Moth: 10.1 dps, 3 casts, 30 mana, idle 0.0s` |
+| Trace | Everything, with the routine refusals (GCD, cooldowns, out of range, no target, not enough targets) written to `Logs/Gate.log`, never chat | `[GATE: GCD_BLOCKED] Moonfire (8921) — GCD 1.20s` |
+
+Refusals BR handles itself are never chat lines: a spell not learned yet, a target out of range, a cooldown. They aren't mistakes in your profile, so you don't guard against them (no `spell.x.known()` or range checks before `cast.x()`).
+
+**Asking:**
+- `/br why <spell>` (e.g. `/br why maul`): the last time BR refused that spell and why, including `cast.able` checks that never print.
+- `/br log`: the recent chat lines again.
+- `/br target`: how BR scored the enemies around you, and why it picked its target.
+
+**A typical loop:** play with Debug Level *Developer* and the Rotation Log open. A `[FIGHT]` line shows whether a change helped; `[IDLE]` says the profile had nothing to do when it should have (often a condition that's too strict); `[UNUSED]` points at a spell you haven't wired in; `[BR vs GAME]` is BR's to fix, not yours. For anything else, `/br why <spell>` and the files in `Logs/`.
 
 ---
 
