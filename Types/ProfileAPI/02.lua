@@ -6,6 +6,31 @@
 -- profiles use. The game never loads these files.
 
 
+--- Uses the item.
+---@class BR.use.Item
+---@overload fun(slotID?: number, thisUnit?: string): boolean
+local C63 = {}
+
+---@class BR.use.Base
+local C64 = {}
+
+--- Uses the item.
+--- Note: `item` here is literally item, you pass the itemID to specify the item
+---@param itemID? number The ID of the item to use.
+---@param thisUnit? string The unit to use the item on.
+---@return boolean
+function C64.item(itemID, thisUnit) end
+
+--- Uses the item in the specified equipment slot.
+---@param slotID? number The ID of the equipment slot to use the item from.
+---@param thisUnit? string The unit to use the item on.
+---@return boolean
+function C64.slot(slotID, thisUnit) end
+
+---@class BR.use : BR.use.Base, BR.Keys.Items<BR.use.Item>
+---@field able BR.use.able
+
+
 ---@class BR.util
 local C65 = {}
 

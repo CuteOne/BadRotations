@@ -46,6 +46,16 @@ br.api.build.totem = function(api)
     end
 
     ---
+    -- Destroys your totem in a slot, as right-clicking its icon does (clients with DestroyTotem only).
+    -- True when it was asked; false with no totem there, no DestroyTotem, or one asked under a second ago.
+    -- @function totem.destroy
+    -- @tparam number slot Totem slot (1-4), e.g. totem.fire.slot
+    -- @treturn boolean
+    totem.destroy = function(slot)
+        return totemFn:destroy(slot)
+    end
+
+    ---
     -- Returns distance from player to the active totem in a slot.
     -- Returns 0 if no totem is active or the object can't be located (check active() first).
     -- @function totem.distance
@@ -131,6 +141,13 @@ br.api.build.totemElement = function(api, elementKey, slot)
     -- @function totem.<element>.exists
     -- @treturn boolean
     element.exists = element.active
+
+    --- Destroy the totem in this slot (see totem.destroy).
+    -- @function totem.<element>.destroy
+    -- @treturn boolean
+    element.destroy = function()
+        return totemFn:destroy(slot)
+    end
 
     --- Get distance to the active totem in this slot (0 when there is none, or it can't be located).
     -- @function totem.<element>.distance

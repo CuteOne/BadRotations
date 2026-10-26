@@ -43,6 +43,19 @@ function totem:anySlotMatchesAny(...)
     return false
 end
 
+-- Destroys the player's totem in a slot (what right-clicking its icon does), where the client has
+-- DestroyTotem. True when it was asked; false with no totem there, no DestroyTotem, or a destroy asked
+-- under a second ago (the game may ignore it, and a profile asks every tick).
+local destroyAskedAt = {}
+function totem:destroy(slot)
+	if not br.game.DestroyTotem or not self:getSlotInfo(slot) then return false end
+	local now = br.game.GetTime()
+	if destroyAskedAt[slot] and now - destroyAskedAt[slot] < 1 then return false end
+	destroyAskedAt[slot] = now
+	br.game.DestroyTotem(slot)
+	return true
+end
+
 -- Returns distance from player to a specific totem type (spell key/id/name).
 -- Returns 0 if the totem isn't active (any slot) or can't be located.
 function totem:distanceTo(candidate)

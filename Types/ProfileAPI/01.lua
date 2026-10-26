@@ -9419,6 +9419,10 @@ function C54.active() end
 ---@return boolean
 function C54.exists() end
 
+--- Destroy the totem in this slot (see totem.destroy).
+---@return boolean
+function C54.destroy() end
+
 --- Get distance to the active totem in this slot (0 when there is none, or it can't be located).
 ---@return number
 function C54.distance() end
@@ -9450,6 +9454,12 @@ local C55 = {}
 ---@param candidate? string|number
 ---@return boolean
 function C55.active(candidate) end
+
+--- Destroys your totem in a slot, as right-clicking its icon does (clients with DestroyTotem only).
+--- True when it was asked; false with no totem there, no DestroyTotem, or one asked under a second ago.
+---@param slot? number Totem slot (1-4), e.g. totem.fire.slot
+---@return boolean
+function C55.destroy(slot) end
 
 --- Returns distance from player to the active totem in a slot.
 --- Returns 0 if no totem is active or the object can't be located (check active() first).
@@ -10358,28 +10368,3 @@ function C62.item(itemID) end
 function C62.slot(slotID) end
 
 ---@class BR.use.able : BR.use.able.Base, BR.Keys.Items<BR.use.able.Item>
-
-
---- Uses the item.
----@class BR.use.Item
----@overload fun(slotID?: number, thisUnit?: string): boolean
-local C63 = {}
-
----@class BR.use.Base
-local C64 = {}
-
---- Uses the item.
---- Note: `item` here is literally item, you pass the itemID to specify the item
----@param itemID? number The ID of the item to use.
----@param thisUnit? string The unit to use the item on.
----@return boolean
-function C64.item(itemID, thisUnit) end
-
---- Uses the item in the specified equipment slot.
----@param slotID? number The ID of the equipment slot to use the item from.
----@param thisUnit? string The unit to use the item on.
----@return boolean
-function C64.slot(slotID, thisUnit) end
-
----@class BR.use : BR.use.Base, BR.Keys.Items<BR.use.Item>
----@field able BR.use.able
