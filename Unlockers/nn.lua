@@ -238,6 +238,8 @@ local globalCacheList =
 --------------------------------------------------------------------------------------------------------------------------------
 local Nn, br = ...
 local b = br.game
+-- NN's own globals (Object, Unlocker) share names with things in the editor's WoW API stubs
+---@diagnostic disable: cannot-call
 local funcCopies = {}
 local globalFuncCopies = {}
 

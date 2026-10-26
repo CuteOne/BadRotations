@@ -220,6 +220,8 @@ local unlockList =
 --------------------------------------------------------------------------------------------------------------------------------
 local _, br = ...
 local b = br.game
+-- Tinkr's own globals (Object, Unlocker) share names with things in the editor's WoW API stubs
+---@diagnostic disable: cannot-call
 local unlock = br.unlockers
 local tinkrUnlocked = false
 local funcCopies = {}
@@ -248,6 +250,7 @@ function unlock.TinkrUnlock()
 		if Unlocker and Unlocker.name == "Tinkr" then
 			br.game.print("Tinkr Unlocker Detected")
 			tinkrUnlocked = true
+			---@diagnostic disable-next-line: undefined-field
 			File = Unlocker.Util.File
 		else
 			return false
