@@ -224,7 +224,7 @@ function combat:hasNoControl(spellID)
 			event = br.game.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
 				local regain = combat:canRegainControl(spellID, event.locType)
-				if not regain and br.debug.timer:useTimer("regainTimer", 0.25) then regain = combat:canRegainControl(spellID, event.locType) end
+				if not regain and br.functions.misc:useTimer("regainTimer", 0.25) then regain = combat:canRegainControl(spellID, event.locType) end
 				return regain
 			end
 		end

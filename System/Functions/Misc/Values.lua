@@ -68,3 +68,16 @@ end
 function misc:getTime()
 	return br.game.GetTime()
 end
+
+-- Named interval timers: true when interval seconds have passed since the name last returned true
+-- (and the first time). store keeps a caller's names apart from BR's own (the profile API passes its own).
+-- if br.functions.misc:useTimer("autoLoot", 0.5) then
+local timers = {}
+function misc:useTimer(timerName, interval, store)
+	store = store or timers
+	local now = br.game.GetTime()
+	local last = store[timerName]
+	if last ~= nil and now - last < interval then return false end
+	store[timerName] = now
+	return true
+end

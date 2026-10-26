@@ -295,37 +295,6 @@ function br.debug.range:probe(arg)
     end)
 end
 
--- INTO TIMER LUA
-
-br.debug.timer = {}
-function br.debug.timer:useTimer(timerName, interval)
-    if self[timerName] == nil then
-        self[timerName] = 0
-    end
-    if br.game.GetTime() - self[timerName] >= interval then
-        self[timerName] = br.game.GetTime()
-        return true
-    else
-        return false
-    end
-end
-
---[[br.debug.timer = {}
-function br.debug.timer:useTimer(timerName, interval, randomPercent)
-    local randomPercent = randomPercent or 0
-    if randomPercent > 0 then
-        local randomRange = interval * randomPercent / 100
-        interval = interval - randomRange + math.random(0, randomRange * 2)
-    end
-    if self[timerName] == nil then self[timerName] = 0 end
-    if br.game.GetTime()-self[timerName] >= interval then
-        self[timerName] = br.game.GetTime()
-        return true
-    else
-        return false
-    end
-end--]]
-
 ----------------------------------------------------------------------------------------------------
 -- /br target: the enemy BR focuses on and why (br.engines.targeting:explain), in chat and Target.log
 ----------------------------------------------------------------------------------------------------

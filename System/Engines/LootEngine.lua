@@ -263,7 +263,7 @@ if not lootEngine.metaTable then
 		-- in-flight isLooting/window state machine in getLoot prevents interact spam.
 		local delay = br.functions.misc:getValue("Auto Loot")
 		if not delay or delay <= 0 then delay = 0.5 end
-		if not br.debug.timer:useTimer("autoLoot", delay) then return end
+		if not br.functions.misc:useTimer("autoLoot", delay) then return end
 		self:releaseStaleInteract(GetTime())
 
 		-- Combat policy: loot out of combat, or in combat only when no enemies are within

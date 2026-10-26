@@ -96,7 +96,7 @@ local function update(_, elapsed)
             powerWasOn = false
         else
             powerWasOn = true
-            if readable and br.debug.timer:useTimer("playerUpdate", core:getUpdateRate()) then
+            if readable and br.functions.misc:useTimer("playerUpdate", core:getUpdateRate()) then
                 local tickStarted = br.game.debugprofilestop()
                 br.lifecycle:run("tick")
                 core:recordTickCost("rotation", br.game.debugprofilestop() - tickStarted)

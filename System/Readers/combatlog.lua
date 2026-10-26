@@ -1169,7 +1169,7 @@ function combatLog:Warrior(...)
     --[[ Bleed Recorder (Warrior) --]]
     if destName == br.game.UnitName("player") then
         br.reflectPlayer = true
-    elseif br.debug.timer:useTimer("reflect reset", 0.8) then
+    elseif br.functions.misc:useTimer("reflect reset", 0.8) then
         br.reflectPlayer = false
     end
     if br.game.C_SpecializationInfo.GetSpecialization("player") == 1 then
