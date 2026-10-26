@@ -96,7 +96,9 @@ end
 -- from "Base Options" (option lookups search the other pages when not found on the first).
 -- if br.functions.misc:getModuleOption("Use Racial", "Check") then
 function misc:getModuleOption(option, optionType)
-	local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+	-- No settings for the spec yet (first load): the lookups below return their not-found value
+	local specSettings = br.data.settings[br.loader.selectedSpec]
+	local settings = specSettings and specSettings[br.loader.selectedProfile]
 	local page = (settings ~= nil and settings["Rotation Options"] ~= nil) and "Rotation Options" or "Base Options"
 	if optionType == "Check" then return misc:isChecked(option, page) end
 	if optionType == "Value" then return misc:getValue(option, page) end
