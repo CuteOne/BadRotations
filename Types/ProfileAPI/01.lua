@@ -10215,7 +10215,7 @@ function C59.swimming() end
 --- ```lua
 --- local untilNext, speed, last = unit.swing("ranged")
 --- ```
----@param hand? string "mh" for melee, "ranged" for Auto Shot
+---@param hand? string "mh" for melee (the main hand), "oh" for the off hand, "ranged" for Auto Shot
 ---@return number
 ---@return number
 ---@return number
