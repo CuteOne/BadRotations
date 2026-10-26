@@ -10177,9 +10177,10 @@ function C59.spellHaste() end
 ---@return number # Time in seconds the unit has been standing still
 function C59.standingTime() end
 
---- Start auto-attack
----@param thisUnit? string
----@return nil
+--- Start auto-attack. Not sent again while auto attack on that unit is already on or on its way
+--- (the game confirms a round trip later); a different unit always goes out.
+---@param thisUnit? string The unit to attack
+---@return boolean # True when it was sent
 function C59.startAttack(thisUnit) end
 
 --- Stop auto-attack

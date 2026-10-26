@@ -805,9 +805,11 @@ br.api.build.unit = function(api)
         return br.functions.misc:getStandingTime()
     end
 
-    --- Start auto-attack
+    --- Start auto-attack. Not sent again while auto attack on that unit is already on or on its way
+    -- (the game confirms a round trip later); a different unit always goes out.
     -- @function unit.startAttack
-    -- @return nil
+    -- @param[opt="target"] thisUnit The unit to attack
+    -- @return boolean True when it was sent
     unit.startAttack = function(thisUnit)
         return br.functions.unit:startAttack(thisUnit)
     end

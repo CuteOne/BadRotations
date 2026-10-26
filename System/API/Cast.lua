@@ -172,7 +172,8 @@ br.api.build.cast = function(api, spell, id)
     cast.auto[spell] = function()
         -- Auto attack: the game's own on/off events, since the Attack spell stops being "current"
         -- while Maul / Heroic Strike is queued (profiles then restarted attacking mid-fight)
-        if spell == "autoAttack" and br.functions.unit:isAutoAttacking() then return true end
+        -- (and an auto attack BR just started counts until the game answers, a round trip)
+        if spell == "autoAttack" and (br.functions.unit:isAutoAttacking() or br.functions.unit:isAttackPending()) then return true end
         return br.functions.spell:isActive(currentRank())
     end
 

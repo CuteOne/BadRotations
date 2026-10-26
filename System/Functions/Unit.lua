@@ -45,6 +45,11 @@ local lossOfControlTypes = {
 -- attack (Maul, Heroic Strike) is queued, so it can't answer this on its own.
 local autoAttacking = false
 
+-- When BR last started auto attack, and on whom. PLAYER_ENTER_COMBAT comes a round trip later, so
+-- until then auto attack counts as on its way and isn't started again (2026-10-26: four
+-- StartAttacks in 0.3 s at 88 ms latency).
+local attackSentAt, attackSentGUID = -math.huge, nil
+
 -- Kept apart from the cast throttles (castTimers / intent locks): a cancel isn't a cast, and locking
 -- the form's spell would also block casting that form and be cleared by unrelated cast errors.
 local formCancelSentAt = -math.huge
@@ -562,6 +567,14 @@ end
 
 function unit:isAutoAttacking() return autoAttacking end
 
+-- True while an auto attack BR started is on its way (no PLAYER_ENTER_COMBAT yet, within a round
+-- trip). thisUnit (default "target") must be the unit it was started on.
+function unit:isAttackPending(thisUnit)
+	if autoAttacking or br.game.GetTime() - attackSentAt >= br.functions.misc:getRoundTripHold() then return false end
+	local guid = br.game.UnitGUID(thisUnit or "target")
+	return guid ~= nil and guid == attackSentGUID
+end
+
 function unit:isBeast(Unit)
 	return unit:isCreatureType(Unit, "beast")
 end
@@ -855,7 +868,11 @@ function unit:isUndead(Unit)
 	return unit:isCreatureType(Unit, "undead")
 end
 
-function unit:setAutoAttacking(on) autoAttacking = on and true or false end
+function unit:setAutoAttacking(on)
+	autoAttacking = on and true or false
+	-- Either answer ends the wait; after a stop (the target died) a new start goes out at once
+	attackSentAt = -math.huge
+end
 
 --- Whether leaving the current form to cast a spell is what a player would do now. Returns the answer
 -- and, when it's no, why. A player stays in form when stealthed (leaving breaks Prowl), when tanking
@@ -883,8 +900,14 @@ function unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency)
 end
 
 -- Starts auto attack, on thisUnit when given (else the target)
+-- Starts auto attack on thisUnit (default: the target). Not sent again while it's already on, or on
+-- its way, for that same unit; another unit is a switch and always goes out. True when it was sent.
 function unit:startAttack(thisUnit)
-	return br.game.StartAttack(thisUnit)
+	local guid = br.game.UnitGUID(thisUnit or "target")
+	if guid ~= nil and guid == attackSentGUID and (autoAttacking or unit:isAttackPending(thisUnit)) then return false end
+	attackSentAt, attackSentGUID = br.game.GetTime(), guid
+	br.game.StartAttack(thisUnit)
+	return true
 end
 
 function unit:stopAttack()
