@@ -48,31 +48,15 @@ end
 
 -- Builds talent.X (including hero talents) and heroTree.
 local function buildTalents(rotation, spec)
-    local spells = rotation.spells
-    local allTalents = spellCompiler:compileTalents(rotation, spec)
-    -- Holding table, so the hero talents aren't added to spells.talents
-    local spellListTalents = {}
-    for k, v in pairs(spells.talents) do spellListTalents[k] = v end
-    if spells.talentsHeroic ~= nil then
-        for k, v in pairs(spells.talentsHeroic) do spellListTalents[k] = v end
-        -- allTalents only has the talents available to the spec, not every hero talent
-        if allTalents ~= nil then
-            for _, v in pairs(spells.talentsHeroic) do
-                if allTalents[v] == nil then
-                    allTalents[v] = { rank = 0, active = false }
-                end
-            end
-        end
-    end
-
+    local allTalents, listed = spellCompiler:compileTalents(rotation, spec)
     spellCompiler:compileHeroTree(profile.heroTree)
 
     -- The compiled talent state, for the layers below the profile API (spell:hasTalent / getTalentRank)
-    rotation.talentInfo = allTalents or {}
-    rotation.talentIDs = spellListTalents
+    rotation.talentInfo = allTalents
+    rotation.talentIDs = listed
 
-    for k, v in pairs(spellListTalents) do
-        br.api.build.talent(profile.talent, k, v, allTalents, spells)
+    for name, spellID in pairs(listed) do
+        br.api.build.talent(profile.talent, name, allTalents[spellID])
     end
 end
 

@@ -163,31 +163,43 @@ local function validateTalents(allTalents, spec)
     end
 end
 
---- Adds the active talents to rotation.spells.abilities (talent.X is set by the talent builder).
+--- Maps the listed talents (spells.talents and spells.talentsHeroic) to the talent state and adds
+-- the castable ones to rotation.spells.abilities, so cast.X exists for every talent in the tree
+-- (taken or not). Warns once about a listed talent the talent system doesn't know.
 -- @param rotation br.runner
 -- @param spec Spec ID
--- @return table allTalents as reported by the expansion's talent system
+-- @return table allTalents, spell ID -> { rank, active }; table listed, talent name -> spell ID
 function spellCompiler:compileTalents(rotation, spec)
-    local allTalents = br.client.getTalentInfo(spec, rotation.spells.talents)
+    local spells = rotation.spells
+    local allTalents = br.client.getTalentInfo(spec, spells.talents)
 
     validateTalents(allTalents, spec)
 
-    -- Map defined spell talents to talent state
-    for name, spellID in pairs(rotation.spells.talents) do
+    local listed = {}
+    for name, spellID in pairs(spells.talents) do listed[name] = spellID end
+    -- The talent system reports only the spec's own talents, not every hero talent
+    for name, spellID in pairs(spells.talentsHeroic or {}) do
+        listed[name] = spellID
+        if allTalents[spellID] == nil then allTalents[spellID] = { rank = 0, active = false } end
+    end
+
+    for name, spellID in pairs(listed) do
         local entry = allTalents[spellID]
-        if entry then
-            if entry.active and not br.game.C_Spell.IsSpellPassive(spellID) then
-                rotation.spells.abilities[name] = spellID
-                rotation.spells[name] = spellID
-            end
-        elseif not isInitialSpec(spec) then
+        local known = entry ~= nil or br.functions.spell:isPlayerSpell(spellID)
+        if known and not br.functions.spell:isPassive(spellID)
+            and ((entry and entry.active) or spells.abilities[name] == nil)
+        then
+            spells.abilities[name] = spellID
+            spells[name] = spellID
+        end
+        if entry == nil and not isInitialSpec(spec) then
             warnOnce("talent_notfound_" .. name .. "_" .. tostring(spellID),
                 "|cffff0000No talent found for: |r" .. name .. " (" .. tostring(spellID)
                 .. ") |cffff0000in the talent spell list; please verify ID or remove.")
         end
     end
 
-    return allTalents
+    return allTalents, listed
 end
 
 --- Sets heroTree[name] for the active hero talent tree (expansions with hero trees only).
