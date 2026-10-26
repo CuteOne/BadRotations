@@ -137,12 +137,16 @@ end
 function Record:unitTtd(targetPercentage)
 	local startTime = br.game.debugprofilestop()
 	if targetPercentage == nil then targetPercentage = 0 end
+	-- No health read yet: a record the damaged list made before the engine's first update of it
+	-- (2026-10-26: a profile asked a fresh Angry Murloc's TTD, the samples kept a nil health and every
+	-- later call failed comparing it, 188 times). Unknown, like any unit not measured yet.
+	if self.hp == nil then return 999 end
 	if self.hp == 0 then return 0 end -- dead: no time left (0, not a misleading negative)
 	if self.hp == 100 or br.functions.unit:isDummy(self.unit) then return 999 end
 	local timeNow = GetTime()
 	local samples = engine.ttd[self.unit]
-	-- Reset when HP went up
-	if samples ~= nil and (samples.lasthp < self.hp or #samples.values == 0) then
+	-- Reset when HP went up (or the samples hold no health)
+	if samples ~= nil and (samples.lasthp == nil or samples.lasthp < self.hp or #samples.values == 0) then
 		engine.ttd[self.unit] = nil
 		samples = nil
 	end
