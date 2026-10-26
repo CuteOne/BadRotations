@@ -60,6 +60,8 @@ local function options()
     section = ui.section("General")
     ui.checkbox(section, "Pull with Lightning Bolt", { checked = true,
         tip = "Open on an enemy you target, out of combat and standing still, with Lightning Bolt (Melee style; Caster style always pulls)." })
+    ui.spinner(section, "Pull Neutral After", { value = 1.5, min = 0.5, max = 5, step = 0.5, checked = true,
+        tip = "Seconds a neutral (yellow) mob must stay your target, while you stand still, before it's pulled: a click on one by accident is clicked off before then. Hostile (red) mobs are pulled at once. Untick to leave neutral mobs to you." })
     ui.checkbox(section, "Pull on the Move", { checked = true,
         tip = "Open on a hostile enemy you target while you're moving with Earth Shock (instant), so you tag it first. Standing still it's Lightning Bolt (cheaper)." })
     ui.spinner(section, "Shock Mana", { value = 40, min = 0, max = 100, step = 5, checkbox = false,
@@ -490,10 +492,15 @@ actionList.PreCombat = function()
         end
     end
     -- Pull: from range with Lightning Bolt, or start swinging at a mob you walked up to. Hostile (red)
-    -- mobs only: a neutral one may be clicked just to look (2026-10-26: auto attack started on a yellow
-    -- mob clicked by accident), so for those you make the first move and the rotation takes over in
-    -- combat. Players never (it would flag you for PvP).
-    if unit.valid("target") and unit.enemy("target") and not unit.player("target") then
+    -- mobs at once. A neutral (yellow) one only once you've kept it targeted a moment, standing still:
+    -- a click on one by accident is clicked off before then (2026-10-26: auto attack started on a yellow
+    -- mob clicked by accident; then a yellow mob meant to be fought got nothing). Players never (it
+    -- would flag you for PvP).
+    local targetGUID = unit.guid("target")
+    if targetGUID ~= var.pullTargetGUID or unit.moving() then var.pullTargetGUID, var.pullTargetSince = targetGUID, util.time() end
+    local meant = unit.enemy("target") or (ui.checked("Pull Neutral After")
+        and util.time() - (var.pullTargetSince or util.time()) >= ui.value("Pull Neutral After"))
+    if unit.valid("target") and unit.canAttack("target") and meant and not unit.player("target") then
         local distance = unit.distance("target")
         if distance > 8 and not unit.moving() and (not melee or ui.checked("Pull with Lightning Bolt")) then
             if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Pull]") return true end
