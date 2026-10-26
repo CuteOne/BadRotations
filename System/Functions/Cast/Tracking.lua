@@ -146,6 +146,8 @@ function E.recordBotCast(spellID, thisUnit)
 	br.botUnit     = thisUnit
 	br.botGUID     = br.game.UnitGUID(thisUnit)
 	br.botCastTime = br.game.GetTime()
+	-- a weapon imbue: the hands' enchants now, to see where it lands (Functions/Item.lua)
+	br.functions.item:noteImbueSent(spellID)
 end
 
 local function errorText(globalName, fallback)

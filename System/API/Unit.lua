@@ -984,11 +984,18 @@ br.api.build.unit = function(api)
                 if (offHand and hasOff) and offId == imbueId[i] then return true end
                 if (not offHand and hasMain) and mainId == imbueId[i] then return true end
             end
+            local present = (offHand and hasOff) or (not offHand and hasMain)
+            -- An enchant BR knows (learned from its own casts, or another imbue's list): it is this
+            -- imbue or it isn't
+            if present then
+                local onHand = br.functions.item:getImbueKey(offHand and offId or mainId)
+                local mine = br.functions.item:getImbueKeyOf(imbueId)
+                if onHand ~= nil and mine ~= nil then return onHand == mine end
+            end
             -- ID matching failed (IDs may be nil, zero, or incorrect for this game version).
             -- Fall back to presence-only: if any enchant exists on the configured hand,
             -- accept it rather than looping with endless reapplication attempts (Imbue.log
             -- records the enchant, to correct the list).
-            local present = (offHand and hasOff) or (not offHand and hasMain)
             if present and br.debug.imbue then br.debug.imbue:noteUnlisted(offHand, offHand and offId or mainId, imbueId) end
             return present and true or false
         end
@@ -1000,12 +1007,18 @@ br.api.build.unit = function(api)
         return false
     end
 
-    --- Check if a weapon imbue is missing (needs to be applied)
+    --- Check if a weapon imbue is missing (needs to be applied). Not while a cast of it is still being
+    -- watched (the enchant shows a moment after the cast), nor on a weapon a cast of it showed nothing on
+    -- (it doesn't hold it, e.g. a profession tool).
     -- @function unit.weaponImbue.needed
-    -- @param imbueId The ID of the imbue to check for
+    -- @param imbueId The imbue list (imbues.<key>) or enchant ID to check for
     -- @param offHand Boolean whether to check offhand (true) or main hand (false, default)
-    -- @return boolean True if the imbue is NOT currently applied to the specified weapon
+    -- @return boolean True if the imbue is NOT currently applied to the specified weapon, and applying it would
     unit.weaponImbue.needed = function(imbueId, offHand)
+        local key = type(imbueId) == "table" and br.functions.item:getImbueKeyOf(imbueId) or nil
+        if key and (br.functions.item:isImbueWatched(key) or not br.functions.item:imbueTakes(key, offHand and 17 or 16)) then
+            return false
+        end
         return not unit.weaponImbue.exists(imbueId, offHand)
     end
 

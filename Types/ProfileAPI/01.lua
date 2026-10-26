@@ -9727,10 +9727,12 @@ function C58.charges(imbueId, offHand) end
 ---@return boolean # True if the imbue exists on the specified weapon
 function C58.exists(imbueId, offHand) end
 
---- Check if a weapon imbue is missing (needs to be applied)
----@param imbueId? number The ID of the imbue to check for
+--- Check if a weapon imbue is missing (needs to be applied). Not while a cast of it is still being
+--- watched (the enchant shows a moment after the cast), nor on a weapon a cast of it showed nothing on
+--- (it doesn't hold it, e.g. a profession tool).
+---@param imbueId? number The imbue list (imbues.<key>) or enchant ID to check for
 ---@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
----@return boolean # True if the imbue is NOT currently applied to the specified weapon
+---@return boolean # True if the imbue is NOT currently applied to the specified weapon, and applying it would
 function C58.needed(imbueId, offHand) end
 
 --- Get weapon imbue remaining time
@@ -10354,26 +10356,3 @@ function C60.setTargetWeight(fn) end
 
 
 
-
-
---- Checks if item is usable or not.
---- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
----@class BR.use.able.Item
----@overload fun(slotID?: number): boolean
-local C61 = {}
-
----@class BR.use.able.Base
-local C62 = {}
-
---- Checks if item is usable or not.
---- Note: `item` here is literally item, you pass the itemID to specify the item
----@param itemID? number The ID of the item check.
----@return boolean
-function C62.item(itemID) end
-
---- Checks if item in the specified equipment slot is usable or not.
----@param slotID? number The ID of the equipment slot to check.
----@return boolean
-function C62.slot(slotID) end
-
----@class BR.use.able : BR.use.able.Base, BR.Keys.Items<BR.use.able.Item>

@@ -3,6 +3,28 @@ local _, br = ...
 br.functions.item = br.functions.item or {}
 local item = br.functions.item
 
+-- Weapon imbues BR has watched land (item:noteImbueSent / noteImbueSucceeded), this session: which
+-- enchant ID belongs to which imbue (the lists are incomplete: TBC Rockbiter has one confirmed ID), which
+-- weapon an imbue won't take on (Rockbiter on a Mining Pick, 2026-10-26), and the casts being watched
+local learnedImbues = {}  -- enchant ID -> imbue key
+local imbueWontTake = {}  -- item ID .. ":" .. imbue key -> true
+local imbueWatched = {}   -- imbue key -> true while a cast of it is watched
+local imbueSentWith = {}  -- spell ID -> the hands' enchants (ID, ms left) when BR sent it
+local IMBUE_WATCH, IMBUE_POLL = 3, 0.25
+local MAIN_HAND, OFF_HAND = 16, 17
+
+local function imbueLists() return br.runner and br.runner.spells and br.runner.spells.imbues end
+
+-- The imbue key a spell (any rank) belongs to, or nil
+local function imbueKeyForSpell(spellID)
+	for key, list in pairs(imbueLists() or {}) do
+		for _, id in ipairs(list.spells or {}) do
+			if id == spellID then return key end
+		end
+	end
+	return nil
+end
+
 -- Potions found in the bags, per name match ("Heal", "Mana"), best first; rebuilt after the bags change
 local potionCandidates = {}
 -- The bags' filled slots and the count per itemID (item:getBagItems); nil until read after a change
@@ -203,6 +225,27 @@ function item:getHighestItemID(key)
     return v
 end
 
+-- The imbue key an enchant ID belongs to: learned from BR's own casts, else the lists; nil if unknown
+-- local key = br.functions.item:getImbueKey(3029) -- "rockbiterWeapon"
+function item:getImbueKey(enchantID)
+	if enchantID == nil then return nil end
+	if learnedImbues[enchantID] then return learnedImbues[enchantID] end
+	for key, list in pairs(imbueLists() or {}) do
+		for i = 1, #list do
+			if list[i] == enchantID then return key end
+		end
+	end
+	return nil
+end
+
+-- The key of an imbue list (the profile's imbues.<key> table), or nil
+function item:getImbueKeyOf(list)
+	for key, entry in pairs(imbueLists() or {}) do
+		if entry == list then return key end
+	end
+	return nil
+end
+
 -- The cooldown of the item in an inventory slot: start, duration, enable
 function item:getSlotCooldown(slotID)
 	return br.game.GetInventoryItemCooldown("player", slotID)
@@ -289,6 +332,12 @@ function item:hasItem(itemID)
 	return (totals[itemID] or 0) > 0
 end
 
+-- False once a cast of the imbue showed nothing on the weapon now in that slot (it doesn't hold it)
+function item:imbueTakes(key, slotID)
+	local itemID = br.game.GetInventoryItemID("player", slotID)
+	return not (itemID and imbueWontTake[itemID .. ":" .. key])
+end
+
 -- From now on, when the keystone window (Font of Power) opens, puts that keystone from the bags in it.
 -- The window comes with Blizzard_ChallengesUI, so it's hooked once that has loaded.
 function item:insertKeystoneOnOpen(keystoneID)
@@ -314,6 +363,11 @@ function item:isEquippedType(itemType)
 	return br.game.IsEquippedItemType(itemType)
 end
 
+-- True while a cast of the imbue is being watched (its enchant may not show yet)
+function item:isImbueWatched(key)
+	return imbueWatched[key] == true
+end
+
 -- item charges
 function item:itemCharges(itemID)
 	local charges = br.game.C_Item.GetItemCount(itemID, false, true)
@@ -321,6 +375,54 @@ function item:itemCharges(itemID)
 		return 0
 	end
 	return charges
+end
+
+-- BR sent a spell (cast tracking): an imbue spell has the hands' enchants noted, to compare after it
+function item:noteImbueSent(spellID)
+	if not imbueKeyForSpell(spellID) then return end
+	local _, mainLeft, _, mainID, _, offLeft, _, offID = item:getWeaponEnchants()
+	imbueSentWith[spellID] = { mainID = mainID, mainLeft = mainLeft or 0, offID = offID, offLeft = offLeft or 0,
+		mainItem = br.game.GetInventoryItemID("player", MAIN_HAND), at = br.game.GetTime() }
+end
+
+-- The player's spell succeeded (Readers/common.lua): an imbue BR sent is watched up to IMBUE_WATCH s.
+-- An enchant appearing or refreshed (more time left) on a hand teaches its ID and which hand it took;
+-- nothing at all means the main-hand weapon (where an imbue lands first) doesn't hold it.
+function item:noteImbueSucceeded(spellID)
+	local before = imbueSentWith[spellID]
+	imbueSentWith[spellID] = nil
+	-- the send's snapshot only within a few seconds (a send that never went off leaves one behind)
+	local key = before and br.game.GetTime() - before.at < 10 and imbueKeyForSpell(spellID)
+	if not key then return end
+	imbueWatched[key] = true
+	local started = br.game.GetTime()
+	local function check()
+		local hasMain, mainLeft, _, mainID, hasOff, offLeft, _, offID = item:getWeaponEnchants()
+		local hand, enchantID
+		if hasMain and (mainID ~= before.mainID or (mainLeft or 0) > before.mainLeft + 1000) then
+			hand, enchantID = "main hand", mainID
+		elseif hasOff and (offID ~= before.offID or (offLeft or 0) > before.offLeft + 1000) then
+			hand, enchantID = "off hand", offID
+		end
+		if hand then
+			imbueWatched[key] = nil
+			if enchantID and learnedImbues[enchantID] ~= key then
+				learnedImbues[enchantID] = key
+				if br.debug.imbue then br.debug.imbue:noteLanded(key, hand, enchantID) end
+			end
+			return
+		end
+		if br.game.GetTime() - started >= IMBUE_WATCH then
+			imbueWatched[key] = nil
+			if before.mainItem then
+				imbueWontTake[before.mainItem .. ":" .. key] = true
+				if br.debug.imbue then br.debug.imbue:noteWontTake(key, before.mainItem) end
+			end
+			return
+		end
+		br.game.C_Timer.After(IMBUE_POLL, check)
+	end
+	br.game.C_Timer.After(IMBUE_POLL, check)
 end
 
 -- if TierScan("T17")>=2 then

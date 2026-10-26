@@ -6,6 +6,29 @@
 -- profiles use. The game never loads these files.
 
 
+--- Checks if item is usable or not.
+--- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
+---@class BR.use.able.Item
+---@overload fun(slotID?: number): boolean
+local C61 = {}
+
+---@class BR.use.able.Base
+local C62 = {}
+
+--- Checks if item is usable or not.
+--- Note: `item` here is literally item, you pass the itemID to specify the item
+---@param itemID? number The ID of the item check.
+---@return boolean
+function C62.item(itemID) end
+
+--- Checks if item in the specified equipment slot is usable or not.
+---@param slotID? number The ID of the equipment slot to check.
+---@return boolean
+function C62.slot(slotID) end
+
+---@class BR.use.able : BR.use.able.Base, BR.Keys.Items<BR.use.able.Item>
+
+
 --- Uses the item.
 ---@class BR.use.Item
 ---@overload fun(slotID?: number, thisUnit?: string): boolean
@@ -12256,5 +12279,3 @@ function C65.timer(timerName, interval) end
 ---@field witherbarksBranch T
 ---@field wrapsOfElectrostaticPotential T
 ---@field wrathstone T
-
----@class BR.Keys.Retail.Druid.Initial.Totems<T>

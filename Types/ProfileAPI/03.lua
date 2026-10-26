@@ -5,6 +5,8 @@
 -- The profile API as the Lua language server sees it, so the editor completes and documents what
 -- profiles use. The game never loads these files.
 
+---@class BR.Keys.Retail.Druid.Initial.Totems<T>
+
 ---@class BR.Retail.Druid.Initial.talent.rank
 ---@field aessinasRenewal integer
 ---@field astralInfluence integer

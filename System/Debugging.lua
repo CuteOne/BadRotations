@@ -1034,6 +1034,18 @@ br.debug.imbue = br.debug.imbue or {}
 local imbueWrite = br.log:file("Imbue.log", 100)
 local imbueNoted = {}
 
+-- Functions/Item.lua: an imbue BR cast showed up on a hand with this enchant ID (learned for the session)
+function br.debug.imbue:noteLanded(key, hand, enchantID)
+    imbueWrite(("%s landed on the %s as enchant %s (learned; the list can take this ID)"):format(
+        printable(br.functions.spell:getKeyName(key) or key), hand, tostring(enchantID)))
+end
+
+-- Functions/Item.lua: an imbue BR cast showed on neither hand: that weapon doesn't hold it
+function br.debug.imbue:noteWontTake(key, itemID)
+    imbueWrite(("%s showed on no weapon; item %s doesn't hold it (not cast on it again this session)"):format(
+        printable(br.functions.spell:getKeyName(key) or key), tostring(itemID)))
+end
+
 -- API/Unit.lua, when the presence-only fallback answers
 function br.debug.imbue:noteUnlisted(offHand, enchantID, listed)
     local hand = offHand and "off hand" or "main hand"

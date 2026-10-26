@@ -377,6 +377,8 @@ function common:commonReaders()
 		if event == "UNIT_SPELLCAST_SUCCEEDED" then
 			local SourceUnit = select(1, ...)
 			local SpellID = select(3, ...)
+			-- a weapon imbue BR sent went off: watch where it lands
+			if SourceUnit == "player" then br.functions.item:noteImbueSucceeded(SpellID) end
 			if br.botCast == true then
 				br.botCast = false
 			end
