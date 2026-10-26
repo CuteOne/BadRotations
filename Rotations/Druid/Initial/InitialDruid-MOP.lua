@@ -1,3 +1,19 @@
+-- Editor types: the keys of MOP Druid Initial's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.MOP.Druid.Initial.buff]]
+local cast = cast --[[@as BR.MOP.Druid.Initial.cast]]
+local cd = cd --[[@as BR.MOP.Druid.Initial.cd]]
+local charges = charges --[[@as BR.MOP.Druid.Initial.charges]]
+local debuff = debuff --[[@as BR.MOP.Druid.Initial.debuff]]
+local equiped = equiped --[[@as BR.MOP.Druid.Initial.equiped]]
+local glyph = glyph --[[@as BR.MOP.Druid.Initial.glyph]]
+local has = has --[[@as BR.MOP.Druid.Initial.has]]
+local heroTree = heroTree --[[@as BR.MOP.Druid.Initial.heroTree]]
+local imbues = imbues --[[@as BR.MOP.Druid.Initial.imbues]]
+local spell = spell --[[@as BR.MOP.Druid.Initial.spell]]
+local talent = talent --[[@as BR.MOP.Druid.Initial.talent]]
+local totem = totem --[[@as BR.MOP.Druid.Initial.totem]]
+local use = use --[[@as BR.MOP.Druid.Initial.use]]
+
 local rotationName = "Initial Druid" -- Change to name of profile listed in options drop down
 
 ---------------

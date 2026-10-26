@@ -1,3 +1,19 @@
+-- Editor types: the keys of MOP Warrior's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.MOP.Warrior.buff]]
+local cast = cast --[[@as BR.MOP.Warrior.cast]]
+local cd = cd --[[@as BR.MOP.Warrior.cd]]
+local charges = charges --[[@as BR.MOP.Warrior.charges]]
+local debuff = debuff --[[@as BR.MOP.Warrior.debuff]]
+local equiped = equiped --[[@as BR.MOP.Warrior.equiped]]
+local glyph = glyph --[[@as BR.MOP.Warrior.glyph]]
+local has = has --[[@as BR.MOP.Warrior.has]]
+local heroTree = heroTree --[[@as BR.MOP.Warrior.heroTree]]
+local imbues = imbues --[[@as BR.MOP.Warrior.imbues]]
+local spell = spell --[[@as BR.MOP.Warrior.spell]]
+local talent = talent --[[@as BR.MOP.Warrior.talent]]
+local totem = totem --[[@as BR.MOP.Warrior.totem]]
+local use = use --[[@as BR.MOP.Warrior.use]]
+
 local rotationName = "Initial"
 
 ---------------

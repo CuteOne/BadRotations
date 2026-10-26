@@ -3027,6 +3027,7 @@
 ---@field purifiedChi T
 ---@field pyroclasm T
 ---@field queensDecreeUnstoppable T
+---@field racial T
 ---@field rapidFire T
 ---@field rapture T
 ---@field ravage T
@@ -3686,6 +3687,7 @@
 ---@field grongsPrimalRage T
 ---@field healthstone T
 ---@field heavenlyDrum T
+---@field heirloomNeck T
 ---@field hiddenMastersForbiddenTouch T
 ---@field hissingRuneQualities T
 ---@field hornOfValor T
@@ -5626,7 +5628,6 @@ function C1.stack(thisUnit, sourceUnit) end
 function C1.stackMax(thisUnit, sourceUnit) end
 
 ---@class BR.buff : BR.Keys.Buffs<BR.buff.Spell>
-local C2 = {}
 
 
 
@@ -5645,10 +5646,10 @@ local C2 = {}
 ---@field rect fun(range?: number, minUnits?: number): boolean
 ---@field targetAOE fun(range?: number, minUnits?: number, unit?: string): boolean
 ---@field rank fun(rank: integer): BR.cast.able.Spell The spell at a rank (or the highest known below it)
-local C3 = {}
+local C2 = {}
 
----@class BR.cast.able : BR.Keys.Abilities<BR.cast.able.Spell>
-local C4 = {}
+---@class BR.cast.able.Base
+local C3 = {}
 
 --- Checks if a spell can be cast by its ID based on various parameters.
 ---@param spellID? number The ID of the spell to check.
@@ -5660,7 +5661,7 @@ local C4 = {}
 ---@param predictPad? boolean Pads the prediction cast time. 'predict' must be true.
 ---@param enemies? table A table of enemy units that the spell should be cast on.
 ---@return boolean
-function C4.id(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies) end
+function C3.id(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies) end
 
 --- Checks if a spell can be cast by its Name based on various parameters.
 ---@param spellName? string The Name of the spell to check.
@@ -5672,7 +5673,9 @@ function C4.id(spellID, thisUnit, castType, minUnits, effectRng, predict, predic
 ---@param predictPad? boolean Pads the prediction cast time. 'predict' must be true.
 ---@param enemies? table A table of enemy units that the spell should be cast on.
 ---@return boolean
-function C4.name(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies) end
+function C3.name(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies) end
+
+---@class BR.cast.able : BR.cast.able.Base, BR.Keys.Abilities<BR.cast.able.Spell>
 
 
 
@@ -5680,10 +5683,9 @@ function C4.name(spellName, thisUnit, castType, minUnits, effectRng, predict, pr
 --- Checks if the spell is the one currently being cast.
 ---@class BR.cast.active.Spell
 ---@overload fun(thisUnit?: string): boolean
-local C5 = {}
+local C4 = {}
 
 ---@class BR.cast.active : BR.Keys.Abilities<BR.cast.active.Spell>
-local C6 = {}
 
 
 
@@ -5691,10 +5693,9 @@ local C6 = {}
 --- Checks if the spell is set to auto-repeat or if it's the current spell being cast.
 ---@class BR.cast.auto.Spell
 ---@overload fun(): boolean
-local C7 = {}
+local C5 = {}
 
 ---@class BR.cast.auto : BR.Keys.Abilities<BR.cast.auto.Spell>
-local C8 = {}
 
 
 
@@ -5703,10 +5704,9 @@ local C8 = {}
 --- (Auto Shot, Shoot).
 ---@class BR.cast.cancel.Spell
 ---@overload fun(): boolean
-local C9 = {}
+local C6 = {}
 
 ---@class BR.cast.cancel : BR.Keys.Abilities<BR.cast.cancel.Spell>
-local C10 = {}
 
 
 
@@ -5714,10 +5714,9 @@ local C10 = {}
 --- Gets the cost of the spell.
 ---@class BR.cast.cost.Spell
 ---@overload fun(altPower?: boolean): number
-local C11 = {}
+local C7 = {}
 
 ---@class BR.cast.cost : BR.Keys.Abilities<BR.cast.cost.Spell>
-local C12 = {}
 
 
 
@@ -5725,14 +5724,16 @@ local C12 = {}
 --- Gets the currently cast spell for the target (Alternate to cast.active.spell()).
 ---@class BR.cast.current.Spell
 ---@overload fun(thisUnit?: string): boolean
-local C13 = {}
+local C8 = {}
 
----@class BR.cast.current : BR.Keys.Abilities<BR.cast.current.Spell>
-local C14 = {}
+---@class BR.cast.current.Base
+local C9 = {}
 
 --- Gets the spell id of the current (or previously) cast spell by the API.
 ---@return number
-function C14.id() end
+function C9.id() end
+
+---@class BR.cast.current : BR.cast.current.Base, BR.Keys.Abilities<BR.cast.current.Spell>
 
 
 
@@ -5740,10 +5741,9 @@ function C14.id() end
 --- Checks if the spell is capable of dispelling the target.
 ---@class BR.cast.dispel.Spell
 ---@overload fun(thisUnit?: string): boolean
-local C15 = {}
+local C10 = {}
 
 ---@class BR.cast.dispel : BR.Keys.Abilities<BR.cast.dispel.Spell>
-local C16 = {}
 
 
 
@@ -5751,10 +5751,9 @@ local C16 = {}
 --- Gets current empowered rank of the spell or 0 if not empowered.
 ---@class BR.cast.empowered.Spell
 ---@overload fun(): number
-local C17 = {}
+local C11 = {}
 
 ---@class BR.cast.empowered : BR.Keys.Abilities<BR.cast.empowered.Spell>
-local C18 = {}
 
 
 
@@ -5762,10 +5761,9 @@ local C18 = {}
 --- Checks if the spell is currently in flight to the target.
 ---@class BR.cast.inFlight.Spell
 ---@overload fun(thisUnit?: string): boolean
-local C19 = {}
+local C12 = {}
 
 ---@class BR.cast.inFlight : BR.Keys.Abilities<BR.cast.inFlight.Spell>
-local C20 = {}
 
 
 
@@ -5773,10 +5771,9 @@ local C20 = {}
 --- Gets time remaining on a spell in flight to the target.
 ---@class BR.cast.inFlightRemain.Spell
 ---@overload fun(thisUnit?: string): number
-local C21 = {}
+local C13 = {}
 
 ---@class BR.cast.inFlightRemain : BR.Keys.Abilities<BR.cast.inFlightRemain.Spell>
-local C22 = {}
 
 
 
@@ -5784,7 +5781,7 @@ local C22 = {}
 --- Checks if the spell was the last one cast or not.
 ---@class BR.cast.last.Spell
 ---@overload fun(index?: number): boolean
-local C23 = {}
+local C14 = {}
 
 
 
@@ -5792,14 +5789,12 @@ local C23 = {}
 --- Gets the GetTime() value the last cast of this spell occurred, or 0 if it hasn't been cast.
 ---@class BR.cast.last.time.Spell
 ---@overload fun(): number
-local C24 = {}
+local C15 = {}
 
 ---@class BR.cast.last.time : BR.Keys.Abilities<BR.cast.last.time.Spell>
-local C25 = {}
 
 ---@class BR.cast.last : BR.Keys.Abilities<BR.cast.last.Spell>
 ---@field time BR.cast.last.time
-local C26 = {}
 
 
 
@@ -5813,10 +5808,9 @@ local C26 = {}
 --- ```
 ---@class BR.cast.maxRank.Spell
 ---@overload fun(): number
-local C27 = {}
+local C16 = {}
 
 ---@class BR.cast.maxRank : BR.Keys.Abilities<BR.cast.maxRank.Spell>
-local C28 = {}
 
 
 
@@ -5824,10 +5818,9 @@ local C28 = {}
 --- Checks if the spell can free you of a "no control" effect.
 ---@class BR.cast.noControl.Spell
 ---@overload fun(): boolean
-local C29 = {}
+local C17 = {}
 
 ---@class BR.cast.noControl : BR.Keys.Abilities<BR.cast.noControl.Spell>
-local C30 = {}
 
 
 
@@ -5855,18 +5848,20 @@ local C30 = {}
 ---@field rect fun(range?: number, minUnits?: number): boolean
 ---@field targetAOE fun(range?: number, minUnits?: number, unit?: string): boolean
 ---@field rank fun(rank: integer): BR.cast.opener.Spell The spell at a rank (or the highest known below it)
-local C31 = {}
+local C18 = {}
 
----@class BR.cast.opener : BR.Keys.Abilities<BR.cast.opener.Spell>
-local C32 = {}
+---@class BR.cast.opener.Base
+local C19 = {}
 
 --- True once the opener has run all its steps (until it resets).
 ---@return boolean
-function C32.done() end
+function C19.done() end
 
 --- True while an opener is under way: started and not finished.
 ---@return boolean
-function C32.active() end
+function C19.active() end
+
+---@class BR.cast.opener : BR.cast.opener.Base, BR.Keys.Abilities<BR.cast.opener.Spell>
 
 
 
@@ -5874,10 +5869,9 @@ function C32.active() end
 --- Checks if specified power requirements are not met.
 ---@class BR.cast.pool.Spell
 ---@overload fun(altPower?: any, specificAmt?: any, multiplier?: any): boolean
-local C33 = {}
+local C20 = {}
 
 ---@class BR.cast.pool : BR.Keys.Abilities<BR.cast.pool.Spell>
-local C34 = {}
 
 
 
@@ -5885,10 +5879,9 @@ local C34 = {}
 --- Gets the spell's range, if it has one.
 ---@class BR.cast.range.Spell
 ---@overload fun(): number
-local C35 = {}
+local C21 = {}
 
 ---@class BR.cast.range : BR.Keys.Abilities<BR.cast.range.Spell>
-local C36 = {}
 
 
 
@@ -5896,10 +5889,9 @@ local C36 = {}
 --- Gets the amount of power spell will generate when cast.
 ---@class BR.cast.regen.Spell
 ---@overload fun(): number
-local C37 = {}
+local C22 = {}
 
 ---@class BR.cast.regen : BR.Keys.Abilities<BR.cast.regen.Spell>
-local C38 = {}
 
 
 
@@ -5907,10 +5899,9 @@ local C38 = {}
 --- Checks if safe to cast specified aoe spell on unit given the aoe dimensions.
 ---@class BR.cast.safe.Spell
 ---@overload fun(thisUnit?: string, aoeType?: string, minUnits?: number, effectRng?: number): boolean
-local C39 = {}
+local C23 = {}
 
 ---@class BR.cast.safe : BR.Keys.Abilities<BR.cast.safe.Spell>
-local C40 = {}
 
 
 --- Cast a spell based on various parameters.
@@ -5934,7 +5925,7 @@ local C40 = {}
 ---@field rect fun(range?: number, minUnits?: number): boolean
 ---@field targetAOE fun(range?: number, minUnits?: number, unit?: string): boolean
 ---@field rank fun(rank: integer): BR.cast.Spell The spell at a rank (or the highest known below it)
-local C41 = {}
+local C24 = {}
 
 
 
@@ -5942,10 +5933,9 @@ local C41 = {}
 --- Gets the cast time of player's spell. If the spell has no cast time, it returns the global cooldown.
 ---@class BR.cast.time.Spell
 ---@overload fun(): number
-local C42 = {}
+local C25 = {}
 
 ---@class BR.cast.time : BR.Keys.Abilities<BR.cast.time.Spell>
-local C43 = {}
 
 
 
@@ -5953,12 +5943,67 @@ local C43 = {}
 --- Gets the time since the last cast of this spell occurred (very large if it hasn't been cast).
 ---@class BR.cast.timeSinceLast.Spell
 ---@overload fun(): number
-local C44 = {}
+local C26 = {}
 
 ---@class BR.cast.timeSinceLast : BR.Keys.Abilities<BR.cast.timeSinceLast.Spell>
-local C45 = {}
 
----@class BR.cast : BR.Keys.Abilities<BR.cast.Spell>
+---@class BR.cast.Base
+local C27 = {}
+
+--- Casts the form corresponding to the provided formIndex number.
+---@param formIndex? number Index of the form to be casted. If not provided, defaults to 0.
+function C27.form(formIndex) end
+
+--- Cast a spell by its ID based on various parameters.
+---@param spellID? number The ID of the spell to cast.
+---@param thisUnit? string The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+---@param castType? string Defines the type of AoE or special cast conditions.
+---@param minUnits? number Minimum number of units needed to be hit by AoE spell.
+---@param effectRng? number The AoE's effect range.
+---@param predict? boolean If true, will attempt to predict enemy movements for ground location AoE spells.
+---@param predictPad? boolean Pads the prediction cast time. 'predict' must be true.
+---@param enemies? table A table of enemy units that the spell should be cast on.
+---@return boolean
+function C27.id(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies) end
+
+--- Runs the macro text passed to it. Optionally integrates with the cast gate's
+--- throttle infrastructure when an associated spell ID is supplied.
+---@param macroText? string The macro text to be run.
+---@param associatedSpellID? integer Spell ID representing the intent of this macro. When passed, the cast gate writes castTimers + castIntentLocks for this spell ID so the next tick's gateDoubleCast / gateCooldownTimer blocks immediate re-fires through the same mechanism createCastFunction uses. Callers that don't pass this argument retain the original unprotected behavior (backward-compatible).
+---@param lockDuration? number Throttle window in seconds. Defaults to 0.5s (matches the createCastFunction success-path convention).
+---@return boolean # Always true.
+function C27.macro(macroText, associatedSpellID, lockDuration) end
+
+--- Cast a spell by its Name based on various parameters.
+---@param spellName? string The name of the spell to cast.
+---@param thisUnit? string The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+---@param castType? string Defines the type of AoE or special cast conditions.
+---@param minUnits? number Minimum number of units needed to be hit by AoE spell.
+---@param effectRng? number The AoE's effect range.
+---@param predict? boolean If true, will attempt to predict enemy movements for ground location AoE spells.
+---@param predictPad? boolean Pads the prediction cast time. 'predict' must be true.
+---@param enemies? table A table of enemy units that the spell should be cast on.
+---@return boolean
+function C27.name(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies) end
+
+--- Gets the cast time remaining on player's cast or supplied target.
+---@param thisUnit? string The unit to check cast time remaining. Defaults to "player" if not provided.
+---@return number
+function C27.timeRemain(thisUnit) end
+
+--- Checks if the provided condition is true else it waits for 0.1sec.
+---@param condition? any The condition to check.
+---@param callback? any
+---@return boolean
+function C27.wait(condition, callback) end
+
+--- Casts with the movement animation cancelled: steps back with a jump while castFn runs (Havoc's
+--- Fel Rush). This moves the character, so only use it behind a mode the player turns on.
+---@param castFn? function Casts the spell, e.g. function() return cast.felRush() end
+---@return boolean # What castFn returned
+function C27.withAnimationCancel(castFn) end
+
+---@class BR.cast : BR.cast.Base, BR.Keys.Abilities<BR.cast.Spell>
 ---@field able BR.cast.able
 ---@field active BR.cast.active
 ---@field auto BR.cast.auto
@@ -5979,310 +6024,256 @@ local C45 = {}
 ---@field safe BR.cast.safe
 ---@field time BR.cast.time
 ---@field timeSinceLast BR.cast.timeSinceLast
-local C46 = {}
-
---- Casts the form corresponding to the provided formIndex number.
----@param formIndex? number Index of the form to be casted. If not provided, defaults to 0.
-function C46.form(formIndex) end
-
---- Cast a spell by its ID based on various parameters.
----@param spellID? number The ID of the spell to cast.
----@param thisUnit? string The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
----@param castType? string Defines the type of AoE or special cast conditions.
----@param minUnits? number Minimum number of units needed to be hit by AoE spell.
----@param effectRng? number The AoE's effect range.
----@param predict? boolean If true, will attempt to predict enemy movements for ground location AoE spells.
----@param predictPad? boolean Pads the prediction cast time. 'predict' must be true.
----@param enemies? table A table of enemy units that the spell should be cast on.
----@return boolean
-function C46.id(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies) end
-
---- Runs the macro text passed to it. Optionally integrates with the cast gate's
---- throttle infrastructure when an associated spell ID is supplied.
----@param macroText? string The macro text to be run.
----@param associatedSpellID? integer Spell ID representing the intent of this macro. When passed, the cast gate writes castTimers + castIntentLocks for this spell ID so the next tick's gateDoubleCast / gateCooldownTimer blocks immediate re-fires through the same mechanism createCastFunction uses. Callers that don't pass this argument retain the original unprotected behavior (backward-compatible).
----@param lockDuration? number Throttle window in seconds. Defaults to 0.5s (matches the createCastFunction success-path convention).
----@return boolean # Always true.
-function C46.macro(macroText, associatedSpellID, lockDuration) end
-
---- Cast a spell by its Name based on various parameters.
----@param spellName? string The name of the spell to cast.
----@param thisUnit? string The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
----@param castType? string Defines the type of AoE or special cast conditions.
----@param minUnits? number Minimum number of units needed to be hit by AoE spell.
----@param effectRng? number The AoE's effect range.
----@param predict? boolean If true, will attempt to predict enemy movements for ground location AoE spells.
----@param predictPad? boolean Pads the prediction cast time. 'predict' must be true.
----@param enemies? table A table of enemy units that the spell should be cast on.
----@return boolean
-function C46.name(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies) end
-
---- Gets the cast time remaining on player's cast or supplied target.
----@param thisUnit? string The unit to check cast time remaining. Defaults to "player" if not provided.
----@return number
-function C46.timeRemain(thisUnit) end
-
---- Checks if the provided condition is true else it waits for 0.1sec.
----@param condition? any The condition to check.
----@param callback? any
----@return boolean
-function C46.wait(condition, callback) end
-
---- Casts with the movement animation cancelled: steps back with a jump while castFn runs (Havoc's
---- Fel Rush). This moves the character, so only use it behind a mode the player turns on.
----@param castFn? function Casts the spell, e.g. function() return cast.felRush() end
----@return boolean # What castFn returned
-function C46.withAnimationCancel(castFn) end
 
 
 
 
 ---@class BR.cd.Spell
-local C47 = {}
+local C28 = {}
 
 --- Gets the total time of the spell cooldown
 ---@return number
-function C47.duration() end
+function C28.duration() end
 
 --- Checks if spell is on cooldown or not.
 ---@return boolean
-function C47.exists() end
+function C28.exists() end
 
 --- Gets the duration of the spells Global Cooldown.
 ---@return number
-function C47.prevgcd() end
+function C28.prevgcd() end
 
 --- Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).
 ---@return boolean
-function C47.ready() end
+function C28.ready() end
 
 --- Gets the time remaining on spell cooldown or 0 if not.
 ---@return number
-function C47.remain() end
+function C28.remain() end
 
 --- Gets the time remaining on spell cooldown or 0 if not (alternate to cd.spell.remain() incase of typo).
 ---@return number
-function C47.remains() end
+function C28.remains() end
 
 
 ---@class BR.cd.Item
-local C48 = {}
+local C29 = {}
 
 --- Gets the total cooldown time of the item in seconds.
 ---@return number
-function C48.duration() end
+function C29.duration() end
 
 --- Checks if item is on cooldown or not.
 ---@return boolean
-function C48.exists() end
+function C29.exists() end
 
 --- Gets the time remaining on item cooldown or 0 if not.
 ---@return number
-function C48.remain() end
+function C29.remain() end
 
 
 ---@class BR.cd.slot
-local C49 = {}
+local C30 = {}
 
 --- Gets the base cooldown of a given item spell from an inventory slot (in seconds).
 ---@param slotID? number number The ID of the inventory slot.
 ---@return number # The base cooldown of the item spell divided by 1000.
-function C49.duration(slotID) end
+function C30.duration(slotID) end
 
 --- Checks if the item slot is on cooldown or not.
 ---@param slotID? number number The ID of the inventory slot.
 ---@return boolean # Inventory slot is on cooldown or not.
-function C49.exists(slotID) end
+function C30.exists(slotID) end
 
 --- Checks if the item slot is off cooldown or not.
 ---@param slotID? number number The ID of the equipment slot to check.
 ---@return boolean # True if the slot is ready (not on cooldown).
-function C49.ready(slotID) end
+function C30.ready(slotID) end
 
 --- Gets the time remaining on the equipment slot item cooldown or 0 if not.
 ---@param slotID? number number The ID of the equipment slot to check.
 ---@return number
-function C49.remain(slotID) end
+function C30.remain(slotID) end
 
 --- Gets the time remaining on the equipment slot item cooldown or 0 if not (alias for cd.slot.remain).
 ---@param slotID? number number The ID of the equipment slot to check.
 ---@return number
-function C49.remains(slotID) end
+function C30.remains(slotID) end
 
----@class BR.cd : BR.Keys.Abilities<BR.cd.Spell>, BR.Keys.Items<BR.cd.Item>
+---@class BR.cd.Base
 ---@field slot BR.cd.slot
-local C50 = {}
+local C31 = {}
+
+---@class BR.cd : BR.cd.Base, BR.Keys.Abilities<BR.cd.Spell>, BR.Keys.Items<BR.cd.Item>
 
 
 
 
 ---@class BR.charges.Spell
-local C51 = {}
+local C32 = {}
 
 --- Gets the number of charges remaining on spell.
 ---@return number
-function C51.count() end
+function C32.count() end
 
 --- Checks if spell has charges or not.
 ---@return boolean
-function C51.exists() end
+function C32.exists() end
 
 --- Gets the number of charges remaining on spell as a fraction. (e.g. 1.5 charges remaining)
 ---@return number
-function C51.frac() end
+function C32.frac() end
 
 --- Gets the maximum number of charges the spell can have.
 ---@return number
-function C51.max() end
+function C32.max() end
 
 --- Gets the time remaining on until next charge is available.
 ---@param chargeMax? boolean If true, returns the time remaining until all charges are available.
 ---@return number
-function C51.recharge(chargeMax) end
+function C32.recharge(chargeMax) end
 
 --- The spell's cast count as the game keeps it (uses stored on spells that count them).
 ---@return number
-function C51.spellCount() end
+function C32.spellCount() end
 
 --- Gets the total time remaining until all charges are available.
 ---@return number
-function C51.timeTillFull() end
+function C32.timeTillFull() end
 
 
 ---@class BR.charges.Item
-local C52 = {}
+local C33 = {}
 
 --- Gets the number of charges remaining on item.
 ---@return number
-function C52.count() end
+function C33.count() end
 
 --- Checks if item has charges or not.
 ---@return boolean
-function C52.exists() end
+function C33.exists() end
 
 ---@class BR.charges : BR.Keys.Abilities<BR.charges.Spell>, BR.Keys.Items<BR.charges.Item>
-local C53 = {}
 
 
 
 
 ---@class BR.debuff.Spell
-local C54 = {}
+local C34 = {}
 
 --- Gets the value of the debuff when it was applied.
 ---@param thisUnit? string The unit to check the debuff applied value on.
 ---@return number
-function C54.applied(thisUnit) end
+function C34.applied(thisUnit) end
 
 --- Calculates the snapshot value of a debuff.
 ---@return number
-function C54.calc() end
+function C34.calc() end
 
 --- Gets the count of a specific debuff across all units.
 ---@return number
-function C54.count() end
+function C34.count() end
 
 --- Gets the duration of a debuff on a unit.
 ---@param thisUnit? string The unit to check the debuff duration on.
 ---@param sourceUnit? string "player": applied by you; "any": by anyone
 ---@return number
-function C54.duration(thisUnit, sourceUnit) end
+function C34.duration(thisUnit, sourceUnit) end
 
 --- Checks if a debuff exists on a unit.
 ---@param thisUnit? string The unit to check the debuff on.
 ---@param sourceUnit? string "player": applied by you; "any": by anyone
 ---@return boolean
-function C54.exists(thisUnit, sourceUnit) end
+function C34.exists(thisUnit, sourceUnit) end
 
 --- Checks if a debuff is exsanguinated.
 ---@param thisUnit? string The unit to check the debuff on.
 ---@return boolean
-function C54.exsang(thisUnit) end
+function C34.exsang(thisUnit) end
 
 --- Gets the unit with the lowest remaining time for a debuff within a specified range.
 ---@param range? number The range to check units within.
 ---@param debuffType? string The type of debuff check to perform (e.g., "remain").
 ---@param source? any
 ---@return string
-function C54.lowest(range, debuffType, source) end
+function C34.lowest(range, debuffType, source) end
 
 --- Gets the unit with the lowest remaining time for a debuff within a specified range, considering only pets.
 ---@param range? number The range to check units within.
 ---@param debuffType? string The type of debuff check to perform (e.g., "remain").
 ---@return string
-function C54.lowestPet(range, debuffType) end
+function C34.lowestPet(range, debuffType) end
 
 --- Gets the unit with the highest remaining time for a debuff within a specified range.
 ---@param range? number The range to check units within.
 ---@param debuffType? string The type of debuff check to perform (e.g., "remain").
 ---@return string
-function C54.max(range, debuffType) end
+function C34.max(range, debuffType) end
 
 --- The duration the refresh window is worked out from: the debuff's current duration on the unit
 --- (debuff.spell.refresh refreshes in its last 30%).
 ---@param thisUnit? string The unit to check the pandemic threshold on.
 ---@param sourceUnit? string "player": applied by you; "any": by anyone
 ---@return number
-function C54.pandemic(thisUnit, sourceUnit) end
+function C34.pandemic(thisUnit, sourceUnit) end
 
 --- Gets the multiplier for the debuff based on its remaining time and duration.
 ---@param thisUnit? string The unit to check the debuff multiplier on.
 ---@param sourceUnit? string "player": applied by you; "any": by anyone
 ---@return number
-function C54.pmultiplier(thisUnit, sourceUnit) end
+function C34.pmultiplier(thisUnit, sourceUnit) end
 
 --- Checks if a debuff should be refreshed based on its remaining time and pandemic threshold.
 ---@param thisUnit? string The unit to check if the debuff should be refreshed on.
 ---@param sourceUnit? string "player": applied by you; "any": by anyone
 ---@return boolean
-function C54.refresh(thisUnit, sourceUnit) end
+function C34.refresh(thisUnit, sourceUnit) end
 
 --- Gets the count of units that should have their debuff refreshed.
 ---@param range? number The range to check units within.
 ---@return number
-function C54.refreshCount(range) end
+function C34.refreshCount(range) end
 
 --- Gets the remaining time of a debuff on a unit.
 ---@param thisUnit? string The unit to check the debuff remaining time on.
 ---@param sourceUnit? string "player": applied by you; "any": by anyone
 ---@return number
-function C54.remain(thisUnit, sourceUnit) end
+function C34.remain(thisUnit, sourceUnit) end
 
 --- Gets the count of units with a debuff remaining time less than a specified value.
 ---@param remain? number The remaining time to check against.
 ---@return number
-function C54.remainCount(remain) end
+function C34.remainCount(remain) end
 
 --- Gets the remaining time of a debuff on a unit. (Duplicate of debuff.spell.remain)
 ---@param thisUnit? string The unit to check the debuff remaining time on.
 ---@param sourceUnit? string "player": applied by you; "any": by anyone
 ---@return number
-function C54.remains(thisUnit, sourceUnit) end
+function C34.remains(thisUnit, sourceUnit) end
 
 --- Gets the stack count of a debuff on a unit.
 ---@param thisUnit? string The unit to check the debuff stack count on.
 ---@param sourceUnit? string "player": applied by you; "any": by anyone
 ---@return number
-function C54.stack(thisUnit, sourceUnit) end
+function C34.stack(thisUnit, sourceUnit) end
 
 --- Gets the number of debuff ticks that will be gained by reapplying the debuff to the specified unit.
 ---@param thisUnit? string string|nil The unit to check the ticks gained by reapplying the debuff on (optional, default "target").
 ---@return number
-function C54.ticksGainedOnRefresh(thisUnit) end
+function C34.ticksGainedOnRefresh(thisUnit) end
 
 --- Gets the number of debuff ticks remaining until it expires on the specified unit.
 ---@param thisUnit? string string|nil The unit to check the remaining ticks on (optional, default "target").
 ---@return number
-function C54.ticksRemain(thisUnit) end
+function C34.ticksRemain(thisUnit) end
 
 ---@class BR.debuff : BR.Keys.Debuffs<BR.debuff.Spell>
-local C55 = {}
 
 
 
 
 ---@class BR.enemies.cone
-local C56 = {}
+local C35 = {}
 
 --- Returns a table of all enemies in the players frontal cone for given angle, range, and combat situation
 ---@param angle? number The angle of the cone to check for enemies
@@ -6290,11 +6281,11 @@ local C56 = {}
 ---@param checkNoCombat? boolean Check for enemies even if not in combat
 ---@param showLines? boolean Show lines for the cone *non-functional atm*
 ---@return table
-function C56.get(angle, range, checkNoCombat, showLines) end
+function C35.get(angle, range, checkNoCombat, showLines) end
 
 
 ---@class BR.enemies.rect
-local C57 = {}
+local C36 = {}
 
 --- Returns all enemies in a rectangular area from a unit for given range, combat situation, and facing
 ---@param width? number The width of the rectangle to check for enemies
@@ -6303,7 +6294,7 @@ local C57 = {}
 ---@param checkNoCombat? boolean Check for enemies even if not in combat
 ---@param facing? boolean Check if enemies are facing unit *no longer used*
 ---@return table
-function C57.get(width, range, showLines, checkNoCombat, facing) end
+function C36.get(width, range, showLines, checkNoCombat, facing) end
 
 ---@class BR.enemies
 ---@field yards0 string[] Enemies within 0 yards (enemies.get)
@@ -7106,7 +7097,7 @@ function C57.get(width, range, showLines, checkNoCombat, facing) end
 ---@field yards50rmncf string[] Enemies within 50 yards (enemies.get)
 ---@field cone BR.enemies.cone
 ---@field rect BR.enemies.rect
-local C58 = {}
+local C37 = {}
 
 --- True when any unit in a list passes a check. Instead of looping in the profile, write the
 --- check once (a function of one unit) and pass it with the list.
@@ -7116,7 +7107,7 @@ local C58 = {}
 ---@param list? table A list of units, such as enemies.yards10
 ---@param check? function Returns true for a unit that counts, as check(thisUnit)
 ---@return boolean
-function C58.any(list, check) end
+function C37.any(list, check) end
 
 --- How many units in a list pass a check.
 --- ```lua
@@ -7125,7 +7116,7 @@ function C58.any(list, check) end
 ---@param list? table A list of units, such as enemies.yards8
 ---@param check? function Returns true for a unit that counts, as check(thisUnit)
 ---@return number
-function C58.count(list, check) end
+function C37.count(list, check) end
 
 --- The first unit in a list that passes a check, to cast on it; nil when none does.
 --- ```lua
@@ -7135,7 +7126,7 @@ function C58.count(list, check) end
 ---@param list? table A list of units, such as enemies.yards5
 ---@param check? function Returns true for a unit that counts, as check(thisUnit)
 ---@return any # The unit, or nil
-function C58.first(list, check) end
+function C37.first(list, check) end
 
 --- Returns a table of all enemies around unit for given range, combat situation, and facing
 ---@param range? number The range to check for enemies
@@ -7144,7 +7135,7 @@ function C58.first(list, check) end
 ---@param facing? boolean Check if enemies are facing unit
 ---@return table
 ---@return number # How many
-function C58.get(range, unit, checkNoCombat, facing) end
+function C37.get(range, unit, checkNoCombat, facing) end
 
 
 
@@ -7152,7 +7143,7 @@ function C58.get(range, unit, checkNoCombat, facing) end
 --- Checks if item is equiped or not.
 ---@class BR.equiped.Item
 ---@overload fun(slotID?: number): boolean
-local C59 = {}
+local C38 = {}
 
 
 
@@ -7160,14 +7151,12 @@ local C59 = {}
 --- Checks if the specified `gemID` is equiped in the item's socket or not.
 ---@class BR.equiped.socket.Item
 ---@overload fun(gemID?: number): boolean
-local C60 = {}
+local C39 = {}
 
 ---@class BR.equiped.socket : BR.Keys.Items<BR.equiped.socket.Item>
-local C61 = {}
 
----@class BR.equiped : BR.Keys.Items<BR.equiped.Item>
----@field socket BR.equiped.socket
-local C62 = {}
+---@class BR.equiped.Base
+local C40 = {}
 
 --- This function checks if the specified itemID is equipped or not.
 --- It can also check a specific slotID.
@@ -7179,65 +7168,70 @@ local C62 = {}
 ---@param itemID? number the ID of the item you want to check if it's equipped
 ---@param slotID? number If specified, the ID of the slot you want to check for the given item.
 ---@return boolean # whether the item is equipped (in the slot, if given)
-function C62.item(itemID, slotID) end
+function C40.item(itemID, slotID) end
 
 --- Gets the number of equiped items for the specified `tierLevel`.
 ---@param tierLevel? any string|number The tier level to check for. (e.g. "T20" or 20)
 ---@param numEquiped? any
 ---@return number
-function C62.tier(tierLevel, numEquiped) end
+function C40.tier(tierLevel, numEquiped) end
 
 --- Checks if you have the specified `itemType` equiped or not.
 ---@param itemType? string The type of item to check for. (e.g. "Weapon" or "Trinket")
 ---@return boolean
-function C62.type(itemType) end
+function C40.type(itemType) end
+
+---@class BR.equiped : BR.equiped.Base, BR.Keys.Items<BR.equiped.Item>
+---@field socket BR.equiped.socket
 
 
 
 
 ---@class BR.glyph.K
-local C63 = {}
+local C41 = {}
 
 --- Returns true if this glyph is NOT socketed.
 ---@return boolean
-function C63.down() end
+function C41.down() end
 
 --- Returns true if this glyph is socketed.
 ---@return boolean
-function C63.enabled() end
+function C41.enabled() end
 
 --- Returns true if this glyph is socketed (glyph.<k>.enabled).
 ---@return boolean
-function C63.exists() end
+function C41.exists() end
 
 --- Returns true if this glyph is socketed (glyph.<k>.enabled).
 ---@return boolean
-function C63.up() end
+function C41.up() end
 
 --- Returns the glyph spellId.
 ---@return number
-function C63.id() end
+function C41.id() end
 
----@class BR.glyph : BR.Keys.Glyphs<BR.glyph.K>
-local C64 = {}
+---@class BR.glyph.Base
+local C42 = {}
 
 --- Returns whether glyph API is available on this client.
 ---@return boolean
-function C64.available() end
+function C42.available() end
 
 --- Returns true if the given glyph spellId is socketed.
 ---@param glyphSpellId? number
 ---@return boolean
-function C64.has(glyphSpellId) end
+function C42.has(glyphSpellId) end
 
 --- Returns true if the given glyph spellId is socketed (glyph.has).
 ---@param glyphSpellId? number
 ---@return boolean
-function C64.enabled(glyphSpellId) end
+function C42.enabled(glyphSpellId) end
 
 --- Returns how many glyph sockets we can scan.
 ---@return number
-function C64.socketCount() end
+function C42.socketCount() end
+
+---@class BR.glyph : BR.glyph.Base, BR.Keys.Glyphs<BR.glyph.K>
 
 
 
@@ -7246,27 +7240,29 @@ function C64.socketCount() end
 --- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
 ---@class BR.has.Item
 ---@overload fun(): boolean
-local C65 = {}
+local C43 = {}
 
 
 ---@class BR.has.stats
-local C66 = {}
+local C44 = {}
 
 --- Checks if an inventory item has any of chosen DPS stats.
 ---@param itemSlot? number The slot number in the player's inventory where the item is located.
 ---@param desiredStat? string A string representing the desired stat to check. It can be one of:
 ---@return boolean # True if the item has the chosen DPS stat, False otherwise.
-function C66.dps(itemSlot, desiredStat) end
+function C44.dps(itemSlot, desiredStat) end
 
----@class BR.has : BR.Keys.Items<BR.has.Item>
+---@class BR.has.Base
 ---@field stats BR.has.stats
-local C67 = {}
+local C45 = {}
 
 --- Checks if the specified `itemID` is in your bags or not.
 --- Note: `item` here is literally item, you pass the itemID to specify the item
 ---@param itemID? number The ID of the item to check for.
 ---@return boolean
-function C67.item(itemID) end
+function C45.item(itemID) end
+
+---@class BR.has : BR.has.Base, BR.Keys.Items<BR.has.Item>
 
 
 ---@class BR.heroTree
@@ -7309,7 +7305,6 @@ function C67.item(itemID) end
 ---@field trickster boolean # true for the active hero talent tree
 ---@field voidweaver boolean # true for the active hero talent tree
 ---@field wildstalker boolean # true for the active hero talent tree
-local C68 = {}
 
 
 ---@class BR.imbues
@@ -7318,33 +7313,32 @@ local C68 = {}
 ---@field frostbrandWeapon integer # the weapon enchant ID
 ---@field rockbiterWeapon integer # the weapon enchant ID
 ---@field windfuryWeapon integer # the weapon enchant ID
-local C69 = {}
 
 
 ---@class BR.module
-local C70 = {}
+local C46 = {}
 
 --- Auto Put Keystone into Receptable during mythic+ dungeons. | Kinky BR Module Code example
 ---@param section? boolean If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
-function C70.autoKeystone(section) end
+function C46.autoKeystone(section) end
 
 --- Basic Healing Module - Uses healthstones, potions, and racial healing abilities.
 ---@param section? boolean If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
-function C70.BasicHealing(section) end
+function C46.BasicHealing(section) end
 
 --- Basic Trinkets - Uses trinkets based on options set in the Profile Options.
 ---@param slotID? number If set will use the trinket in the specified slot. Otherwise, will loop through all trinkets.
 ---@param section? boolean If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
-function C70.BasicTrinkets(slotID, section) end
+function C46.BasicTrinkets(slotID, section) end
 
 --- CombatPotionUp Module - Attempts to use the combat potion specified in the Profile Options.
 ---@param section? boolean If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
-function C70.CombatPotionUp(section) end
+function C46.CombatPotionUp(section) end
 
 --- FlaskUp Module - Attempts to use the flask specified in the Profile Options (Mists of Pandaria).
 ---@param buffType? string The type of flask to use. (e.g. "Agility", "Intellect", "Stamina", "Strength")
 ---@param section? boolean If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
-function C70.FlaskUp(buffType, section) end
+function C46.FlaskUp(buffType, section) end
 
 --- Racial Module - Uses the player's racial abilities based on the options set in the Profile Options.
 --- Uses the race's named racial (e.g. cast.stoneform) when the expansion defines one, otherwise cast.racial.
@@ -7352,106 +7346,106 @@ function C70.FlaskUp(buffType, section) end
 --- Damage racials (Orc, Troll, and Forever's Night Elf / Gnome) use the "Damage Racial" dropdown.
 ---@param section? boolean If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
 ---@param thisUnit? string Unit to use the racial on (Quaking Palm requires it).
-function C70.Racial(section, thisUnit) end
+function C46.Racial(section, thisUnit) end
 
 --- Two Forms Module - Return Worgen to Human Form out of combat
 ---@param section? boolean If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
-function C70.TwoForms(section) end
+function C46.TwoForms(section) end
 
 
 
 
 ---@class BR.pet.active
-local C71 = {}
+local C47 = {}
 
 --- Checks if the player's current pet exists
 ---@return boolean # True if player has an active pet, false otherwise
-function C71.exists() end
+function C47.exists() end
 
 --- Counts the player's pets of the current pet's kind
 ---@return number
-function C71.count() end
+function C47.count() end
 
 --- Gets the ID of the player's current pet
 ---@return number
-function C71.id() end
+function C47.id() end
 
 
 ---@class BR.pet.Name
-local C72 = {}
+local C48 = {}
 
 --- Counts the player's pets of this kind
 ---@return number
-function C72.count() end
+function C48.count() end
 
 --- True when a pet of this kind is out
 ---@return boolean
-function C72.exists() end
+function C48.exists() end
 
 --- True when a pet of this kind is out (pet.<name>.exists)
 ---@return boolean
-function C72.active() end
+function C48.active() end
 
 --- This pet kind's NPC ID
 ---@return number
-function C72.id() end
+function C48.id() end
 
 ---@class BR.pet : BR.Keys.Pets<BR.pet.Name>
 ---@field active BR.pet.active
-local C73 = {}
+local C49 = {}
 
 --- Sends the pet to attack a unit (its current target when thisUnit is nil).
 ---@param thisUnit? string
-function C73.attack(thisUnit) end
+function C49.attack(thisUnit) end
 
 --- True while the pet is attacking.
 ---@return boolean
-function C73.attacking() end
+function C49.attacking() end
 
 --- True when the pet's ability casts itself.
 ---@param spellKey? string A spell in the class spell list
 ---@return boolean
-function C73.autocast(spellKey) end
+function C49.autocast(spellKey) end
 
 --- The name of the pet a Call Pet spell summons (Hunter), "" when its stable slot is empty.
 ---@param spellKey? string A Call Pet spell in the class spell list (callPet1 ... callPet5)
 ---@return string
-function C73.callName(spellKey) end
+function C49.callName(spellKey) end
 
 --- True when the combat log saw the pet die and it hasn't been revived.
 ---@return boolean
-function C73.dead() end
+function C49.dead() end
 
 --- Dismisses the pet.
-function C73.dismiss() end
+function C49.dismiss() end
 
 --- Calls the pet back to follow the player.
-function C73.follow() end
+function C49.follow() end
 
 --- The pet's happiness: 1 unhappy, 2 content, 3 happy (2 on clients without happiness).
 ---@return number
-function C73.happiness() end
+function C49.happiness() end
 
 --- True when the Hunter's active stable slot holds a pet (out, dismissed or dead), so Call Pet can work.
 ---@return boolean
-function C73.hasActivePet() end
+function C49.hasActivePet() end
 
 --- The pet's mode: "assist", "defensiveAssist", "defensive", "passive", "aggressive" or "none".
 ---@return string
-function C73.mode() end
+function C49.mode() end
 
 --- Turns the autocast of the pet's ability on or off.
 ---@param spellKey? string A spell in the class spell list
 ---@param on? boolean
-function C73.setAutocast(spellKey, on) end
+function C49.setAutocast(spellKey, on) end
 
 --- Puts the pet in a mode (the names pet.mode returns); false when this client has no such mode.
 ---@param mode? string
 ---@return boolean
-function C73.setMode(mode) end
+function C49.setMode(mode) end
 
 --- Makes the pet stop attacking.
-function C73.stopAttack() end
+function C49.stopAttack() end
 
 
 
@@ -7459,154 +7453,154 @@ function C73.stopAttack() end
 --- Gets the current amount of the specified power.
 ---@class BR.power.PowerType
 ---@overload fun(): number
-local C74 = {}
+local C50 = {}
 
 --- Gets the amount of specified power until max is reached
 ---@return number
-function C74.deficit() end
+function C50.deficit() end
 
 --- Gets the fractional counts of their available runes - Used by DKs
 ---@return number
-function C74.frac() end
+function C50.frac() end
 
 --- Gets the maximum aount of the specified power
 ---@return number
-function C74.max() end
+function C50.max() end
 
 --- Gets the current amount of specified power as a percentage
 ---@return number
-function C74.percent() end
+function C50.percent() end
 
 --- Gets the current rate of regeneration for the specified power
 ---@return number
-function C74.regen() end
+function C50.regen() end
 
 --- Gets the time in seconds until the specified power is maxed
 ---@param amount? any
 ---@return number
-function C74.ttm(amount) end
+function C50.ttm(amount) end
 
 
 
 
 ---@class BR.power.runes.runes
-local C75 = {}
+local C51 = {}
 
 --- Ready Blood runes
 ---@return number
-function C75.blood() end
+function C51.blood() end
 
 --- Blood runes ready, as a percent
 ---@return number
-function C75.bloodPercent() end
+function C51.bloodPercent() end
 
 --- How far a rune is through its cooldown, as a percent
 ---@param index? number The rune (1-6)
 ---@return number
-function C75.cdPercent(index) end
+function C51.cdPercent(index) end
 
 --- Ready runes of a type
 ---@param rtype? string "blood", "frost", "unholy" or "death"
 ---@return number
-function C75.count(rtype) end
+function C51.count(rtype) end
 
 --- Ready Death runes
 ---@return number
-function C75.death() end
+function C51.death() end
 
 --- Death runes ready, as a percent
 ---@return number
-function C75.deathPercent() end
+function C51.deathPercent() end
 
 --- Ready Frost runes
 ---@return number
-function C75.frost() end
+function C51.frost() end
 
 --- Frost runes ready, as a percent
 ---@return number
-function C75.frostPercent() end
+function C51.frostPercent() end
 
 --- Every rune: its type, whether it is ready and its cooldown
 ---@return table
-function C75.info() end
+function C51.info() end
 
 --- Runes of a type ready, as a percent
 ---@param rtype? string "blood", "frost", "unholy" or "death"
 ---@return number
-function C75.percent(rtype) end
+function C51.percent(rtype) end
 
 --- Seconds until a rune is ready
 ---@param index? number The rune (1-6)
 ---@return number
-function C75.recharge(index) end
+function C51.recharge(index) end
 
 --- Seconds until n runes are ready
 ---@param n? number How many runes
 ---@return number
-function C75.timeTill(n) end
+function C51.timeTill(n) end
 
 --- Ready Unholy runes
 ---@return number
-function C75.unholy() end
+function C51.unholy() end
 
 --- Unholy runes ready, as a percent
 ---@return number
-function C75.unholyPercent() end
+function C51.unholyPercent() end
 
 ---@class BR.power.runes : BR.power.PowerType
 ---@overload fun(): number
 ---@field runes BR.power.runes.runes
-local C76 = {}
+local C52 = {}
 
 --- Death Knight: ready Blood runes (runes.blood)
 ---@return number
-function C76.blood() end
+function C52.blood() end
 
 --- Death Knight: Blood runes ready, as a percent of all Blood runes
 ---@return number
-function C76.bloodPercent() end
+function C52.bloodPercent() end
 
 --- Death Knight: ready Death runes
 ---@return number
-function C76.death() end
+function C52.death() end
 
 --- Death Knight: Death runes ready, as a percent
 ---@return number
-function C76.deathPercent() end
+function C52.deathPercent() end
 
 --- Death Knight: ready Frost runes
 ---@return number
-function C76.frost() end
+function C52.frost() end
 
 --- Death Knight: Frost runes ready, as a percent
 ---@return number
-function C76.frostPercent() end
+function C52.frostPercent() end
 
 --- Death Knight: ready Unholy runes
 ---@return number
-function C76.unholy() end
+function C52.unholy() end
 
 --- Death Knight: Unholy runes ready, as a percent
 ---@return number
-function C76.unholyPercent() end
+function C52.unholyPercent() end
 
 ---@class BR.power : BR.Keys.PowerTypes<BR.power.PowerType>
 ---@field runes BR.power.runes
-local C77 = {}
+local C53 = {}
 
 
 
 
 ---@class BR.spell.K
-local C78 = {}
+local C54 = {}
 
 --- Returns the spell's cast time.
 ---@return number
-function C78.castTime() end
+function C54.castTime() end
 
 --- Returns the spell's ID.
 ---@return number
-function C78.id() end
+function C54.id() end
 
 --- For a combo point finisher (Ferocious Bite, Eviscerate, ...): true when it's sure to kill the unit
 --- at your current combo points and Energy, from the damage the tooltip lists. Never true on dummies.
@@ -7615,35 +7609,34 @@ function C78.id() end
 --- ```
 ---@param thisUnit? string The unit to finish
 ---@return boolean
-function C78.kills(thisUnit) end
+function C54.kills(thisUnit) end
 
 --- Checks if the spell is known.
 ---@return boolean
-function C78.known() end
+function C54.known() end
 
 --- Returns the spell's max range.
 ---@return number
-function C78.maxRange() end
+function C54.maxRange() end
 
 --- Returns the spell's min range.
 ---@return number
-function C78.minRange() end
+function C54.minRange() end
 
 --- Returns the spell's name (localized).
 ---@return string
-function C78.name() end
+function C54.name() end
 
 --- Returns the highest rank of the spell the player knows (0 when it isn't known; 1 on clients
 --- without ranks).
 ---@return number
-function C78.rank() end
+function C54.rank() end
 
 --- Returns the spell's icon texture.
 ---@return number
-function C78.texture() end
+function C54.texture() end
 
 ---@class BR.spell : BR.Keys.Abilities<BR.spell.K>
-local C79 = {}
 
 
 ---@class BR.talent
@@ -9354,7 +9347,6 @@ local C79 = {}
 ---@field zenPulse boolean # true while the talent is taken
 ---@field zenSphere boolean # true while the talent is taken
 ---@field zephyr boolean # true while the talent is taken
-local C80 = {}
 
 
 
@@ -9362,83 +9354,85 @@ local C80 = {}
 
 
 ---@class BR.totem.Element.TotemName
-local C81 = {}
+local C55 = {}
 
 --- Check if this specific totem is active.
 ---@return boolean
-function C81.active() end
+function C55.active() end
 
 --- Alias for active.
 ---@return boolean
-function C81.exists() end
+function C55.exists() end
 
 --- Get distance to this specific totem.
 ---@return number
-function C81.distance() end
+function C55.distance() end
 
 --- Get duration for this specific totem.
 ---@return number
-function C81.duration() end
+function C55.duration() end
 
 --- Get the name of this totem if active.
 ---@return string|nil
-function C81.name() end
+function C55.name() end
 
 --- Get remaining time for this specific totem.
 ---@return number
-function C81.remain() end
+function C55.remain() end
 
----@class BR.totem.Element : BR.Keys.Totems<BR.totem.Element.TotemName>
-local C82 = {}
+---@class BR.totem.Element.Base
+local C56 = {}
 
 --- Check if any totem in this element slot is active.
 ---@return boolean
-function C82.active() end
+function C56.active() end
 
 --- Alias for active.
 ---@return boolean
-function C82.exists() end
+function C56.exists() end
 
 --- Get distance to the active totem in this slot.
 ---@return number
-function C82.distance() end
+function C56.distance() end
 
 --- Get duration for the active totem in this slot.
 ---@return number
-function C82.duration() end
+function C56.duration() end
 
 --- Check if the active totem matches any of the provided candidates.
 ---@param ...? ...
 ---@return boolean
-function C82.is(...) end
+function C56.is(...) end
 
 --- Get the name of the active totem in this slot.
 ---@return string|nil
-function C82.name() end
+function C56.name() end
 
 --- Get remaining time for the active totem in this slot.
 ---@return number
-function C82.remain() end
+function C56.remain() end
 
----@class BR.totem : BR.Keys.Elements<BR.totem.Element>
-local C83 = {}
+---@class BR.totem.Element : BR.totem.Element.Base, BR.Keys.Totems<BR.totem.Element.TotemName>
+
+---@class BR.totem.Base
+local C57 = {}
 
 --- Returns true if the specified totem is currently active in any slot.
 --- Candidate can be a spell key, spell ID, or localized name.
 ---@param candidate? string|number
 ---@return boolean
-function C83.active(candidate) end
+function C57.active(candidate) end
 
 --- Returns distance from player to the active totem in a slot.
 --- Returns 999 if no totem is active or the object can't be located.
 ---@param slotOrCandidate? number|string Totem slot (1-4) or totem spell key/id/name
 ---@return number
-function C83.distance(slotOrCandidate) end
+function C57.distance(slotOrCandidate) end
 
 --- Alias for active.
 ---@param candidate? string|number
 ---@return boolean
-function C83.exists(candidate) end
+function C57.exists(candidate) end
 
 --- Returns raw slot info as reported by GetTotemInfo.
 ---@param slot? number Totem slot (1-4)
@@ -9447,43 +9441,45 @@ function C83.exists(candidate) end
 ---@return number # startTime
 ---@return number # duration
 ---@return number|nil # icon
-function C83.get(slot) end
+function C57.get(slot) end
 
 --- Returns true if the specified slot currently matches any provided totem.
 --- Candidates can be spell IDs (number), spell keys from br.runner.spells (string), or literal localized names (string).
 ---@param slot? number Totem slot (1-4)
 ---@param ...? ...
 ---@return boolean
-function C83.is(slot, ...) end
+function C57.is(slot, ...) end
 
 --- Returns remaining time for a slot (seconds), or 0.
 ---@param slot? number Totem slot (1-4)
 ---@return number
-function C83.remain(slot) end
+function C57.remain(slot) end
+
+---@class BR.totem : BR.totem.Base, BR.Keys.Elements<BR.totem.Element>
 
 
 
 
 ---@class BR.ui.fightStyle
-local C84 = {}
+local C58 = {}
 
 --- Returns true when inside an active Mythic+ key run.
 ---@return boolean
-function C84.dungeonRoute() end
+function C58.dungeonRoute() end
 
 --- Returns true when inside a regular (non-Mythic+) 5-man dungeon.
 ---@return boolean
-function C84.dungeonSlice() end
+function C58.dungeonSlice() end
 
 --- Returns true when not in a 5-man party instance (raid, outdoor, etc.).
 ---@return boolean
-function C84.patchwerk() end
+function C58.patchwerk() end
 
 ---@class BR.ui
 ---@field mode table<string, integer> Each toggle's current mode, by the toggle's name with a lower-case first letter: ui.mode.rotation
 ---@field dropOptions table<string, string[]> The choices of BR's shared dropdowns (Toggle: the key names, ...)
 ---@field fightStyle BR.ui.fightStyle
-local C85 = {}
+local C59 = {}
 
 --- Checks if the passed option is set to "Always, AOE/CD, CD, or Never"
 --- ```lua
@@ -9499,7 +9495,7 @@ local C85 = {}
 ---@param minUnits? number - Minimum number of units required to treat this as AOE.
 ---@param enemyCount? number - A precomputed enemy count (e.g. `#enemies.yards8`) provided by the caller.
 ---@return boolean # - Returns true based on selected option and current combat conditions
-function C85.alwaysCdAoENever(thisOption, minUnits, enemyCount) end
+function C59.alwaysCdAoENever(thisOption, minUnits, enemyCount) end
 
 --- Convenience wrapper: compute enemy count from a range and delegate to ui.alwaysCdAoENever
 ---@param thisOption? string - Name of the option from the defined profile options.
@@ -9507,24 +9503,24 @@ function C85.alwaysCdAoENever(thisOption, minUnits, enemyCount) end
 ---@param range? number - Range in yards to check for enemies.
 ---@param useTarget? string - Reference unit used to evaluate range (defaults to `player`).
 ---@return boolean
-function C85.alwaysCdAoENeverRange(thisOption, minUnits, range, useTarget) end
+function C59.alwaysCdAoENeverRange(thisOption, minUnits, range, useTarget) end
 
 --- Checks if the passed option is set to "Always, CD, or Never"
 ---@param thisOption? string - Name of the option from the defined profile options.
 ---@return boolean # - Returns true if the option is set to Always or if CD is selected and CDs are enabled
-function C85.alwaysCdNever(thisOption) end
+function C59.alwaysCdNever(thisOption) end
 
 --- Gets the unit to buff from a "Player/Target/Mouseover/Focus/Group" dropdown option.
 ---@param thisOption? string - Name of the dropdown option.
 ---@param needsBuff? any - function(unit) returning true if that group member needs the buff (Group mode).
 ---@param range? number - Maximum range for group members.
 ---@return string # - Unit token; falls back to "player" when the chosen unit doesn't exist.
-function C85.buffUnit(thisOption, needsBuff, range) end
+function C59.buffUnit(thisOption, needsBuff, range) end
 
 --- Displays the passed text as an overlay on the chat windows
 ---@param text? string - The text to display.
 ---@return nil
-function C85.chatOverlay(text) end
+function C59.chatOverlay(text) end
 
 --- Adds a checkbox. Read it with ui.checked("Name").
 --- ```lua
@@ -9533,30 +9529,30 @@ function C85.chatOverlay(text) end
 ---@param section? any
 ---@param name? any
 ---@param options? any
-function C85.checkbox(section, name, options) end
+function C59.checkbox(section, name, options) end
 
 --- Checks if the passed option is enabled
 ---@param thisOption? string - Name of the option from the defined profile options.
 ---@param optionPage? string - The page where the option is located.
 ---@return boolean # - Returns true if the option is checked
-function C85.checked(thisOption, optionPage) end
+function C59.checked(thisOption, optionPage) end
 
 --- Displays the text as a debug message in chat (if Addon Debug Messages option is enabled)
 ---@param text? string - The message to show in chat.
 ---@return nil
-function C85.debug(text) end
+function C59.debug(text) end
 
 --- Returns false unless the specified delay time has passed since it was last true
 ---@param delayName? string - The name of the delay check, should be unique.
 ---@param delayTime? number - The length of time to wait until true, in seconds.
 ---@return boolean # - Returns true if the delay time has passed
-function C85.delay(delayName, delayTime) end
+function C59.delay(delayName, delayTime) end
 
 --- Adds two spinners on one row.
 ---@param section? any
 ---@param name? any
 ---@param options? any
-function C85.doubleSpinner(section, name, options) end
+function C59.doubleSpinner(section, name, options) end
 
 --- Adds a dropdown (with a checkbox unless checkbox = false). Read it with ui.value("Name").
 --- ```lua
@@ -9565,21 +9561,21 @@ function C85.doubleSpinner(section, name, options) end
 ---@param section? any
 ---@param name? any
 ---@param options? any
-function C85.dropdown(section, name, options) end
+function C59.dropdown(section, name, options) end
 
 --- Checks if your bags are full
 ---@return boolean # - Returns true if bags are full
-function C85.fullBags() end
+function C59.fullBags() end
 
 --- Returns the spellID for the highest known if table is passed, or the spellID for the single spell name.
 ---@param spellID? string - The name of the spell.
 ---@return number # - Returns the spell ID
-function C85.getSpell(spellID) end
+function C59.getSpell(spellID) end
 
 --- Checks if the mouse button specified is down, or any if none are specified
 ---@param mouseButton? string - Name of the mouse button.
 ---@return boolean # - Returns true if the specified mouse button is down
-function C85.isMouseDown(mouseButton) end
+function C59.isMouseDown(mouseButton) end
 
 --- The game's last error message (the red text): its key as the game names it (ERR_NO_LOOT,
 --- SPELL_FAILED_BAD_TARGETS, ...), the message shown and when (ui.time()); nil before the first.
@@ -9589,7 +9585,7 @@ function C85.isMouseDown(mouseButton) end
 ---@return string
 ---@return string
 ---@return number
-function C85.lastError() end
+function C59.lastError() end
 
 --- The last loot or money message in chat: its text, when (ui.time()) and whether it was money;
 --- nil before the first.
@@ -9599,31 +9595,31 @@ function C85.lastError() end
 ---@return string
 ---@return number
 ---@return boolean
-function C85.lastLoot() end
+function C59.lastLoot() end
 
 --- Returns true if special conditions are met to pause
 ---@param ignoreChannel? boolean - Set to true to ignore pausing on channel casts
 ---@return boolean # - Returns true if rotation should be paused
-function C85.pause(ignoreChannel) end
+function C59.pause(ignoreChannel) end
 
 --- Returns true while the player holds the Pause Mode key (Base Options)
 ---@return boolean
-function C85.pauseKey() end
+function C59.pauseKey() end
 
 --- Shows the specified message in chat.
 ---@param msg? string - The message to show in chat.
 ---@return nil
-function C85.print(msg) end
+function C59.print(msg) end
 
 --- Returns the time remaining on the pull timer (DBM/BigWigs)
 ---@return number # - Returns seconds remaining on pull timer
-function C85.pullTimer() end
+function C59.pullTimer() end
 
 --- Rounds a number to the specified number of decimal places (default 2)
 ---@param num? number - The number to round.
 ---@param numDecimalPlaces? number - The number of decimal places to round to.
 ---@return number # - Returns the rounded number
-function C85.round(num, numDecimalPlaces) end
+function C59.round(num, numDecimalPlaces) end
 
 --- Starts a group of options; pass it to each option after it.
 --- ```lua
@@ -9631,7 +9627,7 @@ function C85.round(num, numDecimalPlaces) end
 --- ```
 ---@param name? string
 ---@param options? any
-function C85.section(name, options) end
+function C59.section(name, options) end
 
 --- Adds a spinner (with a checkbox unless checkbox = false). Read it with ui.value("Name").
 --- ```lua
@@ -9640,163 +9636,163 @@ function C85.section(name, options) end
 ---@param section? any
 ---@param name? any
 ---@param options? any
-function C85.spinner(section, name, options) end
+function C59.spinner(section, name, options) end
 
 --- Adds a line of text.
 ---@param section? any
 ---@param text? any
-function C85.text(section, text) end
+function C59.text(section, text) end
 
 --- Returns the time, value of GetTime
 ---@return number # - Returns the current game time
-function C85.time() end
+function C59.time() end
 
 --- Returns false unless the specified interval has passed since it was last true
 ---@param timerName? string - The name of the timer check, should be unique.
 ---@param interval? number - The length of time to wait until true, in seconds.
 ---@return boolean # - Returns true if the interval has passed
-function C85.timer(timerName, interval) end
+function C59.timer(timerName, interval) end
 
 --- Adds a button to the toggle bar. Read it in the rotation with ui.mode.<name>.
 ---@param name? string
 ---@param options? table modes = { { name = ..., icon = ..., overlay = ..., tip = ... }, ... }, key = ...
-function C85.toggle(name, options) end
+function C59.toggle(name, options) end
 
 --- Checks if the key chosen in a key option (a ui.dropOptions.Toggle dropdown) is held
 ---@param thisOption? string - Name of the key option to check.
 ---@return boolean # - Returns true while the key is held (never while typing)
-function C85.toggleKey(thisOption) end
+function C59.toggleKey(thisOption) end
 
 --- Checks if the specified parameters are valid for AOE, based on Rotation toggle setting.
 ---@param range? number - The range of the AOE damage in yards.
 ---@param minCount? number - The minimum number of units to be in range before true
 ---@param useTarget? string - the reference unit to check range and units against.
 ---@return boolean # - Returns true if AOE should be used
-function C85.useAOE(range, minCount, useTarget) end
+function C59.useAOE(range, minCount, useTarget) end
 
 --- Check if Cooldowns should be used or not based on CD toggle setting.
 ---@return boolean # - Returns true if cooldowns should be used
-function C85.useCDs() end
+function C59.useCDs() end
 
 --- Check if Defensives should be used or not based on Defensive toggle setting.
 ---@return boolean # - Returns true if defensive abilities should be used
-function C85.useDefensive() end
+function C59.useDefensive() end
 
 --- Check if Interrupts should be used or not based on Interrupt toggle setting.
 ---@return boolean # - Returns true if interrupts should be used
-function C85.useInterrupt() end
+function C59.useInterrupt() end
 
 --- Checks if the specified parameters are valid for Single Target, based on Rotation toggle setting.
 ---@param range? number - The range of the AOE damage in yards.
 ---@param minCount? number - The minimum number of units to be in range before true
 ---@param useTarget? string - the reference unit to check range and units against.
 ---@return boolean # - Returns true if single target abilities should be used
-function C85.useST(range, minCount, useTarget) end
+function C59.useST(range, minCount, useTarget) end
 
 --- Checks if the option to use trinkets are valid per each Trinket slot.
 ---@param trinket? number - The item id of the trinket to check for.
 ---@return boolean # - Returns true if the trinket should be used
-function C85.useTrinkets(trinket) end
+function C59.useTrinkets(trinket) end
 
 --- Returns the value of the specified option.
 ---@param thisOption? string - The name of the option specified in the options section
 ---@param optionPage? string - The page where the option is located.
 ---@return number # - Returns the value of the specified option
-function C85.value(thisOption, optionPage) end
+function C59.value(thisOption, optionPage) end
 
 --- Sets a toggle to the specified value and updates the UI
 ---@param toggleName? string - The name of the toggle to set
 ---@param toggleValue? number - The value to set the toggle to (1, 2, 3, etc.)
 ---@return nil
-function C85.setToggle(toggleName, toggleValue) end
+function C59.setToggle(toggleName, toggleValue) end
 
 
 
 
 ---@class BR.unit.weaponImbue
-local C86 = {}
+local C60 = {}
 
 --- Get weapon imbue charges
 ---@param imbueId? number The ID of the imbue to check
 ---@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
 ---@return number # Number of charges remaining on the weapon imbue
-function C86.charges(imbueId, offHand) end
+function C60.charges(imbueId, offHand) end
 
 --- Check if a weapon imbue exists
 ---@param imbueId? number The ID of the imbue to check for
 ---@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
 ---@return boolean # True if the imbue exists on the specified weapon
-function C86.exists(imbueId, offHand) end
+function C60.exists(imbueId, offHand) end
 
 --- Check if a weapon imbue is missing (needs to be applied)
 ---@param imbueId? number The ID of the imbue to check for
 ---@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
 ---@return boolean # True if the imbue is NOT currently applied to the specified weapon
-function C86.needed(imbueId, offHand) end
+function C60.needed(imbueId, offHand) end
 
 --- Get weapon imbue remaining time
 ---@param imbueId? number The ID of the imbue to check
 ---@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
 ---@return number # Time remaining on the weapon imbue in seconds
-function C86.remain(imbueId, offHand) end
+function C60.remain(imbueId, offHand) end
 
 --- Get the display name of a weapon imbue spell
 ---@param spellKey? any The spell key string (e.g. "rockbiterWeapon") used in br.runner.spells
 ---@return string # The localised spell name, or the key as a fallback
-function C86.spellName(spellKey) end
+function C60.spellName(spellKey) end
 
 ---@class BR.unit
 ---@field weaponImbue BR.unit.weaponImbue
-local C87 = {}
+local C61 = {}
 
 --- Check if a unit is an Aberration
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@return boolean # True if the unit is an Aberration
-function C87.aberration(thisUnit) end
+function C61.aberration(thisUnit) end
 
 --- Get a unit's aggro radius against the player
 ---@param thisUnit? string The unit to check, defaults to "target"
 ---@return number # Aggro radius in yards (20 +/- level difference, minimum 5)
-function C87.aggroRange(thisUnit) end
+function C61.aggroRange(thisUnit) end
 
 --- Check if any nearby enemy would aggro on the player
 ---@param offset? any Optional extra yards added to each aggro radius
 ---@param radius? any Optional search radius in yards, defaults to 40
 ---@return boolean # True if any enemy (in combat or not) is within its aggro radius
-function C87.anyInAggroRange(offset, radius) end
+function C61.anyInAggroRange(offset, radius) end
 
 --- Get player's attack power
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return number # Total attack power (base + positive buffs + negative buffs)
-function C87.attackPower(thisUnit) end
+function C61.attackPower(thisUnit) end
 
 --- Check if a unit is a Beast
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@return boolean # True if the unit is a Beast
-function C87.beast(thisUnit) end
+function C61.beast(thisUnit) end
 
 --- Check if a unit is Dragonkin
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@return boolean # True if the unit is Dragonkin
-function C87.dragonkin(thisUnit) end
+function C61.dragonkin(thisUnit) end
 
 --- Check if a unit can be attacked
 ---@param thisUnit? string The unit to check
 ---@param playerUnit? string The attacking unit, defaults to "player" if nil
 ---@return boolean # True if playerUnit can attack thisUnit
-function C87.canAttack(thisUnit, playerUnit) end
+function C61.canAttack(thisUnit, playerUnit) end
 
 --- Check if it's safe to cancel form (enough mana to cast the spell and shift back).
 ---@param outOfFormSpell? any Spell reference (id/name/spell table) you intend to cast after breaking form.
 ---@param returnFormSpell? any Spell reference (id/name/spell table) to shift back into.
 ---@param treatOutSpellAsFree? any If true, treat out-of-form spell cost as 0 (e.g., Clearcasting).
 ---@return boolean
-function C87.canCancelFormFor(outOfFormSpell, returnFormSpell, treatOutSpellAsFree) end
+function C61.canCancelFormFor(outOfFormSpell, returnFormSpell, treatOutSpellAsFree) end
 
 --- Cancel current shapeshift form. Does nothing if the player isn't in a form, or if a cancel was
 --- just sent and the server hasn't replied yet (the form still shows for a round trip).
 ---@return boolean # True when a cancel was sent now.
-function C87.cancelForm() end
+function C61.cancelForm() end
 
 --- Leave the current shapeshift form to cast a spell, when a player would: not while stealthed,
 --- not while tanking in a bear form, and only with the mana to cast it and shift back. In an
@@ -9807,113 +9803,113 @@ function C87.cancelForm() end
 ---@param treatOutSpellAsFree? any If true, that spell costs nothing this time (e.g. Clearcasting).
 ---@param emergency? any If true, leave form regardless (e.g. an emergency heal). (keep waiting rather than acting as if still in form).
 ---@return boolean # True while the form is being left: cancelled now, or a cancel still on its way
-function C87.cancelFormFor(outOfFormSpell, treatOutSpellAsFree, emergency) end
+function C61.cancelFormFor(outOfFormSpell, treatOutSpellAsFree, emergency) end
 
 --- Check if player can fly
 ---@return boolean # True if the player can fly in the current area
-function C87.canFly() end
+function C61.canFly() end
 
 --- Check if a unit is casting or channeling a spell
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@param spellID? number Optional spellID to check for
 ---@return boolean # True if the unit is casting, or casting the specific spell if spellID provided
-function C87.casting(thisUnit, spellID) end
+function C61.casting(thisUnit, spellID) end
 
 --- True while the unit casts a spell from the tank buster list (System/Lists/TankBusters.lua)
 ---@param thisUnit? string The unit to check, defaults to "target"
 ---@return boolean
-function C87.castingTankBuster(thisUnit) end
+function C61.castingTankBuster(thisUnit) end
 
 --- Check if a unit is charmed
 ---@param thisUnit? string The unit to check
 ---@return boolean # True if the unit is charmed
-function C87.charmed(thisUnit) end
+function C61.charmed(thisUnit) end
 
 --- Clear current target
 ---@return nil
-function C87.clearTarget() end
+function C61.clearTarget() end
 
 --- Get combat time
 ---@return number # Time in combat in seconds
-function C87.combatTime() end
+function C61.combatTime() end
 
 --- Get player's critical strike chance
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return number # Critical strike chance percentage
-function C87.critChance(thisUnit) end
+function C61.critChance(thisUnit) end
 
 --- Check if a unit is dead or ghost
 ---@param thisUnit? string The unit to check
 ---@return boolean # True if the unit is dead or a ghost
-function C87.deadOrGhost(thisUnit) end
+function C61.deadOrGhost(thisUnit) end
 
 --- Check if a unit is a Demon
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@return boolean # True if the unit is a Demon
-function C87.demon(thisUnit) end
+function C61.demon(thisUnit) end
 
 --- Get distance between units
 ---@param thisUnit? string First unit
 ---@param otherUnit? string Second unit (if nil, first unit is assumed to be the target and player is used)
 ---@return number # Distance between units in yards
-function C87.distance(thisUnit, otherUnit) end
+function C61.distance(thisUnit, otherUnit) end
 
 --- Check if player is dual wielding weapons
 ---@return boolean # True if player is dual wielding
-function C87.dualWielding() end
+function C61.dualWielding() end
 
 --- Check if a unit is an enemy
 ---@param thisUnit? string The unit to check
 ---@param playerUnit? string The reference unit, defaults to "player" if nil
 ---@return boolean # True if thisUnit is an enemy to playerUnit
-function C87.enemy(thisUnit, playerUnit) end
+function C61.enemy(thisUnit, playerUnit) end
 
 --- Check if a unit exists
 ---@param thisUnit? string The unit to check
 ---@return boolean # True if the unit exists
-function C87.exists(thisUnit) end
+function C61.exists(thisUnit) end
 
 --- Check if a unit is facing another unit
 ---@param thisUnit? string The unit to check facing from, defaults to "player" if only one parameter provided
 ---@param otherUnit? string The unit to check facing towards
 ---@param degrees? any Optional angle in degrees to consider "facing", defaults to normal game value
 ---@return boolean # True if thisUnit is facing otherUnit within the specified degrees
-function C87.facing(thisUnit, otherUnit, degrees) end
+function C61.facing(thisUnit, otherUnit, degrees) end
 
 --- The direction the unit faces, in radians
 ---@param thisUnit? string The unit to check, defaults to "player"
 ---@return number
-function C87.facingAngle(thisUnit) end
+function C61.facingAngle(thisUnit) end
 
 --- How far to the side of the player's facing line the target stands (negative behind the player,
 --- 1000 when either can't be seen)
 ---@return number # Yards
-function C87.facingDistance() end
+function C61.facingDistance() end
 
 --- How far the player has fallen
 ---@return number # Distance in yards the player has fallen
-function C87.fallDist() end
+function C61.fallDist() end
 
 --- Check if a unit is falling
 ---@return boolean # True if player is falling
-function C87.falling() end
+function C61.falling() end
 
 --- Get time the player has been falling
 ---@return number # Time in seconds player has been falling
-function C87.fallTime() end
+function C61.fallTime() end
 
 --- Check if player is flying
 ---@return boolean # True if player is flying
-function C87.flying() end
+function C61.flying() end
 
 --- Get current shapeshift form
 ---@return number # Current shapeshift form ID
-function C87.form() end
+function C61.form() end
 
 --- Check if a specific form is active or if any form is active
 ---@param spellID? number Optional spell ID to check for a specific form. If nil, checks if any form is active
 ---@return boolean # True if the specified form (or any form if no spellID provided) is active
-function C87.formActive(spellID) end
+function C61.formActive(spellID) end
 
 --- Calculate mana required to safely break form for a spell and shift back.
 ---@param outOfFormSpell? any Spell reference (id/name/spell table) you intend to cast after breaking form.
@@ -9921,11 +9917,11 @@ function C87.formActive(spellID) end
 ---@param treatOutSpellAsFree? any If true, treat out-of-form spell cost as 0 (e.g., Clearcasting).
 ---@return number # requiredMana Total mana needed (out spell + return form).
 ---@return number # currentMana Current player mana.
-function C87.formBreakManaRequired(outOfFormSpell, returnFormSpell, treatOutSpellAsFree) end
+function C61.formBreakManaRequired(outOfFormSpell, returnFormSpell, treatOutSpellAsFree) end
 
 --- Get number of available shapeshift forms
 ---@return number # Count of available shapeshift forms
-function C87.formCount() end
+function C61.formCount() end
 
 --- Get information about a specific shapeshift form
 ---@param formIndex? any The index of the form (1-based)
@@ -9933,136 +9929,136 @@ function C87.formCount() end
 ---@return boolean
 ---@return boolean
 ---@return number # icon, isActive, isCastable, spellID
-function C87.formInfo(formIndex) end
+function C61.formInfo(formIndex) end
 
 --- Check if a unit is friendly to another unit
 ---@param thisUnit? string The unit to check
 ---@param playerUnit? string The reference unit, defaults to "player" if nil
 ---@return boolean # True if thisUnit is friendly to playerUnit
-function C87.friend(thisUnit, playerUnit) end
+function C61.friend(thisUnit, playerUnit) end
 
 --- Get global cooldown duration
 ---@param max? any Optional boolean to return maximum possible GCD instead of current
 ---@return number # Global cooldown in seconds
-function C87.gcd(max) end
+function C61.gcd(max) end
 
 --- Get the spell ID of the currently-active shapeshift form, or nil if no form is active.
 --- Used by L33's cast.macro extension to pass an associated spell ID when issuing
 --- /CancelForm macros, so the cast-gate's throttle (castTimers + castIntentLocks)
 --- can prevent re-fire bursts during the server-side form-change propagation window.
 ---@return number # |nil Spell ID of the current form, or nil if no form is active.
-function C87.getCurrentFormSpellID() end
+function C61.getCurrentFormSpellID() end
 
 --- Get number of members in the current group (including player; 0 if solo)
 ---@return number # Total group member count
-function C87.groupCount() end
+function C61.groupCount() end
 
 --- Get unit's GUID (Globally Unique Identifier)
 ---@param thisUnit? string The unit to get GUID for
 ---@return string # Unit's GUID
-function C87.guid(thisUnit) end
+function C61.guid(thisUnit) end
 
 --- Get unit's current health
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return number # Current health of the unit
-function C87.health(thisUnit) end
+function C61.health(thisUnit) end
 
 --- Get unit's maximum health
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return number # Maximum health of the unit
-function C87.healthMax(thisUnit) end
+function C61.healthMax(thisUnit) end
 
 --- Get unit's health percentage
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return number # Health percentage of the unit (0-100)
-function C87.hp(thisUnit) end
+function C61.hp(thisUnit) end
 
 --- Check if a unit is a Humanoid
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@return boolean # True if the unit is a Humanoid
-function C87.humanoid(thisUnit) end
+function C61.humanoid(thisUnit) end
 
 --- Get unit's ID
 ---@param thisUnit? string The unit to get ID for
 ---@return number # Unit's ID
-function C87.id(thisUnit) end
+function C61.id(thisUnit) end
 
 --- Check if a unit would aggro on the player
 ---@param thisUnit? string The unit to check, defaults to "target"
 ---@param offset? any Optional extra yards added to the aggro radius
 ---@return boolean # True if hostile (or neutral and targeted) and within its aggro radius
-function C87.inAggroRange(thisUnit, offset) end
+function C61.inAggroRange(thisUnit, offset) end
 
 --- Check if a unit is in combat
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return boolean # True if the unit is in combat or special conditions are met
-function C87.inCombat(thisUnit) end
+function C61.inCombat(thisUnit) end
 
 --- Check if player is in a group (party or raid)
 ---@return boolean # True if player is in a group
-function C87.inGroup() end
+function C61.inGroup() end
 
 --- True while the player is in a raid group
 ---@return boolean
-function C87.inRaid() end
+function C61.inRaid() end
 
 --- Check instance type or if in a specific instance type
 ---@param thisInstance? string Optional specific instance type to check for
 ---@return string # |boolean Returns instance type if no parameter, or boolean if matching specific instance
-function C87.instance(thisInstance) end
+function C61.instance(thisInstance) end
 
 --- Check if a unit's cast can be interrupted
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@param castPercent? any Optional cast percentage threshold
 ---@return boolean # True if the unit's cast can be interrupted
-function C87.interruptable(thisUnit, castPercent) end
+function C61.interruptable(thisUnit, castPercent) end
 
 --- True while the player rides a vehicle
 ---@return boolean
-function C87.inVehicle() end
+function C61.inVehicle() end
 
 --- Check if a unit is behind another unit
 ---@param thisUnit? string The unit being checked for facing (typically the target), defaults to "target" if nil
 ---@param otherUnit? string The reference unit (typically "player"), defaults to "player" if nil
 ---@param degrees? any Optional angle in degrees for the facing cone, defaults to normal game value
 ---@return boolean # True if thisUnit is NOT facing otherUnit within the given degrees; false while the
-function C87.isBehind(thisUnit, otherUnit, degrees) end
+function C61.isBehind(thisUnit, otherUnit, degrees) end
 
 --- Check if a unit is a boss
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@return boolean # True if the unit is a boss
-function C87.isBoss(thisUnit) end
+function C61.isBoss(thisUnit) end
 
 --- Check if a unit is casting
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return boolean # True if the unit is casting or channelling
-function C87.isCasting(thisUnit) end
+function C61.isCasting(thisUnit) end
 
 --- Check if a unit is a training dummy
 ---@param thisUnit? string The unit to check
 ---@return boolean # True if the unit is a training dummy
-function C87.isDummy(thisUnit) end
+function C61.isDummy(thisUnit) end
 
 --- Check if a unit is an Elemental
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@return boolean # True if the unit is an Elemental
-function C87.isElemental(thisUnit) end
+function C61.isElemental(thisUnit) end
 
 --- Check if a unit is an explosive orb (M+ affix)
 ---@param thisUnit? string The unit to check
 ---@return boolean # True if the unit is an explosive orb
-function C87.isExplosive(thisUnit) end
+function C61.isExplosive(thisUnit) end
 
 --- Check if a unit is fleeing
 ---@param thisUnit? string The unit to check
 ---@return boolean # True if the unit is fleeing
-function C87.isFleeing(thisUnit) end
+function C61.isFleeing(thisUnit) end
 
 --- Check if a unit is moving away from another unit that is facing it (being chased)
 ---@param thisUnit? string The unit that may be fleeing, defaults to "player"
 ---@param fromUnit? string The unit it may be fleeing from, defaults to "target"
 ---@return boolean # True if thisUnit is running from fromUnit
-function C87.isFleeingFrom(thisUnit, fromUnit) end
+function C61.isFleeingFrom(thisUnit, fromUnit) end
 
 --- Check if you're running away from an enemy that is chasing you
 --- ```lua
@@ -10070,7 +10066,7 @@ function C87.isFleeingFrom(thisUnit, fromUnit) end
 --- ```
 ---@param range? number How close the chasing enemy is
 ---@return boolean # True while an enemy within range chases you as you move away from it
-function C87.chased(range) end
+function C61.chased(range) end
 
 --- Check if an enemy is close enough to start a fight
 --- ```lua
@@ -10078,14 +10074,14 @@ function C87.chased(range) end
 --- ```
 ---@param range? number Yards to look within
 ---@return boolean # True when an enemy is already fighting within range, or an idle one's aggro range reaches you
-function C87.enemyNear(range) end
+function C61.enemyNear(range) end
 
 --- Check if it's a good moment to start a fight
 --- ```lua
 --- if not unit.inCombat() and unit.readyToFight() and cast.able.faerieFire("target") then
 --- ```
 ---@return boolean # True when you aren't low on health or mana or eating or drinking, and in a group the tanks aren't low (Ready To Fight options, Targeting page)
-function C87.readyToFight() end
+function C61.readyToFight() end
 
 --- Check if an enemy is attacking someone other than you
 --- ```lua
@@ -10093,7 +10089,7 @@ function C87.readyToFight() end
 --- ```
 ---@param thisUnit? string The enemy to check
 ---@return boolean # True when it's in combat, not attacking you, and its target is friendly
-function C87.attackingOthers(thisUnit) end
+function C61.attackingOthers(thisUnit) end
 
 --- Get a dead player in your group, to resurrect
 --- ```lua
@@ -10102,130 +10098,130 @@ function C87.attackingOthers(thisUnit) end
 ---@param range? number Yards to look within
 ---@param ...? any Optional roles to pick from ("TANK", "HEALER", "DAMAGER"); anyone when none are given
 ---@return string # |nil The unit, or nil when there's none
-function C87.deadGroupMember(range, ...) end
+function C61.deadGroupMember(range, ...) end
 
 --- Check if a unit is tanking
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return boolean # True if the unit is tanking
-function C87.isTanking(thisUnit) end
+function C61.isTanking(thisUnit) end
 
 --- Check if a tank is in range
 ---@return boolean # True if a tank is in range
 ---@return string # The tank
-function C87.isTankInRange() end
+function C61.isTankInRange() end
 
 --- Check if two units are the same
 ---@param thisUnit? string First unit to compare
 ---@param otherUnit? string Second unit to compare
 ---@return boolean # True if both units are the same
-function C87.isUnit(thisUnit, otherUnit) end
+function C61.isUnit(thisUnit, otherUnit) end
 
 --- Get unit's level
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return number # The level of the unit
-function C87.level(thisUnit) end
+function C61.level(thisUnit) end
 
 --- Get the lowest health friendly unit in range
 ---@param range? number The range to check for units, defaults to 5 if nil
 ---@return any # unit The friendly unit with lowest health in range
-function C87.lowest(range) end
+function C61.lowest(range) end
 
 --- Check if player is mounted
 ---@return boolean # True if player is mounted
-function C87.mounted() end
+function C61.mounted() end
 
 --- Seconds since the player last landed from a mount
 ---@return number # |nil Seconds since dismounting, nil while mounted or if not mounted since login
-function C87.timeSinceDismount() end
+function C61.timeSinceDismount() end
 
 --- Check if a unit is moving
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return boolean # True if the unit is moving
-function C87.moving(thisUnit) end
+function C61.moving(thisUnit) end
 
 --- Get time a unit has been moving
 ---@return number # Time in seconds the unit has been moving
-function C87.movingTime() end
+function C61.movingTime() end
 
 --- Get unit's name
 ---@param thisUnit? string The unit to get name of
 ---@return string # The name of the unit
-function C87.name(thisUnit) end
+function C61.name(thisUnit) end
 
 --- Get time out of combat
 ---@return number # Time out of combat in seconds
-function C87.ooCombatTime() end
+function C61.ooCombatTime() end
 
 --- Check if player is outdoors
 ---@return boolean # True if player is outdoors
-function C87.outdoors() end
+function C61.outdoors() end
 
 --- Check if a unit is a player
 ---@param thisUnit? string The unit to check
 ---@return boolean # True if the unit is a player
-function C87.player(thisUnit) end
+function C61.player(thisUnit) end
 
 --- Where the unit stands
 ---@param thisUnit? string The unit to check, defaults to "player"
 ---@return number
 ---@return number
 ---@return number # x, y, z
-function C87.position(thisUnit) end
+function C61.position(thisUnit) end
 
 --- Get unit's race
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return string # The race of the unit
-function C87.race(thisUnit) end
+function C61.race(thisUnit) end
 
 --- Get the player's current ranged attack speed in seconds.
 --- Reads the live haste-modified speed from UnitRangedDamage so it reflects
 --- Rapid Fire, Quiver haste, and other modifiers automatically.
 ---@return number # Ranged weapon speed in seconds, or 0 if unavailable
-function C87.rangedAttackSpeed() end
+function C61.rangedAttackSpeed() end
 
 --- Get unit's reaction level towards another unit
 ---@param thisUnit? string The unit to check reaction of
 ---@param playerUnit? string The reference unit, defaults to "player" if nil
 ---@return number # Reaction level (1-hostile to 8-friendly)
-function C87.reaction(thisUnit, playerUnit) end
+function C61.reaction(thisUnit, playerUnit) end
 
 --- Check if player is resting
 ---@return boolean # True if player is resting
-function C87.resting() end
+function C61.resting() end
 
 --- Get unit's assigned role in group
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@return string # The role assigned to the unit ("TANK", "HEALER", "DAMAGER", "NONE")
-function C87.role(thisUnit) end
+function C61.role(thisUnit) end
 
 --- Check if player is solo (no group)
 ---@return boolean # True if player is solo
-function C87.solo() end
+function C61.solo() end
 
 --- The name of the player's spec as BR loads it ("Initial" before a spec is chosen)
 ---@return string
-function C87.spec() end
+function C61.spec() end
 
 --- Get player's spell haste percentage
 ---@return number # Spell haste percentage
-function C87.spellHaste() end
+function C61.spellHaste() end
 
 --- Get time a unit has been standing still
 ---@return number # Time in seconds the unit has been standing still
-function C87.standingTime() end
+function C61.standingTime() end
 
 --- Start auto-attack
 ---@param thisUnit? string
 ---@return nil
-function C87.startAttack(thisUnit) end
+function C61.startAttack(thisUnit) end
 
 --- Stop auto-attack
 ---@return nil
-function C87.stopAttack() end
+function C61.stopAttack() end
 
 --- Check if player is swimming
 ---@return boolean # True if player is swimming
-function C87.swimming() end
+function C61.swimming() end
 
 --- The player's swing timer: seconds until the next swing (nil before the first swing), the
 --- weapon speed and when the last swing landed (ui.time())
@@ -10236,59 +10232,59 @@ function C87.swimming() end
 ---@return number
 ---@return number
 ---@return number
-function C87.swing(hand) end
+function C61.swing(hand) end
 
 --- Get the current target of a unit
 ---@param thisUnit? string The unit whose target to get
 ---@return string # |nil Unit token of thisUnit's current target, or nil if none
-function C87.target(thisUnit) end
+function C61.target(thisUnit) end
 
 --- Check if a unit is on a taxi
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return boolean # True if the unit is on a taxi
-function C87.taxi(thisUnit) end
+function C61.taxi(thisUnit) end
 
 --- Check if a unit has threat
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@return boolean # True if the unit has threat
-function C87.threat(thisUnit) end
+function C61.threat(thisUnit) end
 
 --- Get the player's current threat status, on one enemy or on any
 ---@param thisUnit? string The enemy; any enemy when nil 2=primary target (another unit has 100%+ threat), 3=primary target (sole aggro)
 ---@return number # Threat status: 0=no/low threat, 1=high threat (not primary target),
-function C87.threatStatus(thisUnit) end
+function C61.threatStatus(thisUnit) end
 
 --- True for a totem
 ---@param thisUnit? string The unit to check
 ---@return boolean
-function C87.totem(thisUnit) end
+function C61.totem(thisUnit) end
 
 --- Estimate time until unit dies
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@param percent? any Optional health percentage to calculate time to
 ---@return number # Estimated time until death in seconds
-function C87.ttd(thisUnit, percent) end
+function C61.ttd(thisUnit, percent) end
 
 --- Get combined time to death for all enemies in range
 ---@param range? number Range to check for enemies, defaults to 5 yards if nil
 ---@param percent? any Optional health percentage to calculate time to
 ---@return number # Combined estimated time until death for all enemies in range
-function C87.ttdGroup(range, percent) end
+function C61.ttdGroup(range, percent) end
 
 --- Check if a unit is Undead
 ---@param thisUnit? string The unit to check
 ---@return boolean # True if the unit is Undead
-function C87.undead(thisUnit) end
+function C61.undead(thisUnit) end
 
 --- Check if a unit is valid for targeting
 ---@param thisUnit? string The unit to check
 ---@return boolean # True if the unit is valid
-function C87.valid(thisUnit) end
+function C61.valid(thisUnit) end
 
 --- Get player's average weapon damage
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return number # Average weapon damage
-function C87.weaponDamage(thisUnit) end
+function C61.weaponDamage(thisUnit) end
 
 
 ---@class BR.units
@@ -10313,19 +10309,19 @@ function C87.weaponDamage(thisUnit) end
 ---@field dyn35AOE string? The best unit within 35 yards (units.get(35, true))
 ---@field dyn40 string? The best unit within 40 yards you face (units.get(40))
 ---@field dyn40AOE string? The best unit within 40 yards (units.get(40, true))
-local C88 = {}
+local C62 = {}
 
 --- Gets the "best" unit within a specified range in front or around the player.
 --- Call once per profile rotation and use the variable it creates in units
 --- IE: units.get(5,false) makes units.dyn5, units.get(8,true) makes units.dyn8AOE
 ---@param range? number - Distance in yards to look for the "best" unit
 ---@param aoe? boolean - If true, looks for best unit anywhere in range, otherwise only units you are facing will be considered.
-function C88.get(range, aoe) end
+function C62.get(range, aoe) end
 
 --- True when the group hasn't changed (members joining or leaving) for that many seconds
 ---@param seconds? number
 ---@return boolean
-function C88.groupStable(seconds) end
+function C62.groupStable(seconds) end
 
 --- The group members within radius yards of a unit at or below health percent, lowest first, at
 --- most count of them (each with .hp, .guid, .name, position)
@@ -10334,15 +10330,15 @@ function C88.groupStable(seconds) end
 ---@param health? number Health percent
 ---@param count? number The most members to return
 ---@return table
-function C88.healAround(thisUnit, radius, health, count) end
+function C62.healAround(thisUnit, radius, health, count) end
 
 --- The dead units the player can loot
 ---@return table
-function C88.lootable() end
+function C62.lootable() end
 
 --- How many dead units are waiting to be looted
 ---@return number
-function C88.lootCount() end
+function C62.lootCount() end
 
 --- Sets the profile's own target weight for dynamic targeting: fn(unit) returns a number added to
 --- the unit's score (higher = more priority), or nil to leave it. Cleared whenever the profile is built.
@@ -10355,7 +10351,7 @@ function C88.lootCount() end
 --- end)
 --- ```
 ---@param fn? any function(unit) or nil
-function C88.setTargetWeight(fn) end
+function C62.setTargetWeight(fn) end
 
 
 
@@ -10366,31 +10362,32 @@ function C88.setTargetWeight(fn) end
 --- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
 ---@class BR.use.able.Item
 ---@overload fun(slotID?: number): boolean
-local C89 = {}
+local C63 = {}
 
----@class BR.use.able : BR.Keys.Items<BR.use.able.Item>
-local C90 = {}
+---@class BR.use.able.Base
+local C64 = {}
 
 --- Checks if item is usable or not.
 --- Note: `item` here is literally item, you pass the itemID to specify the item
 ---@param itemID? number The ID of the item check.
 ---@return boolean
-function C90.item(itemID) end
+function C64.item(itemID) end
 
 --- Checks if item in the specified equipment slot is usable or not.
 ---@param slotID? number The ID of the equipment slot to check.
 ---@return boolean
-function C90.slot(slotID) end
+function C64.slot(slotID) end
+
+---@class BR.use.able : BR.use.able.Base, BR.Keys.Items<BR.use.able.Item>
 
 
 --- Uses the item.
 ---@class BR.use.Item
 ---@overload fun(slotID?: number, thisUnit?: string): boolean
-local C91 = {}
+local C65 = {}
 
----@class BR.use : BR.Keys.Items<BR.use.Item>
----@field able BR.use.able
-local C92 = {}
+---@class BR.use.Base
+local C66 = {}
 
 --- Uses the best possible item in a list of items.
 --- in the items.lua usage precedence will be the order the items appear in the array from first to last.
@@ -10399,24 +10396,27 @@ local C92 = {}
 ---@param itemIDs? string The unit to use the item on.
 ---@param thisUnit? string The unit to use the item on.
 ---@return boolean
-function C92.bestItem(itemIDs, thisUnit) end
+function C66.bestItem(itemIDs, thisUnit) end
 
 --- iterates through a list of items and returns true if they are usable
 --- typically for using higher quality items first, such as gold items over silver, etc.
 --- example, howlingRuneQualities = {194820,194819,194817} would attempt to use 194820 (gold qual) first, then 194819 (silver qaul) second, etc.
 ---@param itemIDs? any
 ---@return boolean
-function C92.isOneOfUsable(itemIDs) end
+function C66.isOneOfUsable(itemIDs) end
 
 --- Uses the item.
 --- Note: `item` here is literally item, you pass the itemID to specify the item
 ---@param itemID? number The ID of the item to use.
 ---@param thisUnit? string The unit to use the item on.
 ---@return boolean
-function C92.item(itemID, thisUnit) end
+function C66.item(itemID, thisUnit) end
 
 --- Uses the item in the specified equipment slot.
 ---@param slotID? number The ID of the equipment slot to use the item from.
 ---@param thisUnit? string The unit to use the item on.
 ---@return boolean
-function C92.slot(slotID, thisUnit) end
+function C66.slot(slotID, thisUnit) end
+
+---@class BR.use : BR.use.Base, BR.Keys.Items<BR.use.Item>
+---@field able BR.use.able

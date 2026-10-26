@@ -1,3 +1,19 @@
+-- Editor types: the keys of MOP Warrior Arms's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.MOP.Warrior.Arms.buff]]
+local cast = cast --[[@as BR.MOP.Warrior.Arms.cast]]
+local cd = cd --[[@as BR.MOP.Warrior.Arms.cd]]
+local charges = charges --[[@as BR.MOP.Warrior.Arms.charges]]
+local debuff = debuff --[[@as BR.MOP.Warrior.Arms.debuff]]
+local equiped = equiped --[[@as BR.MOP.Warrior.Arms.equiped]]
+local glyph = glyph --[[@as BR.MOP.Warrior.Arms.glyph]]
+local has = has --[[@as BR.MOP.Warrior.Arms.has]]
+local heroTree = heroTree --[[@as BR.MOP.Warrior.Arms.heroTree]]
+local imbues = imbues --[[@as BR.MOP.Warrior.Arms.imbues]]
+local spell = spell --[[@as BR.MOP.Warrior.Arms.spell]]
+local talent = talent --[[@as BR.MOP.Warrior.Arms.talent]]
+local totem = totem --[[@as BR.MOP.Warrior.Arms.totem]]
+local use = use --[[@as BR.MOP.Warrior.Arms.use]]
+
 local rotationName = "CuteOne"
 
 ---------------
@@ -711,33 +727,33 @@ actionList.Combat = function()
         if ui.alwaysCdNever("Racial") and cast.able.racial() then
             -- Blood Fury (Orc)
             -- blood_fury,if=buff.cooldown_reduction.down&(buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up))|buff.cooldown_reduction.up&buff.recklessness.up
-            if race == "Orc" and cast.able.bloodFury() and (--[[not buff.cooldownReduction.exists()
+            if race == "Orc" and cast.able.racial() and (--[[not buff.cooldownReduction.exists()
                 and]] (buff.bloodbath.exists() or (not talent.bloodbath and debuff.colossusSmash.exists(units.dyn5)))
                     or --[[buff.cooldownReduction.exists() and]] buff.recklessness.exists())
             then
-                if cast.bloodFury() then
+                if cast.racial() then
                     ui.debug("Casting Blood Fury [Combat]")
                     return true
                 end
             end
             -- Berserking (Troll)
             -- /berserking,if=buff.cooldown_reduction.down&(buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up))|buff.cooldown_reduction.up&buff.recklessness.up
-            if race == "Troll" and cast.able.berserking() and (--[[not buff.cooldownReduction.exists()
+            if race == "Troll" and cast.able.racial() and (--[[not buff.cooldownReduction.exists()
                 and]] (buff.bloodbath.exists() or (not talent.bloodbath and debuff.colossusSmash.exists(units.dyn5)))
                     or --[[buff.cooldownReduction.exists() and]] buff.recklessness.exists())
             then
-                if cast.berserking() then
+                if cast.racial() then
                     ui.debug("Casting Berserking [Combat]")
                     return true
                 end
             end
             -- Arcane Torrent (Blood Elf)
             -- arcane_torrent,if=buff.cooldown_reduction.down&(buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up))|buff.cooldown_reduction.up&buff.recklessness.up
-            if race == "BloodElf" and cast.able.arcaneTorrent() and (--[[not buff.cooldownReduction.exists()
+            if race == "BloodElf" and cast.able.racial() and (--[[not buff.cooldownReduction.exists()
                 and]] (buff.bloodbath.exists() or (not talent.bloodbath and debuff.colossusSmash.exists(units.dyn5)))
                     or --[[buff.cooldownReduction.exists() and]] buff.recklessness.exists())
             then
-                if cast.arcaneTorrent() then
+                if cast.racial() then
                     ui.debug("Casting Arcane Torrent [Combat]")
                     return true
                 end

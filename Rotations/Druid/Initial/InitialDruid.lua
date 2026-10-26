@@ -1,3 +1,19 @@
+-- Editor types: the keys of Retail Druid Initial's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Retail.Druid.Initial.buff]]
+local cast = cast --[[@as BR.Retail.Druid.Initial.cast]]
+local cd = cd --[[@as BR.Retail.Druid.Initial.cd]]
+local charges = charges --[[@as BR.Retail.Druid.Initial.charges]]
+local debuff = debuff --[[@as BR.Retail.Druid.Initial.debuff]]
+local equiped = equiped --[[@as BR.Retail.Druid.Initial.equiped]]
+local glyph = glyph --[[@as BR.Retail.Druid.Initial.glyph]]
+local has = has --[[@as BR.Retail.Druid.Initial.has]]
+local heroTree = heroTree --[[@as BR.Retail.Druid.Initial.heroTree]]
+local imbues = imbues --[[@as BR.Retail.Druid.Initial.imbues]]
+local spell = spell --[[@as BR.Retail.Druid.Initial.spell]]
+local talent = talent --[[@as BR.Retail.Druid.Initial.talent]]
+local totem = totem --[[@as BR.Retail.Druid.Initial.totem]]
+local use = use --[[@as BR.Retail.Druid.Initial.use]]
+
 local rotationName = "Initial Druid" -- Change to name of profile listed in options drop down
 
 ---------------

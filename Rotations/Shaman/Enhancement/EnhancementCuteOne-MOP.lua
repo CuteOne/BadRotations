@@ -1,3 +1,19 @@
+-- Editor types: the keys of MOP Shaman Enhancement's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.MOP.Shaman.Enhancement.buff]]
+local cast = cast --[[@as BR.MOP.Shaman.Enhancement.cast]]
+local cd = cd --[[@as BR.MOP.Shaman.Enhancement.cd]]
+local charges = charges --[[@as BR.MOP.Shaman.Enhancement.charges]]
+local debuff = debuff --[[@as BR.MOP.Shaman.Enhancement.debuff]]
+local equiped = equiped --[[@as BR.MOP.Shaman.Enhancement.equiped]]
+local glyph = glyph --[[@as BR.MOP.Shaman.Enhancement.glyph]]
+local has = has --[[@as BR.MOP.Shaman.Enhancement.has]]
+local heroTree = heroTree --[[@as BR.MOP.Shaman.Enhancement.heroTree]]
+local imbues = imbues --[[@as BR.MOP.Shaman.Enhancement.imbues]]
+local spell = spell --[[@as BR.MOP.Shaman.Enhancement.spell]]
+local talent = talent --[[@as BR.MOP.Shaman.Enhancement.talent]]
+local totem = totem --[[@as BR.MOP.Shaman.Enhancement.totem]]
+local use = use --[[@as BR.MOP.Shaman.Enhancement.use]]
+
 local rotationName = "CuteOne"
 ---------------
 --- Toggles ---
@@ -761,7 +777,7 @@ actionList.Combat = function()
         -- stormlash_totem,if=!active&!buff.stormlash.up&(buff.bloodlust.up|time>=60)
         if ui.alwaysCdNever("Stormlash Totem") and cast.able.stormlashTotem("player")
             and not totem.air.stormlashTotem.exists()
-            and (buff.bloodlust.exists() or unit.combatTime() >= 60)
+            and (buff.bloodLust.exists() or unit.combatTime() >= 60)
         then
             if cast.stormlashTotem("player") then
                 ui.debug("Casting Stormlash Totem")

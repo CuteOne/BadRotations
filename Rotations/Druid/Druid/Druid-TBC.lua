@@ -1,3 +1,19 @@
+-- Editor types: the keys of TBC Druid's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.TBC.Druid.buff]]
+local cast = cast --[[@as BR.TBC.Druid.cast]]
+local cd = cd --[[@as BR.TBC.Druid.cd]]
+local charges = charges --[[@as BR.TBC.Druid.charges]]
+local debuff = debuff --[[@as BR.TBC.Druid.debuff]]
+local equiped = equiped --[[@as BR.TBC.Druid.equiped]]
+local glyph = glyph --[[@as BR.TBC.Druid.glyph]]
+local has = has --[[@as BR.TBC.Druid.has]]
+local heroTree = heroTree --[[@as BR.TBC.Druid.heroTree]]
+local imbues = imbues --[[@as BR.TBC.Druid.imbues]]
+local spell = spell --[[@as BR.TBC.Druid.spell]]
+local talent = talent --[[@as BR.TBC.Druid.talent]]
+local totem = totem --[[@as BR.TBC.Druid.totem]]
+local use = use --[[@as BR.TBC.Druid.use]]
+
 local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
 
 ---------------

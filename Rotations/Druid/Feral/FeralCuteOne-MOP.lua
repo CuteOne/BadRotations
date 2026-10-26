@@ -1,3 +1,19 @@
+-- Editor types: the keys of MOP Druid Feral's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.MOP.Druid.Feral.buff]]
+local cast = cast --[[@as BR.MOP.Druid.Feral.cast]]
+local cd = cd --[[@as BR.MOP.Druid.Feral.cd]]
+local charges = charges --[[@as BR.MOP.Druid.Feral.charges]]
+local debuff = debuff --[[@as BR.MOP.Druid.Feral.debuff]]
+local equiped = equiped --[[@as BR.MOP.Druid.Feral.equiped]]
+local glyph = glyph --[[@as BR.MOP.Druid.Feral.glyph]]
+local has = has --[[@as BR.MOP.Druid.Feral.has]]
+local heroTree = heroTree --[[@as BR.MOP.Druid.Feral.heroTree]]
+local imbues = imbues --[[@as BR.MOP.Druid.Feral.imbues]]
+local spell = spell --[[@as BR.MOP.Druid.Feral.spell]]
+local talent = talent --[[@as BR.MOP.Druid.Feral.talent]]
+local totem = totem --[[@as BR.MOP.Druid.Feral.totem]]
+local use = use --[[@as BR.MOP.Druid.Feral.use]]
+
 local rotationName = "CuteOne"
 ---------------
 --- Toggles ---

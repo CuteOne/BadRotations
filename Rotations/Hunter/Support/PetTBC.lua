@@ -13,6 +13,22 @@
 -------------------------------------------------------
 
 -- BR API Locals
+-- Editor types: the keys of TBC Hunter's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.TBC.Hunter.buff]]
+local cast = cast --[[@as BR.TBC.Hunter.cast]]
+local cd = cd --[[@as BR.TBC.Hunter.cd]]
+local charges = charges --[[@as BR.TBC.Hunter.charges]]
+local debuff = debuff --[[@as BR.TBC.Hunter.debuff]]
+local equiped = equiped --[[@as BR.TBC.Hunter.equiped]]
+local glyph = glyph --[[@as BR.TBC.Hunter.glyph]]
+local has = has --[[@as BR.TBC.Hunter.has]]
+local heroTree = heroTree --[[@as BR.TBC.Hunter.heroTree]]
+local imbues = imbues --[[@as BR.TBC.Hunter.imbues]]
+local spell = spell --[[@as BR.TBC.Hunter.spell]]
+local talent = talent --[[@as BR.TBC.Hunter.talent]]
+local totem = totem --[[@as BR.TBC.Hunter.totem]]
+local use = use --[[@as BR.TBC.Hunter.use]]
+
 local mode
 
 -- Module state

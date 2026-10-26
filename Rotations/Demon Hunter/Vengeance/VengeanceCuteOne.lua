@@ -1,3 +1,19 @@
+-- Editor types: the keys of Retail DemonHunter Vengeance's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Retail.DemonHunter.Vengeance.buff]]
+local cast = cast --[[@as BR.Retail.DemonHunter.Vengeance.cast]]
+local cd = cd --[[@as BR.Retail.DemonHunter.Vengeance.cd]]
+local charges = charges --[[@as BR.Retail.DemonHunter.Vengeance.charges]]
+local debuff = debuff --[[@as BR.Retail.DemonHunter.Vengeance.debuff]]
+local equiped = equiped --[[@as BR.Retail.DemonHunter.Vengeance.equiped]]
+local glyph = glyph --[[@as BR.Retail.DemonHunter.Vengeance.glyph]]
+local has = has --[[@as BR.Retail.DemonHunter.Vengeance.has]]
+local heroTree = heroTree --[[@as BR.Retail.DemonHunter.Vengeance.heroTree]]
+local imbues = imbues --[[@as BR.Retail.DemonHunter.Vengeance.imbues]]
+local spell = spell --[[@as BR.Retail.DemonHunter.Vengeance.spell]]
+local talent = talent --[[@as BR.Retail.DemonHunter.Vengeance.talent]]
+local totem = totem --[[@as BR.Retail.DemonHunter.Vengeance.totem]]
+local use = use --[[@as BR.Retail.DemonHunter.Vengeance.use]]
+
 local rotationName = "CuteOne"
 
 ---------------

@@ -1,3 +1,19 @@
+-- Editor types: the keys of MOP Paladin's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.MOP.Paladin.buff]]
+local cast = cast --[[@as BR.MOP.Paladin.cast]]
+local cd = cd --[[@as BR.MOP.Paladin.cd]]
+local charges = charges --[[@as BR.MOP.Paladin.charges]]
+local debuff = debuff --[[@as BR.MOP.Paladin.debuff]]
+local equiped = equiped --[[@as BR.MOP.Paladin.equiped]]
+local glyph = glyph --[[@as BR.MOP.Paladin.glyph]]
+local has = has --[[@as BR.MOP.Paladin.has]]
+local heroTree = heroTree --[[@as BR.MOP.Paladin.heroTree]]
+local imbues = imbues --[[@as BR.MOP.Paladin.imbues]]
+local spell = spell --[[@as BR.MOP.Paladin.spell]]
+local talent = talent --[[@as BR.MOP.Paladin.talent]]
+local totem = totem --[[@as BR.MOP.Paladin.totem]]
+local use = use --[[@as BR.MOP.Paladin.use]]
+
 local rotationName = "Initial"
 
 ---------------

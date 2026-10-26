@@ -1,3 +1,19 @@
+-- Editor types: the keys of Retail Paladin's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Retail.Paladin.buff]]
+local cast = cast --[[@as BR.Retail.Paladin.cast]]
+local cd = cd --[[@as BR.Retail.Paladin.cd]]
+local charges = charges --[[@as BR.Retail.Paladin.charges]]
+local debuff = debuff --[[@as BR.Retail.Paladin.debuff]]
+local equiped = equiped --[[@as BR.Retail.Paladin.equiped]]
+local glyph = glyph --[[@as BR.Retail.Paladin.glyph]]
+local has = has --[[@as BR.Retail.Paladin.has]]
+local heroTree = heroTree --[[@as BR.Retail.Paladin.heroTree]]
+local imbues = imbues --[[@as BR.Retail.Paladin.imbues]]
+local spell = spell --[[@as BR.Retail.Paladin.spell]]
+local talent = talent --[[@as BR.Retail.Paladin.talent]]
+local totem = totem --[[@as BR.Retail.Paladin.totem]]
+local use = use --[[@as BR.Retail.Paladin.use]]
+
 local rotationName = "Initial"
 
 ---------------

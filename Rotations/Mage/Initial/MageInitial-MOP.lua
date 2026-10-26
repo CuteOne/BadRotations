@@ -1,3 +1,19 @@
+-- Editor types: the keys of MOP Mage's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.MOP.Mage.buff]]
+local cast = cast --[[@as BR.MOP.Mage.cast]]
+local cd = cd --[[@as BR.MOP.Mage.cd]]
+local charges = charges --[[@as BR.MOP.Mage.charges]]
+local debuff = debuff --[[@as BR.MOP.Mage.debuff]]
+local equiped = equiped --[[@as BR.MOP.Mage.equiped]]
+local glyph = glyph --[[@as BR.MOP.Mage.glyph]]
+local has = has --[[@as BR.MOP.Mage.has]]
+local heroTree = heroTree --[[@as BR.MOP.Mage.heroTree]]
+local imbues = imbues --[[@as BR.MOP.Mage.imbues]]
+local spell = spell --[[@as BR.MOP.Mage.spell]]
+local talent = talent --[[@as BR.MOP.Mage.talent]]
+local totem = totem --[[@as BR.MOP.Mage.totem]]
+local use = use --[[@as BR.MOP.Mage.use]]
+
 local rotationName = "Initial"
 
 ---------------

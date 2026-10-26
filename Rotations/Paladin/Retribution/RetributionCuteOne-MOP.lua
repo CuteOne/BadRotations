@@ -1,3 +1,19 @@
+-- Editor types: the keys of MOP Paladin Retribution's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.MOP.Paladin.Retribution.buff]]
+local cast = cast --[[@as BR.MOP.Paladin.Retribution.cast]]
+local cd = cd --[[@as BR.MOP.Paladin.Retribution.cd]]
+local charges = charges --[[@as BR.MOP.Paladin.Retribution.charges]]
+local debuff = debuff --[[@as BR.MOP.Paladin.Retribution.debuff]]
+local equiped = equiped --[[@as BR.MOP.Paladin.Retribution.equiped]]
+local glyph = glyph --[[@as BR.MOP.Paladin.Retribution.glyph]]
+local has = has --[[@as BR.MOP.Paladin.Retribution.has]]
+local heroTree = heroTree --[[@as BR.MOP.Paladin.Retribution.heroTree]]
+local imbues = imbues --[[@as BR.MOP.Paladin.Retribution.imbues]]
+local spell = spell --[[@as BR.MOP.Paladin.Retribution.spell]]
+local talent = talent --[[@as BR.MOP.Paladin.Retribution.talent]]
+local totem = totem --[[@as BR.MOP.Paladin.Retribution.totem]]
+local use = use --[[@as BR.MOP.Paladin.Retribution.use]]
+
 local rotationName = "CuteOne"
 
 ---------------

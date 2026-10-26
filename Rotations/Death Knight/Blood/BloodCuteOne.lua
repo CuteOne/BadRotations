@@ -1,3 +1,19 @@
+-- Editor types: the keys of Retail DeathKnight Blood's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Retail.DeathKnight.Blood.buff]]
+local cast = cast --[[@as BR.Retail.DeathKnight.Blood.cast]]
+local cd = cd --[[@as BR.Retail.DeathKnight.Blood.cd]]
+local charges = charges --[[@as BR.Retail.DeathKnight.Blood.charges]]
+local debuff = debuff --[[@as BR.Retail.DeathKnight.Blood.debuff]]
+local equiped = equiped --[[@as BR.Retail.DeathKnight.Blood.equiped]]
+local glyph = glyph --[[@as BR.Retail.DeathKnight.Blood.glyph]]
+local has = has --[[@as BR.Retail.DeathKnight.Blood.has]]
+local heroTree = heroTree --[[@as BR.Retail.DeathKnight.Blood.heroTree]]
+local imbues = imbues --[[@as BR.Retail.DeathKnight.Blood.imbues]]
+local spell = spell --[[@as BR.Retail.DeathKnight.Blood.spell]]
+local talent = talent --[[@as BR.Retail.DeathKnight.Blood.talent]]
+local totem = totem --[[@as BR.Retail.DeathKnight.Blood.totem]]
+local use = use --[[@as BR.Retail.DeathKnight.Blood.use]]
+
 local rotationName = "CuteOne"
 
 ---------------
@@ -425,16 +441,16 @@ end -- End Action List - DrwUp
 actionList.Racials = function()
     -- Blood Fury
     -- blood_fury,if=cooldown.dancing_rune_weapon.ready&(!cooldown.blooddrinker.ready|!talent.blooddrinker.enabled)
-    if unit.race() == "Orc" and cast.able.bloodFury() and ((not cd.dancingRuneWeapon.exists() and (not not cd.blooddrinker.exists() or not talent.blooddrinker))) then
-        if cast.bloodFury() then
+    if unit.race() == "Orc" and cast.able.racial() and ((not cd.dancingRuneWeapon.exists() and (not not cd.blooddrinker.exists() or not talent.blooddrinker))) then
+        if cast.racial() then
             ui.debug("Casting Blood Fury [Racials]")
             return true
         end
     end
     -- Berserking
     -- berserking
-    if unit.race() == "Troll" and cast.able.berserking() then
-        if cast.berserking() then
+    if unit.race() == "Troll" and cast.able.racial() then
+        if cast.racial() then
             ui.debug("Casting Berserking [Racials]")
             return true
         end
@@ -481,8 +497,8 @@ actionList.Racials = function()
     end
     -- Arcane Torrent
     -- arcane_torrent,if=runic_power.deficit>20
-    if unit.race() == "BloodElf" and cast.able.arcaneTorrent() and runicPower.deficit() > 20 then
-        if cast.arcaneTorrent() then
+    if unit.race() == "BloodElf" and cast.able.racial() and runicPower.deficit() > 20 then
+        if cast.racial() then
             ui.debug("Casting Arcane Torrent [Racials]")
             return true
         end

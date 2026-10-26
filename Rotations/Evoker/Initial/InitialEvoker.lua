@@ -1,3 +1,19 @@
+-- Editor types: the keys of Retail Evoker Initial's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Retail.Evoker.Initial.buff]]
+local cast = cast --[[@as BR.Retail.Evoker.Initial.cast]]
+local cd = cd --[[@as BR.Retail.Evoker.Initial.cd]]
+local charges = charges --[[@as BR.Retail.Evoker.Initial.charges]]
+local debuff = debuff --[[@as BR.Retail.Evoker.Initial.debuff]]
+local equiped = equiped --[[@as BR.Retail.Evoker.Initial.equiped]]
+local glyph = glyph --[[@as BR.Retail.Evoker.Initial.glyph]]
+local has = has --[[@as BR.Retail.Evoker.Initial.has]]
+local heroTree = heroTree --[[@as BR.Retail.Evoker.Initial.heroTree]]
+local imbues = imbues --[[@as BR.Retail.Evoker.Initial.imbues]]
+local spell = spell --[[@as BR.Retail.Evoker.Initial.spell]]
+local talent = talent --[[@as BR.Retail.Evoker.Initial.talent]]
+local totem = totem --[[@as BR.Retail.Evoker.Initial.totem]]
+local use = use --[[@as BR.Retail.Evoker.Initial.use]]
+
 local rotationName = "Initial" -- Change to name of profile listed in options drop down
 
 ---------------
@@ -271,8 +287,8 @@ actionList.Combat = function()
             -- Fire Breath
             if cast.able.fireBreath("player", "cone", 1, 25) and var.moveCast and not cast.current.fireBreath() then
                 -- fire_breath,empower_to=1,if=(20+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste|active_enemies<=2
-                if 20 + debuff.fireBreath.remains(units.dyn25) < 20 * 1.3
-                    or buff.dragonrage.remains() < 1.75 * var.spellHaste and buff.dragonrage.remains() >= 1 * var.spellHaste or #enemies.yards25f <= 2
+                -- (no Dragonrage before Devastation, so its parts are left out)
+                if 20 + debuff.fireBreath.remains(units.dyn25) < 20 * 1.3 or #enemies.yards25f <= 2
                 then
                     if cast.fireBreath("player", "cone", 1, 25) then
                         var.stageFireBreath = custom.stageLimit("FB", 1)
@@ -281,9 +297,7 @@ actionList.Combat = function()
                     end
                 end
                 -- fire_breath,empower_to=2,if=(14+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
-                if 14 + debuff.fireBreath.remains(units.dyn25) < 20 * 1.3
-                    or buff.dragonrage.remains() < 2.5 * var.spellHaste and buff.dragonrage.remains() >= 1.75 * var.spellHaste
-                then
+                if 14 + debuff.fireBreath.remains(units.dyn25) < 20 * 1.3 then
                     if cast.fireBreath("player", "cone", 1, 25) then
                         var.stageFireBreath = custom.stageLimit("FB", 2)
                         ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")
@@ -291,9 +305,7 @@ actionList.Combat = function()
                     end
                 end
                 -- fire_breath,empower_to=3,if=(8+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
-                if 8 + debuff.fireBreath.remains(units.dyn25) < 20 * 1.3
-                    or buff.dragonrage.remains() < 3.25 * var.spellHaste and buff.dragonrage.remains() >= 2.5 * var.spellHaste
-                then
+                if 8 + debuff.fireBreath.remains(units.dyn25) < 20 * 1.3 then
                     if cast.fireBreath("player", "cone", 1, 25) then
                         var.stageFireBreath = custom.stageLimit("FB", 3)
                         ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")

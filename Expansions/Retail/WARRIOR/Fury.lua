@@ -2,6 +2,7 @@ local _, br = ...
 br.lists.spells.WARRIOR = br.lists.spells.WARRIOR or {}
 br.lists.spells.WARRIOR[72] = {
             abilities = {
+                bloodbath    = 335096, -- Bloodthirst while Reckless Abandon's Recklessness is up
                 crushingBlow = 335097,
                 enrage       = 184361,
                 execute      = 5308,

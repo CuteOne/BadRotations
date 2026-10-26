@@ -21,16 +21,18 @@ local function lines(cmd) local t = {} for l in io.popen(cmd):lines() do t[#t + 
 ---------------------------------------------------------------------------------------------------
 -- Each flavour's lists load into their own br (they assign whole tables, e.g. spells.DRUID.Shared), and
 -- the keys of all of them are merged
+-- (br.functions calls in a list, like quakingPalm = br.functions.spell:getRacial("Pandaren"), give 0 so
+-- their keys stay)
 local function newBr()
     return { lists = { spells = {} }, client = { rules = {} }, api = {},
-        functions = setmetatable({}, { __index = function() return setmetatable({}, { __index = function() return function() end end }) end }),
+        functions = setmetatable({}, { __index = function() return setmetatable({}, { __index = function() return function() return 0 end end }) end }),
         game = setmetatable({}, { __index = function(_, k) return rawget(_G, k) or function() return nil end end }) }
 end
 local function loadList(path, into)
     local chunk = loadfile(path)
     if chunk then pcall(chunk, "BadRotations", into) end
 end
-local flavourBrs = {}
+local flavourBrs, flavourBrByName = {}, {}
 -- As br.lists:loadExpansionSpells loads them: Global.lua first (it starts br.lists.spells), then the class
 -- and spec files (Spells.lua is only a fallback for a flavour without Global.lua)
 for _, dir in ipairs(lines('find Expansions -mindepth 1 -maxdepth 1 -type d | sort')) do
@@ -38,16 +40,29 @@ for _, dir in ipairs(lines('find Expansions -mindepth 1 -maxdepth 1 -type d | so
     loadList(dir .. "/Global.lua", flavourBr)
     for _, path in ipairs(lines('find "' .. dir .. '" -mindepth 2 -name "*.lua" | sort')) do loadList(path, flavourBr) end
     flavourBrs[#flavourBrs + 1] = flavourBr
+    flavourBrByName[dir:match("([^/]+)$")] = flavourBr
 end
 local fakeBr = newBr()
 loadList("System/Lists/Items.lua", fakeBr)
 loadList("System/Lists/Pets.lua", fakeBr)
 loadList("System/Lists/Specs.lua", fakeBr)
 
-local sets = { abilities = {}, buffs = {}, debuffs = {}, talents = {}, glyphs = {}, imbues = {}, items = {}, totems = {} }
-for _, flavourBr in ipairs(flavourBrs) do
-for _, class in pairs(flavourBr.lists.spells) do
-    for _, spec in pairs(class) do
+-- The profile environment: its API tables, and the power types
+local profileAPI = readFile("System/Loader/ProfileAPI.lua")
+local TABLES = {}
+for name in profileAPI:match("local TABLES = (%b{})"):gmatch('"([%w_]+)"') do TABLES[#TABLES + 1] = name end
+local powerTypes = {}
+for name in profileAPI:match("local POWER_TYPES = (%b{})"):gmatch("([%a_][%w_]*)%s*=") do powerTypes[name] = true end
+local pets = {}
+for key in pairs(fakeBr.lists.pets or {}) do pets[key] = true end
+local elements = { fire = true, earth = true, water = true, air = true }
+
+-- The keys some spell lists give, as SpellCompiler compiles them (lists: br.lists.spells tables, e.g. the
+-- flavour's Shared.Shared, DRUID.Shared and DRUID[103]); heroSpecs: the hero trees' names -> IDs
+local function collectSets(lists, heroSpecs)
+    local sets = { abilities = {}, buffs = {}, debuffs = {}, talents = {}, glyphs = {}, imbues = {}, items = {}, totems = {},
+        heroTrees = {}, pets = pets, powerTypes = powerTypes, elements = elements }
+    for _, spec in ipairs(lists) do
         for kind, entries in pairs(spec) do
             if type(entries) == "table" then
                 for key, value in pairs(entries) do
@@ -66,48 +81,50 @@ for _, class in pairs(flavourBr.lists.spells) do
             end
         end
     end
+    -- compileSpells adds the player's racial to every rotation
+    sets.abilities.racial = true
+    sets.buffs.racial = true
+    -- Glyphs are also reachable by a short name: glyphOfFrostShock -> frostShock (ProfileAPI.lua buildGlyphs)
+    for _, key in ipairs(sortedKeys(sets.glyphs)) do
+        local suffix = key:match("^glyphOf(.+)$")
+        if suffix then sets.glyphs[suffix:sub(1, 1):lower() .. suffix:sub(2)] = true end
+    end
+    for key in pairs(fakeBr.lists.items or {}) do sets.items[key] = true end
+    for key in pairs(heroSpecs or {}) do sets.heroTrees[key] = true end
+    return sets
 end
-end
-sets.abilities.racial = true
--- Glyphs are also reachable by a short name: glyphOfFrostShock -> frostShock (ProfileAPI.lua buildGlyphs)
-for _, key in ipairs(sortedKeys(sets.glyphs)) do
-    local suffix = key:match("^glyphOf(.+)$")
-    if suffix then sets.glyphs[suffix:sub(1, 1):lower() .. suffix:sub(2)] = true end
-end
-for key in pairs(fakeBr.lists.items or {}) do sets.items[key] = true end
-sets.pets = {}
-for key in pairs(fakeBr.lists.pets or {}) do sets.pets[key] = true end
-sets.heroTrees = {}
-for _, specs in pairs(fakeBr.lists.heroSpec or {}) do for key in pairs(specs) do sets.heroTrees[key] = true end end
-sets.elements = { fire = true, earth = true, water = true, air = true }
 
--- The profile environment: its API tables, and the power types
-local profileAPI = readFile("System/Loader/ProfileAPI.lua")
-local TABLES = {}
-for name in profileAPI:match("local TABLES = (%b{})"):gmatch('"([%w_]+)"') do TABLES[#TABLES + 1] = name end
-sets.powerTypes = {}
-for name in profileAPI:match("local POWER_TYPES = (%b{})"):gmatch("([%a_][%w_]*)%s*=") do sets.powerTypes[name] = true end
+-- Every flavour's lists together: the types of the global tables (support files, and anything without
+-- its own block)
+local allLists, allHeroSpecs = {}, {}
+for _, flavourBr in ipairs(flavourBrs) do
+    for _, class in pairs(flavourBr.lists.spells) do
+        for _, spec in pairs(class) do allLists[#allLists + 1] = spec end
+    end
+end
+for _, specs in pairs(fakeBr.lists.heroSpec or {}) do for key, id in pairs(specs) do allHeroSpecs[key] = id end end
+local sets = collectSets(allLists, allHeroSpecs)
 
 -- Each key list is one generic class, BR.Keys.<Name><T> (a field of type T per key); a table of
 -- per-key entries inherits it with its entry class: BR.cast.able : BR.Keys.Abilities<BR.cast.able.Spell>
 local SET_NAMES = { abilities = "Abilities", buffs = "Buffs", debuffs = "Debuffs", glyphs = "Glyphs", items = "Items",
     pets = "Pets", powerTypes = "PowerTypes", elements = "Elements", totems = "Totems" }
-local setName = {}
-for key, name in pairs(SET_NAMES) do setName[sets[key]] = name end
+-- The sets a profile's flavour, class and spec decide (the others are the same for every profile)
+local SCOPED = { abilities = true, buffs = true, debuffs = true, glyphs = true, items = true, totems = true }
 
--- Which keys a placeholder stands for, by the table it's in
+-- Which set a placeholder stands for, by the table it's in
 local function keysFor(root, placeholder)
     if placeholder == "spell" then
-        if root == "buff" then return sets.buffs end
-        if root == "debuff" then return sets.debuffs end
-        return sets.abilities
+        if root == "buff" then return "buffs" end
+        if root == "debuff" then return "debuffs" end
+        return "abilities"
     end
-    if placeholder == "k" then return root == "glyph" and sets.glyphs or sets.abilities end
-    if placeholder == "item" then return sets.items end
-    if placeholder == "name" then return sets.pets end
-    if placeholder == "powerType" then return sets.powerTypes end
-    if placeholder == "element" then return sets.elements end
-    if placeholder == "totemName" then return sets.totems end
+    if placeholder == "k" then return root == "glyph" and "glyphs" or "abilities" end
+    if placeholder == "item" then return "items" end
+    if placeholder == "name" then return "pets" end
+    if placeholder == "powerType" then return "powerTypes" end
+    if placeholder == "element" then return "elements" end
+    if placeholder == "totemName" then return "totems" end
     error("no keys for " .. root .. ".<" .. placeholder .. ">")
 end
 
@@ -275,66 +292,120 @@ do -- cast.<spell>.aoe(range, minUnits, unit), ...: Cast.lua's FORMS, without th
     table.sort(CAST_FORMS, function(a, b) return a.name < b.name end)
 end
 
-local emitted, var = {}, 0
-local function emitClass(node, root, parentClass)
-    local cls = node.class or className(node.path)
+-- Where classes are named and which keys they hold. The global scope (BR.cast, BR.Keys.Abilities, every
+-- flavour's keys) types the global tables; a profile's scope (BR.TBC.Druid.cast, BR.Keys.TBC.Druid.Abilities,
+-- its own lists' keys) types the locals in its generated block.
+local GLOBAL = { prefix = "BR", keys = "BR.Keys", sets = sets }
+local function scopedName(scope, path) return scope.prefix .. className(path):sub(3) end
+
+-- True when a table's class depends on the scope's keys (it, or a table in it, holds per-key entries of a
+-- scoped set, or keyed fields: talent.<key>)
+local dependsMemo = {}
+local function dependsOnKeys(node, root)
+    if dependsMemo[node] ~= nil then return dependsMemo[node] end
+    local depends = node.keyedExtras ~= nil
+    for _, seg in ipairs(node.order) do
+        local child = node.children[seg]
+        local placeholder = seg:match("^<(%w+)>$")
+        if (placeholder and SCOPED[keysFor(root, placeholder)]) or dependsOnKeys(child, root) then depends = true end
+    end
+    dependsMemo[node] = depends
+    return depends
+end
+
+local emitted, hasBase, var = {}, {}, 0
+-- Emits a table's class for a scope and returns its name. A class that doesn't depend on the keys is
+-- emitted once, globally. One that does is split: <class>.Base holds what every scope shares (functions,
+-- fields, call signature), and each scope's class adds its own keys on top.
+local function emitClass(node, root, scope)
+    local global = node.class or className(node.path)
+    local depends = dependsOnKeys(node, root)
+    if scope ~= GLOBAL and not depends then return global end
+    local cls = scope == GLOBAL and global or scopedName(scope, node.path)
     if emitted[cls] then return cls end
     emitted[cls] = true
     local block = {} -- this class's lines; its children's blocks come first
     local outerEmit = emit
     emit = function(line) block[#block + 1] = line end
     -- children first, so their classes exist (LuaLS doesn't mind the order, readers do)
-    local fields, functions, parents = {}, {}, {}
+    local keyParents, staticParents, keyFields_, staticFields, functions = {}, {}, {}, {}, {}
     for _, seg in ipairs(node.order) do
         local child = node.children[seg]
         local placeholder = seg:match("^<(%w+)>$")
         if placeholder then
-            local childClass = emitClass(child, root, cls)
-            parents[#parents + 1] = "BR.Keys." .. setName[keysFor(root, placeholder)] .. "<" .. childClass .. ">"
+            local kind = keysFor(root, placeholder)
+            local keys = SCOPED[kind] and scope.keys or GLOBAL.keys
+            local parent = keys .. "." .. SET_NAMES[kind] .. "<" .. emitClass(child, root, scope) .. ">"
+            if SCOPED[kind] or dependsOnKeys(child, root) then keyParents[#keyParents + 1] = parent
+            else staticParents[#staticParents + 1] = parent end
         elseif next(child.children) == nil and child.doc then
             functions[#functions + 1] = child
         else
             -- A literal key that is also one of a placeholder's keys (power.runes) extends that class
-            local base
             for _, other in ipairs(node.order) do
                 local ph = other:match("^<(%w+)>$")
-                if ph and keysFor(root, ph)[seg] then
-                    base = className(node.children[other].path)
+                if ph and GLOBAL.sets[keysFor(root, ph)][seg] then
+                    child.base = className(node.children[other].path)
                     child.baseNode = node.children[other]
                 end
             end
-            child.base = base
-            fields[#fields + 1] = { name = seg, type = emitClass(child, root, cls) }
+            local field = { name = seg, type = emitClass(child, root, scope) }
+            if dependsOnKeys(child, root) then keyFields_[#keyFields_ + 1] = field
+            else staticFields[#staticFields + 1] = field end
         end
     end
+    if node.base then staticParents[#staticParents + 1] = node.base end
+
+    -- What every scope shares: in the class itself, or in <class>.Base when the class depends on the keys
+    local function emitShared(name, parents)
+        emit("---@class " .. name .. (#parents > 0 and (" : " .. table.concat(parents, ", ")) or ""))
+        -- a subclass repeats its base's call signature (not every language server inherits it)
+        local callDoc = node.doc or (node.baseNode and node.baseNode.doc)
+        if callDoc then emit("---@overload " .. signature(callDoc)) end
+        if node.path:match("^cast%.<spell>$") or node.path:match("^cast%.able%.<spell>$") or node.path:match("^cast%.opener%.<spell>$") then
+            for _, form in ipairs(CAST_FORMS) do emit("---@field " .. form.name .. " " .. form.sig) end
+            emit("---@field rank fun(rank: integer): " .. name .. " The spell at a rank (or the highest known below it)")
+        end
+        for _, extra in ipairs(node.extraFields or {}) do emit("---@field " .. extra) end
+        for _, f in ipairs(staticFields) do emit("---@field " .. f.name .. " " .. f.type) end
+        var = var + 1
+        local v = "C" .. var
+        emit("local " .. v .. " = {}")
+        for _, fnNode in ipairs(functions) do
+            local doc, fnName = fnNode.doc, fnNode.path:match("([^.]+)$")
+            emit("")
+            docLines(doc, "")
+            for _, p in ipairs(doc.params) do
+                local typ = luaType(p.type ~= "any" and p.type or guessType(p.name))
+                emit("---@param " .. p.name .. (p.required and "" or "?") .. " " .. typ .. (p.desc ~= "" and (" " .. p.desc) or ""))
+            end
+            for _, r in ipairs(doc.returns) do emit("---@return " .. luaType(r.type) .. (r.desc ~= "" and (" # " .. r.desc) or "")) end
+            local args = {}
+            for _, p in ipairs(doc.params) do args[#args + 1] = p.name end
+            emit("function " .. v .. "." .. fnName .. "(" .. table.concat(args, ", ") .. ") end")
+        end
+    end
+
     emit("")
-    if node.doc then docLines(node.doc, "") end
-    if node.base then parents[#parents + 1] = node.base end
-    emit("---@class " .. cls .. (#parents > 0 and (" : " .. table.concat(parents, ", ")) or ""))
-    -- a subclass repeats its base's call signature (not every language server inherits it)
-    local callDoc = node.doc or (node.baseNode and node.baseNode.doc)
-    if callDoc then emit("---@overload " .. signature(callDoc)) end
-    if node.path:match("^cast%.<spell>$") or node.path:match("^cast%.able%.<spell>$") or node.path:match("^cast%.opener%.<spell>$") then
-        for _, form in ipairs(CAST_FORMS) do emit("---@field " .. form.name .. " " .. form.sig) end
-        emit("---@field rank fun(rank: integer): " .. cls .. " The spell at a rank (or the highest known below it)")
-    end
-    for _, extra in ipairs(node.extraFields or {}) do emit("---@field " .. extra) end
-    for _, f in ipairs(fields) do emit("---@field " .. f.name .. " " .. f.type) end
-    var = var + 1
-    local v = "C" .. var
-    emit("local " .. v .. " = {}")
-    for _, fnNode in ipairs(functions) do
-        local doc, name = fnNode.doc, fnNode.path:match("([^.]+)$")
-        emit("")
-        docLines(doc, "")
-        for _, p in ipairs(doc.params) do
-            local typ = luaType(p.type ~= "any" and p.type or guessType(p.name))
-            emit("---@param " .. p.name .. (p.required and "" or "?") .. " " .. typ .. (p.desc ~= "" and (" " .. p.desc) or ""))
+    if not depends then
+        if node.doc then docLines(node.doc, "") end
+        emitShared(cls, staticParents)
+    else
+        local hasShared = node.doc or node.baseNode or node.extraFields or #staticFields > 0 or #functions > 0
+            or #staticParents > 0
+        if scope == GLOBAL and hasShared then
+            emitShared(cls .. ".Base", staticParents)
+            hasBase[cls] = true
+            emit("")
         end
-        for _, r in ipairs(doc.returns) do emit("---@return " .. luaType(r.type) .. (r.desc ~= "" and (" # " .. r.desc) or "")) end
-        local args = {}
-        for _, p in ipairs(doc.params) do args[#args + 1] = p.name end
-        emit("function " .. v .. "." .. name .. "(" .. table.concat(args, ", ") .. ") end")
+        if node.doc then docLines(node.doc, "") end
+        local parents = {}
+        if hasBase[global] then parents[1] = global .. ".Base" end
+        for _, p in ipairs(keyParents) do parents[#parents + 1] = p end
+        emit("---@class " .. cls .. (#parents > 0 and (" : " .. table.concat(parents, ", ")) or ""))
+        if node.doc then emit("---@overload " .. signature(node.doc)) end
+        for _, extra in ipairs(node.keyedExtras and node.keyedExtras(scope) or {}) do emit("---@field " .. extra) end
+        for _, f in ipairs(keyFields_) do emit("---@field " .. f.name .. " " .. f.type) end
     end
     emit = outerEmit
     emit(BLOCK)
@@ -347,12 +418,15 @@ end
 ---------------------------------------------------------------------------------------------------
 local function keyFields(set, typ) local t = {} for _, k in ipairs(sortedKeys(set)) do t[#t + 1] = k .. " " .. typ end return t end
 roots.talent = roots.talent or newNode("talent")
-roots.talent.extraFields = keyFields(sets.talents, "boolean # true while the talent is taken")
-table.insert(roots.talent.extraFields, 1, "rank BR.talent.rank The rank of each talent (0 when not taken)")
+roots.talent.keyedExtras = function(scope)
+    local fields = keyFields(scope.sets.talents, "boolean # true while the talent is taken")
+    table.insert(fields, 1, "rank " .. scope.prefix .. ".talent.rank The rank of each talent (0 when not taken)")
+    return fields
+end
 roots.heroTree = roots.heroTree or newNode("heroTree")
-roots.heroTree.extraFields = keyFields(sets.heroTrees, "boolean # true for the active hero talent tree")
+roots.heroTree.keyedExtras = function(scope) return keyFields(scope.sets.heroTrees, "boolean # true for the active hero talent tree") end
 roots.imbues = roots.imbues or newNode("imbues")
-roots.imbues.extraFields = keyFields(sets.imbues, "integer # the weapon enchant ID")
+roots.imbues.keyedExtras = function(scope) return keyFields(scope.sets.imbues, "integer # the weapon enchant ID") end
 roots.ui = roots.ui or newNode("ui")
 roots.ui.extraFields = { "mode table<string, integer> Each toggle's current mode, by the toggle's name with a lower-case first letter: ui.mode.rotation",
     "dropOptions table<string, string[]> The choices of BR's shared dropdowns (Toggle: the key names, ...)" }
@@ -411,20 +485,120 @@ emit("---@field hp number Health percent, with incoming heals")
 emit("---@field role string TANK, HEALER or DAMAGER")
 emit("---@field guid string")
 emit("")
-for _, key in ipairs(sortedKeys(SET_NAMES)) do
+-- A scope's key lists (the global scope has every set; a profile's only the ones its lists decide)
+local function emitKeys(scope)
+    for _, key in ipairs(sortedKeys(SET_NAMES)) do
+        if scope == GLOBAL or SCOPED[key] then
+            emit(BLOCK)
+            emit("---@class " .. scope.keys .. "." .. SET_NAMES[key] .. "<T>")
+            for _, k in ipairs(sortedKeys(scope.sets[key])) do emit("---@field " .. k .. " T") end
+        end
+    end
     emit(BLOCK)
-    emit("---@class BR.Keys." .. SET_NAMES[key] .. "<T>")
-    for _, k in ipairs(sortedKeys(sets[key])) do emit("---@field " .. k .. " T") end
+    emit("---@class " .. scope.prefix .. ".talent.rank")
+    for _, k in ipairs(sortedKeys(scope.sets.talents)) do emit("---@field " .. k .. " integer") end
 end
-emit(BLOCK)
-emit("---@class BR.talent.rank")
-for _, k in ipairs(sortedKeys(sets.talents)) do emit("---@field " .. k .. " integer") end
+emitKeys(GLOBAL)
 
 local globalClass = {}
 for _, name in ipairs(TABLES) do
     local node = roots[name]
-    if node and node.class ~= "table" then globalClass[name] = emitClass(node, name)
+    if node and node.class ~= "table" then globalClass[name] = emitClass(node, name, GLOBAL)
     else globalClass[name] = node and node.class or "table" end
+end
+
+---------------------------------------------------------------------------------------------------
+-- Each profile's scope: the keys of its flavour's lists for its class and spec(s), as SpellCompiler
+-- picks them (Shared.Shared, <CLASS>.Shared, <CLASS>[specID]), for the block of locals at its top
+---------------------------------------------------------------------------------------------------
+local specNames = {} -- CLASS -> spec ID -> name (System/Lists/Specs.lua)
+for class, specs in pairs(fakeBr.lists.spec or {}) do
+    specNames[class] = {}
+    for specName, id in pairs(specs) do specNames[class][id] = specName end
+end
+local function classFolder(path) return path:match("^Rotations/([^/]+)/") end
+local function classToken(folder) return folder:upper():gsub("%s", "") end
+
+-- The flavour, class and spec IDs a profile registers for (nil for a file that registers nothing)
+local function registration(path, text)
+    local def = text:match("registerRotation%s*(%b())")
+    if not def or not classFolder(path) then return nil end -- the sample rotation has no class
+    local flavour = def:match('expansion%s*=%s*"(%w+)"')
+    local specText = def:match("specID%s*=%s*(%b{})") or def:match("specID%s*=%s*(%d+)")
+    if not (flavour and specText) then error(path .. ": can't read registerRotation's expansion and specID") end
+    local specs = {}
+    for id in specText:gmatch("%d+") do specs[#specs + 1] = tonumber(id) end
+    return { flavour = flavour, class = classToken(classFolder(path)), classFolder = classFolder(path):gsub("%s", ""), specs = specs }
+end
+
+local scopes = {} -- by name
+local function scopeFor(reg)
+    local flavourBr = assert(flavourBrByName[reg.flavour], "no Expansions/" .. reg.flavour)
+    local spells = flavourBr.lists.spells
+    local classLists = spells[reg.class] or {}
+    local lists, nameParts = { spells.Shared and spells.Shared.Shared or {}, classLists.Shared or {} }, {}
+    local specIDs, seen = {}, {}
+    for _, id in ipairs(reg.specs) do
+        if not seen[id] then seen[id] = true; specIDs[#specIDs + 1] = id end
+    end
+    table.sort(specIDs)
+    for _, id in ipairs(specIDs) do
+        if classLists[id] then
+            lists[#lists + 1] = classLists[id]
+            nameParts[#nameParts + 1] = (specNames[reg.class] or {})[id] or tostring(id)
+        end
+    end
+    local name = reg.flavour .. "." .. reg.classFolder .. (#nameParts > 0 and ("." .. table.concat(nameParts, "_")) or "")
+    if not scopes[name] then
+        -- Hero trees only exist on clients with them (Retail)
+        local heroSpecs = reg.flavour == "Retail" and (fakeBr.lists.heroSpec or {})[reg.class] or nil
+        scopes[name] = { name = name, prefix = "BR." .. name, keys = "BR.Keys." .. name, sets = collectSets(lists, heroSpecs) }
+    end
+    return scopes[name]
+end
+
+local profiles = {} -- { path, text, scope }
+local supportCallers = {} -- support file path -> the scopes of the profiles that load it
+for _, path in ipairs(lines('find Rotations -name "*.lua" -not -path "*/Support/*" | sort')) do
+    local text = readFile(path)
+    local reg = registration(path, text)
+    if reg then
+        local scope = scopeFor(reg)
+        profiles[#profiles + 1] = { path = path, text = text, scope = scope }
+        for name in text:gmatch('loadSupport%(%s*"([%w_]+)"%s*%)') do
+            local support = "Rotations/" .. classFolder(path) .. "/Support/" .. name .. ".lua"
+            supportCallers[support] = supportCallers[support] or {}
+            supportCallers[support][#supportCallers[support] + 1] = reg
+        end
+    end
+end
+-- A support file gets the keys of the profiles that load it, when they share a flavour and class
+for _, support in ipairs(sortedKeys(supportCallers)) do
+    local callers = supportCallers[support]
+    local merged = { flavour = callers[1].flavour, class = callers[1].class, classFolder = callers[1].classFolder, specs = {} }
+    local shared = true
+    for _, reg in ipairs(callers) do
+        if reg.flavour ~= merged.flavour or reg.class ~= merged.class then shared = false end
+        for _, id in ipairs(reg.specs) do merged.specs[#merged.specs + 1] = id end
+    end
+    local f = io.open(support)
+    if shared and f then
+        local text = f:read("*a"); f:close()
+        profiles[#profiles + 1] = { path = support, text = text, scope = scopeFor(merged) }
+    elseif f then f:close() end
+end
+
+local scopedClass = {} -- scope name -> table name -> class
+for _, name in ipairs(sortedKeys(scopes)) do
+    local scope = scopes[name]
+    emitKeys(scope)
+    scopedClass[name] = {}
+    for _, tableName in ipairs(TABLES) do
+        local node = roots[tableName]
+        if node and node.class ~= "table" and dependsOnKeys(node, tableName) then
+            scopedClass[name][tableName] = emitClass(node, tableName, scope)
+        end
+    end
 end
 
 emit(BLOCK)
@@ -484,3 +658,53 @@ for n, lines_ in ipairs(files) do
 end
 print(("%s: %d files, %d documented functions, %d ability keys, %d buffs, %d debuffs, %d items"):format(OUT_DIR, #files,
     #docs, #sortedKeys(sets.abilities), #sortedKeys(sets.buffs), #sortedKeys(sets.debuffs), #sortedKeys(sets.items)))
+
+---------------------------------------------------------------------------------------------------
+-- The block of locals at the top of each profile: the API tables with keys, typed for its scope, so the
+-- editor completes only what the profile has. Written in place; with another out folder only checked
+---------------------------------------------------------------------------------------------------
+local MARK = "-- Editor types: "
+local function profileBlock(scope)
+    local result = { MARK .. "the keys of " .. scope.name:gsub("%.", " ") .. "'s spell lists (written by Types/generate.lua)" }
+    for _, tableName in ipairs(TABLES) do
+        local cls = scopedClass[scope.name][tableName]
+        if cls then result[#result + 1] = ("local %s = %s --[[@as %s]]"):format(tableName, tableName, cls) end
+    end
+    return result
+end
+
+-- The file with its block put in (replacing the one there): after the comments it starts with
+local function withBlock(text, blockLines)
+    local nl = text:find("\r\n", 1, true) and "\r\n" or "\n"
+    local src = {}
+    for l in (text:gsub("\r\n", "\n") .. (text:sub(-1) == "\n" and "" or "\n")):gmatch("([^\n]*)\n") do src[#src + 1] = l end
+    local start
+    for i, l in ipairs(src) do if l:sub(1, #MARK) == MARK then start = i break end end
+    if start then
+        local stop = start
+        while src[stop + 1] and src[stop + 1]:match("^local [%w_]+ = [%w_]+ %-%-%[%[@as ") do stop = stop + 1 end
+        for _ = start, stop do table.remove(src, start) end
+    else
+        start = 1
+        while src[start] and (src[start]:match("^%-%-") or src[start]:match("^%s*$")) do start = start + 1 end
+        table.insert(src, start, "")
+    end
+    for i, l in ipairs(blockLines) do table.insert(src, start + i - 1, l) end
+    return table.concat(src, nl) .. nl
+end
+
+local writeProfiles = OUT_DIR == "Types/ProfileAPI"
+local stale = 0
+for _, p in ipairs(profiles) do
+    local new = withBlock(p.text, profileBlock(p.scope))
+    if new ~= p.text then
+        if writeProfiles then
+            local f = assert(io.open(p.path, "wb")); f:write(new); f:close()
+            print("  block written: " .. p.path)
+        else
+            stale = stale + 1
+            print("  stale block: " .. p.path)
+        end
+    end
+end
+print(("%d profiles in %d scopes"):format(#profiles, #sortedKeys(scopes)) .. (writeProfiles and "" or (", " .. stale .. " stale")))

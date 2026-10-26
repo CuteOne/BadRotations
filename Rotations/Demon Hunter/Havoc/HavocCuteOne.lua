@@ -1,3 +1,19 @@
+-- Editor types: the keys of Retail DemonHunter Havoc's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Retail.DemonHunter.Havoc.buff]]
+local cast = cast --[[@as BR.Retail.DemonHunter.Havoc.cast]]
+local cd = cd --[[@as BR.Retail.DemonHunter.Havoc.cd]]
+local charges = charges --[[@as BR.Retail.DemonHunter.Havoc.charges]]
+local debuff = debuff --[[@as BR.Retail.DemonHunter.Havoc.debuff]]
+local equiped = equiped --[[@as BR.Retail.DemonHunter.Havoc.equiped]]
+local glyph = glyph --[[@as BR.Retail.DemonHunter.Havoc.glyph]]
+local has = has --[[@as BR.Retail.DemonHunter.Havoc.has]]
+local heroTree = heroTree --[[@as BR.Retail.DemonHunter.Havoc.heroTree]]
+local imbues = imbues --[[@as BR.Retail.DemonHunter.Havoc.imbues]]
+local spell = spell --[[@as BR.Retail.DemonHunter.Havoc.spell]]
+local talent = talent --[[@as BR.Retail.DemonHunter.Havoc.talent]]
+local totem = totem --[[@as BR.Retail.DemonHunter.Havoc.totem]]
+local use = use --[[@as BR.Retail.DemonHunter.Havoc.use]]
+
 local rotationName = "CuteOne"
 ---------------
 --- Toggles ---

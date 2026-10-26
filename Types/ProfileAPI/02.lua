@@ -5,74 +5,12153 @@
 -- The profile API as the Lua language server sees it, so the editor completes and documents what
 -- profiles use. The game never loads these files.
 
---- What registerRotation takes (System/Loader/ProfileLoader.lua)
----@class BR.RotationDefinition
----@field name string Shown in the rotation dropdown; unique for the spec
----@field specID integer|integer[] The spec ID(s) it is for
----@field expansion "Retail"|"MOP"|"TBC"|"Classic"|"Forever" The flavour it is for
----@field run fun(): boolean? Runs every tick
----@field toggles? fun() Builds the toggle bar (ui.toggle)
----@field options? fun()|table Builds the Rotation Options page, or a list of { page name, build function }
----@field actsWhileCasting? boolean Keep running while the player casts or channels
----@field handlesRacials? boolean The rotation uses racials itself (the shared Racial module doesn't)
----@field handlesTrinkets? boolean The rotation uses trinkets itself (the shared Trinkets module doesn't)
----@field author? string README metadata
----@field patch? string README metadata: the latest patch it was updated for
----@field coverage? string README metadata: estimated percent of class mechanics covered
----@field status? string README metadata: Full, Limited, Sporadic, Inactive or Unknown
----@field readiness? string README metadata: Raid, NoRaid, Basic, Development or Untested
+---@class BR.Keys.Classic.Druid.Abilities<T>
+---@field abolishPoison T
+---@field aquaticForm T
+---@field autoAttack T
+---@field autoShot T
+---@field barkskin T
+---@field bash T
+---@field bearForm T
+---@field berserking T
+---@field bloodFury T
+---@field cannibalize T
+---@field catForm T
+---@field claw T
+---@field curePoison T
+---@field demoralizingRoar T
+---@field direBearForm T
+---@field disenchant T
+---@field enrage T
+---@field entanglingRoots T
+---@field escapeArtist T
+---@field faerieFire T
+---@field faerieFireFeral T
+---@field ferociousBite T
+---@field global T
+---@field healingTouch T
+---@field innervate T
+---@field markOfTheWild T
+---@field maul T
+---@field moonfire T
+---@field moonkinForm T
+---@field naturesGrasp T
+---@field omenOfClarity T
+---@field perception T
+---@field pounce T
+---@field prowl T
+---@field racial T
+---@field rake T
+---@field ravage T
+---@field regrowth T
+---@field rejuvenation T
+---@field removeCurse T
+---@field rip T
+---@field shadowmeld T
+---@field shred T
+---@field starfire T
+---@field stoneform T
+---@field swipe T
+---@field thorns T
+---@field tigersFury T
+---@field travelForm T
+---@field warStomp T
+---@field willOfTheForsaken T
+---@field wrath T
 
---- Registers this file's rotation; BR offers it when specID and expansion match the player.
----@param def BR.RotationDefinition
----@return boolean # true when registered for the player's spec and flavour
-function registerRotation(def) end
+---@class BR.Keys.Classic.Druid.Buffs<T>
+---@field abolishPoison T
+---@field aquaticForm T
+---@field barkskin T
+---@field bearForm T
+---@field catForm T
+---@field clearcasting T
+---@field direBearForm T
+---@field enrage T
+---@field markOfTheWild T
+---@field moonkinForm T
+---@field naturesGrasp T
+---@field omenOfClarity T
+---@field prowl T
+---@field racial T
+---@field regrowth T
+---@field rejuvenation T
+---@field shadowmeld T
+---@field thorns T
+---@field tigersFury T
+---@field travelForm T
 
---- Runs Rotations/<Class>/Support/<name>.lua and returns what it returns (its options and run functions).
----@param name string
----@return table
-function loadSupport(name) end
+---@class BR.Keys.Classic.Druid.Debuffs<T>
+---@field demoralizingRoar T
+---@field entanglingRoots T
+---@field faerieFire T
+---@field faerieFireFeral T
+---@field moonfire T
+---@field rake T
+---@field rip T
 
----@type BR.buff
-buff = {}
----@type BR.cast
-cast = {}
----@type BR.cd
-cd = {}
----@type BR.charges
-charges = {}
----@type BR.debuff
-debuff = {}
----@type BR.enemies
-enemies = {}
----@type BR.equiped
-equiped = {}
----@type BR.glyph
-glyph = {}
----@type BR.has
-has = {}
----@type BR.heroTree
-heroTree = {}
----@type BR.imbues
-imbues = {}
----@type BR.module
-module = {}
----@type BR.pet
-pet = {}
----@type BR.power
-power = {}
----@type BR.spell
-spell = {}
----@type BR.talent
-talent = {}
----@type BR.totem
-totem = {}
----@type BR.ui
-ui = {}
----@type BR.unit
-unit = {}
----@type BR.units
-units = {}
----@type BR.use
-use = {}
----@type table
-var = {}
+---@class BR.Keys.Classic.Druid.Glyphs<T>
+
+---@class BR.Keys.Classic.Druid.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.Classic.Druid.Totems<T>
+
+---@class BR.Classic.Druid.talent.rank
+
+
+---@class BR.Classic.Druid.buff : BR.Keys.Classic.Druid.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.Classic.Druid.cast.able : BR.cast.able.Base, BR.Keys.Classic.Druid.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.Classic.Druid.cast.active : BR.Keys.Classic.Druid.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.Classic.Druid.cast.auto : BR.Keys.Classic.Druid.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.Classic.Druid.cast.cancel : BR.Keys.Classic.Druid.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.Classic.Druid.cast.cost : BR.Keys.Classic.Druid.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.Classic.Druid.cast.current : BR.cast.current.Base, BR.Keys.Classic.Druid.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.Classic.Druid.cast.dispel : BR.Keys.Classic.Druid.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.Classic.Druid.cast.empowered : BR.Keys.Classic.Druid.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.Classic.Druid.cast.inFlight : BR.Keys.Classic.Druid.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.Classic.Druid.cast.inFlightRemain : BR.Keys.Classic.Druid.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.Classic.Druid.cast.last.time : BR.Keys.Classic.Druid.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.Classic.Druid.cast.last : BR.Keys.Classic.Druid.Abilities<BR.cast.last.Spell>
+---@field time BR.Classic.Druid.cast.last.time
+
+
+---@class BR.Classic.Druid.cast.maxRank : BR.Keys.Classic.Druid.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.Classic.Druid.cast.noControl : BR.Keys.Classic.Druid.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.Classic.Druid.cast.opener : BR.cast.opener.Base, BR.Keys.Classic.Druid.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.Classic.Druid.cast.pool : BR.Keys.Classic.Druid.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.Classic.Druid.cast.range : BR.Keys.Classic.Druid.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.Classic.Druid.cast.regen : BR.Keys.Classic.Druid.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.Classic.Druid.cast.safe : BR.Keys.Classic.Druid.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.Classic.Druid.cast.time : BR.Keys.Classic.Druid.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.Classic.Druid.cast.timeSinceLast : BR.Keys.Classic.Druid.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.Classic.Druid.cast : BR.cast.Base, BR.Keys.Classic.Druid.Abilities<BR.cast.Spell>
+---@field able BR.Classic.Druid.cast.able
+---@field active BR.Classic.Druid.cast.active
+---@field auto BR.Classic.Druid.cast.auto
+---@field cancel BR.Classic.Druid.cast.cancel
+---@field cost BR.Classic.Druid.cast.cost
+---@field current BR.Classic.Druid.cast.current
+---@field dispel BR.Classic.Druid.cast.dispel
+---@field empowered BR.Classic.Druid.cast.empowered
+---@field inFlight BR.Classic.Druid.cast.inFlight
+---@field inFlightRemain BR.Classic.Druid.cast.inFlightRemain
+---@field last BR.Classic.Druid.cast.last
+---@field maxRank BR.Classic.Druid.cast.maxRank
+---@field noControl BR.Classic.Druid.cast.noControl
+---@field opener BR.Classic.Druid.cast.opener
+---@field pool BR.Classic.Druid.cast.pool
+---@field range BR.Classic.Druid.cast.range
+---@field regen BR.Classic.Druid.cast.regen
+---@field safe BR.Classic.Druid.cast.safe
+---@field time BR.Classic.Druid.cast.time
+---@field timeSinceLast BR.Classic.Druid.cast.timeSinceLast
+
+
+---@class BR.Classic.Druid.cd : BR.cd.Base, BR.Keys.Classic.Druid.Abilities<BR.cd.Spell>, BR.Keys.Classic.Druid.Items<BR.cd.Item>
+
+
+---@class BR.Classic.Druid.charges : BR.Keys.Classic.Druid.Abilities<BR.charges.Spell>, BR.Keys.Classic.Druid.Items<BR.charges.Item>
+
+
+---@class BR.Classic.Druid.debuff : BR.Keys.Classic.Druid.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.Classic.Druid.equiped.socket : BR.Keys.Classic.Druid.Items<BR.equiped.socket.Item>
+
+---@class BR.Classic.Druid.equiped : BR.equiped.Base, BR.Keys.Classic.Druid.Items<BR.equiped.Item>
+---@field socket BR.Classic.Druid.equiped.socket
+
+
+---@class BR.Classic.Druid.glyph : BR.glyph.Base, BR.Keys.Classic.Druid.Glyphs<BR.glyph.K>
+
+
+---@class BR.Classic.Druid.has : BR.has.Base, BR.Keys.Classic.Druid.Items<BR.has.Item>
+
+
+---@class BR.Classic.Druid.heroTree
+
+
+---@class BR.Classic.Druid.imbues
+
+
+---@class BR.Classic.Druid.spell : BR.Keys.Classic.Druid.Abilities<BR.spell.K>
+
+
+---@class BR.Classic.Druid.talent
+---@field rank BR.Classic.Druid.talent.rank The rank of each talent (0 when not taken)
+
+
+
+
+---@class BR.Classic.Druid.totem.Element : BR.totem.Element.Base, BR.Keys.Classic.Druid.Totems<BR.totem.Element.TotemName>
+
+---@class BR.Classic.Druid.totem : BR.totem.Base, BR.Keys.Elements<BR.Classic.Druid.totem.Element>
+
+
+
+
+---@class BR.Classic.Druid.use.able : BR.use.able.Base, BR.Keys.Classic.Druid.Items<BR.use.able.Item>
+
+---@class BR.Classic.Druid.use : BR.use.Base, BR.Keys.Classic.Druid.Items<BR.use.Item>
+---@field able BR.Classic.Druid.use.able
+
+---@class BR.Keys.Classic.Hunter.Abilities<T>
+---@field acidBite T
+---@field acidSpit T
+---@field agileReflexes T
+---@field ankleCrack T
+---@field arcaneShot T
+---@field aspectOfTheChameleon T
+---@field aspectOfTheCheetah T
+---@field aspectOfTheTurtle T
+---@field autoAttack T
+---@field autoShot T
+---@field beastLore T
+---@field beastOfOpportunity T
+---@field berserking T
+---@field bindingShot T
+---@field bite T
+---@field blackArrow T
+---@field blackrockMunitions T
+---@field bloodBolt T
+---@field bloodFury T
+---@field bloodyScreech T
+---@field bornToBeWild T
+---@field bristle T
+---@field bulwark T
+---@field burrowAttack T
+---@field burstingShot T
+---@field callPet T
+---@field callPet1 T
+---@field callPet2 T
+---@field callPet3 T
+---@field callPet4 T
+---@field callPet5 T
+---@field camouflage T
+---@field cannibalize T
+---@field catchOut T
+---@field catlikeReflexes T
+---@field chiJiTranq T
+---@field claw T
+---@field commandPet T
+---@field concussiveShot T
+---@field corneredPrey T
+---@field counterShot T
+---@field coveringFire T
+---@field crescentSteel T
+---@field cullTheHerd T
+---@field darkChains T
+---@field darkEmpowerment T
+---@field darknessCalls T
+---@field dash T
+---@field deadlySting T
+---@field deathShade T
+---@field defenseMatrix T
+---@field denRecovery T
+---@field devilsaurTranquilizer T
+---@field disenchant T
+---@field disengage T
+---@field dismissPet T
+---@field disruptiveRounds T
+---@field dontLookBack T
+---@field dragonsGuile T
+---@field dustCloud T
+---@field eagleEye T
+---@field embraceTheShadows T
+---@field emergencySalve T
+---@field entrapment T
+---@field escapeArtist T
+---@field eternalGuardian T
+---@field exhilaration T
+---@field extrapolatedShots T
+---@field eyeOfTheBeast T
+---@field eyesClosed T
+---@field feast T
+---@field featherFlurry T
+---@field feedPet T
+---@field feignDeath T
+---@field fetch T
+---@field flare T
+---@field fleethoof T
+---@field fortitudeOfTheBear T
+---@field freezingTrap T
+---@field frenziedTear T
+---@field frostBreath T
+---@field froststormBreath T
+---@field furiousAssault T
+---@field furiousBite T
+---@field ghillieSuit T
+---@field global T
+---@field gnaw T
+---@field gore T
+---@field graveReaper T
+---@field grievousBite T
+---@field growl T
+---@field gruesomeBite T
+---@field hardenCarapace T
+---@field highExplosiveTrap T
+---@field howlOfThePack T
+---@field huntersAvoidance T
+---@field huntersMark T
+---@field implosiveTrap T
+---@field improvedKillShot T
+---@field improvedTraps T
+---@field infectedBite T
+---@field intimidation T
+---@field invigoratingPulse T
+---@field keenEyesight T
+---@field kindlingFlare T
+---@field kodoTranquilizer T
+---@field lockJaw T
+---@field loneSurvivor T
+---@field lunarStorm T
+---@field mastersCall T
+---@field mendPet T
+---@field misdirection T
+---@field momentOfOpportunity T
+---@field monsterousBite T
+---@field naturalMending T
+---@field naturesGrace T
+---@field netherEnergy T
+---@field noHardFeelings T
+---@field obsidianSkin T
+---@field overshadow T
+---@field overwatch T
+---@field packAssault T
+---@field packCoordination T
+---@field paddedArmor T
+---@field pathfinding T
+---@field perception T
+---@field petrifyingGaze T
+---@field pin T
+---@field play T
+---@field playDead T
+---@field posthaste T
+---@field primalAgility T
+---@field primalRage T
+---@field prowl T
+---@field quickLoad T
+---@field racial T
+---@field ravage T
+---@field rejuvenatingWind T
+---@field releaseAndReload T
+---@field restBear T
+---@field restRodent T
+---@field revivePet T
+---@field roarOfSacrifice T
+---@field savageRend T
+---@field scaleShield T
+---@field scareBeast T
+---@field scatterShot T
+---@field scatteredPrey T
+---@field scoutsInstincts T
+---@field scrappy T
+---@field sentinel T
+---@field sentinelPrecision T
+---@field sentinelWatch T
+---@field serenityDust T
+---@field serpentSwiftness T
+---@field serratedTips T
+---@field shadowErasure T
+---@field shadowHounds T
+---@field shadowLash T
+---@field shadowSurge T
+---@field shadowmeld T
+---@field shellShield T
+---@field sideline T
+---@field smack T
+---@field smokeScreen T
+---@field solidShell T
+---@field sonicScreech T
+---@field soothingWater T
+---@field specializedArsenal T
+---@field spiritPulse T
+---@field spiritWalk T
+---@field spiritmend T
+---@field sporeCloud T
+---@field steadyShot T
+---@field stoneform T
+---@field surfaceTrot T
+---@field survivalOfTheFittest T
+---@field swarmOfFlies T
+---@field symphonicArsenal T
+---@field talonRend T
+---@field tameBeast T
+---@field tarTrap T
+---@field tarcoatedBindings T
+---@field tendonRip T
+---@field territorialInstincts T
+---@field tirelessHunt T
+---@field toxicSting T
+---@field trackBeasts T
+---@field trackDemons T
+---@field trackDragonkin T
+---@field trackElementals T
+---@field trackGiants T
+---@field trackHidden T
+---@field trackHumanoids T
+---@field trackMechanicals T
+---@field trackUndead T
+---@field trailblazer T
+---@field trample T
+---@field tranquilizingShot T
+---@field trickBirdOfPrey T
+---@field trickCrane T
+---@field triggerFinger T
+---@field unnaturalCauses T
+---@field updraft T
+---@field viciousHunt T
+---@field wakeUp T
+---@field warStomp T
+---@field warpTime T
+---@field webSpray T
+---@field wildAttacks T
+---@field wildernessMedicine T
+---@field willOfTheForsaken T
+---@field wingClip T
+---@field wingedAgility T
+---@field witheringFire T
+
+---@class BR.Keys.Classic.Hunter.Buffs<T>
+---@field aspectOfTheTurtle T
+---@field eagletalonsTrueFocus T
+---@field feignDeath T
+---@field flayersMark T
+---@field killingFrenzy T
+---@field mendPet T
+---@field nesingwarysTrappingApparatus T
+---@field playDead T
+---@field prowl T
+---@field racial T
+---@field resonatingArrow T
+---@field spiritWalk T
+---@field surfaceTrot T
+---@field updraft T
+---@field volley T
+---@field wildSpirits T
+
+---@class BR.Keys.Classic.Hunter.Debuffs<T>
+---@field bestialFerocity T
+---@field freezingTrap T
+---@field huntersMark T
+---@field intimidation T
+---@field latentPoison T
+---@field mortalWounds T
+---@field resonatingArrow T
+---@field soulforgeEmbers T
+---@field tarTrap T
+---@field wildMark T
+
+---@class BR.Keys.Classic.Hunter.Glyphs<T>
+
+---@class BR.Keys.Classic.Hunter.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.Classic.Hunter.Totems<T>
+
+---@class BR.Classic.Hunter.talent.rank
+---@field beastOfOpportunity integer
+---@field bindingShot integer
+---@field blackArrow integer
+---@field blackrockMunitions integer
+---@field bornToBeWild integer
+---@field burstingShot integer
+---@field camouflage integer
+---@field catchOut integer
+---@field concussiveShot integer
+---@field corneredPrey integer
+---@field counterShot integer
+---@field coveringFire integer
+---@field crescentSteel integer
+---@field cullTheHerd integer
+---@field darkChains integer
+---@field darkEmpowerment integer
+---@field darknessCalls integer
+---@field deathShade integer
+---@field denRecovery integer
+---@field devilsaurTranquilizer integer
+---@field disruptiveRounds integer
+---@field dontLookBack integer
+---@field embraceTheShadows integer
+---@field emergencySalve integer
+---@field entrapment integer
+---@field extrapolatedShots integer
+---@field eyesClosed integer
+---@field frenziedTear integer
+---@field furiousAssault integer
+---@field ghillieSuit integer
+---@field graveReaper integer
+---@field highExplosiveTrap integer
+---@field howlOfThePack integer
+---@field huntersAvoidance integer
+---@field implosiveTrap integer
+---@field improvedKillShot integer
+---@field improvedTraps integer
+---@field intimidation integer
+---@field invigoratingPulse integer
+---@field keenEyesight integer
+---@field kindlingFlare integer
+---@field kodoTranquilizer integer
+---@field loneSurvivor integer
+---@field lunarStorm integer
+---@field misdirection integer
+---@field momentOfOpportunity integer
+---@field naturalMending integer
+---@field noHardFeelings integer
+---@field overshadow integer
+---@field overwatch integer
+---@field packAssault integer
+---@field packCoordination integer
+---@field paddedArmor integer
+---@field pathfinding integer
+---@field posthaste integer
+---@field quickLoad integer
+---@field rejuvenatingWind integer
+---@field releaseAndReload integer
+---@field roarOfSacrifice integer
+---@field scareBeast integer
+---@field scatterShot integer
+---@field scatteredPrey integer
+---@field scoutsInstincts integer
+---@field scrappy integer
+---@field sentinel integer
+---@field sentinelPrecision integer
+---@field sentinelWatch integer
+---@field serratedTips integer
+---@field shadowErasure integer
+---@field shadowHounds integer
+---@field shadowLash integer
+---@field shadowSurge integer
+---@field sideline integer
+---@field smokeScreen integer
+---@field specializedArsenal integer
+---@field survivalOfTheFittest integer
+---@field symphonicArsenal integer
+---@field tarTrap integer
+---@field tarcoatedBindings integer
+---@field territorialInstincts integer
+---@field tirelessHunt integer
+---@field trailblazer integer
+---@field tranquilizingShot integer
+---@field triggerFinger integer
+---@field unnaturalCauses integer
+---@field viciousHunt integer
+---@field wildAttacks integer
+---@field wildernessMedicine integer
+---@field witheringFire integer
+
+
+---@class BR.Classic.Hunter.buff : BR.Keys.Classic.Hunter.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.Classic.Hunter.cast.able : BR.cast.able.Base, BR.Keys.Classic.Hunter.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.Classic.Hunter.cast.active : BR.Keys.Classic.Hunter.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.Classic.Hunter.cast.auto : BR.Keys.Classic.Hunter.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.Classic.Hunter.cast.cancel : BR.Keys.Classic.Hunter.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.Classic.Hunter.cast.cost : BR.Keys.Classic.Hunter.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.Classic.Hunter.cast.current : BR.cast.current.Base, BR.Keys.Classic.Hunter.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.Classic.Hunter.cast.dispel : BR.Keys.Classic.Hunter.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.Classic.Hunter.cast.empowered : BR.Keys.Classic.Hunter.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.Classic.Hunter.cast.inFlight : BR.Keys.Classic.Hunter.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.Classic.Hunter.cast.inFlightRemain : BR.Keys.Classic.Hunter.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.Classic.Hunter.cast.last.time : BR.Keys.Classic.Hunter.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.Classic.Hunter.cast.last : BR.Keys.Classic.Hunter.Abilities<BR.cast.last.Spell>
+---@field time BR.Classic.Hunter.cast.last.time
+
+
+---@class BR.Classic.Hunter.cast.maxRank : BR.Keys.Classic.Hunter.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.Classic.Hunter.cast.noControl : BR.Keys.Classic.Hunter.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.Classic.Hunter.cast.opener : BR.cast.opener.Base, BR.Keys.Classic.Hunter.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.Classic.Hunter.cast.pool : BR.Keys.Classic.Hunter.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.Classic.Hunter.cast.range : BR.Keys.Classic.Hunter.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.Classic.Hunter.cast.regen : BR.Keys.Classic.Hunter.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.Classic.Hunter.cast.safe : BR.Keys.Classic.Hunter.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.Classic.Hunter.cast.time : BR.Keys.Classic.Hunter.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.Classic.Hunter.cast.timeSinceLast : BR.Keys.Classic.Hunter.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.Classic.Hunter.cast : BR.cast.Base, BR.Keys.Classic.Hunter.Abilities<BR.cast.Spell>
+---@field able BR.Classic.Hunter.cast.able
+---@field active BR.Classic.Hunter.cast.active
+---@field auto BR.Classic.Hunter.cast.auto
+---@field cancel BR.Classic.Hunter.cast.cancel
+---@field cost BR.Classic.Hunter.cast.cost
+---@field current BR.Classic.Hunter.cast.current
+---@field dispel BR.Classic.Hunter.cast.dispel
+---@field empowered BR.Classic.Hunter.cast.empowered
+---@field inFlight BR.Classic.Hunter.cast.inFlight
+---@field inFlightRemain BR.Classic.Hunter.cast.inFlightRemain
+---@field last BR.Classic.Hunter.cast.last
+---@field maxRank BR.Classic.Hunter.cast.maxRank
+---@field noControl BR.Classic.Hunter.cast.noControl
+---@field opener BR.Classic.Hunter.cast.opener
+---@field pool BR.Classic.Hunter.cast.pool
+---@field range BR.Classic.Hunter.cast.range
+---@field regen BR.Classic.Hunter.cast.regen
+---@field safe BR.Classic.Hunter.cast.safe
+---@field time BR.Classic.Hunter.cast.time
+---@field timeSinceLast BR.Classic.Hunter.cast.timeSinceLast
+
+
+---@class BR.Classic.Hunter.cd : BR.cd.Base, BR.Keys.Classic.Hunter.Abilities<BR.cd.Spell>, BR.Keys.Classic.Hunter.Items<BR.cd.Item>
+
+
+---@class BR.Classic.Hunter.charges : BR.Keys.Classic.Hunter.Abilities<BR.charges.Spell>, BR.Keys.Classic.Hunter.Items<BR.charges.Item>
+
+
+---@class BR.Classic.Hunter.debuff : BR.Keys.Classic.Hunter.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.Classic.Hunter.equiped.socket : BR.Keys.Classic.Hunter.Items<BR.equiped.socket.Item>
+
+---@class BR.Classic.Hunter.equiped : BR.equiped.Base, BR.Keys.Classic.Hunter.Items<BR.equiped.Item>
+---@field socket BR.Classic.Hunter.equiped.socket
+
+
+---@class BR.Classic.Hunter.glyph : BR.glyph.Base, BR.Keys.Classic.Hunter.Glyphs<BR.glyph.K>
+
+
+---@class BR.Classic.Hunter.has : BR.has.Base, BR.Keys.Classic.Hunter.Items<BR.has.Item>
+
+
+---@class BR.Classic.Hunter.heroTree
+
+
+---@class BR.Classic.Hunter.imbues
+
+
+---@class BR.Classic.Hunter.spell : BR.Keys.Classic.Hunter.Abilities<BR.spell.K>
+
+
+---@class BR.Classic.Hunter.talent
+---@field rank BR.Classic.Hunter.talent.rank The rank of each talent (0 when not taken)
+---@field beastOfOpportunity boolean # true while the talent is taken
+---@field bindingShot boolean # true while the talent is taken
+---@field blackArrow boolean # true while the talent is taken
+---@field blackrockMunitions boolean # true while the talent is taken
+---@field bornToBeWild boolean # true while the talent is taken
+---@field burstingShot boolean # true while the talent is taken
+---@field camouflage boolean # true while the talent is taken
+---@field catchOut boolean # true while the talent is taken
+---@field concussiveShot boolean # true while the talent is taken
+---@field corneredPrey boolean # true while the talent is taken
+---@field counterShot boolean # true while the talent is taken
+---@field coveringFire boolean # true while the talent is taken
+---@field crescentSteel boolean # true while the talent is taken
+---@field cullTheHerd boolean # true while the talent is taken
+---@field darkChains boolean # true while the talent is taken
+---@field darkEmpowerment boolean # true while the talent is taken
+---@field darknessCalls boolean # true while the talent is taken
+---@field deathShade boolean # true while the talent is taken
+---@field denRecovery boolean # true while the talent is taken
+---@field devilsaurTranquilizer boolean # true while the talent is taken
+---@field disruptiveRounds boolean # true while the talent is taken
+---@field dontLookBack boolean # true while the talent is taken
+---@field embraceTheShadows boolean # true while the talent is taken
+---@field emergencySalve boolean # true while the talent is taken
+---@field entrapment boolean # true while the talent is taken
+---@field extrapolatedShots boolean # true while the talent is taken
+---@field eyesClosed boolean # true while the talent is taken
+---@field frenziedTear boolean # true while the talent is taken
+---@field furiousAssault boolean # true while the talent is taken
+---@field ghillieSuit boolean # true while the talent is taken
+---@field graveReaper boolean # true while the talent is taken
+---@field highExplosiveTrap boolean # true while the talent is taken
+---@field howlOfThePack boolean # true while the talent is taken
+---@field huntersAvoidance boolean # true while the talent is taken
+---@field implosiveTrap boolean # true while the talent is taken
+---@field improvedKillShot boolean # true while the talent is taken
+---@field improvedTraps boolean # true while the talent is taken
+---@field intimidation boolean # true while the talent is taken
+---@field invigoratingPulse boolean # true while the talent is taken
+---@field keenEyesight boolean # true while the talent is taken
+---@field kindlingFlare boolean # true while the talent is taken
+---@field kodoTranquilizer boolean # true while the talent is taken
+---@field loneSurvivor boolean # true while the talent is taken
+---@field lunarStorm boolean # true while the talent is taken
+---@field misdirection boolean # true while the talent is taken
+---@field momentOfOpportunity boolean # true while the talent is taken
+---@field naturalMending boolean # true while the talent is taken
+---@field noHardFeelings boolean # true while the talent is taken
+---@field overshadow boolean # true while the talent is taken
+---@field overwatch boolean # true while the talent is taken
+---@field packAssault boolean # true while the talent is taken
+---@field packCoordination boolean # true while the talent is taken
+---@field paddedArmor boolean # true while the talent is taken
+---@field pathfinding boolean # true while the talent is taken
+---@field posthaste boolean # true while the talent is taken
+---@field quickLoad boolean # true while the talent is taken
+---@field rejuvenatingWind boolean # true while the talent is taken
+---@field releaseAndReload boolean # true while the talent is taken
+---@field roarOfSacrifice boolean # true while the talent is taken
+---@field scareBeast boolean # true while the talent is taken
+---@field scatterShot boolean # true while the talent is taken
+---@field scatteredPrey boolean # true while the talent is taken
+---@field scoutsInstincts boolean # true while the talent is taken
+---@field scrappy boolean # true while the talent is taken
+---@field sentinel boolean # true while the talent is taken
+---@field sentinelPrecision boolean # true while the talent is taken
+---@field sentinelWatch boolean # true while the talent is taken
+---@field serratedTips boolean # true while the talent is taken
+---@field shadowErasure boolean # true while the talent is taken
+---@field shadowHounds boolean # true while the talent is taken
+---@field shadowLash boolean # true while the talent is taken
+---@field shadowSurge boolean # true while the talent is taken
+---@field sideline boolean # true while the talent is taken
+---@field smokeScreen boolean # true while the talent is taken
+---@field specializedArsenal boolean # true while the talent is taken
+---@field survivalOfTheFittest boolean # true while the talent is taken
+---@field symphonicArsenal boolean # true while the talent is taken
+---@field tarTrap boolean # true while the talent is taken
+---@field tarcoatedBindings boolean # true while the talent is taken
+---@field territorialInstincts boolean # true while the talent is taken
+---@field tirelessHunt boolean # true while the talent is taken
+---@field trailblazer boolean # true while the talent is taken
+---@field tranquilizingShot boolean # true while the talent is taken
+---@field triggerFinger boolean # true while the talent is taken
+---@field unnaturalCauses boolean # true while the talent is taken
+---@field viciousHunt boolean # true while the talent is taken
+---@field wildAttacks boolean # true while the talent is taken
+---@field wildernessMedicine boolean # true while the talent is taken
+---@field witheringFire boolean # true while the talent is taken
+
+
+
+
+---@class BR.Classic.Hunter.totem.Element : BR.totem.Element.Base, BR.Keys.Classic.Hunter.Totems<BR.totem.Element.TotemName>
+
+---@class BR.Classic.Hunter.totem : BR.totem.Base, BR.Keys.Elements<BR.Classic.Hunter.totem.Element>
+
+
+
+
+---@class BR.Classic.Hunter.use.able : BR.use.able.Base, BR.Keys.Classic.Hunter.Items<BR.use.able.Item>
+
+---@class BR.Classic.Hunter.use : BR.use.Base, BR.Keys.Classic.Hunter.Items<BR.use.Item>
+---@field able BR.Classic.Hunter.use.able
+
+---@class BR.Keys.Forever.Druid.Abilities<T>
+---@field abolishPoison T
+---@field aquaticForm T
+---@field autoAttack T
+---@field autoShot T
+---@field barkskin T
+---@field bash T
+---@field bearForm T
+---@field berserk T
+---@field berserking T
+---@field bloodFury T
+---@field cannibalize T
+---@field catForm T
+---@field challengingRoar T
+---@field claw T
+---@field cower T
+---@field curePoison T
+---@field dash T
+---@field demoralizingRoar T
+---@field direBearForm T
+---@field disenchant T
+---@field eclipse T
+---@field elunesLight T
+---@field enrage T
+---@field entanglingRoots T
+---@field escapeArtist T
+---@field faerieFire T
+---@field feralCharge T
+---@field feralChargeBear T
+---@field ferociousBite T
+---@field frenziedRegeneration T
+---@field giftOfTheWild T
+---@field global T
+---@field growl T
+---@field healingTouch T
+---@field hibernate T
+---@field hurricane T
+---@field innervate T
+---@field insectSwarm T
+---@field lacerate T
+---@field markOfTheWild T
+---@field maul T
+---@field moonfire T
+---@field moonkinForm T
+---@field naturesGrasp T
+---@field naturesSwiftness T
+---@field omenOfClarity T
+---@field perception T
+---@field pounce T
+---@field primalBite T
+---@field prowl T
+---@field racial T
+---@field rake T
+---@field ravage T
+---@field readLeyLine T
+---@field rebirth T
+---@field regrowth T
+---@field rejuvenation T
+---@field removeCurse T
+---@field rendAndTear T
+---@field revive T
+---@field rip T
+---@field shadowmeld T
+---@field shatterCurse T
+---@field shiftingPower T
+---@field shred T
+---@field skysight T
+---@field sootheAnimal T
+---@field starfire T
+---@field stoneform T
+---@field swiftmend T
+---@field swipe T
+---@field swipeCat T
+---@field thorns T
+---@field tigersFury T
+---@field tranquility T
+---@field travelForm T
+---@field walkOnAir T
+---@field warStomp T
+---@field wildGrowth T
+---@field willOfTheForsaken T
+---@field willToSurvive T
+---@field wrath T
+
+---@class BR.Keys.Forever.Druid.Buffs<T>
+---@field abolishPoison T
+---@field aquaticForm T
+---@field barkskin T
+---@field bearForm T
+---@field berserk T
+---@field catForm T
+---@field clearcasting T
+---@field dash T
+---@field direBearForm T
+---@field eclipse T
+---@field enrage T
+---@field frenziedRegeneration T
+---@field giftOfTheWild T
+---@field markOfTheWild T
+---@field moonkinForm T
+---@field naturesGrasp T
+---@field naturesSwiftness T
+---@field omenOfClarity T
+---@field prowl T
+---@field racial T
+---@field regrowth T
+---@field rejuvenation T
+---@field shadowmeld T
+---@field thorns T
+---@field tigersFury T
+---@field travelForm T
+
+---@class BR.Keys.Forever.Druid.Debuffs<T>
+---@field demoralizingRoar T
+---@field entanglingRoots T
+---@field faerieFire T
+---@field hibernate T
+---@field insectSwarm T
+---@field lacerate T
+---@field moonfire T
+---@field pounceBleed T
+---@field rake T
+---@field rip T
+
+---@class BR.Keys.Forever.Druid.Glyphs<T>
+
+---@class BR.Keys.Forever.Druid.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.Forever.Druid.Totems<T>
+
+---@class BR.Forever.Druid.talent.rank
+
+
+---@class BR.Forever.Druid.buff : BR.Keys.Forever.Druid.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.Forever.Druid.cast.able : BR.cast.able.Base, BR.Keys.Forever.Druid.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.Forever.Druid.cast.active : BR.Keys.Forever.Druid.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.Forever.Druid.cast.auto : BR.Keys.Forever.Druid.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.Forever.Druid.cast.cancel : BR.Keys.Forever.Druid.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.Forever.Druid.cast.cost : BR.Keys.Forever.Druid.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.Forever.Druid.cast.current : BR.cast.current.Base, BR.Keys.Forever.Druid.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.Forever.Druid.cast.dispel : BR.Keys.Forever.Druid.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.Forever.Druid.cast.empowered : BR.Keys.Forever.Druid.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.Forever.Druid.cast.inFlight : BR.Keys.Forever.Druid.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.Forever.Druid.cast.inFlightRemain : BR.Keys.Forever.Druid.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.Forever.Druid.cast.last.time : BR.Keys.Forever.Druid.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.Forever.Druid.cast.last : BR.Keys.Forever.Druid.Abilities<BR.cast.last.Spell>
+---@field time BR.Forever.Druid.cast.last.time
+
+
+---@class BR.Forever.Druid.cast.maxRank : BR.Keys.Forever.Druid.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.Forever.Druid.cast.noControl : BR.Keys.Forever.Druid.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.Forever.Druid.cast.opener : BR.cast.opener.Base, BR.Keys.Forever.Druid.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.Forever.Druid.cast.pool : BR.Keys.Forever.Druid.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.Forever.Druid.cast.range : BR.Keys.Forever.Druid.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.Forever.Druid.cast.regen : BR.Keys.Forever.Druid.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.Forever.Druid.cast.safe : BR.Keys.Forever.Druid.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.Forever.Druid.cast.time : BR.Keys.Forever.Druid.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.Forever.Druid.cast.timeSinceLast : BR.Keys.Forever.Druid.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.Forever.Druid.cast : BR.cast.Base, BR.Keys.Forever.Druid.Abilities<BR.cast.Spell>
+---@field able BR.Forever.Druid.cast.able
+---@field active BR.Forever.Druid.cast.active
+---@field auto BR.Forever.Druid.cast.auto
+---@field cancel BR.Forever.Druid.cast.cancel
+---@field cost BR.Forever.Druid.cast.cost
+---@field current BR.Forever.Druid.cast.current
+---@field dispel BR.Forever.Druid.cast.dispel
+---@field empowered BR.Forever.Druid.cast.empowered
+---@field inFlight BR.Forever.Druid.cast.inFlight
+---@field inFlightRemain BR.Forever.Druid.cast.inFlightRemain
+---@field last BR.Forever.Druid.cast.last
+---@field maxRank BR.Forever.Druid.cast.maxRank
+---@field noControl BR.Forever.Druid.cast.noControl
+---@field opener BR.Forever.Druid.cast.opener
+---@field pool BR.Forever.Druid.cast.pool
+---@field range BR.Forever.Druid.cast.range
+---@field regen BR.Forever.Druid.cast.regen
+---@field safe BR.Forever.Druid.cast.safe
+---@field time BR.Forever.Druid.cast.time
+---@field timeSinceLast BR.Forever.Druid.cast.timeSinceLast
+
+
+---@class BR.Forever.Druid.cd : BR.cd.Base, BR.Keys.Forever.Druid.Abilities<BR.cd.Spell>, BR.Keys.Forever.Druid.Items<BR.cd.Item>
+
+
+---@class BR.Forever.Druid.charges : BR.Keys.Forever.Druid.Abilities<BR.charges.Spell>, BR.Keys.Forever.Druid.Items<BR.charges.Item>
+
+
+---@class BR.Forever.Druid.debuff : BR.Keys.Forever.Druid.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.Forever.Druid.equiped.socket : BR.Keys.Forever.Druid.Items<BR.equiped.socket.Item>
+
+---@class BR.Forever.Druid.equiped : BR.equiped.Base, BR.Keys.Forever.Druid.Items<BR.equiped.Item>
+---@field socket BR.Forever.Druid.equiped.socket
+
+
+---@class BR.Forever.Druid.glyph : BR.glyph.Base, BR.Keys.Forever.Druid.Glyphs<BR.glyph.K>
+
+
+---@class BR.Forever.Druid.has : BR.has.Base, BR.Keys.Forever.Druid.Items<BR.has.Item>
+
+
+---@class BR.Forever.Druid.heroTree
+
+
+---@class BR.Forever.Druid.imbues
+
+
+---@class BR.Forever.Druid.spell : BR.Keys.Forever.Druid.Abilities<BR.spell.K>
+
+
+---@class BR.Forever.Druid.talent
+---@field rank BR.Forever.Druid.talent.rank The rank of each talent (0 when not taken)
+
+
+
+
+---@class BR.Forever.Druid.totem.Element : BR.totem.Element.Base, BR.Keys.Forever.Druid.Totems<BR.totem.Element.TotemName>
+
+---@class BR.Forever.Druid.totem : BR.totem.Base, BR.Keys.Elements<BR.Forever.Druid.totem.Element>
+
+
+
+
+---@class BR.Forever.Druid.use.able : BR.use.able.Base, BR.Keys.Forever.Druid.Items<BR.use.able.Item>
+
+---@class BR.Forever.Druid.use : BR.use.Base, BR.Keys.Forever.Druid.Items<BR.use.Item>
+---@field able BR.Forever.Druid.use.able
+
+---@class BR.Keys.MOP.DeathKnight.Frost.Abilities<T>
+---@field antiMagicShell T
+---@field antiMagicZone T
+---@field armyOfTheDead T
+---@field asphyxiate T
+---@field autoAttack T
+---@field autoShot T
+---@field bloodBoil T
+---@field bloodPlague T
+---@field bloodPresence T
+---@field bloodStrike T
+---@field bloodTap T
+---@field chainsOfIce T
+---@field chilblains T
+---@field controlUndead T
+---@field conversion T
+---@field darkSimulacrum T
+---@field deathAndDecay T
+---@field deathCoil T
+---@field deathGate T
+---@field deathGrip T
+---@field deathPact T
+---@field deathSiphon T
+---@field deathStrike T
+---@field deathsAdvance T
+---@field desecratedGround T
+---@field disenchant T
+---@field empowerRuneWeapon T
+---@field frostFever T
+---@field frostPresence T
+---@field frostStrike T
+---@field giftOfTheNaaru T
+---@field global T
+---@field gorefiendsGrasp T
+---@field hornOfWinter T
+---@field howlingBlast T
+---@field iceboundFortitude T
+---@field icyTouch T
+---@field lichborne T
+---@field milling T
+---@field mindFreeze T
+---@field necroticStrike T
+---@field obliterate T
+---@field onAPaleHorse T
+---@field outbreak T
+---@field pathOfFrost T
+---@field pestilence T
+---@field pillarOfFrost T
+---@field plagueLeech T
+---@field plagueStrike T
+---@field prospecting T
+---@field purgatory T
+---@field quakingPalm T
+---@field racial T
+---@field raiseAlly T
+---@field raiseDead T
+---@field remorselessWinter T
+---@field roilingBlood T
+---@field runicCorruption T
+---@field runicEmpowerment T
+---@field shadowmeld T
+---@field soulReaper T
+---@field strangulate T
+---@field twoForms T
+---@field unholyBlight T
+---@field unholyPresence T
+
+---@class BR.Keys.MOP.DeathKnight.Frost.Buffs<T>
+---@field ancientHysteria T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodCharge T
+---@field bloodLust T
+---@field darkSuccor T
+---@field flashOfSpringBlossoms T
+---@field frostPresence T
+---@field heroism T
+---@field killingMachine T
+---@field lichborne T
+---@field pillarOfFrost T
+---@field racial T
+---@field rime T
+---@field runeOfReorigination T
+---@field shadowmeld T
+---@field symbolOfHope T
+---@field timeWarp T
+---@field vicious T
+---@field virmensBite T
+
+---@class BR.Keys.MOP.DeathKnight.Frost.Debuffs<T>
+---@field bloodPlague T
+---@field convert T
+---@field dampening T
+---@field frostFever T
+---@field mightyBash T
+
+---@class BR.Keys.MOP.DeathKnight.Frost.Glyphs<T>
+
+---@class BR.Keys.MOP.DeathKnight.Frost.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.MOP.DeathKnight.Frost.Totems<T>
+
+---@class BR.MOP.DeathKnight.Frost.talent.rank
+---@field antiMagicZone integer
+---@field asphyxiate integer
+---@field bloodTap integer
+---@field chilblains integer
+---@field conversion integer
+---@field deathPact integer
+---@field deathSiphon integer
+---@field deathsAdvance integer
+---@field desecratedGround integer
+---@field gorefiendsGrasp integer
+---@field lichborne integer
+---@field plagueLeech integer
+---@field purgatory integer
+---@field remorselessWinter integer
+---@field roilingBlood integer
+---@field runicCorruption integer
+---@field runicEmpowerment integer
+---@field unholyBlight integer
+
+
+---@class BR.MOP.DeathKnight.Frost.buff : BR.Keys.MOP.DeathKnight.Frost.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.able : BR.cast.able.Base, BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.active : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.auto : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.cancel : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.cost : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.current : BR.cast.current.Base, BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.dispel : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.empowered : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.inFlight : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.inFlightRemain : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.last.time : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.MOP.DeathKnight.Frost.cast.last : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.last.Spell>
+---@field time BR.MOP.DeathKnight.Frost.cast.last.time
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.maxRank : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.noControl : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.opener : BR.cast.opener.Base, BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.pool : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.range : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.regen : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.safe : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.time : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.MOP.DeathKnight.Frost.cast.timeSinceLast : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.MOP.DeathKnight.Frost.cast : BR.cast.Base, BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cast.Spell>
+---@field able BR.MOP.DeathKnight.Frost.cast.able
+---@field active BR.MOP.DeathKnight.Frost.cast.active
+---@field auto BR.MOP.DeathKnight.Frost.cast.auto
+---@field cancel BR.MOP.DeathKnight.Frost.cast.cancel
+---@field cost BR.MOP.DeathKnight.Frost.cast.cost
+---@field current BR.MOP.DeathKnight.Frost.cast.current
+---@field dispel BR.MOP.DeathKnight.Frost.cast.dispel
+---@field empowered BR.MOP.DeathKnight.Frost.cast.empowered
+---@field inFlight BR.MOP.DeathKnight.Frost.cast.inFlight
+---@field inFlightRemain BR.MOP.DeathKnight.Frost.cast.inFlightRemain
+---@field last BR.MOP.DeathKnight.Frost.cast.last
+---@field maxRank BR.MOP.DeathKnight.Frost.cast.maxRank
+---@field noControl BR.MOP.DeathKnight.Frost.cast.noControl
+---@field opener BR.MOP.DeathKnight.Frost.cast.opener
+---@field pool BR.MOP.DeathKnight.Frost.cast.pool
+---@field range BR.MOP.DeathKnight.Frost.cast.range
+---@field regen BR.MOP.DeathKnight.Frost.cast.regen
+---@field safe BR.MOP.DeathKnight.Frost.cast.safe
+---@field time BR.MOP.DeathKnight.Frost.cast.time
+---@field timeSinceLast BR.MOP.DeathKnight.Frost.cast.timeSinceLast
+
+
+---@class BR.MOP.DeathKnight.Frost.cd : BR.cd.Base, BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.cd.Spell>, BR.Keys.MOP.DeathKnight.Frost.Items<BR.cd.Item>
+
+
+---@class BR.MOP.DeathKnight.Frost.charges : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.charges.Spell>, BR.Keys.MOP.DeathKnight.Frost.Items<BR.charges.Item>
+
+
+---@class BR.MOP.DeathKnight.Frost.debuff : BR.Keys.MOP.DeathKnight.Frost.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.MOP.DeathKnight.Frost.equiped.socket : BR.Keys.MOP.DeathKnight.Frost.Items<BR.equiped.socket.Item>
+
+---@class BR.MOP.DeathKnight.Frost.equiped : BR.equiped.Base, BR.Keys.MOP.DeathKnight.Frost.Items<BR.equiped.Item>
+---@field socket BR.MOP.DeathKnight.Frost.equiped.socket
+
+
+---@class BR.MOP.DeathKnight.Frost.glyph : BR.glyph.Base, BR.Keys.MOP.DeathKnight.Frost.Glyphs<BR.glyph.K>
+
+
+---@class BR.MOP.DeathKnight.Frost.has : BR.has.Base, BR.Keys.MOP.DeathKnight.Frost.Items<BR.has.Item>
+
+
+---@class BR.MOP.DeathKnight.Frost.heroTree
+
+
+---@class BR.MOP.DeathKnight.Frost.imbues
+
+
+---@class BR.MOP.DeathKnight.Frost.spell : BR.Keys.MOP.DeathKnight.Frost.Abilities<BR.spell.K>
+
+
+---@class BR.MOP.DeathKnight.Frost.talent
+---@field rank BR.MOP.DeathKnight.Frost.talent.rank The rank of each talent (0 when not taken)
+---@field antiMagicZone boolean # true while the talent is taken
+---@field asphyxiate boolean # true while the talent is taken
+---@field bloodTap boolean # true while the talent is taken
+---@field chilblains boolean # true while the talent is taken
+---@field conversion boolean # true while the talent is taken
+---@field deathPact boolean # true while the talent is taken
+---@field deathSiphon boolean # true while the talent is taken
+---@field deathsAdvance boolean # true while the talent is taken
+---@field desecratedGround boolean # true while the talent is taken
+---@field gorefiendsGrasp boolean # true while the talent is taken
+---@field lichborne boolean # true while the talent is taken
+---@field plagueLeech boolean # true while the talent is taken
+---@field purgatory boolean # true while the talent is taken
+---@field remorselessWinter boolean # true while the talent is taken
+---@field roilingBlood boolean # true while the talent is taken
+---@field runicCorruption boolean # true while the talent is taken
+---@field runicEmpowerment boolean # true while the talent is taken
+---@field unholyBlight boolean # true while the talent is taken
+
+
+
+
+---@class BR.MOP.DeathKnight.Frost.totem.Element : BR.totem.Element.Base, BR.Keys.MOP.DeathKnight.Frost.Totems<BR.totem.Element.TotemName>
+
+---@class BR.MOP.DeathKnight.Frost.totem : BR.totem.Base, BR.Keys.Elements<BR.MOP.DeathKnight.Frost.totem.Element>
+
+
+
+
+---@class BR.MOP.DeathKnight.Frost.use.able : BR.use.able.Base, BR.Keys.MOP.DeathKnight.Frost.Items<BR.use.able.Item>
+
+---@class BR.MOP.DeathKnight.Frost.use : BR.use.Base, BR.Keys.MOP.DeathKnight.Frost.Items<BR.use.Item>
+---@field able BR.MOP.DeathKnight.Frost.use.able
+
+---@class BR.Keys.MOP.Druid.Feral.Abilities<T>
+---@field aquaticForm T
+---@field autoAttack T
+---@field autoShot T
+---@field barkskin T
+---@field bearForm T
+---@field berserk T
+---@field catForm T
+---@field cenarionWard T
+---@field charmWoodlandCreature T
+---@field cyclone T
+---@field dash T
+---@field disenchant T
+---@field disorientingRoar T
+---@field displacerBeast T
+---@field dreamOfCenarius T
+---@field entanglingRoots T
+---@field faerieFire T
+---@field faerieSwarm T
+---@field felineSwiftness T
+---@field ferociousBite T
+---@field flightForm T
+---@field forceOfNature T
+---@field giftOfTheNaaru T
+---@field global T
+---@field growl T
+---@field healingTouch T
+---@field heartOfTheWild T
+---@field incarnation T
+---@field innervate T
+---@field maim T
+---@field mangle T
+---@field mangleBear T
+---@field markOfTheWild T
+---@field massEntanglement T
+---@field maul T
+---@field mightyBash T
+---@field milling T
+---@field moonfire T
+---@field naturesSwiftness T
+---@field naturesVigil T
+---@field pounce T
+---@field prospecting T
+---@field prowl T
+---@field quakingPalm T
+---@field racial T
+---@field rake T
+---@field ravage T
+---@field rebirth T
+---@field regrowth T
+---@field rejuvenation T
+---@field removeCorruption T
+---@field renewal T
+---@field revive T
+---@field rip T
+---@field savageRoar T
+---@field shadowmeld T
+---@field shred T
+---@field skullBash T
+---@field soothe T
+---@field soulOfTheForest T
+---@field survivalInstincts T
+---@field swiftFlightForm T
+---@field swipe T
+---@field symbiosis T
+---@field teleportMoonglade T
+---@field thrash T
+---@field thrashBear T
+---@field tigersFury T
+---@field trackHumanoids T
+---@field travelForm T
+---@field twoForms T
+---@field typhoon T
+---@field ursolsVortex T
+---@field wildCharge T
+---@field wrath T
+---@field yserasGift T
+
+---@class BR.Keys.MOP.Druid.Feral.Buffs<T>
+---@field ancientHysteria T
+---@field aquaticForm T
+---@field barkskin T
+---@field bearForm T
+---@field berserk T
+---@field blessingOfFreedom T
+---@field blessingOfKings T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field burningEssence T
+---@field catForm T
+---@field clearcasting T
+---@field dash T
+---@field dreamOfCenarius T
+---@field faerieFire T
+---@field feralFury T
+---@field feralRage T
+---@field flashOfSpringBlossoms T
+---@field flightForm T
+---@field frenziedRegeneration T
+---@field heroism T
+---@field incarnation T
+---@field innervate T
+---@field legacyOfTheEmperor T
+---@field markOfTheWild T
+---@field naturesSwiftness T
+---@field predatorySwiftness T
+---@field prowl T
+---@field racial T
+---@field regrowth T
+---@field rejuvenation T
+---@field runeOfReorigination T
+---@field savageRoar T
+---@field shadowmeld T
+---@field stampedingRoar T
+---@field stampedingRoarCat T
+---@field survivalInstincts T
+---@field swiftFlightForm T
+---@field symbolOfHope T
+---@field tigersFury T
+---@field timeWarp T
+---@field travelForm T
+---@field treantForm T
+---@field vicious T
+---@field virmensBite T
+---@field wildGrowth T
+
+---@class BR.Keys.MOP.Druid.Feral.Debuffs<T>
+---@field convert T
+---@field cyclone T
+---@field dampening T
+---@field entanglingRoots T
+---@field growl T
+---@field hibernate T
+---@field massEntanglement T
+---@field mightyBash T
+---@field moonfire T
+---@field pounce T
+---@field rake T
+---@field rip T
+---@field thrash T
+---@field weakenedArmor T
+
+---@class BR.Keys.MOP.Druid.Feral.Glyphs<T>
+
+---@class BR.Keys.MOP.Druid.Feral.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.MOP.Druid.Feral.Totems<T>
+
+---@class BR.MOP.Druid.Feral.talent.rank
+---@field cenarionWard integer
+---@field disorientingRoar integer
+---@field displacerBeast integer
+---@field dreamOfCenarius integer
+---@field faerieSwarm integer
+---@field felineSwiftness integer
+---@field forceOfNature integer
+---@field heartOfTheWild integer
+---@field incarnation integer
+---@field massEntanglement integer
+---@field mightyBash integer
+---@field naturesVigil integer
+---@field renewal integer
+---@field soulOfTheForest integer
+---@field typhoon integer
+---@field ursolsVortex integer
+---@field wildCharge integer
+---@field yserasGift integer
+
+
+---@class BR.MOP.Druid.Feral.buff : BR.Keys.MOP.Druid.Feral.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.MOP.Druid.Feral.cast.able : BR.cast.able.Base, BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.active : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.auto : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.cancel : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.cost : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.current : BR.cast.current.Base, BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.dispel : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.empowered : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.inFlight : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.inFlightRemain : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.MOP.Druid.Feral.cast.last.time : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.MOP.Druid.Feral.cast.last : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.last.Spell>
+---@field time BR.MOP.Druid.Feral.cast.last.time
+
+
+---@class BR.MOP.Druid.Feral.cast.maxRank : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.noControl : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.opener : BR.cast.opener.Base, BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.pool : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.range : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.regen : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.safe : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.time : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.MOP.Druid.Feral.cast.timeSinceLast : BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.MOP.Druid.Feral.cast : BR.cast.Base, BR.Keys.MOP.Druid.Feral.Abilities<BR.cast.Spell>
+---@field able BR.MOP.Druid.Feral.cast.able
+---@field active BR.MOP.Druid.Feral.cast.active
+---@field auto BR.MOP.Druid.Feral.cast.auto
+---@field cancel BR.MOP.Druid.Feral.cast.cancel
+---@field cost BR.MOP.Druid.Feral.cast.cost
+---@field current BR.MOP.Druid.Feral.cast.current
+---@field dispel BR.MOP.Druid.Feral.cast.dispel
+---@field empowered BR.MOP.Druid.Feral.cast.empowered
+---@field inFlight BR.MOP.Druid.Feral.cast.inFlight
+---@field inFlightRemain BR.MOP.Druid.Feral.cast.inFlightRemain
+---@field last BR.MOP.Druid.Feral.cast.last
+---@field maxRank BR.MOP.Druid.Feral.cast.maxRank
+---@field noControl BR.MOP.Druid.Feral.cast.noControl
+---@field opener BR.MOP.Druid.Feral.cast.opener
+---@field pool BR.MOP.Druid.Feral.cast.pool
+---@field range BR.MOP.Druid.Feral.cast.range
+---@field regen BR.MOP.Druid.Feral.cast.regen
+---@field safe BR.MOP.Druid.Feral.cast.safe
+---@field time BR.MOP.Druid.Feral.cast.time
+---@field timeSinceLast BR.MOP.Druid.Feral.cast.timeSinceLast
+
+
+---@class BR.MOP.Druid.Feral.cd : BR.cd.Base, BR.Keys.MOP.Druid.Feral.Abilities<BR.cd.Spell>, BR.Keys.MOP.Druid.Feral.Items<BR.cd.Item>
+
+
+---@class BR.MOP.Druid.Feral.charges : BR.Keys.MOP.Druid.Feral.Abilities<BR.charges.Spell>, BR.Keys.MOP.Druid.Feral.Items<BR.charges.Item>
+
+
+---@class BR.MOP.Druid.Feral.debuff : BR.Keys.MOP.Druid.Feral.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.MOP.Druid.Feral.equiped.socket : BR.Keys.MOP.Druid.Feral.Items<BR.equiped.socket.Item>
+
+---@class BR.MOP.Druid.Feral.equiped : BR.equiped.Base, BR.Keys.MOP.Druid.Feral.Items<BR.equiped.Item>
+---@field socket BR.MOP.Druid.Feral.equiped.socket
+
+
+---@class BR.MOP.Druid.Feral.glyph : BR.glyph.Base, BR.Keys.MOP.Druid.Feral.Glyphs<BR.glyph.K>
+
+
+---@class BR.MOP.Druid.Feral.has : BR.has.Base, BR.Keys.MOP.Druid.Feral.Items<BR.has.Item>
+
+
+---@class BR.MOP.Druid.Feral.heroTree
+
+
+---@class BR.MOP.Druid.Feral.imbues
+
+
+---@class BR.MOP.Druid.Feral.spell : BR.Keys.MOP.Druid.Feral.Abilities<BR.spell.K>
+
+
+---@class BR.MOP.Druid.Feral.talent
+---@field rank BR.MOP.Druid.Feral.talent.rank The rank of each talent (0 when not taken)
+---@field cenarionWard boolean # true while the talent is taken
+---@field disorientingRoar boolean # true while the talent is taken
+---@field displacerBeast boolean # true while the talent is taken
+---@field dreamOfCenarius boolean # true while the talent is taken
+---@field faerieSwarm boolean # true while the talent is taken
+---@field felineSwiftness boolean # true while the talent is taken
+---@field forceOfNature boolean # true while the talent is taken
+---@field heartOfTheWild boolean # true while the talent is taken
+---@field incarnation boolean # true while the talent is taken
+---@field massEntanglement boolean # true while the talent is taken
+---@field mightyBash boolean # true while the talent is taken
+---@field naturesVigil boolean # true while the talent is taken
+---@field renewal boolean # true while the talent is taken
+---@field soulOfTheForest boolean # true while the talent is taken
+---@field typhoon boolean # true while the talent is taken
+---@field ursolsVortex boolean # true while the talent is taken
+---@field wildCharge boolean # true while the talent is taken
+---@field yserasGift boolean # true while the talent is taken
+
+
+
+
+---@class BR.MOP.Druid.Feral.totem.Element : BR.totem.Element.Base, BR.Keys.MOP.Druid.Feral.Totems<BR.totem.Element.TotemName>
+
+---@class BR.MOP.Druid.Feral.totem : BR.totem.Base, BR.Keys.Elements<BR.MOP.Druid.Feral.totem.Element>
+
+
+
+
+---@class BR.MOP.Druid.Feral.use.able : BR.use.able.Base, BR.Keys.MOP.Druid.Feral.Items<BR.use.able.Item>
+
+---@class BR.MOP.Druid.Feral.use : BR.use.Base, BR.Keys.MOP.Druid.Feral.Items<BR.use.Item>
+---@field able BR.MOP.Druid.Feral.use.able
+
+---@class BR.Keys.MOP.Druid.Initial.Abilities<T>
+---@field aquaticForm T
+---@field autoAttack T
+---@field autoShot T
+---@field barkskin T
+---@field bearForm T
+---@field catForm T
+---@field charmWoodlandCreature T
+---@field cyclone T
+---@field dash T
+---@field disenchant T
+---@field entanglingRoots T
+---@field faerieFire T
+---@field ferociousBite T
+---@field flightForm T
+---@field giftOfTheNaaru T
+---@field global T
+---@field growl T
+---@field healingTouch T
+---@field innervate T
+---@field mangle T
+---@field mangleBear T
+---@field markOfTheWild T
+---@field maul T
+---@field milling T
+---@field moonfire T
+---@field prospecting T
+---@field prowl T
+---@field quakingPalm T
+---@field racial T
+---@field rake T
+---@field rebirth T
+---@field regrowth T
+---@field rejuvenation T
+---@field revive T
+---@field shadowmeld T
+---@field shred T
+---@field soothe T
+---@field swiftFlightForm T
+---@field symbiosis T
+---@field teleportMoonglade T
+---@field thrashBear T
+---@field tigersFury T
+---@field trackHumanoids T
+---@field travelForm T
+---@field twoForms T
+---@field wrath T
+
+---@class BR.Keys.MOP.Druid.Initial.Buffs<T>
+---@field ancientHysteria T
+---@field aquaticForm T
+---@field barkskin T
+---@field bearForm T
+---@field blessingOfFreedom T
+---@field blessingOfKings T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field burningEssence T
+---@field catForm T
+---@field dash T
+---@field faerieFire T
+---@field flashOfSpringBlossoms T
+---@field flightForm T
+---@field frenziedRegeneration T
+---@field heroism T
+---@field innervate T
+---@field legacyOfTheEmperor T
+---@field markOfTheWild T
+---@field prowl T
+---@field racial T
+---@field regrowth T
+---@field rejuvenation T
+---@field runeOfReorigination T
+---@field shadowmeld T
+---@field stampedingRoar T
+---@field stampedingRoarCat T
+---@field swiftFlightForm T
+---@field symbolOfHope T
+---@field tigersFury T
+---@field timeWarp T
+---@field travelForm T
+---@field treantForm T
+---@field vicious T
+---@field virmensBite T
+---@field wildGrowth T
+
+---@class BR.Keys.MOP.Druid.Initial.Debuffs<T>
+---@field convert T
+---@field cyclone T
+---@field dampening T
+---@field entanglingRoots T
+---@field growl T
+---@field hibernate T
+---@field massEntanglement T
+---@field mightyBash T
+---@field moonfire T
+---@field rake T
+---@field rip T
+---@field weakenedArmor T
+
+---@class BR.Keys.MOP.Druid.Initial.Glyphs<T>
+
+---@class BR.Keys.MOP.Druid.Initial.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.MOP.Druid.Initial.Totems<T>
+
+---@class BR.MOP.Druid.Initial.talent.rank
+
+
+---@class BR.MOP.Druid.Initial.buff : BR.Keys.MOP.Druid.Initial.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.MOP.Druid.Initial.cast.able : BR.cast.able.Base, BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.active : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.auto : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.cancel : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.cost : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.current : BR.cast.current.Base, BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.dispel : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.empowered : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.inFlight : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.inFlightRemain : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.MOP.Druid.Initial.cast.last.time : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.MOP.Druid.Initial.cast.last : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.last.Spell>
+---@field time BR.MOP.Druid.Initial.cast.last.time
+
+
+---@class BR.MOP.Druid.Initial.cast.maxRank : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.noControl : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.opener : BR.cast.opener.Base, BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.pool : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.range : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.regen : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.safe : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.time : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.MOP.Druid.Initial.cast.timeSinceLast : BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.MOP.Druid.Initial.cast : BR.cast.Base, BR.Keys.MOP.Druid.Initial.Abilities<BR.cast.Spell>
+---@field able BR.MOP.Druid.Initial.cast.able
+---@field active BR.MOP.Druid.Initial.cast.active
+---@field auto BR.MOP.Druid.Initial.cast.auto
+---@field cancel BR.MOP.Druid.Initial.cast.cancel
+---@field cost BR.MOP.Druid.Initial.cast.cost
+---@field current BR.MOP.Druid.Initial.cast.current
+---@field dispel BR.MOP.Druid.Initial.cast.dispel
+---@field empowered BR.MOP.Druid.Initial.cast.empowered
+---@field inFlight BR.MOP.Druid.Initial.cast.inFlight
+---@field inFlightRemain BR.MOP.Druid.Initial.cast.inFlightRemain
+---@field last BR.MOP.Druid.Initial.cast.last
+---@field maxRank BR.MOP.Druid.Initial.cast.maxRank
+---@field noControl BR.MOP.Druid.Initial.cast.noControl
+---@field opener BR.MOP.Druid.Initial.cast.opener
+---@field pool BR.MOP.Druid.Initial.cast.pool
+---@field range BR.MOP.Druid.Initial.cast.range
+---@field regen BR.MOP.Druid.Initial.cast.regen
+---@field safe BR.MOP.Druid.Initial.cast.safe
+---@field time BR.MOP.Druid.Initial.cast.time
+---@field timeSinceLast BR.MOP.Druid.Initial.cast.timeSinceLast
+
+
+---@class BR.MOP.Druid.Initial.cd : BR.cd.Base, BR.Keys.MOP.Druid.Initial.Abilities<BR.cd.Spell>, BR.Keys.MOP.Druid.Initial.Items<BR.cd.Item>
+
+
+---@class BR.MOP.Druid.Initial.charges : BR.Keys.MOP.Druid.Initial.Abilities<BR.charges.Spell>, BR.Keys.MOP.Druid.Initial.Items<BR.charges.Item>
+
+
+---@class BR.MOP.Druid.Initial.debuff : BR.Keys.MOP.Druid.Initial.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.MOP.Druid.Initial.equiped.socket : BR.Keys.MOP.Druid.Initial.Items<BR.equiped.socket.Item>
+
+---@class BR.MOP.Druid.Initial.equiped : BR.equiped.Base, BR.Keys.MOP.Druid.Initial.Items<BR.equiped.Item>
+---@field socket BR.MOP.Druid.Initial.equiped.socket
+
+
+---@class BR.MOP.Druid.Initial.glyph : BR.glyph.Base, BR.Keys.MOP.Druid.Initial.Glyphs<BR.glyph.K>
+
+
+---@class BR.MOP.Druid.Initial.has : BR.has.Base, BR.Keys.MOP.Druid.Initial.Items<BR.has.Item>
+
+
+---@class BR.MOP.Druid.Initial.heroTree
+
+
+---@class BR.MOP.Druid.Initial.imbues
+
+
+---@class BR.MOP.Druid.Initial.spell : BR.Keys.MOP.Druid.Initial.Abilities<BR.spell.K>
+
+
+---@class BR.MOP.Druid.Initial.talent
+---@field rank BR.MOP.Druid.Initial.talent.rank The rank of each talent (0 when not taken)
+
+
+
+
+---@class BR.MOP.Druid.Initial.totem.Element : BR.totem.Element.Base, BR.Keys.MOP.Druid.Initial.Totems<BR.totem.Element.TotemName>
+
+---@class BR.MOP.Druid.Initial.totem : BR.totem.Base, BR.Keys.Elements<BR.MOP.Druid.Initial.totem.Element>
+
+
+
+
+---@class BR.MOP.Druid.Initial.use.able : BR.use.able.Base, BR.Keys.MOP.Druid.Initial.Items<BR.use.able.Item>
+
+---@class BR.MOP.Druid.Initial.use : BR.use.Base, BR.Keys.MOP.Druid.Initial.Items<BR.use.Item>
+---@field able BR.MOP.Druid.Initial.use.able
+
+---@class BR.Keys.MOP.Mage.Abilities<T>
+---@field alterTime T
+---@field arcaneBrilliance T
+---@field arcaneExplosion T
+---@field autoAttack T
+---@field autoShot T
+---@field blink T
+---@field blizzard T
+---@field coneOfCold T
+---@field conjureManaGem T
+---@field conjureRefreshment T
+---@field conjureRefreshmentTable T
+---@field counterspell T
+---@field deepFreeze T
+---@field disenchant T
+---@field evocation T
+---@field fireBlast T
+---@field flamestrike T
+---@field frostArmor T
+---@field frostNova T
+---@field frostfireBolt T
+---@field giftOfTheNaaru T
+---@field global T
+---@field iceBlock T
+---@field iceLance T
+---@field invisibility T
+---@field mageArmor T
+---@field manaBomb T
+---@field milling T
+---@field mirrorImage T
+---@field moltenArmor T
+---@field polymorph T
+---@field prospecting T
+---@field quakingPalm T
+---@field racial T
+---@field removeCurse T
+---@field shadowmeld T
+---@field slowFall T
+---@field spellsteal T
+---@field timeWarp T
+---@field twoForms T
+
+---@class BR.Keys.MOP.Mage.Buffs<T>
+---@field ancientHysteria T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field flashOfSpringBlossoms T
+---@field heroism T
+---@field racial T
+---@field runeOfReorigination T
+---@field shadowmeld T
+---@field symbolOfHope T
+---@field timeWarp T
+---@field vicious T
+---@field virmensBite T
+
+---@class BR.Keys.MOP.Mage.Debuffs<T>
+---@field convert T
+---@field dampening T
+---@field mightyBash T
+
+---@class BR.Keys.MOP.Mage.Glyphs<T>
+
+---@class BR.Keys.MOP.Mage.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.MOP.Mage.Totems<T>
+
+---@class BR.MOP.Mage.talent.rank
+
+
+---@class BR.MOP.Mage.buff : BR.Keys.MOP.Mage.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.MOP.Mage.cast.able : BR.cast.able.Base, BR.Keys.MOP.Mage.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.MOP.Mage.cast.active : BR.Keys.MOP.Mage.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.MOP.Mage.cast.auto : BR.Keys.MOP.Mage.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.MOP.Mage.cast.cancel : BR.Keys.MOP.Mage.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.MOP.Mage.cast.cost : BR.Keys.MOP.Mage.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.MOP.Mage.cast.current : BR.cast.current.Base, BR.Keys.MOP.Mage.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.MOP.Mage.cast.dispel : BR.Keys.MOP.Mage.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.MOP.Mage.cast.empowered : BR.Keys.MOP.Mage.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.MOP.Mage.cast.inFlight : BR.Keys.MOP.Mage.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.MOP.Mage.cast.inFlightRemain : BR.Keys.MOP.Mage.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.MOP.Mage.cast.last.time : BR.Keys.MOP.Mage.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.MOP.Mage.cast.last : BR.Keys.MOP.Mage.Abilities<BR.cast.last.Spell>
+---@field time BR.MOP.Mage.cast.last.time
+
+
+---@class BR.MOP.Mage.cast.maxRank : BR.Keys.MOP.Mage.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.MOP.Mage.cast.noControl : BR.Keys.MOP.Mage.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.MOP.Mage.cast.opener : BR.cast.opener.Base, BR.Keys.MOP.Mage.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.MOP.Mage.cast.pool : BR.Keys.MOP.Mage.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.MOP.Mage.cast.range : BR.Keys.MOP.Mage.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.MOP.Mage.cast.regen : BR.Keys.MOP.Mage.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.MOP.Mage.cast.safe : BR.Keys.MOP.Mage.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.MOP.Mage.cast.time : BR.Keys.MOP.Mage.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.MOP.Mage.cast.timeSinceLast : BR.Keys.MOP.Mage.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.MOP.Mage.cast : BR.cast.Base, BR.Keys.MOP.Mage.Abilities<BR.cast.Spell>
+---@field able BR.MOP.Mage.cast.able
+---@field active BR.MOP.Mage.cast.active
+---@field auto BR.MOP.Mage.cast.auto
+---@field cancel BR.MOP.Mage.cast.cancel
+---@field cost BR.MOP.Mage.cast.cost
+---@field current BR.MOP.Mage.cast.current
+---@field dispel BR.MOP.Mage.cast.dispel
+---@field empowered BR.MOP.Mage.cast.empowered
+---@field inFlight BR.MOP.Mage.cast.inFlight
+---@field inFlightRemain BR.MOP.Mage.cast.inFlightRemain
+---@field last BR.MOP.Mage.cast.last
+---@field maxRank BR.MOP.Mage.cast.maxRank
+---@field noControl BR.MOP.Mage.cast.noControl
+---@field opener BR.MOP.Mage.cast.opener
+---@field pool BR.MOP.Mage.cast.pool
+---@field range BR.MOP.Mage.cast.range
+---@field regen BR.MOP.Mage.cast.regen
+---@field safe BR.MOP.Mage.cast.safe
+---@field time BR.MOP.Mage.cast.time
+---@field timeSinceLast BR.MOP.Mage.cast.timeSinceLast
+
+
+---@class BR.MOP.Mage.cd : BR.cd.Base, BR.Keys.MOP.Mage.Abilities<BR.cd.Spell>, BR.Keys.MOP.Mage.Items<BR.cd.Item>
+
+
+---@class BR.MOP.Mage.charges : BR.Keys.MOP.Mage.Abilities<BR.charges.Spell>, BR.Keys.MOP.Mage.Items<BR.charges.Item>
+
+
+---@class BR.MOP.Mage.debuff : BR.Keys.MOP.Mage.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.MOP.Mage.equiped.socket : BR.Keys.MOP.Mage.Items<BR.equiped.socket.Item>
+
+---@class BR.MOP.Mage.equiped : BR.equiped.Base, BR.Keys.MOP.Mage.Items<BR.equiped.Item>
+---@field socket BR.MOP.Mage.equiped.socket
+
+
+---@class BR.MOP.Mage.glyph : BR.glyph.Base, BR.Keys.MOP.Mage.Glyphs<BR.glyph.K>
+
+
+---@class BR.MOP.Mage.has : BR.has.Base, BR.Keys.MOP.Mage.Items<BR.has.Item>
+
+
+---@class BR.MOP.Mage.heroTree
+
+
+---@class BR.MOP.Mage.imbues
+
+
+---@class BR.MOP.Mage.spell : BR.Keys.MOP.Mage.Abilities<BR.spell.K>
+
+
+---@class BR.MOP.Mage.talent
+---@field rank BR.MOP.Mage.talent.rank The rank of each talent (0 when not taken)
+
+
+
+
+---@class BR.MOP.Mage.totem.Element : BR.totem.Element.Base, BR.Keys.MOP.Mage.Totems<BR.totem.Element.TotemName>
+
+---@class BR.MOP.Mage.totem : BR.totem.Base, BR.Keys.Elements<BR.MOP.Mage.totem.Element>
+
+
+
+
+---@class BR.MOP.Mage.use.able : BR.use.able.Base, BR.Keys.MOP.Mage.Items<BR.use.able.Item>
+
+---@class BR.MOP.Mage.use : BR.use.Base, BR.Keys.MOP.Mage.Items<BR.use.Item>
+---@field able BR.MOP.Mage.use.able
+
+---@class BR.Keys.MOP.Monk.Abilities<T>
+---@field ascencion T
+---@field autoAttack T
+---@field autoShot T
+---@field blackoutKick T
+---@field celerity T
+---@field chargingOxWave T
+---@field chiBrew T
+---@field chiBurst T
+---@field chiTorpedo T
+---@field chiWave T
+---@field cracklingJadeLightning T
+---@field dampenHarm T
+---@field detox T
+---@field diffuseMagic T
+---@field disable T
+---@field disenchant T
+---@field expelHarm T
+---@field fortifyingBrew T
+---@field giftOfTheNaaru T
+---@field global T
+---@field grappleWeapon T
+---@field healingElixirs T
+---@field healingSphere T
+---@field invokeXuenTheWhiteTiger T
+---@field jab T
+---@field legSweep T
+---@field legacyOfTheEmperor T
+---@field milling T
+---@field momentum T
+---@field nimbleBrew T
+---@field paralysis T
+---@field powerStrikes T
+---@field prospecting T
+---@field provoke T
+---@field quakingPalm T
+---@field racial T
+---@field reawaken T
+---@field resuscitate T
+---@field ringOfPeace T
+---@field roll T
+---@field rushingJadeWind T
+---@field shadowmeld T
+---@field spearHandStrike T
+---@field spinningCraneKick T
+---@field stanceOfTheFierceTiger T
+---@field tigerPalm T
+---@field tigersLust T
+---@field touchOfDeath T
+---@field transcendence T
+---@field transcendenceTransfer T
+---@field twoForms T
+---@field zenMeditation T
+---@field zenPilgrimage T
+---@field zenPilgrimageReturn T
+---@field zenSphere T
+
+---@class BR.Keys.MOP.Monk.Buffs<T>
+---@field ancientHysteria T
+---@field arcaneBrilliance T
+---@field blessingOfFreedom T
+---@field blessingOfKings T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field dalaranBrilliance T
+---@field dampenHarm T
+---@field deathNote T
+---@field diffuseMagic T
+---@field flashOfSpringBlossoms T
+---@field fortifyingBrew T
+---@field heroism T
+---@field leaderOfThePack T
+---@field legacyOfTheEmperor T
+---@field legacyOfTheWhiteTiger T
+---@field markOfTheWild T
+---@field racial T
+---@field runeOfReorigination T
+---@field shadowmeld T
+---@field spinningCraneKick T
+---@field symbolOfHope T
+---@field tigerPower T
+---@field timeWarp T
+---@field vicious T
+---@field virmensBite T
+
+---@class BR.Keys.MOP.Monk.Debuffs<T>
+---@field convert T
+---@field dampening T
+---@field grappleWeapon T
+---@field mightyBash T
+---@field zenSphere T
+
+---@class BR.Keys.MOP.Monk.Glyphs<T>
+
+---@class BR.Keys.MOP.Monk.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.MOP.Monk.Totems<T>
+
+---@class BR.MOP.Monk.talent.rank
+---@field ascencion integer
+---@field celerity integer
+---@field chargingOxWave integer
+---@field chiBrew integer
+---@field chiBurst integer
+---@field chiTorpedo integer
+---@field chiWave integer
+---@field dampenHarm integer
+---@field diffuseMagic integer
+---@field healingElixirs integer
+---@field invokeXuenTheWhiteTiger integer
+---@field legSweep integer
+---@field momentum integer
+---@field powerStrikes integer
+---@field ringOfPeace integer
+---@field rushingJadeWind integer
+---@field tigersLust integer
+---@field zenSphere integer
+
+
+---@class BR.MOP.Monk.buff : BR.Keys.MOP.Monk.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.MOP.Monk.cast.able : BR.cast.able.Base, BR.Keys.MOP.Monk.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.MOP.Monk.cast.active : BR.Keys.MOP.Monk.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.MOP.Monk.cast.auto : BR.Keys.MOP.Monk.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.MOP.Monk.cast.cancel : BR.Keys.MOP.Monk.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.MOP.Monk.cast.cost : BR.Keys.MOP.Monk.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.MOP.Monk.cast.current : BR.cast.current.Base, BR.Keys.MOP.Monk.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.MOP.Monk.cast.dispel : BR.Keys.MOP.Monk.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.MOP.Monk.cast.empowered : BR.Keys.MOP.Monk.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.MOP.Monk.cast.inFlight : BR.Keys.MOP.Monk.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.MOP.Monk.cast.inFlightRemain : BR.Keys.MOP.Monk.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.MOP.Monk.cast.last.time : BR.Keys.MOP.Monk.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.MOP.Monk.cast.last : BR.Keys.MOP.Monk.Abilities<BR.cast.last.Spell>
+---@field time BR.MOP.Monk.cast.last.time
+
+
+---@class BR.MOP.Monk.cast.maxRank : BR.Keys.MOP.Monk.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.MOP.Monk.cast.noControl : BR.Keys.MOP.Monk.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.MOP.Monk.cast.opener : BR.cast.opener.Base, BR.Keys.MOP.Monk.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.MOP.Monk.cast.pool : BR.Keys.MOP.Monk.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.MOP.Monk.cast.range : BR.Keys.MOP.Monk.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.MOP.Monk.cast.regen : BR.Keys.MOP.Monk.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.MOP.Monk.cast.safe : BR.Keys.MOP.Monk.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.MOP.Monk.cast.time : BR.Keys.MOP.Monk.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.MOP.Monk.cast.timeSinceLast : BR.Keys.MOP.Monk.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.MOP.Monk.cast : BR.cast.Base, BR.Keys.MOP.Monk.Abilities<BR.cast.Spell>
+---@field able BR.MOP.Monk.cast.able
+---@field active BR.MOP.Monk.cast.active
+---@field auto BR.MOP.Monk.cast.auto
+---@field cancel BR.MOP.Monk.cast.cancel
+---@field cost BR.MOP.Monk.cast.cost
+---@field current BR.MOP.Monk.cast.current
+---@field dispel BR.MOP.Monk.cast.dispel
+---@field empowered BR.MOP.Monk.cast.empowered
+---@field inFlight BR.MOP.Monk.cast.inFlight
+---@field inFlightRemain BR.MOP.Monk.cast.inFlightRemain
+---@field last BR.MOP.Monk.cast.last
+---@field maxRank BR.MOP.Monk.cast.maxRank
+---@field noControl BR.MOP.Monk.cast.noControl
+---@field opener BR.MOP.Monk.cast.opener
+---@field pool BR.MOP.Monk.cast.pool
+---@field range BR.MOP.Monk.cast.range
+---@field regen BR.MOP.Monk.cast.regen
+---@field safe BR.MOP.Monk.cast.safe
+---@field time BR.MOP.Monk.cast.time
+---@field timeSinceLast BR.MOP.Monk.cast.timeSinceLast
+
+
+---@class BR.MOP.Monk.cd : BR.cd.Base, BR.Keys.MOP.Monk.Abilities<BR.cd.Spell>, BR.Keys.MOP.Monk.Items<BR.cd.Item>
+
+
+---@class BR.MOP.Monk.charges : BR.Keys.MOP.Monk.Abilities<BR.charges.Spell>, BR.Keys.MOP.Monk.Items<BR.charges.Item>
+
+
+---@class BR.MOP.Monk.debuff : BR.Keys.MOP.Monk.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.MOP.Monk.equiped.socket : BR.Keys.MOP.Monk.Items<BR.equiped.socket.Item>
+
+---@class BR.MOP.Monk.equiped : BR.equiped.Base, BR.Keys.MOP.Monk.Items<BR.equiped.Item>
+---@field socket BR.MOP.Monk.equiped.socket
+
+
+---@class BR.MOP.Monk.glyph : BR.glyph.Base, BR.Keys.MOP.Monk.Glyphs<BR.glyph.K>
+
+
+---@class BR.MOP.Monk.has : BR.has.Base, BR.Keys.MOP.Monk.Items<BR.has.Item>
+
+
+---@class BR.MOP.Monk.heroTree
+
+
+---@class BR.MOP.Monk.imbues
+
+
+---@class BR.MOP.Monk.spell : BR.Keys.MOP.Monk.Abilities<BR.spell.K>
+
+
+---@class BR.MOP.Monk.talent
+---@field rank BR.MOP.Monk.talent.rank The rank of each talent (0 when not taken)
+---@field ascencion boolean # true while the talent is taken
+---@field celerity boolean # true while the talent is taken
+---@field chargingOxWave boolean # true while the talent is taken
+---@field chiBrew boolean # true while the talent is taken
+---@field chiBurst boolean # true while the talent is taken
+---@field chiTorpedo boolean # true while the talent is taken
+---@field chiWave boolean # true while the talent is taken
+---@field dampenHarm boolean # true while the talent is taken
+---@field diffuseMagic boolean # true while the talent is taken
+---@field healingElixirs boolean # true while the talent is taken
+---@field invokeXuenTheWhiteTiger boolean # true while the talent is taken
+---@field legSweep boolean # true while the talent is taken
+---@field momentum boolean # true while the talent is taken
+---@field powerStrikes boolean # true while the talent is taken
+---@field ringOfPeace boolean # true while the talent is taken
+---@field rushingJadeWind boolean # true while the talent is taken
+---@field tigersLust boolean # true while the talent is taken
+---@field zenSphere boolean # true while the talent is taken
+
+
+
+
+---@class BR.MOP.Monk.totem.Element : BR.totem.Element.Base, BR.Keys.MOP.Monk.Totems<BR.totem.Element.TotemName>
+
+---@class BR.MOP.Monk.totem : BR.totem.Base, BR.Keys.Elements<BR.MOP.Monk.totem.Element>
+
+
+
+
+---@class BR.MOP.Monk.use.able : BR.use.able.Base, BR.Keys.MOP.Monk.Items<BR.use.able.Item>
+
+---@class BR.MOP.Monk.use : BR.use.Base, BR.Keys.MOP.Monk.Items<BR.use.Item>
+---@field able BR.MOP.Monk.use.able
+
+---@class BR.Keys.MOP.Monk.Windwalker.Abilities<T>
+---@field ascencion T
+---@field autoAttack T
+---@field autoShot T
+---@field blackoutKick T
+---@field celerity T
+---@field chargingOxWave T
+---@field chiBrew T
+---@field chiBurst T
+---@field chiTorpedo T
+---@field chiWave T
+---@field cracklingJadeLightning T
+---@field dampenHarm T
+---@field detox T
+---@field diffuseMagic T
+---@field disable T
+---@field disenchant T
+---@field energizingBrew T
+---@field expelHarm T
+---@field fistsOfFury T
+---@field flyingSerpentKick T
+---@field flyingSerpentKickEnd T
+---@field fortifyingBrew T
+---@field giftOfTheNaaru T
+---@field global T
+---@field grappleWeapon T
+---@field healingElixirs T
+---@field healingSphere T
+---@field invokeXuenTheWhiteTiger T
+---@field jab T
+---@field legSweep T
+---@field legacyOfTheEmperor T
+---@field legacyOfTheWhiteTiger T
+---@field milling T
+---@field momentum T
+---@field nimbleBrew T
+---@field paralysis T
+---@field powerStrikes T
+---@field prospecting T
+---@field provoke T
+---@field quakingPalm T
+---@field racial T
+---@field reawaken T
+---@field resuscitate T
+---@field ringOfPeace T
+---@field risingSunKick T
+---@field roll T
+---@field rushingJadeWind T
+---@field shadowmeld T
+---@field spearHandStrike T
+---@field spinningCraneKick T
+---@field spinningFireBlossom T
+---@field stanceOfTheFierceTiger T
+---@field stormEarthAndFire T
+---@field stormEarthAndFireFixate T
+---@field tigerPalm T
+---@field tigereyeBrew T
+---@field tigersLust T
+---@field touchOfDeath T
+---@field touchOfKarma T
+---@field transcendence T
+---@field transcendenceTransfer T
+---@field twoForms T
+---@field zenMeditation T
+---@field zenPilgrimage T
+---@field zenPilgrimageReturn T
+---@field zenSphere T
+
+---@class BR.Keys.MOP.Monk.Windwalker.Buffs<T>
+---@field ancientHysteria T
+---@field arcaneBrilliance T
+---@field blessingOfFreedom T
+---@field blessingOfKings T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field comboBreakerBoK T
+---@field comboBreakerTP T
+---@field dalaranBrilliance T
+---@field dampenHarm T
+---@field deathNote T
+---@field diffuseMagic T
+---@field energizingBrew T
+---@field flashOfSpringBlossoms T
+---@field fortifyingBrew T
+---@field heroism T
+---@field leaderOfThePack T
+---@field legacyOfTheEmperor T
+---@field legacyOfTheWhiteTiger T
+---@field markOfTheWild T
+---@field racial T
+---@field runeOfReorigination T
+---@field shadowmeld T
+---@field sparring T
+---@field spinningCraneKick T
+---@field stormEarthAndFire T
+---@field symbolOfHope T
+---@field tigerPower T
+---@field tigereyeBrew T
+---@field tigereyeBrewUse T
+---@field timeWarp T
+---@field vicious T
+---@field virmensBite T
+
+---@class BR.Keys.MOP.Monk.Windwalker.Debuffs<T>
+---@field convert T
+---@field dampening T
+---@field grappleWeapon T
+---@field mightyBash T
+---@field risingSunKick T
+---@field stormEarthAndFireFixate T
+---@field zenSphere T
+
+---@class BR.Keys.MOP.Monk.Windwalker.Glyphs<T>
+
+---@class BR.Keys.MOP.Monk.Windwalker.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.MOP.Monk.Windwalker.Totems<T>
+
+---@class BR.MOP.Monk.Windwalker.talent.rank
+---@field ascencion integer
+---@field celerity integer
+---@field chargingOxWave integer
+---@field chiBrew integer
+---@field chiBurst integer
+---@field chiTorpedo integer
+---@field chiWave integer
+---@field dampenHarm integer
+---@field diffuseMagic integer
+---@field healingElixirs integer
+---@field invokeXuenTheWhiteTiger integer
+---@field legSweep integer
+---@field momentum integer
+---@field powerStrikes integer
+---@field ringOfPeace integer
+---@field rushingJadeWind integer
+---@field tigersLust integer
+---@field zenSphere integer
+
+
+---@class BR.MOP.Monk.Windwalker.buff : BR.Keys.MOP.Monk.Windwalker.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.MOP.Monk.Windwalker.cast.able : BR.cast.able.Base, BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.active : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.auto : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.cancel : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.cost : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.current : BR.cast.current.Base, BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.dispel : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.empowered : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.inFlight : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.inFlightRemain : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.MOP.Monk.Windwalker.cast.last.time : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.MOP.Monk.Windwalker.cast.last : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.last.Spell>
+---@field time BR.MOP.Monk.Windwalker.cast.last.time
+
+
+---@class BR.MOP.Monk.Windwalker.cast.maxRank : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.noControl : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.opener : BR.cast.opener.Base, BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.pool : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.range : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.regen : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.safe : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.time : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.MOP.Monk.Windwalker.cast.timeSinceLast : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.MOP.Monk.Windwalker.cast : BR.cast.Base, BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cast.Spell>
+---@field able BR.MOP.Monk.Windwalker.cast.able
+---@field active BR.MOP.Monk.Windwalker.cast.active
+---@field auto BR.MOP.Monk.Windwalker.cast.auto
+---@field cancel BR.MOP.Monk.Windwalker.cast.cancel
+---@field cost BR.MOP.Monk.Windwalker.cast.cost
+---@field current BR.MOP.Monk.Windwalker.cast.current
+---@field dispel BR.MOP.Monk.Windwalker.cast.dispel
+---@field empowered BR.MOP.Monk.Windwalker.cast.empowered
+---@field inFlight BR.MOP.Monk.Windwalker.cast.inFlight
+---@field inFlightRemain BR.MOP.Monk.Windwalker.cast.inFlightRemain
+---@field last BR.MOP.Monk.Windwalker.cast.last
+---@field maxRank BR.MOP.Monk.Windwalker.cast.maxRank
+---@field noControl BR.MOP.Monk.Windwalker.cast.noControl
+---@field opener BR.MOP.Monk.Windwalker.cast.opener
+---@field pool BR.MOP.Monk.Windwalker.cast.pool
+---@field range BR.MOP.Monk.Windwalker.cast.range
+---@field regen BR.MOP.Monk.Windwalker.cast.regen
+---@field safe BR.MOP.Monk.Windwalker.cast.safe
+---@field time BR.MOP.Monk.Windwalker.cast.time
+---@field timeSinceLast BR.MOP.Monk.Windwalker.cast.timeSinceLast
+
+
+---@class BR.MOP.Monk.Windwalker.cd : BR.cd.Base, BR.Keys.MOP.Monk.Windwalker.Abilities<BR.cd.Spell>, BR.Keys.MOP.Monk.Windwalker.Items<BR.cd.Item>
+
+
+---@class BR.MOP.Monk.Windwalker.charges : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.charges.Spell>, BR.Keys.MOP.Monk.Windwalker.Items<BR.charges.Item>
+
+
+---@class BR.MOP.Monk.Windwalker.debuff : BR.Keys.MOP.Monk.Windwalker.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.MOP.Monk.Windwalker.equiped.socket : BR.Keys.MOP.Monk.Windwalker.Items<BR.equiped.socket.Item>
+
+---@class BR.MOP.Monk.Windwalker.equiped : BR.equiped.Base, BR.Keys.MOP.Monk.Windwalker.Items<BR.equiped.Item>
+---@field socket BR.MOP.Monk.Windwalker.equiped.socket
+
+
+---@class BR.MOP.Monk.Windwalker.glyph : BR.glyph.Base, BR.Keys.MOP.Monk.Windwalker.Glyphs<BR.glyph.K>
+
+
+---@class BR.MOP.Monk.Windwalker.has : BR.has.Base, BR.Keys.MOP.Monk.Windwalker.Items<BR.has.Item>
+
+
+---@class BR.MOP.Monk.Windwalker.heroTree
+
+
+---@class BR.MOP.Monk.Windwalker.imbues
+
+
+---@class BR.MOP.Monk.Windwalker.spell : BR.Keys.MOP.Monk.Windwalker.Abilities<BR.spell.K>
+
+
+---@class BR.MOP.Monk.Windwalker.talent
+---@field rank BR.MOP.Monk.Windwalker.talent.rank The rank of each talent (0 when not taken)
+---@field ascencion boolean # true while the talent is taken
+---@field celerity boolean # true while the talent is taken
+---@field chargingOxWave boolean # true while the talent is taken
+---@field chiBrew boolean # true while the talent is taken
+---@field chiBurst boolean # true while the talent is taken
+---@field chiTorpedo boolean # true while the talent is taken
+---@field chiWave boolean # true while the talent is taken
+---@field dampenHarm boolean # true while the talent is taken
+---@field diffuseMagic boolean # true while the talent is taken
+---@field healingElixirs boolean # true while the talent is taken
+---@field invokeXuenTheWhiteTiger boolean # true while the talent is taken
+---@field legSweep boolean # true while the talent is taken
+---@field momentum boolean # true while the talent is taken
+---@field powerStrikes boolean # true while the talent is taken
+---@field ringOfPeace boolean # true while the talent is taken
+---@field rushingJadeWind boolean # true while the talent is taken
+---@field tigersLust boolean # true while the talent is taken
+---@field zenSphere boolean # true while the talent is taken
+
+
+
+
+---@class BR.MOP.Monk.Windwalker.totem.Element : BR.totem.Element.Base, BR.Keys.MOP.Monk.Windwalker.Totems<BR.totem.Element.TotemName>
+
+---@class BR.MOP.Monk.Windwalker.totem : BR.totem.Base, BR.Keys.Elements<BR.MOP.Monk.Windwalker.totem.Element>
+
+
+
+
+---@class BR.MOP.Monk.Windwalker.use.able : BR.use.able.Base, BR.Keys.MOP.Monk.Windwalker.Items<BR.use.able.Item>
+
+---@class BR.MOP.Monk.Windwalker.use : BR.use.Base, BR.Keys.MOP.Monk.Windwalker.Items<BR.use.Item>
+---@field able BR.MOP.Monk.Windwalker.use.able
+
+---@class BR.Keys.MOP.Paladin.Abilities<T>
+---@field absolution T
+---@field autoAttack T
+---@field autoShot T
+---@field avengingWrath T
+---@field blessingOfKings T
+---@field blessingOfMight T
+---@field blindingLight T
+---@field cleanse T
+---@field clemency T
+---@field crusaderStrike T
+---@field devotionAura T
+---@field disenchant T
+---@field divineProtection T
+---@field divinePurpose T
+---@field divineShield T
+---@field eternalFlame T
+---@field evilIsAPointOfView T
+---@field executionSentence T
+---@field fistOfJustice T
+---@field flashOfLight T
+---@field giftOfTheNaaru T
+---@field global T
+---@field hammerOfJustice T
+---@field hammerOfWrath T
+---@field handOfFreedom T
+---@field handOfProtection T
+---@field handOfPurity T
+---@field handOfSacrifice T
+---@field handOfSalvation T
+---@field holyAvenger T
+---@field holyPrism T
+---@field judgment T
+---@field layOnHands T
+---@field lightsHammer T
+---@field longArmOfTheLaw T
+---@field milling T
+---@field prospecting T
+---@field pursuitOfJustice T
+---@field quakingPalm T
+---@field racial T
+---@field rebuke T
+---@field reckoning T
+---@field redemption T
+---@field repentance T
+---@field righteousFury T
+---@field sacredShield T
+---@field sanctifiedWrath T
+---@field sealOfCommand T
+---@field sealOfInsight T
+---@field sealOfRighteousness T
+---@field sealOfTruth T
+---@field selflessHealer T
+---@field shadowmeld T
+---@field speedOfLight T
+---@field turnEvil T
+---@field twoForms T
+---@field unbreakableSpirit T
+---@field wordOfGlory T
+
+---@class BR.Keys.MOP.Paladin.Buffs<T>
+---@field ancientHysteria T
+---@field avengingWrath T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field divinePurpose T
+---@field flashOfSpringBlossoms T
+---@field heroism T
+---@field holyAvenger T
+---@field racial T
+---@field runeOfReorigination T
+---@field sealOfCommand T
+---@field shadowmeld T
+---@field symbolOfHope T
+---@field timeWarp T
+---@field vicious T
+---@field virmensBite T
+
+---@class BR.Keys.MOP.Paladin.Debuffs<T>
+---@field convert T
+---@field dampening T
+---@field forbearance T
+---@field mightyBash T
+
+---@class BR.Keys.MOP.Paladin.Glyphs<T>
+
+---@class BR.Keys.MOP.Paladin.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.MOP.Paladin.Totems<T>
+
+---@class BR.MOP.Paladin.talent.rank
+---@field clemency integer
+---@field divinePurpose integer
+---@field eternalFlame integer
+---@field evilIsAPointOfView integer
+---@field executionSentence integer
+---@field fistOfJustice integer
+---@field handOfPurity integer
+---@field holyAvenger integer
+---@field holyPrism integer
+---@field lightsHammer integer
+---@field longArmOfTheLaw integer
+---@field pursuitOfJustice integer
+---@field repentance integer
+---@field sacredShield integer
+---@field sanctifiedWrath integer
+---@field selflessHealer integer
+---@field speedOfLight integer
+---@field unbreakableSpirit integer
+
+
+---@class BR.MOP.Paladin.buff : BR.Keys.MOP.Paladin.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.MOP.Paladin.cast.able : BR.cast.able.Base, BR.Keys.MOP.Paladin.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.MOP.Paladin.cast.active : BR.Keys.MOP.Paladin.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.MOP.Paladin.cast.auto : BR.Keys.MOP.Paladin.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.MOP.Paladin.cast.cancel : BR.Keys.MOP.Paladin.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.MOP.Paladin.cast.cost : BR.Keys.MOP.Paladin.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.MOP.Paladin.cast.current : BR.cast.current.Base, BR.Keys.MOP.Paladin.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.MOP.Paladin.cast.dispel : BR.Keys.MOP.Paladin.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.MOP.Paladin.cast.empowered : BR.Keys.MOP.Paladin.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.MOP.Paladin.cast.inFlight : BR.Keys.MOP.Paladin.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.MOP.Paladin.cast.inFlightRemain : BR.Keys.MOP.Paladin.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.MOP.Paladin.cast.last.time : BR.Keys.MOP.Paladin.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.MOP.Paladin.cast.last : BR.Keys.MOP.Paladin.Abilities<BR.cast.last.Spell>
+---@field time BR.MOP.Paladin.cast.last.time
+
+
+---@class BR.MOP.Paladin.cast.maxRank : BR.Keys.MOP.Paladin.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.MOP.Paladin.cast.noControl : BR.Keys.MOP.Paladin.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.MOP.Paladin.cast.opener : BR.cast.opener.Base, BR.Keys.MOP.Paladin.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.MOP.Paladin.cast.pool : BR.Keys.MOP.Paladin.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.MOP.Paladin.cast.range : BR.Keys.MOP.Paladin.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.MOP.Paladin.cast.regen : BR.Keys.MOP.Paladin.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.MOP.Paladin.cast.safe : BR.Keys.MOP.Paladin.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.MOP.Paladin.cast.time : BR.Keys.MOP.Paladin.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.MOP.Paladin.cast.timeSinceLast : BR.Keys.MOP.Paladin.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.MOP.Paladin.cast : BR.cast.Base, BR.Keys.MOP.Paladin.Abilities<BR.cast.Spell>
+---@field able BR.MOP.Paladin.cast.able
+---@field active BR.MOP.Paladin.cast.active
+---@field auto BR.MOP.Paladin.cast.auto
+---@field cancel BR.MOP.Paladin.cast.cancel
+---@field cost BR.MOP.Paladin.cast.cost
+---@field current BR.MOP.Paladin.cast.current
+---@field dispel BR.MOP.Paladin.cast.dispel
+---@field empowered BR.MOP.Paladin.cast.empowered
+---@field inFlight BR.MOP.Paladin.cast.inFlight
+---@field inFlightRemain BR.MOP.Paladin.cast.inFlightRemain
+---@field last BR.MOP.Paladin.cast.last
+---@field maxRank BR.MOP.Paladin.cast.maxRank
+---@field noControl BR.MOP.Paladin.cast.noControl
+---@field opener BR.MOP.Paladin.cast.opener
+---@field pool BR.MOP.Paladin.cast.pool
+---@field range BR.MOP.Paladin.cast.range
+---@field regen BR.MOP.Paladin.cast.regen
+---@field safe BR.MOP.Paladin.cast.safe
+---@field time BR.MOP.Paladin.cast.time
+---@field timeSinceLast BR.MOP.Paladin.cast.timeSinceLast
+
+
+---@class BR.MOP.Paladin.cd : BR.cd.Base, BR.Keys.MOP.Paladin.Abilities<BR.cd.Spell>, BR.Keys.MOP.Paladin.Items<BR.cd.Item>
+
+
+---@class BR.MOP.Paladin.charges : BR.Keys.MOP.Paladin.Abilities<BR.charges.Spell>, BR.Keys.MOP.Paladin.Items<BR.charges.Item>
+
+
+---@class BR.MOP.Paladin.debuff : BR.Keys.MOP.Paladin.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.MOP.Paladin.equiped.socket : BR.Keys.MOP.Paladin.Items<BR.equiped.socket.Item>
+
+---@class BR.MOP.Paladin.equiped : BR.equiped.Base, BR.Keys.MOP.Paladin.Items<BR.equiped.Item>
+---@field socket BR.MOP.Paladin.equiped.socket
+
+
+---@class BR.MOP.Paladin.glyph : BR.glyph.Base, BR.Keys.MOP.Paladin.Glyphs<BR.glyph.K>
+
+
+---@class BR.MOP.Paladin.has : BR.has.Base, BR.Keys.MOP.Paladin.Items<BR.has.Item>
+
+
+---@class BR.MOP.Paladin.heroTree
+
+
+---@class BR.MOP.Paladin.imbues
+
+
+---@class BR.MOP.Paladin.spell : BR.Keys.MOP.Paladin.Abilities<BR.spell.K>
+
+
+---@class BR.MOP.Paladin.talent
+---@field rank BR.MOP.Paladin.talent.rank The rank of each talent (0 when not taken)
+---@field clemency boolean # true while the talent is taken
+---@field divinePurpose boolean # true while the talent is taken
+---@field eternalFlame boolean # true while the talent is taken
+---@field evilIsAPointOfView boolean # true while the talent is taken
+---@field executionSentence boolean # true while the talent is taken
+---@field fistOfJustice boolean # true while the talent is taken
+---@field handOfPurity boolean # true while the talent is taken
+---@field holyAvenger boolean # true while the talent is taken
+---@field holyPrism boolean # true while the talent is taken
+---@field lightsHammer boolean # true while the talent is taken
+---@field longArmOfTheLaw boolean # true while the talent is taken
+---@field pursuitOfJustice boolean # true while the talent is taken
+---@field repentance boolean # true while the talent is taken
+---@field sacredShield boolean # true while the talent is taken
+---@field sanctifiedWrath boolean # true while the talent is taken
+---@field selflessHealer boolean # true while the talent is taken
+---@field speedOfLight boolean # true while the talent is taken
+---@field unbreakableSpirit boolean # true while the talent is taken
+
+
+
+
+---@class BR.MOP.Paladin.totem.Element : BR.totem.Element.Base, BR.Keys.MOP.Paladin.Totems<BR.totem.Element.TotemName>
+
+---@class BR.MOP.Paladin.totem : BR.totem.Base, BR.Keys.Elements<BR.MOP.Paladin.totem.Element>
+
+
+
+
+---@class BR.MOP.Paladin.use.able : BR.use.able.Base, BR.Keys.MOP.Paladin.Items<BR.use.able.Item>
+
+---@class BR.MOP.Paladin.use : BR.use.Base, BR.Keys.MOP.Paladin.Items<BR.use.Item>
+---@field able BR.MOP.Paladin.use.able
+
+---@class BR.Keys.MOP.Paladin.Retribution.Abilities<T>
+---@field absolution T
+---@field autoAttack T
+---@field autoShot T
+---@field avengingWrath T
+---@field blessingOfKings T
+---@field blessingOfMight T
+---@field blindingLight T
+---@field cleanse T
+---@field clemency T
+---@field crusaderStrike T
+---@field devotionAura T
+---@field disenchant T
+---@field divineProtection T
+---@field divinePurpose T
+---@field divineShield T
+---@field divineStorm T
+---@field emancipation T
+---@field eternalFlame T
+---@field evilIsAPointOfView T
+---@field executionSentence T
+---@field exorcism T
+---@field fistOfJustice T
+---@field flashOfLight T
+---@field giftOfTheNaaru T
+---@field global T
+---@field guardianOfAncientKings T
+---@field hammerOfJustice T
+---@field hammerOfTheRighteous T
+---@field hammerOfWrath T
+---@field handOfFreedom T
+---@field handOfProtection T
+---@field handOfPurity T
+---@field handOfSacrifice T
+---@field handOfSalvation T
+---@field holyAvenger T
+---@field holyPrism T
+---@field inquisition T
+---@field judgment T
+---@field judgmentsOfTheBold T
+---@field layOnHands T
+---@field lightsHammer T
+---@field longArmOfTheLaw T
+---@field milling T
+---@field prospecting T
+---@field pursuitOfJustice T
+---@field quakingPalm T
+---@field racial T
+---@field rebuke T
+---@field reckoning T
+---@field redemption T
+---@field repentance T
+---@field righteousFury T
+---@field sacredShield T
+---@field sanctifiedWrath T
+---@field sealOfCommand T
+---@field sealOfInsight T
+---@field sealOfJustice T
+---@field sealOfRighteousness T
+---@field sealOfTruth T
+---@field selflessHealer T
+---@field shadowmeld T
+---@field speedOfLight T
+---@field templarsVerdict T
+---@field turnEvil T
+---@field twoForms T
+---@field unbreakableSpirit T
+---@field wordOfGlory T
+
+---@class BR.Keys.MOP.Paladin.Retribution.Buffs<T>
+---@field ancientHysteria T
+---@field ancientPower T
+---@field avengingWrath T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field divineCrusader T
+---@field divinePurpose T
+---@field flashOfSpringBlossoms T
+---@field heroism T
+---@field holyAvenger T
+---@field inquisition T
+---@field racial T
+---@field runeOfReorigination T
+---@field sealOfCommand T
+---@field selflessHealer T
+---@field shadowmeld T
+---@field symbolOfHope T
+---@field timeWarp T
+---@field vicious T
+---@field virmensBite T
+
+---@class BR.Keys.MOP.Paladin.Retribution.Debuffs<T>
+---@field convert T
+---@field dampening T
+---@field forbearance T
+---@field mightyBash T
+
+---@class BR.Keys.MOP.Paladin.Retribution.Glyphs<T>
+
+---@class BR.Keys.MOP.Paladin.Retribution.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.MOP.Paladin.Retribution.Totems<T>
+
+---@class BR.MOP.Paladin.Retribution.talent.rank
+---@field clemency integer
+---@field divinePurpose integer
+---@field eternalFlame integer
+---@field evilIsAPointOfView integer
+---@field executionSentence integer
+---@field fistOfJustice integer
+---@field handOfPurity integer
+---@field holyAvenger integer
+---@field holyPrism integer
+---@field lightsHammer integer
+---@field longArmOfTheLaw integer
+---@field pursuitOfJustice integer
+---@field repentance integer
+---@field sacredShield integer
+---@field sanctifiedWrath integer
+---@field selflessHealer integer
+---@field speedOfLight integer
+---@field unbreakableSpirit integer
+
+
+---@class BR.MOP.Paladin.Retribution.buff : BR.Keys.MOP.Paladin.Retribution.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.MOP.Paladin.Retribution.cast.able : BR.cast.able.Base, BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.active : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.auto : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.cancel : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.cost : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.current : BR.cast.current.Base, BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.dispel : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.empowered : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.inFlight : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.inFlightRemain : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.MOP.Paladin.Retribution.cast.last.time : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.MOP.Paladin.Retribution.cast.last : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.last.Spell>
+---@field time BR.MOP.Paladin.Retribution.cast.last.time
+
+
+---@class BR.MOP.Paladin.Retribution.cast.maxRank : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.noControl : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.opener : BR.cast.opener.Base, BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.pool : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.range : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.regen : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.safe : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.time : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.MOP.Paladin.Retribution.cast.timeSinceLast : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.MOP.Paladin.Retribution.cast : BR.cast.Base, BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cast.Spell>
+---@field able BR.MOP.Paladin.Retribution.cast.able
+---@field active BR.MOP.Paladin.Retribution.cast.active
+---@field auto BR.MOP.Paladin.Retribution.cast.auto
+---@field cancel BR.MOP.Paladin.Retribution.cast.cancel
+---@field cost BR.MOP.Paladin.Retribution.cast.cost
+---@field current BR.MOP.Paladin.Retribution.cast.current
+---@field dispel BR.MOP.Paladin.Retribution.cast.dispel
+---@field empowered BR.MOP.Paladin.Retribution.cast.empowered
+---@field inFlight BR.MOP.Paladin.Retribution.cast.inFlight
+---@field inFlightRemain BR.MOP.Paladin.Retribution.cast.inFlightRemain
+---@field last BR.MOP.Paladin.Retribution.cast.last
+---@field maxRank BR.MOP.Paladin.Retribution.cast.maxRank
+---@field noControl BR.MOP.Paladin.Retribution.cast.noControl
+---@field opener BR.MOP.Paladin.Retribution.cast.opener
+---@field pool BR.MOP.Paladin.Retribution.cast.pool
+---@field range BR.MOP.Paladin.Retribution.cast.range
+---@field regen BR.MOP.Paladin.Retribution.cast.regen
+---@field safe BR.MOP.Paladin.Retribution.cast.safe
+---@field time BR.MOP.Paladin.Retribution.cast.time
+---@field timeSinceLast BR.MOP.Paladin.Retribution.cast.timeSinceLast
+
+
+---@class BR.MOP.Paladin.Retribution.cd : BR.cd.Base, BR.Keys.MOP.Paladin.Retribution.Abilities<BR.cd.Spell>, BR.Keys.MOP.Paladin.Retribution.Items<BR.cd.Item>
+
+
+---@class BR.MOP.Paladin.Retribution.charges : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.charges.Spell>, BR.Keys.MOP.Paladin.Retribution.Items<BR.charges.Item>
+
+
+---@class BR.MOP.Paladin.Retribution.debuff : BR.Keys.MOP.Paladin.Retribution.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.MOP.Paladin.Retribution.equiped.socket : BR.Keys.MOP.Paladin.Retribution.Items<BR.equiped.socket.Item>
+
+---@class BR.MOP.Paladin.Retribution.equiped : BR.equiped.Base, BR.Keys.MOP.Paladin.Retribution.Items<BR.equiped.Item>
+---@field socket BR.MOP.Paladin.Retribution.equiped.socket
+
+
+---@class BR.MOP.Paladin.Retribution.glyph : BR.glyph.Base, BR.Keys.MOP.Paladin.Retribution.Glyphs<BR.glyph.K>
+
+
+---@class BR.MOP.Paladin.Retribution.has : BR.has.Base, BR.Keys.MOP.Paladin.Retribution.Items<BR.has.Item>
+
+
+---@class BR.MOP.Paladin.Retribution.heroTree
+
+
+---@class BR.MOP.Paladin.Retribution.imbues
+
+
+---@class BR.MOP.Paladin.Retribution.spell : BR.Keys.MOP.Paladin.Retribution.Abilities<BR.spell.K>
+
+
+---@class BR.MOP.Paladin.Retribution.talent
+---@field rank BR.MOP.Paladin.Retribution.talent.rank The rank of each talent (0 when not taken)
+---@field clemency boolean # true while the talent is taken
+---@field divinePurpose boolean # true while the talent is taken
+---@field eternalFlame boolean # true while the talent is taken
+---@field evilIsAPointOfView boolean # true while the talent is taken
+---@field executionSentence boolean # true while the talent is taken
+---@field fistOfJustice boolean # true while the talent is taken
+---@field handOfPurity boolean # true while the talent is taken
+---@field holyAvenger boolean # true while the talent is taken
+---@field holyPrism boolean # true while the talent is taken
+---@field lightsHammer boolean # true while the talent is taken
+---@field longArmOfTheLaw boolean # true while the talent is taken
+---@field pursuitOfJustice boolean # true while the talent is taken
+---@field repentance boolean # true while the talent is taken
+---@field sacredShield boolean # true while the talent is taken
+---@field sanctifiedWrath boolean # true while the talent is taken
+---@field selflessHealer boolean # true while the talent is taken
+---@field speedOfLight boolean # true while the talent is taken
+---@field unbreakableSpirit boolean # true while the talent is taken
+
+
+
+
+---@class BR.MOP.Paladin.Retribution.totem.Element : BR.totem.Element.Base, BR.Keys.MOP.Paladin.Retribution.Totems<BR.totem.Element.TotemName>
+
+---@class BR.MOP.Paladin.Retribution.totem : BR.totem.Base, BR.Keys.Elements<BR.MOP.Paladin.Retribution.totem.Element>
+
+
+
+
+---@class BR.MOP.Paladin.Retribution.use.able : BR.use.able.Base, BR.Keys.MOP.Paladin.Retribution.Items<BR.use.able.Item>
+
+---@class BR.MOP.Paladin.Retribution.use : BR.use.Base, BR.Keys.MOP.Paladin.Retribution.Items<BR.use.Item>
+---@field able BR.MOP.Paladin.Retribution.use.able
+
+---@class BR.Keys.MOP.Rogue.Subtlety.Abilities<T>
+---@field ambush T
+---@field anticipation T
+---@field autoAttack T
+---@field autoShot T
+---@field backstab T
+---@field blind T
+---@field burstOfSpeed T
+---@field cheapShot T
+---@field cheatDeath T
+---@field cloakAndDagger T
+---@field cloakOfShadows T
+---@field combatReadiness T
+---@field crimsonTempest T
+---@field cripplingPoison T
+---@field deadlyPoison T
+---@field deadlyThrow T
+---@field dirtyTricks T
+---@field disenchant T
+---@field distract T
+---@field elusiveness T
+---@field evasion T
+---@field eviscerate T
+---@field fanOfKnives T
+---@field feint T
+---@field giftOfTheNaaru T
+---@field global T
+---@field gouge T
+---@field hemorrhage T
+---@field instantPoison T
+---@field kick T
+---@field kidneyShot T
+---@field leechingPoison T
+---@field markedForDeath T
+---@field milling T
+---@field mindNumbingPoison T
+---@field nightstalker T
+---@field paralyticPoison T
+---@field pickLock T
+---@field pickPocket T
+---@field premeditation T
+---@field preparation T
+---@field preyOnTheWeak T
+---@field prospecting T
+---@field quakingPalm T
+---@field racial T
+---@field recuperate T
+---@field redirect T
+---@field rupture T
+---@field sap T
+---@field shadowBlades T
+---@field shadowDance T
+---@field shadowFocus T
+---@field shadowmeld T
+---@field shadowstep T
+---@field shiv T
+---@field shroudOfConcealment T
+---@field shurikenToss T
+---@field sinisterStrike T
+---@field sliceAndDice T
+---@field sprint T
+---@field stealth T
+---@field subterfuge T
+---@field throw T
+---@field tricksOfTheTrade T
+---@field twoForms T
+---@field vanish T
+---@field woundPoison T
+
+---@class BR.Keys.MOP.Rogue.Subtlety.Buffs<T>
+---@field ancientHysteria T
+---@field anticipation T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field cloakOfShadows T
+---@field combatReadiness T
+---@field cripplingPoison T
+---@field deadlyPoison T
+---@field evasion T
+---@field feint T
+---@field flashOfSpringBlossoms T
+---@field heroism T
+---@field instantPoison T
+---@field masterOfSubtlety T
+---@field mindNumbingPoison T
+---@field paralyticPoison T
+---@field racial T
+---@field recuperate T
+---@field runeOfReorigination T
+---@field shadowBlades T
+---@field shadowDance T
+---@field shadowmeld T
+---@field shroudOfConcealment T
+---@field sleightOfHand T
+---@field sliceAndDice T
+---@field sprint T
+---@field stealth T
+---@field subterfuge T
+---@field symbolOfHope T
+---@field timeWarp T
+---@field tricksOfTheTrade T
+---@field vanish T
+---@field vicious T
+---@field virmensBite T
+---@field woundPoison T
+
+---@class BR.Keys.MOP.Rogue.Subtlety.Debuffs<T>
+---@field blind T
+---@field cheapShot T
+---@field convert T
+---@field crimsonTempest T
+---@field cripplingPoison T
+---@field dampening T
+---@field findWeakness T
+---@field garrote T
+---@field gouge T
+---@field hemorrhage T
+---@field kidneyShot T
+---@field mightyBash T
+---@field mindNumbingPoison T
+---@field paralyticPoison T
+---@field rupture T
+---@field sap T
+---@field woundPoison T
+
+---@class BR.Keys.MOP.Rogue.Subtlety.Glyphs<T>
+---@field adrenalineRush T
+---@field ambush T
+---@field backstab T
+---@field blind T
+---@field cloakOfShadows T
+---@field exposedArmor T
+---@field fanOfKnives T
+---@field feint T
+---@field garrote T
+---@field glyphOfAdrenalineRush T
+---@field glyphOfAmbush T
+---@field glyphOfBackstab T
+---@field glyphOfBlind T
+---@field glyphOfCloakOfShadows T
+---@field glyphOfExposedArmor T
+---@field glyphOfFanOfKnives T
+---@field glyphOfFeint T
+---@field glyphOfGarrote T
+---@field glyphOfGouge T
+---@field glyphOfHemorrhage T
+---@field glyphOfKick T
+---@field glyphOfKillingSpree T
+---@field glyphOfPreparation T
+---@field glyphOfSap T
+---@field glyphOfShadowDance T
+---@field glyphOfSliceAndDice T
+---@field glyphOfSprint T
+---@field glyphOfTricksOfTheTrade T
+---@field glyphOfVanish T
+---@field gouge T
+---@field hemorrhage T
+---@field kick T
+---@field killingSpree T
+---@field preparation T
+---@field sap T
+---@field shadowDance T
+---@field sliceAndDice T
+---@field sprint T
+---@field tricksOfTheTrade T
+---@field vanish T
+
+---@class BR.Keys.MOP.Rogue.Subtlety.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.MOP.Rogue.Subtlety.Totems<T>
+
+---@class BR.MOP.Rogue.Subtlety.talent.rank
+---@field anticipation integer
+---@field burstOfSpeed integer
+---@field cheatDeath integer
+---@field cloakAndDagger integer
+---@field combatReadiness integer
+---@field deadlyThrow integer
+---@field dirtyTricks integer
+---@field elusiveness integer
+---@field leechingPoison integer
+---@field markedForDeath integer
+---@field nightstalker integer
+---@field paralyticPoison integer
+---@field preyOnTheWeak integer
+---@field shadowFocus integer
+---@field shadowstep integer
+---@field shurikenToss integer
+---@field subterfuge integer
+
+
+---@class BR.MOP.Rogue.Subtlety.buff : BR.Keys.MOP.Rogue.Subtlety.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.able : BR.cast.able.Base, BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.active : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.auto : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.cancel : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.cost : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.current : BR.cast.current.Base, BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.dispel : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.empowered : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.inFlight : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.inFlightRemain : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.last.time : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.MOP.Rogue.Subtlety.cast.last : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.last.Spell>
+---@field time BR.MOP.Rogue.Subtlety.cast.last.time
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.maxRank : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.noControl : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.opener : BR.cast.opener.Base, BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.pool : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.range : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.regen : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.safe : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.time : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.MOP.Rogue.Subtlety.cast.timeSinceLast : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.MOP.Rogue.Subtlety.cast : BR.cast.Base, BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cast.Spell>
+---@field able BR.MOP.Rogue.Subtlety.cast.able
+---@field active BR.MOP.Rogue.Subtlety.cast.active
+---@field auto BR.MOP.Rogue.Subtlety.cast.auto
+---@field cancel BR.MOP.Rogue.Subtlety.cast.cancel
+---@field cost BR.MOP.Rogue.Subtlety.cast.cost
+---@field current BR.MOP.Rogue.Subtlety.cast.current
+---@field dispel BR.MOP.Rogue.Subtlety.cast.dispel
+---@field empowered BR.MOP.Rogue.Subtlety.cast.empowered
+---@field inFlight BR.MOP.Rogue.Subtlety.cast.inFlight
+---@field inFlightRemain BR.MOP.Rogue.Subtlety.cast.inFlightRemain
+---@field last BR.MOP.Rogue.Subtlety.cast.last
+---@field maxRank BR.MOP.Rogue.Subtlety.cast.maxRank
+---@field noControl BR.MOP.Rogue.Subtlety.cast.noControl
+---@field opener BR.MOP.Rogue.Subtlety.cast.opener
+---@field pool BR.MOP.Rogue.Subtlety.cast.pool
+---@field range BR.MOP.Rogue.Subtlety.cast.range
+---@field regen BR.MOP.Rogue.Subtlety.cast.regen
+---@field safe BR.MOP.Rogue.Subtlety.cast.safe
+---@field time BR.MOP.Rogue.Subtlety.cast.time
+---@field timeSinceLast BR.MOP.Rogue.Subtlety.cast.timeSinceLast
+
+
+---@class BR.MOP.Rogue.Subtlety.cd : BR.cd.Base, BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.cd.Spell>, BR.Keys.MOP.Rogue.Subtlety.Items<BR.cd.Item>
+
+
+---@class BR.MOP.Rogue.Subtlety.charges : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.charges.Spell>, BR.Keys.MOP.Rogue.Subtlety.Items<BR.charges.Item>
+
+
+---@class BR.MOP.Rogue.Subtlety.debuff : BR.Keys.MOP.Rogue.Subtlety.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.MOP.Rogue.Subtlety.equiped.socket : BR.Keys.MOP.Rogue.Subtlety.Items<BR.equiped.socket.Item>
+
+---@class BR.MOP.Rogue.Subtlety.equiped : BR.equiped.Base, BR.Keys.MOP.Rogue.Subtlety.Items<BR.equiped.Item>
+---@field socket BR.MOP.Rogue.Subtlety.equiped.socket
+
+
+---@class BR.MOP.Rogue.Subtlety.glyph : BR.glyph.Base, BR.Keys.MOP.Rogue.Subtlety.Glyphs<BR.glyph.K>
+
+
+---@class BR.MOP.Rogue.Subtlety.has : BR.has.Base, BR.Keys.MOP.Rogue.Subtlety.Items<BR.has.Item>
+
+
+---@class BR.MOP.Rogue.Subtlety.heroTree
+
+
+---@class BR.MOP.Rogue.Subtlety.imbues
+
+
+---@class BR.MOP.Rogue.Subtlety.spell : BR.Keys.MOP.Rogue.Subtlety.Abilities<BR.spell.K>
+
+
+---@class BR.MOP.Rogue.Subtlety.talent
+---@field rank BR.MOP.Rogue.Subtlety.talent.rank The rank of each talent (0 when not taken)
+---@field anticipation boolean # true while the talent is taken
+---@field burstOfSpeed boolean # true while the talent is taken
+---@field cheatDeath boolean # true while the talent is taken
+---@field cloakAndDagger boolean # true while the talent is taken
+---@field combatReadiness boolean # true while the talent is taken
+---@field deadlyThrow boolean # true while the talent is taken
+---@field dirtyTricks boolean # true while the talent is taken
+---@field elusiveness boolean # true while the talent is taken
+---@field leechingPoison boolean # true while the talent is taken
+---@field markedForDeath boolean # true while the talent is taken
+---@field nightstalker boolean # true while the talent is taken
+---@field paralyticPoison boolean # true while the talent is taken
+---@field preyOnTheWeak boolean # true while the talent is taken
+---@field shadowFocus boolean # true while the talent is taken
+---@field shadowstep boolean # true while the talent is taken
+---@field shurikenToss boolean # true while the talent is taken
+---@field subterfuge boolean # true while the talent is taken
+
+
+
+
+---@class BR.MOP.Rogue.Subtlety.totem.Element : BR.totem.Element.Base, BR.Keys.MOP.Rogue.Subtlety.Totems<BR.totem.Element.TotemName>
+
+---@class BR.MOP.Rogue.Subtlety.totem : BR.totem.Base, BR.Keys.Elements<BR.MOP.Rogue.Subtlety.totem.Element>
+
+
+
+
+---@class BR.MOP.Rogue.Subtlety.use.able : BR.use.able.Base, BR.Keys.MOP.Rogue.Subtlety.Items<BR.use.able.Item>
+
+---@class BR.MOP.Rogue.Subtlety.use : BR.use.Base, BR.Keys.MOP.Rogue.Subtlety.Items<BR.use.Item>
+---@field able BR.MOP.Rogue.Subtlety.use.able
+
+---@class BR.Keys.MOP.Shaman.Abilities<T>
+---@field ancestralGuidance T
+---@field ancestralSpirit T
+---@field ancestralSwiftness T
+---@field ancestralVision T
+---@field ascendance T
+---@field astralRecall T
+---@field astralShift T
+---@field autoAttack T
+---@field autoShot T
+---@field bindElemental T
+---@field bloodlust T
+---@field callOfTheElements T
+---@field capacitorTotem T
+---@field chainHeal T
+---@field chainLightning T
+---@field cleanseSpirit T
+---@field conductivity T
+---@field disenchant T
+---@field earthElementalTotem T
+---@field earthShock T
+---@field earthbindTotem T
+---@field earthgrabTotem T
+---@field echoOfTheElements T
+---@field elementalBlast T
+---@field elementalMastery T
+---@field farSight T
+---@field fireElementalTotem T
+---@field flameShock T
+---@field flametongueWeapon T
+---@field frostShock T
+---@field frostbrandWeapon T
+---@field frozenPower T
+---@field ghostWolf T
+---@field giftOfTheNaaru T
+---@field global T
+---@field groundingTotem T
+---@field healingRain T
+---@field healingStreamTotem T
+---@field healingSurge T
+---@field healingTideTotem T
+---@field heroism T
+---@field hex T
+---@field lightningBolt T
+---@field lightningShield T
+---@field magmaTotem T
+---@field milling T
+---@field naturesGuardian T
+---@field primalElementalist T
+---@field primalStrike T
+---@field prospecting T
+---@field purge T
+---@field quakingPalm T
+---@field racial T
+---@field rockbiterWeapon T
+---@field rushingStreams T
+---@field searingTotem T
+---@field shadowmeld T
+---@field spiritwalkersGrace T
+---@field stoneBulwarkTotem T
+---@field stormlashTotem T
+---@field totemicPersistence T
+---@field totemicProjection T
+---@field totemicRecall T
+---@field tremorTotem T
+---@field twoForms T
+---@field unleashElements T
+---@field unleashedFury T
+---@field waterShield T
+---@field waterWalking T
+---@field windShear T
+---@field windwalkTotem T
+
+---@class BR.Keys.MOP.Shaman.Buffs<T>
+---@field ancestralSwiftness T
+---@field ancientHysteria T
+---@field astralShift T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field flameShock T
+---@field flametongueWeapon T
+---@field flashOfSpringBlossoms T
+---@field ghostWolf T
+---@field heroism T
+---@field lightningShield T
+---@field racial T
+---@field runeOfReorigination T
+---@field shadowmeld T
+---@field symbolOfHope T
+---@field timeWarp T
+---@field unleashFlame T
+---@field vicious T
+---@field virmensBite T
+---@field waterShield T
+---@field waterWalking T
+
+---@class BR.Keys.MOP.Shaman.Debuffs<T>
+---@field convert T
+---@field dampening T
+---@field flameShock T
+---@field mightyBash T
+
+---@class BR.Keys.MOP.Shaman.Glyphs<T>
+
+---@class BR.Keys.MOP.Shaman.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.MOP.Shaman.Totems<T>
+---@field capacitorTotem T
+---@field earthElementalTotem T
+---@field earthbindTotem T
+---@field earthquake T
+---@field fireElementalTotem T
+---@field flameShock T
+---@field groundingTotem T
+---@field healingStreamTotem T
+---@field healingTideTotem T
+---@field magmaTotem T
+---@field manaTideTotem T
+---@field searingTotem T
+---@field stormlashTotem T
+---@field tremorTotem T
+---@field windwalkTotem T
+
+---@class BR.MOP.Shaman.talent.rank
+---@field ancestralGuidance integer
+---@field ancestralSwiftness integer
+---@field astralShift integer
+---@field callOfTheElements integer
+---@field conductivity integer
+---@field earthgrabTotem integer
+---@field echoOfTheElements integer
+---@field elementalBlast integer
+---@field elementalMastery integer
+---@field frozenPower integer
+---@field naturesGuardian integer
+---@field primalElementalist integer
+---@field rushingStreams integer
+---@field stoneBulwarkTotem integer
+---@field totemicPersistence integer
+---@field totemicProjection integer
+---@field unleashedFury integer
+---@field windwalkTotem integer
+
+
+---@class BR.MOP.Shaman.buff : BR.Keys.MOP.Shaman.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.MOP.Shaman.cast.able : BR.cast.able.Base, BR.Keys.MOP.Shaman.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.MOP.Shaman.cast.active : BR.Keys.MOP.Shaman.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.MOP.Shaman.cast.auto : BR.Keys.MOP.Shaman.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.MOP.Shaman.cast.cancel : BR.Keys.MOP.Shaman.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.MOP.Shaman.cast.cost : BR.Keys.MOP.Shaman.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.MOP.Shaman.cast.current : BR.cast.current.Base, BR.Keys.MOP.Shaman.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.MOP.Shaman.cast.dispel : BR.Keys.MOP.Shaman.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.MOP.Shaman.cast.empowered : BR.Keys.MOP.Shaman.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.MOP.Shaman.cast.inFlight : BR.Keys.MOP.Shaman.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.MOP.Shaman.cast.inFlightRemain : BR.Keys.MOP.Shaman.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.MOP.Shaman.cast.last.time : BR.Keys.MOP.Shaman.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.MOP.Shaman.cast.last : BR.Keys.MOP.Shaman.Abilities<BR.cast.last.Spell>
+---@field time BR.MOP.Shaman.cast.last.time
+
+
+---@class BR.MOP.Shaman.cast.maxRank : BR.Keys.MOP.Shaman.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.MOP.Shaman.cast.noControl : BR.Keys.MOP.Shaman.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.MOP.Shaman.cast.opener : BR.cast.opener.Base, BR.Keys.MOP.Shaman.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.MOP.Shaman.cast.pool : BR.Keys.MOP.Shaman.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.MOP.Shaman.cast.range : BR.Keys.MOP.Shaman.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.MOP.Shaman.cast.regen : BR.Keys.MOP.Shaman.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.MOP.Shaman.cast.safe : BR.Keys.MOP.Shaman.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.MOP.Shaman.cast.time : BR.Keys.MOP.Shaman.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.MOP.Shaman.cast.timeSinceLast : BR.Keys.MOP.Shaman.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.MOP.Shaman.cast : BR.cast.Base, BR.Keys.MOP.Shaman.Abilities<BR.cast.Spell>
+---@field able BR.MOP.Shaman.cast.able
+---@field active BR.MOP.Shaman.cast.active
+---@field auto BR.MOP.Shaman.cast.auto
+---@field cancel BR.MOP.Shaman.cast.cancel
+---@field cost BR.MOP.Shaman.cast.cost
+---@field current BR.MOP.Shaman.cast.current
+---@field dispel BR.MOP.Shaman.cast.dispel
+---@field empowered BR.MOP.Shaman.cast.empowered
+---@field inFlight BR.MOP.Shaman.cast.inFlight
+---@field inFlightRemain BR.MOP.Shaman.cast.inFlightRemain
+---@field last BR.MOP.Shaman.cast.last
+---@field maxRank BR.MOP.Shaman.cast.maxRank
+---@field noControl BR.MOP.Shaman.cast.noControl
+---@field opener BR.MOP.Shaman.cast.opener
+---@field pool BR.MOP.Shaman.cast.pool
+---@field range BR.MOP.Shaman.cast.range
+---@field regen BR.MOP.Shaman.cast.regen
+---@field safe BR.MOP.Shaman.cast.safe
+---@field time BR.MOP.Shaman.cast.time
+---@field timeSinceLast BR.MOP.Shaman.cast.timeSinceLast
+
+
+---@class BR.MOP.Shaman.cd : BR.cd.Base, BR.Keys.MOP.Shaman.Abilities<BR.cd.Spell>, BR.Keys.MOP.Shaman.Items<BR.cd.Item>
+
+
+---@class BR.MOP.Shaman.charges : BR.Keys.MOP.Shaman.Abilities<BR.charges.Spell>, BR.Keys.MOP.Shaman.Items<BR.charges.Item>
+
+
+---@class BR.MOP.Shaman.debuff : BR.Keys.MOP.Shaman.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.MOP.Shaman.equiped.socket : BR.Keys.MOP.Shaman.Items<BR.equiped.socket.Item>
+
+---@class BR.MOP.Shaman.equiped : BR.equiped.Base, BR.Keys.MOP.Shaman.Items<BR.equiped.Item>
+---@field socket BR.MOP.Shaman.equiped.socket
+
+
+---@class BR.MOP.Shaman.glyph : BR.glyph.Base, BR.Keys.MOP.Shaman.Glyphs<BR.glyph.K>
+
+
+---@class BR.MOP.Shaman.has : BR.has.Base, BR.Keys.MOP.Shaman.Items<BR.has.Item>
+
+
+---@class BR.MOP.Shaman.heroTree
+
+
+---@class BR.MOP.Shaman.imbues
+---@field earthlivingWeapon integer # the weapon enchant ID
+---@field flametongueWeapon integer # the weapon enchant ID
+---@field windfuryWeapon integer # the weapon enchant ID
+
+
+---@class BR.MOP.Shaman.spell : BR.Keys.MOP.Shaman.Abilities<BR.spell.K>
+
+
+---@class BR.MOP.Shaman.talent
+---@field rank BR.MOP.Shaman.talent.rank The rank of each talent (0 when not taken)
+---@field ancestralGuidance boolean # true while the talent is taken
+---@field ancestralSwiftness boolean # true while the talent is taken
+---@field astralShift boolean # true while the talent is taken
+---@field callOfTheElements boolean # true while the talent is taken
+---@field conductivity boolean # true while the talent is taken
+---@field earthgrabTotem boolean # true while the talent is taken
+---@field echoOfTheElements boolean # true while the talent is taken
+---@field elementalBlast boolean # true while the talent is taken
+---@field elementalMastery boolean # true while the talent is taken
+---@field frozenPower boolean # true while the talent is taken
+---@field naturesGuardian boolean # true while the talent is taken
+---@field primalElementalist boolean # true while the talent is taken
+---@field rushingStreams boolean # true while the talent is taken
+---@field stoneBulwarkTotem boolean # true while the talent is taken
+---@field totemicPersistence boolean # true while the talent is taken
+---@field totemicProjection boolean # true while the talent is taken
+---@field unleashedFury boolean # true while the talent is taken
+---@field windwalkTotem boolean # true while the talent is taken
+
+
+
+
+---@class BR.MOP.Shaman.totem.Element : BR.totem.Element.Base, BR.Keys.MOP.Shaman.Totems<BR.totem.Element.TotemName>
+
+---@class BR.MOP.Shaman.totem : BR.totem.Base, BR.Keys.Elements<BR.MOP.Shaman.totem.Element>
+
+
+
+
+---@class BR.MOP.Shaman.use.able : BR.use.able.Base, BR.Keys.MOP.Shaman.Items<BR.use.able.Item>
+
+---@class BR.MOP.Shaman.use : BR.use.Base, BR.Keys.MOP.Shaman.Items<BR.use.Item>
+---@field able BR.MOP.Shaman.use.able
+
+---@class BR.Keys.MOP.Shaman.Enhancement.Abilities<T>
+---@field ancestralGuidance T
+---@field ancestralSpirit T
+---@field ancestralSwiftness T
+---@field ancestralVision T
+---@field ascendance T
+---@field astralRecall T
+---@field astralShift T
+---@field autoAttack T
+---@field autoShot T
+---@field bindElemental T
+---@field bloodlust T
+---@field callOfTheElements T
+---@field capacitorTotem T
+---@field chainHeal T
+---@field chainLightning T
+---@field cleanseSpirit T
+---@field conductivity T
+---@field disenchant T
+---@field earthElementalTotem T
+---@field earthShock T
+---@field earthbindTotem T
+---@field earthgrabTotem T
+---@field echoOfTheElements T
+---@field elementalBlast T
+---@field elementalMastery T
+---@field farSight T
+---@field feralSpirit T
+---@field fireElementalTotem T
+---@field fireNova T
+---@field flameShock T
+---@field flametongueWeapon T
+---@field frostShock T
+---@field frostbrandWeapon T
+---@field frozenPower T
+---@field ghostWolf T
+---@field giftOfTheNaaru T
+---@field global T
+---@field groundingTotem T
+---@field healingRain T
+---@field healingStreamTotem T
+---@field healingSurge T
+---@field healingTideTotem T
+---@field heroism T
+---@field hex T
+---@field lavaLash T
+---@field lightningBolt T
+---@field lightningShield T
+---@field magmaTotem T
+---@field milling T
+---@field naturesGuardian T
+---@field primalElementalist T
+---@field primalStrike T
+---@field prospecting T
+---@field purge T
+---@field quakingPalm T
+---@field racial T
+---@field rockbiterWeapon T
+---@field rushingStreams T
+---@field searingTotem T
+---@field shadowmeld T
+---@field shamanisticRage T
+---@field spiritWalk T
+---@field spiritwalkersGrace T
+---@field stoneBulwarkTotem T
+---@field stormblast T
+---@field stormlashTotem T
+---@field stormstrike T
+---@field totemicPersistence T
+---@field totemicProjection T
+---@field totemicRecall T
+---@field tremorTotem T
+---@field twoForms T
+---@field unleashElements T
+---@field unleashedFury T
+---@field waterShield T
+---@field waterWalking T
+---@field windShear T
+---@field windfuryWeapon T
+---@field windwalkTotem T
+
+---@class BR.Keys.MOP.Shaman.Enhancement.Buffs<T>
+---@field ancestralSwiftness T
+---@field ancientHysteria T
+---@field ascendance T
+---@field astralShift T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field flameShock T
+---@field flametongueWeapon T
+---@field flashOfSpringBlossoms T
+---@field ghostWolf T
+---@field heroism T
+---@field lightningShield T
+---@field maelstromWeapon T
+---@field racial T
+---@field runeOfReorigination T
+---@field shadowmeld T
+---@field symbolOfHope T
+---@field timeWarp T
+---@field unleashFlame T
+---@field vicious T
+---@field virmensBite T
+---@field waterShield T
+---@field waterWalking T
+
+---@class BR.Keys.MOP.Shaman.Enhancement.Debuffs<T>
+---@field convert T
+---@field dampening T
+---@field flameShock T
+---@field mightyBash T
+
+---@class BR.Keys.MOP.Shaman.Enhancement.Glyphs<T>
+---@field fireElementalTotem T
+---@field frostShock T
+---@field glyphOfFireElementalTotem T
+---@field glyphOfFrostShock T
+
+---@class BR.Keys.MOP.Shaman.Enhancement.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.MOP.Shaman.Enhancement.Totems<T>
+---@field capacitorTotem T
+---@field earthElementalTotem T
+---@field earthbindTotem T
+---@field earthquake T
+---@field fireElementalTotem T
+---@field flameShock T
+---@field groundingTotem T
+---@field healingStreamTotem T
+---@field healingTideTotem T
+---@field magmaTotem T
+---@field manaTideTotem T
+---@field searingTotem T
+---@field stormlashTotem T
+---@field tremorTotem T
+---@field windwalkTotem T
+
+---@class BR.MOP.Shaman.Enhancement.talent.rank
+---@field ancestralGuidance integer
+---@field ancestralSwiftness integer
+---@field astralShift integer
+---@field callOfTheElements integer
+---@field conductivity integer
+---@field earthgrabTotem integer
+---@field echoOfTheElements integer
+---@field elementalBlast integer
+---@field elementalMastery integer
+---@field frozenPower integer
+---@field naturesGuardian integer
+---@field primalElementalist integer
+---@field rushingStreams integer
+---@field stoneBulwarkTotem integer
+---@field totemicPersistence integer
+---@field totemicProjection integer
+---@field unleashedFury integer
+---@field windwalkTotem integer
+
+
+---@class BR.MOP.Shaman.Enhancement.buff : BR.Keys.MOP.Shaman.Enhancement.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.able : BR.cast.able.Base, BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.active : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.auto : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.cancel : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.cost : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.current : BR.cast.current.Base, BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.dispel : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.empowered : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.inFlight : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.inFlightRemain : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.last.time : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.MOP.Shaman.Enhancement.cast.last : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.last.Spell>
+---@field time BR.MOP.Shaman.Enhancement.cast.last.time
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.maxRank : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.noControl : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.opener : BR.cast.opener.Base, BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.pool : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.range : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.regen : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.safe : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.time : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.MOP.Shaman.Enhancement.cast.timeSinceLast : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.MOP.Shaman.Enhancement.cast : BR.cast.Base, BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cast.Spell>
+---@field able BR.MOP.Shaman.Enhancement.cast.able
+---@field active BR.MOP.Shaman.Enhancement.cast.active
+---@field auto BR.MOP.Shaman.Enhancement.cast.auto
+---@field cancel BR.MOP.Shaman.Enhancement.cast.cancel
+---@field cost BR.MOP.Shaman.Enhancement.cast.cost
+---@field current BR.MOP.Shaman.Enhancement.cast.current
+---@field dispel BR.MOP.Shaman.Enhancement.cast.dispel
+---@field empowered BR.MOP.Shaman.Enhancement.cast.empowered
+---@field inFlight BR.MOP.Shaman.Enhancement.cast.inFlight
+---@field inFlightRemain BR.MOP.Shaman.Enhancement.cast.inFlightRemain
+---@field last BR.MOP.Shaman.Enhancement.cast.last
+---@field maxRank BR.MOP.Shaman.Enhancement.cast.maxRank
+---@field noControl BR.MOP.Shaman.Enhancement.cast.noControl
+---@field opener BR.MOP.Shaman.Enhancement.cast.opener
+---@field pool BR.MOP.Shaman.Enhancement.cast.pool
+---@field range BR.MOP.Shaman.Enhancement.cast.range
+---@field regen BR.MOP.Shaman.Enhancement.cast.regen
+---@field safe BR.MOP.Shaman.Enhancement.cast.safe
+---@field time BR.MOP.Shaman.Enhancement.cast.time
+---@field timeSinceLast BR.MOP.Shaman.Enhancement.cast.timeSinceLast
+
+
+---@class BR.MOP.Shaman.Enhancement.cd : BR.cd.Base, BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.cd.Spell>, BR.Keys.MOP.Shaman.Enhancement.Items<BR.cd.Item>
+
+
+---@class BR.MOP.Shaman.Enhancement.charges : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.charges.Spell>, BR.Keys.MOP.Shaman.Enhancement.Items<BR.charges.Item>
+
+
+---@class BR.MOP.Shaman.Enhancement.debuff : BR.Keys.MOP.Shaman.Enhancement.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.MOP.Shaman.Enhancement.equiped.socket : BR.Keys.MOP.Shaman.Enhancement.Items<BR.equiped.socket.Item>
+
+---@class BR.MOP.Shaman.Enhancement.equiped : BR.equiped.Base, BR.Keys.MOP.Shaman.Enhancement.Items<BR.equiped.Item>
+---@field socket BR.MOP.Shaman.Enhancement.equiped.socket
+
+
+---@class BR.MOP.Shaman.Enhancement.glyph : BR.glyph.Base, BR.Keys.MOP.Shaman.Enhancement.Glyphs<BR.glyph.K>
+
+
+---@class BR.MOP.Shaman.Enhancement.has : BR.has.Base, BR.Keys.MOP.Shaman.Enhancement.Items<BR.has.Item>
+
+
+---@class BR.MOP.Shaman.Enhancement.heroTree
+
+
+---@class BR.MOP.Shaman.Enhancement.imbues
+---@field earthlivingWeapon integer # the weapon enchant ID
+---@field flametongueWeapon integer # the weapon enchant ID
+---@field windfuryWeapon integer # the weapon enchant ID
+
+
+---@class BR.MOP.Shaman.Enhancement.spell : BR.Keys.MOP.Shaman.Enhancement.Abilities<BR.spell.K>
+
+
+---@class BR.MOP.Shaman.Enhancement.talent
+---@field rank BR.MOP.Shaman.Enhancement.talent.rank The rank of each talent (0 when not taken)
+---@field ancestralGuidance boolean # true while the talent is taken
+---@field ancestralSwiftness boolean # true while the talent is taken
+---@field astralShift boolean # true while the talent is taken
+---@field callOfTheElements boolean # true while the talent is taken
+---@field conductivity boolean # true while the talent is taken
+---@field earthgrabTotem boolean # true while the talent is taken
+---@field echoOfTheElements boolean # true while the talent is taken
+---@field elementalBlast boolean # true while the talent is taken
+---@field elementalMastery boolean # true while the talent is taken
+---@field frozenPower boolean # true while the talent is taken
+---@field naturesGuardian boolean # true while the talent is taken
+---@field primalElementalist boolean # true while the talent is taken
+---@field rushingStreams boolean # true while the talent is taken
+---@field stoneBulwarkTotem boolean # true while the talent is taken
+---@field totemicPersistence boolean # true while the talent is taken
+---@field totemicProjection boolean # true while the talent is taken
+---@field unleashedFury boolean # true while the talent is taken
+---@field windwalkTotem boolean # true while the talent is taken
+
+
+
+
+---@class BR.MOP.Shaman.Enhancement.totem.Element : BR.totem.Element.Base, BR.Keys.MOP.Shaman.Enhancement.Totems<BR.totem.Element.TotemName>
+
+---@class BR.MOP.Shaman.Enhancement.totem : BR.totem.Base, BR.Keys.Elements<BR.MOP.Shaman.Enhancement.totem.Element>
+
+
+
+
+---@class BR.MOP.Shaman.Enhancement.use.able : BR.use.able.Base, BR.Keys.MOP.Shaman.Enhancement.Items<BR.use.able.Item>
+
+---@class BR.MOP.Shaman.Enhancement.use : BR.use.Base, BR.Keys.MOP.Shaman.Enhancement.Items<BR.use.Item>
+---@field able BR.MOP.Shaman.Enhancement.use.able
+
+---@class BR.Keys.MOP.Warrior.Abilities<T>
+---@field attack T
+---@field autoAttack T
+---@field autoShot T
+---@field avatar T
+---@field battleShout T
+---@field battleStance T
+---@field berserkerRage T
+---@field berserkerStance T
+---@field bladestorm T
+---@field bloodbath T
+---@field charge T
+---@field cleave T
+---@field commandingShout T
+---@field defensiveStance T
+---@field demoralizingBanner T
+---@field disarm T
+---@field disenchant T
+---@field disruptingShout T
+---@field doubleTime T
+---@field dragonRoar T
+---@field enragedRegeneration T
+---@field execute T
+---@field giftOfTheNaaru T
+---@field global T
+---@field hamstring T
+---@field heroicLeap T
+---@field heroicStrike T
+---@field heroicThrow T
+---@field impendingVictory T
+---@field intervene T
+---@field intimidatingShout T
+---@field juggernaut T
+---@field massSpellReflection T
+---@field milling T
+---@field mockingBanner T
+---@field piercingHowl T
+---@field prospecting T
+---@field pummel T
+---@field quakingPalm T
+---@field racial T
+---@field rallyingCry T
+---@field recklessness T
+---@field safeguard T
+---@field secondWind T
+---@field shadowmeld T
+---@field shatteringThrow T
+---@field shieldWall T
+---@field shockwave T
+---@field skullBanner T
+---@field spellReflection T
+---@field staggeringShout T
+---@field stormBolt T
+---@field sunderArmor T
+---@field taunt T
+---@field throw T
+---@field thunderClap T
+---@field twoForms T
+---@field victoryRush T
+---@field vigilance T
+---@field warbringer T
+
+---@class BR.Keys.MOP.Warrior.Buffs<T>
+---@field ancientHysteria T
+---@field battleShout T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field bloodbath T
+---@field defensiveStance T
+---@field enrage T
+---@field flashOfSpringBlossoms T
+---@field heroism T
+---@field racial T
+---@field recklessness T
+---@field runeOfReorigination T
+---@field shadowmeld T
+---@field skullBanner T
+---@field symbolOfHope T
+---@field timeWarp T
+---@field vicious T
+---@field victorious T
+---@field virmensBite T
+
+---@class BR.Keys.MOP.Warrior.Debuffs<T>
+---@field convert T
+---@field dampening T
+---@field deepWounds T
+---@field disarm T
+---@field mightyBash T
+
+---@class BR.Keys.MOP.Warrior.Glyphs<T>
+
+---@class BR.Keys.MOP.Warrior.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.MOP.Warrior.Totems<T>
+
+---@class BR.MOP.Warrior.talent.rank
+---@field avatar integer
+---@field bladestorm integer
+---@field bloodbath integer
+---@field disruptingShout integer
+---@field doubleTime integer
+---@field dragonRoar integer
+---@field enragedRegeneration integer
+---@field impendingVictory integer
+---@field juggernaut integer
+---@field massSpellReflection integer
+---@field piercingHowl integer
+---@field safeguard integer
+---@field secondWind integer
+---@field shockwave integer
+---@field staggeringShout integer
+---@field stormBolt integer
+---@field vigilance integer
+---@field warbringer integer
+
+
+---@class BR.MOP.Warrior.buff : BR.Keys.MOP.Warrior.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.MOP.Warrior.cast.able : BR.cast.able.Base, BR.Keys.MOP.Warrior.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.MOP.Warrior.cast.active : BR.Keys.MOP.Warrior.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.MOP.Warrior.cast.auto : BR.Keys.MOP.Warrior.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.MOP.Warrior.cast.cancel : BR.Keys.MOP.Warrior.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.MOP.Warrior.cast.cost : BR.Keys.MOP.Warrior.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.MOP.Warrior.cast.current : BR.cast.current.Base, BR.Keys.MOP.Warrior.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.MOP.Warrior.cast.dispel : BR.Keys.MOP.Warrior.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.MOP.Warrior.cast.empowered : BR.Keys.MOP.Warrior.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.MOP.Warrior.cast.inFlight : BR.Keys.MOP.Warrior.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.MOP.Warrior.cast.inFlightRemain : BR.Keys.MOP.Warrior.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.MOP.Warrior.cast.last.time : BR.Keys.MOP.Warrior.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.MOP.Warrior.cast.last : BR.Keys.MOP.Warrior.Abilities<BR.cast.last.Spell>
+---@field time BR.MOP.Warrior.cast.last.time
+
+
+---@class BR.MOP.Warrior.cast.maxRank : BR.Keys.MOP.Warrior.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.MOP.Warrior.cast.noControl : BR.Keys.MOP.Warrior.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.MOP.Warrior.cast.opener : BR.cast.opener.Base, BR.Keys.MOP.Warrior.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.MOP.Warrior.cast.pool : BR.Keys.MOP.Warrior.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.MOP.Warrior.cast.range : BR.Keys.MOP.Warrior.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.MOP.Warrior.cast.regen : BR.Keys.MOP.Warrior.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.MOP.Warrior.cast.safe : BR.Keys.MOP.Warrior.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.MOP.Warrior.cast.time : BR.Keys.MOP.Warrior.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.MOP.Warrior.cast.timeSinceLast : BR.Keys.MOP.Warrior.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.MOP.Warrior.cast : BR.cast.Base, BR.Keys.MOP.Warrior.Abilities<BR.cast.Spell>
+---@field able BR.MOP.Warrior.cast.able
+---@field active BR.MOP.Warrior.cast.active
+---@field auto BR.MOP.Warrior.cast.auto
+---@field cancel BR.MOP.Warrior.cast.cancel
+---@field cost BR.MOP.Warrior.cast.cost
+---@field current BR.MOP.Warrior.cast.current
+---@field dispel BR.MOP.Warrior.cast.dispel
+---@field empowered BR.MOP.Warrior.cast.empowered
+---@field inFlight BR.MOP.Warrior.cast.inFlight
+---@field inFlightRemain BR.MOP.Warrior.cast.inFlightRemain
+---@field last BR.MOP.Warrior.cast.last
+---@field maxRank BR.MOP.Warrior.cast.maxRank
+---@field noControl BR.MOP.Warrior.cast.noControl
+---@field opener BR.MOP.Warrior.cast.opener
+---@field pool BR.MOP.Warrior.cast.pool
+---@field range BR.MOP.Warrior.cast.range
+---@field regen BR.MOP.Warrior.cast.regen
+---@field safe BR.MOP.Warrior.cast.safe
+---@field time BR.MOP.Warrior.cast.time
+---@field timeSinceLast BR.MOP.Warrior.cast.timeSinceLast
+
+
+---@class BR.MOP.Warrior.cd : BR.cd.Base, BR.Keys.MOP.Warrior.Abilities<BR.cd.Spell>, BR.Keys.MOP.Warrior.Items<BR.cd.Item>
+
+
+---@class BR.MOP.Warrior.charges : BR.Keys.MOP.Warrior.Abilities<BR.charges.Spell>, BR.Keys.MOP.Warrior.Items<BR.charges.Item>
+
+
+---@class BR.MOP.Warrior.debuff : BR.Keys.MOP.Warrior.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.MOP.Warrior.equiped.socket : BR.Keys.MOP.Warrior.Items<BR.equiped.socket.Item>
+
+---@class BR.MOP.Warrior.equiped : BR.equiped.Base, BR.Keys.MOP.Warrior.Items<BR.equiped.Item>
+---@field socket BR.MOP.Warrior.equiped.socket
+
+
+---@class BR.MOP.Warrior.glyph : BR.glyph.Base, BR.Keys.MOP.Warrior.Glyphs<BR.glyph.K>
+
+
+---@class BR.MOP.Warrior.has : BR.has.Base, BR.Keys.MOP.Warrior.Items<BR.has.Item>
+
+
+---@class BR.MOP.Warrior.heroTree
+
+
+---@class BR.MOP.Warrior.imbues
+
+
+---@class BR.MOP.Warrior.spell : BR.Keys.MOP.Warrior.Abilities<BR.spell.K>
+
+
+---@class BR.MOP.Warrior.talent
+---@field rank BR.MOP.Warrior.talent.rank The rank of each talent (0 when not taken)
+---@field avatar boolean # true while the talent is taken
+---@field bladestorm boolean # true while the talent is taken
+---@field bloodbath boolean # true while the talent is taken
+---@field disruptingShout boolean # true while the talent is taken
+---@field doubleTime boolean # true while the talent is taken
+---@field dragonRoar boolean # true while the talent is taken
+---@field enragedRegeneration boolean # true while the talent is taken
+---@field impendingVictory boolean # true while the talent is taken
+---@field juggernaut boolean # true while the talent is taken
+---@field massSpellReflection boolean # true while the talent is taken
+---@field piercingHowl boolean # true while the talent is taken
+---@field safeguard boolean # true while the talent is taken
+---@field secondWind boolean # true while the talent is taken
+---@field shockwave boolean # true while the talent is taken
+---@field staggeringShout boolean # true while the talent is taken
+---@field stormBolt boolean # true while the talent is taken
+---@field vigilance boolean # true while the talent is taken
+---@field warbringer boolean # true while the talent is taken
+
+
+
+
+---@class BR.MOP.Warrior.totem.Element : BR.totem.Element.Base, BR.Keys.MOP.Warrior.Totems<BR.totem.Element.TotemName>
+
+---@class BR.MOP.Warrior.totem : BR.totem.Base, BR.Keys.Elements<BR.MOP.Warrior.totem.Element>
+
+
+
+
+---@class BR.MOP.Warrior.use.able : BR.use.able.Base, BR.Keys.MOP.Warrior.Items<BR.use.able.Item>
+
+---@class BR.MOP.Warrior.use : BR.use.Base, BR.Keys.MOP.Warrior.Items<BR.use.Item>
+---@field able BR.MOP.Warrior.use.able
+
+---@class BR.Keys.MOP.Warrior.Arms.Abilities<T>
+---@field attack T
+---@field autoAttack T
+---@field autoShot T
+---@field avatar T
+---@field battleShout T
+---@field battleStance T
+---@field berserkerRage T
+---@field berserkerStance T
+---@field bladestorm T
+---@field bloodbath T
+---@field charge T
+---@field cleave T
+---@field colossusSmash T
+---@field commandingShout T
+---@field defensiveStance T
+---@field demoralizingBanner T
+---@field dieByTheSword T
+---@field disarm T
+---@field disenchant T
+---@field disruptingShout T
+---@field doubleTime T
+---@field dragonRoar T
+---@field enragedRegeneration T
+---@field execute T
+---@field giftOfTheNaaru T
+---@field global T
+---@field hamstring T
+---@field heroicLeap T
+---@field heroicStrike T
+---@field heroicThrow T
+---@field impendingVictory T
+---@field intervene T
+---@field intimidatingShout T
+---@field juggernaut T
+---@field massSpellReflection T
+---@field milling T
+---@field mockingBanner T
+---@field mortalStrike T
+---@field overpower T
+---@field piercingHowl T
+---@field prospecting T
+---@field pummel T
+---@field quakingPalm T
+---@field racial T
+---@field rallyingCry T
+---@field recklessness T
+---@field safeguard T
+---@field secondWind T
+---@field shadowmeld T
+---@field shatteringThrow T
+---@field shieldWall T
+---@field shockwave T
+---@field skullBanner T
+---@field slam T
+---@field spellReflection T
+---@field staggeringShout T
+---@field stormBolt T
+---@field sunderArmor T
+---@field sweepingStrikes T
+---@field taunt T
+---@field throw T
+---@field thunderClap T
+---@field twoForms T
+---@field victoryRush T
+---@field vigilance T
+---@field warbringer T
+---@field whirlwind T
+
+---@class BR.Keys.MOP.Warrior.Arms.Buffs<T>
+---@field ancientHysteria T
+---@field battleShout T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field bloodbath T
+---@field colossusSmash T
+---@field defensiveStance T
+---@field enrage T
+---@field flashOfSpringBlossoms T
+---@field heroism T
+---@field racial T
+---@field recklessness T
+---@field runeOfReorigination T
+---@field shadowmeld T
+---@field skullBanner T
+---@field suddenExecute T
+---@field sweepingStrikes T
+---@field symbolOfHope T
+---@field tasteForBlood T
+---@field timeWarp T
+---@field vicious T
+---@field victorious T
+---@field virmensBite T
+
+---@class BR.Keys.MOP.Warrior.Arms.Debuffs<T>
+---@field colossusSmash T
+---@field convert T
+---@field dampening T
+---@field deepWounds T
+---@field disarm T
+---@field mightyBash T
+
+---@class BR.Keys.MOP.Warrior.Arms.Glyphs<T>
+
+---@class BR.Keys.MOP.Warrior.Arms.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.MOP.Warrior.Arms.Totems<T>
+
+---@class BR.MOP.Warrior.Arms.talent.rank
+---@field avatar integer
+---@field bladestorm integer
+---@field bloodbath integer
+---@field disruptingShout integer
+---@field doubleTime integer
+---@field dragonRoar integer
+---@field enragedRegeneration integer
+---@field impendingVictory integer
+---@field juggernaut integer
+---@field massSpellReflection integer
+---@field piercingHowl integer
+---@field safeguard integer
+---@field secondWind integer
+---@field shockwave integer
+---@field staggeringShout integer
+---@field stormBolt integer
+---@field vigilance integer
+---@field warbringer integer
+
+
+---@class BR.MOP.Warrior.Arms.buff : BR.Keys.MOP.Warrior.Arms.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.MOP.Warrior.Arms.cast.able : BR.cast.able.Base, BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.active : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.auto : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.cancel : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.cost : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.current : BR.cast.current.Base, BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.dispel : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.empowered : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.inFlight : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.inFlightRemain : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.MOP.Warrior.Arms.cast.last.time : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.MOP.Warrior.Arms.cast.last : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.last.Spell>
+---@field time BR.MOP.Warrior.Arms.cast.last.time
+
+
+---@class BR.MOP.Warrior.Arms.cast.maxRank : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.noControl : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.opener : BR.cast.opener.Base, BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.pool : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.range : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.regen : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.safe : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.time : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.MOP.Warrior.Arms.cast.timeSinceLast : BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.MOP.Warrior.Arms.cast : BR.cast.Base, BR.Keys.MOP.Warrior.Arms.Abilities<BR.cast.Spell>
+---@field able BR.MOP.Warrior.Arms.cast.able
+---@field active BR.MOP.Warrior.Arms.cast.active
+---@field auto BR.MOP.Warrior.Arms.cast.auto
+---@field cancel BR.MOP.Warrior.Arms.cast.cancel
+---@field cost BR.MOP.Warrior.Arms.cast.cost
+---@field current BR.MOP.Warrior.Arms.cast.current
+---@field dispel BR.MOP.Warrior.Arms.cast.dispel
+---@field empowered BR.MOP.Warrior.Arms.cast.empowered
+---@field inFlight BR.MOP.Warrior.Arms.cast.inFlight
+---@field inFlightRemain BR.MOP.Warrior.Arms.cast.inFlightRemain
+---@field last BR.MOP.Warrior.Arms.cast.last
+---@field maxRank BR.MOP.Warrior.Arms.cast.maxRank
+---@field noControl BR.MOP.Warrior.Arms.cast.noControl
+---@field opener BR.MOP.Warrior.Arms.cast.opener
+---@field pool BR.MOP.Warrior.Arms.cast.pool
+---@field range BR.MOP.Warrior.Arms.cast.range
+---@field regen BR.MOP.Warrior.Arms.cast.regen
+---@field safe BR.MOP.Warrior.Arms.cast.safe
+---@field time BR.MOP.Warrior.Arms.cast.time
+---@field timeSinceLast BR.MOP.Warrior.Arms.cast.timeSinceLast
+
+
+---@class BR.MOP.Warrior.Arms.cd : BR.cd.Base, BR.Keys.MOP.Warrior.Arms.Abilities<BR.cd.Spell>, BR.Keys.MOP.Warrior.Arms.Items<BR.cd.Item>
+
+
+---@class BR.MOP.Warrior.Arms.charges : BR.Keys.MOP.Warrior.Arms.Abilities<BR.charges.Spell>, BR.Keys.MOP.Warrior.Arms.Items<BR.charges.Item>
+
+
+---@class BR.MOP.Warrior.Arms.debuff : BR.Keys.MOP.Warrior.Arms.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.MOP.Warrior.Arms.equiped.socket : BR.Keys.MOP.Warrior.Arms.Items<BR.equiped.socket.Item>
+
+---@class BR.MOP.Warrior.Arms.equiped : BR.equiped.Base, BR.Keys.MOP.Warrior.Arms.Items<BR.equiped.Item>
+---@field socket BR.MOP.Warrior.Arms.equiped.socket
+
+
+---@class BR.MOP.Warrior.Arms.glyph : BR.glyph.Base, BR.Keys.MOP.Warrior.Arms.Glyphs<BR.glyph.K>
+
+
+---@class BR.MOP.Warrior.Arms.has : BR.has.Base, BR.Keys.MOP.Warrior.Arms.Items<BR.has.Item>
+
+
+---@class BR.MOP.Warrior.Arms.heroTree
+
+
+---@class BR.MOP.Warrior.Arms.imbues
+
+
+---@class BR.MOP.Warrior.Arms.spell : BR.Keys.MOP.Warrior.Arms.Abilities<BR.spell.K>
+
+
+---@class BR.MOP.Warrior.Arms.talent
+---@field rank BR.MOP.Warrior.Arms.talent.rank The rank of each talent (0 when not taken)
+---@field avatar boolean # true while the talent is taken
+---@field bladestorm boolean # true while the talent is taken
+---@field bloodbath boolean # true while the talent is taken
+---@field disruptingShout boolean # true while the talent is taken
+---@field doubleTime boolean # true while the talent is taken
+---@field dragonRoar boolean # true while the talent is taken
+---@field enragedRegeneration boolean # true while the talent is taken
+---@field impendingVictory boolean # true while the talent is taken
+---@field juggernaut boolean # true while the talent is taken
+---@field massSpellReflection boolean # true while the talent is taken
+---@field piercingHowl boolean # true while the talent is taken
+---@field safeguard boolean # true while the talent is taken
+---@field secondWind boolean # true while the talent is taken
+---@field shockwave boolean # true while the talent is taken
+---@field staggeringShout boolean # true while the talent is taken
+---@field stormBolt boolean # true while the talent is taken
+---@field vigilance boolean # true while the talent is taken
+---@field warbringer boolean # true while the talent is taken
+
+
+
+
+---@class BR.MOP.Warrior.Arms.totem.Element : BR.totem.Element.Base, BR.Keys.MOP.Warrior.Arms.Totems<BR.totem.Element.TotemName>
+
+---@class BR.MOP.Warrior.Arms.totem : BR.totem.Base, BR.Keys.Elements<BR.MOP.Warrior.Arms.totem.Element>
+
+
+
+
+---@class BR.MOP.Warrior.Arms.use.able : BR.use.able.Base, BR.Keys.MOP.Warrior.Arms.Items<BR.use.able.Item>
+
+---@class BR.MOP.Warrior.Arms.use : BR.use.Base, BR.Keys.MOP.Warrior.Arms.Items<BR.use.Item>
+---@field able BR.MOP.Warrior.Arms.use.able
+
+---@class BR.Keys.Retail.DeathKnight.Abilities<T>
+---@field aFeastOfSouls T
+---@field abominationLimb T
+---@field ancestralCall T
+---@field antiMagicShell T
+---@field antimagicZone T
+---@field apocalypseNow T
+---@field arcanePulse T
+---@field asphyxiate T
+---@field assimilation T
+---@field autoAttack T
+---@field autoShot T
+---@field bagOfTricks T
+---@field bindInDarkness T
+---@field blindingSleet T
+---@field bloodDraw T
+---@field bloodFever T
+---@field bloodScent T
+---@field bloodsoakedGround T
+---@field bloodyFortitude T
+---@field brittle T
+---@field chainsOfIce T
+---@field cleavingStrikes T
+---@field coldthirst T
+---@field controlUndead T
+---@field cyclotronicBlast T
+---@field darkCommand T
+---@field darkTalons T
+---@field deathAndDecay T
+---@field deathCharge T
+---@field deathCoil T
+---@field deathGate T
+---@field deathGrip T
+---@field deathPact T
+---@field deathStrike T
+---@field deathsAdvance T
+---@field deathsEcho T
+---@field deathsMessenger T
+---@field deathsReach T
+---@field desecratedGround T
+---@field disenchant T
+---@field enfeeble T
+---@field expellingShield T
+---@field exterminate T
+---@field fireblood T
+---@field focusedAzeriteBeam T
+---@field focusedAzeriteBeamChannel T
+---@field frenziedBloodthirst T
+---@field furyOfTheHorsemen T
+---@field giftOfTheNaaru T
+---@field giftOfTheSanlayn T
+---@field global T
+---@field gloomWard T
+---@field grimReaper T
+---@field heartOfAzeroth T
+---@field horsemansAid T
+---@field hungeringThirst T
+---@field icePrison T
+---@field iceboundFortitude T
+---@field icyTalons T
+---@field improvedDeathStrike T
+---@field inciteTerror T
+---@field inflictionOfSorrow T
+---@field insidiousChill T
+---@field latentArcana T
+---@field lichborne T
+---@field lightsJudgment T
+---@field marchOfDarkness T
+---@field mawswornMenace T
+---@field milling T
+---@field mindFreeze T
+---@field mograinesMight T
+---@field nazgrimsConquest T
+---@field newlyTurned T
+---@field nullMagic T
+---@field onAPalerHorse T
+---@field osmosis T
+---@field pactOfTheApocalypse T
+---@field pactOfTheDeathbringer T
+---@field pactOfTheSanlayn T
+---@field painfulDeath T
+---@field pathOfFrost T
+---@field permafrost T
+---@field proliferatingChill T
+---@field prospecting T
+---@field quakingPalm T
+---@field racial T
+---@field raiseAlly T
+---@field raiseDead T
+---@field reapersMark T
+---@field ridersChampion T
+---@field runeCarvedPlates T
+---@field runeMastery T
+---@field runeStrike T
+---@field runeforging T
+---@field runicAttenuation T
+---@field runicProtection T
+---@field sacrificialPact T
+---@field sanguineScent T
+---@field shadowmeld T
+---@field soulReaper T
+---@field soulRupture T
+---@field subduingGrasp T
+---@field suppression T
+---@field swiftEnd T
+---@field theBloodIsLife T
+---@field trollbanesIcyFury T
+---@field unholyBond T
+---@field unholyEndurance T
+---@field unholyGround T
+---@field unyieldingWill T
+---@field vampiricAura T
+---@field vampiricSpeed T
+---@field vampiricStrike T
+---@field vestigialShell T
+---@field veteranOfTheThirdWar T
+---@field visceralStrength T
+---@field waveOfSouls T
+---@field whitemanesFamine T
+---@field witherAway T
+---@field wraithWalk T
+
+---@class BR.Keys.Retail.DeathKnight.Buffs<T>
+---@field ancientHysteria T
+---@field antiMagicShell T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentation T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field coldHeartItem T
+---@field concordanceOfTheLegionfall T
+---@field cracklingTourmaline T
+---@field deathAndDecay T
+---@field deathsDue T
+---@field defiledAugmentation T
+---@field divineSteed T
+---@field domineeringArrogance T
+---@field elementalPotionOfPower T
+---@field elementalPotionOfUltimatePower T
+---@field felFocus T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field flayedWingToxin T
+---@field forTheAlliance T
+---@field forTheHorde T
+---@field fruitfulMachinatins T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field guidingHand T
+---@field heroism T
+---@field iceboundFortitude T
+---@field icedPhialOfCorruptingRage T
+---@field icyTalons T
+---@field ineffableTruth T
+---@field latentArcana T
+---@field mistcallerOcarina T
+---@field nagrandClefthoof T
+---@field nagrandGoat T
+---@field nagrandRidingClefthoof T
+---@field nagrandTalbuk T
+---@field netherwinds T
+---@field norgannonsForesight T
+---@field overchargeMana T
+---@field pathOfFrost T
+---@field phialOfGlacialFury T
+---@field phialOfTepidVersatility T
+---@field potionOfBurstingBlood T
+---@field potionOfFocusedResolve T
+---@field potionOfReplenishment T
+---@field potionOfUnbridledFury T
+---@field prolongedPower T
+---@field queensDecreeUnstoppable T
+---@field racial T
+---@field razorCoral T
+---@field saphireofBrilliance T
+---@field sephuz1 T
+---@field sephuz2 T
+---@field sephuzCooldown T
+---@field shadowmeld T
+---@field shroudOfConcealment T
+---@field soulIgnition T
+---@field soulshape T
+---@field spectralFlaskOfPower T
+---@field superiorBattlePotionOfAgility T
+---@field symbolOfHope T
+---@field timeWarp T
+---@field unholyStrength T
+---@field vigorEngaged T
+---@field whispersOfInsanity T
+---@field wraithWalk T
+
+---@class BR.Keys.Retail.DeathKnight.Debuffs<T>
+---@field arcaneBurst T
+---@field bloodOfTheEnemy T
+---@field bloodPlague T
+---@field bwonsamdiWrath T
+---@field cascadingTerror T
+---@field chainsOfIce T
+---@field concentratedFlame T
+---@field conductiveInk T
+---@field controlUndead T
+---@field creepingMadness T
+---@field dampening T
+---@field darkCommand T
+---@field defiledGround T
+---@field eyeOfCorruption T
+---@field eyeOfLeotheras T
+---@field fixate T
+---@field frostBreath T
+---@field frostFever T
+---@field grandDelusions T
+---@field graspingTendrils T
+---@field mightyBash T
+---@field necroticWound T
+---@field promiseOfPower T
+---@field quaking T
+---@field razorCoral T
+---@field razorice T
+---@field reaping T
+---@field repeatPerformance T
+---@field shiverVenom T
+---@field soulReaper T
+---@field temptation T
+---@field thirstForBlood T
+---@field timeToFeed T
+---@field vileCorruption T
+
+---@class BR.Keys.Retail.DeathKnight.Glyphs<T>
+
+---@class BR.Keys.Retail.DeathKnight.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.Retail.DeathKnight.Totems<T>
+
+---@class BR.Retail.DeathKnight.talent.rank
+---@field aFeastOfSouls integer
+---@field abominationLimb integer
+---@field antimagicZone integer
+---@field apocalypseNow integer
+---@field asphyxiate integer
+---@field assimilation integer
+---@field bindInDarkness integer
+---@field blindingSleet integer
+---@field bloodDraw integer
+---@field bloodFever integer
+---@field bloodScent integer
+---@field bloodsoakedGround integer
+---@field bloodyFortitude integer
+---@field brittle integer
+---@field cleavingStrikes integer
+---@field coldthirst integer
+---@field controlUndead integer
+---@field darkTalons integer
+---@field deathCharge integer
+---@field deathPact integer
+---@field deathStrike integer
+---@field deathsEcho integer
+---@field deathsMessenger integer
+---@field deathsReach integer
+---@field enfeeble integer
+---@field expellingShield integer
+---@field exterminate integer
+---@field frenziedBloodthirst integer
+---@field furyOfTheHorsemen integer
+---@field giftOfTheSanlayn integer
+---@field gloomWard integer
+---@field grimReaper integer
+---@field horsemansAid integer
+---@field hungeringThirst integer
+---@field icePrison integer
+---@field iceboundFortitude integer
+---@field icyTalons integer
+---@field improvedDeathStrike integer
+---@field inciteTerror integer
+---@field inflictionOfSorrow integer
+---@field insidiousChill integer
+---@field marchOfDarkness integer
+---@field mawswornMenace integer
+---@field mindFreeze integer
+---@field mograinesMight integer
+---@field nazgrimsConquest integer
+---@field newlyTurned integer
+---@field nullMagic integer
+---@field onAPalerHorse integer
+---@field osmosis integer
+---@field pactOfTheApocalypse integer
+---@field pactOfTheDeathbringer integer
+---@field pactOfTheSanlayn integer
+---@field painfulDeath integer
+---@field permafrost integer
+---@field proliferatingChill integer
+---@field raiseDead integer
+---@field reapersMark integer
+---@field ridersChampion integer
+---@field runeCarvedPlates integer
+---@field runeMastery integer
+---@field runeStrike integer
+---@field runicAttenuation integer
+---@field runicProtection integer
+---@field sacrificialPact integer
+---@field sanguineScent integer
+---@field soulReaper integer
+---@field soulRupture integer
+---@field subduingGrasp integer
+---@field suppression integer
+---@field swiftEnd integer
+---@field theBloodIsLife integer
+---@field trollbanesIcyFury integer
+---@field unholyBond integer
+---@field unholyEndurance integer
+---@field unholyGround integer
+---@field unyieldingWill integer
+---@field vampiricAura integer
+---@field vampiricSpeed integer
+---@field vampiricStrike integer
+---@field vestigialShell integer
+---@field veteranOfTheThirdWar integer
+---@field visceralStrength integer
+---@field waveOfSouls integer
+---@field whitemanesFamine integer
+---@field witherAway integer
+---@field wraithWalk integer
+
+
+---@class BR.Retail.DeathKnight.buff : BR.Keys.Retail.DeathKnight.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.Retail.DeathKnight.cast.able : BR.cast.able.Base, BR.Keys.Retail.DeathKnight.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.active : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.auto : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.cancel : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.cost : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.current : BR.cast.current.Base, BR.Keys.Retail.DeathKnight.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.dispel : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.empowered : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.inFlight : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.inFlightRemain : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.Retail.DeathKnight.cast.last.time : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.Retail.DeathKnight.cast.last : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.last.Spell>
+---@field time BR.Retail.DeathKnight.cast.last.time
+
+
+---@class BR.Retail.DeathKnight.cast.maxRank : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.noControl : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.opener : BR.cast.opener.Base, BR.Keys.Retail.DeathKnight.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.pool : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.range : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.regen : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.safe : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.time : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.Retail.DeathKnight.cast.timeSinceLast : BR.Keys.Retail.DeathKnight.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.Retail.DeathKnight.cast : BR.cast.Base, BR.Keys.Retail.DeathKnight.Abilities<BR.cast.Spell>
+---@field able BR.Retail.DeathKnight.cast.able
+---@field active BR.Retail.DeathKnight.cast.active
+---@field auto BR.Retail.DeathKnight.cast.auto
+---@field cancel BR.Retail.DeathKnight.cast.cancel
+---@field cost BR.Retail.DeathKnight.cast.cost
+---@field current BR.Retail.DeathKnight.cast.current
+---@field dispel BR.Retail.DeathKnight.cast.dispel
+---@field empowered BR.Retail.DeathKnight.cast.empowered
+---@field inFlight BR.Retail.DeathKnight.cast.inFlight
+---@field inFlightRemain BR.Retail.DeathKnight.cast.inFlightRemain
+---@field last BR.Retail.DeathKnight.cast.last
+---@field maxRank BR.Retail.DeathKnight.cast.maxRank
+---@field noControl BR.Retail.DeathKnight.cast.noControl
+---@field opener BR.Retail.DeathKnight.cast.opener
+---@field pool BR.Retail.DeathKnight.cast.pool
+---@field range BR.Retail.DeathKnight.cast.range
+---@field regen BR.Retail.DeathKnight.cast.regen
+---@field safe BR.Retail.DeathKnight.cast.safe
+---@field time BR.Retail.DeathKnight.cast.time
+---@field timeSinceLast BR.Retail.DeathKnight.cast.timeSinceLast
+
+
+---@class BR.Retail.DeathKnight.cd : BR.cd.Base, BR.Keys.Retail.DeathKnight.Abilities<BR.cd.Spell>, BR.Keys.Retail.DeathKnight.Items<BR.cd.Item>
+
+
+---@class BR.Retail.DeathKnight.charges : BR.Keys.Retail.DeathKnight.Abilities<BR.charges.Spell>, BR.Keys.Retail.DeathKnight.Items<BR.charges.Item>
+
+
+---@class BR.Retail.DeathKnight.debuff : BR.Keys.Retail.DeathKnight.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.Retail.DeathKnight.equiped.socket : BR.Keys.Retail.DeathKnight.Items<BR.equiped.socket.Item>
+
+---@class BR.Retail.DeathKnight.equiped : BR.equiped.Base, BR.Keys.Retail.DeathKnight.Items<BR.equiped.Item>
+---@field socket BR.Retail.DeathKnight.equiped.socket
+
+
+---@class BR.Retail.DeathKnight.glyph : BR.glyph.Base, BR.Keys.Retail.DeathKnight.Glyphs<BR.glyph.K>
+
+
+---@class BR.Retail.DeathKnight.has : BR.has.Base, BR.Keys.Retail.DeathKnight.Items<BR.has.Item>
+
+
+---@class BR.Retail.DeathKnight.heroTree
+---@field deathbringer boolean # true for the active hero talent tree
+---@field riderOfTheApocalypse boolean # true for the active hero talent tree
+---@field sanlayn boolean # true for the active hero talent tree
+
+
+---@class BR.Retail.DeathKnight.imbues
+
+
+---@class BR.Retail.DeathKnight.spell : BR.Keys.Retail.DeathKnight.Abilities<BR.spell.K>
+
+
+---@class BR.Retail.DeathKnight.talent
+---@field rank BR.Retail.DeathKnight.talent.rank The rank of each talent (0 when not taken)
+---@field aFeastOfSouls boolean # true while the talent is taken
+---@field abominationLimb boolean # true while the talent is taken
+---@field antimagicZone boolean # true while the talent is taken
+---@field apocalypseNow boolean # true while the talent is taken
+---@field asphyxiate boolean # true while the talent is taken
+---@field assimilation boolean # true while the talent is taken
+---@field bindInDarkness boolean # true while the talent is taken
+---@field blindingSleet boolean # true while the talent is taken
+---@field bloodDraw boolean # true while the talent is taken
+---@field bloodFever boolean # true while the talent is taken
+---@field bloodScent boolean # true while the talent is taken
+---@field bloodsoakedGround boolean # true while the talent is taken
+---@field bloodyFortitude boolean # true while the talent is taken
+---@field brittle boolean # true while the talent is taken
+---@field cleavingStrikes boolean # true while the talent is taken
+---@field coldthirst boolean # true while the talent is taken
+---@field controlUndead boolean # true while the talent is taken
+---@field darkTalons boolean # true while the talent is taken
+---@field deathCharge boolean # true while the talent is taken
+---@field deathPact boolean # true while the talent is taken
+---@field deathStrike boolean # true while the talent is taken
+---@field deathsEcho boolean # true while the talent is taken
+---@field deathsMessenger boolean # true while the talent is taken
+---@field deathsReach boolean # true while the talent is taken
+---@field enfeeble boolean # true while the talent is taken
+---@field expellingShield boolean # true while the talent is taken
+---@field exterminate boolean # true while the talent is taken
+---@field frenziedBloodthirst boolean # true while the talent is taken
+---@field furyOfTheHorsemen boolean # true while the talent is taken
+---@field giftOfTheSanlayn boolean # true while the talent is taken
+---@field gloomWard boolean # true while the talent is taken
+---@field grimReaper boolean # true while the talent is taken
+---@field horsemansAid boolean # true while the talent is taken
+---@field hungeringThirst boolean # true while the talent is taken
+---@field icePrison boolean # true while the talent is taken
+---@field iceboundFortitude boolean # true while the talent is taken
+---@field icyTalons boolean # true while the talent is taken
+---@field improvedDeathStrike boolean # true while the talent is taken
+---@field inciteTerror boolean # true while the talent is taken
+---@field inflictionOfSorrow boolean # true while the talent is taken
+---@field insidiousChill boolean # true while the talent is taken
+---@field marchOfDarkness boolean # true while the talent is taken
+---@field mawswornMenace boolean # true while the talent is taken
+---@field mindFreeze boolean # true while the talent is taken
+---@field mograinesMight boolean # true while the talent is taken
+---@field nazgrimsConquest boolean # true while the talent is taken
+---@field newlyTurned boolean # true while the talent is taken
+---@field nullMagic boolean # true while the talent is taken
+---@field onAPalerHorse boolean # true while the talent is taken
+---@field osmosis boolean # true while the talent is taken
+---@field pactOfTheApocalypse boolean # true while the talent is taken
+---@field pactOfTheDeathbringer boolean # true while the talent is taken
+---@field pactOfTheSanlayn boolean # true while the talent is taken
+---@field painfulDeath boolean # true while the talent is taken
+---@field permafrost boolean # true while the talent is taken
+---@field proliferatingChill boolean # true while the talent is taken
+---@field raiseDead boolean # true while the talent is taken
+---@field reapersMark boolean # true while the talent is taken
+---@field ridersChampion boolean # true while the talent is taken
+---@field runeCarvedPlates boolean # true while the talent is taken
+---@field runeMastery boolean # true while the talent is taken
+---@field runeStrike boolean # true while the talent is taken
+---@field runicAttenuation boolean # true while the talent is taken
+---@field runicProtection boolean # true while the talent is taken
+---@field sacrificialPact boolean # true while the talent is taken
+---@field sanguineScent boolean # true while the talent is taken
+---@field soulReaper boolean # true while the talent is taken
+---@field soulRupture boolean # true while the talent is taken
+---@field subduingGrasp boolean # true while the talent is taken
+---@field suppression boolean # true while the talent is taken
+---@field swiftEnd boolean # true while the talent is taken
+---@field theBloodIsLife boolean # true while the talent is taken
+---@field trollbanesIcyFury boolean # true while the talent is taken
+---@field unholyBond boolean # true while the talent is taken
+---@field unholyEndurance boolean # true while the talent is taken
+---@field unholyGround boolean # true while the talent is taken
+---@field unyieldingWill boolean # true while the talent is taken
+---@field vampiricAura boolean # true while the talent is taken
+---@field vampiricSpeed boolean # true while the talent is taken
+---@field vampiricStrike boolean # true while the talent is taken
+---@field vestigialShell boolean # true while the talent is taken
+---@field veteranOfTheThirdWar boolean # true while the talent is taken
+---@field visceralStrength boolean # true while the talent is taken
+---@field waveOfSouls boolean # true while the talent is taken
+---@field whitemanesFamine boolean # true while the talent is taken
+---@field witherAway boolean # true while the talent is taken
+---@field wraithWalk boolean # true while the talent is taken
+
+
+
+
+---@class BR.Retail.DeathKnight.totem.Element : BR.totem.Element.Base, BR.Keys.Retail.DeathKnight.Totems<BR.totem.Element.TotemName>
+
+---@class BR.Retail.DeathKnight.totem : BR.totem.Base, BR.Keys.Elements<BR.Retail.DeathKnight.totem.Element>
+
+
+
+
+---@class BR.Retail.DeathKnight.use.able : BR.use.able.Base, BR.Keys.Retail.DeathKnight.Items<BR.use.able.Item>
+
+---@class BR.Retail.DeathKnight.use : BR.use.Base, BR.Keys.Retail.DeathKnight.Items<BR.use.Item>
+---@field able BR.Retail.DeathKnight.use.able
+
+---@class BR.Keys.Retail.DeathKnight.Blood.Abilities<T>
+---@field aFeastOfSouls T
+---@field abominationLimb T
+---@field ancestralCall T
+---@field antiMagicShell T
+---@field antimagicBarrier T
+---@field antimagicZone T
+---@field apocalypseNow T
+---@field arcanePulse T
+---@field asphyxiate T
+---@field assimilation T
+---@field autoAttack T
+---@field autoShot T
+---@field bagOfTricks T
+---@field bindInDarkness T
+---@field blindingSleet T
+---@field bloodBoil T
+---@field bloodDraw T
+---@field bloodFeast T
+---@field bloodFever T
+---@field bloodScent T
+---@field bloodTap T
+---@field blooddrinker T
+---@field bloodiedBlade T
+---@field bloodshot T
+---@field bloodsoakedGround T
+---@field bloodworms T
+---@field bloodyFortitude T
+---@field boneCollector T
+---@field bonestorm T
+---@field brittle T
+---@field carnage T
+---@field chainsOfIce T
+---@field cleavingStrikes T
+---@field coagulopathy T
+---@field coldthirst T
+---@field consumption T
+---@field controlUndead T
+---@field cyclotronicBlast T
+---@field dancingRuneWeapon T
+---@field darkCommand T
+---@field darkTalons T
+---@field deathAndDecay T
+---@field deathCharge T
+---@field deathCoil T
+---@field deathGate T
+---@field deathGrip T
+---@field deathPact T
+---@field deathStrike T
+---@field deathsAdvance T
+---@field deathsCaress T
+---@field deathsEcho T
+---@field deathsMessenger T
+---@field deathsReach T
+---@field desecratedGround T
+---@field disenchant T
+---@field enfeeble T
+---@field everlastingBond T
+---@field expellingShield T
+---@field exterminate T
+---@field fireblood T
+---@field focusedAzeriteBeam T
+---@field focusedAzeriteBeamChannel T
+---@field foulBulwark T
+---@field frenziedBloodthirst T
+---@field furyOfTheHorsemen T
+---@field giftOfTheNaaru T
+---@field giftOfTheSanlayn T
+---@field global T
+---@field gloomWard T
+---@field gorefiendsGrasp T
+---@field grimReaper T
+---@field gripOfTheDead T
+---@field heartOfAzeroth T
+---@field heartStrike T
+---@field heartbreaker T
+---@field heartrend T
+---@field hemostasis T
+---@field horsemansAid T
+---@field hungeringThirst T
+---@field icePrison T
+---@field iceboundFortitude T
+---@field icyTalons T
+---@field improvedBoneShield T
+---@field improvedDeathStrike T
+---@field improvedHeartStrike T
+---@field improvedVampiricBlood T
+---@field inciteTerror T
+---@field inflictionOfSorrow T
+---@field insatiableBlade T
+---@field insidiousChill T
+---@field ironHeart T
+---@field latentArcana T
+---@field leechingStrike T
+---@field lichborne T
+---@field lightsJudgment T
+---@field marchOfDarkness T
+---@field markOfBlood T
+---@field marrowrend T
+---@field mawswornMenace T
+---@field milling T
+---@field mindFreeze T
+---@field mograinesMight T
+---@field nazgrimsConquest T
+---@field newlyTurned T
+---@field nullMagic T
+---@field onAPalerHorse T
+---@field osmosis T
+---@field ossifiedVitriol T
+---@field ossuary T
+---@field pactOfTheApocalypse T
+---@field pactOfTheDeathbringer T
+---@field pactOfTheSanlayn T
+---@field painfulDeath T
+---@field pathOfFrost T
+---@field permafrost T
+---@field perseveranceOfTheEbonBlade T
+---@field proliferatingChill T
+---@field prospecting T
+---@field purgatory T
+---@field quakingPalm T
+---@field racial T
+---@field raiseAlly T
+---@field raiseDead T
+---@field rapidDecomposition T
+---@field reapersMark T
+---@field redThirst T
+---@field reinforcedBones T
+---@field relishInBlood T
+---@field ridersChampion T
+---@field runeCarvedPlates T
+---@field runeMastery T
+---@field runeStrike T
+---@field runeTap T
+---@field runeforging T
+---@field runicAttenuation T
+---@field runicProtection T
+---@field sacrificialPact T
+---@field sanguineGround T
+---@field sanguineScent T
+---@field shadowmeld T
+---@field shatteringBone T
+---@field soulReaper T
+---@field soulRupture T
+---@field subduingGrasp T
+---@field suppression T
+---@field swiftEnd T
+---@field theBloodIsLife T
+---@field tighteningGrasp T
+---@field tombstone T
+---@field trollbanesIcyFury T
+---@field umbilicusEternus T
+---@field unholyBond T
+---@field unholyEndurance T
+---@field unholyGround T
+---@field unyieldingWill T
+---@field vampiricAura T
+---@field vampiricBlood T
+---@field vampiricSpeed T
+---@field vampiricStrike T
+---@field vestigialShell T
+---@field veteranOfTheThirdWar T
+---@field visceralStrength T
+---@field voracious T
+---@field waveOfSouls T
+---@field whitemanesFamine T
+---@field willOfTheNecropolis T
+---@field witherAway T
+---@field wraithWalk T
+
+---@class BR.Keys.Retail.DeathKnight.Blood.Buffs<T>
+---@field ancientHysteria T
+---@field antiMagicShell T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentation T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field bloodShield T
+---@field boneShield T
+---@field coagulopathy T
+---@field coldHeartItem T
+---@field concordanceOfTheLegionfall T
+---@field cracklingTourmaline T
+---@field crimsonScourge T
+---@field dancingRuneWeapon T
+---@field deathAndDecay T
+---@field deathsDue T
+---@field defiledAugmentation T
+---@field divineSteed T
+---@field domineeringArrogance T
+---@field elementalPotionOfPower T
+---@field elementalPotionOfUltimatePower T
+---@field felFocus T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field flayedWingToxin T
+---@field forTheAlliance T
+---@field forTheHorde T
+---@field fruitfulMachinatins T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field guidingHand T
+---@field hemostasis T
+---@field heroism T
+---@field iceboundFortitude T
+---@field icedPhialOfCorruptingRage T
+---@field icyTalons T
+---@field ineffableTruth T
+---@field latentArcana T
+---@field mistcallerOcarina T
+---@field nagrandClefthoof T
+---@field nagrandGoat T
+---@field nagrandRidingClefthoof T
+---@field nagrandTalbuk T
+---@field netherwinds T
+---@field norgannonsForesight T
+---@field ossuary T
+---@field overchargeMana T
+---@field pathOfFrost T
+---@field phialOfGlacialFury T
+---@field phialOfTepidVersatility T
+---@field potionOfBurstingBlood T
+---@field potionOfFocusedResolve T
+---@field potionOfReplenishment T
+---@field potionOfUnbridledFury T
+---@field prolongedPower T
+---@field queensDecreeUnstoppable T
+---@field racial T
+---@field razorCoral T
+---@field runeTap T
+---@field saphireofBrilliance T
+---@field sephuz1 T
+---@field sephuz2 T
+---@field sephuzCooldown T
+---@field shadowmeld T
+---@field shroudOfConcealment T
+---@field soulIgnition T
+---@field soulshape T
+---@field spectralFlaskOfPower T
+---@field superiorBattlePotionOfAgility T
+---@field symbolOfHope T
+---@field timeWarp T
+---@field tombstone T
+---@field unholyStrength T
+---@field vampiricBlood T
+---@field vampiricStrength T
+---@field vigorEngaged T
+---@field whispersOfInsanity T
+---@field wraithWalk T
+
+---@class BR.Keys.Retail.DeathKnight.Blood.Debuffs<T>
+---@field arcaneBurst T
+---@field asphyxiate T
+---@field bloodOfTheEnemy T
+---@field bloodPlague T
+---@field blooddrinker T
+---@field bwonsamdiWrath T
+---@field cascadingTerror T
+---@field chainsOfIce T
+---@field concentratedFlame T
+---@field conductiveInk T
+---@field controlUndead T
+---@field creepingMadness T
+---@field dampening T
+---@field darkCommand T
+---@field defiledGround T
+---@field eyeOfCorruption T
+---@field eyeOfLeotheras T
+---@field fixate T
+---@field frostBreath T
+---@field frostFever T
+---@field grandDelusions T
+---@field graspingTendrils T
+---@field heartStrike T
+---@field markOfBlood T
+---@field mightyBash T
+---@field necroticWound T
+---@field promiseOfPower T
+---@field quaking T
+---@field razorCoral T
+---@field razorice T
+---@field reaping T
+---@field repeatPerformance T
+---@field shiverVenom T
+---@field soulReaper T
+---@field temptation T
+---@field thirstForBlood T
+---@field timeToFeed T
+---@field vileCorruption T
+
+---@class BR.Keys.Retail.DeathKnight.Blood.Glyphs<T>
+
+---@class BR.Keys.Retail.DeathKnight.Blood.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.Retail.DeathKnight.Blood.Totems<T>
+
+---@class BR.Retail.DeathKnight.Blood.talent.rank
+---@field aFeastOfSouls integer
+---@field abominationLimb integer
+---@field antimagicBarrier integer
+---@field antimagicZone integer
+---@field apocalypseNow integer
+---@field asphyxiate integer
+---@field assimilation integer
+---@field bindInDarkness integer
+---@field blindingSleet integer
+---@field bloodBoil integer
+---@field bloodDraw integer
+---@field bloodFeast integer
+---@field bloodFever integer
+---@field bloodScent integer
+---@field bloodTap integer
+---@field blooddrinker integer
+---@field bloodiedBlade integer
+---@field bloodshot integer
+---@field bloodsoakedGround integer
+---@field bloodworms integer
+---@field bloodyFortitude integer
+---@field boneCollector integer
+---@field bonestorm integer
+---@field brittle integer
+---@field carnage integer
+---@field cleavingStrikes integer
+---@field coagulopathy integer
+---@field coldthirst integer
+---@field consumption integer
+---@field controlUndead integer
+---@field dancingRuneWeapon integer
+---@field darkTalons integer
+---@field deathCharge integer
+---@field deathPact integer
+---@field deathStrike integer
+---@field deathsEcho integer
+---@field deathsMessenger integer
+---@field deathsReach integer
+---@field enfeeble integer
+---@field everlastingBond integer
+---@field expellingShield integer
+---@field exterminate integer
+---@field foulBulwark integer
+---@field frenziedBloodthirst integer
+---@field furyOfTheHorsemen integer
+---@field giftOfTheSanlayn integer
+---@field gloomWard integer
+---@field gorefiendsGrasp integer
+---@field grimReaper integer
+---@field gripOfTheDead integer
+---@field heartStrike integer
+---@field heartbreaker integer
+---@field heartrend integer
+---@field hemostasis integer
+---@field horsemansAid integer
+---@field hungeringThirst integer
+---@field icePrison integer
+---@field iceboundFortitude integer
+---@field icyTalons integer
+---@field improvedBoneShield integer
+---@field improvedDeathStrike integer
+---@field improvedHeartStrike integer
+---@field improvedVampiricBlood integer
+---@field inciteTerror integer
+---@field inflictionOfSorrow integer
+---@field insatiableBlade integer
+---@field insidiousChill integer
+---@field ironHeart integer
+---@field leechingStrike integer
+---@field marchOfDarkness integer
+---@field markOfBlood integer
+---@field marrowrend integer
+---@field mawswornMenace integer
+---@field mindFreeze integer
+---@field mograinesMight integer
+---@field nazgrimsConquest integer
+---@field newlyTurned integer
+---@field nullMagic integer
+---@field onAPalerHorse integer
+---@field osmosis integer
+---@field ossifiedVitriol integer
+---@field ossuary integer
+---@field pactOfTheApocalypse integer
+---@field pactOfTheDeathbringer integer
+---@field pactOfTheSanlayn integer
+---@field painfulDeath integer
+---@field permafrost integer
+---@field perseveranceOfTheEbonBlade integer
+---@field proliferatingChill integer
+---@field purgatory integer
+---@field raiseDead integer
+---@field rapidDecomposition integer
+---@field reapersMark integer
+---@field redThirst integer
+---@field reinforcedBones integer
+---@field relishInBlood integer
+---@field ridersChampion integer
+---@field runeCarvedPlates integer
+---@field runeMastery integer
+---@field runeStrike integer
+---@field runeTap integer
+---@field runicAttenuation integer
+---@field runicProtection integer
+---@field sacrificialPact integer
+---@field sanguineGround integer
+---@field sanguineScent integer
+---@field shatteringBone integer
+---@field soulReaper integer
+---@field soulRupture integer
+---@field subduingGrasp integer
+---@field suppression integer
+---@field swiftEnd integer
+---@field theBloodIsLife integer
+---@field tighteningGrasp integer
+---@field tombstone integer
+---@field trollbanesIcyFury integer
+---@field umbilicusEternus integer
+---@field unholyBond integer
+---@field unholyEndurance integer
+---@field unholyGround integer
+---@field unyieldingWill integer
+---@field vampiricAura integer
+---@field vampiricBlood integer
+---@field vampiricSpeed integer
+---@field vampiricStrike integer
+---@field vestigialShell integer
+---@field veteranOfTheThirdWar integer
+---@field visceralStrength integer
+---@field voracious integer
+---@field waveOfSouls integer
+---@field whitemanesFamine integer
+---@field willOfTheNecropolis integer
+---@field witherAway integer
+---@field wraithWalk integer
+
+
+---@class BR.Retail.DeathKnight.Blood.buff : BR.Keys.Retail.DeathKnight.Blood.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.able : BR.cast.able.Base, BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.active : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.auto : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.cancel : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.cost : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.current : BR.cast.current.Base, BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.dispel : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.empowered : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.inFlight : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.inFlightRemain : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.last.time : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.Retail.DeathKnight.Blood.cast.last : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.last.Spell>
+---@field time BR.Retail.DeathKnight.Blood.cast.last.time
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.maxRank : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.noControl : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.opener : BR.cast.opener.Base, BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.pool : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.range : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.regen : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.safe : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.time : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.Retail.DeathKnight.Blood.cast.timeSinceLast : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.Retail.DeathKnight.Blood.cast : BR.cast.Base, BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cast.Spell>
+---@field able BR.Retail.DeathKnight.Blood.cast.able
+---@field active BR.Retail.DeathKnight.Blood.cast.active
+---@field auto BR.Retail.DeathKnight.Blood.cast.auto
+---@field cancel BR.Retail.DeathKnight.Blood.cast.cancel
+---@field cost BR.Retail.DeathKnight.Blood.cast.cost
+---@field current BR.Retail.DeathKnight.Blood.cast.current
+---@field dispel BR.Retail.DeathKnight.Blood.cast.dispel
+---@field empowered BR.Retail.DeathKnight.Blood.cast.empowered
+---@field inFlight BR.Retail.DeathKnight.Blood.cast.inFlight
+---@field inFlightRemain BR.Retail.DeathKnight.Blood.cast.inFlightRemain
+---@field last BR.Retail.DeathKnight.Blood.cast.last
+---@field maxRank BR.Retail.DeathKnight.Blood.cast.maxRank
+---@field noControl BR.Retail.DeathKnight.Blood.cast.noControl
+---@field opener BR.Retail.DeathKnight.Blood.cast.opener
+---@field pool BR.Retail.DeathKnight.Blood.cast.pool
+---@field range BR.Retail.DeathKnight.Blood.cast.range
+---@field regen BR.Retail.DeathKnight.Blood.cast.regen
+---@field safe BR.Retail.DeathKnight.Blood.cast.safe
+---@field time BR.Retail.DeathKnight.Blood.cast.time
+---@field timeSinceLast BR.Retail.DeathKnight.Blood.cast.timeSinceLast
+
+
+---@class BR.Retail.DeathKnight.Blood.cd : BR.cd.Base, BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.cd.Spell>, BR.Keys.Retail.DeathKnight.Blood.Items<BR.cd.Item>
+
+
+---@class BR.Retail.DeathKnight.Blood.charges : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.charges.Spell>, BR.Keys.Retail.DeathKnight.Blood.Items<BR.charges.Item>
+
+
+---@class BR.Retail.DeathKnight.Blood.debuff : BR.Keys.Retail.DeathKnight.Blood.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.Retail.DeathKnight.Blood.equiped.socket : BR.Keys.Retail.DeathKnight.Blood.Items<BR.equiped.socket.Item>
+
+---@class BR.Retail.DeathKnight.Blood.equiped : BR.equiped.Base, BR.Keys.Retail.DeathKnight.Blood.Items<BR.equiped.Item>
+---@field socket BR.Retail.DeathKnight.Blood.equiped.socket
+
+
+---@class BR.Retail.DeathKnight.Blood.glyph : BR.glyph.Base, BR.Keys.Retail.DeathKnight.Blood.Glyphs<BR.glyph.K>
+
+
+---@class BR.Retail.DeathKnight.Blood.has : BR.has.Base, BR.Keys.Retail.DeathKnight.Blood.Items<BR.has.Item>
+
+
+---@class BR.Retail.DeathKnight.Blood.heroTree
+---@field deathbringer boolean # true for the active hero talent tree
+---@field riderOfTheApocalypse boolean # true for the active hero talent tree
+---@field sanlayn boolean # true for the active hero talent tree
+
+
+---@class BR.Retail.DeathKnight.Blood.imbues
+
+
+---@class BR.Retail.DeathKnight.Blood.spell : BR.Keys.Retail.DeathKnight.Blood.Abilities<BR.spell.K>
+
+
+---@class BR.Retail.DeathKnight.Blood.talent
+---@field rank BR.Retail.DeathKnight.Blood.talent.rank The rank of each talent (0 when not taken)
+---@field aFeastOfSouls boolean # true while the talent is taken
+---@field abominationLimb boolean # true while the talent is taken
+---@field antimagicBarrier boolean # true while the talent is taken
+---@field antimagicZone boolean # true while the talent is taken
+---@field apocalypseNow boolean # true while the talent is taken
+---@field asphyxiate boolean # true while the talent is taken
+---@field assimilation boolean # true while the talent is taken
+---@field bindInDarkness boolean # true while the talent is taken
+---@field blindingSleet boolean # true while the talent is taken
+---@field bloodBoil boolean # true while the talent is taken
+---@field bloodDraw boolean # true while the talent is taken
+---@field bloodFeast boolean # true while the talent is taken
+---@field bloodFever boolean # true while the talent is taken
+---@field bloodScent boolean # true while the talent is taken
+---@field bloodTap boolean # true while the talent is taken
+---@field blooddrinker boolean # true while the talent is taken
+---@field bloodiedBlade boolean # true while the talent is taken
+---@field bloodshot boolean # true while the talent is taken
+---@field bloodsoakedGround boolean # true while the talent is taken
+---@field bloodworms boolean # true while the talent is taken
+---@field bloodyFortitude boolean # true while the talent is taken
+---@field boneCollector boolean # true while the talent is taken
+---@field bonestorm boolean # true while the talent is taken
+---@field brittle boolean # true while the talent is taken
+---@field carnage boolean # true while the talent is taken
+---@field cleavingStrikes boolean # true while the talent is taken
+---@field coagulopathy boolean # true while the talent is taken
+---@field coldthirst boolean # true while the talent is taken
+---@field consumption boolean # true while the talent is taken
+---@field controlUndead boolean # true while the talent is taken
+---@field dancingRuneWeapon boolean # true while the talent is taken
+---@field darkTalons boolean # true while the talent is taken
+---@field deathCharge boolean # true while the talent is taken
+---@field deathPact boolean # true while the talent is taken
+---@field deathStrike boolean # true while the talent is taken
+---@field deathsEcho boolean # true while the talent is taken
+---@field deathsMessenger boolean # true while the talent is taken
+---@field deathsReach boolean # true while the talent is taken
+---@field enfeeble boolean # true while the talent is taken
+---@field everlastingBond boolean # true while the talent is taken
+---@field expellingShield boolean # true while the talent is taken
+---@field exterminate boolean # true while the talent is taken
+---@field foulBulwark boolean # true while the talent is taken
+---@field frenziedBloodthirst boolean # true while the talent is taken
+---@field furyOfTheHorsemen boolean # true while the talent is taken
+---@field giftOfTheSanlayn boolean # true while the talent is taken
+---@field gloomWard boolean # true while the talent is taken
+---@field gorefiendsGrasp boolean # true while the talent is taken
+---@field grimReaper boolean # true while the talent is taken
+---@field gripOfTheDead boolean # true while the talent is taken
+---@field heartStrike boolean # true while the talent is taken
+---@field heartbreaker boolean # true while the talent is taken
+---@field heartrend boolean # true while the talent is taken
+---@field hemostasis boolean # true while the talent is taken
+---@field horsemansAid boolean # true while the talent is taken
+---@field hungeringThirst boolean # true while the talent is taken
+---@field icePrison boolean # true while the talent is taken
+---@field iceboundFortitude boolean # true while the talent is taken
+---@field icyTalons boolean # true while the talent is taken
+---@field improvedBoneShield boolean # true while the talent is taken
+---@field improvedDeathStrike boolean # true while the talent is taken
+---@field improvedHeartStrike boolean # true while the talent is taken
+---@field improvedVampiricBlood boolean # true while the talent is taken
+---@field inciteTerror boolean # true while the talent is taken
+---@field inflictionOfSorrow boolean # true while the talent is taken
+---@field insatiableBlade boolean # true while the talent is taken
+---@field insidiousChill boolean # true while the talent is taken
+---@field ironHeart boolean # true while the talent is taken
+---@field leechingStrike boolean # true while the talent is taken
+---@field marchOfDarkness boolean # true while the talent is taken
+---@field markOfBlood boolean # true while the talent is taken
+---@field marrowrend boolean # true while the talent is taken
+---@field mawswornMenace boolean # true while the talent is taken
+---@field mindFreeze boolean # true while the talent is taken
+---@field mograinesMight boolean # true while the talent is taken
+---@field nazgrimsConquest boolean # true while the talent is taken
+---@field newlyTurned boolean # true while the talent is taken
+---@field nullMagic boolean # true while the talent is taken
+---@field onAPalerHorse boolean # true while the talent is taken
+---@field osmosis boolean # true while the talent is taken
+---@field ossifiedVitriol boolean # true while the talent is taken
+---@field ossuary boolean # true while the talent is taken
+---@field pactOfTheApocalypse boolean # true while the talent is taken
+---@field pactOfTheDeathbringer boolean # true while the talent is taken
+---@field pactOfTheSanlayn boolean # true while the talent is taken
+---@field painfulDeath boolean # true while the talent is taken
+---@field permafrost boolean # true while the talent is taken
+---@field perseveranceOfTheEbonBlade boolean # true while the talent is taken
+---@field proliferatingChill boolean # true while the talent is taken
+---@field purgatory boolean # true while the talent is taken
+---@field raiseDead boolean # true while the talent is taken
+---@field rapidDecomposition boolean # true while the talent is taken
+---@field reapersMark boolean # true while the talent is taken
+---@field redThirst boolean # true while the talent is taken
+---@field reinforcedBones boolean # true while the talent is taken
+---@field relishInBlood boolean # true while the talent is taken
+---@field ridersChampion boolean # true while the talent is taken
+---@field runeCarvedPlates boolean # true while the talent is taken
+---@field runeMastery boolean # true while the talent is taken
+---@field runeStrike boolean # true while the talent is taken
+---@field runeTap boolean # true while the talent is taken
+---@field runicAttenuation boolean # true while the talent is taken
+---@field runicProtection boolean # true while the talent is taken
+---@field sacrificialPact boolean # true while the talent is taken
+---@field sanguineGround boolean # true while the talent is taken
+---@field sanguineScent boolean # true while the talent is taken
+---@field shatteringBone boolean # true while the talent is taken
+---@field soulReaper boolean # true while the talent is taken
+---@field soulRupture boolean # true while the talent is taken
+---@field subduingGrasp boolean # true while the talent is taken
+---@field suppression boolean # true while the talent is taken
+---@field swiftEnd boolean # true while the talent is taken
+---@field theBloodIsLife boolean # true while the talent is taken
+---@field tighteningGrasp boolean # true while the talent is taken
+---@field tombstone boolean # true while the talent is taken
+---@field trollbanesIcyFury boolean # true while the talent is taken
+---@field umbilicusEternus boolean # true while the talent is taken
+---@field unholyBond boolean # true while the talent is taken
+---@field unholyEndurance boolean # true while the talent is taken
+---@field unholyGround boolean # true while the talent is taken
+---@field unyieldingWill boolean # true while the talent is taken
+---@field vampiricAura boolean # true while the talent is taken
+---@field vampiricBlood boolean # true while the talent is taken
+---@field vampiricSpeed boolean # true while the talent is taken
+---@field vampiricStrike boolean # true while the talent is taken
+---@field vestigialShell boolean # true while the talent is taken
+---@field veteranOfTheThirdWar boolean # true while the talent is taken
+---@field visceralStrength boolean # true while the talent is taken
+---@field voracious boolean # true while the talent is taken
+---@field waveOfSouls boolean # true while the talent is taken
+---@field whitemanesFamine boolean # true while the talent is taken
+---@field willOfTheNecropolis boolean # true while the talent is taken
+---@field witherAway boolean # true while the talent is taken
+---@field wraithWalk boolean # true while the talent is taken
+
+
+
+
+---@class BR.Retail.DeathKnight.Blood.totem.Element : BR.totem.Element.Base, BR.Keys.Retail.DeathKnight.Blood.Totems<BR.totem.Element.TotemName>
+
+---@class BR.Retail.DeathKnight.Blood.totem : BR.totem.Base, BR.Keys.Elements<BR.Retail.DeathKnight.Blood.totem.Element>
+
+
+
+
+---@class BR.Retail.DeathKnight.Blood.use.able : BR.use.able.Base, BR.Keys.Retail.DeathKnight.Blood.Items<BR.use.able.Item>
+
+---@class BR.Retail.DeathKnight.Blood.use : BR.use.Base, BR.Keys.Retail.DeathKnight.Blood.Items<BR.use.Item>
+---@field able BR.Retail.DeathKnight.Blood.use.able
+
+---@class BR.Keys.Retail.DemonHunter.Havoc.Abilities<T>
+---@field aFireInside T
+---@field acceleratedBlade T
+---@field aldrachiDesign T
+---@field ancestralCall T
+---@field annihilation T
+---@field anyMeansNecessary T
+---@field arcanePulse T
+---@field autoAttack T
+---@field autoShot T
+---@field bagOfTricks T
+---@field bladeDance T
+---@field blazingPath T
+---@field blindFury T
+---@field blur T
+---@field bouncingGlaives T
+---@field burningHatred T
+---@field burningWound T
+---@field championOfTheGlaive T
+---@field chaosFragments T
+---@field chaosNova T
+---@field chaosStrike T
+---@field chaosTheory T
+---@field chaoticDisposition T
+---@field chaoticTransformation T
+---@field collectiveAnguish T
+---@field consumeMagic T
+---@field criticalChaos T
+---@field cycleOfHatred T
+---@field cyclotronicBlast T
+---@field dancingWithFate T
+---@field darkness T
+---@field dashOfChaos T
+---@field deathSweep T
+---@field deflectingDance T
+---@field demonBlades T
+---@field demonHide T
+---@field demonMuzzle T
+---@field demonic T
+---@field demonsBite T
+---@field desperateInstincts T
+---@field disenchant T
+---@field disrupt T
+---@field elysianDecree T
+---@field erraticFelheart T
+---@field essenceBreak T
+---@field eyeBeam T
+---@field felBarrage T
+---@field felRush T
+---@field felblade T
+---@field felfireHaste T
+---@field fireblood T
+---@field firstBlood T
+---@field flamesOfFury T
+---@field focusedAzeriteBeam T
+---@field focusedAzeriteBeamChannel T
+---@field furiousGaze T
+---@field furiousThrows T
+---@field giftOfTheNaaru T
+---@field glaiveTempest T
+---@field glide T
+---@field global T
+---@field growingInferno T
+---@field heartOfAzeroth T
+---@field illidariKnowledge T
+---@field immolationAura T
+---@field imprison T
+---@field improvedChaosStrike T
+---@field improvedDisrupt T
+---@field improvedFelRush T
+---@field improvedSigilOfMisery T
+---@field inertia T
+---@field initiative T
+---@field innerDemon T
+---@field insatiableHunger T
+---@field internalStruggle T
+---@field isolatedPrey T
+---@field knowYourEnemy T
+---@field latentArcana T
+---@field lightsJudgment T
+---@field liveByTheGlaive T
+---@field longNight T
+---@field looksCanKill T
+---@field lostInDarkness T
+---@field masterOfTheGlaive T
+---@field metamorphosis T
+---@field milling T
+---@field momentum T
+---@field mortalDance T
+---@field netherwalk T
+---@field pitchBlack T
+---@field preciseSigils T
+---@field prospecting T
+---@field pursuit T
+---@field quakingPalm T
+---@field racial T
+---@field ragefire T
+---@field relentlessOnslaught T
+---@field restlessHunter T
+---@field rushOfChaos T
+---@field scarsOfSuffering T
+---@field serratedGlaive T
+---@field shadowmeld T
+---@field shatteredDestiny T
+---@field shatteredRestoration T
+---@field sigilOfFlame T
+---@field sigilOfMisery T
+---@field soulCarver T
+---@field soulRending T
+---@field soulSigils T
+---@field soulscar T
+---@field spectralSight T
+---@field swallowedAnger T
+---@field tacticalRetreat T
+---@field theHunt T
+---@field throwGlaive T
+---@field torment T
+---@field trailOfRuin T
+---@field unboundChaos T
+---@field unrestrainedFury T
+---@field vengefulBonds T
+---@field vengefulRetreat T
+---@field willOfTheIllidari T
+
+---@class BR.Keys.Retail.DemonHunter.Havoc.Buffs<T>
+---@field ancientHysteria T
+---@field augmentation T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentation T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field chaosTheory T
+---@field concordanceOfTheLegionfall T
+---@field cracklingTourmaline T
+---@field defiledAugmentation T
+---@field divineSteed T
+---@field domineeringArrogance T
+---@field elementalPotionOfPower T
+---@field elementalPotionOfUltimatePower T
+---@field felBarrage T
+---@field felBombardment T
+---@field felCrystalInfusion T
+---@field felFocus T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field flayedWingToxin T
+---@field forTheAlliance T
+---@field forTheHorde T
+---@field fruitfulMachinatins T
+---@field furiousGaze T
+---@field gazeOfTheLegion T
+---@field glide T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field guidingHand T
+---@field heroism T
+---@field icedPhialOfCorruptingRage T
+---@field immolationAura T
+---@field ineffableTruth T
+---@field inertia T
+---@field initiative T
+---@field innerDemon T
+---@field latentArcana T
+---@field metamorphosis T
+---@field mistcallerOcarina T
+---@field momentum T
+---@field nagrandClefthoof T
+---@field nagrandGoat T
+---@field nagrandRidingClefthoof T
+---@field nagrandTalbuk T
+---@field netherwinds T
+---@field norgannonsForesight T
+---@field overchargeMana T
+---@field phialOfGlacialFury T
+---@field phialOfTepidVersatility T
+---@field potion T
+---@field potionOfBurstingBlood T
+---@field potionOfFocusedResolve T
+---@field potionOfReplenishment T
+---@field potionOfUnbridledFury T
+---@field prepared T
+---@field prolongedPower T
+---@field queensDecreeUnstoppable T
+---@field racial T
+---@field razorCoral T
+---@field saphireofBrilliance T
+---@field sephuz1 T
+---@field sephuz2 T
+---@field sephuzCooldown T
+---@field shadowmeld T
+---@field shroudOfConcealment T
+---@field soulIgnition T
+---@field soulshape T
+---@field spectralFlaskOfPower T
+---@field superiorBattlePotionOfAgility T
+---@field symbolOfHope T
+---@field tacticalRetreat T
+---@field timeWarp T
+---@field twistedHeart T
+---@field unboundChaos T
+---@field vigorEngaged T
+---@field whispersOfInsanity T
+
+---@class BR.Keys.Retail.DemonHunter.Havoc.Debuffs<T>
+---@field arcaneBurst T
+---@field bloodOfTheEnemy T
+---@field burningWound T
+---@field bwonsamdiWrath T
+---@field cascadingTerror T
+---@field concentratedFlame T
+---@field conductiveInk T
+---@field creepingMadness T
+---@field dampening T
+---@field defiledGround T
+---@field essenceBreak T
+---@field exposedWound T
+---@field eyeOfCorruption T
+---@field eyeOfLeotheras T
+---@field fixate T
+---@field grandDelusions T
+---@field graspingTendrils T
+---@field mightyBash T
+---@field necroticWound T
+---@field promiseOfPower T
+---@field quaking T
+---@field razorCoral T
+---@field reaping T
+---@field repeatPerformance T
+---@field shiverVenom T
+---@field sigilOfFlame T
+---@field sinfulBrand T
+---@field temptation T
+---@field thirstForBlood T
+---@field timeToFeed T
+---@field vileCorruption T
+
+---@class BR.Keys.Retail.DemonHunter.Havoc.Glyphs<T>
+---@field cracklingFlames T
+---@field fallowWings T
+---@field fearsomeMetamorphosis T
+---@field felEnemies T
+---@field felTouchedSouls T
+---@field felWings T
+---@field glyphOfCracklingFlames T
+---@field glyphOfFallowWings T
+---@field glyphOfFearsomeMetamorphosis T
+---@field glyphOfFelEnemies T
+---@field glyphOfFelTouchedSouls T
+---@field glyphOfFelWings T
+---@field glyphOfManaTouchedSouls T
+---@field glyphOfShadowEnemies T
+---@field glyphOfTatteredWings T
+---@field manaTouchedSouls T
+---@field shadowEnemies T
+---@field tatteredWings T
+
+---@class BR.Keys.Retail.DemonHunter.Havoc.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field augmentation T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field dragonfireBombDispenser T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field elementiumPocketAnvil T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field manicGrieftorch T
+---@field markOfDargrul T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potion T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field screamingBlackDragonscale T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field stormeatersBoon T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.Retail.DemonHunter.Havoc.Totems<T>
+
+---@class BR.Retail.DemonHunter.Havoc.talent.rank
+---@field aFireInside integer
+---@field acceleratedBlade integer
+---@field aldrachiDesign integer
+---@field anyMeansNecessary integer
+---@field blazingPath integer
+---@field blindFury integer
+---@field bouncingGlaives integer
+---@field burningHatred integer
+---@field burningWound integer
+---@field championOfTheGlaive integer
+---@field chaosFragments integer
+---@field chaosNova integer
+---@field chaosTheory integer
+---@field chaoticDisposition integer
+---@field chaoticTransformation integer
+---@field collectiveAnguish integer
+---@field consumeMagic integer
+---@field criticalChaos integer
+---@field cycleOfHatred integer
+---@field dancingWithFate integer
+---@field darkness integer
+---@field dashOfChaos integer
+---@field deflectingDance integer
+---@field demonBlades integer
+---@field demonHide integer
+---@field demonMuzzle integer
+---@field demonic integer
+---@field desperateInstincts integer
+---@field elysianDecree integer
+---@field erraticFelheart integer
+---@field essenceBreak integer
+---@field eyeBeam integer
+---@field felBarrage integer
+---@field felblade integer
+---@field felfireHaste integer
+---@field firstBlood integer
+---@field flamesOfFury integer
+---@field furiousGaze integer
+---@field furiousThrows integer
+---@field glaiveTempest integer
+---@field growingInferno integer
+---@field illidariKnowledge integer
+---@field imprison integer
+---@field improvedChaosStrike integer
+---@field improvedDisrupt integer
+---@field improvedFelRush integer
+---@field improvedSigilOfMisery integer
+---@field inertia integer
+---@field initiative integer
+---@field innerDemon integer
+---@field insatiableHunger integer
+---@field internalStruggle integer
+---@field isolatedPrey integer
+---@field knowYourEnemy integer
+---@field liveByTheGlaive integer
+---@field longNight integer
+---@field looksCanKill integer
+---@field lostInDarkness integer
+---@field masterOfTheGlaive integer
+---@field momentum integer
+---@field mortalDance integer
+---@field netherwalk integer
+---@field pitchBlack integer
+---@field preciseSigils integer
+---@field pursuit integer
+---@field ragefire integer
+---@field relentlessOnslaught integer
+---@field restlessHunter integer
+---@field rushOfChaos integer
+---@field scarsOfSuffering integer
+---@field serratedGlaive integer
+---@field shatteredDestiny integer
+---@field shatteredRestoration integer
+---@field sigilOfMisery integer
+---@field soulRending integer
+---@field soulSigils integer
+---@field soulscar integer
+---@field swallowedAnger integer
+---@field tacticalRetreat integer
+---@field theHunt integer
+---@field trailOfRuin integer
+---@field unboundChaos integer
+---@field unrestrainedFury integer
+---@field vengefulBonds integer
+---@field vengefulRetreat integer
+---@field willOfTheIllidari integer
+
+
+---@class BR.Retail.DemonHunter.Havoc.buff : BR.Keys.Retail.DemonHunter.Havoc.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.able : BR.cast.able.Base, BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.active : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.auto : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.cancel : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.cost : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.current : BR.cast.current.Base, BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.dispel : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.empowered : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.inFlight : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.inFlightRemain : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.last.time : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.Retail.DemonHunter.Havoc.cast.last : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.last.Spell>
+---@field time BR.Retail.DemonHunter.Havoc.cast.last.time
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.maxRank : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.noControl : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.opener : BR.cast.opener.Base, BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.pool : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.range : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.regen : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.safe : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.time : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.Retail.DemonHunter.Havoc.cast.timeSinceLast : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.Retail.DemonHunter.Havoc.cast : BR.cast.Base, BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cast.Spell>
+---@field able BR.Retail.DemonHunter.Havoc.cast.able
+---@field active BR.Retail.DemonHunter.Havoc.cast.active
+---@field auto BR.Retail.DemonHunter.Havoc.cast.auto
+---@field cancel BR.Retail.DemonHunter.Havoc.cast.cancel
+---@field cost BR.Retail.DemonHunter.Havoc.cast.cost
+---@field current BR.Retail.DemonHunter.Havoc.cast.current
+---@field dispel BR.Retail.DemonHunter.Havoc.cast.dispel
+---@field empowered BR.Retail.DemonHunter.Havoc.cast.empowered
+---@field inFlight BR.Retail.DemonHunter.Havoc.cast.inFlight
+---@field inFlightRemain BR.Retail.DemonHunter.Havoc.cast.inFlightRemain
+---@field last BR.Retail.DemonHunter.Havoc.cast.last
+---@field maxRank BR.Retail.DemonHunter.Havoc.cast.maxRank
+---@field noControl BR.Retail.DemonHunter.Havoc.cast.noControl
+---@field opener BR.Retail.DemonHunter.Havoc.cast.opener
+---@field pool BR.Retail.DemonHunter.Havoc.cast.pool
+---@field range BR.Retail.DemonHunter.Havoc.cast.range
+---@field regen BR.Retail.DemonHunter.Havoc.cast.regen
+---@field safe BR.Retail.DemonHunter.Havoc.cast.safe
+---@field time BR.Retail.DemonHunter.Havoc.cast.time
+---@field timeSinceLast BR.Retail.DemonHunter.Havoc.cast.timeSinceLast
+
+
+---@class BR.Retail.DemonHunter.Havoc.cd : BR.cd.Base, BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.cd.Spell>, BR.Keys.Retail.DemonHunter.Havoc.Items<BR.cd.Item>
+
+
+---@class BR.Retail.DemonHunter.Havoc.charges : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.charges.Spell>, BR.Keys.Retail.DemonHunter.Havoc.Items<BR.charges.Item>
+
+
+---@class BR.Retail.DemonHunter.Havoc.debuff : BR.Keys.Retail.DemonHunter.Havoc.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.Retail.DemonHunter.Havoc.equiped.socket : BR.Keys.Retail.DemonHunter.Havoc.Items<BR.equiped.socket.Item>
+
+---@class BR.Retail.DemonHunter.Havoc.equiped : BR.equiped.Base, BR.Keys.Retail.DemonHunter.Havoc.Items<BR.equiped.Item>
+---@field socket BR.Retail.DemonHunter.Havoc.equiped.socket
+
+
+---@class BR.Retail.DemonHunter.Havoc.glyph : BR.glyph.Base, BR.Keys.Retail.DemonHunter.Havoc.Glyphs<BR.glyph.K>
+
+
+---@class BR.Retail.DemonHunter.Havoc.has : BR.has.Base, BR.Keys.Retail.DemonHunter.Havoc.Items<BR.has.Item>
+
+
+---@class BR.Retail.DemonHunter.Havoc.heroTree
+---@field aldrachiReaver boolean # true for the active hero talent tree
+---@field felScarred boolean # true for the active hero talent tree
+
+
+---@class BR.Retail.DemonHunter.Havoc.imbues
+
+
+---@class BR.Retail.DemonHunter.Havoc.spell : BR.Keys.Retail.DemonHunter.Havoc.Abilities<BR.spell.K>
+
+
+---@class BR.Retail.DemonHunter.Havoc.talent
+---@field rank BR.Retail.DemonHunter.Havoc.talent.rank The rank of each talent (0 when not taken)
+---@field aFireInside boolean # true while the talent is taken
+---@field acceleratedBlade boolean # true while the talent is taken
+---@field aldrachiDesign boolean # true while the talent is taken
+---@field anyMeansNecessary boolean # true while the talent is taken
+---@field blazingPath boolean # true while the talent is taken
+---@field blindFury boolean # true while the talent is taken
+---@field bouncingGlaives boolean # true while the talent is taken
+---@field burningHatred boolean # true while the talent is taken
+---@field burningWound boolean # true while the talent is taken
+---@field championOfTheGlaive boolean # true while the talent is taken
+---@field chaosFragments boolean # true while the talent is taken
+---@field chaosNova boolean # true while the talent is taken
+---@field chaosTheory boolean # true while the talent is taken
+---@field chaoticDisposition boolean # true while the talent is taken
+---@field chaoticTransformation boolean # true while the talent is taken
+---@field collectiveAnguish boolean # true while the talent is taken
+---@field consumeMagic boolean # true while the talent is taken
+---@field criticalChaos boolean # true while the talent is taken
+---@field cycleOfHatred boolean # true while the talent is taken
+---@field dancingWithFate boolean # true while the talent is taken
+---@field darkness boolean # true while the talent is taken
+---@field dashOfChaos boolean # true while the talent is taken
+---@field deflectingDance boolean # true while the talent is taken
+---@field demonBlades boolean # true while the talent is taken
+---@field demonHide boolean # true while the talent is taken
+---@field demonMuzzle boolean # true while the talent is taken
+---@field demonic boolean # true while the talent is taken
+---@field desperateInstincts boolean # true while the talent is taken
+---@field elysianDecree boolean # true while the talent is taken
+---@field erraticFelheart boolean # true while the talent is taken
+---@field essenceBreak boolean # true while the talent is taken
+---@field eyeBeam boolean # true while the talent is taken
+---@field felBarrage boolean # true while the talent is taken
+---@field felblade boolean # true while the talent is taken
+---@field felfireHaste boolean # true while the talent is taken
+---@field firstBlood boolean # true while the talent is taken
+---@field flamesOfFury boolean # true while the talent is taken
+---@field furiousGaze boolean # true while the talent is taken
+---@field furiousThrows boolean # true while the talent is taken
+---@field glaiveTempest boolean # true while the talent is taken
+---@field growingInferno boolean # true while the talent is taken
+---@field illidariKnowledge boolean # true while the talent is taken
+---@field imprison boolean # true while the talent is taken
+---@field improvedChaosStrike boolean # true while the talent is taken
+---@field improvedDisrupt boolean # true while the talent is taken
+---@field improvedFelRush boolean # true while the talent is taken
+---@field improvedSigilOfMisery boolean # true while the talent is taken
+---@field inertia boolean # true while the talent is taken
+---@field initiative boolean # true while the talent is taken
+---@field innerDemon boolean # true while the talent is taken
+---@field insatiableHunger boolean # true while the talent is taken
+---@field internalStruggle boolean # true while the talent is taken
+---@field isolatedPrey boolean # true while the talent is taken
+---@field knowYourEnemy boolean # true while the talent is taken
+---@field liveByTheGlaive boolean # true while the talent is taken
+---@field longNight boolean # true while the talent is taken
+---@field looksCanKill boolean # true while the talent is taken
+---@field lostInDarkness boolean # true while the talent is taken
+---@field masterOfTheGlaive boolean # true while the talent is taken
+---@field momentum boolean # true while the talent is taken
+---@field mortalDance boolean # true while the talent is taken
+---@field netherwalk boolean # true while the talent is taken
+---@field pitchBlack boolean # true while the talent is taken
+---@field preciseSigils boolean # true while the talent is taken
+---@field pursuit boolean # true while the talent is taken
+---@field ragefire boolean # true while the talent is taken
+---@field relentlessOnslaught boolean # true while the talent is taken
+---@field restlessHunter boolean # true while the talent is taken
+---@field rushOfChaos boolean # true while the talent is taken
+---@field scarsOfSuffering boolean # true while the talent is taken
+---@field serratedGlaive boolean # true while the talent is taken
+---@field shatteredDestiny boolean # true while the talent is taken
+---@field shatteredRestoration boolean # true while the talent is taken
+---@field sigilOfMisery boolean # true while the talent is taken
+---@field soulRending boolean # true while the talent is taken
+---@field soulSigils boolean # true while the talent is taken
+---@field soulscar boolean # true while the talent is taken
+---@field swallowedAnger boolean # true while the talent is taken
+---@field tacticalRetreat boolean # true while the talent is taken
+---@field theHunt boolean # true while the talent is taken
+---@field trailOfRuin boolean # true while the talent is taken
+---@field unboundChaos boolean # true while the talent is taken
+---@field unrestrainedFury boolean # true while the talent is taken
+---@field vengefulBonds boolean # true while the talent is taken
+---@field vengefulRetreat boolean # true while the talent is taken
+---@field willOfTheIllidari boolean # true while the talent is taken
+
+
+
+
+---@class BR.Retail.DemonHunter.Havoc.totem.Element : BR.totem.Element.Base, BR.Keys.Retail.DemonHunter.Havoc.Totems<BR.totem.Element.TotemName>
+
+---@class BR.Retail.DemonHunter.Havoc.totem : BR.totem.Base, BR.Keys.Elements<BR.Retail.DemonHunter.Havoc.totem.Element>
+
+
+
+
+---@class BR.Retail.DemonHunter.Havoc.use.able : BR.use.able.Base, BR.Keys.Retail.DemonHunter.Havoc.Items<BR.use.able.Item>
+
+---@class BR.Retail.DemonHunter.Havoc.use : BR.use.Base, BR.Keys.Retail.DemonHunter.Havoc.Items<BR.use.Item>
+---@field able BR.Retail.DemonHunter.Havoc.use.able
+
+---@class BR.Keys.Retail.DemonHunter.Initial.Abilities<T>
+---@field aldrachiDesign T
+---@field ancestralCall T
+---@field arcanePulse T
+---@field autoAttack T
+---@field autoShot T
+---@field bagOfTricks T
+---@field blazingPath T
+---@field bouncingGlaives T
+---@field championOfTheGlaive T
+---@field chaosFragments T
+---@field chaosNova T
+---@field chaosStrike T
+---@field collectiveAnguish T
+---@field consumeMagic T
+---@field cyclotronicBlast T
+---@field darkness T
+---@field demonMuzzle T
+---@field demonic T
+---@field demonsBite T
+---@field disenchant T
+---@field disrupt T
+---@field elysianDecree T
+---@field erraticFelheart T
+---@field felRush T
+---@field felfireHaste T
+---@field fireblood T
+---@field flamesOfFury T
+---@field focusedAzeriteBeam T
+---@field focusedAzeriteBeamChannel T
+---@field giftOfTheNaaru T
+---@field glide T
+---@field global T
+---@field heartOfAzeroth T
+---@field illidariKnowledge T
+---@field immolationAura T
+---@field imprison T
+---@field improvedDisrupt T
+---@field improvedSigilOfMisery T
+---@field internalStruggle T
+---@field latentArcana T
+---@field lightsJudgment T
+---@field liveByTheGlaive T
+---@field longNight T
+---@field lostInDarkness T
+---@field masterOfTheGlaive T
+---@field metamorphosis T
+---@field milling T
+---@field pitchBlack T
+---@field preciseSigils T
+---@field prospecting T
+---@field pursuit T
+---@field quakingPalm T
+---@field racial T
+---@field rushOfChaos T
+---@field shadowmeld T
+---@field shatteredRestoration T
+---@field sigilOfFlame T
+---@field sigilOfMisery T
+---@field soulCarver T
+---@field soulRending T
+---@field soulSigils T
+---@field spectralSight T
+---@field swallowedAnger T
+---@field theHunt T
+---@field throwGlaive T
+---@field torment T
+---@field unrestrainedFury T
+---@field vengefulBonds T
+---@field vengefulRetreat T
+---@field willOfTheIllidari T
+
+---@class BR.Keys.Retail.DemonHunter.Initial.Buffs<T>
+---@field ancientHysteria T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentation T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field chaosTheory T
+---@field concordanceOfTheLegionfall T
+---@field cracklingTourmaline T
+---@field defiledAugmentation T
+---@field divineSteed T
+---@field domineeringArrogance T
+---@field elementalPotionOfPower T
+---@field elementalPotionOfUltimatePower T
+---@field felBarrage T
+---@field felBombardment T
+---@field felCrystalInfusion T
+---@field felFocus T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field flayedWingToxin T
+---@field forTheAlliance T
+---@field forTheHorde T
+---@field fruitfulMachinatins T
+---@field gazeOfTheLegion T
+---@field glide T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field guidingHand T
+---@field heroism T
+---@field icedPhialOfCorruptingRage T
+---@field immolationAura T
+---@field ineffableTruth T
+---@field inertia T
+---@field latentArcana T
+---@field mistcallerOcarina T
+---@field nagrandClefthoof T
+---@field nagrandGoat T
+---@field nagrandRidingClefthoof T
+---@field nagrandTalbuk T
+---@field netherwinds T
+---@field norgannonsForesight T
+---@field overchargeMana T
+---@field phialOfGlacialFury T
+---@field phialOfTepidVersatility T
+---@field potionOfBurstingBlood T
+---@field potionOfFocusedResolve T
+---@field potionOfReplenishment T
+---@field potionOfUnbridledFury T
+---@field prolongedPower T
+---@field queensDecreeUnstoppable T
+---@field racial T
+---@field razorCoral T
+---@field saphireofBrilliance T
+---@field sephuz1 T
+---@field sephuz2 T
+---@field sephuzCooldown T
+---@field shadowmeld T
+---@field shroudOfConcealment T
+---@field soulIgnition T
+---@field soulshape T
+---@field spectralFlaskOfPower T
+---@field superiorBattlePotionOfAgility T
+---@field symbolOfHope T
+---@field tacticalRetreat T
+---@field timeWarp T
+---@field twistedHeart T
+---@field vigorEngaged T
+---@field whispersOfInsanity T
+
+---@class BR.Keys.Retail.DemonHunter.Initial.Debuffs<T>
+---@field arcaneBurst T
+---@field bloodOfTheEnemy T
+---@field burningWound T
+---@field bwonsamdiWrath T
+---@field cascadingTerror T
+---@field concentratedFlame T
+---@field conductiveInk T
+---@field creepingMadness T
+---@field dampening T
+---@field defiledGround T
+---@field essenceBreak T
+---@field eyeOfCorruption T
+---@field eyeOfLeotheras T
+---@field fixate T
+---@field grandDelusions T
+---@field graspingTendrils T
+---@field mightyBash T
+---@field necroticWound T
+---@field promiseOfPower T
+---@field quaking T
+---@field razorCoral T
+---@field reaping T
+---@field repeatPerformance T
+---@field shiverVenom T
+---@field sigilOfFlame T
+---@field sinfulBrand T
+---@field temptation T
+---@field thirstForBlood T
+---@field timeToFeed T
+---@field vileCorruption T
+
+---@class BR.Keys.Retail.DemonHunter.Initial.Glyphs<T>
+---@field cracklingFlames T
+---@field fallowWings T
+---@field fearsomeMetamorphosis T
+---@field felEnemies T
+---@field felTouchedSouls T
+---@field felWings T
+---@field glyphOfCracklingFlames T
+---@field glyphOfFallowWings T
+---@field glyphOfFearsomeMetamorphosis T
+---@field glyphOfFelEnemies T
+---@field glyphOfFelTouchedSouls T
+---@field glyphOfFelWings T
+---@field glyphOfManaTouchedSouls T
+---@field glyphOfShadowEnemies T
+---@field glyphOfTatteredWings T
+---@field manaTouchedSouls T
+---@field shadowEnemies T
+---@field tatteredWings T
+
+---@class BR.Keys.Retail.DemonHunter.Initial.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.Retail.DemonHunter.Initial.Totems<T>
+
+---@class BR.Retail.DemonHunter.Initial.talent.rank
+---@field aldrachiDesign integer
+---@field blazingPath integer
+---@field bouncingGlaives integer
+---@field championOfTheGlaive integer
+---@field chaosFragments integer
+---@field chaosNova integer
+---@field collectiveAnguish integer
+---@field consumeMagic integer
+---@field darkness integer
+---@field demonMuzzle integer
+---@field demonic integer
+---@field elysianDecree integer
+---@field erraticFelheart integer
+---@field felfireHaste integer
+---@field flamesOfFury integer
+---@field illidariKnowledge integer
+---@field imprison integer
+---@field improvedDisrupt integer
+---@field improvedSigilOfMisery integer
+---@field internalStruggle integer
+---@field liveByTheGlaive integer
+---@field longNight integer
+---@field lostInDarkness integer
+---@field masterOfTheGlaive integer
+---@field pitchBlack integer
+---@field preciseSigils integer
+---@field pursuit integer
+---@field rushOfChaos integer
+---@field shatteredRestoration integer
+---@field sigilOfMisery integer
+---@field soulRending integer
+---@field soulSigils integer
+---@field swallowedAnger integer
+---@field theHunt integer
+---@field unrestrainedFury integer
+---@field vengefulBonds integer
+---@field vengefulRetreat integer
+---@field willOfTheIllidari integer
+
+
+---@class BR.Retail.DemonHunter.Initial.buff : BR.Keys.Retail.DemonHunter.Initial.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.able : BR.cast.able.Base, BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.active : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.auto : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.cancel : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.cost : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.current : BR.cast.current.Base, BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.dispel : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.empowered : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.inFlight : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.inFlightRemain : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.last.time : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.Retail.DemonHunter.Initial.cast.last : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.last.Spell>
+---@field time BR.Retail.DemonHunter.Initial.cast.last.time
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.maxRank : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.noControl : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.opener : BR.cast.opener.Base, BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.pool : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.range : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.regen : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.safe : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.time : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.Retail.DemonHunter.Initial.cast.timeSinceLast : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.Retail.DemonHunter.Initial.cast : BR.cast.Base, BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cast.Spell>
+---@field able BR.Retail.DemonHunter.Initial.cast.able
+---@field active BR.Retail.DemonHunter.Initial.cast.active
+---@field auto BR.Retail.DemonHunter.Initial.cast.auto
+---@field cancel BR.Retail.DemonHunter.Initial.cast.cancel
+---@field cost BR.Retail.DemonHunter.Initial.cast.cost
+---@field current BR.Retail.DemonHunter.Initial.cast.current
+---@field dispel BR.Retail.DemonHunter.Initial.cast.dispel
+---@field empowered BR.Retail.DemonHunter.Initial.cast.empowered
+---@field inFlight BR.Retail.DemonHunter.Initial.cast.inFlight
+---@field inFlightRemain BR.Retail.DemonHunter.Initial.cast.inFlightRemain
+---@field last BR.Retail.DemonHunter.Initial.cast.last
+---@field maxRank BR.Retail.DemonHunter.Initial.cast.maxRank
+---@field noControl BR.Retail.DemonHunter.Initial.cast.noControl
+---@field opener BR.Retail.DemonHunter.Initial.cast.opener
+---@field pool BR.Retail.DemonHunter.Initial.cast.pool
+---@field range BR.Retail.DemonHunter.Initial.cast.range
+---@field regen BR.Retail.DemonHunter.Initial.cast.regen
+---@field safe BR.Retail.DemonHunter.Initial.cast.safe
+---@field time BR.Retail.DemonHunter.Initial.cast.time
+---@field timeSinceLast BR.Retail.DemonHunter.Initial.cast.timeSinceLast
+
+
+---@class BR.Retail.DemonHunter.Initial.cd : BR.cd.Base, BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.cd.Spell>, BR.Keys.Retail.DemonHunter.Initial.Items<BR.cd.Item>
+
+
+---@class BR.Retail.DemonHunter.Initial.charges : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.charges.Spell>, BR.Keys.Retail.DemonHunter.Initial.Items<BR.charges.Item>
+
+
+---@class BR.Retail.DemonHunter.Initial.debuff : BR.Keys.Retail.DemonHunter.Initial.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.Retail.DemonHunter.Initial.equiped.socket : BR.Keys.Retail.DemonHunter.Initial.Items<BR.equiped.socket.Item>
+
+---@class BR.Retail.DemonHunter.Initial.equiped : BR.equiped.Base, BR.Keys.Retail.DemonHunter.Initial.Items<BR.equiped.Item>
+---@field socket BR.Retail.DemonHunter.Initial.equiped.socket
+
+
+---@class BR.Retail.DemonHunter.Initial.glyph : BR.glyph.Base, BR.Keys.Retail.DemonHunter.Initial.Glyphs<BR.glyph.K>
+
+
+---@class BR.Retail.DemonHunter.Initial.has : BR.has.Base, BR.Keys.Retail.DemonHunter.Initial.Items<BR.has.Item>
+
+
+---@class BR.Retail.DemonHunter.Initial.heroTree
+---@field aldrachiReaver boolean # true for the active hero talent tree
+---@field felScarred boolean # true for the active hero talent tree
+
+
+---@class BR.Retail.DemonHunter.Initial.imbues
+
+
+---@class BR.Retail.DemonHunter.Initial.spell : BR.Keys.Retail.DemonHunter.Initial.Abilities<BR.spell.K>
+
+
+---@class BR.Retail.DemonHunter.Initial.talent
+---@field rank BR.Retail.DemonHunter.Initial.talent.rank The rank of each talent (0 when not taken)
+---@field aldrachiDesign boolean # true while the talent is taken
+---@field blazingPath boolean # true while the talent is taken
+---@field bouncingGlaives boolean # true while the talent is taken
+---@field championOfTheGlaive boolean # true while the talent is taken
+---@field chaosFragments boolean # true while the talent is taken
+---@field chaosNova boolean # true while the talent is taken
+---@field collectiveAnguish boolean # true while the talent is taken
+---@field consumeMagic boolean # true while the talent is taken
+---@field darkness boolean # true while the talent is taken
+---@field demonMuzzle boolean # true while the talent is taken
+---@field demonic boolean # true while the talent is taken
+---@field elysianDecree boolean # true while the talent is taken
+---@field erraticFelheart boolean # true while the talent is taken
+---@field felfireHaste boolean # true while the talent is taken
+---@field flamesOfFury boolean # true while the talent is taken
+---@field illidariKnowledge boolean # true while the talent is taken
+---@field imprison boolean # true while the talent is taken
+---@field improvedDisrupt boolean # true while the talent is taken
+---@field improvedSigilOfMisery boolean # true while the talent is taken
+---@field internalStruggle boolean # true while the talent is taken
+---@field liveByTheGlaive boolean # true while the talent is taken
+---@field longNight boolean # true while the talent is taken
+---@field lostInDarkness boolean # true while the talent is taken
+---@field masterOfTheGlaive boolean # true while the talent is taken
+---@field pitchBlack boolean # true while the talent is taken
+---@field preciseSigils boolean # true while the talent is taken
+---@field pursuit boolean # true while the talent is taken
+---@field rushOfChaos boolean # true while the talent is taken
+---@field shatteredRestoration boolean # true while the talent is taken
+---@field sigilOfMisery boolean # true while the talent is taken
+---@field soulRending boolean # true while the talent is taken
+---@field soulSigils boolean # true while the talent is taken
+---@field swallowedAnger boolean # true while the talent is taken
+---@field theHunt boolean # true while the talent is taken
+---@field unrestrainedFury boolean # true while the talent is taken
+---@field vengefulBonds boolean # true while the talent is taken
+---@field vengefulRetreat boolean # true while the talent is taken
+---@field willOfTheIllidari boolean # true while the talent is taken
+
+
+
+
+---@class BR.Retail.DemonHunter.Initial.totem.Element : BR.totem.Element.Base, BR.Keys.Retail.DemonHunter.Initial.Totems<BR.totem.Element.TotemName>
+
+---@class BR.Retail.DemonHunter.Initial.totem : BR.totem.Base, BR.Keys.Elements<BR.Retail.DemonHunter.Initial.totem.Element>
+
+
+
+
+---@class BR.Retail.DemonHunter.Initial.use.able : BR.use.able.Base, BR.Keys.Retail.DemonHunter.Initial.Items<BR.use.able.Item>
+
+---@class BR.Retail.DemonHunter.Initial.use : BR.use.Base, BR.Keys.Retail.DemonHunter.Initial.Items<BR.use.Item>
+---@field able BR.Retail.DemonHunter.Initial.use.able
+
+---@class BR.Keys.Retail.DemonHunter.Vengeance.Abilities<T>
+---@field agonizingFlames T
+---@field aldrachiDesign T
+---@field ancestralCall T
+---@field arcanePulse T
+---@field ascendingFlame T
+---@field auraOfPain T
+---@field autoAttack T
+---@field autoShot T
+---@field bagOfTricks T
+---@field blazingPath T
+---@field bouncingGlaives T
+---@field bulkExtraction T
+---@field burningAlive T
+---@field burningBlood T
+---@field calcifiedSpikes T
+---@field chainsOfAnger T
+---@field championOfTheGlaive T
+---@field chaosFragments T
+---@field chaosNova T
+---@field chaosStrike T
+---@field charredFlesh T
+---@field charredWarblades T
+---@field collectiveAnguish T
+---@field consumeMagic T
+---@field cycleOfBinding T
+---@field cyclotronicBlast T
+---@field darkglareBoon T
+---@field darkness T
+---@field deflectingSpikes T
+---@field demonMuzzle T
+---@field demonSpikes T
+---@field demonic T
+---@field demonsBite T
+---@field disenchant T
+---@field disrupt T
+---@field downInFlames T
+---@field elysianDecree T
+---@field erraticFelheart T
+---@field extendedSpikes T
+---@field fallout T
+---@field feastofSouls T
+---@field feedTheDemon T
+---@field felDevastation T
+---@field felFlameFortification T
+---@field felRush T
+---@field felblade T
+---@field felfireHaste T
+---@field fieryBrand T
+---@field fieryDemise T
+---@field fireblood T
+---@field flamesOfFury T
+---@field focusedAzeriteBeam T
+---@field focusedAzeriteBeamChannel T
+---@field focusedCleave T
+---@field fracture T
+---@field frailty T
+---@field giftOfTheNaaru T
+---@field glide T
+---@field global T
+---@field heartOfAzeroth T
+---@field illidariKnowledge T
+---@field illuminatedSigils T
+---@field immolationAura T
+---@field imprison T
+---@field improvedDisrupt T
+---@field improvedSigilOfMisery T
+---@field infernalArmor T
+---@field infernalStrike T
+---@field internalStruggle T
+---@field lastResort T
+---@field latentArcana T
+---@field lightsJudgment T
+---@field liveByTheGlaive T
+---@field longNight T
+---@field lostInDarkness T
+---@field masterOfTheGlaive T
+---@field metamorphosis T
+---@field meteoricStrikes T
+---@field milling T
+---@field painbringer T
+---@field perfectlyBalancedGlaive T
+---@field pitchBlack T
+---@field preciseSigils T
+---@field prospecting T
+---@field pursuit T
+---@field quakingPalm T
+---@field quickenedSigils T
+---@field racial T
+---@field retaliation T
+---@field revelInPain T
+---@field roaringFire T
+---@field ruinousBulwark T
+---@field rushOfChaos T
+---@field shadowmeld T
+---@field shatteredRestoration T
+---@field shear T
+---@field shearFury T
+---@field sigilOfChains T
+---@field sigilOfFlame T
+---@field sigilOfMisery T
+---@field sigilOfSilence T
+---@field soulBarrier T
+---@field soulCarver T
+---@field soulCleave T
+---@field soulCrush T
+---@field soulFurnace T
+---@field soulRending T
+---@field soulSigils T
+---@field soulmonger T
+---@field spectralSight T
+---@field spiritBomb T
+---@field stokeTheFlames T
+---@field swallowedAnger T
+---@field theHunt T
+---@field throwGlaive T
+---@field torment T
+---@field unrestrainedFury T
+---@field vengefulBonds T
+---@field vengefulRetreat T
+---@field voidReaver T
+---@field volatileFlameblood T
+---@field vulnerability T
+---@field willOfTheIllidari T
+
+---@class BR.Keys.Retail.DemonHunter.Vengeance.Buffs<T>
+---@field ancientHysteria T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentation T
+---@field bladeTurning T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field chaosTheory T
+---@field concordanceOfTheLegionfall T
+---@field cracklingTourmaline T
+---@field defiledAugmentation T
+---@field demonSpikes T
+---@field divineSteed T
+---@field domineeringArrogance T
+---@field elementalPotionOfPower T
+---@field elementalPotionOfUltimatePower T
+---@field empowerWards T
+---@field feastofSouls T
+---@field felBarrage T
+---@field felBombardment T
+---@field felCrystalInfusion T
+---@field felFocus T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field flayedWingToxin T
+---@field forTheAlliance T
+---@field forTheHorde T
+---@field fruitfulMachinatins T
+---@field gazeOfTheLegion T
+---@field glide T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field guidingHand T
+---@field heroism T
+---@field icedPhialOfCorruptingRage T
+---@field immolationAura T
+---@field ineffableTruth T
+---@field inertia T
+---@field latentArcana T
+---@field metamorphosis T
+---@field mistcallerOcarina T
+---@field nagrandClefthoof T
+---@field nagrandGoat T
+---@field nagrandRidingClefthoof T
+---@field nagrandTalbuk T
+---@field netherwinds T
+---@field norgannonsForesight T
+---@field overchargeMana T
+---@field phialOfGlacialFury T
+---@field phialOfTepidVersatility T
+---@field potionOfBurstingBlood T
+---@field potionOfFocusedResolve T
+---@field potionOfReplenishment T
+---@field potionOfUnbridledFury T
+---@field prolongedPower T
+---@field queensDecreeUnstoppable T
+---@field racial T
+---@field razorCoral T
+---@field saphireofBrilliance T
+---@field sephuz1 T
+---@field sephuz2 T
+---@field sephuzCooldown T
+---@field shadowmeld T
+---@field shroudOfConcealment T
+---@field siphonedPower T
+---@field soulFragments T
+---@field soulIgnition T
+---@field soulshape T
+---@field spectralFlaskOfPower T
+---@field superiorBattlePotionOfAgility T
+---@field symbolOfHope T
+---@field tacticalRetreat T
+---@field timeWarp T
+---@field twistedHeart T
+---@field vigorEngaged T
+---@field whispersOfInsanity T
+
+---@class BR.Keys.Retail.DemonHunter.Vengeance.Debuffs<T>
+---@field arcaneBurst T
+---@field bloodOfTheEnemy T
+---@field burningWound T
+---@field bwonsamdiWrath T
+---@field cascadingTerror T
+---@field concentratedFlame T
+---@field conductiveInk T
+---@field creepingMadness T
+---@field dampening T
+---@field defiledGround T
+---@field essenceBreak T
+---@field eyeOfCorruption T
+---@field eyeOfLeotheras T
+---@field fieryBrand T
+---@field fixate T
+---@field frailty T
+---@field grandDelusions T
+---@field graspingTendrils T
+---@field mightyBash T
+---@field necroticWound T
+---@field promiseOfPower T
+---@field quaking T
+---@field razorCoral T
+---@field reaping T
+---@field repeatPerformance T
+---@field shiverVenom T
+---@field sigilOfFlame T
+---@field sinfulBrand T
+---@field temptation T
+---@field thirstForBlood T
+---@field timeToFeed T
+---@field vileCorruption T
+
+---@class BR.Keys.Retail.DemonHunter.Vengeance.Glyphs<T>
+---@field cracklingFlames T
+---@field fallowWings T
+---@field fearsomeMetamorphosis T
+---@field felEnemies T
+---@field felTouchedSouls T
+---@field felWings T
+---@field glyphOfCracklingFlames T
+---@field glyphOfFallowWings T
+---@field glyphOfFearsomeMetamorphosis T
+---@field glyphOfFelEnemies T
+---@field glyphOfFelTouchedSouls T
+---@field glyphOfFelWings T
+---@field glyphOfManaTouchedSouls T
+---@field glyphOfShadowEnemies T
+---@field glyphOfTatteredWings T
+---@field manaTouchedSouls T
+---@field shadowEnemies T
+---@field tatteredWings T
+
+---@class BR.Keys.Retail.DemonHunter.Vengeance.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field augmentation T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potion T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.Retail.DemonHunter.Vengeance.Totems<T>
+
+---@class BR.Retail.DemonHunter.Vengeance.talent.rank
+---@field agonizingFlames integer
+---@field aldrachiDesign integer
+---@field ascendingFlame integer
+---@field auraOfPain integer
+---@field blazingPath integer
+---@field bouncingGlaives integer
+---@field bulkExtraction integer
+---@field burningAlive integer
+---@field burningBlood integer
+---@field calcifiedSpikes integer
+---@field chainsOfAnger integer
+---@field championOfTheGlaive integer
+---@field chaosFragments integer
+---@field chaosNova integer
+---@field charredFlesh integer
+---@field charredWarblades integer
+---@field collectiveAnguish integer
+---@field consumeMagic integer
+---@field cycleOfBinding integer
+---@field darkglareBoon integer
+---@field darkness integer
+---@field deflectingSpikes integer
+---@field demonMuzzle integer
+---@field demonic integer
+---@field downInFlames integer
+---@field elysianDecree integer
+---@field erraticFelheart integer
+---@field extendedSpikes integer
+---@field fallout integer
+---@field feastofSouls integer
+---@field feedTheDemon integer
+---@field felDevastation integer
+---@field felFlameFortification integer
+---@field felblade integer
+---@field felfireHaste integer
+---@field fieryBrand integer
+---@field fieryDemise integer
+---@field flamesOfFury integer
+---@field focusedCleave integer
+---@field fracture integer
+---@field frailty integer
+---@field illidariKnowledge integer
+---@field illuminatedSigils integer
+---@field imprison integer
+---@field improvedDisrupt integer
+---@field improvedSigilOfMisery integer
+---@field infernalArmor integer
+---@field internalStruggle integer
+---@field lastResort integer
+---@field liveByTheGlaive integer
+---@field longNight integer
+---@field lostInDarkness integer
+---@field masterOfTheGlaive integer
+---@field meteoricStrikes integer
+---@field painbringer integer
+---@field perfectlyBalancedGlaive integer
+---@field pitchBlack integer
+---@field preciseSigils integer
+---@field pursuit integer
+---@field quickenedSigils integer
+---@field retaliation integer
+---@field revelInPain integer
+---@field roaringFire integer
+---@field ruinousBulwark integer
+---@field rushOfChaos integer
+---@field shatteredRestoration integer
+---@field shearFury integer
+---@field sigilOfChains integer
+---@field sigilOfMisery integer
+---@field sigilOfSilence integer
+---@field soulBarrier integer
+---@field soulCarver integer
+---@field soulCrush integer
+---@field soulFurnace integer
+---@field soulRending integer
+---@field soulSigils integer
+---@field soulmonger integer
+---@field spiritBomb integer
+---@field stokeTheFlames integer
+---@field swallowedAnger integer
+---@field theHunt integer
+---@field unrestrainedFury integer
+---@field vengefulBonds integer
+---@field vengefulRetreat integer
+---@field voidReaver integer
+---@field volatileFlameblood integer
+---@field vulnerability integer
+---@field willOfTheIllidari integer
+
+
+---@class BR.Retail.DemonHunter.Vengeance.buff : BR.Keys.Retail.DemonHunter.Vengeance.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.able : BR.cast.able.Base, BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.active : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.auto : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.cancel : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.cost : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.current : BR.cast.current.Base, BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.dispel : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.empowered : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.inFlight : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.inFlightRemain : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.last.time : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.last : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.last.Spell>
+---@field time BR.Retail.DemonHunter.Vengeance.cast.last.time
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.maxRank : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.noControl : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.opener : BR.cast.opener.Base, BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.pool : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.range : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.regen : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.safe : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.time : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cast.timeSinceLast : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.Retail.DemonHunter.Vengeance.cast : BR.cast.Base, BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cast.Spell>
+---@field able BR.Retail.DemonHunter.Vengeance.cast.able
+---@field active BR.Retail.DemonHunter.Vengeance.cast.active
+---@field auto BR.Retail.DemonHunter.Vengeance.cast.auto
+---@field cancel BR.Retail.DemonHunter.Vengeance.cast.cancel
+---@field cost BR.Retail.DemonHunter.Vengeance.cast.cost
+---@field current BR.Retail.DemonHunter.Vengeance.cast.current
+---@field dispel BR.Retail.DemonHunter.Vengeance.cast.dispel
+---@field empowered BR.Retail.DemonHunter.Vengeance.cast.empowered
+---@field inFlight BR.Retail.DemonHunter.Vengeance.cast.inFlight
+---@field inFlightRemain BR.Retail.DemonHunter.Vengeance.cast.inFlightRemain
+---@field last BR.Retail.DemonHunter.Vengeance.cast.last
+---@field maxRank BR.Retail.DemonHunter.Vengeance.cast.maxRank
+---@field noControl BR.Retail.DemonHunter.Vengeance.cast.noControl
+---@field opener BR.Retail.DemonHunter.Vengeance.cast.opener
+---@field pool BR.Retail.DemonHunter.Vengeance.cast.pool
+---@field range BR.Retail.DemonHunter.Vengeance.cast.range
+---@field regen BR.Retail.DemonHunter.Vengeance.cast.regen
+---@field safe BR.Retail.DemonHunter.Vengeance.cast.safe
+---@field time BR.Retail.DemonHunter.Vengeance.cast.time
+---@field timeSinceLast BR.Retail.DemonHunter.Vengeance.cast.timeSinceLast
+
+
+---@class BR.Retail.DemonHunter.Vengeance.cd : BR.cd.Base, BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.cd.Spell>, BR.Keys.Retail.DemonHunter.Vengeance.Items<BR.cd.Item>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.charges : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.charges.Spell>, BR.Keys.Retail.DemonHunter.Vengeance.Items<BR.charges.Item>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.debuff : BR.Keys.Retail.DemonHunter.Vengeance.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.Retail.DemonHunter.Vengeance.equiped.socket : BR.Keys.Retail.DemonHunter.Vengeance.Items<BR.equiped.socket.Item>
+
+---@class BR.Retail.DemonHunter.Vengeance.equiped : BR.equiped.Base, BR.Keys.Retail.DemonHunter.Vengeance.Items<BR.equiped.Item>
+---@field socket BR.Retail.DemonHunter.Vengeance.equiped.socket
+
+
+---@class BR.Retail.DemonHunter.Vengeance.glyph : BR.glyph.Base, BR.Keys.Retail.DemonHunter.Vengeance.Glyphs<BR.glyph.K>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.has : BR.has.Base, BR.Keys.Retail.DemonHunter.Vengeance.Items<BR.has.Item>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.heroTree
+---@field aldrachiReaver boolean # true for the active hero talent tree
+---@field felScarred boolean # true for the active hero talent tree
+
+
+---@class BR.Retail.DemonHunter.Vengeance.imbues
+
+
+---@class BR.Retail.DemonHunter.Vengeance.spell : BR.Keys.Retail.DemonHunter.Vengeance.Abilities<BR.spell.K>
+
+
+---@class BR.Retail.DemonHunter.Vengeance.talent
+---@field rank BR.Retail.DemonHunter.Vengeance.talent.rank The rank of each talent (0 when not taken)
+---@field agonizingFlames boolean # true while the talent is taken
+---@field aldrachiDesign boolean # true while the talent is taken
+---@field ascendingFlame boolean # true while the talent is taken
+---@field auraOfPain boolean # true while the talent is taken
+---@field blazingPath boolean # true while the talent is taken
+---@field bouncingGlaives boolean # true while the talent is taken
+---@field bulkExtraction boolean # true while the talent is taken
+---@field burningAlive boolean # true while the talent is taken
+---@field burningBlood boolean # true while the talent is taken
+---@field calcifiedSpikes boolean # true while the talent is taken
+---@field chainsOfAnger boolean # true while the talent is taken
+---@field championOfTheGlaive boolean # true while the talent is taken
+---@field chaosFragments boolean # true while the talent is taken
+---@field chaosNova boolean # true while the talent is taken
+---@field charredFlesh boolean # true while the talent is taken
+---@field charredWarblades boolean # true while the talent is taken
+---@field collectiveAnguish boolean # true while the talent is taken
+---@field consumeMagic boolean # true while the talent is taken
+---@field cycleOfBinding boolean # true while the talent is taken
+---@field darkglareBoon boolean # true while the talent is taken
+---@field darkness boolean # true while the talent is taken
+---@field deflectingSpikes boolean # true while the talent is taken
+---@field demonMuzzle boolean # true while the talent is taken
+---@field demonic boolean # true while the talent is taken
+---@field downInFlames boolean # true while the talent is taken
+---@field elysianDecree boolean # true while the talent is taken
+---@field erraticFelheart boolean # true while the talent is taken
+---@field extendedSpikes boolean # true while the talent is taken
+---@field fallout boolean # true while the talent is taken
+---@field feastofSouls boolean # true while the talent is taken
+---@field feedTheDemon boolean # true while the talent is taken
+---@field felDevastation boolean # true while the talent is taken
+---@field felFlameFortification boolean # true while the talent is taken
+---@field felblade boolean # true while the talent is taken
+---@field felfireHaste boolean # true while the talent is taken
+---@field fieryBrand boolean # true while the talent is taken
+---@field fieryDemise boolean # true while the talent is taken
+---@field flamesOfFury boolean # true while the talent is taken
+---@field focusedCleave boolean # true while the talent is taken
+---@field fracture boolean # true while the talent is taken
+---@field frailty boolean # true while the talent is taken
+---@field illidariKnowledge boolean # true while the talent is taken
+---@field illuminatedSigils boolean # true while the talent is taken
+---@field imprison boolean # true while the talent is taken
+---@field improvedDisrupt boolean # true while the talent is taken
+---@field improvedSigilOfMisery boolean # true while the talent is taken
+---@field infernalArmor boolean # true while the talent is taken
+---@field internalStruggle boolean # true while the talent is taken
+---@field lastResort boolean # true while the talent is taken
+---@field liveByTheGlaive boolean # true while the talent is taken
+---@field longNight boolean # true while the talent is taken
+---@field lostInDarkness boolean # true while the talent is taken
+---@field masterOfTheGlaive boolean # true while the talent is taken
+---@field meteoricStrikes boolean # true while the talent is taken
+---@field painbringer boolean # true while the talent is taken
+---@field perfectlyBalancedGlaive boolean # true while the talent is taken
+---@field pitchBlack boolean # true while the talent is taken
+---@field preciseSigils boolean # true while the talent is taken
+---@field pursuit boolean # true while the talent is taken
+---@field quickenedSigils boolean # true while the talent is taken
+---@field retaliation boolean # true while the talent is taken
+---@field revelInPain boolean # true while the talent is taken
+---@field roaringFire boolean # true while the talent is taken
+---@field ruinousBulwark boolean # true while the talent is taken
+---@field rushOfChaos boolean # true while the talent is taken
+---@field shatteredRestoration boolean # true while the talent is taken
+---@field shearFury boolean # true while the talent is taken
+---@field sigilOfChains boolean # true while the talent is taken
+---@field sigilOfMisery boolean # true while the talent is taken
+---@field sigilOfSilence boolean # true while the talent is taken
+---@field soulBarrier boolean # true while the talent is taken
+---@field soulCarver boolean # true while the talent is taken
+---@field soulCrush boolean # true while the talent is taken
+---@field soulFurnace boolean # true while the talent is taken
+---@field soulRending boolean # true while the talent is taken
+---@field soulSigils boolean # true while the talent is taken
+---@field soulmonger boolean # true while the talent is taken
+---@field spiritBomb boolean # true while the talent is taken
+---@field stokeTheFlames boolean # true while the talent is taken
+---@field swallowedAnger boolean # true while the talent is taken
+---@field theHunt boolean # true while the talent is taken
+---@field unrestrainedFury boolean # true while the talent is taken
+---@field vengefulBonds boolean # true while the talent is taken
+---@field vengefulRetreat boolean # true while the talent is taken
+---@field voidReaver boolean # true while the talent is taken
+---@field volatileFlameblood boolean # true while the talent is taken
+---@field vulnerability boolean # true while the talent is taken
+---@field willOfTheIllidari boolean # true while the talent is taken
+
+
+
+
+---@class BR.Retail.DemonHunter.Vengeance.totem.Element : BR.totem.Element.Base, BR.Keys.Retail.DemonHunter.Vengeance.Totems<BR.totem.Element.TotemName>
+
+---@class BR.Retail.DemonHunter.Vengeance.totem : BR.totem.Base, BR.Keys.Elements<BR.Retail.DemonHunter.Vengeance.totem.Element>
+
+
+
+
+---@class BR.Retail.DemonHunter.Vengeance.use.able : BR.use.able.Base, BR.Keys.Retail.DemonHunter.Vengeance.Items<BR.use.able.Item>
+
+---@class BR.Retail.DemonHunter.Vengeance.use : BR.use.Base, BR.Keys.Retail.DemonHunter.Vengeance.Items<BR.use.Item>
+---@field able BR.Retail.DemonHunter.Vengeance.use.able
+
+---@class BR.Keys.Retail.Druid.Feral.Abilities<T>
+---@field aessinasRenewal T
+---@field ancestralCall T
+---@field apexPredatorsCraving T
+---@field arcanePulse T
+---@field ashamanesGuidance T
+---@field astralInfluence T
+---@field autoAttack T
+---@field autoShot T
+---@field bagOfTricks T
+---@field barkskin T
+---@field bearForm T
+---@field berserk T
+---@field berserkHeartOfTheLion T
+---@field bloodSplattered T
+---@field bloodtalons T
+---@field carnivorousInstinct T
+---@field catForm T
+---@field charmWoodlandCreature T
+---@field chomp T
+---@field circleOfLifeAndDeath T
+---@field circleOfTheHeavens T
+---@field circleOfTheWild T
+---@field coiledToSpring T
+---@field convokeTheSpirits T
+---@field cyclone T
+---@field cyclotronicBlast T
+---@field dash T
+---@field disenchant T
+---@field doubleclawedRake T
+---@field dreadfulBleeding T
+---@field dreamwalk T
+---@field entanglingRoots T
+---@field felineSwiftness T
+---@field feralFrenzy T
+---@field ferociousBite T
+---@field fireblood T
+---@field flap T
+---@field flightForm T
+---@field fluidForm T
+---@field focusedAzeriteBeam T
+---@field focusedAzeriteBeamChannel T
+---@field focusedFrenzy T
+---@field forestwalk T
+---@field franticFrenzy T
+---@field franticMomentum T
+---@field frenziedRegeneration T
+---@field galeWinds T
+---@field giftOfTheNaaru T
+---@field giftOfTheWild T
+---@field global T
+---@field grievousWounds T
+---@field growl T
+---@field heartOfAzeroth T
+---@field heartOfTheWild T
+---@field hibernate T
+---@field hungerForBattle T
+---@field improvedBarkskin T
+---@field improvedStampedingRoar T
+---@field incapacitatingRoar T
+---@field incarnationAvatarOfAshamane T
+---@field incessantTempest T
+---@field infectedWounds T
+---@field innervate T
+---@field instinctsOfTheClaw T
+---@field ironfur T
+---@field killerInstinct T
+---@field laceratingClaws T
+---@field latentArcana T
+---@field lightsJudgment T
+---@field lingeringHealing T
+---@field loreOfTheGrove T
+---@field lunarInspiration T
+---@field lycarasInspiration T
+---@field lycarasTeachings T
+---@field maim T
+---@field mangle T
+---@field markOfTheWild T
+---@field massEntanglement T
+---@field mattedFur T
+---@field mercilessClaws T
+---@field mightyBash T
+---@field milling T
+---@field momentOfClarity T
+---@field moonfire T
+---@field moonfireCat T
+---@field moonkinForm T
+---@field mountForm T
+---@field naturalRecovery T
+---@field nurturingInstinct T
+---@field oakskin T
+---@field omenOfClarity T
+---@field panthersGuile T
+---@field perfectlyhonedInstincts T
+---@field pouncingStrikes T
+---@field predator T
+---@field primalFury T
+---@field primalWrath T
+---@field prospecting T
+---@field prowl T
+---@field quakingPalm T
+---@field racial T
+---@field ragingFury T
+---@field rake T
+---@field rampantFerocity T
+---@field rebirth T
+---@field regrowth T
+---@field rejuvenation T
+---@field removeCorruption T
+---@field renewal T
+---@field revive T
+---@field rip T
+---@field ripAndTear T
+---@field saberJaws T
+---@field sabertooth T
+---@field savageFury T
+---@field shadowmeld T
+---@field shred T
+---@field skullBash T
+---@field soothe T
+---@field soulOfTheForest T
+---@field stampedingRoar T
+---@field starfire T
+---@field starlightConduit T
+---@field starsurge T
+---@field suddenAmbush T
+---@field sunfire T
+---@field survivalInstincts T
+---@field swiftmend T
+---@field swipe T
+---@field swipeBear T
+---@field swipeCat T
+---@field symbioticRelationship T
+---@field tasteForBlood T
+---@field thickHide T
+---@field thrashBear T
+---@field thrashCat T
+---@field tigerDash T
+---@field tigersFury T
+---@field tigersTenacity T
+---@field tirelessEnergy T
+---@field trackBeasts T
+---@field trackHumanoids T
+---@field travelForm T
+---@field typhoon T
+---@field unseenPredator T
+---@field ursineVigor T
+---@field ursocsSpirit T
+---@field ursolsVortex T
+---@field veinripper T
+---@field verdantHeart T
+---@field wellhonedInstincts T
+---@field wildCharge T
+---@field wildGrowth T
+---@field wildSlashes T
+---@field wrath T
+
+---@class BR.Keys.Retail.Druid.Feral.Buffs<T>
+---@field adaptiveSwarm T
+---@field ancientHysteria T
+---@field apexPredatorsCraving T
+---@field barkskin T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentation T
+---@field bearForm T
+---@field berserk T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field bloodtalons T
+---@field burningEssence T
+---@field catForm T
+---@field chompEnabler T
+---@field clearcasting T
+---@field concordanceOfTheLegionfall T
+---@field convokeTheSpirits T
+---@field cracklingTourmaline T
+---@field dash T
+---@field defiledAugmentation T
+---@field divineSteed T
+---@field domineeringArrogance T
+---@field elementalPotionOfPower T
+---@field elementalPotionOfUltimatePower T
+---@field felFocus T
+---@field fieryRedMaimers T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field flayedWingToxin T
+---@field flightForm T
+---@field forTheAlliance T
+---@field forTheHorde T
+---@field frenziedRegeneration T
+---@field fruitfulMachinatins T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field guidingHand T
+---@field heartOfTheWild T
+---@field heroism T
+---@field icedPhialOfCorruptingRage T
+---@field incarnationAvatarOfAshamane T
+---@field ineffableTruth T
+---@field ironfur T
+---@field latentArcana T
+---@field markOfTheWild T
+---@field mistcallerOcarina T
+---@field moonkinForm T
+---@field nagrandClefthoof T
+---@field nagrandGoat T
+---@field nagrandRidingClefthoof T
+---@field nagrandTalbuk T
+---@field netherwinds T
+---@field norgannonsForesight T
+---@field overchargeMana T
+---@field phialOfGlacialFury T
+---@field phialOfTepidVersatility T
+---@field potionOfBurstingBlood T
+---@field potionOfFocusedResolve T
+---@field potionOfReplenishment T
+---@field potionOfUnbridledFury T
+---@field predatorySwiftness T
+---@field prolongedPower T
+---@field prowl T
+---@field queensDecreeUnstoppable T
+---@field racial T
+---@field ravage T
+---@field razorCoral T
+---@field regrowth T
+---@field rejuvenation T
+---@field saphireofBrilliance T
+---@field sephuz1 T
+---@field sephuz2 T
+---@field sephuzCooldown T
+---@field shadowmeld T
+---@field shroudOfConcealment T
+---@field soulIgnition T
+---@field soulshape T
+---@field spectralFlaskOfPower T
+---@field stagForm T
+---@field stampedingRoar T
+---@field stampedingRoarCat T
+---@field suddenAmbush T
+---@field superiorBattlePotionOfAgility T
+---@field survivalInstincts T
+---@field symbolOfHope T
+---@field tigerDash T
+---@field tigersFury T
+---@field timeWarp T
+---@field travelForm T
+---@field vigorEngaged T
+---@field whispersOfInsanity T
+---@field wildGrowth T
+
+---@class BR.Keys.Retail.Druid.Feral.Debuffs<T>
+---@field adaptiveSwarm T
+---@field adaptiveSwarmDamage T
+---@field arcaneBurst T
+---@field bloodOfTheEnemy T
+---@field bloodseekerVines T
+---@field bwonsamdiWrath T
+---@field cascadingTerror T
+---@field concentratedFlame T
+---@field conductiveInk T
+---@field creepingMadness T
+---@field cyclone T
+---@field dampening T
+---@field defiledGround T
+---@field entanglingRoots T
+---@field eyeOfCorruption T
+---@field eyeOfLeotheras T
+---@field fixate T
+---@field grandDelusions T
+---@field graspingTendrils T
+---@field growl T
+---@field hibernate T
+---@field lycarasBargin T
+---@field massEntanglement T
+---@field mightyBash T
+---@field moonfire T
+---@field moonfireCat T
+---@field necroticWound T
+---@field promiseOfPower T
+---@field quaking T
+---@field rake T
+---@field razorCoral T
+---@field reaping T
+---@field repeatPerformance T
+---@field rip T
+---@field shiverVenom T
+---@field temptation T
+---@field thirstForBlood T
+---@field thrashBear T
+---@field thrashCat T
+---@field timeToFeed T
+---@field vileCorruption T
+
+---@class BR.Keys.Retail.Druid.Feral.Glyphs<T>
+
+---@class BR.Keys.Retail.Druid.Feral.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.Retail.Druid.Feral.Totems<T>
+
+---@class BR.Retail.Druid.Feral.talent.rank
+---@field aessinasRenewal integer
+---@field apexPredatorsCraving integer
+---@field ashamanesGuidance integer
+---@field astralInfluence integer
+---@field berserk integer
+---@field berserkHeartOfTheLion integer
+---@field bloodSplattered integer
+---@field bloodtalons integer
+---@field carnivorousInstinct integer
+---@field chomp integer
+---@field circleOfLifeAndDeath integer
+---@field circleOfTheHeavens integer
+---@field circleOfTheWild integer
+---@field coiledToSpring integer
+---@field convokeTheSpirits integer
+---@field cyclone integer
+---@field doubleclawedRake integer
+---@field dreadfulBleeding integer
+---@field felineSwiftness integer
+---@field feralFrenzy integer
+---@field fluidForm integer
+---@field focusedFrenzy integer
+---@field forestwalk integer
+---@field franticFrenzy integer
+---@field franticMomentum integer
+---@field frenziedRegeneration integer
+---@field galeWinds integer
+---@field giftOfTheWild integer
+---@field grievousWounds integer
+---@field heartOfTheWild integer
+---@field hibernate integer
+---@field hungerForBattle integer
+---@field improvedBarkskin integer
+---@field improvedStampedingRoar integer
+---@field incapacitatingRoar integer
+---@field incarnationAvatarOfAshamane integer
+---@field incessantTempest integer
+---@field infectedWounds integer
+---@field innervate integer
+---@field instinctsOfTheClaw integer
+---@field ironfur integer
+---@field killerInstinct integer
+---@field laceratingClaws integer
+---@field lingeringHealing integer
+---@field loreOfTheGrove integer
+---@field lunarInspiration integer
+---@field lycarasInspiration integer
+---@field lycarasTeachings integer
+---@field maim integer
+---@field massEntanglement integer
+---@field mattedFur integer
+---@field mercilessClaws integer
+---@field mightyBash integer
+---@field momentOfClarity integer
+---@field moonkinForm integer
+---@field naturalRecovery integer
+---@field nurturingInstinct integer
+---@field oakskin integer
+---@field omenOfClarity integer
+---@field panthersGuile integer
+---@field perfectlyhonedInstincts integer
+---@field pouncingStrikes integer
+---@field predator integer
+---@field primalFury integer
+---@field primalWrath integer
+---@field ragingFury integer
+---@field rake integer
+---@field rampantFerocity integer
+---@field rejuvenation integer
+---@field removeCorruption integer
+---@field rip integer
+---@field ripAndTear integer
+---@field saberJaws integer
+---@field sabertooth integer
+---@field savageFury integer
+---@field skullBash integer
+---@field soothe integer
+---@field soulOfTheForest integer
+---@field stampedingRoar integer
+---@field starfire integer
+---@field starlightConduit integer
+---@field starsurge integer
+---@field suddenAmbush integer
+---@field sunfire integer
+---@field survivalInstincts integer
+---@field swipe integer
+---@field symbioticRelationship integer
+---@field tasteForBlood integer
+---@field thickHide integer
+---@field tigerDash integer
+---@field tigersFury integer
+---@field tigersTenacity integer
+---@field tirelessEnergy integer
+---@field typhoon integer
+---@field unseenPredator integer
+---@field ursineVigor integer
+---@field ursocsSpirit integer
+---@field ursolsVortex integer
+---@field veinripper integer
+---@field verdantHeart integer
+---@field wellhonedInstincts integer
+---@field wildCharge integer
+---@field wildGrowth integer
+---@field wildSlashes integer
+
+
+---@class BR.Retail.Druid.Feral.buff : BR.Keys.Retail.Druid.Feral.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.Retail.Druid.Feral.cast.able : BR.cast.able.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.active : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.auto : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.cancel : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.cost : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.current : BR.cast.current.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.dispel : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.empowered : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.inFlight : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.inFlightRemain : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.Retail.Druid.Feral.cast.last.time : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.Retail.Druid.Feral.cast.last : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.last.Spell>
+---@field time BR.Retail.Druid.Feral.cast.last.time
+
+
+---@class BR.Retail.Druid.Feral.cast.maxRank : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.noControl : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.opener : BR.cast.opener.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.pool : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.range : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.regen : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.safe : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.time : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.timeSinceLast : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.Retail.Druid.Feral.cast : BR.cast.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.Spell>
+---@field able BR.Retail.Druid.Feral.cast.able
+---@field active BR.Retail.Druid.Feral.cast.active
+---@field auto BR.Retail.Druid.Feral.cast.auto
+---@field cancel BR.Retail.Druid.Feral.cast.cancel
+---@field cost BR.Retail.Druid.Feral.cast.cost
+---@field current BR.Retail.Druid.Feral.cast.current
+---@field dispel BR.Retail.Druid.Feral.cast.dispel
+---@field empowered BR.Retail.Druid.Feral.cast.empowered
+---@field inFlight BR.Retail.Druid.Feral.cast.inFlight
+---@field inFlightRemain BR.Retail.Druid.Feral.cast.inFlightRemain
+---@field last BR.Retail.Druid.Feral.cast.last
+---@field maxRank BR.Retail.Druid.Feral.cast.maxRank
+---@field noControl BR.Retail.Druid.Feral.cast.noControl
+---@field opener BR.Retail.Druid.Feral.cast.opener
+---@field pool BR.Retail.Druid.Feral.cast.pool
+---@field range BR.Retail.Druid.Feral.cast.range
+---@field regen BR.Retail.Druid.Feral.cast.regen
+---@field safe BR.Retail.Druid.Feral.cast.safe
+---@field time BR.Retail.Druid.Feral.cast.time
+---@field timeSinceLast BR.Retail.Druid.Feral.cast.timeSinceLast
+
+
+---@class BR.Retail.Druid.Feral.cd : BR.cd.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cd.Spell>, BR.Keys.Retail.Druid.Feral.Items<BR.cd.Item>
+
+
+---@class BR.Retail.Druid.Feral.charges : BR.Keys.Retail.Druid.Feral.Abilities<BR.charges.Spell>, BR.Keys.Retail.Druid.Feral.Items<BR.charges.Item>
+
+
+---@class BR.Retail.Druid.Feral.debuff : BR.Keys.Retail.Druid.Feral.Debuffs<BR.debuff.Spell>
+
+
+
+
+---@class BR.Retail.Druid.Feral.equiped.socket : BR.Keys.Retail.Druid.Feral.Items<BR.equiped.socket.Item>
+
+---@class BR.Retail.Druid.Feral.equiped : BR.equiped.Base, BR.Keys.Retail.Druid.Feral.Items<BR.equiped.Item>
+---@field socket BR.Retail.Druid.Feral.equiped.socket
+
+
+---@class BR.Retail.Druid.Feral.glyph : BR.glyph.Base, BR.Keys.Retail.Druid.Feral.Glyphs<BR.glyph.K>
+
+
+---@class BR.Retail.Druid.Feral.has : BR.has.Base, BR.Keys.Retail.Druid.Feral.Items<BR.has.Item>
+
+
+---@class BR.Retail.Druid.Feral.heroTree
+---@field druidOfTheClaw boolean # true for the active hero talent tree
+---@field elunesChosen boolean # true for the active hero talent tree
+---@field keeperOfTheGrove boolean # true for the active hero talent tree
+---@field wildstalker boolean # true for the active hero talent tree
+
+
+---@class BR.Retail.Druid.Feral.imbues
+
+
+---@class BR.Retail.Druid.Feral.spell : BR.Keys.Retail.Druid.Feral.Abilities<BR.spell.K>
+
+
+---@class BR.Retail.Druid.Feral.talent
+---@field rank BR.Retail.Druid.Feral.talent.rank The rank of each talent (0 when not taken)
+---@field aessinasRenewal boolean # true while the talent is taken
+---@field apexPredatorsCraving boolean # true while the talent is taken
+---@field ashamanesGuidance boolean # true while the talent is taken
+---@field astralInfluence boolean # true while the talent is taken
+---@field berserk boolean # true while the talent is taken
+---@field berserkHeartOfTheLion boolean # true while the talent is taken
+---@field bloodSplattered boolean # true while the talent is taken
+---@field bloodtalons boolean # true while the talent is taken
+---@field carnivorousInstinct boolean # true while the talent is taken
+---@field chomp boolean # true while the talent is taken
+---@field circleOfLifeAndDeath boolean # true while the talent is taken
+---@field circleOfTheHeavens boolean # true while the talent is taken
+---@field circleOfTheWild boolean # true while the talent is taken
+---@field coiledToSpring boolean # true while the talent is taken
+---@field convokeTheSpirits boolean # true while the talent is taken
+---@field cyclone boolean # true while the talent is taken
+---@field doubleclawedRake boolean # true while the talent is taken
+---@field dreadfulBleeding boolean # true while the talent is taken
+---@field felineSwiftness boolean # true while the talent is taken
+---@field feralFrenzy boolean # true while the talent is taken
+---@field fluidForm boolean # true while the talent is taken
+---@field focusedFrenzy boolean # true while the talent is taken
+---@field forestwalk boolean # true while the talent is taken
+---@field franticFrenzy boolean # true while the talent is taken
+---@field franticMomentum boolean # true while the talent is taken
+---@field frenziedRegeneration boolean # true while the talent is taken
+---@field galeWinds boolean # true while the talent is taken
+---@field giftOfTheWild boolean # true while the talent is taken
+---@field grievousWounds boolean # true while the talent is taken
+---@field heartOfTheWild boolean # true while the talent is taken
+---@field hibernate boolean # true while the talent is taken
+---@field hungerForBattle boolean # true while the talent is taken
+---@field improvedBarkskin boolean # true while the talent is taken
+---@field improvedStampedingRoar boolean # true while the talent is taken
+---@field incapacitatingRoar boolean # true while the talent is taken
+---@field incarnationAvatarOfAshamane boolean # true while the talent is taken
+---@field incessantTempest boolean # true while the talent is taken
+---@field infectedWounds boolean # true while the talent is taken
+---@field innervate boolean # true while the talent is taken
+---@field instinctsOfTheClaw boolean # true while the talent is taken
+---@field ironfur boolean # true while the talent is taken
+---@field killerInstinct boolean # true while the talent is taken
+---@field laceratingClaws boolean # true while the talent is taken
+---@field lingeringHealing boolean # true while the talent is taken
+---@field loreOfTheGrove boolean # true while the talent is taken
+---@field lunarInspiration boolean # true while the talent is taken
+---@field lycarasInspiration boolean # true while the talent is taken
+---@field lycarasTeachings boolean # true while the talent is taken
+---@field maim boolean # true while the talent is taken
+---@field massEntanglement boolean # true while the talent is taken
+---@field mattedFur boolean # true while the talent is taken
+---@field mercilessClaws boolean # true while the talent is taken
+---@field mightyBash boolean # true while the talent is taken
+---@field momentOfClarity boolean # true while the talent is taken
+---@field moonkinForm boolean # true while the talent is taken
+---@field naturalRecovery boolean # true while the talent is taken
+---@field nurturingInstinct boolean # true while the talent is taken
+---@field oakskin boolean # true while the talent is taken
+---@field omenOfClarity boolean # true while the talent is taken
+---@field panthersGuile boolean # true while the talent is taken
+---@field perfectlyhonedInstincts boolean # true while the talent is taken
+---@field pouncingStrikes boolean # true while the talent is taken
+---@field predator boolean # true while the talent is taken
+---@field primalFury boolean # true while the talent is taken
+---@field primalWrath boolean # true while the talent is taken
+---@field ragingFury boolean # true while the talent is taken
+---@field rake boolean # true while the talent is taken
+---@field rampantFerocity boolean # true while the talent is taken
+---@field rejuvenation boolean # true while the talent is taken
+---@field removeCorruption boolean # true while the talent is taken
+---@field rip boolean # true while the talent is taken
+---@field ripAndTear boolean # true while the talent is taken
+---@field saberJaws boolean # true while the talent is taken
+---@field sabertooth boolean # true while the talent is taken
+---@field savageFury boolean # true while the talent is taken
+---@field skullBash boolean # true while the talent is taken
+---@field soothe boolean # true while the talent is taken
+---@field soulOfTheForest boolean # true while the talent is taken
+---@field stampedingRoar boolean # true while the talent is taken
+---@field starfire boolean # true while the talent is taken
+---@field starlightConduit boolean # true while the talent is taken
+---@field starsurge boolean # true while the talent is taken
+---@field suddenAmbush boolean # true while the talent is taken
+---@field sunfire boolean # true while the talent is taken
+---@field survivalInstincts boolean # true while the talent is taken
+---@field swipe boolean # true while the talent is taken
+---@field symbioticRelationship boolean # true while the talent is taken
+---@field tasteForBlood boolean # true while the talent is taken
+---@field thickHide boolean # true while the talent is taken
+---@field tigerDash boolean # true while the talent is taken
+---@field tigersFury boolean # true while the talent is taken
+---@field tigersTenacity boolean # true while the talent is taken
+---@field tirelessEnergy boolean # true while the talent is taken
+---@field typhoon boolean # true while the talent is taken
+---@field unseenPredator boolean # true while the talent is taken
+---@field ursineVigor boolean # true while the talent is taken
+---@field ursocsSpirit boolean # true while the talent is taken
+---@field ursolsVortex boolean # true while the talent is taken
+---@field veinripper boolean # true while the talent is taken
+---@field verdantHeart boolean # true while the talent is taken
+---@field wellhonedInstincts boolean # true while the talent is taken
+---@field wildCharge boolean # true while the talent is taken
+---@field wildGrowth boolean # true while the talent is taken
+---@field wildSlashes boolean # true while the talent is taken
+
+
+
+
+---@class BR.Retail.Druid.Feral.totem.Element : BR.totem.Element.Base, BR.Keys.Retail.Druid.Feral.Totems<BR.totem.Element.TotemName>
+
+---@class BR.Retail.Druid.Feral.totem : BR.totem.Base, BR.Keys.Elements<BR.Retail.Druid.Feral.totem.Element>
+
+
+
+
+---@class BR.Retail.Druid.Feral.use.able : BR.use.able.Base, BR.Keys.Retail.Druid.Feral.Items<BR.use.able.Item>
+
+---@class BR.Retail.Druid.Feral.use : BR.use.Base, BR.Keys.Retail.Druid.Feral.Items<BR.use.Item>
+---@field able BR.Retail.Druid.Feral.use.able
+
+---@class BR.Keys.Retail.Druid.Initial.Abilities<T>
+---@field aessinasRenewal T
+---@field ancestralCall T
+---@field arcanePulse T
+---@field astralInfluence T
+---@field autoAttack T
+---@field autoShot T
+---@field bagOfTricks T
+---@field barkskin T
+---@field bearForm T
+---@field catForm T
+---@field charmWoodlandCreature T
+---@field circleOfTheHeavens T
+---@field circleOfTheWild T
+---@field cyclone T
+---@field cyclotronicBlast T
+---@field dash T
+---@field disenchant T
+---@field dreamwalk T
+---@field entanglingRoots T
+---@field felineSwiftness T
+---@field ferociousBite T
+---@field fireblood T
+---@field flap T
+---@field flightForm T
+---@field fluidForm T
+---@field focusedAzeriteBeam T
+---@field focusedAzeriteBeamChannel T
+---@field forestwalk T
+---@field frenziedRegeneration T
+---@field galeWinds T
+---@field giftOfTheNaaru T
+---@field giftOfTheWild T
+---@field global T
+---@field grievousWounds T
+---@field growl T
+---@field heartOfAzeroth T
+---@field heartOfTheWild T
+---@field hibernate T
+---@field improvedBarkskin T
+---@field improvedStampedingRoar T
+---@field incapacitatingRoar T
+---@field incessantTempest T
+---@field innervate T
+---@field instinctsOfTheClaw T
+---@field ironfur T
+---@field killerInstinct T
+---@field latentArcana T
+---@field lightsJudgment T
+---@field lingeringHealing T
+---@field loreOfTheGrove T
+---@field lycarasInspiration T
+---@field lycarasTeachings T
+---@field maim T
+---@field mangle T
+---@field markOfTheWild T
+---@field massEntanglement T
+---@field mattedFur T
+---@field mightyBash T
+---@field milling T
+---@field moonfire T
+---@field moonfireCat T
+---@field moonkinForm T
+---@field mountForm T
+---@field naturalRecovery T
+---@field nurturingInstinct T
+---@field oakskin T
+---@field perfectlyhonedInstincts T
+---@field primalFury T
+---@field prospecting T
+---@field prowl T
+---@field quakingPalm T
+---@field racial T
+---@field rake T
+---@field rebirth T
+---@field regrowth T
+---@field rejuvenation T
+---@field removeCorruption T
+---@field revive T
+---@field rip T
+---@field shadowmeld T
+---@field shred T
+---@field skullBash T
+---@field soothe T
+---@field stampedingRoar T
+---@field starfire T
+---@field starlightConduit T
+---@field starsurge T
+---@field sunfire T
+---@field swiftmend T
+---@field swipe T
+---@field swipeBear T
+---@field swipeCat T
+---@field symbioticRelationship T
+---@field thickHide T
+---@field thrashBear T
+---@field thrashCat T
+---@field tigerDash T
+---@field trackBeasts T
+---@field trackHumanoids T
+---@field travelForm T
+---@field typhoon T
+---@field ursineVigor T
+---@field ursocsSpirit T
+---@field ursolsVortex T
+---@field verdantHeart T
+---@field wellhonedInstincts T
+---@field wildCharge T
+---@field wildGrowth T
+---@field wrath T
+
+---@class BR.Keys.Retail.Druid.Initial.Buffs<T>
+---@field adaptiveSwarm T
+---@field ancientHysteria T
+---@field barkskin T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentation T
+---@field bearForm T
+---@field blessingOfFreedom T
+---@field blessingOfProtection T
+---@field blessingOfSacrifice T
+---@field bloodLust T
+---@field burningEssence T
+---@field catForm T
+---@field clearcasting T
+---@field concordanceOfTheLegionfall T
+---@field convokeTheSpirits T
+---@field cracklingTourmaline T
+---@field dash T
+---@field defiledAugmentation T
+---@field divineSteed T
+---@field domineeringArrogance T
+---@field elementalPotionOfPower T
+---@field elementalPotionOfUltimatePower T
+---@field felFocus T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field flayedWingToxin T
+---@field flightForm T
+---@field forTheAlliance T
+---@field forTheHorde T
+---@field frenziedRegeneration T
+---@field fruitfulMachinatins T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field guidingHand T
+---@field heartOfTheWild T
+---@field heroism T
+---@field icedPhialOfCorruptingRage T
+---@field ineffableTruth T
+---@field ironfur T
+---@field latentArcana T
+---@field markOfTheWild T
+---@field mistcallerOcarina T
+---@field moonkinForm T
+---@field nagrandClefthoof T
+---@field nagrandGoat T
+---@field nagrandRidingClefthoof T
+---@field nagrandTalbuk T
+---@field netherwinds T
+---@field norgannonsForesight T
+---@field overchargeMana T
+---@field phialOfGlacialFury T
+---@field phialOfTepidVersatility T
+---@field potionOfBurstingBlood T
+---@field potionOfFocusedResolve T
+---@field potionOfReplenishment T
+---@field potionOfUnbridledFury T
+---@field prolongedPower T
+---@field prowl T
+---@field queensDecreeUnstoppable T
+---@field racial T
+---@field razorCoral T
+---@field regrowth T
+---@field rejuvenation T
+---@field saphireofBrilliance T
+---@field sephuz1 T
+---@field sephuz2 T
+---@field sephuzCooldown T
+---@field shadowmeld T
+---@field shroudOfConcealment T
+---@field soulIgnition T
+---@field soulshape T
+---@field spectralFlaskOfPower T
+---@field stagForm T
+---@field stampedingRoar T
+---@field stampedingRoarCat T
+---@field superiorBattlePotionOfAgility T
+---@field symbolOfHope T
+---@field tigerDash T
+---@field timeWarp T
+---@field travelForm T
+---@field vigorEngaged T
+---@field whispersOfInsanity T
+---@field wildGrowth T
+
+---@class BR.Keys.Retail.Druid.Initial.Debuffs<T>
+---@field adaptiveSwarm T
+---@field arcaneBurst T
+---@field bloodOfTheEnemy T
+---@field bwonsamdiWrath T
+---@field cascadingTerror T
+---@field concentratedFlame T
+---@field conductiveInk T
+---@field creepingMadness T
+---@field cyclone T
+---@field dampening T
+---@field defiledGround T
+---@field entanglingRoots T
+---@field eyeOfCorruption T
+---@field eyeOfLeotheras T
+---@field fixate T
+---@field grandDelusions T
+---@field graspingTendrils T
+---@field growl T
+---@field hibernate T
+---@field lycarasBargin T
+---@field massEntanglement T
+---@field mightyBash T
+---@field moonfire T
+---@field necroticWound T
+---@field promiseOfPower T
+---@field quaking T
+---@field rake T
+---@field razorCoral T
+---@field reaping T
+---@field repeatPerformance T
+---@field rip T
+---@field shiverVenom T
+---@field temptation T
+---@field thirstForBlood T
+---@field thrashBear T
+---@field thrashCat T
+---@field timeToFeed T
+---@field vileCorruption T
+
+---@class BR.Keys.Retail.Druid.Initial.Glyphs<T>

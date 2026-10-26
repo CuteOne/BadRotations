@@ -1,3 +1,19 @@
+-- Editor types: the keys of Retail Paladin Retribution's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Retail.Paladin.Retribution.buff]]
+local cast = cast --[[@as BR.Retail.Paladin.Retribution.cast]]
+local cd = cd --[[@as BR.Retail.Paladin.Retribution.cd]]
+local charges = charges --[[@as BR.Retail.Paladin.Retribution.charges]]
+local debuff = debuff --[[@as BR.Retail.Paladin.Retribution.debuff]]
+local equiped = equiped --[[@as BR.Retail.Paladin.Retribution.equiped]]
+local glyph = glyph --[[@as BR.Retail.Paladin.Retribution.glyph]]
+local has = has --[[@as BR.Retail.Paladin.Retribution.has]]
+local heroTree = heroTree --[[@as BR.Retail.Paladin.Retribution.heroTree]]
+local imbues = imbues --[[@as BR.Retail.Paladin.Retribution.imbues]]
+local spell = spell --[[@as BR.Retail.Paladin.Retribution.spell]]
+local talent = talent --[[@as BR.Retail.Paladin.Retribution.talent]]
+local totem = totem --[[@as BR.Retail.Paladin.Retribution.totem]]
+local use = use --[[@as BR.Retail.Paladin.Retribution.use]]
+
 local rotationName = "CuteOne"
 ---------------
 --- Toggles ---

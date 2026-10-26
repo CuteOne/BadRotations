@@ -1,3 +1,19 @@
+-- Editor types: the keys of Retail Mage's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Retail.Mage.buff]]
+local cast = cast --[[@as BR.Retail.Mage.cast]]
+local cd = cd --[[@as BR.Retail.Mage.cd]]
+local charges = charges --[[@as BR.Retail.Mage.charges]]
+local debuff = debuff --[[@as BR.Retail.Mage.debuff]]
+local equiped = equiped --[[@as BR.Retail.Mage.equiped]]
+local glyph = glyph --[[@as BR.Retail.Mage.glyph]]
+local has = has --[[@as BR.Retail.Mage.has]]
+local heroTree = heroTree --[[@as BR.Retail.Mage.heroTree]]
+local imbues = imbues --[[@as BR.Retail.Mage.imbues]]
+local spell = spell --[[@as BR.Retail.Mage.spell]]
+local talent = talent --[[@as BR.Retail.Mage.talent]]
+local totem = totem --[[@as BR.Retail.Mage.totem]]
+local use = use --[[@as BR.Retail.Mage.use]]
+
 local rotationName = "Crono" -- Change to name of profile listed in options drop down
 
 ---------------

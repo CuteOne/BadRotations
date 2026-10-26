@@ -1,3 +1,19 @@
+-- Editor types: the keys of Classic Druid's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Classic.Druid.buff]]
+local cast = cast --[[@as BR.Classic.Druid.cast]]
+local cd = cd --[[@as BR.Classic.Druid.cd]]
+local charges = charges --[[@as BR.Classic.Druid.charges]]
+local debuff = debuff --[[@as BR.Classic.Druid.debuff]]
+local equiped = equiped --[[@as BR.Classic.Druid.equiped]]
+local glyph = glyph --[[@as BR.Classic.Druid.glyph]]
+local has = has --[[@as BR.Classic.Druid.has]]
+local heroTree = heroTree --[[@as BR.Classic.Druid.heroTree]]
+local imbues = imbues --[[@as BR.Classic.Druid.imbues]]
+local spell = spell --[[@as BR.Classic.Druid.spell]]
+local talent = talent --[[@as BR.Classic.Druid.talent]]
+local totem = totem --[[@as BR.Classic.Druid.totem]]
+local use = use --[[@as BR.Classic.Druid.use]]
+
 local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
 
 ---------------

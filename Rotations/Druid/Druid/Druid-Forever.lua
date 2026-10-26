@@ -13,6 +13,22 @@
 -- ui.toggle(name, { modes = { ... }, key = ... }) adds a button to the toggle bar.
 -- Each mode is { name = ..., icon = ..., overlay = ..., tip = ... }; clicking cycles them and the first
 -- is the default. Every field is listed in System/UI/Toggles/ToggleFunctions.lua.
+-- Editor types: the keys of Forever Druid's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Forever.Druid.buff]]
+local cast = cast --[[@as BR.Forever.Druid.cast]]
+local cd = cd --[[@as BR.Forever.Druid.cd]]
+local charges = charges --[[@as BR.Forever.Druid.charges]]
+local debuff = debuff --[[@as BR.Forever.Druid.debuff]]
+local equiped = equiped --[[@as BR.Forever.Druid.equiped]]
+local glyph = glyph --[[@as BR.Forever.Druid.glyph]]
+local has = has --[[@as BR.Forever.Druid.has]]
+local heroTree = heroTree --[[@as BR.Forever.Druid.heroTree]]
+local imbues = imbues --[[@as BR.Forever.Druid.imbues]]
+local spell = spell --[[@as BR.Forever.Druid.spell]]
+local talent = talent --[[@as BR.Forever.Druid.talent]]
+local totem = totem --[[@as BR.Forever.Druid.totem]]
+local use = use --[[@as BR.Forever.Druid.use]]
+
 local function toggles()
     ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto",   icon = "swipe",        overlay = "Automatic Rotation",       tip = "Swaps between Single and Multiple based on number of enemies within 8 yards." },

@@ -1,3 +1,19 @@
+-- Editor types: the keys of Retail Druid Feral's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Retail.Druid.Feral.buff]]
+local cast = cast --[[@as BR.Retail.Druid.Feral.cast]]
+local cd = cd --[[@as BR.Retail.Druid.Feral.cd]]
+local charges = charges --[[@as BR.Retail.Druid.Feral.charges]]
+local debuff = debuff --[[@as BR.Retail.Druid.Feral.debuff]]
+local equiped = equiped --[[@as BR.Retail.Druid.Feral.equiped]]
+local glyph = glyph --[[@as BR.Retail.Druid.Feral.glyph]]
+local has = has --[[@as BR.Retail.Druid.Feral.has]]
+local heroTree = heroTree --[[@as BR.Retail.Druid.Feral.heroTree]]
+local imbues = imbues --[[@as BR.Retail.Druid.Feral.imbues]]
+local spell = spell --[[@as BR.Retail.Druid.Feral.spell]]
+local talent = talent --[[@as BR.Retail.Druid.Feral.talent]]
+local totem = totem --[[@as BR.Retail.Druid.Feral.totem]]
+local use = use --[[@as BR.Retail.Druid.Feral.use]]
+
 local rotationName = "CuteOne"
 ---------------
 --- Toggles ---

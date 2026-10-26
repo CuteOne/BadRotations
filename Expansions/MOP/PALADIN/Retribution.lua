@@ -24,7 +24,7 @@ br.lists.spells.PALADIN[70] = {
                 -- empyreanPower  = 326733, --286393,
                 inquisition           = 84963,
                 -- finalVerdict   = 414949,
-                -- selflessHealer = 114250,
+                selflessHealer        = 114250,
                 -- templarStrikes = 406648,
             },
             debuffs   = {

@@ -1,3 +1,19 @@
+-- Editor types: the keys of Retail Hunter BeastMastery's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Retail.Hunter.BeastMastery.buff]]
+local cast = cast --[[@as BR.Retail.Hunter.BeastMastery.cast]]
+local cd = cd --[[@as BR.Retail.Hunter.BeastMastery.cd]]
+local charges = charges --[[@as BR.Retail.Hunter.BeastMastery.charges]]
+local debuff = debuff --[[@as BR.Retail.Hunter.BeastMastery.debuff]]
+local equiped = equiped --[[@as BR.Retail.Hunter.BeastMastery.equiped]]
+local glyph = glyph --[[@as BR.Retail.Hunter.BeastMastery.glyph]]
+local has = has --[[@as BR.Retail.Hunter.BeastMastery.has]]
+local heroTree = heroTree --[[@as BR.Retail.Hunter.BeastMastery.heroTree]]
+local imbues = imbues --[[@as BR.Retail.Hunter.BeastMastery.imbues]]
+local spell = spell --[[@as BR.Retail.Hunter.BeastMastery.spell]]
+local talent = talent --[[@as BR.Retail.Hunter.BeastMastery.talent]]
+local totem = totem --[[@as BR.Retail.Hunter.BeastMastery.totem]]
+local use = use --[[@as BR.Retail.Hunter.BeastMastery.use]]
+
 local rotationName = "BrewBeastMaster" -- Change to name of profile listed in options drop down
 local petSupport = loadSupport("PetCuteOne")
 

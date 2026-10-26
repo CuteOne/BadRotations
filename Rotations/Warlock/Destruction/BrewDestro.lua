@@ -1,3 +1,19 @@
+-- Editor types: the keys of Retail Warlock Destruction's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Retail.Warlock.Destruction.buff]]
+local cast = cast --[[@as BR.Retail.Warlock.Destruction.cast]]
+local cd = cd --[[@as BR.Retail.Warlock.Destruction.cd]]
+local charges = charges --[[@as BR.Retail.Warlock.Destruction.charges]]
+local debuff = debuff --[[@as BR.Retail.Warlock.Destruction.debuff]]
+local equiped = equiped --[[@as BR.Retail.Warlock.Destruction.equiped]]
+local glyph = glyph --[[@as BR.Retail.Warlock.Destruction.glyph]]
+local has = has --[[@as BR.Retail.Warlock.Destruction.has]]
+local heroTree = heroTree --[[@as BR.Retail.Warlock.Destruction.heroTree]]
+local imbues = imbues --[[@as BR.Retail.Warlock.Destruction.imbues]]
+local spell = spell --[[@as BR.Retail.Warlock.Destruction.spell]]
+local talent = talent --[[@as BR.Retail.Warlock.Destruction.talent]]
+local totem = totem --[[@as BR.Retail.Warlock.Destruction.totem]]
+local use = use --[[@as BR.Retail.Warlock.Destruction.use]]
+
 local rotationName = "BrewDestro"
 
 ---------------
