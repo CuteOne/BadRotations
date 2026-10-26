@@ -2,7 +2,6 @@
 local buff = buff --[[@as BR.TBC.Shaman.buff]]
 local cast = cast --[[@as BR.TBC.Shaman.cast]]
 local debuff = debuff --[[@as BR.TBC.Shaman.debuff]]
-local equiped = equiped --[[@as BR.TBC.Shaman.equiped]]
 local imbues = imbues --[[@as BR.TBC.Shaman.imbues]]
 local spell = spell --[[@as BR.TBC.Shaman.spell]]
 local totem = totem --[[@as BR.TBC.Shaman.totem]]
@@ -186,51 +185,27 @@ local function imbueFor(choice, offHand)
     return "rockbiterWeapon"
 end
 
--- The imbue on the main hand: what the profile put there, else (after a /reload) the one it would
-local function mainHandImbue()
-    return (var.imbued and var.imbued.main) or imbueFor(IMBUE_CHOICES[ui.value("Main Hand Imbue")], false)
-end
-
--- Apply the chosen imbue to a hand. The game can't always tell which imbue is on a weapon (see
--- unit.weaponImbue.exists), so the profile also remembers what it put on each hand this session:
--- when the choice changes (a new imbue learned, the option changed) it reapplies.
--- The off hand is imbued only once the main hand is done. Unconfirmed on TBC: which hand a cast
--- lands on while dual wielding. If the off hand is still bare 2 s after its cast, the imbue went to
--- the main hand: off-hand imbues stop for the session (so the hands never take turns overwriting).
+-- Apply the chosen imbue to a hand, when BR says it's needed: unit.weaponImbue.needed knows the imbue on
+-- each weapon (from the enchants it has watched BR's imbues make), waits while a cast's enchant is still
+-- to show, and won't ask again on a weapon that doesn't hold it (a profession tool).
+-- The off hand is imbued only once the main hand is done. Unconfirmed on TBC: which hand a cast lands on
+-- while dual wielding. If the off hand is still bare 2 s after its cast, the imbue went to the main hand:
+-- off-hand imbues stop for the session (so the hands never take turns overwriting).
 local function applyImbue(optionName, offHand)
     local key = imbueFor(IMBUE_CHOICES[ui.value(optionName)], offHand)
     if key == nil or not spell[key].known() then return false end
-    var.imbued = var.imbued or {}
-    local hand = offHand and "off" or "main"
-    local present = unit.weaponImbue.exists(imbues[key], offHand)
+    local needed = unit.weaponImbue.needed(imbues[key], offHand)
     if offHand then
         if var.offHandFailed then return false end
-        if var.offHandSent and not present and util.time() - var.offHandSent > 2 then
+        if var.offHandSent and needed and util.time() - var.offHandSent > 2 then
             var.offHandFailed = true
             ui.print("Off-hand imbue landed on the main hand; off-hand imbues are off until /reload.")
             return false
         end
         if var.offHandSent and util.time() - var.offHandSent <= 2 then return false end
     end
-    if present and (var.imbued[hand] == nil or var.imbued[hand] == key) then return false end
-    -- Sent and nothing showed within 3 s: that weapon doesn't hold that imbue (2026-10-26: Rockbiter on a
-    -- Mining Pick, a profession tool, went out 7 times in 11 s, each "done", never on it). Not tried on that
-    -- weapon again this session; another weapon equipped is imbued at once
-    local weapon = equiped.itemIn(offHand and 17 or 16)
-    var.imbueFailed, var.imbueSent = var.imbueFailed or {}, var.imbueSent or {}
-    local failKey = tostring(weapon) .. ":" .. key
-    if var.imbueFailed[failKey] then return false end
-    local sent = var.imbueSent[hand]
-    if sent and not present and sent.weapon == weapon and sent.key == key then
-        if util.time() - sent.at < 3 then return false end -- give the enchant time to show
-        var.imbueFailed[failKey] = true
-        ui.print(spell[key].name() .. " doesn't take on your " .. (offHand and "off-hand" or "main-hand")
-            .. " weapon; not trying it on that one again.")
-        return false
-    end
+    if not needed then return false end
     if cast[key]("player") then
-        var.imbued[hand] = key
-        var.imbueSent[hand] = { at = util.time(), weapon = weapon, key = key }
         if offHand then var.offHandSent = util.time() end
         ui.debug("Casting " .. spell[key].name() .. (offHand and " [Off Hand]" or " [Main Hand]"))
         return true
@@ -394,7 +369,7 @@ actionList.Totems = function()
         elseif air == 3 then key = "graceOfAirTotem"
         elseif air == 4 then key = "wrathOfAirTotem"
         elseif not melee and spell.wrathOfAirTotem.known() then key = "wrathOfAirTotem"
-        elseif melee and spell.windfuryTotem.known() and mainHandImbue() ~= "windfuryWeapon" then key = "windfuryTotem"
+        elseif melee and spell.windfuryTotem.known() and not unit.weaponImbue.exists(imbues.windfuryWeapon) then key = "windfuryTotem"
         elseif melee then key = "graceOfAirTotem" end
         if key and spell[key].known() and (melee and inMelee or not melee) and affordable(cast.cost[key]()) then
             if cast[key]() then ui.debug("Casting " .. spell[key].name()) return true end
