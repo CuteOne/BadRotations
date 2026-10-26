@@ -49,13 +49,12 @@ br.api.build.enemies = function(api)
     -- @number range The range to check for enemies
     -- @bool checkNoCombat Check for enemies even if not in combat
     -- @bool showLines Show lines for the cone *non-functional atm*
-    -- @treturn table
+    -- @treturn table The units, the same table as enemies.yards<range>c
+    -- @treturn number How many
     enemies.cone.get = function(angle, range, checkNoCombat, showLines)
-        local count, table = br.engines.enemiesEngineFunctions:getEnemiesInCone(angle, range, checkNoCombat, showLines)
-        -- Build enemies.yards variable
-        br.functions.misc:setEnemiesVariable("player", range, checkNoCombat, false, "c", table, count)
-        -- Backwards compatability for old way
-        return table, count
+        local count, units = br.engines.enemiesEngineFunctions:getEnemiesInCone(angle, range, checkNoCombat, showLines)
+        -- The list kept as enemies.yards<range>c: the engine reuses its table on the next call
+        return br.functions.misc:setEnemiesVariable("player", range, checkNoCombat, false, "c", units, count), count
     end
 
     --- How many units in a list pass a check.
@@ -112,12 +111,11 @@ br.api.build.enemies = function(api)
     -- @number range The range to check for enemies
     -- @bool showLines Show lines for the rectangle *non-functional atm*
     -- @bool checkNoCombat Check for enemies even if not in combat
-    -- @treturn table
+    -- @treturn table The units, the same table as enemies.yards<range>r
+    -- @treturn number How many
     enemies.rect.get = function(width, range, showLines, checkNoCombat)
-        local count, table = br.engines.enemiesEngineFunctions:getEnemiesInRect(width, range, showLines, checkNoCombat)
-        -- Build enemies.yards variable
-        br.functions.misc:setEnemiesVariable("player", range, checkNoCombat, false, "r", table, count)
-        -- Backwards compatability for old way
-        return table, count
+        local count, units = br.engines.enemiesEngineFunctions:getEnemiesInRect(width, range, showLines, checkNoCombat)
+        -- The list kept as enemies.yards<range>r: the engine reuses its table on the next call
+        return br.functions.misc:setEnemiesVariable("player", range, checkNoCombat, false, "r", units, count), count
     end
 end

@@ -576,7 +576,7 @@ function enemiesEngineFunctions:getEnemiesInCone(angle, length, checkNoCombat, s
 	local inside = false
 	---@diagnostic disable-next-line: undefined-field
 	if showLines then LibDraw.Arc(playerX, playerY, playerZ, length, angle, 0) end
-	table.wipe(coneUnits)
+	br.game.wipe(coneUnits)
 	-- OPTIMIZATION: Limit processing to first 30 enemies for performance
 	-- In massive AOE situations, processing every unit is unnecessary and crushes FPS
 	local maxProcess = math.min(#enemiesTable, 30)
@@ -618,8 +618,11 @@ end
 -- Rectangle Logic for Enemies
 local rectUnits = {}
 function enemiesEngineFunctions:getEnemiesInRect(width, length, showLines, checkNoCombat)
+	-- Wiped on every call: it used to be wiped only when units were in reach, so a call with none
+	-- returned count 0 with the previous call's units still in the table
+	br.game.wipe(rectUnits)
 	local px, py, pz = br.functions.unit:GetObjectPosition("player")
-	if px == nil or py == nil or pz == nil then return 0, {} end
+	if px == nil or py == nil or pz == nil then return 0, rectUnits end
 	local function getRect(width, length)
 		local facing = br.functions.unit:GetObjectFacing("player") or 0
 		local halfWidth = width / 2
@@ -640,7 +643,6 @@ function enemiesEngineFunctions:getEnemiesInRect(width, length, showLines, check
 	local enemiesTable = enemiesEngineFunctions:getEnemies("player", length, checkNoCombat, true)
 	local inside = false
 	if #enemiesTable > 0 then
-	 	_G.table.wipe(rectUnits)
 		-- OPTIMIZATION: Limit processing to first 40 enemies for performance
 		-- Rectangle checks are expensive with position calculations
 		local maxProcess = math.min(#enemiesTable, 40)

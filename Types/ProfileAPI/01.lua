@@ -6280,7 +6280,8 @@ local C35 = {}
 ---@param range? number The range to check for enemies
 ---@param checkNoCombat? boolean Check for enemies even if not in combat
 ---@param showLines? boolean Show lines for the cone *non-functional atm*
----@return table
+---@return table # The units, the same table as enemies.yards<range>c
+---@return number # How many
 function C35.get(angle, range, checkNoCombat, showLines) end
 
 
@@ -6292,7 +6293,8 @@ local C36 = {}
 ---@param range? number The range to check for enemies
 ---@param showLines? boolean Show lines for the rectangle *non-functional atm*
 ---@param checkNoCombat? boolean Check for enemies even if not in combat
----@return table
+---@return table # The units, the same table as enemies.yards<range>r
+---@return number # How many
 function C36.get(width, range, showLines, checkNoCombat) end
 
 ---@class BR.enemies

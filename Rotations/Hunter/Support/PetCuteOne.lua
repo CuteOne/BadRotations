@@ -100,7 +100,7 @@ return {
         enemies.get(40, "pet", true)
         enemies.get(40, "player", false, true)
         enemies.get(40, "pet")
-        enemies.yards40r = enemies.rect.get(10, 40, false)
+        enemies.rect.get(10, 40, false)
 
         -- Loot Count
         lootCount = units.lootCount()
