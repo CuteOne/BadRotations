@@ -39,16 +39,6 @@ br.api.build.equiped = function(api, item, id)
         end
     end
 
-    --- Checks if the specified `gemID` is equiped in the item's socket or not.
-    -- @function equiped.socket.<item>
-    -- @number gemID The ID of the gem to check for.
-    -- @treturn boolean
-    equiped.socket[item] = function(gemID)
-        local socketSpell = br.functions.item:getSpellName(id)
-        local checkSpell = br.functions.item:getName(gemID)
-        return socketSpell == checkSpell
-    end
-
     --- Gets the number of equiped items for the specified `tierLevel`.
     -- @function equiped.tier
     -- @param tierLevel string|number The tier level to check for. (e.g. "T20" or 20)

@@ -203,10 +203,6 @@ function item:getHighestItemID(key)
     return v
 end
 
-function item:getName(itemID)
-	return (br.game.C_Item.GetItemInfo(itemID))
-end
-
 -- The cooldown of the item in an inventory slot: start, duration, enable
 function item:getSlotCooldown(slotID)
 	return br.game.GetInventoryItemCooldown("player", slotID)
@@ -222,11 +218,6 @@ end
 function item:getSpell(itemID)
 	local _, spellID = br.game.C_Item.GetItemSpell(itemID)
 	return spellID
-end
-
--- The name of the item's use spell
-function item:getSpellName(itemID)
-	return (br.game.C_Item.GetItemSpell(itemID))
 end
 
 -- The weapon enchants (imbues), as the game returns them: hasMain, mainExpiration, mainCharges,

@@ -89,18 +89,6 @@ br.api.build.unit = function(api)
         return br.functions.combat:canAttack(thisUnit, playerUnit)
     end
 
-    --- Check if it's safe to cancel form (enough mana to cast the spell and shift back).
-    -- @function unit.canCancelFormFor
-    -- @param outOfFormSpell Spell reference (id/name/spell table) you intend to cast after breaking form.
-    -- @param returnFormSpell Spell reference (id/name/spell table) to shift back into.
-    -- @param treatOutSpellAsFree If true, treat out-of-form spell cost as 0 (e.g., Clearcasting).
-    -- @treturn boolean
-    unit.canCancelFormFor = function(outOfFormSpell, returnFormSpell, treatOutSpellAsFree)
-        local requiredMana, currentMana = unit.formBreakManaRequired(outOfFormSpell, returnFormSpell, treatOutSpellAsFree)
-        if requiredMana <= 0 then return true end
-        return currentMana >= requiredMana
-    end
-
     --- Cancel current shapeshift form. Does nothing if the player isn't in a form, or if a cancel was
     -- just sent and the server hasn't replied yet (the form still shows for a round trip).
     -- @function unit.cancelForm
@@ -339,21 +327,6 @@ br.api.build.unit = function(api)
         end
     end
 
-    --- Calculate mana required to safely break form for a spell and shift back.
-    -- @function unit.formBreakManaRequired
-    -- @param outOfFormSpell Spell reference (id/name/spell table) you intend to cast after breaking form.
-    -- @param returnFormSpell Spell reference (id/name/spell table) to shift back into.
-    -- @param treatOutSpellAsFree If true, treat out-of-form spell cost as 0 (e.g., Clearcasting).
-    -- @treturn number requiredMana Total mana needed (out spell + return form).
-    -- @treturn number currentMana Current player mana.
-    unit.formBreakManaRequired = function(outOfFormSpell, returnFormSpell, treatOutSpellAsFree)
-        local outCost = br.functions.power:getManaCostFromRef(outOfFormSpell, treatOutSpellAsFree)
-        local backCost = br.functions.power:getManaCostFromRef(returnFormSpell, false)
-        local requiredMana = outCost + backCost
-        local currentMana = br.functions.power:getPower("player", 0)
-        return requiredMana, currentMana
-    end
-
     --- Get number of available shapeshift forms
     -- @function unit.formCount
     -- @return number Count of available shapeshift forms
@@ -387,10 +360,8 @@ br.api.build.unit = function(api)
         return br.functions.spell:getGlobalCD(max)
     end
 
-    --- Get the spell ID of the currently-active shapeshift form, or nil if no form is active.
-    -- Used by L33's cast.macro extension to pass an associated spell ID when issuing
-    -- /CancelForm macros, so the cast-gate's throttle (castTimers + castIntentLocks)
-    -- can prevent re-fire bursts during the server-side form-change propagation window.
+    --- Get the spell ID of the current shapeshift form (the spell that shifts back into it), or nil
+    -- when no form is active.
     -- @function unit.getCurrentFormSpellID
     -- @return number|nil Spell ID of the current form, or nil if no form is active.
     unit.getCurrentFormSpellID = function()

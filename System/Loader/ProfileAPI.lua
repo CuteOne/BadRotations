@@ -139,7 +139,6 @@ end
 local function buildItems(rotation)
     -- The equipped heirloom neck (0 when none) changes with gear, and builds run again on gear changes
     rotation.items.heirloomNeck = br.functions.item:getHeirloomNeck()
-    if profile.equiped.socket == nil then profile.equiped.socket = {} end -- Item Socket Info
     if profile.use.able == nil then profile.use.able = {} end             -- Useable Item Check Functions
     for item, id in pairs(rotation.items) do
         if profile.charges[item] == nil then profile.charges[item] = {} end

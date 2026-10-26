@@ -206,12 +206,6 @@ br.api.build.module = function(api)
                     return true;
                 end
             end
-            -- if opValue == 2 and use.isOneOfUsable(br.lists.items.elementalPotionOfPowerQualities) then
-            --     if use.bestItem(br.lists.items.elementalPotionOfPowerQualities) then
-            --         ui.debug("Using Best Pot: Elemental Potion of Power")
-            --         return true;
-            --     end
-            -- end
         end
     end
 

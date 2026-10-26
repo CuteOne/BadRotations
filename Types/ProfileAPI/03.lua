@@ -5,295 +5,6 @@
 -- The profile API as the Lua language server sees it, so the editor completes and documents what
 -- profiles use. The game never loads these files.
 
----@class BR.Keys.Retail.Druid.Initial.Items<T>
----@field abyssalHealingPotion T
----@field ailuroPouncers T
----@field algetharPuzzleBox T
----@field aquipotentNautilus T
----@field archavonsHeavyHand T
----@field ascendedFlute T
----@field ashesOfTheEmbersoul T
----@field ashvanesRazorCoral T
----@field azsharasFontOfPower T
----@field battlePotionOfAgility T
----@field battlePotionOfIntellect T
----@field battlePotionOfStrength T
----@field battleScarredAugmentRune T
----@field beaconToTheBeyond T
----@field benevolentGong T
----@field bottledFlayedWingToxin T
----@field burningSeeds T
----@field buzzingRuneQualities T
----@field bygoneBeeAlmanac T
----@field chatoyantSignet T
----@field chirpingRuneQualities T
----@field coastalHealingPotion T
----@field coldHeart T
----@field consortsColdCore T
----@field convergenceOfFates T
----@field darkmoonDeckPutrescence T
----@field deceiversGrandDesign T
----@field defiledAugmentRune T
----@field deviouslyDeviledEggs T
----@field djaruunPillarOfTheElderFlame T
----@field draughtOfSouls T
----@field dreadfireVessel T
----@field dreamwalkersHealingPotion T
----@field dribblingInkpod T
----@field drinkingHornCover T
----@field elementalPotionOfPowerQualities T
----@field elementalPotionOfUltimatePower T
----@field elementalPotionOfUltimatePowerQualities T
----@field empyrealOrdnance T
----@field eternalAmuletOfTheRedeemed T
----@field eternalEmberfuryTalisman T
----@field eternalHorizonChoker T
----@field eternalTalismanOfEvasion T
----@field eternalWillOfTheMartyr T
----@field eternalWovenIvyNecklace T
----@field everchillBrambles T
----@field fandralsSeedPouch T
----@field felCrystalFragments T
----@field feloiledInfernalMachine T
----@field flameOfBattle T
----@field flaskOfEndlessFathoms T
----@field flaskOfSpringBlossoms T
----@field flaskOfTenThousandScars T
----@field flaskOfTheCountlessArmies T
----@field flaskOfTheCurrents T
----@field flaskOfTheSeventhDemon T
----@field flaskOfTheUndertow T
----@field flaskOfTheVastHorizon T
----@field flaskOfTheWhisperedPact T
----@field galecallersBeak T
----@field galecallersBoon T
----@field gladiatorsBadge T
----@field gladiatorsBadgeAlacrity T
----@field glyphOfAssimilation T
----@field greaterFlaskOfEndlessFathoms T
----@field greaterFlaskOfTheCurrents T
----@field greaterFlaskOfTheUndertow T
----@field greaterFlaskOfTheVastHorizon T
----@field grongsPrimalRage T
----@field healthstone T
----@field heavenlyDrum T
----@field heirloomNeck T
----@field hiddenMastersForbiddenTouch T
----@field hissingRuneQualities T
----@field hornOfValor T
----@field howlingRuneQualities T
----@field hummingBlackDragonscale T
----@field hyperthreadWristWraps T
----@field icedPhialOfCorruptingRageQualities T
----@field imperfectAscendancySerum T
----@field inquisitorsMenacingEye T
----@field inscrutableQuantumDevice T
----@field instructorsDivineBell T
----@field integratedPrimalFire T
----@field irideusFragment T
----@field jesHowler T
----@field kazzalaxFujiedasFury T
----@field kharnalexTheFirstLight T
----@field koltirasNewfoundWill T
----@field kyrianBell T
----@field legionHealthstone T
----@field lifeflameAmpoule T
----@field lightforgedAugmentRune T
----@field luffaWrappings T
----@field lustrousGoldenPlumage T
----@field macabreSheetMusic T
----@field manaGem T
----@field manariTrainingAmulet T
----@field mirrorOfFracturedTomorrows T
----@field mythicKeystone T
----@field neuralSynapseEnhancer T
----@field oraliusWhisperingCrystal T
----@field perseveranceOfTheEbonMartyr T
----@field phialOfGlacialFuryQualities T
----@field phialOfSerenity T
----@field phialOfTepidVersatilityQualities T
----@field pocketSizedComputationDevice T
----@field potionOfBurstingBlood T
----@field potionOfEmpoweredProximity T
----@field potionOfFocusedResolve T
----@field potionOfProlongedPower T
----@field potionOfSpectralAgility T
----@field potionOfTheOldWar T
----@field potionOfUnbridledFury T
----@field potionOfWildMending T
----@field rampingAmplitudeGigavoltEngine T
----@field remoteGuidanceDevice T
----@field repurposedFelFocuser T
----@field ringOfCollapsingFutures T
----@field rotcrustedVoodooDoll T
----@field shadowCoreOil T
----@field shiverVenomRelic T
----@field shroudOfResolve T
----@field soulIgnitor T
----@field soulOfTheSlayer T
----@field soulettingRuby T
----@field specterOfBetrayal T
----@field spectralFlaskOfPower T
----@field sunbloodAmethyst T
----@field superiorBattlePotionOfAgility T
----@field superiorBattlePotionOfIntellect T
----@field superiorBattlePotionOfStamina T
----@field superiorBattlePotionOfStrength T
----@field superiorSteelskinPotion T
----@field theEmperorsCapacitor T
----@field theWildshapersClutch T
----@field thousandboneTongueslicer T
----@field tidesagesWarscroll T
----@field tidestormCodex T
----@field touchOfTheVoid T
----@field treacherousTransmitter T
----@field tuftOfSmolderingPlumage T
----@field twistedHeart T
----@field umbralMoonglaives T
----@field unearthlyChime T
----@field verdantGladiatorsBadgeOfFerocity T
----@field vialOfCeaselessToxins T
----@field vialOfSpectral T
----@field vialOfStorms T
----@field vigorTrinket T
----@field virmensBite T
----@field visionOfDemise T
----@field wakenersFrond T
----@field weightOfTheEarth T
----@field witherbarksBranch T
----@field wrapsOfElectrostaticPotential T
----@field wrathstone T
-
----@class BR.Keys.Retail.Druid.Initial.Totems<T>
-
----@class BR.Retail.Druid.Initial.talent.rank
----@field aessinasRenewal integer
----@field astralInfluence integer
----@field circleOfTheHeavens integer
----@field circleOfTheWild integer
----@field cyclone integer
----@field felineSwiftness integer
----@field fluidForm integer
----@field forestwalk integer
----@field frenziedRegeneration integer
----@field galeWinds integer
----@field giftOfTheWild integer
----@field grievousWounds integer
----@field heartOfTheWild integer
----@field hibernate integer
----@field improvedBarkskin integer
----@field improvedStampedingRoar integer
----@field incapacitatingRoar integer
----@field incessantTempest integer
----@field innervate integer
----@field instinctsOfTheClaw integer
----@field ironfur integer
----@field killerInstinct integer
----@field lingeringHealing integer
----@field loreOfTheGrove integer
----@field lycarasInspiration integer
----@field lycarasTeachings integer
----@field maim integer
----@field massEntanglement integer
----@field mattedFur integer
----@field mightyBash integer
----@field moonkinForm integer
----@field naturalRecovery integer
----@field nurturingInstinct integer
----@field oakskin integer
----@field perfectlyhonedInstincts integer
----@field primalFury integer
----@field rake integer
----@field rejuvenation integer
----@field removeCorruption integer
----@field rip integer
----@field skullBash integer
----@field soothe integer
----@field stampedingRoar integer
----@field starfire integer
----@field starlightConduit integer
----@field starsurge integer
----@field sunfire integer
----@field swipe integer
----@field symbioticRelationship integer
----@field thickHide integer
----@field tigerDash integer
----@field typhoon integer
----@field ursineVigor integer
----@field ursocsSpirit integer
----@field ursolsVortex integer
----@field verdantHeart integer
----@field wellhonedInstincts integer
----@field wildCharge integer
----@field wildGrowth integer
-
-
----@class BR.Retail.Druid.Initial.buff : BR.Keys.Retail.Druid.Initial.Buffs<BR.buff.Spell>
-
-
-
-
----@class BR.Retail.Druid.Initial.cast.able : BR.cast.able.Base, BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.able.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.active : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.active.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.auto : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.auto.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.cancel : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.cancel.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.cost : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.cost.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.current : BR.cast.current.Base, BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.current.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.dispel : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.dispel.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.empowered : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.empowered.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.inFlight : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.inFlight.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.inFlightRemain : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.inFlightRemain.Spell>
-
-
-
-
----@class BR.Retail.Druid.Initial.cast.last.time : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.last.time.Spell>
-
----@class BR.Retail.Druid.Initial.cast.last : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.last.Spell>
----@field time BR.Retail.Druid.Initial.cast.last.time
-
-
----@class BR.Retail.Druid.Initial.cast.maxRank : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.maxRank.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.noControl : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.noControl.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.opener : BR.cast.opener.Base, BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.opener.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.pool : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.pool.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.range : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.range.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.regen : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.regen.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.safe : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.safe.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.time : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.time.Spell>
-
 
 ---@class BR.Retail.Druid.Initial.cast.timeSinceLast : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.timeSinceLast.Spell>
 
@@ -329,12 +40,7 @@
 ---@class BR.Retail.Druid.Initial.debuff : BR.Keys.Retail.Druid.Initial.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Druid.Initial.equiped.socket : BR.Keys.Retail.Druid.Initial.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Druid.Initial.equiped : BR.equiped.Base, BR.Keys.Retail.Druid.Initial.Items<BR.equiped.Item>
----@field socket BR.Retail.Druid.Initial.equiped.socket
 
 
 ---@class BR.Retail.Druid.Initial.glyph : BR.glyph.Base, BR.Keys.Retail.Druid.Initial.Glyphs<BR.glyph.K>
@@ -1040,12 +746,7 @@
 ---@class BR.Retail.Evoker.Devastation.debuff : BR.Keys.Retail.Evoker.Devastation.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Evoker.Devastation.equiped.socket : BR.Keys.Retail.Evoker.Devastation.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Evoker.Devastation.equiped : BR.equiped.Base, BR.Keys.Retail.Evoker.Devastation.Items<BR.equiped.Item>
----@field socket BR.Retail.Evoker.Devastation.equiped.socket
 
 
 ---@class BR.Retail.Evoker.Devastation.glyph : BR.glyph.Base, BR.Keys.Retail.Evoker.Devastation.Glyphs<BR.glyph.K>
@@ -1690,12 +1391,7 @@
 ---@class BR.Retail.Evoker.Initial.debuff : BR.Keys.Retail.Evoker.Initial.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Evoker.Initial.equiped.socket : BR.Keys.Retail.Evoker.Initial.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Evoker.Initial.equiped : BR.equiped.Base, BR.Keys.Retail.Evoker.Initial.Items<BR.equiped.Item>
----@field socket BR.Retail.Evoker.Initial.equiped.socket
 
 
 ---@class BR.Retail.Evoker.Initial.glyph : BR.glyph.Base, BR.Keys.Retail.Evoker.Initial.Glyphs<BR.glyph.K>
@@ -2488,12 +2184,7 @@
 ---@class BR.Retail.Hunter.debuff : BR.Keys.Retail.Hunter.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Hunter.equiped.socket : BR.Keys.Retail.Hunter.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Hunter.equiped : BR.equiped.Base, BR.Keys.Retail.Hunter.Items<BR.equiped.Item>
----@field socket BR.Retail.Hunter.equiped.socket
 
 
 ---@class BR.Retail.Hunter.glyph : BR.glyph.Base, BR.Keys.Retail.Hunter.Glyphs<BR.glyph.K>
@@ -3369,12 +3060,7 @@
 ---@class BR.Retail.Hunter.BeastMastery.debuff : BR.Keys.Retail.Hunter.BeastMastery.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Hunter.BeastMastery.equiped.socket : BR.Keys.Retail.Hunter.BeastMastery.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Hunter.BeastMastery.equiped : BR.equiped.Base, BR.Keys.Retail.Hunter.BeastMastery.Items<BR.equiped.Item>
----@field socket BR.Retail.Hunter.BeastMastery.equiped.socket
 
 
 ---@class BR.Retail.Hunter.BeastMastery.glyph : BR.glyph.Base, BR.Keys.Retail.Hunter.BeastMastery.Glyphs<BR.glyph.K>
@@ -4365,12 +4051,7 @@
 ---@class BR.Retail.Hunter.BeastMastery_Marksmanship.debuff : BR.Keys.Retail.Hunter.BeastMastery_Marksmanship.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Hunter.BeastMastery_Marksmanship.equiped.socket : BR.Keys.Retail.Hunter.BeastMastery_Marksmanship.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Hunter.BeastMastery_Marksmanship.equiped : BR.equiped.Base, BR.Keys.Retail.Hunter.BeastMastery_Marksmanship.Items<BR.equiped.Item>
----@field socket BR.Retail.Hunter.BeastMastery_Marksmanship.equiped.socket
 
 
 ---@class BR.Retail.Hunter.BeastMastery_Marksmanship.glyph : BR.glyph.Base, BR.Keys.Retail.Hunter.BeastMastery_Marksmanship.Glyphs<BR.glyph.K>
@@ -5367,12 +5048,7 @@
 ---@class BR.Retail.Hunter.Marksmanship.debuff : BR.Keys.Retail.Hunter.Marksmanship.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Hunter.Marksmanship.equiped.socket : BR.Keys.Retail.Hunter.Marksmanship.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Hunter.Marksmanship.equiped : BR.equiped.Base, BR.Keys.Retail.Hunter.Marksmanship.Items<BR.equiped.Item>
----@field socket BR.Retail.Hunter.Marksmanship.equiped.socket
 
 
 ---@class BR.Retail.Hunter.Marksmanship.glyph : BR.glyph.Base, BR.Keys.Retail.Hunter.Marksmanship.Glyphs<BR.glyph.K>
@@ -6078,12 +5754,7 @@
 ---@class BR.Retail.Paladin.debuff : BR.Keys.Retail.Paladin.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Paladin.equiped.socket : BR.Keys.Retail.Paladin.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Paladin.equiped : BR.equiped.Base, BR.Keys.Retail.Paladin.Items<BR.equiped.Item>
----@field socket BR.Retail.Paladin.equiped.socket
 
 
 ---@class BR.Retail.Paladin.glyph : BR.glyph.Base, BR.Keys.Retail.Paladin.Glyphs<BR.glyph.K>
@@ -6830,12 +6501,7 @@
 ---@class BR.Retail.Paladin.Retribution.debuff : BR.Keys.Retail.Paladin.Retribution.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Paladin.Retribution.equiped.socket : BR.Keys.Retail.Paladin.Retribution.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Paladin.Retribution.equiped : BR.equiped.Base, BR.Keys.Retail.Paladin.Retribution.Items<BR.equiped.Item>
----@field socket BR.Retail.Paladin.Retribution.equiped.socket
 
 
 ---@class BR.Retail.Paladin.Retribution.glyph : BR.glyph.Base, BR.Keys.Retail.Paladin.Retribution.Glyphs<BR.glyph.K>
@@ -7402,12 +7068,7 @@
 ---@class BR.Retail.Priest.debuff : BR.Keys.Retail.Priest.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Priest.equiped.socket : BR.Keys.Retail.Priest.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Priest.equiped : BR.equiped.Base, BR.Keys.Retail.Priest.Items<BR.equiped.Item>
----@field socket BR.Retail.Priest.equiped.socket
 
 
 ---@class BR.Retail.Priest.glyph : BR.glyph.Base, BR.Keys.Retail.Priest.Glyphs<BR.glyph.K>
@@ -7993,12 +7654,7 @@
 ---@class BR.Retail.Rogue.debuff : BR.Keys.Retail.Rogue.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Rogue.equiped.socket : BR.Keys.Retail.Rogue.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Rogue.equiped : BR.equiped.Base, BR.Keys.Retail.Rogue.Items<BR.equiped.Item>
----@field socket BR.Retail.Rogue.equiped.socket
 
 
 ---@class BR.Retail.Rogue.glyph : BR.glyph.Base, BR.Keys.Retail.Rogue.Glyphs<BR.glyph.K>
@@ -8627,12 +8283,7 @@
 ---@class BR.Retail.Warlock.Affliction.debuff : BR.Keys.Retail.Warlock.Affliction.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Warlock.Affliction.equiped.socket : BR.Keys.Retail.Warlock.Affliction.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Warlock.Affliction.equiped : BR.equiped.Base, BR.Keys.Retail.Warlock.Affliction.Items<BR.equiped.Item>
----@field socket BR.Retail.Warlock.Affliction.equiped.socket
 
 
 ---@class BR.Retail.Warlock.Affliction.glyph : BR.glyph.Base, BR.Keys.Retail.Warlock.Affliction.Glyphs<BR.glyph.K>
@@ -9220,12 +8871,7 @@
 ---@class BR.Retail.Warlock.Destruction.debuff : BR.Keys.Retail.Warlock.Destruction.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Warlock.Destruction.equiped.socket : BR.Keys.Retail.Warlock.Destruction.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Warlock.Destruction.equiped : BR.equiped.Base, BR.Keys.Retail.Warlock.Destruction.Items<BR.equiped.Item>
----@field socket BR.Retail.Warlock.Destruction.equiped.socket
 
 
 ---@class BR.Retail.Warlock.Destruction.glyph : BR.glyph.Base, BR.Keys.Retail.Warlock.Destruction.Glyphs<BR.glyph.K>
@@ -9758,12 +9404,7 @@
 ---@class BR.Retail.Warlock.Initial.debuff : BR.Keys.Retail.Warlock.Initial.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Warlock.Initial.equiped.socket : BR.Keys.Retail.Warlock.Initial.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Warlock.Initial.equiped : BR.equiped.Base, BR.Keys.Retail.Warlock.Initial.Items<BR.equiped.Item>
----@field socket BR.Retail.Warlock.Initial.equiped.socket
 
 
 ---@class BR.Retail.Warlock.Initial.glyph : BR.glyph.Base, BR.Keys.Retail.Warlock.Initial.Glyphs<BR.glyph.K>
@@ -10489,12 +10130,7 @@
 ---@class BR.Retail.Warrior.Fury.debuff : BR.Keys.Retail.Warrior.Fury.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.Retail.Warrior.Fury.equiped.socket : BR.Keys.Retail.Warrior.Fury.Items<BR.equiped.socket.Item>
-
 ---@class BR.Retail.Warrior.Fury.equiped : BR.equiped.Base, BR.Keys.Retail.Warrior.Fury.Items<BR.equiped.Item>
----@field socket BR.Retail.Warrior.Fury.equiped.socket
 
 
 ---@class BR.Retail.Warrior.Fury.glyph : BR.glyph.Base, BR.Keys.Retail.Warrior.Fury.Glyphs<BR.glyph.K>
@@ -11032,12 +10668,7 @@
 ---@class BR.TBC.Druid.debuff : BR.Keys.TBC.Druid.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.TBC.Druid.equiped.socket : BR.Keys.TBC.Druid.Items<BR.equiped.socket.Item>
-
 ---@class BR.TBC.Druid.equiped : BR.equiped.Base, BR.Keys.TBC.Druid.Items<BR.equiped.Item>
----@field socket BR.TBC.Druid.equiped.socket
 
 
 ---@class BR.TBC.Druid.glyph : BR.glyph.Base, BR.Keys.TBC.Druid.Glyphs<BR.glyph.K>
@@ -11447,12 +11078,7 @@
 ---@class BR.TBC.Hunter.debuff : BR.Keys.TBC.Hunter.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.TBC.Hunter.equiped.socket : BR.Keys.TBC.Hunter.Items<BR.equiped.socket.Item>
-
 ---@class BR.TBC.Hunter.equiped : BR.equiped.Base, BR.Keys.TBC.Hunter.Items<BR.equiped.Item>
----@field socket BR.TBC.Hunter.equiped.socket
 
 
 ---@class BR.TBC.Hunter.glyph : BR.glyph.Base, BR.Keys.TBC.Hunter.Glyphs<BR.glyph.K>
@@ -11855,12 +11481,7 @@
 ---@class BR.TBC.Shaman.debuff : BR.Keys.TBC.Shaman.Debuffs<BR.debuff.Spell>
 
 
-
-
----@class BR.TBC.Shaman.equiped.socket : BR.Keys.TBC.Shaman.Items<BR.equiped.socket.Item>
-
 ---@class BR.TBC.Shaman.equiped : BR.equiped.Base, BR.Keys.TBC.Shaman.Items<BR.equiped.Item>
----@field socket BR.TBC.Shaman.equiped.socket
 
 
 ---@class BR.TBC.Shaman.glyph : BR.glyph.Base, BR.Keys.TBC.Shaman.Glyphs<BR.glyph.K>
@@ -11899,3 +11520,75 @@
 
 ---@class BR.TBC.Shaman.use : BR.use.Base, BR.Keys.TBC.Shaman.Items<BR.use.Item>
 ---@field able BR.TBC.Shaman.use.able
+
+--- What registerRotation takes (System/Loader/ProfileLoader.lua)
+---@class BR.RotationDefinition
+---@field name string Shown in the rotation dropdown; unique for the spec
+---@field specID integer|integer[] The spec ID(s) it is for
+---@field expansion "Retail"|"MOP"|"TBC"|"Classic"|"Forever" The flavour it is for
+---@field run fun(): boolean? Runs every tick
+---@field toggles? fun() Builds the toggle bar (ui.toggle)
+---@field options? fun()|table Builds the Rotation Options page, or a list of { page name, build function }
+---@field actsWhileCasting? boolean Keep running while the player casts or channels
+---@field handlesRacials? boolean The rotation uses racials itself (the shared Racial module doesn't)
+---@field handlesTrinkets? boolean The rotation uses trinkets itself (the shared Trinkets module doesn't)
+---@field author? string README metadata
+---@field patch? string README metadata: the latest patch it was updated for
+---@field coverage? string README metadata: estimated percent of class mechanics covered
+---@field status? string README metadata: Full, Limited, Sporadic, Inactive or Unknown
+---@field readiness? string README metadata: Raid, NoRaid, Basic, Development or Untested
+
+--- Registers this file's rotation; BR offers it when specID and expansion match the player.
+---@param def BR.RotationDefinition
+---@return boolean # true when registered for the player's spec and flavour
+function registerRotation(def) end
+
+--- Runs Rotations/<Class>/Support/<name>.lua and returns what it returns (its options and run functions).
+---@param name string
+---@return table
+function loadSupport(name) end
+
+---@type BR.buff
+buff = {}
+---@type BR.cast
+cast = {}
+---@type BR.cd
+cd = {}
+---@type BR.charges
+charges = {}
+---@type BR.debuff
+debuff = {}
+---@type BR.enemies
+enemies = {}
+---@type BR.equiped
+equiped = {}
+---@type BR.glyph
+glyph = {}
+---@type BR.has
+has = {}
+---@type BR.heroTree
+heroTree = {}
+---@type BR.imbues
+imbues = {}
+---@type BR.module
+module = {}
+---@type BR.pet
+pet = {}
+---@type BR.power
+power = {}
+---@type BR.spell
+spell = {}
+---@type BR.talent
+talent = {}
+---@type BR.totem
+totem = {}
+---@type BR.ui
+ui = {}
+---@type BR.unit
+unit = {}
+---@type BR.units
+units = {}
+---@type BR.use
+use = {}
+---@type table
+var = {}
