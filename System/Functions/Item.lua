@@ -272,26 +272,16 @@ function item:hasEquiped(ItemID, Slot)
 	return foundItem
 end
 
+-- True when the item (or the best rank held, for a rank list) is in the bags, or is a known toy.
+-- Reads the bag index (item:getBagItems), so it doesn't scan the bags on every call.
 -- if br.functions.item:hasItem(1234) == true then
 function item:hasItem(itemID)
 	if type(itemID) == "table" then itemID = self:getHighestHeldRank(itemID) end
+	itemID = tonumber(itemID)
 	if itemID == nil then return false end
-	if br.game.PlayerHasToy(itemID) then
-		return true
-	end
-	local itemFound = false
-	for i = 0, 4 do          --Let's look at each bag
-		local numBagSlots = br.game.C_Container.GetContainerNumSlots(i)
-		if numBagSlots > 0 then -- Only look for slots if bag present
-			for x = 1, numBagSlots do --Let's look at each bag slot
-				local bagItemID = br.game.C_Container.GetContainerItemID(i, x)
-				if tostring(bagItemID) == tostring(itemID) then
-					itemFound = true
-				end
-			end
-		end
-	end
-	return itemFound
+	if br.game.PlayerHasToy(itemID) then return true end
+	local _, totals = self:getBagItems()
+	return (totals[itemID] or 0) > 0
 end
 
 -- From now on, when the keystone window (Font of Power) opens, puts that keystone from the bags in it.

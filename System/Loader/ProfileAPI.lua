@@ -103,12 +103,13 @@ local function buildAuras(rotation)
     end
 end
 
--- Builds the parts made once per spec: units, enemies, unit, totem, the item-ID functions of
+-- Builds the parts made once per spec: power, units, enemies, unit, totem, the item-ID functions of
 -- equiped/has/use, pet, glyph, ui, util and module
 -- (module captures ui, so ui comes first).
 local function buildOnce()
     if builtOnce then return end
     builtOnce = true
+    buildPower()
     br.api.build.units(profile)
     br.api.build.enemies(profile)
     br.api.build.unit(profile)
@@ -182,7 +183,6 @@ end
 -- @param spec Spec ID
 function profileAPI:build(rotation, spec)
     buildTalents(rotation, spec)
-    buildPower()
     buildAuras(rotation)
     br.game.wipe(profile.imbues)
     for k, v in pairs(rotation.spells.imbues or {}) do profile.imbues[k] = v end
