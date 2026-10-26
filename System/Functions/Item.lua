@@ -208,6 +208,11 @@ function item:getSlotCooldown(slotID)
 	return br.game.GetInventoryItemCooldown("player", slotID)
 end
 
+-- The item ID in an inventory slot, or nil when it's empty
+function item:getSlotItemID(slotID)
+	return br.game.GetInventoryItemID("player", slotID)
+end
+
 -- The link of the item in an inventory slot
 function item:getSlotLink(slotID)
 	return br.game.GetInventoryItemLink("player", slotID)

@@ -23,6 +23,15 @@ br.api.build.equiped = function(api)
         return br.functions.item:hasEquiped(itemID, slotID)
     end
 
+    --- The item ID in an equipment slot (16 main hand, 17 off hand, ...), or nil when it's empty.
+    -- @function equiped.itemIn
+    -- @number slotID The equipment slot
+    -- @treturn number|nil
+    -- @usage local weapon = equiped.itemIn(16) -- the main-hand weapon's item ID
+    equiped.itemIn = function(slotID)
+        return br.functions.item:getSlotItemID(slotID)
+    end
+
     --- Gets the number of equiped items for the specified `tierLevel`, or with numEquiped whether
     -- at least that many are equiped.
     -- @function equiped.tier

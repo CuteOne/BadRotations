@@ -7231,6 +7231,14 @@ local C39 = {}
 ---@return boolean # whether the item is equipped (in the slot, if given)
 function C39.item(itemID, slotID) end
 
+--- The item ID in an equipment slot (16 main hand, 17 off hand, ...), or nil when it's empty.
+--- ```lua
+--- local weapon = equiped.itemIn(16) -- the main-hand weapon's item ID
+--- ```
+---@param slotID? number The equipment slot
+---@return number|nil
+function C39.itemIn(slotID) end
+
 --- Gets the number of equiped items for the specified `tierLevel`, or with numEquiped whether
 --- at least that many are equiped.
 ---@param tierLevel? any string|number The tier level to check for. (e.g. "T20" or 20)
