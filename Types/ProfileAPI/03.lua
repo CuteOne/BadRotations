@@ -11259,8 +11259,10 @@
 ---@field diseaseCleansingTotem T
 ---@field disenchant T
 ---@field earthElementalTotem T
+---@field earthShield T
 ---@field earthShock T
 ---@field earthbindTotem T
+---@field elementalMastery T
 ---@field escapeArtist T
 ---@field farSight T
 ---@field fireElementalTotem T
@@ -11286,7 +11288,9 @@
 ---@field lightningShield T
 ---@field magmaTotem T
 ---@field manaSpringTotem T
+---@field manaTideTotem T
 ---@field natureResistanceTotem T
+---@field naturesSwiftness T
 ---@field perception T
 ---@field poisonCleansingTotem T
 ---@field prospecting T
@@ -11303,6 +11307,7 @@
 ---@field stoneskinTotem T
 ---@field stormstrike T
 ---@field strengthOfEarthTotem T
+---@field totemOfWrath T
 ---@field totemicRecall T
 ---@field tranquilAirTotem T
 ---@field tremorTotem T
@@ -11317,14 +11322,24 @@
 ---@field wrathOfAirTotem T
 
 ---@class BR.Keys.TBC.Shaman.Buffs<T>
+---@field clearcasting T
+---@field earthShield T
+---@field elementalMastery T
+---@field flurry T
+---@field focused T
 ---@field ghostWolf T
 ---@field lightningShield T
+---@field naturesSwiftness T
 ---@field racial T
 ---@field shamanisticRage T
+---@field waterBreathing T
 ---@field waterShield T
+---@field waterWalking T
 
 ---@class BR.Keys.TBC.Shaman.Debuffs<T>
+---@field earthbind T
 ---@field flameShock T
+---@field frostShock T
 ---@field stormstrike T
 
 ---@class BR.Keys.TBC.Shaman.Glyphs<T>
@@ -11489,20 +11504,32 @@
 ---@field wrathstone T
 
 ---@class BR.Keys.TBC.Shaman.Totems<T>
+---@field diseaseCleansingTotem T
 ---@field earthElementalTotem T
 ---@field earthbindTotem T
+---@field fireElementalTotem T
 ---@field fireNovaTotem T
+---@field fireResistanceTotem T
+---@field flametongueTotem T
+---@field frostResistanceTotem T
 ---@field graceOfAirTotem T
+---@field groundingTotem T
 ---@field healingStreamTotem T
 ---@field magmaTotem T
 ---@field manaSpringTotem T
+---@field manaTideTotem T
+---@field natureResistanceTotem T
+---@field poisonCleansingTotem T
 ---@field searingTotem T
+---@field sentryTotem T
 ---@field stoneclawTotem T
 ---@field stoneskinTotem T
 ---@field strengthOfEarthTotem T
+---@field totemOfWrath T
 ---@field tranquilAirTotem T
 ---@field tremorTotem T
 ---@field windfuryTotem T
+---@field windwallTotem T
 ---@field wrathOfAirTotem T
 
 ---@class BR.TBC.Shaman.talent.rank

@@ -2263,6 +2263,7 @@
 ---@field toothAndClaw T
 ---@field torment T
 ---@field torrent T
+---@field totemOfWrath T
 ---@field totemicCoordination T
 ---@field totemicFocus T
 ---@field totemicPersistence T
@@ -2809,7 +2810,9 @@
 ---@field flayedWingToxin T
 ---@field flayersMark T
 ---@field flightForm T
+---@field flurry T
 ---@field focusMagic T
+---@field focused T
 ---@field forTheAlliance T
 ---@field forTheHorde T
 ---@field forbiddenKnowledge T
@@ -3256,6 +3259,7 @@
 ---@field voidTorrent T
 ---@field volley T
 ---@field warriorOfElune T
+---@field waterBreathing T
 ---@field waterShield T
 ---@field waterWalking T
 ---@field wayOfTheCrane T
@@ -3337,6 +3341,7 @@
 ---@field disarm T
 ---@field doom T
 ---@field drainLife T
+---@field earthbind T
 ---@field entanglingRoots T
 ---@field eradication T
 ---@field essenceBreak T
@@ -3826,12 +3831,16 @@
 
 ---@class BR.Keys.Totems<T>
 ---@field capacitorTotem T
+---@field diseaseCleansingTotem T
 ---@field earthElementalTotem T
 ---@field earthbindTotem T
 ---@field earthquake T
 ---@field fireElementalTotem T
 ---@field fireNovaTotem T
+---@field fireResistanceTotem T
 ---@field flameShock T
+---@field flametongueTotem T
+---@field frostResistanceTotem T
 ---@field graceOfAirTotem T
 ---@field groundingTotem T
 ---@field healingStreamTotem T
@@ -3839,15 +3848,20 @@
 ---@field magmaTotem T
 ---@field manaSpringTotem T
 ---@field manaTideTotem T
+---@field natureResistanceTotem T
+---@field poisonCleansingTotem T
 ---@field searingTotem T
+---@field sentryTotem T
 ---@field stoneclawTotem T
 ---@field stoneskinTotem T
 ---@field stormlashTotem T
 ---@field strengthOfEarthTotem T
+---@field totemOfWrath T
 ---@field tranquilAirTotem T
 ---@field tremorTotem T
 ---@field windfuryTotem T
 ---@field windwalkTotem T
+---@field windwallTotem T
 ---@field wrathOfAirTotem T
 
 ---@class BR.talent.rank
