@@ -61,8 +61,6 @@ local function options()
     section = ui.section("General")
     ui.checkbox(section, "Pull with Lightning Bolt", { checked = true,
         tip = "Open on an enemy you target, out of combat and standing still, with Lightning Bolt (Melee style; Caster style always pulls)." })
-    ui.spinner(section, "Delay Neutral Pulls", { value = 1.5, min = 0.5, max = 5, step = 0.5,
-        tip = "Off: a neutral (yellow) mob you target is pulled at once, like a hostile one. On: only once it has stayed your target this many seconds while you stand still, so a click on one by accident can be clicked off first." })
     ui.checkbox(section, "Pull on the Move", { checked = true,
         tip = "Open on a hostile enemy you target while you're moving with Earth Shock (instant), so you tag it first. Standing still it's Lightning Bolt (cheaper)." })
     ui.spinner(section, "Shock Mana", { value = 40, min = 0, max = 100, step = 5, checkbox = false,
@@ -509,14 +507,9 @@ actionList.PreCombat = function()
         end
     end
     -- Pull: from range with Lightning Bolt, or start swinging at a mob you walked up to, the moment you
-    -- target it (your target is your choice, as across BR). With "Delay Neutral Pulls", a neutral (yellow)
-    -- one only once it has stayed your target a moment while you stand still (a click by accident can be
-    -- clicked off first). Players never (it would flag you for PvP).
-    local targetGUID = unit.guid("target")
-    if targetGUID ~= var.pullTargetGUID or unit.moving() then var.pullTargetGUID, var.pullTargetSince = targetGUID, util.time() end
-    local meant = unit.enemy("target") or not ui.checked("Delay Neutral Pulls")
-        or util.time() - (var.pullTargetSince or util.time()) >= ui.value("Delay Neutral Pulls")
-    if unit.valid("target") and unit.canAttack("target") and meant and not unit.player("target") then
+    -- target it (your target is your choice, as across BR; Bot Options > Safety > Delay Neutral Targets
+    -- holds neutral ones a moment). Players never (it would flag you for PvP).
+    if unit.valid("target") and unit.canAttack("target") and not unit.player("target") then
         local distance = unit.distance("target")
         if distance > 8 and not unit.moving() and (not melee or ui.checked("Pull with Lightning Bolt")) then
             if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Pull]") return true end
