@@ -21,7 +21,7 @@ local TOTEM_SLOT = {
 br.api.build.totem = function(api)
     local totem = api.totem
 
-    local totemFn = br.functions and br.functions.totem
+    local totemFn = br.functions.totem
 
     -- Export slot constants for rotations that want numeric slots.
     totem.slot = TOTEM_SLOT
@@ -42,7 +42,6 @@ br.api.build.totem = function(api)
             return totem.fire.active() or totem.earth.active() or totem.water.active() or totem.air.active()
         end
 
-        if not totemFn then return false end
         return totemFn:anySlotMatchesAny(candidate)
     end
 
@@ -53,16 +52,12 @@ br.api.build.totem = function(api)
     -- @tparam number|string slotOrCandidate Totem slot (1-4) or totem spell key/id/name
     -- @treturn number
     totem.distance = function(slotOrCandidate)
-        if not totemFn then return 999 end
-
         -- If it's a number, treat as slot
         if type(slotOrCandidate) == "number" then
-            if not totemFn.slotDistance then return 999 end
             return totemFn:slotDistance(slotOrCandidate)
         end
 
         -- Otherwise, treat as totem candidate
-        if not totemFn.distanceTo then return 999 end
         return totemFn:distanceTo(slotOrCandidate)
     end
 
@@ -85,7 +80,6 @@ br.api.build.totem = function(api)
     -- @treturn number duration
     -- @treturn number|nil icon
     totem.get = function(slot)
-        if not totemFn then return false, nil, 0, 0, nil end
         return totemFn:getSlotInfo(slot)
     end
 
@@ -97,7 +91,6 @@ br.api.build.totem = function(api)
     -- @tparam ... candidates
     -- @treturn boolean
     totem.is = function(slot, ...)
-        if not totemFn then return false end
         return totemFn:slotMatchesAny(slot, ...)
     end
 
@@ -107,7 +100,6 @@ br.api.build.totem = function(api)
     -- @tparam number slot Totem slot (1-4)
     -- @treturn number
     totem.remain = function(slot)
-        if not totemFn then return 0 end
         return totemFn:slotRemains(slot)
     end
 
@@ -124,7 +116,7 @@ end
 ---
 -- Builds an element subtable (e.g., totem.fire) for br.api.build.totem.
 br.api.build.totemElement = function(api, elementKey, slot)
-    local totemFn = br.functions and br.functions.totem
+    local totemFn = br.functions.totem
     local element = {}
     element.slot = slot
 
@@ -132,7 +124,6 @@ br.api.build.totemElement = function(api, elementKey, slot)
     -- @function totem.<element>.active
     -- @treturn boolean
     element.active = function()
-        if not totemFn then return false end
         local haveTotem = totemFn:getSlotInfo(slot)
         return haveTotem == true
     end
@@ -145,7 +136,6 @@ br.api.build.totemElement = function(api, elementKey, slot)
     -- @function totem.<element>.distance
     -- @treturn number
     element.distance = function()
-        if not totemFn or not totemFn.slotDistance then return 999 end
         return totemFn:slotDistance(slot)
     end
 
@@ -153,7 +143,6 @@ br.api.build.totemElement = function(api, elementKey, slot)
     -- @function totem.<element>.duration
     -- @treturn number
     element.duration = function()
-        if not totemFn then return 0 end
         local haveTotem, _, _, duration = totemFn:getSlotInfo(slot)
         return haveTotem and duration or 0
     end
@@ -163,7 +152,6 @@ br.api.build.totemElement = function(api, elementKey, slot)
     -- @tparam ... candidates
     -- @treturn boolean
     element.is = function(...)
-        if not totemFn then return false end
         return totemFn:slotMatchesAny(slot, ...)
     end
 
@@ -171,7 +159,6 @@ br.api.build.totemElement = function(api, elementKey, slot)
     -- @function totem.<element>.name
     -- @treturn string|nil
     element.name = function()
-        if not totemFn then return nil end
         local haveTotem, name = totemFn:getSlotInfo(slot)
         return haveTotem and name or nil
     end
@@ -180,7 +167,6 @@ br.api.build.totemElement = function(api, elementKey, slot)
     -- @function totem.<element>.remain
     -- @treturn number
     element.remain = function()
-        if not totemFn then return 0 end
         return totemFn:slotRemains(slot)
     end
 
@@ -201,14 +187,13 @@ end
 ---
 -- Builds a specific totem subtable (e.g., totem.fire.searing) for br.api.build.totemElement.
 br.api.build.totemSpecific = function(slot, totemKey)
-    local totemFn = br.functions and br.functions.totem
+    local totemFn = br.functions.totem
     local specific = {}
 
     --- Check if this specific totem is active.
     -- @function totem.<element>.<totemName>.active
     -- @treturn boolean
     specific.active = function()
-        if not totemFn then return false end
         return totemFn:slotMatchesAny(slot, totemKey)
     end
     --- Alias for active.
@@ -221,7 +206,6 @@ br.api.build.totemSpecific = function(slot, totemKey)
     -- @treturn number
     specific.distance = function()
         if not specific.active() then return 999 end
-        if not totemFn or not totemFn.slotDistance then return 999 end
         return totemFn:slotDistance(slot)
     end
 
@@ -230,7 +214,6 @@ br.api.build.totemSpecific = function(slot, totemKey)
     -- @treturn number
     specific.duration = function()
         if not specific.active() then return 0 end
-        if not totemFn then return 0 end
         local haveTotem, _, _, duration = totemFn:getSlotInfo(slot)
         return haveTotem and duration or 0
     end
@@ -240,7 +223,6 @@ br.api.build.totemSpecific = function(slot, totemKey)
     -- @treturn string|nil
     specific.name = function()
         if not specific.active() then return nil end
-        if not totemFn then return nil end
         local haveTotem, name = totemFn:getSlotInfo(slot)
         return haveTotem and name or nil
     end
@@ -250,7 +232,6 @@ br.api.build.totemSpecific = function(slot, totemKey)
     -- @treturn number
     specific.remain = function()
         if not specific.active() then return 0 end
-        if not totemFn then return 0 end
         return totemFn:slotRemains(slot)
     end
 

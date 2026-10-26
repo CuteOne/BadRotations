@@ -10,13 +10,13 @@ local _, br = ...
 br.api.build.glyph = function(api)
     local g = api.glyph
 
-    local glyphFn = br.functions and br.functions.glyph
+    local glyphFn = br.functions.glyph
 
     --- Returns whether glyph API is available on this client.
     -- @function glyph.available
     -- @treturn boolean
     g.available = function()
-        return glyphFn and glyphFn:isAvailable() or false
+        return glyphFn:isAvailable()
     end
 
     --- Returns true if the given glyph spellId is socketed.
@@ -24,7 +24,7 @@ br.api.build.glyph = function(api)
     -- @tparam number glyphSpellId
     -- @treturn boolean
     g.has = function(glyphSpellId)
-        return glyphFn and glyphFn:hasGlyph(glyphSpellId) or false
+        return glyphFn:hasGlyph(glyphSpellId)
     end
     -- Alias for readability.
     --- Returns true if the given glyph spellId is socketed (glyph.has).
@@ -37,7 +37,7 @@ br.api.build.glyph = function(api)
     -- @function glyph.socketCount
     -- @treturn number
     g.socketCount = function()
-        return glyphFn and glyphFn:getSocketCount() or 0
+        return glyphFn:getSocketCount()
     end
 end
 
@@ -46,7 +46,7 @@ br.api.build.glyphs = function(glyphTable, k, v)
     local entry = glyphTable[k] or {}
     glyphTable[k] = entry
 
-    local glyphFn = br.functions and br.functions.glyph
+    local glyphFn = br.functions.glyph
 
     --- Returns true if this glyph is NOT socketed.
     -- @function glyph.<k>.down
@@ -59,7 +59,7 @@ br.api.build.glyphs = function(glyphTable, k, v)
     -- @function glyph.<k>.enabled
     -- @treturn boolean
     entry.enabled = function()
-        return glyphFn and glyphFn:hasGlyph(v) or false
+        return glyphFn:hasGlyph(v)
     end
     -- Aliases commonly used in converted APLs.
     --- Returns true if this glyph is socketed (glyph.<k>.enabled).

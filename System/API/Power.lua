@@ -92,33 +92,12 @@ br.api.build.power = function(power,powerType,powerIndex)
         end
     end
 
-    -- --- Function to calculate or fetch power based on `isDKRunes`.
-    -- -- This function serves a dual purpose. When `isDKRunes` is true,
-    -- -- it counts the total number of 'runes' by executing a loop 6 times
-    -- -- and adding the result of `br.game.GetRuneCount(i)` to `runeCount` in each iteration.
-    -- -- If `isDKRunes` is false, it simply retrieves the power of the player using `br.functions.power:getPower()`.
-    -- -- @global
-    -- -- @name power[powerType]
-    -- -- @class function
-    -- -- @return runeCount if `isDKRunes` is true, otherwise it returns the result of `br.functions.power:getPower("player",powerIndex)`
-    -- -- power[powerType] = function()
-    -- --     if isDKRunes then
-    -- --         local runeCount = 0
-    -- --         for i = 1, 6 do
-    -- --             runeCount = runeCount + br.game.GetRuneCount(i)
-    -- --         end
-    -- --         return runeCount
-    -- --     else
-    -- --         return br.functions.power:getPower("player",powerIndex)
-    -- --     end
-    -- -- end
-
-    -- -- Define the metatable
+    -- power.<powerType>() is the current amount
     local powerMetaTable = {
         --- Gets the current amount of the specified power.
         -- @function power.<powerType>
         -- @return number
-        __call = function(tbl, ...)
+        __call = function()
             if isDKRunes then
                 return br.functions.power:getTotalReadyRunes()
             else
@@ -126,151 +105,87 @@ br.api.build.power = function(power,powerType,powerIndex)
                 return br.functions.power:getPower(unit,powerIndex)
             end
         end,
-
-        -- Define the __index metamethod
-        __index = function(tbl, key)
-            -- Use rawget to avoid triggering __index recursively
-            local val = rawget(tbl, key)
-            if val ~= nil then
-                return val
-            end
-            -- No value found; return nil (or handle computed properties here)
-            return nil
-        end
     }
 
     -- Apply the metatable to your power object
     setmetatable(power[powerType], powerMetaTable)
-    -- Convenience rune helpers for Death Knight (rune-type specific)
+    -- Death Knight rune helpers: power.runes.<name>
     if isDKRunes then
-        power[powerType].runes = power[powerType].runes or {}
+        local runes = power[powerType]
 
-        --- Death Knight: ready Blood runes (runes.blood)
+        --- Death Knight: ready Blood runes
         -- @function power.runes.blood
         -- @treturn number
-        power[powerType].blood = function() return power[powerType].runes.blood() end
+        runes.blood = function() return runes.typeCount("blood") end
 
         --- Death Knight: Blood runes ready, as a percent of all Blood runes
         -- @function power.runes.bloodPercent
         -- @treturn number
-        power[powerType].bloodPercent = function() return power[powerType].runes.bloodPercent() end
+        runes.bloodPercent = function() return runes.typePercent("blood") end
+
+        --- Death Knight: how far a rune is through its cooldown, as a percent
+        -- @function power.runes.cdPercent
+        -- @number index The rune (1-6)
+        -- @treturn number
+        runes.cdPercent = function(index) return br.functions.power:runeCDPercent(index) end
+
+        --- Death Knight: ready runes of a type
+        -- @function power.runes.typeCount
+        -- @string rtype "blood", "frost", "unholy" or "death"
+        -- @treturn number
+        runes.typeCount = function(rtype) return br.functions.power:getRuneCount(rtype) end
 
         --- Death Knight: ready Death runes
         -- @function power.runes.death
         -- @treturn number
-        power[powerType].death = function() return power[powerType].runes.death() end
+        runes.death = function() return runes.typeCount("death") end
 
         --- Death Knight: Death runes ready, as a percent
         -- @function power.runes.deathPercent
         -- @treturn number
-        power[powerType].deathPercent = function() return power[powerType].runes.deathPercent() end
+        runes.deathPercent = function() return runes.typePercent("death") end
 
-        -- Top-level aliases so callers can use power.runes.<type>() directly
         --- Death Knight: ready Frost runes
         -- @function power.runes.frost
         -- @treturn number
-        power[powerType].frost = function() return power[powerType].runes.frost() end
+        runes.frost = function() return runes.typeCount("frost") end
 
         --- Death Knight: Frost runes ready, as a percent
         -- @function power.runes.frostPercent
         -- @treturn number
-        power[powerType].frostPercent = function() return power[powerType].runes.frostPercent() end
+        runes.frostPercent = function() return runes.typePercent("frost") end
 
-        --- Ready Blood runes
-        -- @function power.runes.runes.blood
-        -- @treturn number
-        power[powerType].runes.blood = function() return power[powerType].runes.count("blood") end
-
-        --- Blood runes ready, as a percent
-        -- @function power.runes.runes.bloodPercent
-        -- @treturn number
-        power[powerType].runes.bloodPercent = function() return power[powerType].runes.percent("blood") end
-
-        --- How far a rune is through its cooldown, as a percent
-        -- @function power.runes.runes.cdPercent
-        -- @number index The rune (1-6)
-        -- @treturn number
-        power[powerType].runes.cdPercent = function(index)
-            return br.functions.power:runeCDPercent(index)
-        end
-
-        --- Ready runes of a type
-        -- @function power.runes.runes.count
-        -- @string rtype "blood", "frost", "unholy" or "death"
-        -- @treturn number
-        power[powerType].runes.count = function(rtype)
-            return br.functions.power:getRuneCount(rtype)
-        end
-
-        --- Ready Death runes
-        -- @function power.runes.runes.death
-        -- @treturn number
-        power[powerType].runes.death = function() return power[powerType].runes.count("death") end
-
-        --- Death runes ready, as a percent
-        -- @function power.runes.runes.deathPercent
-        -- @treturn number
-        power[powerType].runes.deathPercent = function() return power[powerType].runes.percent("death") end
-
-        --- Ready Frost runes
-        -- @function power.runes.runes.frost
-        -- @treturn number
-        power[powerType].runes.frost = function() return power[powerType].runes.count("frost") end
-
-        --- Frost runes ready, as a percent
-        -- @function power.runes.runes.frostPercent
-        -- @treturn number
-        power[powerType].runes.frostPercent = function() return power[powerType].runes.percent("frost") end
-
-        --- Every rune: its type, whether it is ready and its cooldown
-        -- @function power.runes.runes.info
+        --- Death Knight: every rune's type, whether it is ready and its cooldown
+        -- @function power.runes.info
         -- @treturn table
-        power[powerType].runes.info = function()
-            return br.functions.power:getRuneObjects()
-        end
+        runes.info = function() return br.functions.power:getRuneObjects() end
 
-        --- Runes of a type ready, as a percent
-        -- @function power.runes.runes.percent
+        --- Death Knight: runes of a type ready, as a percent (power.runes.percent() is all runes')
+        -- @function power.runes.typePercent
         -- @string rtype "blood", "frost", "unholy" or "death"
         -- @treturn number
-        power[powerType].runes.percent = function(rtype)
-            return br.functions.power:getRunePercent(rtype)
-        end
+        runes.typePercent = function(rtype) return br.functions.power:getRunePercent(rtype) end
 
-        --- Seconds until a rune is ready
-        -- @function power.runes.runes.recharge
+        --- Death Knight: seconds until a rune is ready
+        -- @function power.runes.recharge
         -- @number index The rune (1-6)
         -- @treturn number
-        power[powerType].runes.recharge = function(index)
-            return br.functions.power:runeRecharge(index)
-        end
+        runes.recharge = function(index) return br.functions.power:runeRecharge(index) end
 
-        --- Seconds until n runes are ready
-        -- @function power.runes.runes.timeTill
+        --- Death Knight: seconds until n runes are ready
+        -- @function power.runes.timeTill
         -- @number n How many runes
         -- @treturn number
-        power[powerType].runes.timeTill = function(n)
-            return br.functions.power:runeTimeTill(n)
-        end
-
-        --- Ready Unholy runes
-        -- @function power.runes.runes.unholy
-        -- @treturn number
-        power[powerType].runes.unholy = function() return power[powerType].runes.count("unholy") end
-
-        --- Unholy runes ready, as a percent
-        -- @function power.runes.runes.unholyPercent
-        -- @treturn number
-        power[powerType].runes.unholyPercent = function() return power[powerType].runes.percent("unholy") end
+        runes.timeTill = function(n) return br.functions.power:runeTimeTill(n) end
 
         --- Death Knight: ready Unholy runes
         -- @function power.runes.unholy
         -- @treturn number
-        power[powerType].unholy = function() return power[powerType].runes.unholy() end
+        runes.unholy = function() return runes.typeCount("unholy") end
 
         --- Death Knight: Unholy runes ready, as a percent
         -- @function power.runes.unholyPercent
         -- @treturn number
-        power[powerType].unholyPercent = function() return power[powerType].runes.unholyPercent() end
+        runes.unholyPercent = function() return runes.typePercent("unholy") end
     end
 end

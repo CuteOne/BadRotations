@@ -112,9 +112,8 @@ br.api.build.enemies = function(api)
     -- @number range The range to check for enemies
     -- @bool showLines Show lines for the rectangle *non-functional atm*
     -- @bool checkNoCombat Check for enemies even if not in combat
-    -- @bool facing Check if enemies are facing unit *no longer used*
     -- @treturn table
-    enemies.rect.get = function(width, range, showLines, checkNoCombat, facing)
+    enemies.rect.get = function(width, range, showLines, checkNoCombat)
         local count, table = br.engines.enemiesEngineFunctions:getEnemiesInRect(width, range, showLines, checkNoCombat)
         -- Build enemies.yards variable
         br.functions.misc:setEnemiesVariable("player", range, checkNoCombat, false, "r", table, count)

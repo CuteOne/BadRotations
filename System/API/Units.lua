@@ -37,7 +37,6 @@ br.api.build.units = function(api)
         local facing = not aoe
         local thisUnit = br.engines.enemiesEngineFunctions:dynamicTarget(range, facing)
         -- Build units.dyn varaible
-        units[dynString] = units[dynString] or {}
         units[dynString] = thisUnit
         return thisUnit -- Backwards compatability for old way
     end
