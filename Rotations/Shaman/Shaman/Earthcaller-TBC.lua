@@ -141,14 +141,6 @@ local function fightLength(thisUnit)
     return unit.level(thisUnit) <= unit.level() - 4 and 0 or 999
 end
 
--- Whether a spell's range covers thisUnit, as a player judges it: a moving target needs to be
--- clearly inside (1.5 yd, about what it covers in a round trip), or the server, which sees it a
--- little behind, refuses the cast (a Vale Moth at 29.9 yd, 6 yd/s: "Out of range")
-local function inRange(key, thisUnit)
-    local margin = unit.moving(thisUnit) and 1.5 or 0
-    return unit.distance(thisUnit) <= spell[key].maxRange() - margin
-end
-
 -- A cast-time spell stalls the melee swing, so a weave goes out just after a swing lands (or
 -- before the first one), where it costs the least swing time. Instants don't touch the swing.
 local function justSwung()
@@ -418,13 +410,13 @@ actionList.Melee = function()
     if actionList.Shocks(power.mana.percent() >= ui.value("Shock Mana")) then return true end
     if unit.moving() then return false end
     -- An enemy standing off at range (a caster): bolt it rather than wait
-    if distance > 10 and not unit.moving("target") and inRange("lightningBolt", "target") then
+    if distance > 10 and not unit.moving("target") then
         if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Range]") return true end
     end
     -- Weave: spare mana into Lightning Bolt until Windfury Weapon makes the swings worth more
     if ui.checked("Weave Lightning Bolt") and not spell.windfuryWeapon.known()
         and power.mana.percent() >= ui.value("Weave Lightning Bolt") and fightLength("target") > 3
-        and affordable(cast.cost.lightningBolt()) and (distance >= 5 or justSwung()) and inRange("lightningBolt", "target")
+        and affordable(cast.cost.lightningBolt()) and (distance >= 5 or justSwung())
     then
         if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Weave]") return true end
     end
@@ -447,10 +439,10 @@ actionList.Caster = function()
     -- Chain Lightning: on several enemies, or while the mana is plentiful
     local nearTarget = #enemies.get(10, "target")
     if (nearTarget >= 2 and ui.mode.rotation ~= 3) or (power.mana.percent() > 50 and fightLength("target") > 5) then
-        if inRange("chainLightning", "target") and cast.chainLightning("target") then ui.debug("Casting Chain Lightning") return true end
+        if cast.chainLightning("target") then ui.debug("Casting Chain Lightning") return true end
     end
     if actionList.Shocks(false) then return true end
-    if inRange("lightningBolt", "target") and cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt") return true end
+    if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt") return true end
 end
 
 -- Action List - Pre-Combat
@@ -482,9 +474,7 @@ actionList.PreCombat = function()
     -- mobs count (you targeted it); players never do (it would flag you for PvP).
     if unit.valid("target") and unit.canAttack("target") and not unit.player("target") then
         local distance = unit.distance("target")
-        if distance > 8 and not unit.moving() and (not melee or ui.checked("Pull with Lightning Bolt"))
-            and inRange("lightningBolt", "target")
-        then
+        if distance > 8 and not unit.moving() and (not melee or ui.checked("Pull with Lightning Bolt")) then
             if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Pull]") return true end
         end
         if distance < 5 and not cast.auto.autoAttack() then
