@@ -7,8 +7,15 @@ questTracker.objectives = questTracker.objectives or {}     -- [questId] = { { t
 questTracker.objectiveCount = 0
 questTracker.completedCount = 0
 questTracker.completed = questTracker.completed or {} -- titles of finished quests, so their tooltip lines read as "done"
+-- Creatures learned to drop an open objective's item: creature ID -> { [objective subject] = true }.
+-- Clients like TBC Anniversary give no quest signal for drop mobs (no UnitIsRelatedToActiveQuest, no
+-- quest lines in a tooltip an addon reads itself; Questie's lines appear only on the mouseover
+-- tooltip), so when a corpse's loot holds an open objective's item, that creature counts for the
+-- objective while it stays open (2026-10-26: Mutated Root Lashers for "Lasher Sample"). This session.
+questTracker.dropsFor = questTracker.dropsFor or {}
 
 local REBUILD_DELAY = 2 -- seconds; quest events arrive in bursts
+local NAME_RETRY, NAME_RETRIES = 5, 6 -- an objective's item name not loaded yet: rebuild again, at most this often
 
 --Quest stuff
 local questTooltipScanQuest = br.game.CreateFrame("GameTooltip", "QuestPlateTooltipScanQuest", nil, "GameTooltipTemplate")
@@ -412,6 +419,14 @@ function questTracker:isQuestUnit(unit)
 			return true
 		end
 
+		-- A creature learned to drop an open objective's item (questTracker.dropsFor)
+		local learned = guid and questTracker.dropsFor[questTracker:creatureID(guid)]
+		if learned then
+			for subject in pairs(learned) do
+				if questTracker:openObjectiveFor(subject) then return true end
+			end
+		end
+
 		-- Objective text names the unit ("Kill Murlocs")
 		local unitName = br.game.UnitName(unit)
 		if unitName and matchesObjective(unitName:lower()) then
@@ -471,6 +486,8 @@ local function addObjective(questId, text, kind)
 		questTracker.objectives[questId] = list
 	end
 	local name = parseObjectiveName(text)
+	-- " : 4/10": the item's name isn't loaded yet (the game fills it in later); rebuild once it is
+	if not name and text:match("^%s*:?%s*%d+/%d+") then questTracker.waitingForNames = true end
 	list[#list + 1] = { text = text:lower(), kind = kind, name = name, forms = name and subjectForms(paddedWords(name):sub(2, -2)),
 		words = name and splitWords(name) }
 	questTracker.objectiveCount = questTracker.objectiveCount + 1
@@ -478,6 +495,7 @@ local function addObjective(questId, text, kind)
 end
 
 function questTracker:rebuild()
+	questTracker.waitingForNames = false
 	br.game.wipe(questTracker.cache)
 	br.game.wipe(questTracker.objectCheckCache)
 	br.game.wipe(questTracker.objectives)
@@ -544,10 +562,71 @@ function questTracker:rebuild()
 	end
 end
 
-local function scheduleRebuild()
+local nameRetries = 0
+local function scheduleRebuild(_, event)
 	local timer = questTracker.rebuildTimer
 	if timer and not timer["_cancelled"] then timer:Cancel() end
-	questTracker.rebuildTimer = br.game.C_Timer.NewTimer(REBUILD_DELAY, function() questTracker:rebuild() end)
+	if event ~= "NAME_RETRY" then nameRetries = 0 end
+	questTracker.rebuildTimer = br.game.C_Timer.NewTimer(REBUILD_DELAY, function()
+		questTracker:rebuild()
+		-- An objective came without its item's name: try again a few times in case no item event says
+		-- it has loaded
+		if questTracker.waitingForNames and nameRetries < NAME_RETRIES then
+			nameRetries = nameRetries + 1
+			br.game.C_Timer.After(NAME_RETRY, function()
+				if questTracker.waitingForNames then scheduleRebuild(nil, "NAME_RETRY") end
+			end)
+		end
+	end)
+end
+
+--- The creature ID in a unit's GUID ("Creature-0-6066-530-1279-16517-..." -> 16517), or nil
+function questTracker:creatureID(guid)
+	if type(guid) ~= "string" then return nil end
+	local kind, id = guid:match("^(%a+)%-%d+%-%d+%-%d+%-%d+%-(%d+)")
+	if kind ~= "Creature" and kind ~= "Vehicle" then return nil end
+	return tonumber(id)
+end
+
+--- True when an open objective is about this subject (lowercase), in any of its singular/plural forms
+function questTracker:openObjectiveFor(subject)
+	for _, objectives in pairs(questTracker.objectives) do
+		for i = 1, #objectives do
+			local forms = objectives[i].forms
+			if forms then
+				for _, form in ipairs(forms) do
+					if form == subject then return true end
+				end
+			end
+		end
+	end
+	return false
+end
+
+-- A corpse's loot: each item that is an open objective's makes the corpse's creature a drop mob for it.
+-- LOOT_READY comes first (a fast-loot addon can close the window before LOOT_OPENED)
+local function learnDrops()
+	if questTracker.objectiveCount == 0 or not br.game.GetNumLootItems then return end
+	local learnedNew = false
+	for slot = 1, br.game.GetNumLootItems() or 0 do
+		local _, itemName = br.game.GetLootSlotInfo(slot)
+		local subject = type(itemName) == "string" and br.functions.misc:canUseValue(itemName) and itemName:lower() or nil
+		if subject and questTracker:openObjectiveFor(subject) and br.game.GetLootSourceInfo then
+			local sources = { br.game.GetLootSourceInfo(slot) } -- guid, quantity, guid, quantity, ...
+			for i = 1, #sources, 2 do
+				local id = br.functions.misc:canUseValue(sources[i]) and questTracker:creatureID(sources[i]) or nil
+				if id then
+					questTracker.dropsFor[id] = questTracker.dropsFor[id] or {}
+					if not questTracker.dropsFor[id][subject] then
+						questTracker.dropsFor[id][subject] = true
+						learnedNew = true
+					end
+				end
+			end
+		end
+	end
+	-- The tracker keeps each unit's verdict until the quest log changes: this changes it
+	if learnedNew and br.engines.tracker and br.engines.tracker.invalidate then br.engines.tracker:invalidate() end
 end
 
 -- Debug function to print cache contents
@@ -573,6 +652,19 @@ for _, event in ipairs({
 	f:RegisterEvent(event)
 end
 f:SetScript("OnEvent", scheduleRebuild)
+
+local lootFrame = br.game.CreateFrame("Frame")
+lootFrame:RegisterEvent("LOOT_READY")
+lootFrame:RegisterEvent("LOOT_OPENED")
+-- An item's details arriving: rebuild when an objective was waiting for its item's name
+lootFrame:RegisterEvent("GET_ITEM_INFO_RECEIVED")
+lootFrame:SetScript("OnEvent", function(_, event)
+	if event == "GET_ITEM_INFO_RECEIVED" then
+		if questTracker.waitingForNames then scheduleRebuild(nil, event) end
+		return
+	end
+	learnDrops()
+end)
 
 -- BR can load after the quest log events already fired
 br.game.C_Timer.After(1, function() questTracker:rebuild() end)
