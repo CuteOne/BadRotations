@@ -47,7 +47,7 @@ br.api.build.totem = function(api)
 
     ---
     -- Returns distance from player to the active totem in a slot.
-    -- Returns 999 if no totem is active or the object can't be located.
+    -- Returns 0 if no totem is active or the object can't be located (check active() first).
     -- @function totem.distance
     -- @tparam number|string slotOrCandidate Totem slot (1-4) or totem spell key/id/name
     -- @treturn number
@@ -132,7 +132,7 @@ br.api.build.totemElement = function(api, elementKey, slot)
     -- @treturn boolean
     element.exists = element.active
 
-    --- Get distance to the active totem in this slot.
+    --- Get distance to the active totem in this slot (0 when there is none, or it can't be located).
     -- @function totem.<element>.distance
     -- @treturn number
     element.distance = function()
@@ -201,11 +201,11 @@ br.api.build.totemSpecific = function(slot, totemKey)
     -- @treturn boolean
     specific.exists = specific.active
 
-    --- Get distance to this specific totem.
+    --- Get distance to this specific totem (0 when it isn't up, or it can't be located).
     -- @function totem.<element>.<totemName>.distance
     -- @treturn number
     specific.distance = function()
-        if not specific.active() then return 999 end
+        if not specific.active() then return 0 end
         return totemFn:slotDistance(slot)
     end
 

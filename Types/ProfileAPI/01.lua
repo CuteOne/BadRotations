@@ -9320,7 +9320,7 @@ function C53.active() end
 ---@return boolean
 function C53.exists() end
 
---- Get distance to this specific totem.
+--- Get distance to this specific totem (0 when it isn't up, or it can't be located).
 ---@return number
 function C53.distance() end
 
@@ -9347,7 +9347,7 @@ function C54.active() end
 ---@return boolean
 function C54.exists() end
 
---- Get distance to the active totem in this slot.
+--- Get distance to the active totem in this slot (0 when there is none, or it can't be located).
 ---@return number
 function C54.distance() end
 
@@ -9380,7 +9380,7 @@ local C55 = {}
 function C55.active(candidate) end
 
 --- Returns distance from player to the active totem in a slot.
---- Returns 999 if no totem is active or the object can't be located.
+--- Returns 0 if no totem is active or the object can't be located (check active() first).
 ---@param slotOrCandidate? number|string Totem slot (1-4) or totem spell key/id/name
 ---@return number
 function C55.distance(slotOrCandidate) end
