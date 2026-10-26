@@ -409,8 +409,10 @@ actionList.Melee = function()
     -- Shocks
     if actionList.Shocks(power.mana.percent() >= ui.value("Shock Mana")) then return true end
     if unit.moving() then return false end
-    -- An enemy standing off at range (a caster): bolt it rather than wait
-    if distance > 10 and not unit.moving("target") then
+    -- Out of melee with an enemy that isn't coming closer (a caster, a mob that stops just out of
+    -- reach): no swing to lose, so bolt it rather than stand idle, keeping a heal's mana. 2026-10-26: 6.3 s
+    -- idle at 5.9 yd from a Mutated Root Lasher with 72 mana (the rule was 10 yd+, the weave needs 50%)
+    if distance >= 5 and not unit.moving("target") and affordable(cast.cost.lightningBolt()) then
         if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Range]") return true end
     end
     -- Weave: spare mana into Lightning Bolt until Windfury Weapon makes the swings worth more
