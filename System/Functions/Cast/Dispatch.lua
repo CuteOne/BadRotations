@@ -303,6 +303,21 @@ function E.checkUnitValidity(thisUnit, castType)
 	return E.isUnitVisible(thisUnit)
 end
 
+-- A moving target near a ranged spell's edge: the server sees it where it was a round trip ago, so a
+-- cast the client calls in range can come back "Out of range" (2026-10-26, TBC: Lightning Bolt at
+-- 29.9 of 30 yd on a Vale Moth flying in at 6 yd/s). In range only once it's further inside than it
+-- moves in a round trip. Returns the refusal reason, or nil.
+function E.moverAtRangeEdge(ctx, thisUnit)
+	if ctx.maxRange <= 5 then return nil end
+	local speed = br.game.GetUnitSpeed(thisUnit) or 0
+	if speed <= 0 then return nil end
+	local reach = ctx.maxRange - speed * br.functions.misc:getRoundTripHold()
+	local distance = br.functions.range:getDistance(thisUnit)
+	if distance <= reach then return nil end
+	return string.format("moving: target at the range edge (distance %.1f, inside %.1f while it moves %.1f yd/s)",
+		distance, reach, speed)
+end
+
 -- checkRange: range check with API + moving-hysteresis guard + distance fallback.
 -- Returns true when in range, or false plus a short reason naming which check failed
 -- (shown by "/br why <spell>").
@@ -339,6 +354,8 @@ function E.checkRange(ctx, thisUnit, castType)
 			then
 				return false, "moving: the game says in range, the melee rule doesn't"
 			end
+			local atEdge = E.moverAtRangeEdge(ctx, thisUnit)
+			if atEdge then return false, atEdge end
 			if br.functions.misc:isMoving("player") and ctx.maxRange > 0 then
 				local now      = br.game.GetTime()
 				-- Entries are keyed per spell + unit GUID and were only ever cleared on
@@ -375,7 +392,11 @@ function E.checkRange(ctx, thisUnit, castType)
 		if distance < 5 then return true end
 		return false, string.format("IsSpellInRange=nil, distance %.1f: not in melee", distance or -1)
 	end
-	if distance >= ctx.minRange and distance <= ctx.maxRange then return true end
+	if distance >= ctx.minRange and distance <= ctx.maxRange then
+		local atEdge = castType ~= "pet" and E.moverAtRangeEdge(ctx, thisUnit)
+		if atEdge then return false, atEdge end
+		return true
+	end
 	return false, string.format("IsSpellInRange=nil, distance %.1f, needs %.1f to %.1f",
 		distance or -1, ctx.minRange, ctx.maxRange)
 end
