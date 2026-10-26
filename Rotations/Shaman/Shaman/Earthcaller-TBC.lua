@@ -2,6 +2,7 @@
 local buff = buff --[[@as BR.TBC.Shaman.buff]]
 local cast = cast --[[@as BR.TBC.Shaman.cast]]
 local debuff = debuff --[[@as BR.TBC.Shaman.debuff]]
+local equiped = equiped --[[@as BR.TBC.Shaman.equiped]]
 local imbues = imbues --[[@as BR.TBC.Shaman.imbues]]
 local spell = spell --[[@as BR.TBC.Shaman.spell]]
 local totem = totem --[[@as BR.TBC.Shaman.totem]]
@@ -214,20 +215,24 @@ local function applyImbue(optionName, offHand)
         if var.offHandSent and util.time() - var.offHandSent <= 2 then return false end
     end
     if present and (var.imbued[hand] == nil or var.imbued[hand] == key) then return false end
-    -- Sent and nothing showed: some weapons don't hold an imbue (2026-10-26: Rockbiter on a Mining Pick went
-    -- out 7 times in 11 s, each "done", never on the weapon). Wait a minute before trying that hand again
-    var.imbueSentAt = var.imbueSentAt or {}
-    local sentAt = var.imbueSentAt[hand]
-    if sentAt and not present and util.time() - sentAt < 60 then
-        if util.time() - sentAt > 3 and not var.imbueToldFailed then
-            var.imbueToldFailed = true
-            ui.print(spell[key].name() .. " didn't take on your " .. (offHand and "off-hand" or "main-hand") .. " weapon; trying again in a minute.")
-        end
+    -- Sent and nothing showed within 3 s: that weapon doesn't hold that imbue (2026-10-26: Rockbiter on a
+    -- Mining Pick, a profession tool, went out 7 times in 11 s, each "done", never on it). Not tried on that
+    -- weapon again this session; another weapon equipped is imbued at once
+    local weapon = equiped.itemIn(offHand and 17 or 16)
+    var.imbueFailed, var.imbueSent = var.imbueFailed or {}, var.imbueSent or {}
+    local failKey = tostring(weapon) .. ":" .. key
+    if var.imbueFailed[failKey] then return false end
+    local sent = var.imbueSent[hand]
+    if sent and not present and sent.weapon == weapon and sent.key == key then
+        if util.time() - sent.at < 3 then return false end -- give the enchant time to show
+        var.imbueFailed[failKey] = true
+        ui.print(spell[key].name() .. " doesn't take on your " .. (offHand and "off-hand" or "main-hand")
+            .. " weapon; not trying it on that one again.")
         return false
     end
     if cast[key]("player") then
         var.imbued[hand] = key
-        var.imbueSentAt[hand], var.imbueToldFailed = util.time(), false
+        var.imbueSent[hand] = { at = util.time(), weapon = weapon, key = key }
         if offHand then var.offHandSent = util.time() end
         ui.debug("Casting " .. spell[key].name() .. (offHand and " [Off Hand]" or " [Main Hand]"))
         return true
