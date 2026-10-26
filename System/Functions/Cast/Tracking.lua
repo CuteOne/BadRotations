@@ -23,8 +23,10 @@ local castIntentLocks = {} -- Tracks cast intent to prevent multiple cast.able()
 --   behind - "You must be behind your target": unit.isBehind says no for this unit, only while
 --            nothing that decides it has changed (see behindChanged), at most 3 sec.
 --   range  - "Out of range": this spell, this unit.
+--   cancelled - the player cancelled BR's cast (cast:noteInterrupted): this spell, this unit, until the
+--            player changes target, combat starts, or 3 sec.
 -- ─────────────────────────────────────────────────────────────────────────────
-local REJECT_DURATION = { aura = 30, los = 1.0, facing = 0.5, behind = 3.0, range = 0.5 }
+local REJECT_DURATION = { aura = 30, los = 1.0, facing = 0.5, behind = 3.0, range = 0.5, cancelled = 3.0 }
 local UNIT_WIDE_REJECT = { los = true, facing = true, behind = true }
 -- Only attribute an error to BR's last cast if that cast was this recent; older
 -- errors most likely came from the player's own button presses.
@@ -96,6 +98,12 @@ local function behindChanged(guid, thisUnit)
 		or now.victim ~= was.victim or now.flags ~= was.flags
 end
 
+-- A cancel holds only while the player stays out of combat on the target they had when they cancelled
+local targetAtCancel = {} -- rejection key -> the player's target GUID then
+local function cancelReleased(key)
+	return br.game.UnitAffectingCombat("player") or br.game.UnitGUID("target") ~= targetAtCancel[key]
+end
+
 -- True while a recent cast of spellID on thisUnit was refused for this reason.
 function cast:isRejected(kind, spellID, thisUnit)
 	if next(rejections) == nil then return false end -- the usual case: nothing refused lately
@@ -103,12 +111,29 @@ function cast:isRejected(kind, spellID, thisUnit)
 	local key = rejectionKey(kind, spellID, guid)
 	if not key then return false end
 	local expires = rejections[key]
-	if expires and br.game.GetTime() < expires and not (kind == "behind" and behindChanged(guid, thisUnit)) then
+	if expires and br.game.GetTime() < expires and not (kind == "behind" and behindChanged(guid, thisUnit))
+		and not (kind == "cancelled" and cancelReleased(key))
+	then
 		return true
 	end
 	rejections[key] = nil
 	if kind == "behind" then behindAtRefusal[guid] = nil end
+	if kind == "cancelled" then targetAtCancel[key] = nil end
 	return false
+end
+
+-- The player's cast was interrupted (Readers/common.lua). Out of combat nothing in the world
+-- interrupts a cast, so when it's the one BR just sent, the player stopped it (moving, jumping, Esc):
+-- their "no". BR doesn't send it at that unit again until they change target, combat starts, or 3 s
+-- pass (2026-10-26: a pull bolt cancelled twice in a row, BR re-sent it 0.7 s after the first).
+function cast:noteInterrupted(spellID)
+	if br.game.UnitAffectingCombat("player") then return end
+	if not (br.botSpell and br.botGUID and br.botCastTime) or br.game.GetTime() - br.botCastTime > 10 then return end
+	local name = br.functions.spell:getName(spellID)
+	if name == nil or name ~= br.functions.spell:getName(br.botSpell) then return end
+	cast:setRejected("cancelled", spellID, br.botGUID)
+	local key = rejectionKey("cancelled", spellID, br.botGUID)
+	if key then targetAtCancel[key] = br.game.UnitGUID("target") end
 end
 
 -- True while a stronger aura on the unit refused this spell (Buff.lua's refresh checks it).

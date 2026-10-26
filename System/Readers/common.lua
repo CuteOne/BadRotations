@@ -367,6 +367,10 @@ function common:commonReaders()
 		-- (The sent / start / stop / interrupted / failed / channel handlers here were removed: they
 		-- set values nothing reads, and their Hunter branch compared the class name with a number,
 		-- so it never ran.)
+		-- The player's cast interrupted: out of combat that's the player cancelling BR's cast
+		if event == "UNIT_SPELLCAST_INTERRUPTED" and select(1, ...) == "player" then
+			br.functions.cast:noteInterrupted(select(3, ...))
+		end
 		if event == "UNIT_SPELLCAST_SUCCEEDED" then
 			local SourceUnit = select(1, ...)
 			local SpellID = select(3, ...)

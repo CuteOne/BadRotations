@@ -209,6 +209,13 @@ local function runCastFunction(self, thisUnit, castType, minUnits, effectRng, sp
 		return E.printReport(ctx, false, "Invalid Unit")
 	end
 
+	-- The player just cancelled this spell on this unit (cast:noteInterrupted): their "no" holds until
+	-- they change target, combat starts, or 3 s pass
+	if castType ~= "pet" and br.functions.cast:isRejected("cancelled", spellID, thisUnit) then
+		E.recordRefusal(spellID, "PLAYER_CANCELLED", "you cancelled it on this unit")
+		return false
+	end
+
 	-- ── Step 14: Range check ──────────────────────────────────────────────────
 	local inRange, rangeDetail = E.checkRange(ctx, thisUnit, castType)
 	if not inRange then
