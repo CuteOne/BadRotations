@@ -215,8 +215,8 @@ function br.ui:createConfigWindow()
             tip = "Keeps a record of what BadRotations did in BadRotations\\Logs, so a problem can be looked into later. The files stay on this computer: nothing is sent anywhere. Players' names are left out (see Logs\\README.md). Untick to write no log files." })
         br.ui.rotationLog = br.ui:checkbox(section, "Rotation Log", { tip = "Shows what the rotation cast, from where in the profile, and what the game answered (also in Rotation.log).",
             onChange = function(checked) br.ui:showRotationLog(checked) end })
-        br.ui:dropdown(section, "Addon Debug Messages", { choices = { "System Only", "Profile Only", "All" }, value = "All",
-            tip = "Check this to display developer debug messages." })
+        br.ui:dropdown(section, "Addon Debug Messages", { choices = { "System Only", "Profile Only", "All" }, value = "All", checked = true,
+            tip = "Debug lines in chat, and whose: your profile's (ui.debug, \"Casting ...\"), BR's (the Debug Level's), or all. Untick for none." })
         br.ui:checkbox(section, "Target Validation Debug", { tip = "Check this to display current target's validation." })
         br.ui:dropdown(section, "Debug Level", { choices = { "Off", "Problems", "Developer", "Trace" }, value = "Problems", checkbox = false,
             tip = "What BR tells you about casts. Off: nothing. Problems: casts that failed for a reason worth fixing (not enough power, wrong form, a cast the game rejected). Developer: also casts BR's own checks allowed but the game refused (range, sight, facing), and BR's diagnostics. Trace: also every routine refusal (cooldowns, the GCD, out of range, ...), written to Logs\\Gate.log rather than chat." })

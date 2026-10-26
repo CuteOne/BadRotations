@@ -185,7 +185,7 @@ A profile only says what to cast; BR checks the rest (known, usable, power, cool
 
 | Option | What it does |
 |--------|--------------|
-| **Addon Debug Messages** | Switches debug lines in chat on, and picks whose: *Profile Only* (your `ui.debug` lines and "Casting ..."), *System Only* (BR's lines below), or *All*. Nothing below reaches chat while it's unticked. |
+| **Addon Debug Messages** | Switches debug lines in chat on, and picks whose: *Profile Only* (your `ui.debug` lines and "Casting ..."), *System Only* (BR's lines below), or *All*. Ticked by default; nothing below reaches chat while it's unticked. |
 | **Debug Level** | How much BR says about casts (System lines): *Off*, *Problems* (default), *Developer*, *Trace*. |
 | **Rotation Log** | A window listing every cast the rotation sent, from which profile line, and the game's answer, with a summary per fight (also `Logs/Rotation.log`). |
 
