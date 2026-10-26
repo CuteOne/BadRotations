@@ -564,116 +564,46 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 	return pick
 end
 
--- Cone Logic for Enemies
-local coneUnits = {}
-function enemiesEngineFunctions:getEnemiesInCone(angle, length, checkNoCombat, showLines)
-	if angle == nil then angle = 180 end
-	if length == nil then length = 0 end
-	local playerX, playerY, playerZ = br.functions.unit:GetObjectPosition("player")
-	local facing = br.functions.unit:GetObjectFacing("player")
-	local unitsCounter = 0
-	local enemiesTable = enemiesEngineFunctions:getEnemies("player", length, checkNoCombat, true)
-	local inside = false
-	---@diagnostic disable-next-line: undefined-field
-	if showLines then LibDraw.Arc(playerX, playerY, playerZ, length, angle, 0) end
-	br.game.wipe(coneUnits)
-	-- OPTIMIZATION: Limit processing to first 30 enemies for performance
-	-- In massive AOE situations, processing every unit is unnecessary and crushes FPS
-	local maxProcess = math.min(#enemiesTable, 30)
-	for i = 1, maxProcess do
-		local thisUnit = enemiesTable[i]
-		local radius = br.game.UnitCombatReach(thisUnit)
-		local unitX, unitY, unitZ = br.game.GetPositionBetweenObjects(thisUnit, "player", radius)
-		if playerX and unitX and playerY and unitY then
-			for j = radius, 0, -0.5 do
-				inside = false
-				if j > 0 then
-					unitX, unitY = br.game.GetPositionBetweenObjects(thisUnit, "player", j)
-				else
-					unitX, unitY = br.functions.unit:GetObjectPosition(thisUnit)
-				end
-				local angleToUnit = br.engines.healingEngineFunctions:getAngles(playerX, playerY, playerZ, unitX, unitY, unitZ)
-				local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
-				local shortestAngle = angleDifference < math.pi and angleDifference or math.pi * 2 - angleDifference
-				local finalAngle = shortestAngle / math.pi * 180
-				if finalAngle < angle / 2 then
-					inside = true
-					break
-				end
-			end
-			if inside then
-				if showLines then
-					LibDraw.Circle(unitX, unitY, playerZ, br.game.UnitBoundingRadius(thisUnit))
-				end
-				unitsCounter = unitsCounter + 1
-				table.insert(coneUnits, thisUnit)
-			end
-		end
-	end
+-- Frontal shapes, by the server's rules (TrinityCore Spell.cpp WorldObjectSpellConeTargetCheck and
+-- WorldObjectSpellLineTargetCheck, Position::HasInArc / HasInLine). Both start from the units in
+-- reach by the AoE rule (getEnemies: centre within range + the unit's own reach), then:
+-- cone: the unit's centre is within angle/2 of the player's facing, or it stands on the player
+--   (centres within its bounding radius, at least 2 yards: Unit::IsWithinBoundaryRadius);
+-- rect: the unit's centre is in front, and less than width/2 + its combat reach to the side.
+-- angle and width are the spell's (spell data SpellTargetRestrictions ConeDegrees / Width).
+local MIN_MELEE_REACH = 2
+local coneUnits, rectUnits = {}, {}
 
-	-- br.ui.chatOverlay:Show(units)
-	return unitsCounter, coneUnits
+local function inCone(thisUnit, angle)
+	local offAngle, centres = br.functions.unit:getFacingAngle("player", thisUnit)
+	if offAngle == nil then return false end
+	return offAngle <= angle / 2
+		or centres <= math.max(br.game.UnitBoundingRadius(thisUnit) or 0, MIN_MELEE_REACH)
 end
 
--- Rectangle Logic for Enemies
-local rectUnits = {}
-function enemiesEngineFunctions:getEnemiesInRect(width, length, showLines, checkNoCombat)
-	-- Wiped on every call: it used to be wiped only when units were in reach, so a call with none
-	-- returned count 0 with the previous call's units still in the table
-	br.game.wipe(rectUnits)
-	local px, py, pz = br.functions.unit:GetObjectPosition("player")
-	if px == nil or py == nil or pz == nil then return 0, rectUnits end
-	local function getRect(width, length)
-		local facing = br.functions.unit:GetObjectFacing("player") or 0
-		local halfWidth = width / 2
-		-- Near Left
-		local nlX, nlY, _ = br.game.GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(90), 0)
-		-- Near Right
-		local nrX, nrY, nrZ = br.game.GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(270), 0)
-		-- Far Left
-		-- local flX, flY, flZ = GetPositionFromPosition(nlX, nlY, nlZ, length, facing, 0)
-		-- Far Right
-		local frX, frY, _ = br.game.GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
+local function inRect(thisUnit, width)
+	local offAngle, centres = br.functions.unit:getFacingAngle("player", thisUnit)
+	if offAngle == nil or offAngle > 90 then return false end
+	return math.sin(math.rad(offAngle)) * centres < width / 2 + (br.game.UnitCombatReach(thisUnit) or 0)
+end
 
-		return nlX, nlY, nrX, nrY, frX, frY
+local function inShape(units, test, range, shape, checkNoCombat)
+	br.game.wipe(units)
+	if shape == nil or range == nil then return 0, units end
+	local inReach = enemiesEngineFunctions:getEnemies("player", range, checkNoCombat)
+	for i = 1, #inReach do
+		if test(inReach[i], shape) then units[#units + 1] = inReach[i] end
 	end
-	checkNoCombat = checkNoCombat or false
-	local nlX, nlY, nrX, nrY, frX, frY = getRect(width, length)
-	local enemyCounter = 0
-	local enemiesTable = enemiesEngineFunctions:getEnemies("player", length, checkNoCombat, true)
-	local inside = false
-	if #enemiesTable > 0 then
-		-- OPTIMIZATION: Limit processing to first 40 enemies for performance
-		-- Rectangle checks are expensive with position calculations
-		local maxProcess = math.min(#enemiesTable, 40)
-		for i = 1, maxProcess do
-			local thisUnit = enemiesTable[i]
-			local radius = br.game.UnitCombatReach(thisUnit)
-			local tX, tY = br.game.GetPositionBetweenObjects(thisUnit, "player", radius)
-			if tX and tY then
-				for j = radius, 0, -0.1 do
-					inside = false
-					local pX, pY
-					if j > 0 then
-						pX, pY = br.game.GetPositionBetweenObjects(thisUnit, "player", j)
-					else
-						pX, pY = br.functions.unit:GetObjectPosition(thisUnit)
-					end
-					if br.engines.healingEngineFunctions:isInside(pX, pY, nlX, nlY, nrX, nrY, frX, frY) then
-						inside = true
-						break
-					end
-				end
-				if inside then
-					if showLines then
-						---@diagnostic disable-next-line: undefined-field
-						LibDraw.Circle(tX, tY, pz, br.game.UnitBoundingRadius(thisUnit))
-					end
-					enemyCounter = enemyCounter + 1
-					table.insert(rectUnits, thisUnit)
-				end
-			end
-		end
-	end
-	return enemyCounter, rectUnits
+	return #units, units
+end
+
+--- Enemies in the player's frontal cone: how many, and the units (a table reused by the next call).
+function enemiesEngineFunctions:getEnemiesInCone(range, angle, checkNoCombat)
+	return inShape(coneUnits, inCone, range, angle, checkNoCombat)
+end
+
+--- Enemies in the player's frontal rectangle (a line spell): how many, and the units (a table
+-- reused by the next call).
+function enemiesEngineFunctions:getEnemiesInRect(range, width, checkNoCombat)
+	return inShape(rectUnits, inRect, range, width, checkNoCombat)
 end

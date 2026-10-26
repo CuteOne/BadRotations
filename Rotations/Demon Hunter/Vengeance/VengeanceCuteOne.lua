@@ -1015,7 +1015,7 @@ local function runRotation()
     enemies.get(5)
     enemies.get(8)
     enemies.get(30)
-    enemies.rect.get(8, 50, false)
+    enemies.rect.get(50, 8)
 
     ---------------------
     --- Begin Profile ---

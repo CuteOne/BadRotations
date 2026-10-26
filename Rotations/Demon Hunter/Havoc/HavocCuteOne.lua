@@ -1295,9 +1295,9 @@ local function runRotation()
     enemies.get(10, "target", true)
     enemies.get(20)
     enemies.get(30)
-    enemies.rect.get(8, 20, false)
-    enemies.rect.get(3, 23, false)
-    enemies.rect.get(8, 50, false)
+    enemies.rect.get(20, 8)
+    enemies.rect.get(23, 3)
+    enemies.rect.get(50, 8)
 
     -- Talent to Number
     var.cycleOfHatred = talent.cycleOfHatred and 1 or 0

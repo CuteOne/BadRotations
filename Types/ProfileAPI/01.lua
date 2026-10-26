@@ -6275,27 +6275,26 @@ function C34.ticksRemain(thisUnit) end
 ---@class BR.enemies.cone
 local C35 = {}
 
---- Returns a table of all enemies in the players frontal cone for given angle, range, and combat situation
----@param angle? number The angle of the cone to check for enemies
----@param range? number The range to check for enemies
----@param checkNoCombat? boolean Check for enemies even if not in combat
----@param showLines? boolean Show lines for the cone *non-functional atm*
+--- The enemies in the player's frontal cone, by the server's rule (see getEnemiesInCone)
+---@param range? number How far the cone reaches, in yards
+---@param angle? number The cone's full angle, in degrees (the spell's ConeDegrees)
+---@param checkNoCombat? boolean Count units not in combat too
 ---@return table # The units, the same table as enemies.yards<range>c
 ---@return number # How many
-function C35.get(angle, range, checkNoCombat, showLines) end
+function C35.get(range, angle, checkNoCombat) end
 
 
 ---@class BR.enemies.rect
 local C36 = {}
 
---- Returns all enemies in a rectangular area from a unit for given range, combat situation, and facing
----@param width? number The width of the rectangle to check for enemies
----@param range? number The range to check for enemies
----@param showLines? boolean Show lines for the rectangle *non-functional atm*
----@param checkNoCombat? boolean Check for enemies even if not in combat
+--- The enemies in the player's frontal rectangle (a line spell), by the server's rule (see
+--- getEnemiesInRect)
+---@param range? number How far the rectangle reaches, in yards
+---@param width? number Its full width, in yards (the spell's Width)
+---@param checkNoCombat? boolean Count units not in combat too
 ---@return table # The units, the same table as enemies.yards<range>r
 ---@return number # How many
-function C36.get(width, range, showLines, checkNoCombat) end
+function C36.get(range, width, checkNoCombat) end
 
 ---@class BR.enemies
 ---@field yards0 string[] Enemies within 0 yards (enemies.get)
@@ -6355,6 +6354,63 @@ function C36.get(width, range, showLines, checkNoCombat) end
 ---@field yards0rmf string[] Enemies within 0 yards (enemies.get)
 ---@field yards0rmnc string[] Enemies within 0 yards (enemies.get)
 ---@field yards0rmncf string[] Enemies within 0 yards (enemies.get)
+---@field yards3 string[] Enemies within 3 yards (enemies.get)
+---@field yards3f string[] Enemies within 3 yards (enemies.get)
+---@field yards3nc string[] Enemies within 3 yards (enemies.get)
+---@field yards3ncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3t string[] Enemies within 3 yards (enemies.get)
+---@field yards3tf string[] Enemies within 3 yards (enemies.get)
+---@field yards3tnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3tncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3p string[] Enemies within 3 yards (enemies.get)
+---@field yards3pf string[] Enemies within 3 yards (enemies.get)
+---@field yards3pnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3pncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3ff string[] Enemies within 3 yards (enemies.get)
+---@field yards3fnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3fncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3m string[] Enemies within 3 yards (enemies.get)
+---@field yards3mf string[] Enemies within 3 yards (enemies.get)
+---@field yards3mnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3mncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3c string[] Enemies within 3 yards (enemies.get)
+---@field yards3cf string[] Enemies within 3 yards (enemies.get)
+---@field yards3cnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3cncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3ct string[] Enemies within 3 yards (enemies.get)
+---@field yards3ctf string[] Enemies within 3 yards (enemies.get)
+---@field yards3ctnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3ctncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3cp string[] Enemies within 3 yards (enemies.get)
+---@field yards3cpf string[] Enemies within 3 yards (enemies.get)
+---@field yards3cpnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3cpncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3cff string[] Enemies within 3 yards (enemies.get)
+---@field yards3cfnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3cfncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3cm string[] Enemies within 3 yards (enemies.get)
+---@field yards3cmf string[] Enemies within 3 yards (enemies.get)
+---@field yards3cmnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3cmncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3r string[] Enemies within 3 yards (enemies.get)
+---@field yards3rf string[] Enemies within 3 yards (enemies.get)
+---@field yards3rnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3rncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3rt string[] Enemies within 3 yards (enemies.get)
+---@field yards3rtf string[] Enemies within 3 yards (enemies.get)
+---@field yards3rtnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3rtncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3rp string[] Enemies within 3 yards (enemies.get)
+---@field yards3rpf string[] Enemies within 3 yards (enemies.get)
+---@field yards3rpnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3rpncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3rff string[] Enemies within 3 yards (enemies.get)
+---@field yards3rfnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3rfncf string[] Enemies within 3 yards (enemies.get)
+---@field yards3rm string[] Enemies within 3 yards (enemies.get)
+---@field yards3rmf string[] Enemies within 3 yards (enemies.get)
+---@field yards3rmnc string[] Enemies within 3 yards (enemies.get)
+---@field yards3rmncf string[] Enemies within 3 yards (enemies.get)
 ---@field yards5 string[] Enemies within 5 yards (enemies.get)
 ---@field yards5f string[] Enemies within 5 yards (enemies.get)
 ---@field yards5nc string[] Enemies within 5 yards (enemies.get)
@@ -6412,6 +6468,63 @@ function C36.get(width, range, showLines, checkNoCombat) end
 ---@field yards5rmf string[] Enemies within 5 yards (enemies.get)
 ---@field yards5rmnc string[] Enemies within 5 yards (enemies.get)
 ---@field yards5rmncf string[] Enemies within 5 yards (enemies.get)
+---@field yards6 string[] Enemies within 6 yards (enemies.get)
+---@field yards6f string[] Enemies within 6 yards (enemies.get)
+---@field yards6nc string[] Enemies within 6 yards (enemies.get)
+---@field yards6ncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6t string[] Enemies within 6 yards (enemies.get)
+---@field yards6tf string[] Enemies within 6 yards (enemies.get)
+---@field yards6tnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6tncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6p string[] Enemies within 6 yards (enemies.get)
+---@field yards6pf string[] Enemies within 6 yards (enemies.get)
+---@field yards6pnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6pncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6ff string[] Enemies within 6 yards (enemies.get)
+---@field yards6fnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6fncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6m string[] Enemies within 6 yards (enemies.get)
+---@field yards6mf string[] Enemies within 6 yards (enemies.get)
+---@field yards6mnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6mncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6c string[] Enemies within 6 yards (enemies.get)
+---@field yards6cf string[] Enemies within 6 yards (enemies.get)
+---@field yards6cnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6cncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6ct string[] Enemies within 6 yards (enemies.get)
+---@field yards6ctf string[] Enemies within 6 yards (enemies.get)
+---@field yards6ctnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6ctncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6cp string[] Enemies within 6 yards (enemies.get)
+---@field yards6cpf string[] Enemies within 6 yards (enemies.get)
+---@field yards6cpnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6cpncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6cff string[] Enemies within 6 yards (enemies.get)
+---@field yards6cfnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6cfncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6cm string[] Enemies within 6 yards (enemies.get)
+---@field yards6cmf string[] Enemies within 6 yards (enemies.get)
+---@field yards6cmnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6cmncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6r string[] Enemies within 6 yards (enemies.get)
+---@field yards6rf string[] Enemies within 6 yards (enemies.get)
+---@field yards6rnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6rncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6rt string[] Enemies within 6 yards (enemies.get)
+---@field yards6rtf string[] Enemies within 6 yards (enemies.get)
+---@field yards6rtnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6rtncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6rp string[] Enemies within 6 yards (enemies.get)
+---@field yards6rpf string[] Enemies within 6 yards (enemies.get)
+---@field yards6rpnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6rpncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6rff string[] Enemies within 6 yards (enemies.get)
+---@field yards6rfnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6rfncf string[] Enemies within 6 yards (enemies.get)
+---@field yards6rm string[] Enemies within 6 yards (enemies.get)
+---@field yards6rmf string[] Enemies within 6 yards (enemies.get)
+---@field yards6rmnc string[] Enemies within 6 yards (enemies.get)
+---@field yards6rmncf string[] Enemies within 6 yards (enemies.get)
 ---@field yards8 string[] Enemies within 8 yards (enemies.get)
 ---@field yards8f string[] Enemies within 8 yards (enemies.get)
 ---@field yards8nc string[] Enemies within 8 yards (enemies.get)
@@ -7039,6 +7152,63 @@ function C36.get(width, range, showLines, checkNoCombat) end
 ---@field yards40rmf string[] Enemies within 40 yards (enemies.get)
 ---@field yards40rmnc string[] Enemies within 40 yards (enemies.get)
 ---@field yards40rmncf string[] Enemies within 40 yards (enemies.get)
+---@field yards45 string[] Enemies within 45 yards (enemies.get)
+---@field yards45f string[] Enemies within 45 yards (enemies.get)
+---@field yards45nc string[] Enemies within 45 yards (enemies.get)
+---@field yards45ncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45t string[] Enemies within 45 yards (enemies.get)
+---@field yards45tf string[] Enemies within 45 yards (enemies.get)
+---@field yards45tnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45tncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45p string[] Enemies within 45 yards (enemies.get)
+---@field yards45pf string[] Enemies within 45 yards (enemies.get)
+---@field yards45pnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45pncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45ff string[] Enemies within 45 yards (enemies.get)
+---@field yards45fnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45fncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45m string[] Enemies within 45 yards (enemies.get)
+---@field yards45mf string[] Enemies within 45 yards (enemies.get)
+---@field yards45mnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45mncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45c string[] Enemies within 45 yards (enemies.get)
+---@field yards45cf string[] Enemies within 45 yards (enemies.get)
+---@field yards45cnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45cncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45ct string[] Enemies within 45 yards (enemies.get)
+---@field yards45ctf string[] Enemies within 45 yards (enemies.get)
+---@field yards45ctnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45ctncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45cp string[] Enemies within 45 yards (enemies.get)
+---@field yards45cpf string[] Enemies within 45 yards (enemies.get)
+---@field yards45cpnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45cpncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45cff string[] Enemies within 45 yards (enemies.get)
+---@field yards45cfnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45cfncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45cm string[] Enemies within 45 yards (enemies.get)
+---@field yards45cmf string[] Enemies within 45 yards (enemies.get)
+---@field yards45cmnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45cmncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45r string[] Enemies within 45 yards (enemies.get)
+---@field yards45rf string[] Enemies within 45 yards (enemies.get)
+---@field yards45rnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45rncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45rt string[] Enemies within 45 yards (enemies.get)
+---@field yards45rtf string[] Enemies within 45 yards (enemies.get)
+---@field yards45rtnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45rtncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45rp string[] Enemies within 45 yards (enemies.get)
+---@field yards45rpf string[] Enemies within 45 yards (enemies.get)
+---@field yards45rpnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45rpncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45rff string[] Enemies within 45 yards (enemies.get)
+---@field yards45rfnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45rfncf string[] Enemies within 45 yards (enemies.get)
+---@field yards45rm string[] Enemies within 45 yards (enemies.get)
+---@field yards45rmf string[] Enemies within 45 yards (enemies.get)
+---@field yards45rmnc string[] Enemies within 45 yards (enemies.get)
+---@field yards45rmncf string[] Enemies within 45 yards (enemies.get)
 ---@field yards50 string[] Enemies within 50 yards (enemies.get)
 ---@field yards50f string[] Enemies within 50 yards (enemies.get)
 ---@field yards50nc string[] Enemies within 50 yards (enemies.get)
@@ -9621,804 +9791,3 @@ function C57.dungeonSlice() end
 --- Returns true when not in a 5-man party instance (raid, outdoor, etc.).
 ---@return boolean
 function C57.patchwerk() end
-
-
----@class BR.unit.weaponImbue
-local C58 = {}
-
---- Get weapon imbue charges
----@param imbueId? number The ID of the imbue to check
----@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
----@return number # Number of charges remaining on the weapon imbue
-function C58.charges(imbueId, offHand) end
-
---- Check if a weapon imbue exists
----@param imbueId? number The ID of the imbue to check for
----@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
----@return boolean # True if the imbue exists on the specified weapon
-function C58.exists(imbueId, offHand) end
-
---- Check if a weapon imbue is missing (needs to be applied)
----@param imbueId? number The ID of the imbue to check for
----@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
----@return boolean # True if the imbue is NOT currently applied to the specified weapon
-function C58.needed(imbueId, offHand) end
-
---- Get weapon imbue remaining time
----@param imbueId? number The ID of the imbue to check
----@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
----@return number # Time remaining on the weapon imbue in seconds
-function C58.remain(imbueId, offHand) end
-
---- Get the display name of a weapon imbue spell
----@param spellKey? any The spell key string (e.g. "rockbiterWeapon") used in br.runner.spells
----@return string # The localised spell name, or the key as a fallback
-function C58.spellName(spellKey) end
-
----@class BR.unit
----@field fightStyle BR.unit.fightStyle
----@field weaponImbue BR.unit.weaponImbue
-local C59 = {}
-
---- Check if a unit is an Aberration
----@param thisUnit? string The unit to check, defaults to "target" if nil
----@return boolean # True if the unit is an Aberration
-function C59.aberration(thisUnit) end
-
---- Get a unit's aggro radius against the player
----@param thisUnit? string The unit to check, defaults to "target"
----@return number # Aggro radius in yards (20 +/- level difference, minimum 5)
-function C59.aggroRange(thisUnit) end
-
---- Check if any nearby enemy would aggro on the player
----@param offset? any Optional extra yards added to each aggro radius
----@param radius? any Optional search radius in yards, defaults to 40
----@return boolean # True if any enemy (in combat or not) is within its aggro radius
-function C59.anyInAggroRange(offset, radius) end
-
---- Check if an enemy is attacking someone other than you
---- ```lua
---- local thisUnit = enemies.first(enemies.yards5, unit.attackingOthers) -- a mob to taunt
---- ```
----@param thisUnit? string The enemy to check
----@return boolean # True when it's in combat, not attacking you, and its target is friendly
-function C59.attackingOthers(thisUnit) end
-
---- Get player's attack power
----@param thisUnit? string The unit to check, defaults to "player" if nil
----@return number # Total attack power (base + positive buffs + negative buffs)
-function C59.attackPower(thisUnit) end
-
---- Check if a unit is a Beast
----@param thisUnit? string The unit to check, defaults to "target" if nil
----@return boolean # True if the unit is a Beast
-function C59.beast(thisUnit) end
-
---- Check if a unit can be attacked
----@param thisUnit? string The unit to check
----@param playerUnit? string The attacking unit, defaults to "player" if nil
----@return boolean # True if playerUnit can attack thisUnit
-function C59.canAttack(thisUnit, playerUnit) end
-
---- Cancel current shapeshift form. Does nothing if the player isn't in a form, or if a cancel was
---- just sent and the server hasn't replied yet (the form still shows for a round trip).
----@return boolean # True when a cancel was sent now.
-function C59.cancelForm() end
-
---- Leave the current shapeshift form to cast a spell, when a player would: not while stealthed,
---- not while tanking in a bear form, and only with the mana to cast it and shift back. In an
---- emergency it leaves regardless. Shows "Cancel Form [<spell>]" in profile debug once, when the
---- cancel is sent. In combat, until a form is up again, casts other than that spell leave the mana
---- to shift back into the form left.
----@param outOfFormSpell? any Spell to cast once out of form (id/name/spell table).
----@param treatOutSpellAsFree? any If true, that spell costs nothing this time (e.g. Clearcasting).
----@param emergency? any If true, leave form regardless (e.g. an emergency heal). (keep waiting rather than acting as if still in form).
----@return boolean # True while the form is being left: cancelled now, or a cancel still on its way
-function C59.cancelFormFor(outOfFormSpell, treatOutSpellAsFree, emergency) end
-
---- Check if player can fly
----@return boolean # True if the player can fly in the current area
-function C59.canFly() end
-
---- Check if a unit is casting or channeling a spell
----@param thisUnit? string The unit to check, defaults to "player" if nil
----@param spellID? number Optional spellID to check for
----@return boolean # True if the unit is casting, or casting the specific spell if spellID provided
-function C59.casting(thisUnit, spellID) end
-
---- True while the unit casts a spell from the tank buster list (System/Lists/TankBusters.lua)
----@param thisUnit? string The unit to check, defaults to "target"
----@return boolean
-function C59.castingTankBuster(thisUnit) end
-
---- Check if a unit is charmed
----@param thisUnit? string The unit to check
----@return boolean # True if the unit is charmed
-function C59.charmed(thisUnit) end
-
---- Check if you're running away from an enemy that is chasing you
---- ```lua
---- if unit.chased(10) and cast.able.dash() then
---- ```
----@param range? number How close the chasing enemy is
----@return boolean # True while an enemy within range chases you as you move away from it
-function C59.chased(range) end
-
---- Clear current target
----@return nil
-function C59.clearTarget() end
-
---- Get combat time
----@return number # Time in combat in seconds
-function C59.combatTime() end
-
---- Get the player's melee critical strike chance
----@return number # Critical strike chance percentage
-function C59.critChance() end
-
---- Get a dead player in your group, to resurrect
---- ```lua
---- local thisUnit = unit.deadGroupMember(30, "TANK", "HEALER")
---- ```
----@param range? number Yards to look within
----@param ...? any Optional roles to pick from ("TANK", "HEALER", "DAMAGER"); anyone when none are given
----@return string # |nil The unit, or nil when there's none
-function C59.deadGroupMember(range, ...) end
-
---- Check if a unit is dead or ghost
----@param thisUnit? string The unit to check
----@return boolean # True if the unit is dead or a ghost
-function C59.deadOrGhost(thisUnit) end
-
---- Check if a unit is a Demon
----@param thisUnit? string The unit to check, defaults to "target" if nil
----@return boolean # True if the unit is a Demon
-function C59.demon(thisUnit) end
-
---- Get distance between units
----@param thisUnit? string First unit
----@param otherUnit? string Second unit (if nil, first unit is assumed to be the target and player is used)
----@return number # Distance between units in yards
-function C59.distance(thisUnit, otherUnit) end
-
---- Check if a unit is Dragonkin
----@param thisUnit? string The unit to check, defaults to "target" if nil
----@return boolean # True if the unit is Dragonkin
-function C59.dragonkin(thisUnit) end
-
---- Check if player is dual wielding weapons
----@return boolean # True if player is dual wielding
-function C59.dualWielding() end
-
---- Check if a unit is an enemy
----@param thisUnit? string The unit to check
----@param playerUnit? string The reference unit, defaults to "player" if nil
----@return boolean # True if thisUnit is an enemy to playerUnit
-function C59.enemy(thisUnit, playerUnit) end
-
---- Check if an enemy is close enough to start a fight
---- ```lua
---- if not unit.inCombat() and unit.enemyNear(20) and cast.able.prowl() then
---- ```
----@param range? number Yards to look within
----@return boolean # True when an enemy is already fighting within range, or an idle one's aggro range reaches you
-function C59.enemyNear(range) end
-
---- Check if a unit exists
----@param thisUnit? string The unit to check
----@return boolean # True if the unit exists
-function C59.exists(thisUnit) end
-
---- Check if a unit is facing another unit
----@param thisUnit? string The unit to check facing from, defaults to "player" if only one parameter provided
----@param otherUnit? string The unit to check facing towards
----@param degrees? any Optional angle in degrees to consider "facing", defaults to normal game value
----@return boolean # True if thisUnit is facing otherUnit within the specified degrees
-function C59.facing(thisUnit, otherUnit, degrees) end
-
---- The direction the unit faces, in radians
----@param thisUnit? string The unit to check, defaults to "player"
----@return number
-function C59.facingAngle(thisUnit) end
-
---- How far to the side of the player's facing line the target stands (negative behind the player,
---- 1000 when either can't be seen)
----@return number # Yards
-function C59.facingDistance() end
-
---- How far the player has fallen
----@return number # Distance in yards the player has fallen
-function C59.fallDist() end
-
---- Check if a unit is falling
----@return boolean # True if player is falling
-function C59.falling() end
-
---- Get time the player has been falling
----@return number # Time in seconds player has been falling
-function C59.fallTime() end
-
---- Check if player is flying
----@return boolean # True if player is flying
-function C59.flying() end
-
---- Get current shapeshift form
----@return number # Current shapeshift form ID
-function C59.form() end
-
---- Check if a specific form is active or if any form is active
----@param spellID? number Optional spell ID to check for a specific form. If nil, checks if any form is active
----@return boolean # True if the specified form (or any form if no spellID provided) is active
-function C59.formActive(spellID) end
-
---- Get number of available shapeshift forms
----@return number # Count of available shapeshift forms
-function C59.formCount() end
-
---- Get information about a specific shapeshift form
----@param formIndex? any The index of the form (1-based)
----@return number
----@return boolean
----@return boolean
----@return number # icon, isActive, isCastable, spellID
-function C59.formInfo(formIndex) end
-
---- Check if a unit is friendly to another unit
----@param thisUnit? string The unit to check
----@param playerUnit? string The reference unit, defaults to "player" if nil
----@return boolean # True if thisUnit is friendly to playerUnit
-function C59.friend(thisUnit, playerUnit) end
-
---- Get global cooldown duration
----@param max? any Optional boolean to return maximum possible GCD instead of current
----@return number # Global cooldown in seconds
-function C59.gcd(max) end
-
---- Get the spell ID of the current shapeshift form (the spell that shifts back into it), or nil
---- when no form is active.
----@return number # |nil Spell ID of the current form, or nil if no form is active.
-function C59.getCurrentFormSpellID() end
-
---- Get number of members in the current group (including player; 0 if solo)
----@return number # Total group member count
-function C59.groupCount() end
-
---- Get unit's GUID (Globally Unique Identifier)
----@param thisUnit? string The unit to get GUID for
----@return string # Unit's GUID
-function C59.guid(thisUnit) end
-
---- Get unit's current health
----@param thisUnit? string The unit to check, defaults to "player" if nil
----@return number # Current health of the unit
-function C59.health(thisUnit) end
-
---- Get unit's maximum health
----@param thisUnit? string The unit to check, defaults to "player" if nil
----@return number # Maximum health of the unit
-function C59.healthMax(thisUnit) end
-
---- Get unit's health percentage
----@param thisUnit? string The unit to check, defaults to "player" if nil
----@return number # Health percentage of the unit (0-100)
-function C59.hp(thisUnit) end
-
---- Check if a unit is a Humanoid
----@param thisUnit? string The unit to check, defaults to "target" if nil
----@return boolean # True if the unit is a Humanoid
-function C59.humanoid(thisUnit) end
-
---- Get unit's ID
----@param thisUnit? string The unit to get ID for
----@return number # Unit's ID
-function C59.id(thisUnit) end
-
---- Check if a unit would aggro on the player
----@param thisUnit? string The unit to check, defaults to "target"
----@param offset? any Optional extra yards added to the aggro radius
----@return boolean # True if hostile (or neutral and targeted) and within its aggro radius
-function C59.inAggroRange(thisUnit, offset) end
-
---- Check if a unit is in combat
----@param thisUnit? string The unit to check, defaults to "player" if nil
----@return boolean # True if the unit is in combat or special conditions are met
-function C59.inCombat(thisUnit) end
-
---- Check if player is in a group (party or raid)
----@return boolean # True if player is in a group
-function C59.inGroup() end
-
---- True while the player is in a raid group
----@return boolean
-function C59.inRaid() end
-
---- Check instance type or if in a specific instance type
----@param thisInstance? string Optional specific instance type to check for
----@return string # |boolean Returns instance type if no parameter, or boolean if matching specific instance
-function C59.instance(thisInstance) end
-
---- Check if a unit's cast can be interrupted
----@param thisUnit? string The unit to check, defaults to "target" if nil
----@param castPercent? any Optional cast percentage threshold
----@return boolean # True if the unit's cast can be interrupted
-function C59.interruptable(thisUnit, castPercent) end
-
---- True while the player rides a vehicle
----@return boolean
-function C59.inVehicle() end
-
---- Check if a unit is behind another unit
----@param thisUnit? string The unit being checked for facing (typically the target), defaults to "target" if nil
----@param otherUnit? string The reference unit (typically "player"), defaults to "player" if nil
----@param degrees? any Optional angle in degrees for the facing cone, defaults to normal game value
----@return boolean # True if thisUnit is NOT facing otherUnit within the given degrees; false while the
-function C59.isBehind(thisUnit, otherUnit, degrees) end
-
---- Check if a unit is a boss
----@param thisUnit? string The unit to check, defaults to "target" if nil
----@return boolean # True if the unit is a boss
-function C59.isBoss(thisUnit) end
-
---- Check if a unit is casting
----@param thisUnit? string The unit to check, defaults to "player" if nil
----@return boolean # True if the unit is casting or channelling
-function C59.isCasting(thisUnit) end
-
---- Check if a unit is a training dummy
----@param thisUnit? string The unit to check
----@return boolean # True if the unit is a training dummy
-function C59.isDummy(thisUnit) end
-
---- Check if a unit is an Elemental
----@param thisUnit? string The unit to check, defaults to "target" if nil
----@return boolean # True if the unit is an Elemental
-function C59.isElemental(thisUnit) end
-
---- Check if a unit is an explosive orb (M+ affix)
----@param thisUnit? string The unit to check
----@return boolean # True if the unit is an explosive orb
-function C59.isExplosive(thisUnit) end
-
---- Check if a unit is fleeing
----@param thisUnit? string The unit to check
----@return boolean # True if the unit is fleeing
-function C59.isFleeing(thisUnit) end
-
---- Check if a unit is moving away from another unit that is facing it (being chased)
----@param thisUnit? string The unit that may be fleeing, defaults to "player"
----@param fromUnit? string The unit it may be fleeing from, defaults to "target"
----@return boolean # True if thisUnit is running from fromUnit
-function C59.isFleeingFrom(thisUnit, fromUnit) end
-
---- Check if a unit is tanking
----@param thisUnit? string The unit to check, defaults to "player" if nil
----@return boolean # True if the unit is tanking
-function C59.isTanking(thisUnit) end
-
---- Check if a tank is in range
----@return boolean # True if a tank is in range
----@return string # The tank
-function C59.isTankInRange() end
-
---- Check if two units are the same
----@param thisUnit? string First unit to compare
----@param otherUnit? string Second unit to compare
----@return boolean # True if both units are the same
-function C59.isUnit(thisUnit, otherUnit) end
-
---- Get unit's level
----@param thisUnit? string The unit to check, defaults to "player" if nil
----@return number # The level of the unit
-function C59.level(thisUnit) end
-
---- Get the lowest health friendly unit in range
----@param range? number The range to check for units, defaults to 5 if nil
----@return any # unit The friendly unit with lowest health in range
-function C59.lowest(range) end
-
---- Check if player is mounted
----@return boolean # True if player is mounted
-function C59.mounted() end
-
---- Check if a unit is moving
----@param thisUnit? string The unit to check, defaults to "player" if nil
----@return boolean # True if the unit is moving
-function C59.moving(thisUnit) end
-
---- Get time a unit has been moving
----@return number # Time in seconds the unit has been moving
-function C59.movingTime() end
-
---- Get unit's name
----@param thisUnit? string The unit to get name of
----@return string # The name of the unit
-function C59.name(thisUnit) end
-
---- Get time out of combat
----@return number # Time out of combat in seconds
-function C59.ooCombatTime() end
-
---- Check if player is outdoors
----@return boolean # True if player is outdoors
-function C59.outdoors() end
-
---- Check if a unit is a player
----@param thisUnit? string The unit to check
----@return boolean # True if the unit is a player
-function C59.player(thisUnit) end
-
---- Where the unit stands
----@param thisUnit? string The unit to check, defaults to "player"
----@return number
----@return number
----@return number # x, y, z
-function C59.position(thisUnit) end
-
---- Returns the time remaining on the pull timer (DBM/BigWigs)
----@return number # - Returns seconds remaining on pull timer
-function C59.pullTimer() end
-
---- Get unit's race
----@param thisUnit? string The unit to check, defaults to "player" if nil
----@return string # The race of the unit
-function C59.race(thisUnit) end
-
---- Get the player's current ranged attack speed in seconds.
---- Reads the live haste-modified speed from UnitRangedDamage so it reflects
---- Rapid Fire, Quiver haste, and other modifiers automatically.
----@return number # Ranged weapon speed in seconds, or 0 if unavailable
-function C59.rangedAttackSpeed() end
-
---- Get unit's reaction level towards another unit
----@param thisUnit? string The unit to check reaction of
----@param playerUnit? string The reference unit, defaults to "player" if nil
----@return number # Reaction level (1-hostile to 8-friendly)
-function C59.reaction(thisUnit, playerUnit) end
-
---- Check if it's a good moment to start a fight
---- ```lua
---- if not unit.inCombat() and unit.readyToFight() and cast.able.faerieFire("target") then
---- ```
----@return boolean # True when you aren't low on health or mana or eating or drinking, and in a group the tanks aren't low (Ready To Fight options, Targeting page)
-function C59.readyToFight() end
-
---- Check if player is resting
----@return boolean # True if player is resting
-function C59.resting() end
-
---- Get unit's assigned role in group
----@param thisUnit? string The unit to check, defaults to "target" if nil
----@return string # The role assigned to the unit ("TANK", "HEALER", "DAMAGER", "NONE")
-function C59.role(thisUnit) end
-
---- Check if player is solo (no group)
----@return boolean # True if player is solo
-function C59.solo() end
-
---- The name of the player's spec as BR loads it ("Initial" before a spec is chosen)
----@return string
-function C59.spec() end
-
---- Get player's spell haste percentage
----@return number # Spell haste percentage
-function C59.spellHaste() end
-
---- Get time a unit has been standing still
----@return number # Time in seconds the unit has been standing still
-function C59.standingTime() end
-
---- Start auto-attack
----@param thisUnit? string
----@return nil
-function C59.startAttack(thisUnit) end
-
---- Stop auto-attack
----@return nil
-function C59.stopAttack() end
-
---- Check if player is swimming
----@return boolean # True if player is swimming
-function C59.swimming() end
-
---- The player's swing timer: seconds until the next swing (nil before the first swing), the
---- weapon speed and when the last swing landed (util.time())
---- ```lua
---- local untilNext, speed, last = unit.swing("ranged")
---- ```
----@param hand? string "mh" for melee, "ranged" for Auto Shot
----@return number
----@return number
----@return number
-function C59.swing(hand) end
-
---- Get the current target of a unit
----@param thisUnit? string The unit whose target to get
----@return string # |nil Unit token of thisUnit's current target, or nil if none
-function C59.target(thisUnit) end
-
---- Check if a unit is on a taxi
----@param thisUnit? string The unit to check, defaults to "player" if nil
----@return boolean # True if the unit is on a taxi
-function C59.taxi(thisUnit) end
-
---- Check if a unit has threat
----@param thisUnit? string The unit to check, defaults to "target" if nil
----@return boolean # True if the unit has threat
-function C59.threat(thisUnit) end
-
---- Get the player's current threat status, on one enemy or on any
----@param thisUnit? string The enemy; any enemy when nil 2=primary target (another unit has 100%+ threat), 3=primary target (sole aggro)
----@return number # Threat status: 0=no/low threat, 1=high threat (not primary target),
-function C59.threatStatus(thisUnit) end
-
---- Seconds since the player last landed from a mount
----@return number # |nil Seconds since dismounting, nil while mounted or if not mounted since login
-function C59.timeSinceDismount() end
-
---- True for a totem
----@param thisUnit? string The unit to check
----@return boolean
-function C59.totem(thisUnit) end
-
---- Estimate time until unit dies
----@param thisUnit? string The unit to check, defaults to "target" if nil
----@param percent? any Optional health percentage to calculate time to
----@return number # Estimated time until death in seconds
-function C59.ttd(thisUnit, percent) end
-
---- Get combined time to death for all enemies in range
----@param range? number Range to check for enemies, defaults to 5 yards if nil
----@param percent? any Optional health percentage to calculate time to
----@return number # Combined estimated time until death for all enemies in range
-function C59.ttdGroup(range, percent) end
-
---- Check if a unit is Undead
----@param thisUnit? string The unit to check
----@return boolean # True if the unit is Undead
-function C59.undead(thisUnit) end
-
---- Check if a unit is valid for targeting
----@param thisUnit? string The unit to check
----@return boolean # True if the unit is valid
-function C59.valid(thisUnit) end
-
---- Get player's average weapon damage
----@param thisUnit? string The unit to check, defaults to "player" if nil
----@return number # Average weapon damage
-function C59.weaponDamage(thisUnit) end
-
-
----@class BR.units
----@field friends BR.Friend[] The group members the healing engine keeps
----@field dyn5 string? The best unit within 5 yards you face (units.get(5))
----@field dyn5AOE string? The best unit within 5 yards (units.get(5, true))
----@field dyn8 string? The best unit within 8 yards you face (units.get(8))
----@field dyn8AOE string? The best unit within 8 yards (units.get(8, true))
----@field dyn10 string? The best unit within 10 yards you face (units.get(10))
----@field dyn10AOE string? The best unit within 10 yards (units.get(10, true))
----@field dyn12 string? The best unit within 12 yards you face (units.get(12))
----@field dyn12AOE string? The best unit within 12 yards (units.get(12, true))
----@field dyn15 string? The best unit within 15 yards you face (units.get(15))
----@field dyn15AOE string? The best unit within 15 yards (units.get(15, true))
----@field dyn20 string? The best unit within 20 yards you face (units.get(20))
----@field dyn20AOE string? The best unit within 20 yards (units.get(20, true))
----@field dyn25 string? The best unit within 25 yards you face (units.get(25))
----@field dyn25AOE string? The best unit within 25 yards (units.get(25, true))
----@field dyn30 string? The best unit within 30 yards you face (units.get(30))
----@field dyn30AOE string? The best unit within 30 yards (units.get(30, true))
----@field dyn35 string? The best unit within 35 yards you face (units.get(35))
----@field dyn35AOE string? The best unit within 35 yards (units.get(35, true))
----@field dyn40 string? The best unit within 40 yards you face (units.get(40))
----@field dyn40AOE string? The best unit within 40 yards (units.get(40, true))
-local C60 = {}
-
---- Gets the unit to buff from a "Player/Target/Mouseover/Focus/Group" dropdown option.
----@param thisOption? string - Name of the dropdown option.
----@param needsBuff? any - function(unit) returning true if that group member needs the buff (Group mode).
----@param range? number - Maximum range for group members.
----@return string # - Unit token; falls back to "player" when the chosen unit doesn't exist.
-function C60.buffUnit(thisOption, needsBuff, range) end
-
---- Gets the "best" unit within a specified range in front or around the player.
---- Call once per profile rotation and use the variable it creates in units
---- IE: units.get(5,false) makes units.dyn5, units.get(8,true) makes units.dyn8AOE
----@param range? number - Distance in yards to look for the "best" unit
----@param aoe? boolean - If true, looks for best unit anywhere in range, otherwise only units you are facing will be considered.
-function C60.get(range, aoe) end
-
---- True when the group hasn't changed (members joining or leaving) for that many seconds
----@param seconds? number
----@return boolean
-function C60.groupStable(seconds) end
-
---- The group members within radius yards of a unit at or below health percent, lowest first, at
---- most count of them (each with .hp, .guid, .name, position)
----@param thisUnit? string The centre
----@param radius? number Yards
----@param health? number Health percent
----@param count? number The most members to return
----@return table
-function C60.healAround(thisUnit, radius, health, count) end
-
---- The dead units the player can loot
----@return table
-function C60.lootable() end
-
---- How many dead units are waiting to be looted
----@return number
-function C60.lootCount() end
-
---- Sets the profile's own target weight for dynamic targeting: fn(unit) returns a number added to
---- the unit's score (higher = more priority), or nil to leave it. Cleared whenever the profile is built.
---- ```lua
---- -- Example: Feral druid prioritizing Rip refresh
---- units.setTargetWeight(function(thisUnit)
----     if debuff.rip.exists(thisUnit) and debuff.rip.remains(thisUnit) < 5 then
----         return 80 -- High priority to refresh expiring Rip
----     end
---- end)
---- ```
----@param fn? any function(unit) or nil
-function C60.setTargetWeight(fn) end
-
-
-
-
-
-
---- Checks if item is usable or not.
---- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
----@class BR.use.able.Item
----@overload fun(slotID?: number): boolean
-local C61 = {}
-
----@class BR.use.able.Base
-local C62 = {}
-
---- Checks if item is usable or not.
---- Note: `item` here is literally item, you pass the itemID to specify the item
----@param itemID? number The ID of the item check.
----@return boolean
-function C62.item(itemID) end
-
---- Checks if item in the specified equipment slot is usable or not.
----@param slotID? number The ID of the equipment slot to check.
----@return boolean
-function C62.slot(slotID) end
-
----@class BR.use.able : BR.use.able.Base, BR.Keys.Items<BR.use.able.Item>
-
-
---- Uses the item.
----@class BR.use.Item
----@overload fun(slotID?: number, thisUnit?: string): boolean
-local C63 = {}
-
----@class BR.use.Base
-local C64 = {}
-
---- Uses the item.
---- Note: `item` here is literally item, you pass the itemID to specify the item
----@param itemID? number The ID of the item to use.
----@param thisUnit? string The unit to use the item on.
----@return boolean
-function C64.item(itemID, thisUnit) end
-
---- Uses the item in the specified equipment slot.
----@param slotID? number The ID of the equipment slot to use the item from.
----@param thisUnit? string The unit to use the item on.
----@return boolean
-function C64.slot(slotID, thisUnit) end
-
----@class BR.use : BR.use.Base, BR.Keys.Items<BR.use.Item>
----@field able BR.use.able
-
-
----@class BR.util
-local C65 = {}
-
---- Rounds a number to the specified number of decimal places (default 2)
----@param num? number - The number to round.
----@param numDecimalPlaces? number - The number of decimal places to round to.
----@return number # - Returns the rounded number
-function C65.round(num, numDecimalPlaces) end
-
---- Returns the time, value of GetTime
----@return number # - Returns the current game time
-function C65.time() end
-
---- True the first time, then again each time the interval has passed since it was last true
---- ```lua
---- if util.timer("Hunter's Mark", 2) then
---- ```
----@param timerName? string - The name of the timer check, should be unique.
----@param interval? number - The length of time to wait until true, in seconds.
----@return boolean # - Returns true if the interval has passed
-function C65.timer(timerName, interval) end
-
----@class BR.Keys.Classic.Druid.Abilities<T>
----@field abolishPoison T
----@field aquaticForm T
----@field autoAttack T
----@field autoShot T
----@field barkskin T
----@field bash T
----@field bearForm T
----@field berserking T
----@field bloodFury T
----@field cannibalize T
----@field catForm T
----@field claw T
----@field curePoison T
----@field demoralizingRoar T
----@field direBearForm T
----@field disenchant T
----@field enrage T
----@field entanglingRoots T
----@field escapeArtist T
----@field faerieFire T
----@field faerieFireFeral T
----@field ferociousBite T
----@field global T
----@field healingTouch T
----@field innervate T
----@field markOfTheWild T
----@field maul T
----@field moonfire T
----@field moonkinForm T
----@field naturesGrasp T
----@field omenOfClarity T
----@field perception T
----@field pounce T
----@field prowl T
----@field racial T
----@field rake T
----@field ravage T
----@field regrowth T
----@field rejuvenation T
----@field removeCurse T
----@field rip T
----@field shadowmeld T
----@field shred T
----@field starfire T
----@field stoneform T
----@field swipe T
----@field thorns T
----@field tigersFury T
----@field travelForm T
----@field warStomp T
----@field willOfTheForsaken T
----@field wrath T
-
----@class BR.Keys.Classic.Druid.Buffs<T>
----@field abolishPoison T
----@field aquaticForm T
----@field barkskin T
----@field bearForm T
----@field catForm T
----@field clearcasting T
----@field direBearForm T
----@field enrage T
----@field markOfTheWild T
----@field moonkinForm T
----@field naturesGrasp T
----@field omenOfClarity T
----@field prowl T
----@field racial T
----@field regrowth T
----@field rejuvenation T
----@field shadowmeld T
----@field thorns T
----@field tigersFury T
----@field travelForm T
-
----@class BR.Keys.Classic.Druid.Debuffs<T>
----@field demoralizingRoar T
----@field entanglingRoots T
----@field faerieFire T
----@field faerieFireFeral T
----@field moonfire T
----@field rake T
----@field rip T
-
----@class BR.Keys.Classic.Druid.Glyphs<T>

@@ -279,11 +279,11 @@ function range:isSafeToAoE(spellID, Unit, effectRng, minUnits, aoeType, enemies)
     end
     if minUnits == nil then minUnits = 1 end
     if aoeType == "rect" then
-        enemiesValid = br.engines.enemiesEngineFunctions:getEnemiesInRect(effectRng, maxRange, false)
-        enemiesAll   = not enemies and br.engines.enemiesEngineFunctions:getEnemiesInRect(effectRng, maxRange, false, true) or enemies
+        enemiesValid = br.engines.enemiesEngineFunctions:getEnemiesInRect(maxRange, effectRng, false)
+        enemiesAll   = not enemies and br.engines.enemiesEngineFunctions:getEnemiesInRect(maxRange, effectRng, true) or enemies
     elseif aoeType == "cone" then
-        enemiesValid = br.engines.enemiesEngineFunctions:getEnemiesInCone(effectRng, maxRange, false)
-        enemiesAll   = not enemies and br.engines.enemiesEngineFunctions:getEnemiesInCone(effectRng, maxRange, true) or enemies
+        enemiesValid = br.engines.enemiesEngineFunctions:getEnemiesInCone(maxRange, effectRng, false)
+        enemiesAll   = not enemies and br.engines.enemiesEngineFunctions:getEnemiesInCone(maxRange, effectRng, true) or enemies
     else
         enemiesValid = #br.engines.enemiesEngineFunctions:getEnemies(Unit, effectRng)
         enemiesAll   = not enemies and #br.engines.enemiesEngineFunctions:getEnemies(Unit, effectRng, true) or enemies

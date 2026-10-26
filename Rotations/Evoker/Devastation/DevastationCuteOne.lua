@@ -140,7 +140,7 @@ end
 
 custom.getDeepBreathLocation = function(minUnits)
     for i = 21, 50 do
-        if #enemies.rect.get(6, i, false) >= minUnits then
+        if #enemies.rect.get(i, 6) >= minUnits then
             local playerX, playerY, playerZ = unit.position("player")
             local playerFacing = unit.facingAngle("player")
             local x = playerX + (i * math.cos(playerFacing))
@@ -993,8 +993,8 @@ local function runRotation()
     enemies.get(15, "player", false, true) -- makes enemies.yards15f
     enemies.get(25)
     enemies.get(25, "player", false, true)
-    enemies.rect.get(8, 15, false)
-    enemies.rect.get(6, 50, false)
+    enemies.rect.get(15, 8)
+    enemies.rect.get(50, 6)
 
     -- Cancel if casting with no enemies
     if #enemies.yards25f == 0 then

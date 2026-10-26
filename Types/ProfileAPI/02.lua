@@ -5,6 +5,807 @@
 -- The profile API as the Lua language server sees it, so the editor completes and documents what
 -- profiles use. The game never loads these files.
 
+
+---@class BR.unit.weaponImbue
+local C58 = {}
+
+--- Get weapon imbue charges
+---@param imbueId? number The ID of the imbue to check
+---@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
+---@return number # Number of charges remaining on the weapon imbue
+function C58.charges(imbueId, offHand) end
+
+--- Check if a weapon imbue exists
+---@param imbueId? number The ID of the imbue to check for
+---@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
+---@return boolean # True if the imbue exists on the specified weapon
+function C58.exists(imbueId, offHand) end
+
+--- Check if a weapon imbue is missing (needs to be applied)
+---@param imbueId? number The ID of the imbue to check for
+---@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
+---@return boolean # True if the imbue is NOT currently applied to the specified weapon
+function C58.needed(imbueId, offHand) end
+
+--- Get weapon imbue remaining time
+---@param imbueId? number The ID of the imbue to check
+---@param offHand? any Boolean whether to check offhand (true) or main hand (false, default)
+---@return number # Time remaining on the weapon imbue in seconds
+function C58.remain(imbueId, offHand) end
+
+--- Get the display name of a weapon imbue spell
+---@param spellKey? any The spell key string (e.g. "rockbiterWeapon") used in br.runner.spells
+---@return string # The localised spell name, or the key as a fallback
+function C58.spellName(spellKey) end
+
+---@class BR.unit
+---@field fightStyle BR.unit.fightStyle
+---@field weaponImbue BR.unit.weaponImbue
+local C59 = {}
+
+--- Check if a unit is an Aberration
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@return boolean # True if the unit is an Aberration
+function C59.aberration(thisUnit) end
+
+--- Get a unit's aggro radius against the player
+---@param thisUnit? string The unit to check, defaults to "target"
+---@return number # Aggro radius in yards (20 +/- level difference, minimum 5)
+function C59.aggroRange(thisUnit) end
+
+--- Check if any nearby enemy would aggro on the player
+---@param offset? any Optional extra yards added to each aggro radius
+---@param radius? any Optional search radius in yards, defaults to 40
+---@return boolean # True if any enemy (in combat or not) is within its aggro radius
+function C59.anyInAggroRange(offset, radius) end
+
+--- Check if an enemy is attacking someone other than you
+--- ```lua
+--- local thisUnit = enemies.first(enemies.yards5, unit.attackingOthers) -- a mob to taunt
+--- ```
+---@param thisUnit? string The enemy to check
+---@return boolean # True when it's in combat, not attacking you, and its target is friendly
+function C59.attackingOthers(thisUnit) end
+
+--- Get player's attack power
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return number # Total attack power (base + positive buffs + negative buffs)
+function C59.attackPower(thisUnit) end
+
+--- Check if a unit is a Beast
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@return boolean # True if the unit is a Beast
+function C59.beast(thisUnit) end
+
+--- Check if a unit can be attacked
+---@param thisUnit? string The unit to check
+---@param playerUnit? string The attacking unit, defaults to "player" if nil
+---@return boolean # True if playerUnit can attack thisUnit
+function C59.canAttack(thisUnit, playerUnit) end
+
+--- Cancel current shapeshift form. Does nothing if the player isn't in a form, or if a cancel was
+--- just sent and the server hasn't replied yet (the form still shows for a round trip).
+---@return boolean # True when a cancel was sent now.
+function C59.cancelForm() end
+
+--- Leave the current shapeshift form to cast a spell, when a player would: not while stealthed,
+--- not while tanking in a bear form, and only with the mana to cast it and shift back. In an
+--- emergency it leaves regardless. Shows "Cancel Form [<spell>]" in profile debug once, when the
+--- cancel is sent. In combat, until a form is up again, casts other than that spell leave the mana
+--- to shift back into the form left.
+---@param outOfFormSpell? any Spell to cast once out of form (id/name/spell table).
+---@param treatOutSpellAsFree? any If true, that spell costs nothing this time (e.g. Clearcasting).
+---@param emergency? any If true, leave form regardless (e.g. an emergency heal). (keep waiting rather than acting as if still in form).
+---@return boolean # True while the form is being left: cancelled now, or a cancel still on its way
+function C59.cancelFormFor(outOfFormSpell, treatOutSpellAsFree, emergency) end
+
+--- Check if player can fly
+---@return boolean # True if the player can fly in the current area
+function C59.canFly() end
+
+--- Check if a unit is casting or channeling a spell
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@param spellID? number Optional spellID to check for
+---@return boolean # True if the unit is casting, or casting the specific spell if spellID provided
+function C59.casting(thisUnit, spellID) end
+
+--- True while the unit casts a spell from the tank buster list (System/Lists/TankBusters.lua)
+---@param thisUnit? string The unit to check, defaults to "target"
+---@return boolean
+function C59.castingTankBuster(thisUnit) end
+
+--- Check if a unit is charmed
+---@param thisUnit? string The unit to check
+---@return boolean # True if the unit is charmed
+function C59.charmed(thisUnit) end
+
+--- Check if you're running away from an enemy that is chasing you
+--- ```lua
+--- if unit.chased(10) and cast.able.dash() then
+--- ```
+---@param range? number How close the chasing enemy is
+---@return boolean # True while an enemy within range chases you as you move away from it
+function C59.chased(range) end
+
+--- Clear current target
+---@return nil
+function C59.clearTarget() end
+
+--- Get combat time
+---@return number # Time in combat in seconds
+function C59.combatTime() end
+
+--- Get the player's melee critical strike chance
+---@return number # Critical strike chance percentage
+function C59.critChance() end
+
+--- Get a dead player in your group, to resurrect
+--- ```lua
+--- local thisUnit = unit.deadGroupMember(30, "TANK", "HEALER")
+--- ```
+---@param range? number Yards to look within
+---@param ...? any Optional roles to pick from ("TANK", "HEALER", "DAMAGER"); anyone when none are given
+---@return string # |nil The unit, or nil when there's none
+function C59.deadGroupMember(range, ...) end
+
+--- Check if a unit is dead or ghost
+---@param thisUnit? string The unit to check
+---@return boolean # True if the unit is dead or a ghost
+function C59.deadOrGhost(thisUnit) end
+
+--- Check if a unit is a Demon
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@return boolean # True if the unit is a Demon
+function C59.demon(thisUnit) end
+
+--- Get distance between units
+---@param thisUnit? string First unit
+---@param otherUnit? string Second unit (if nil, first unit is assumed to be the target and player is used)
+---@return number # Distance between units in yards
+function C59.distance(thisUnit, otherUnit) end
+
+--- Check if a unit is Dragonkin
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@return boolean # True if the unit is Dragonkin
+function C59.dragonkin(thisUnit) end
+
+--- Check if player is dual wielding weapons
+---@return boolean # True if player is dual wielding
+function C59.dualWielding() end
+
+--- Check if a unit is an enemy
+---@param thisUnit? string The unit to check
+---@param playerUnit? string The reference unit, defaults to "player" if nil
+---@return boolean # True if thisUnit is an enemy to playerUnit
+function C59.enemy(thisUnit, playerUnit) end
+
+--- Check if an enemy is close enough to start a fight
+--- ```lua
+--- if not unit.inCombat() and unit.enemyNear(20) and cast.able.prowl() then
+--- ```
+---@param range? number Yards to look within
+---@return boolean # True when an enemy is already fighting within range, or an idle one's aggro range reaches you
+function C59.enemyNear(range) end
+
+--- Check if a unit exists
+---@param thisUnit? string The unit to check
+---@return boolean # True if the unit exists
+function C59.exists(thisUnit) end
+
+--- Check if a unit is facing another unit
+---@param thisUnit? string The unit to check facing from, defaults to "player" if only one parameter provided
+---@param otherUnit? string The unit to check facing towards
+---@param degrees? any Optional angle in degrees to consider "facing", defaults to normal game value
+---@return boolean # True if thisUnit is facing otherUnit within the specified degrees
+function C59.facing(thisUnit, otherUnit, degrees) end
+
+--- The direction the unit faces, in radians
+---@param thisUnit? string The unit to check, defaults to "player"
+---@return number
+function C59.facingAngle(thisUnit) end
+
+--- How far to the side of the player's facing line the target stands (negative behind the player,
+--- 1000 when either can't be seen)
+---@return number # Yards
+function C59.facingDistance() end
+
+--- How far the player has fallen
+---@return number # Distance in yards the player has fallen
+function C59.fallDist() end
+
+--- Check if a unit is falling
+---@return boolean # True if player is falling
+function C59.falling() end
+
+--- Get time the player has been falling
+---@return number # Time in seconds player has been falling
+function C59.fallTime() end
+
+--- Check if player is flying
+---@return boolean # True if player is flying
+function C59.flying() end
+
+--- Get current shapeshift form
+---@return number # Current shapeshift form ID
+function C59.form() end
+
+--- Check if a specific form is active or if any form is active
+---@param spellID? number Optional spell ID to check for a specific form. If nil, checks if any form is active
+---@return boolean # True if the specified form (or any form if no spellID provided) is active
+function C59.formActive(spellID) end
+
+--- Get number of available shapeshift forms
+---@return number # Count of available shapeshift forms
+function C59.formCount() end
+
+--- Get information about a specific shapeshift form
+---@param formIndex? any The index of the form (1-based)
+---@return number
+---@return boolean
+---@return boolean
+---@return number # icon, isActive, isCastable, spellID
+function C59.formInfo(formIndex) end
+
+--- Check if a unit is friendly to another unit
+---@param thisUnit? string The unit to check
+---@param playerUnit? string The reference unit, defaults to "player" if nil
+---@return boolean # True if thisUnit is friendly to playerUnit
+function C59.friend(thisUnit, playerUnit) end
+
+--- Get global cooldown duration
+---@param max? any Optional boolean to return maximum possible GCD instead of current
+---@return number # Global cooldown in seconds
+function C59.gcd(max) end
+
+--- Get the spell ID of the current shapeshift form (the spell that shifts back into it), or nil
+--- when no form is active.
+---@return number # |nil Spell ID of the current form, or nil if no form is active.
+function C59.getCurrentFormSpellID() end
+
+--- Get number of members in the current group (including player; 0 if solo)
+---@return number # Total group member count
+function C59.groupCount() end
+
+--- Get unit's GUID (Globally Unique Identifier)
+---@param thisUnit? string The unit to get GUID for
+---@return string # Unit's GUID
+function C59.guid(thisUnit) end
+
+--- Get unit's current health
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return number # Current health of the unit
+function C59.health(thisUnit) end
+
+--- Get unit's maximum health
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return number # Maximum health of the unit
+function C59.healthMax(thisUnit) end
+
+--- Get unit's health percentage
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return number # Health percentage of the unit (0-100)
+function C59.hp(thisUnit) end
+
+--- Check if a unit is a Humanoid
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@return boolean # True if the unit is a Humanoid
+function C59.humanoid(thisUnit) end
+
+--- Get unit's ID
+---@param thisUnit? string The unit to get ID for
+---@return number # Unit's ID
+function C59.id(thisUnit) end
+
+--- Check if a unit would aggro on the player
+---@param thisUnit? string The unit to check, defaults to "target"
+---@param offset? any Optional extra yards added to the aggro radius
+---@return boolean # True if hostile (or neutral and targeted) and within its aggro radius
+function C59.inAggroRange(thisUnit, offset) end
+
+--- Check if a unit is in combat
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return boolean # True if the unit is in combat or special conditions are met
+function C59.inCombat(thisUnit) end
+
+--- Check if player is in a group (party or raid)
+---@return boolean # True if player is in a group
+function C59.inGroup() end
+
+--- True while the player is in a raid group
+---@return boolean
+function C59.inRaid() end
+
+--- Check instance type or if in a specific instance type
+---@param thisInstance? string Optional specific instance type to check for
+---@return string # |boolean Returns instance type if no parameter, or boolean if matching specific instance
+function C59.instance(thisInstance) end
+
+--- Check if a unit's cast can be interrupted
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@param castPercent? any Optional cast percentage threshold
+---@return boolean # True if the unit's cast can be interrupted
+function C59.interruptable(thisUnit, castPercent) end
+
+--- True while the player rides a vehicle
+---@return boolean
+function C59.inVehicle() end
+
+--- Check if a unit is behind another unit
+---@param thisUnit? string The unit being checked for facing (typically the target), defaults to "target" if nil
+---@param otherUnit? string The reference unit (typically "player"), defaults to "player" if nil
+---@param degrees? any Optional angle in degrees for the facing cone, defaults to normal game value
+---@return boolean # True if thisUnit is NOT facing otherUnit within the given degrees; false while the
+function C59.isBehind(thisUnit, otherUnit, degrees) end
+
+--- Check if a unit is a boss
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@return boolean # True if the unit is a boss
+function C59.isBoss(thisUnit) end
+
+--- Check if a unit is casting
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return boolean # True if the unit is casting or channelling
+function C59.isCasting(thisUnit) end
+
+--- Check if a unit is a training dummy
+---@param thisUnit? string The unit to check
+---@return boolean # True if the unit is a training dummy
+function C59.isDummy(thisUnit) end
+
+--- Check if a unit is an Elemental
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@return boolean # True if the unit is an Elemental
+function C59.isElemental(thisUnit) end
+
+--- Check if a unit is an explosive orb (M+ affix)
+---@param thisUnit? string The unit to check
+---@return boolean # True if the unit is an explosive orb
+function C59.isExplosive(thisUnit) end
+
+--- Check if a unit is fleeing
+---@param thisUnit? string The unit to check
+---@return boolean # True if the unit is fleeing
+function C59.isFleeing(thisUnit) end
+
+--- Check if a unit is moving away from another unit that is facing it (being chased)
+---@param thisUnit? string The unit that may be fleeing, defaults to "player"
+---@param fromUnit? string The unit it may be fleeing from, defaults to "target"
+---@return boolean # True if thisUnit is running from fromUnit
+function C59.isFleeingFrom(thisUnit, fromUnit) end
+
+--- Check if a unit is tanking
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return boolean # True if the unit is tanking
+function C59.isTanking(thisUnit) end
+
+--- Check if a tank is in range
+---@return boolean # True if a tank is in range
+---@return string # The tank
+function C59.isTankInRange() end
+
+--- Check if two units are the same
+---@param thisUnit? string First unit to compare
+---@param otherUnit? string Second unit to compare
+---@return boolean # True if both units are the same
+function C59.isUnit(thisUnit, otherUnit) end
+
+--- Get unit's level
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return number # The level of the unit
+function C59.level(thisUnit) end
+
+--- Get the lowest health friendly unit in range
+---@param range? number The range to check for units, defaults to 5 if nil
+---@return any # unit The friendly unit with lowest health in range
+function C59.lowest(range) end
+
+--- Check if player is mounted
+---@return boolean # True if player is mounted
+function C59.mounted() end
+
+--- Check if a unit is moving
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return boolean # True if the unit is moving
+function C59.moving(thisUnit) end
+
+--- Get time a unit has been moving
+---@return number # Time in seconds the unit has been moving
+function C59.movingTime() end
+
+--- Get unit's name
+---@param thisUnit? string The unit to get name of
+---@return string # The name of the unit
+function C59.name(thisUnit) end
+
+--- Get time out of combat
+---@return number # Time out of combat in seconds
+function C59.ooCombatTime() end
+
+--- Check if player is outdoors
+---@return boolean # True if player is outdoors
+function C59.outdoors() end
+
+--- Check if a unit is a player
+---@param thisUnit? string The unit to check
+---@return boolean # True if the unit is a player
+function C59.player(thisUnit) end
+
+--- Where the unit stands
+---@param thisUnit? string The unit to check, defaults to "player"
+---@return number
+---@return number
+---@return number # x, y, z
+function C59.position(thisUnit) end
+
+--- Returns the time remaining on the pull timer (DBM/BigWigs)
+---@return number # - Returns seconds remaining on pull timer
+function C59.pullTimer() end
+
+--- Get unit's race
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return string # The race of the unit
+function C59.race(thisUnit) end
+
+--- Get the player's current ranged attack speed in seconds.
+--- Reads the live haste-modified speed from UnitRangedDamage so it reflects
+--- Rapid Fire, Quiver haste, and other modifiers automatically.
+---@return number # Ranged weapon speed in seconds, or 0 if unavailable
+function C59.rangedAttackSpeed() end
+
+--- Get unit's reaction level towards another unit
+---@param thisUnit? string The unit to check reaction of
+---@param playerUnit? string The reference unit, defaults to "player" if nil
+---@return number # Reaction level (1-hostile to 8-friendly)
+function C59.reaction(thisUnit, playerUnit) end
+
+--- Check if it's a good moment to start a fight
+--- ```lua
+--- if not unit.inCombat() and unit.readyToFight() and cast.able.faerieFire("target") then
+--- ```
+---@return boolean # True when you aren't low on health or mana or eating or drinking, and in a group the tanks aren't low (Ready To Fight options, Targeting page)
+function C59.readyToFight() end
+
+--- Check if player is resting
+---@return boolean # True if player is resting
+function C59.resting() end
+
+--- Get unit's assigned role in group
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@return string # The role assigned to the unit ("TANK", "HEALER", "DAMAGER", "NONE")
+function C59.role(thisUnit) end
+
+--- Check if player is solo (no group)
+---@return boolean # True if player is solo
+function C59.solo() end
+
+--- The name of the player's spec as BR loads it ("Initial" before a spec is chosen)
+---@return string
+function C59.spec() end
+
+--- Get player's spell haste percentage
+---@return number # Spell haste percentage
+function C59.spellHaste() end
+
+--- Get time a unit has been standing still
+---@return number # Time in seconds the unit has been standing still
+function C59.standingTime() end
+
+--- Start auto-attack
+---@param thisUnit? string
+---@return nil
+function C59.startAttack(thisUnit) end
+
+--- Stop auto-attack
+---@return nil
+function C59.stopAttack() end
+
+--- Check if player is swimming
+---@return boolean # True if player is swimming
+function C59.swimming() end
+
+--- The player's swing timer: seconds until the next swing (nil before the first swing), the
+--- weapon speed and when the last swing landed (util.time())
+--- ```lua
+--- local untilNext, speed, last = unit.swing("ranged")
+--- ```
+---@param hand? string "mh" for melee, "ranged" for Auto Shot
+---@return number
+---@return number
+---@return number
+function C59.swing(hand) end
+
+--- Get the current target of a unit
+---@param thisUnit? string The unit whose target to get
+---@return string # |nil Unit token of thisUnit's current target, or nil if none
+function C59.target(thisUnit) end
+
+--- Check if a unit is on a taxi
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return boolean # True if the unit is on a taxi
+function C59.taxi(thisUnit) end
+
+--- Check if a unit has threat
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@return boolean # True if the unit has threat
+function C59.threat(thisUnit) end
+
+--- Get the player's current threat status, on one enemy or on any
+---@param thisUnit? string The enemy; any enemy when nil 2=primary target (another unit has 100%+ threat), 3=primary target (sole aggro)
+---@return number # Threat status: 0=no/low threat, 1=high threat (not primary target),
+function C59.threatStatus(thisUnit) end
+
+--- Seconds since the player last landed from a mount
+---@return number # |nil Seconds since dismounting, nil while mounted or if not mounted since login
+function C59.timeSinceDismount() end
+
+--- True for a totem
+---@param thisUnit? string The unit to check
+---@return boolean
+function C59.totem(thisUnit) end
+
+--- Estimate time until unit dies
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@param percent? any Optional health percentage to calculate time to
+---@return number # Estimated time until death in seconds
+function C59.ttd(thisUnit, percent) end
+
+--- Get combined time to death for all enemies in range
+---@param range? number Range to check for enemies, defaults to 5 yards if nil
+---@param percent? any Optional health percentage to calculate time to
+---@return number # Combined estimated time until death for all enemies in range
+function C59.ttdGroup(range, percent) end
+
+--- Check if a unit is Undead
+---@param thisUnit? string The unit to check
+---@return boolean # True if the unit is Undead
+function C59.undead(thisUnit) end
+
+--- Check if a unit is valid for targeting
+---@param thisUnit? string The unit to check
+---@return boolean # True if the unit is valid
+function C59.valid(thisUnit) end
+
+--- Get player's average weapon damage
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return number # Average weapon damage
+function C59.weaponDamage(thisUnit) end
+
+
+---@class BR.units
+---@field friends BR.Friend[] The group members the healing engine keeps
+---@field dyn5 string? The best unit within 5 yards you face (units.get(5))
+---@field dyn5AOE string? The best unit within 5 yards (units.get(5, true))
+---@field dyn8 string? The best unit within 8 yards you face (units.get(8))
+---@field dyn8AOE string? The best unit within 8 yards (units.get(8, true))
+---@field dyn10 string? The best unit within 10 yards you face (units.get(10))
+---@field dyn10AOE string? The best unit within 10 yards (units.get(10, true))
+---@field dyn12 string? The best unit within 12 yards you face (units.get(12))
+---@field dyn12AOE string? The best unit within 12 yards (units.get(12, true))
+---@field dyn15 string? The best unit within 15 yards you face (units.get(15))
+---@field dyn15AOE string? The best unit within 15 yards (units.get(15, true))
+---@field dyn20 string? The best unit within 20 yards you face (units.get(20))
+---@field dyn20AOE string? The best unit within 20 yards (units.get(20, true))
+---@field dyn25 string? The best unit within 25 yards you face (units.get(25))
+---@field dyn25AOE string? The best unit within 25 yards (units.get(25, true))
+---@field dyn30 string? The best unit within 30 yards you face (units.get(30))
+---@field dyn30AOE string? The best unit within 30 yards (units.get(30, true))
+---@field dyn35 string? The best unit within 35 yards you face (units.get(35))
+---@field dyn35AOE string? The best unit within 35 yards (units.get(35, true))
+---@field dyn40 string? The best unit within 40 yards you face (units.get(40))
+---@field dyn40AOE string? The best unit within 40 yards (units.get(40, true))
+local C60 = {}
+
+--- Gets the unit to buff from a "Player/Target/Mouseover/Focus/Group" dropdown option.
+---@param thisOption? string - Name of the dropdown option.
+---@param needsBuff? any - function(unit) returning true if that group member needs the buff (Group mode).
+---@param range? number - Maximum range for group members.
+---@return string # - Unit token; falls back to "player" when the chosen unit doesn't exist.
+function C60.buffUnit(thisOption, needsBuff, range) end
+
+--- Gets the "best" unit within a specified range in front or around the player.
+--- Call once per profile rotation and use the variable it creates in units
+--- IE: units.get(5,false) makes units.dyn5, units.get(8,true) makes units.dyn8AOE
+---@param range? number - Distance in yards to look for the "best" unit
+---@param aoe? boolean - If true, looks for best unit anywhere in range, otherwise only units you are facing will be considered.
+function C60.get(range, aoe) end
+
+--- True when the group hasn't changed (members joining or leaving) for that many seconds
+---@param seconds? number
+---@return boolean
+function C60.groupStable(seconds) end
+
+--- The group members within radius yards of a unit at or below health percent, lowest first, at
+--- most count of them (each with .hp, .guid, .name, position)
+---@param thisUnit? string The centre
+---@param radius? number Yards
+---@param health? number Health percent
+---@param count? number The most members to return
+---@return table
+function C60.healAround(thisUnit, radius, health, count) end
+
+--- The dead units the player can loot
+---@return table
+function C60.lootable() end
+
+--- How many dead units are waiting to be looted
+---@return number
+function C60.lootCount() end
+
+--- Sets the profile's own target weight for dynamic targeting: fn(unit) returns a number added to
+--- the unit's score (higher = more priority), or nil to leave it. Cleared whenever the profile is built.
+--- ```lua
+--- -- Example: Feral druid prioritizing Rip refresh
+--- units.setTargetWeight(function(thisUnit)
+---     if debuff.rip.exists(thisUnit) and debuff.rip.remains(thisUnit) < 5 then
+---         return 80 -- High priority to refresh expiring Rip
+---     end
+--- end)
+--- ```
+---@param fn? any function(unit) or nil
+function C60.setTargetWeight(fn) end
+
+
+
+
+
+
+--- Checks if item is usable or not.
+--- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
+---@class BR.use.able.Item
+---@overload fun(slotID?: number): boolean
+local C61 = {}
+
+---@class BR.use.able.Base
+local C62 = {}
+
+--- Checks if item is usable or not.
+--- Note: `item` here is literally item, you pass the itemID to specify the item
+---@param itemID? number The ID of the item check.
+---@return boolean
+function C62.item(itemID) end
+
+--- Checks if item in the specified equipment slot is usable or not.
+---@param slotID? number The ID of the equipment slot to check.
+---@return boolean
+function C62.slot(slotID) end
+
+---@class BR.use.able : BR.use.able.Base, BR.Keys.Items<BR.use.able.Item>
+
+
+--- Uses the item.
+---@class BR.use.Item
+---@overload fun(slotID?: number, thisUnit?: string): boolean
+local C63 = {}
+
+---@class BR.use.Base
+local C64 = {}
+
+--- Uses the item.
+--- Note: `item` here is literally item, you pass the itemID to specify the item
+---@param itemID? number The ID of the item to use.
+---@param thisUnit? string The unit to use the item on.
+---@return boolean
+function C64.item(itemID, thisUnit) end
+
+--- Uses the item in the specified equipment slot.
+---@param slotID? number The ID of the equipment slot to use the item from.
+---@param thisUnit? string The unit to use the item on.
+---@return boolean
+function C64.slot(slotID, thisUnit) end
+
+---@class BR.use : BR.use.Base, BR.Keys.Items<BR.use.Item>
+---@field able BR.use.able
+
+
+---@class BR.util
+local C65 = {}
+
+--- Rounds a number to the specified number of decimal places (default 2)
+---@param num? number - The number to round.
+---@param numDecimalPlaces? number - The number of decimal places to round to.
+---@return number # - Returns the rounded number
+function C65.round(num, numDecimalPlaces) end
+
+--- Returns the time, value of GetTime
+---@return number # - Returns the current game time
+function C65.time() end
+
+--- True the first time, then again each time the interval has passed since it was last true
+--- ```lua
+--- if util.timer("Hunter's Mark", 2) then
+--- ```
+---@param timerName? string - The name of the timer check, should be unique.
+---@param interval? number - The length of time to wait until true, in seconds.
+---@return boolean # - Returns true if the interval has passed
+function C65.timer(timerName, interval) end
+
+---@class BR.Keys.Classic.Druid.Abilities<T>
+---@field abolishPoison T
+---@field aquaticForm T
+---@field autoAttack T
+---@field autoShot T
+---@field barkskin T
+---@field bash T
+---@field bearForm T
+---@field berserking T
+---@field bloodFury T
+---@field cannibalize T
+---@field catForm T
+---@field claw T
+---@field curePoison T
+---@field demoralizingRoar T
+---@field direBearForm T
+---@field disenchant T
+---@field enrage T
+---@field entanglingRoots T
+---@field escapeArtist T
+---@field faerieFire T
+---@field faerieFireFeral T
+---@field ferociousBite T
+---@field global T
+---@field healingTouch T
+---@field innervate T
+---@field markOfTheWild T
+---@field maul T
+---@field moonfire T
+---@field moonkinForm T
+---@field naturesGrasp T
+---@field omenOfClarity T
+---@field perception T
+---@field pounce T
+---@field prowl T
+---@field racial T
+---@field rake T
+---@field ravage T
+---@field regrowth T
+---@field rejuvenation T
+---@field removeCurse T
+---@field rip T
+---@field shadowmeld T
+---@field shred T
+---@field starfire T
+---@field stoneform T
+---@field swipe T
+---@field thorns T
+---@field tigersFury T
+---@field travelForm T
+---@field warStomp T
+---@field willOfTheForsaken T
+---@field wrath T
+
+---@class BR.Keys.Classic.Druid.Buffs<T>
+---@field abolishPoison T
+---@field aquaticForm T
+---@field barkskin T
+---@field bearForm T
+---@field catForm T
+---@field clearcasting T
+---@field direBearForm T
+---@field enrage T
+---@field markOfTheWild T
+---@field moonkinForm T
+---@field naturesGrasp T
+---@field omenOfClarity T
+---@field prowl T
+---@field racial T
+---@field regrowth T
+---@field rejuvenation T
+---@field shadowmeld T
+---@field thorns T
+---@field tigersFury T
+---@field travelForm T
+
+---@class BR.Keys.Classic.Druid.Debuffs<T>
+---@field demoralizingRoar T
+---@field entanglingRoots T
+---@field faerieFire T
+---@field faerieFireFeral T
+---@field moonfire T
+---@field rake T
+---@field rip T
+
+---@class BR.Keys.Classic.Druid.Glyphs<T>
+
 ---@class BR.Keys.Classic.Druid.Items<T>
 ---@field abyssalHealingPotion T
 ---@field ailuroPouncers T
@@ -11362,889 +12163,3 @@
 ---@field wrathstone T
 
 ---@class BR.Keys.Retail.Druid.Feral.Totems<T>
-
----@class BR.Retail.Druid.Feral.talent.rank
----@field aessinasRenewal integer
----@field apexPredatorsCraving integer
----@field ashamanesGuidance integer
----@field astralInfluence integer
----@field berserk integer
----@field berserkHeartOfTheLion integer
----@field bloodSplattered integer
----@field bloodtalons integer
----@field carnivorousInstinct integer
----@field chomp integer
----@field circleOfLifeAndDeath integer
----@field circleOfTheHeavens integer
----@field circleOfTheWild integer
----@field coiledToSpring integer
----@field convokeTheSpirits integer
----@field cyclone integer
----@field doubleclawedRake integer
----@field dreadfulBleeding integer
----@field felineSwiftness integer
----@field feralFrenzy integer
----@field fluidForm integer
----@field focusedFrenzy integer
----@field forestwalk integer
----@field franticFrenzy integer
----@field franticMomentum integer
----@field frenziedRegeneration integer
----@field galeWinds integer
----@field giftOfTheWild integer
----@field grievousWounds integer
----@field heartOfTheWild integer
----@field hibernate integer
----@field hungerForBattle integer
----@field improvedBarkskin integer
----@field improvedStampedingRoar integer
----@field incapacitatingRoar integer
----@field incarnationAvatarOfAshamane integer
----@field incessantTempest integer
----@field infectedWounds integer
----@field innervate integer
----@field instinctsOfTheClaw integer
----@field ironfur integer
----@field killerInstinct integer
----@field laceratingClaws integer
----@field lingeringHealing integer
----@field loreOfTheGrove integer
----@field lunarInspiration integer
----@field lycarasInspiration integer
----@field lycarasTeachings integer
----@field maim integer
----@field massEntanglement integer
----@field mattedFur integer
----@field mercilessClaws integer
----@field mightyBash integer
----@field momentOfClarity integer
----@field moonkinForm integer
----@field naturalRecovery integer
----@field nurturingInstinct integer
----@field oakskin integer
----@field omenOfClarity integer
----@field panthersGuile integer
----@field perfectlyhonedInstincts integer
----@field pouncingStrikes integer
----@field predator integer
----@field primalFury integer
----@field primalWrath integer
----@field ragingFury integer
----@field rake integer
----@field rampantFerocity integer
----@field rejuvenation integer
----@field removeCorruption integer
----@field rip integer
----@field ripAndTear integer
----@field saberJaws integer
----@field sabertooth integer
----@field savageFury integer
----@field skullBash integer
----@field soothe integer
----@field soulOfTheForest integer
----@field stampedingRoar integer
----@field starfire integer
----@field starlightConduit integer
----@field starsurge integer
----@field suddenAmbush integer
----@field sunfire integer
----@field survivalInstincts integer
----@field swipe integer
----@field symbioticRelationship integer
----@field tasteForBlood integer
----@field thickHide integer
----@field tigerDash integer
----@field tigersFury integer
----@field tigersTenacity integer
----@field tirelessEnergy integer
----@field typhoon integer
----@field unseenPredator integer
----@field ursineVigor integer
----@field ursocsSpirit integer
----@field ursolsVortex integer
----@field veinripper integer
----@field verdantHeart integer
----@field wellhonedInstincts integer
----@field wildCharge integer
----@field wildGrowth integer
----@field wildSlashes integer
-
-
----@class BR.Retail.Druid.Feral.buff : BR.Keys.Retail.Druid.Feral.Buffs<BR.buff.Spell>
-
-
-
-
----@class BR.Retail.Druid.Feral.cast.able : BR.cast.able.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.able.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.active : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.active.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.auto : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.auto.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.cancel : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.cancel.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.cost : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.cost.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.current : BR.cast.current.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.current.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.dispel : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.dispel.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.empowered : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.empowered.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.inFlight : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.inFlight.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.inFlightRemain : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.inFlightRemain.Spell>
-
-
-
-
----@class BR.Retail.Druid.Feral.cast.last.time : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.last.time.Spell>
-
----@class BR.Retail.Druid.Feral.cast.last : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.last.Spell>
----@field time BR.Retail.Druid.Feral.cast.last.time
-
-
----@class BR.Retail.Druid.Feral.cast.maxRank : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.maxRank.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.noControl : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.noControl.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.opener : BR.cast.opener.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.opener.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.pool : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.pool.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.range : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.range.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.regen : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.regen.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.safe : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.safe.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.time : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.time.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.timeSinceLast : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.timeSinceLast.Spell>
-
----@class BR.Retail.Druid.Feral.cast : BR.cast.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.Spell>
----@field able BR.Retail.Druid.Feral.cast.able
----@field active BR.Retail.Druid.Feral.cast.active
----@field auto BR.Retail.Druid.Feral.cast.auto
----@field cancel BR.Retail.Druid.Feral.cast.cancel
----@field cost BR.Retail.Druid.Feral.cast.cost
----@field current BR.Retail.Druid.Feral.cast.current
----@field dispel BR.Retail.Druid.Feral.cast.dispel
----@field empowered BR.Retail.Druid.Feral.cast.empowered
----@field inFlight BR.Retail.Druid.Feral.cast.inFlight
----@field inFlightRemain BR.Retail.Druid.Feral.cast.inFlightRemain
----@field last BR.Retail.Druid.Feral.cast.last
----@field maxRank BR.Retail.Druid.Feral.cast.maxRank
----@field noControl BR.Retail.Druid.Feral.cast.noControl
----@field opener BR.Retail.Druid.Feral.cast.opener
----@field pool BR.Retail.Druid.Feral.cast.pool
----@field range BR.Retail.Druid.Feral.cast.range
----@field regen BR.Retail.Druid.Feral.cast.regen
----@field safe BR.Retail.Druid.Feral.cast.safe
----@field time BR.Retail.Druid.Feral.cast.time
----@field timeSinceLast BR.Retail.Druid.Feral.cast.timeSinceLast
-
-
----@class BR.Retail.Druid.Feral.cd : BR.cd.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cd.Spell>, BR.Keys.Retail.Druid.Feral.Items<BR.cd.Item>
-
-
----@class BR.Retail.Druid.Feral.charges : BR.Keys.Retail.Druid.Feral.Abilities<BR.charges.Spell>, BR.Keys.Retail.Druid.Feral.Items<BR.charges.Item>
-
-
----@class BR.Retail.Druid.Feral.debuff : BR.Keys.Retail.Druid.Feral.Debuffs<BR.debuff.Spell>
-
-
----@class BR.Retail.Druid.Feral.equiped : BR.equiped.Base, BR.Keys.Retail.Druid.Feral.Items<BR.equiped.Item>
-
-
----@class BR.Retail.Druid.Feral.glyph : BR.glyph.Base, BR.Keys.Retail.Druid.Feral.Glyphs<BR.glyph.K>
-
-
----@class BR.Retail.Druid.Feral.has : BR.has.Base, BR.Keys.Retail.Druid.Feral.Items<BR.has.Item>
-
-
----@class BR.Retail.Druid.Feral.heroTree
----@field druidOfTheClaw boolean # true for the active hero talent tree
----@field elunesChosen boolean # true for the active hero talent tree
----@field keeperOfTheGrove boolean # true for the active hero talent tree
----@field wildstalker boolean # true for the active hero talent tree
-
-
----@class BR.Retail.Druid.Feral.imbues
-
-
----@class BR.Retail.Druid.Feral.spell : BR.Keys.Retail.Druid.Feral.Abilities<BR.spell.K>
-
-
----@class BR.Retail.Druid.Feral.talent
----@field rank BR.Retail.Druid.Feral.talent.rank The rank of each talent (0 when not taken)
----@field aessinasRenewal boolean # true while the talent is taken
----@field apexPredatorsCraving boolean # true while the talent is taken
----@field ashamanesGuidance boolean # true while the talent is taken
----@field astralInfluence boolean # true while the talent is taken
----@field berserk boolean # true while the talent is taken
----@field berserkHeartOfTheLion boolean # true while the talent is taken
----@field bloodSplattered boolean # true while the talent is taken
----@field bloodtalons boolean # true while the talent is taken
----@field carnivorousInstinct boolean # true while the talent is taken
----@field chomp boolean # true while the talent is taken
----@field circleOfLifeAndDeath boolean # true while the talent is taken
----@field circleOfTheHeavens boolean # true while the talent is taken
----@field circleOfTheWild boolean # true while the talent is taken
----@field coiledToSpring boolean # true while the talent is taken
----@field convokeTheSpirits boolean # true while the talent is taken
----@field cyclone boolean # true while the talent is taken
----@field doubleclawedRake boolean # true while the talent is taken
----@field dreadfulBleeding boolean # true while the talent is taken
----@field felineSwiftness boolean # true while the talent is taken
----@field feralFrenzy boolean # true while the talent is taken
----@field fluidForm boolean # true while the talent is taken
----@field focusedFrenzy boolean # true while the talent is taken
----@field forestwalk boolean # true while the talent is taken
----@field franticFrenzy boolean # true while the talent is taken
----@field franticMomentum boolean # true while the talent is taken
----@field frenziedRegeneration boolean # true while the talent is taken
----@field galeWinds boolean # true while the talent is taken
----@field giftOfTheWild boolean # true while the talent is taken
----@field grievousWounds boolean # true while the talent is taken
----@field heartOfTheWild boolean # true while the talent is taken
----@field hibernate boolean # true while the talent is taken
----@field hungerForBattle boolean # true while the talent is taken
----@field improvedBarkskin boolean # true while the talent is taken
----@field improvedStampedingRoar boolean # true while the talent is taken
----@field incapacitatingRoar boolean # true while the talent is taken
----@field incarnationAvatarOfAshamane boolean # true while the talent is taken
----@field incessantTempest boolean # true while the talent is taken
----@field infectedWounds boolean # true while the talent is taken
----@field innervate boolean # true while the talent is taken
----@field instinctsOfTheClaw boolean # true while the talent is taken
----@field ironfur boolean # true while the talent is taken
----@field killerInstinct boolean # true while the talent is taken
----@field laceratingClaws boolean # true while the talent is taken
----@field lingeringHealing boolean # true while the talent is taken
----@field loreOfTheGrove boolean # true while the talent is taken
----@field lunarInspiration boolean # true while the talent is taken
----@field lycarasInspiration boolean # true while the talent is taken
----@field lycarasTeachings boolean # true while the talent is taken
----@field maim boolean # true while the talent is taken
----@field massEntanglement boolean # true while the talent is taken
----@field mattedFur boolean # true while the talent is taken
----@field mercilessClaws boolean # true while the talent is taken
----@field mightyBash boolean # true while the talent is taken
----@field momentOfClarity boolean # true while the talent is taken
----@field moonkinForm boolean # true while the talent is taken
----@field naturalRecovery boolean # true while the talent is taken
----@field nurturingInstinct boolean # true while the talent is taken
----@field oakskin boolean # true while the talent is taken
----@field omenOfClarity boolean # true while the talent is taken
----@field panthersGuile boolean # true while the talent is taken
----@field perfectlyhonedInstincts boolean # true while the talent is taken
----@field pouncingStrikes boolean # true while the talent is taken
----@field predator boolean # true while the talent is taken
----@field primalFury boolean # true while the talent is taken
----@field primalWrath boolean # true while the talent is taken
----@field ragingFury boolean # true while the talent is taken
----@field rake boolean # true while the talent is taken
----@field rampantFerocity boolean # true while the talent is taken
----@field rejuvenation boolean # true while the talent is taken
----@field removeCorruption boolean # true while the talent is taken
----@field rip boolean # true while the talent is taken
----@field ripAndTear boolean # true while the talent is taken
----@field saberJaws boolean # true while the talent is taken
----@field sabertooth boolean # true while the talent is taken
----@field savageFury boolean # true while the talent is taken
----@field skullBash boolean # true while the talent is taken
----@field soothe boolean # true while the talent is taken
----@field soulOfTheForest boolean # true while the talent is taken
----@field stampedingRoar boolean # true while the talent is taken
----@field starfire boolean # true while the talent is taken
----@field starlightConduit boolean # true while the talent is taken
----@field starsurge boolean # true while the talent is taken
----@field suddenAmbush boolean # true while the talent is taken
----@field sunfire boolean # true while the talent is taken
----@field survivalInstincts boolean # true while the talent is taken
----@field swipe boolean # true while the talent is taken
----@field symbioticRelationship boolean # true while the talent is taken
----@field tasteForBlood boolean # true while the talent is taken
----@field thickHide boolean # true while the talent is taken
----@field tigerDash boolean # true while the talent is taken
----@field tigersFury boolean # true while the talent is taken
----@field tigersTenacity boolean # true while the talent is taken
----@field tirelessEnergy boolean # true while the talent is taken
----@field typhoon boolean # true while the talent is taken
----@field unseenPredator boolean # true while the talent is taken
----@field ursineVigor boolean # true while the talent is taken
----@field ursocsSpirit boolean # true while the talent is taken
----@field ursolsVortex boolean # true while the talent is taken
----@field veinripper boolean # true while the talent is taken
----@field verdantHeart boolean # true while the talent is taken
----@field wellhonedInstincts boolean # true while the talent is taken
----@field wildCharge boolean # true while the talent is taken
----@field wildGrowth boolean # true while the talent is taken
----@field wildSlashes boolean # true while the talent is taken
-
-
-
-
----@class BR.Retail.Druid.Feral.totem.Element : BR.totem.Element.Base, BR.Keys.Retail.Druid.Feral.Totems<BR.totem.Element.TotemName>
-
----@class BR.Retail.Druid.Feral.totem : BR.totem.Base, BR.Keys.Elements<BR.Retail.Druid.Feral.totem.Element>
-
-
-
-
----@class BR.Retail.Druid.Feral.use.able : BR.use.able.Base, BR.Keys.Retail.Druid.Feral.Items<BR.use.able.Item>
-
----@class BR.Retail.Druid.Feral.use : BR.use.Base, BR.Keys.Retail.Druid.Feral.Items<BR.use.Item>
----@field able BR.Retail.Druid.Feral.use.able
-
----@class BR.Keys.Retail.Druid.Initial.Abilities<T>
----@field aessinasRenewal T
----@field ancestralCall T
----@field arcanePulse T
----@field astralInfluence T
----@field autoAttack T
----@field autoShot T
----@field bagOfTricks T
----@field barkskin T
----@field bearForm T
----@field catForm T
----@field charmWoodlandCreature T
----@field circleOfTheHeavens T
----@field circleOfTheWild T
----@field cyclone T
----@field cyclotronicBlast T
----@field dash T
----@field disenchant T
----@field dreamwalk T
----@field entanglingRoots T
----@field felineSwiftness T
----@field ferociousBite T
----@field fireblood T
----@field flap T
----@field flightForm T
----@field fluidForm T
----@field focusedAzeriteBeam T
----@field focusedAzeriteBeamChannel T
----@field forestwalk T
----@field frenziedRegeneration T
----@field galeWinds T
----@field giftOfTheNaaru T
----@field giftOfTheWild T
----@field global T
----@field grievousWounds T
----@field growl T
----@field heartOfAzeroth T
----@field heartOfTheWild T
----@field hibernate T
----@field improvedBarkskin T
----@field improvedStampedingRoar T
----@field incapacitatingRoar T
----@field incessantTempest T
----@field innervate T
----@field instinctsOfTheClaw T
----@field ironfur T
----@field killerInstinct T
----@field latentArcana T
----@field lightsJudgment T
----@field lingeringHealing T
----@field loreOfTheGrove T
----@field lycarasInspiration T
----@field lycarasTeachings T
----@field maim T
----@field mangle T
----@field markOfTheWild T
----@field massEntanglement T
----@field mattedFur T
----@field mightyBash T
----@field milling T
----@field moonfire T
----@field moonfireCat T
----@field moonkinForm T
----@field mountForm T
----@field naturalRecovery T
----@field nurturingInstinct T
----@field oakskin T
----@field perfectlyhonedInstincts T
----@field primalFury T
----@field prospecting T
----@field prowl T
----@field quakingPalm T
----@field racial T
----@field rake T
----@field rebirth T
----@field regrowth T
----@field rejuvenation T
----@field removeCorruption T
----@field revive T
----@field rip T
----@field shadowmeld T
----@field shred T
----@field skullBash T
----@field soothe T
----@field stampedingRoar T
----@field starfire T
----@field starlightConduit T
----@field starsurge T
----@field sunfire T
----@field swiftmend T
----@field swipe T
----@field swipeBear T
----@field swipeCat T
----@field symbioticRelationship T
----@field thickHide T
----@field thrashBear T
----@field thrashCat T
----@field tigerDash T
----@field trackBeasts T
----@field trackHumanoids T
----@field travelForm T
----@field typhoon T
----@field ursineVigor T
----@field ursocsSpirit T
----@field ursolsVortex T
----@field verdantHeart T
----@field wellhonedInstincts T
----@field wildCharge T
----@field wildGrowth T
----@field wrath T
-
----@class BR.Keys.Retail.Druid.Initial.Buffs<T>
----@field adaptiveSwarm T
----@field ancientHysteria T
----@field barkskin T
----@field battlePotionOfAgility T
----@field battlePotionOfIntellect T
----@field battlePotionOfStrength T
----@field battleScarredAugmentation T
----@field bearForm T
----@field blessingOfFreedom T
----@field blessingOfProtection T
----@field blessingOfSacrifice T
----@field bloodLust T
----@field burningEssence T
----@field catForm T
----@field clearcasting T
----@field concordanceOfTheLegionfall T
----@field convokeTheSpirits T
----@field cracklingTourmaline T
----@field dash T
----@field defiledAugmentation T
----@field divineSteed T
----@field domineeringArrogance T
----@field elementalPotionOfPower T
----@field elementalPotionOfUltimatePower T
----@field felFocus T
----@field flaskOfEndlessFathoms T
----@field flaskOfTenThousandScars T
----@field flaskOfTheCountlessArmies T
----@field flaskOfTheCurrents T
----@field flaskOfTheSeventhDemon T
----@field flaskOfTheUndertow T
----@field flaskOfTheVastHorizon T
----@field flaskOfTheWhisperedPact T
----@field flayedWingToxin T
----@field flightForm T
----@field forTheAlliance T
----@field forTheHorde T
----@field frenziedRegeneration T
----@field fruitfulMachinatins T
----@field greaterFlaskOfEndlessFathoms T
----@field greaterFlaskOfTheCurrents T
----@field greaterFlaskOfTheUndertow T
----@field greaterFlaskOfTheVastHorizon T
----@field guidingHand T
----@field heartOfTheWild T
----@field heroism T
----@field icedPhialOfCorruptingRage T
----@field ineffableTruth T
----@field ironfur T
----@field latentArcana T
----@field markOfTheWild T
----@field mistcallerOcarina T
----@field moonkinForm T
----@field nagrandClefthoof T
----@field nagrandGoat T
----@field nagrandRidingClefthoof T
----@field nagrandTalbuk T
----@field netherwinds T
----@field norgannonsForesight T
----@field overchargeMana T
----@field phialOfGlacialFury T
----@field phialOfTepidVersatility T
----@field potionOfBurstingBlood T
----@field potionOfFocusedResolve T
----@field potionOfReplenishment T
----@field potionOfUnbridledFury T
----@field prolongedPower T
----@field prowl T
----@field queensDecreeUnstoppable T
----@field racial T
----@field razorCoral T
----@field regrowth T
----@field rejuvenation T
----@field saphireofBrilliance T
----@field sephuz1 T
----@field sephuz2 T
----@field sephuzCooldown T
----@field shadowmeld T
----@field shroudOfConcealment T
----@field soulIgnition T
----@field soulshape T
----@field spectralFlaskOfPower T
----@field stagForm T
----@field stampedingRoar T
----@field stampedingRoarCat T
----@field superiorBattlePotionOfAgility T
----@field symbolOfHope T
----@field tigerDash T
----@field timeWarp T
----@field travelForm T
----@field vigorEngaged T
----@field whispersOfInsanity T
----@field wildGrowth T
-
----@class BR.Keys.Retail.Druid.Initial.Debuffs<T>
----@field adaptiveSwarm T
----@field arcaneBurst T
----@field bloodOfTheEnemy T
----@field bwonsamdiWrath T
----@field cascadingTerror T
----@field concentratedFlame T
----@field conductiveInk T
----@field creepingMadness T
----@field cyclone T
----@field dampening T
----@field defiledGround T
----@field entanglingRoots T
----@field eyeOfCorruption T
----@field eyeOfLeotheras T
----@field fixate T
----@field grandDelusions T
----@field graspingTendrils T
----@field growl T
----@field hibernate T
----@field lycarasBargin T
----@field massEntanglement T
----@field mightyBash T
----@field moonfire T
----@field necroticWound T
----@field promiseOfPower T
----@field quaking T
----@field rake T
----@field razorCoral T
----@field reaping T
----@field repeatPerformance T
----@field rip T
----@field shiverVenom T
----@field temptation T
----@field thirstForBlood T
----@field thrashBear T
----@field thrashCat T
----@field timeToFeed T
----@field vileCorruption T
-
----@class BR.Keys.Retail.Druid.Initial.Glyphs<T>
-
----@class BR.Keys.Retail.Druid.Initial.Items<T>
----@field abyssalHealingPotion T
----@field ailuroPouncers T
----@field algetharPuzzleBox T
----@field aquipotentNautilus T
----@field archavonsHeavyHand T
----@field ascendedFlute T
----@field ashesOfTheEmbersoul T
----@field ashvanesRazorCoral T
----@field azsharasFontOfPower T
----@field battlePotionOfAgility T
----@field battlePotionOfIntellect T
----@field battlePotionOfStrength T
----@field battleScarredAugmentRune T
----@field beaconToTheBeyond T
----@field benevolentGong T
----@field bottledFlayedWingToxin T
----@field burningSeeds T
----@field buzzingRuneQualities T
----@field bygoneBeeAlmanac T
----@field chatoyantSignet T
----@field chirpingRuneQualities T
----@field coastalHealingPotion T
----@field coldHeart T
----@field consortsColdCore T
----@field convergenceOfFates T
----@field darkmoonDeckPutrescence T
----@field deceiversGrandDesign T
----@field defiledAugmentRune T
----@field deviouslyDeviledEggs T
----@field djaruunPillarOfTheElderFlame T
----@field draughtOfSouls T
----@field dreadfireVessel T
----@field dreamwalkersHealingPotion T
----@field dribblingInkpod T
----@field drinkingHornCover T
----@field elementalPotionOfPowerQualities T
----@field elementalPotionOfUltimatePower T
----@field elementalPotionOfUltimatePowerQualities T
----@field empyrealOrdnance T
----@field eternalAmuletOfTheRedeemed T
----@field eternalEmberfuryTalisman T
----@field eternalHorizonChoker T
----@field eternalTalismanOfEvasion T
----@field eternalWillOfTheMartyr T
----@field eternalWovenIvyNecklace T
----@field everchillBrambles T
----@field fandralsSeedPouch T
----@field felCrystalFragments T
----@field feloiledInfernalMachine T
----@field flameOfBattle T
----@field flaskOfEndlessFathoms T
----@field flaskOfSpringBlossoms T
----@field flaskOfTenThousandScars T
----@field flaskOfTheCountlessArmies T
----@field flaskOfTheCurrents T
----@field flaskOfTheSeventhDemon T
----@field flaskOfTheUndertow T
----@field flaskOfTheVastHorizon T
----@field flaskOfTheWhisperedPact T
----@field galecallersBeak T
----@field galecallersBoon T
----@field gladiatorsBadge T
----@field gladiatorsBadgeAlacrity T
----@field glyphOfAssimilation T
----@field greaterFlaskOfEndlessFathoms T
----@field greaterFlaskOfTheCurrents T
----@field greaterFlaskOfTheUndertow T
----@field greaterFlaskOfTheVastHorizon T
----@field grongsPrimalRage T
----@field healthstone T
----@field heavenlyDrum T
----@field heirloomNeck T
----@field hiddenMastersForbiddenTouch T
----@field hissingRuneQualities T
----@field hornOfValor T
----@field howlingRuneQualities T
----@field hummingBlackDragonscale T
----@field hyperthreadWristWraps T
----@field icedPhialOfCorruptingRageQualities T
----@field imperfectAscendancySerum T
----@field inquisitorsMenacingEye T
----@field inscrutableQuantumDevice T
----@field instructorsDivineBell T
----@field integratedPrimalFire T
----@field irideusFragment T
----@field jesHowler T
----@field kazzalaxFujiedasFury T
----@field kharnalexTheFirstLight T
----@field koltirasNewfoundWill T
----@field kyrianBell T
----@field legionHealthstone T
----@field lifeflameAmpoule T
----@field lightforgedAugmentRune T
----@field luffaWrappings T
----@field lustrousGoldenPlumage T
----@field macabreSheetMusic T
----@field manaGem T
----@field manariTrainingAmulet T
----@field mirrorOfFracturedTomorrows T
----@field mythicKeystone T
----@field neuralSynapseEnhancer T
----@field oraliusWhisperingCrystal T
----@field perseveranceOfTheEbonMartyr T
----@field phialOfGlacialFuryQualities T
----@field phialOfSerenity T
----@field phialOfTepidVersatilityQualities T
----@field pocketSizedComputationDevice T
----@field potionOfBurstingBlood T
----@field potionOfEmpoweredProximity T
----@field potionOfFocusedResolve T
----@field potionOfProlongedPower T
----@field potionOfSpectralAgility T
----@field potionOfTheOldWar T
----@field potionOfUnbridledFury T
----@field potionOfWildMending T
----@field rampingAmplitudeGigavoltEngine T
----@field remoteGuidanceDevice T
----@field repurposedFelFocuser T
----@field ringOfCollapsingFutures T
----@field rotcrustedVoodooDoll T
----@field shadowCoreOil T
----@field shiverVenomRelic T
----@field shroudOfResolve T
----@field soulIgnitor T
----@field soulOfTheSlayer T
----@field soulettingRuby T
----@field specterOfBetrayal T
----@field spectralFlaskOfPower T
----@field sunbloodAmethyst T
----@field superiorBattlePotionOfAgility T
----@field superiorBattlePotionOfIntellect T
----@field superiorBattlePotionOfStamina T
----@field superiorBattlePotionOfStrength T
----@field superiorSteelskinPotion T
----@field theEmperorsCapacitor T
----@field theWildshapersClutch T
----@field thousandboneTongueslicer T
----@field tidesagesWarscroll T
----@field tidestormCodex T
----@field touchOfTheVoid T
----@field treacherousTransmitter T
----@field tuftOfSmolderingPlumage T
----@field twistedHeart T
----@field umbralMoonglaives T
----@field unearthlyChime T
----@field verdantGladiatorsBadgeOfFerocity T
----@field vialOfCeaselessToxins T
----@field vialOfSpectral T
----@field vialOfStorms T
----@field vigorTrinket T
----@field virmensBite T
----@field visionOfDemise T
----@field wakenersFrond T
----@field weightOfTheEarth T
----@field witherbarksBranch T
----@field wrapsOfElectrostaticPotential T
----@field wrathstone T
-
----@class BR.Keys.Retail.Druid.Initial.Totems<T>
-
----@class BR.Retail.Druid.Initial.talent.rank
----@field aessinasRenewal integer
----@field astralInfluence integer
----@field circleOfTheHeavens integer
----@field circleOfTheWild integer
----@field cyclone integer
----@field felineSwiftness integer
----@field fluidForm integer
----@field forestwalk integer
----@field frenziedRegeneration integer
----@field galeWinds integer
----@field giftOfTheWild integer
----@field grievousWounds integer
----@field heartOfTheWild integer
----@field hibernate integer
----@field improvedBarkskin integer
----@field improvedStampedingRoar integer
----@field incapacitatingRoar integer
----@field incessantTempest integer
----@field innervate integer
----@field instinctsOfTheClaw integer
----@field ironfur integer
----@field killerInstinct integer
----@field lingeringHealing integer
----@field loreOfTheGrove integer
----@field lycarasInspiration integer
----@field lycarasTeachings integer
----@field maim integer
----@field massEntanglement integer
----@field mattedFur integer
----@field mightyBash integer
----@field moonkinForm integer
----@field naturalRecovery integer
----@field nurturingInstinct integer
----@field oakskin integer
----@field perfectlyhonedInstincts integer
----@field primalFury integer
----@field rake integer
----@field rejuvenation integer
----@field removeCorruption integer
----@field rip integer
----@field skullBash integer
----@field soothe integer
----@field stampedingRoar integer
----@field starfire integer
----@field starlightConduit integer
----@field starsurge integer
----@field sunfire integer
----@field swipe integer
----@field symbioticRelationship integer
----@field thickHide integer
----@field tigerDash integer
----@field typhoon integer
----@field ursineVigor integer
----@field ursocsSpirit integer
----@field ursolsVortex integer
----@field verdantHeart integer
----@field wellhonedInstincts integer
----@field wildCharge integer
----@field wildGrowth integer
-
-
----@class BR.Retail.Druid.Initial.buff : BR.Keys.Retail.Druid.Initial.Buffs<BR.buff.Spell>
-
-
-
-
----@class BR.Retail.Druid.Initial.cast.able : BR.cast.able.Base, BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.able.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.active : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.active.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.auto : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.auto.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.cancel : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.cancel.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.cost : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.cost.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.current : BR.cast.current.Base, BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.current.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.dispel : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.dispel.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.empowered : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.empowered.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.inFlight : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.inFlight.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.inFlightRemain : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.inFlightRemain.Spell>
-
-
-
-
----@class BR.Retail.Druid.Initial.cast.last.time : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.last.time.Spell>
-
----@class BR.Retail.Druid.Initial.cast.last : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.last.Spell>
----@field time BR.Retail.Druid.Initial.cast.last.time
-
-
----@class BR.Retail.Druid.Initial.cast.maxRank : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.maxRank.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.noControl : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.noControl.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.opener : BR.cast.opener.Base, BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.opener.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.pool : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.pool.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.range : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.range.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.regen : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.regen.Spell>
-
-
----@class BR.Retail.Druid.Initial.cast.safe : BR.Keys.Retail.Druid.Initial.Abilities<BR.cast.safe.Spell>
