@@ -194,7 +194,9 @@ end
 local function applyImbue(optionName, offHand)
     local key = imbueFor(IMBUE_CHOICES[ui.value(optionName)], offHand)
     if key == nil or not spell[key].known() then return false end
-    local needed = unit.weaponImbue.needed(imbues[key], offHand)
+    -- Needed, or with under 2 minutes left (this runs out of combat): topped up between fights so it doesn't
+    -- end mid-pull, when it can't be put back until the fight is over
+    local needed = unit.weaponImbue.needed(imbues[key], offHand, 120)
     if offHand then
         if var.offHandFailed then return false end
         if var.offHandSent and needed and util.time() - var.offHandSent > 2 then
