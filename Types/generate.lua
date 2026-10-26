@@ -527,7 +527,13 @@ local function registration(path, text)
     local specText = def:match("specID%s*=%s*(%b{})") or def:match("specID%s*=%s*(%d+)")
     if not (flavour and specText) then error(path .. ": can't read registerRotation's expansion and specID") end
     local specs = {}
-    for id in specText:gmatch("%d+") do specs[#specs + 1] = tonumber(id) end
+    local enabled = false
+    for id in specText:gmatch("%d+") do
+        specs[#specs + 1] = tonumber(id)
+        if tonumber(id) ~= 0 then enabled = true end
+    end
+    -- specID 0 matches no spec: the profile is switched off and gets no block
+    if not enabled then return { disabled = true } end
     return { flavour = flavour, class = classToken(classFolder(path)), classFolder = classFolder(path):gsub("%s", ""), specs = specs }
 end
 
@@ -562,7 +568,9 @@ local supportCallers = {} -- support file path -> the scopes of the profiles tha
 for _, path in ipairs(lines('find Rotations -name "*.lua" -not -path "*/Support/*" | sort')) do
     local text = readFile(path)
     local reg = registration(path, text)
-    if reg then
+    if reg and reg.disabled then
+        profiles[#profiles + 1] = { path = path, text = text }
+    elseif reg then
         local scope = scopeFor(reg)
         profiles[#profiles + 1] = { path = path, text = text, scope = scope }
         for name in text:gmatch('loadSupport%(%s*"([%w_]+)"%s*%)') do
@@ -684,19 +692,23 @@ local function withBlock(text, blockLines)
         local stop = start
         while src[stop + 1] and src[stop + 1]:match("^local [%w_]+ = [%w_]+ %-%-%[%[@as ") do stop = stop + 1 end
         for _ = start, stop do table.remove(src, start) end
+        -- No block any more (a switched-off profile): also drop the blank line written after it
+        if not blockLines and src[start] and src[start]:match("^%s*$") then table.remove(src, start) end
+    elseif not blockLines then
+        return text
     else
         start = 1
         while src[start] and (src[start]:match("^%-%-") or src[start]:match("^%s*$")) do start = start + 1 end
         table.insert(src, start, "")
     end
-    for i, l in ipairs(blockLines) do table.insert(src, start + i - 1, l) end
+    for i, l in ipairs(blockLines or {}) do table.insert(src, start + i - 1, l) end
     return table.concat(src, nl) .. nl
 end
 
 local writeProfiles = OUT_DIR == "Types/ProfileAPI"
 local stale = 0
 for _, p in ipairs(profiles) do
-    local new = withBlock(p.text, profileBlock(p.scope))
+    local new = withBlock(p.text, p.scope and profileBlock(p.scope))
     if new ~= p.text then
         if writeProfiles then
             local f = assert(io.open(p.path, "wb")); f:write(new); f:close()
