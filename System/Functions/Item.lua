@@ -408,7 +408,12 @@ function item:noteImbueSucceeded(spellID)
 			imbueWatched[key] = nil
 			if enchantID and learnedImbues[enchantID] ~= key then
 				learnedImbues[enchantID] = key
-				if br.debug.imbue then br.debug.imbue:noteLanded(key, hand, enchantID) end
+				-- (listed: the in-game confirmation of a list ID; not listed: an ID the list lacks)
+				local listed = false
+				for _, id in ipairs((imbueLists() or {})[key] or {}) do
+					if id == enchantID then listed = true end
+				end
+				if br.debug.imbue then br.debug.imbue:noteLanded(key, hand, enchantID, listed) end
 			end
 			return
 		end

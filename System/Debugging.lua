@@ -1035,9 +1035,10 @@ local imbueWrite = br.log:file("Imbue.log", 100)
 local imbueNoted = {}
 
 -- Functions/Item.lua: an imbue BR cast showed up on a hand with this enchant ID (learned for the session)
-function br.debug.imbue:noteLanded(key, hand, enchantID)
-    imbueWrite(("%s landed on the %s as enchant %s (learned; the list can take this ID)"):format(
-        printable(br.functions.spell:getKeyName(key) or key), hand, tostring(enchantID)))
+function br.debug.imbue:noteLanded(key, hand, enchantID, listed)
+    imbueWrite(("%s landed on the %s as enchant %s (%s)"):format(
+        printable(br.functions.spell:getKeyName(key) or key), hand, tostring(enchantID),
+        listed and "in the list: confirmed in game" or "not in the list: the list can take this ID"))
 end
 
 -- Functions/Item.lua: an imbue BR cast showed on neither hand: that weapon doesn't hold it
