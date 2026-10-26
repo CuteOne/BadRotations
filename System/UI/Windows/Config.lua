@@ -196,7 +196,19 @@ function br.ui:createConfigWindow()
             300, 40)
     end
 
+    -- Display Failcasts and Cast Debug (before 2026-10-26) became the Debug Level: copy a character's
+    -- choice once (Cast Debug -> Trace, Display Failcasts -> Problems, neither -> Off); the old keys are
+    -- then cleaned up as unused
+    local function migrateDebugLevel()
+        local profileSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+        local page = profileSettings and profileSettings["Bot Options/Debug Options"]
+        if type(page) ~= "table" or page["Debug Level Drop"] ~= nil then return end
+        if page["Cast Debug Check"] == nil and page["Display Failcasts Check"] == nil then return end
+        page["Debug Level Drop"] = page["Cast Debug Check"] and 4 or page["Display Failcasts Check"] and 2 or 1
+    end
+
     local function callDebugOptions()
+        migrateDebugLevel()
         -- Debug and Developer Options
         section = br.ui:section("Debug Options", { window = br.ui.window.config })
         br.ui:checkbox(section, "Write Log Files", { checked = true,
@@ -206,8 +218,8 @@ function br.ui:createConfigWindow()
         br.ui:dropdown(section, "Addon Debug Messages", { choices = { "System Only", "Profile Only", "All" }, value = "All",
             tip = "Check this to display developer debug messages." })
         br.ui:checkbox(section, "Target Validation Debug", { tip = "Check this to display current target's validation." })
-        br.ui:checkbox(section, "Display Failcasts", { tip = "Show casts that failed for a reason worth fixing (not enough power, wrong form, a cast the game rejected). Expected refusals (out of range, target died, not enough targets) are left out." })
-        br.ui:checkbox(section, "Cast Debug", { tip = "Troubleshooting: show every cast refusal and check, including the expected ones (tagged as expected)." })
+        br.ui:dropdown(section, "Debug Level", { choices = { "Off", "Problems", "Developer", "Trace" }, value = "Problems", checkbox = false,
+            tip = "What BR tells you about casts. Off: nothing. Problems: casts that failed for a reason worth fixing (not enough power, wrong form, a cast the game rejected). Developer: also casts BR's own checks allowed but the game refused (range, sight, facing), and BR's diagnostics. Trace: also every routine refusal (cooldowns, the GCD, out of range, ...), written to Logs\\Gate.log rather than chat." })
         br.ui:checkbox(section, "Threat Debug", { tip = "Shows information about threat and threat changes." })
 
         section = br.ui:section("Developer Options", { window = br.ui.window.config })

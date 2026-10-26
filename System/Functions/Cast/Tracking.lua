@@ -193,7 +193,7 @@ function cast:handleCastError(message)
 	-- frame for it. Without one the error isn't about a cast at all (auto-loot's "There is no loot.",
 	-- a profession, ...) and isn't reported.
 	local errorAt = br.game.GetTime()
-	if (errorAt - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW and (E.castDebugOn() or E.showRefusal(false)) then
+	if (errorAt - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW and E.showRefusal("problem") then
 		local lastCastGUID = br.botGUID
 		br.game.C_Timer.After(0, function()
 			local failed = br.functions.lastCast and br.functions.lastCast.lastCastTable
@@ -202,10 +202,11 @@ function cast:handleCastError(message)
 			end
 			local spellID = failed.lastFailedSpellID
 			local expected, mismatch = E.expectedRefusal(message, lastCastGUID)
-			if not E.showRefusal(expected ~= nil) then return end
+			local kind = expected == nil and "problem" or mismatch and "mismatch" or "expected"
+			if not E.showRefusal(kind) then return end
 			local text = "[CAST FAIL][SERVER] " .. tostring(br.functions.spell:getName(spellID)) .. " — game said: " .. message
 			-- Expected and nothing BR could have known (the target died, a stronger aura): Gate.log
-			if expected and not mismatch then
+			if kind == "expected" then
 				return E.writeGateLine(spellID, "SERVER", br.functions.misc:plainText(text .. " (expected: " .. expected .. ")"))
 			end
 			br.log:systemDebug(text .. (expected and (" — BR's own check had allowed it (" .. expected .. ")") or ""))
@@ -444,13 +445,17 @@ end
 -- The two debug options:
 --   Cast Debug         every refusal and check, routine ones tagged, for troubleshooting
 --   Display Failcasts  only refusals that point at a problem (a profile, BR, or the setup)
-function E.castDebugOn()
-	return br.functions.misc ~= nil and br.functions.misc:isChecked("Cast Debug")
+-- Debug Level trace: routine refusals are written to Gate.log
+function E.traceOn()
+	return br.functions.misc ~= nil and br.functions.misc:debugAt("trace")
 end
--- Whether to show a refusal: always with Cast Debug; with Display Failcasts unless it's expected
-function E.showRefusal(expected)
-	if E.castDebugOn() then return true end
-	return not expected and br.functions.misc ~= nil and br.functions.misc:isChecked("Display Failcasts")
+-- Whether to show a refusal of this kind at the Debug Level:
+--   "problem"   worth fixing (no mana, wrong form, ...): problems and up, in chat
+--   "mismatch"  BR's own check allowed what the game refused: developer and up, in chat
+--   "expected"  the cast system or the fight handled it (out of range, the target died): trace, Gate.log
+local SHOWN_FROM = { problem = "problems", mismatch = "developer", expected = "trace" }
+function E.showRefusal(kind)
+	return br.functions.misc ~= nil and br.functions.misc:debugAt(SHOWN_FROM[kind])
 end
 
 function E.setCastIntentLock(spellID, duration)

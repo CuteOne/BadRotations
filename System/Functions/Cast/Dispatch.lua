@@ -60,10 +60,10 @@ function E.printReport(ctx, debugOnly, debugReason, thisCount)
 	if ctx.debug then return false end -- never print for cast.able checks
 	local prefix = "[CAST FAIL][" .. reasonCode .. "] "
 	-- Routine refusals (no unit, not enough units, out of range, unsafe, out of sight, crowd controlled)
-	-- are the cast system handling it: with Cast Debug they go to Gate.log, never chat. The rest (cast
-	-- failed, not dead, a profile mistake, ...) show in chat with Display Failcasts or Cast Debug.
+	-- are the cast system handling it: at Debug Level trace they go to Gate.log, never chat. The rest
+	-- (cast failed, not dead, a profile mistake, ...) are problems, shown in chat.
 	local expected = debugOnly or EXPECTED_REPORTS[debugReason] == true
-	if E.showRefusal(expected) then
+	if E.showRefusal(expected and "expected" or "problem") then
 		if debugReason == "No Unit" then
 			reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — no unit found in " .. ctx.maxRange .. " yrds.")
 		elseif debugReason == "Below Min Units" then

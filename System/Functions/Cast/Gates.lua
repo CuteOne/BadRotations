@@ -99,7 +99,7 @@ end
 -- A number for a debug detail: flagged values print as <SECRET> and hide the whole line
 local function plain(value) return br.functions.misc:plainNumber(value) end
 
--- Gate refusals (on cooldown, GCD, not enough power, ...) are routine waits, so with Cast Debug on they
+-- Gate refusals (on cooldown, GCD, not enough power, ...) are routine waits, so at Debug Level trace they
 -- go to Logs\Gate.log, not chat (chat shows outcomes and problems)
 local gateWrite = br.log:file("Gate.log", 300)
 
@@ -107,7 +107,7 @@ local gateWrite = br.log:file("Gate.log", 300)
 -- throttle window. Also used for the expected refusals after the gates (printReport: out of range,
 -- no unit, ...), which the cast system handles itself.
 function E.writeGateLine(spellID, reason, msg)
-	if not E.castDebugOn() then return end
+	if not E.traceOn() then return end
 	local now = br.game.GetTime()
 	if now < E.gateDebugSilentUntil then return end
 	local key = spellID .. reason
@@ -117,7 +117,7 @@ function E.writeGateLine(spellID, reason, msg)
 end
 
 local function emitGateDebug(spellID, spellName, reason, detail)
-	if not E.castDebugOn() then return end
+	if not E.traceOn() then return end
 	local msg = "[GATE: " .. reason .. "] " .. tostring(br.functions.misc:plainText(spellName)) .. " (" .. tostring(spellID) .. ")"
 	-- Detail numbers are made printable where they're built (plain); anything still flagged would
 	-- hide the whole line, so only the detail is left out

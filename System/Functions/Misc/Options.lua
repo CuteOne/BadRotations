@@ -92,6 +92,26 @@ function misc:checkKeyClashes()
 	end
 end
 
+-- The Debug Level option (Bot Options > Debug Options), by name: what BR tells a profile developer
+--   off        nothing
+--   problems   refusals worth fixing (no mana, wrong form, a send the game rejected), in chat
+--   developer  also where BR's own check allowed what the game refused, and BR's diagnostics, in chat
+--   trace      also every routine refusal (cooldowns, the GCD, out of range, ...), in Logs\Gate.log
+local DEBUG_LEVELS = { off = 1, problems = 2, developer = 3, trace = 4 }
+
+--- True when the Debug Level is at least the named level ("problems", "developer", "trace").
+-- if br.functions.misc:debugAt("developer") then
+function misc:debugAt(name)
+	return self:debugLevel() >= DEBUG_LEVELS[name]
+end
+
+--- The Debug Level as a number, 1 (off) to 4 (trace); problems before the options load.
+function misc:debugLevel()
+	local level = self:getValue("Debug Level")
+	if type(level) ~= "number" or level < 1 then return DEBUG_LEVELS.problems end
+	return level
+end
+
 -- Reads a module option: from "Rotation Options" when the profile defines that page, otherwise
 -- from "Base Options" (option lookups search the other pages when not found on the first).
 -- if br.functions.misc:getModuleOption("Use Racial", "Check") then

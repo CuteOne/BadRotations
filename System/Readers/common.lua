@@ -316,7 +316,7 @@ function common:commonReaders()
 			-- Checked half a second later: when the attacked unit dies, auto attack stops before the game
 			-- marks it dead and before combat ends (2026-10-19: "no target" right before looting each kill)
 			if event == "PLAYER_LEAVE_COMBAT" and br.game.UnitAffectingCombat("player")
-				and br.functions.misc:isChecked("Cast Debug") -- a diagnostic: Cast Debug only
+				and br.functions.misc:debugAt("developer") -- a diagnostic for profile developers
 			then br.game.C_Timer.After(0.5, function()
 				if autoAttackTargetDied() or not br.game.UnitAffectingCombat("player") then return end
 				local unit, misc = br.functions.unit, br.functions.misc
