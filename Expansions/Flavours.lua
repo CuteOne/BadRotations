@@ -51,7 +51,10 @@ local RULES = {
     -- game object dynamic flag the server sets for an active quest ("sparkle"; 0x04 is "activate"),
     -- where known. Forever: verified with /qprobe on 2026-10-11 (the Trial of the Lake Bauble
     -- Container reads 0xC024, a plain object nearby 0x8000); game object names come back empty there.
-    questObjectFlag       = { nil, Forever = 0x20 },
+    -- TBC Anniversary: /qprobe 2026-10-26, Azure Snapdragon (181644, quest 9473) reads 0xC024 too, and
+    -- game object names come back empty, so without the flag no object matched; a plain object's
+    -- flags not yet read there.
+    questObjectFlag       = { nil, TBC = 0x20, Forever = 0x20 },
     -- the player can destroy a totem themselves (right-clicking its icon; Wrath on). Not before: TBC
     -- Anniversary's UI does nothing on a right-click (2026-10-26), so BR doesn't either (totem.destroy).
     -- Forever: unverified, the safe choice.
