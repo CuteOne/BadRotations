@@ -13,6 +13,12 @@ questTracker.completed = questTracker.completed or {} -- titles of finished ques
 -- tooltip), so when a corpse's loot holds an open objective's item, that creature counts for the
 -- objective while it stays open (2026-10-26: Mutated Root Lashers for "Lasher Sample"). This session.
 questTracker.dropsFor = questTracker.dropsFor or {}
+-- Creatures whose loot held a quest item no objective names: creature ID -> true. Some quests need an
+-- item their objectives never mention (2026-10-26: Bristlelimb Keys for "Stillpine Captive Freed" in
+-- The Prophecy of Akida); the loot says only that it's a quest item, not for which quest, so these are
+-- forgotten when any open quest completes or leaves the log, and the next kill learns them again.
+questTracker.questItemDrops = questTracker.questItemDrops or {}
+questTracker.openQuests = questTracker.openQuests or {} -- [questId] = true: open (not complete) at the last rebuild
 
 local REBUILD_DELAY = 2 -- seconds; quest events arrive in bursts
 local NAME_RETRY, NAME_RETRIES = 5, 6 -- an objective's item name not loaded yet: rebuild again, at most this often
@@ -427,6 +433,9 @@ function questTracker:isQuestUnit(unit)
 			end
 		end
 
+		-- A creature whose loot held a quest item no objective names (questTracker.questItemDrops)
+		if guid and questTracker.questItemDrops[questTracker:creatureID(guid)] then return true end
+
 		-- Objective text names the unit ("Kill Murlocs")
 		local unitName = br.game.UnitName(unit)
 		if unitName and matchesObjective(unitName:lower()) then
@@ -512,11 +521,13 @@ function questTracker:rebuild()
 
 	local questLog = br.game.C_QuestLog
 	local numEntries = questLog.GetNumQuestLogEntries()
+	local wasOpen, open = questTracker.openQuests, {}
 	for questIdx = 1, numEntries do
 		local info = questLog.GetInfo(questIdx)
 		local title, questId = info and info.title, info and info.questID
 		if info and not info.isHeader and type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil then
 			-- Finished quests (ready to turn in) have nothing left to track
+			if not questLog.IsComplete(questId) then open[questId] = true end
 			if questLog.IsComplete(questId) then
 				if title then questTracker.completed[title] = true end
 				questTracker.completedCount = questTracker.completedCount + 1
@@ -536,6 +547,12 @@ function questTracker:rebuild()
 				end
 			end
 		end
+	end
+
+	-- A quest done or gone: the quest item drops may have been its own
+	questTracker.openQuests = open
+	for questId in pairs(wasOpen) do
+		if not open[questId] then br.game.wipe(questTracker.questItemDrops) break end
 	end
 
 	-- World quests in the current zone
@@ -603,25 +620,49 @@ function questTracker:openObjectiveFor(subject)
 	return false
 end
 
--- A corpse's loot: each item that is an open objective's makes the corpse's creature a drop mob for it.
+-- The creature IDs a loot slot came from (GetLootSourceInfo: guid, quantity, guid, quantity, ...)
+local function lootSources(slot)
+	local ids = {}
+	if not br.game.GetLootSourceInfo then return ids end
+	local sources = { br.game.GetLootSourceInfo(slot) }
+	for i = 1, #sources, 2 do
+		local id = br.functions.misc:canUseValue(sources[i]) and questTracker:creatureID(sources[i]) or nil
+		if id then ids[#ids + 1] = id end
+	end
+	return ids
+end
+
+-- A corpse's loot: each item that is an open objective's makes the corpse's creature a drop mob for it;
+-- a quest item no objective names makes it a quest item drop (questTracker.questItemDrops).
 -- LOOT_READY comes first (a fast-loot addon can close the window before LOOT_OPENED)
 local function learnDrops()
 	if questTracker.objectiveCount == 0 or not br.game.GetNumLootItems then return end
+	local misc = br.functions.misc
 	local learnedNew = false
 	for slot = 1, br.game.GetNumLootItems() or 0 do
-		local _, itemName = br.game.GetLootSlotInfo(slot)
-		local subject = type(itemName) == "string" and br.functions.misc:canUseValue(itemName) and itemName:lower() or nil
-		if subject and questTracker:openObjectiveFor(subject) and br.game.GetLootSourceInfo then
-			local sources = { br.game.GetLootSourceInfo(slot) } -- guid, quantity, guid, quantity, ...
-			for i = 1, #sources, 2 do
-				local id = br.functions.misc:canUseValue(sources[i]) and questTracker:creatureID(sources[i]) or nil
-				if id then
-					questTracker.dropsFor[id] = questTracker.dropsFor[id] or {}
-					if not questTracker.dropsFor[id][subject] then
-						questTracker.dropsFor[id][subject] = true
-						learnedNew = true
-					end
+		-- texture, name, quantity, currencyID, quality, locked, isQuestItem, questID, isActive
+		local _, itemName, _, _, _, _, isQuestItem, questID, isActive = br.game.GetLootSlotInfo(slot)
+		local subject = type(itemName) == "string" and misc:canUseValue(itemName) and itemName:lower() or nil
+		if subject and questTracker:openObjectiveFor(subject) then
+			for _, id in ipairs(lootSources(slot)) do
+				questTracker.dropsFor[id] = questTracker.dropsFor[id] or {}
+				if not questTracker.dropsFor[id][subject] then
+					questTracker.dropsFor[id][subject] = true
+					learnedNew = true
 				end
+			end
+		elseif subject and misc:canUseValue(isQuestItem) and isQuestItem then
+			local ids = lootSources(slot)
+			for _, id in ipairs(ids) do
+				if not questTracker.questItemDrops[id] then
+					questTracker.questItemDrops[id] = true
+					learnedNew = true
+				end
+			end
+			if br.debug.loot then
+				br.debug.loot:line(("Quest item in loot: %s (questID %s, isActive %s) from creature %s"):format(itemName,
+					tostring(misc:canUseValue(questID) and questID or "?"), tostring(misc:canUseValue(isActive) and isActive or "?"),
+					#ids > 0 and table.concat(ids, ", ") or "?"))
 			end
 		end
 	end
