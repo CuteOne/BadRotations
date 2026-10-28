@@ -41,7 +41,7 @@ clean it.
 | Cast.log | Spells sent while another cast was still going, and casts the game refused |
 | Gate.log | At Debug Level Trace (Bot Options > Debug Options): every routine cast refusal: the gates' "not yet" answers (GCD, cooldown, not enough power, ...), the ones the cast system made itself (out of range, no target, not enough targets, out of sight), and the game's refusals BR couldn't foresee (the target died) |
 | Loot.log | What the loot engine did, corpse by corpse, and the tracker's auto-interacts with their answers ("Tracker: ...") |
-| Melee.log | Melee range episodes and client facts |
+| Melee.log | Melee range episodes, client facts, the swing around a cast, and when the game answers BR's auto attack starts |
 | Range.log | Results of the /br range command |
 
 ## Reading the files

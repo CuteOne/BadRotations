@@ -489,9 +489,54 @@ local function watchSwingAroundCast()
         c.speed, c.due + castFor - finished, c.due - finished, verdict))
 end
 
+-- Auto attack starts (2026-10-28): BR sent StartAttack twice, 0.3-0.5 s apart, whenever it went out with
+-- a cast nearly done, as PLAYER_ENTER_COMBAT hadn't come a round trip after the cast's end. Each start BR
+-- sends (15 a session) writes, once the game says auto attack is on or 2 s after the cast's end, how much
+-- cast was left at the send, when the game answered and any resends: whether a start sent during a cast
+-- is dropped follows from it.
+local ATTACK_START_LINES, ATTACK_START_WAIT = 15, 2
+local attackStart, attackStartLines = nil, 0 -- { sentAt, castLeft, resends = { seconds after the first } }
+
+local function attackStartLine(answeredAt)
+    local a = attackStart
+    attackStart = nil
+    attackStartLines = attackStartLines + 1
+    local resends = {}
+    for i, after in ipairs(a.resends) do resends[i] = ("%.2fs"):format(after) end
+    local answer = ("no answer in %ds"):format(ATTACK_START_WAIT)
+    if answeredAt then
+        answer = ("game said on %.2fs after the first send"):format(answeredAt - a.sentAt)
+        if a.castLeft > 0 then answer = answer .. (", %.2fs after the cast's end"):format(answeredAt - a.sentAt - a.castLeft) end
+    end
+    meleeLine(("AUTO ATTACK START sent %s | %s | resent %s"):format(
+        a.castLeft > 0 and ("with %.2fs of a cast left"):format(a.castLeft) or "with no cast", answer,
+        #resends > 0 and (table.concat(resends, ", ") .. " after the first") or "never"))
+end
+
+-- unit:startAttack sent StartAttack. castLeft: seconds left on the player's cast or channel (0 for none).
+function br.debug.melee:noteAttackSent(castLeft)
+    if attackStartLines >= ATTACK_START_LINES then return end
+    local now = br.game.GetTime()
+    if attackStart then
+        attackStart.resends[#attackStart.resends + 1] = now - attackStart.sentAt
+    else
+        attackStart = { sentAt = now, castLeft = castLeft, resends = {} }
+    end
+end
+
+-- PLAYER_ENTER_COMBAT: the game says auto attack is on
+function br.debug.melee:noteAttackOn()
+    if attackStart then attackStartLine(br.game.GetTime()) end
+end
+
+local function watchAttackStart(now)
+    if attackStart and now - attackStart.sentAt - attackStart.castLeft > ATTACK_START_WAIT then attackStartLine(nil) end
+end
+
 function br.debug.melee:watch()
     local now = br.game.GetTime()
     watchSwingAroundCast()
+    watchAttackStart(now)
     -- Once a session: client facts the fleeing and eating checks depend on
     if not meleeEnvironmentLogged then
         meleeEnvironmentLogged = true

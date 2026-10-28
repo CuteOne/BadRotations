@@ -902,6 +902,7 @@ end
 
 function unit:setAutoAttacking(on)
 	autoAttacking = on and true or false
+	if on and br.debug.melee and br.debug.melee.noteAttackOn then br.debug.melee:noteAttackOn() end
 	-- Either answer ends the wait; after a stop (the target died) a new start goes out at once
 	attackSentAt = -math.huge
 end
@@ -936,8 +937,10 @@ end
 function unit:startAttack(thisUnit)
 	local guid = br.game.UnitGUID(thisUnit or "target")
 	if guid ~= nil and guid == attackSentGUID and (autoAttacking or unit:isAttackPending(thisUnit)) then return false end
-	attackSentAt, attackSentGUID = br.game.GetTime() + math.max(0, br.functions.cast:getCastTimeRemain("player")), guid
+	local castLeft = math.max(0, br.functions.cast:getCastTimeRemain("player"))
+	attackSentAt, attackSentGUID = br.game.GetTime() + castLeft, guid
 	br.game.StartAttack(thisUnit)
+	if br.debug.melee and br.debug.melee.noteAttackSent then br.debug.melee:noteAttackSent(castLeft) end
 	return true
 end
 
