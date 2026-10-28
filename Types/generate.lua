@@ -151,11 +151,13 @@ local function parseTag(text, doc)
             local typ, desc = rest:match("^(%S+)%s*(.*)$")
             doc.returns[#doc.returns + 1] = { type = typ or "any", desc = desc or "" }
         else
-            -- "@return number, number, number x, y, z": each leading type word is one return value
+            -- "@return number, number, number x, y, z": each leading type word is one return value, and
+            -- "number|nil" one value that may be nil
             local types, desc = {}, rest
             repeat
-                local word, comma, after = desc:match("^(%a+)%s*(,?)%s*(.*)$")
-                local isType = word and TYPE_WORDS[word:lower()]
+                local word, comma, after = desc:match("^([%a|]+)%s*(,?)%s*(.*)$")
+                local isType = word ~= nil
+                for part in (word or ""):gmatch("[^|]+") do isType = isType and TYPE_WORDS[part:lower()] end
                 if isType then types[#types + 1] = word:lower(); desc = after end
             until not isType or comma == ""
             if #types == 0 then types[1] = "any" end

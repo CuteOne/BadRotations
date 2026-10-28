@@ -9854,7 +9854,7 @@ function C59.critChance() end
 --- ```
 ---@param range? number Yards to look within
 ---@param ...? any Optional roles to pick from ("TANK", "HEALER", "DAMAGER"); anyone when none are given
----@return string # |nil The unit, or nil when there's none
+---@return string|nil # The unit, or nil when there's none
 function C59.deadGroupMember(range, ...) end
 
 --- Check if a unit is dead or ghost
@@ -9968,7 +9968,7 @@ function C59.gcd(max) end
 
 --- Get the spell ID of the current shapeshift form (the spell that shifts back into it), or nil
 --- when no form is active.
----@return number # |nil Spell ID of the current form, or nil if no form is active.
+---@return number|nil # Spell ID of the current form, or nil if no form is active.
 function C59.getCurrentFormSpellID() end
 
 --- Get number of members in the current group (including player; 0 if solo)
@@ -10026,7 +10026,7 @@ function C59.inRaid() end
 
 --- Check instance type or if in a specific instance type
 ---@param thisInstance? string Optional specific instance type to check for
----@return string # |boolean Returns instance type if no parameter, or boolean if matching specific instance
+---@return string|boolean # Returns instance type if no parameter, or boolean if matching specific instance
 function C59.instance(thisInstance) end
 
 --- Check if a unit's cast can be interrupted
@@ -10189,7 +10189,7 @@ function C59.role(thisUnit) end
 --- if (unit.sinceSwing() or 0) <= 0.4 then
 --- ```
 ---@param hand? string "mh" for melee (the main hand), "oh" for the off hand, "ranged" for Auto Shot
----@return number # |nil
+---@return number|nil
 function C59.sinceSwing(hand) end
 
 --- Check if player is solo (no group)
@@ -10235,7 +10235,7 @@ function C59.swing(hand) end
 
 --- Get the current target of a unit
 ---@param thisUnit? string The unit whose target to get
----@return string # |nil Unit token of thisUnit's current target, or nil if none
+---@return string|nil # Unit token of thisUnit's current target, or nil if none
 function C59.target(thisUnit) end
 
 --- Check if a unit is on a taxi
@@ -10254,7 +10254,7 @@ function C59.threat(thisUnit) end
 function C59.threatStatus(thisUnit) end
 
 --- Seconds since the player last landed from a mount
----@return number # |nil Seconds since dismounting, nil while mounted or if not mounted since login
+---@return number|nil # Seconds since dismounting, nil while mounted or if not mounted since login
 function C59.timeSinceDismount() end
 
 --- True for a totem
