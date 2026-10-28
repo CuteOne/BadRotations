@@ -5660,6 +5660,7 @@ function C1.stackMax(thisUnit, sourceUnit) end
 ---@field rect fun(range?: number, width?: number, minUnits?: number): boolean
 ---@field targetAOE fun(range?: number, minUnits?: number, unit?: string): boolean
 ---@field rank fun(rank: integer): BR.cast.able.Spell The spell at a rank (or the highest known below it)
+---@field forAmount fun(amount: number): BR.cast.able.Spell The lowest known rank that heals (or hits) for at least amount, else the highest
 local C2 = {}
 
 ---@class BR.cast.able.Base
@@ -5862,6 +5863,7 @@ local C17 = {}
 ---@field rect fun(range?: number, width?: number, minUnits?: number): boolean
 ---@field targetAOE fun(range?: number, minUnits?: number, unit?: string): boolean
 ---@field rank fun(rank: integer): BR.cast.opener.Spell The spell at a rank (or the highest known below it)
+---@field forAmount fun(amount: number): BR.cast.opener.Spell The lowest known rank that heals (or hits) for at least amount, else the highest
 local C18 = {}
 
 ---@class BR.cast.opener.Base
@@ -5927,6 +5929,7 @@ local C23 = {}
 --- cast.swipe.aoe(8, 3)                          --   range, minUnits = 1, unit), pet(unit), dead(unit)
 --- cast.blizzard.ground(8, 3)                    -- on the ground where it covers 3+ enemies
 --- cast.healingTouch.rank(3)("player")           -- rank 3, or the highest known below it
+--- cast.healingWave.forAmount(missing)("player") -- the lowest known rank that heals that much
 --- cast.consecration.rank(1).aoe(8, 3)           -- the forms work at a rank, and on cast.able / cast.opener
 --- ```
 ---@class BR.cast.Spell
@@ -5939,6 +5942,7 @@ local C23 = {}
 ---@field rect fun(range?: number, width?: number, minUnits?: number): boolean
 ---@field targetAOE fun(range?: number, minUnits?: number, unit?: string): boolean
 ---@field rank fun(rank: integer): BR.cast.Spell The spell at a rank (or the highest known below it)
+---@field forAmount fun(amount: number): BR.cast.Spell The lowest known rank that heals (or hits) for at least amount, else the highest
 local C24 = {}
 
 
@@ -10289,81 +10293,3 @@ function C59.valid(thisUnit) end
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return number # Average weapon damage
 function C59.weaponDamage(thisUnit) end
-
-
----@class BR.units
----@field friends BR.Friend[] The group members the healing engine keeps
----@field dyn5 string? The best unit within 5 yards you face (units.get(5))
----@field dyn5AOE string? The best unit within 5 yards (units.get(5, true))
----@field dyn8 string? The best unit within 8 yards you face (units.get(8))
----@field dyn8AOE string? The best unit within 8 yards (units.get(8, true))
----@field dyn10 string? The best unit within 10 yards you face (units.get(10))
----@field dyn10AOE string? The best unit within 10 yards (units.get(10, true))
----@field dyn12 string? The best unit within 12 yards you face (units.get(12))
----@field dyn12AOE string? The best unit within 12 yards (units.get(12, true))
----@field dyn15 string? The best unit within 15 yards you face (units.get(15))
----@field dyn15AOE string? The best unit within 15 yards (units.get(15, true))
----@field dyn20 string? The best unit within 20 yards you face (units.get(20))
----@field dyn20AOE string? The best unit within 20 yards (units.get(20, true))
----@field dyn25 string? The best unit within 25 yards you face (units.get(25))
----@field dyn25AOE string? The best unit within 25 yards (units.get(25, true))
----@field dyn30 string? The best unit within 30 yards you face (units.get(30))
----@field dyn30AOE string? The best unit within 30 yards (units.get(30, true))
----@field dyn35 string? The best unit within 35 yards you face (units.get(35))
----@field dyn35AOE string? The best unit within 35 yards (units.get(35, true))
----@field dyn40 string? The best unit within 40 yards you face (units.get(40))
----@field dyn40AOE string? The best unit within 40 yards (units.get(40, true))
-local C60 = {}
-
---- Gets the unit to buff from a "Player/Target/Mouseover/Focus/Group" dropdown option.
----@param thisOption? string - Name of the dropdown option.
----@param needsBuff? any - function(unit) returning true if that group member needs the buff (Group mode).
----@param range? number - Maximum range for group members.
----@return string # - Unit token; falls back to "player" when the chosen unit doesn't exist.
-function C60.buffUnit(thisOption, needsBuff, range) end
-
---- Gets the "best" unit within a specified range in front or around the player.
---- Call once per profile rotation and use the variable it creates in units
---- IE: units.get(5,false) makes units.dyn5, units.get(8,true) makes units.dyn8AOE
----@param range? number - Distance in yards to look for the "best" unit
----@param aoe? boolean - If true, looks for best unit anywhere in range, otherwise only units you are facing will be considered.
-function C60.get(range, aoe) end
-
---- True when the group hasn't changed (members joining or leaving) for that many seconds
----@param seconds? number
----@return boolean
-function C60.groupStable(seconds) end
-
---- The group members within radius yards of a unit at or below health percent, lowest first, at
---- most count of them (each with .hp, .guid, .name, position)
----@param thisUnit? string The centre
----@param radius? number Yards
----@param health? number Health percent
----@param count? number The most members to return
----@return table
-function C60.healAround(thisUnit, radius, health, count) end
-
---- The dead units the player can loot
----@return table
-function C60.lootable() end
-
---- How many dead units are waiting to be looted
----@return number
-function C60.lootCount() end
-
---- Sets the profile's own target weight for dynamic targeting: fn(unit) returns a number added to
---- the unit's score (higher = more priority), or nil to leave it. Cleared whenever the profile is built.
---- ```lua
---- -- Example: Feral druid prioritizing Rip refresh
---- units.setTargetWeight(function(thisUnit)
----     if debuff.rip.exists(thisUnit) and debuff.rip.remains(thisUnit) < 5 then
----         return 80 -- High priority to refresh expiring Rip
----     end
---- end)
---- ```
----@param fn? any function(unit) or nil
-function C60.setTargetWeight(fn) end
-
-
-
-

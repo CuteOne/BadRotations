@@ -716,6 +716,55 @@ end
 -- ranks, or for a single ID, the spell list entry as it is.
 -- @param spellIDOrTable - A spell ID (number) or table of spell IDs {rank1, rank2, ...}
 -- @param rank - The rank number (1-based index)
+-- What each rank did when cast (spellID -> { total, count }): its direct, non-critical heals or hits,
+-- overhealing included, from the combat log (Readers/combatlog.lua). Learned this session.
+local rankAmounts = {}
+-- The "<low> to <high>" in a rank's description (spellID -> the middle, or false), the guess before any cast
+local tooltipAmounts = {}
+local AMOUNT_SAMPLES = 2 -- casts seen before what a rank did replaces its tooltip
+
+--- A rank's heal or hit landed (direct, not critical): amount includes any overhealing.
+function spell:noteRankAmount(spellID, amount)
+	if type(spellID) ~= "number" or type(amount) ~= "number" or amount <= 0 then return end
+	local seen = rankAmounts[spellID]
+	if seen == nil then seen = { total = 0, count = 0 }; rankAmounts[spellID] = seen end
+	seen.total, seen.count = seen.total + amount, seen.count + 1
+end
+
+--- How much a rank heals or hits for: the average of what it did (from 2 casts), else the middle of its
+--- description's "<low> to <high>" (numbers only, so any client language), else nil.
+function spell:getRankAmount(spellID)
+	local seen = rankAmounts[spellID]
+	if seen and seen.count >= AMOUNT_SAMPLES then return seen.total / seen.count end
+	local guess = tooltipAmounts[spellID]
+	if guess == nil then
+		local desc = br.game.C_Spell.GetSpellDescription(spellID)
+		if type(desc) ~= "string" or desc == "" then return nil end -- not loaded yet: asked again later
+		local low, high = desc:match("(%d[%d,]*)%s*%S+%s*(%d[%d,]*)")
+		low, high = tonumber(low and (low:gsub(",", ""))), tonumber(high and (high:gsub(",", "")))
+		guess = (low and high and low <= high) and (low + high) / 2 or false
+		tooltipAmounts[spellID] = guess
+	end
+	return guess or nil
+end
+
+--- The rank (its position in the list) to cast for at least amount: the lowest known rank that does
+--- that much, else the highest known. A rank whose amount is unknown is passed over. On clients
+--- without ranks, or a spell with one, 1.
+-- local rank = br.functions.spell:getRankIndexForAmount(br.runner.spells.healingWave, 300)
+function spell:getRankIndexForAmount(spellIDOrTable, amount)
+	if not br.client.rules.hasSpellRanks or type(spellIDOrTable) ~= "table" then return 1 end
+	local highest = 1
+	for i = 1, #spellIDOrTable do
+		if self:isKnown(spellIDOrTable[i]) then
+			highest = i
+			local does = self:getRankAmount(spellIDOrTable[i])
+			if does and does >= (amount or 0) then return i end
+		end
+	end
+	return highest
+end
+
 function spell:getSpellRank(spellIDOrTable, rank)
     if not br.client.rules.hasSpellRanks or type(spellIDOrTable) ~= "table" then return spellIDOrTable end
     local asked = math.max(1, math.min(tonumber(rank) or 1, #spellIDOrTable))

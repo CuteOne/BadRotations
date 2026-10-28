@@ -6,6 +6,84 @@
 -- profiles use. The game never loads these files.
 
 
+---@class BR.units
+---@field friends BR.Friend[] The group members the healing engine keeps
+---@field dyn5 string? The best unit within 5 yards you face (units.get(5))
+---@field dyn5AOE string? The best unit within 5 yards (units.get(5, true))
+---@field dyn8 string? The best unit within 8 yards you face (units.get(8))
+---@field dyn8AOE string? The best unit within 8 yards (units.get(8, true))
+---@field dyn10 string? The best unit within 10 yards you face (units.get(10))
+---@field dyn10AOE string? The best unit within 10 yards (units.get(10, true))
+---@field dyn12 string? The best unit within 12 yards you face (units.get(12))
+---@field dyn12AOE string? The best unit within 12 yards (units.get(12, true))
+---@field dyn15 string? The best unit within 15 yards you face (units.get(15))
+---@field dyn15AOE string? The best unit within 15 yards (units.get(15, true))
+---@field dyn20 string? The best unit within 20 yards you face (units.get(20))
+---@field dyn20AOE string? The best unit within 20 yards (units.get(20, true))
+---@field dyn25 string? The best unit within 25 yards you face (units.get(25))
+---@field dyn25AOE string? The best unit within 25 yards (units.get(25, true))
+---@field dyn30 string? The best unit within 30 yards you face (units.get(30))
+---@field dyn30AOE string? The best unit within 30 yards (units.get(30, true))
+---@field dyn35 string? The best unit within 35 yards you face (units.get(35))
+---@field dyn35AOE string? The best unit within 35 yards (units.get(35, true))
+---@field dyn40 string? The best unit within 40 yards you face (units.get(40))
+---@field dyn40AOE string? The best unit within 40 yards (units.get(40, true))
+local C60 = {}
+
+--- Gets the unit to buff from a "Player/Target/Mouseover/Focus/Group" dropdown option.
+---@param thisOption? string - Name of the dropdown option.
+---@param needsBuff? any - function(unit) returning true if that group member needs the buff (Group mode).
+---@param range? number - Maximum range for group members.
+---@return string # - Unit token; falls back to "player" when the chosen unit doesn't exist.
+function C60.buffUnit(thisOption, needsBuff, range) end
+
+--- Gets the "best" unit within a specified range in front or around the player.
+--- Call once per profile rotation and use the variable it creates in units
+--- IE: units.get(5,false) makes units.dyn5, units.get(8,true) makes units.dyn8AOE
+---@param range? number - Distance in yards to look for the "best" unit
+---@param aoe? boolean - If true, looks for best unit anywhere in range, otherwise only units you are facing will be considered.
+function C60.get(range, aoe) end
+
+--- True when the group hasn't changed (members joining or leaving) for that many seconds
+---@param seconds? number
+---@return boolean
+function C60.groupStable(seconds) end
+
+--- The group members within radius yards of a unit at or below health percent, lowest first, at
+--- most count of them (each with .hp, .guid, .name, position)
+---@param thisUnit? string The centre
+---@param radius? number Yards
+---@param health? number Health percent
+---@param count? number The most members to return
+---@return table
+function C60.healAround(thisUnit, radius, health, count) end
+
+--- The dead units the player can loot
+---@return table
+function C60.lootable() end
+
+--- How many dead units are waiting to be looted
+---@return number
+function C60.lootCount() end
+
+--- Sets the profile's own target weight for dynamic targeting: fn(unit) returns a number added to
+--- the unit's score (higher = more priority), or nil to leave it. Cleared whenever the profile is built.
+--- ```lua
+--- -- Example: Feral druid prioritizing Rip refresh
+--- units.setTargetWeight(function(thisUnit)
+---     if debuff.rip.exists(thisUnit) and debuff.rip.remains(thisUnit) < 5 then
+---         return 80 -- High priority to refresh expiring Rip
+---     end
+--- end)
+--- ```
+---@param fn? any function(unit) or nil
+function C60.setTargetWeight(fn) end
+
+
+
+
+
+
 --- Checks if item is usable or not.
 --- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
 ---@class BR.use.able.Item
@@ -12120,162 +12198,3 @@ function C65.timer(timerName, interval) end
 ---@field vileCorruption T
 
 ---@class BR.Keys.Retail.Druid.Initial.Glyphs<T>
-
----@class BR.Keys.Retail.Druid.Initial.Items<T>
----@field abyssalHealingPotion T
----@field ailuroPouncers T
----@field algetharPuzzleBox T
----@field aquipotentNautilus T
----@field archavonsHeavyHand T
----@field ascendedFlute T
----@field ashesOfTheEmbersoul T
----@field ashvanesRazorCoral T
----@field azsharasFontOfPower T
----@field battlePotionOfAgility T
----@field battlePotionOfIntellect T
----@field battlePotionOfStrength T
----@field battleScarredAugmentRune T
----@field beaconToTheBeyond T
----@field benevolentGong T
----@field bottledFlayedWingToxin T
----@field burningSeeds T
----@field buzzingRuneQualities T
----@field bygoneBeeAlmanac T
----@field chatoyantSignet T
----@field chirpingRuneQualities T
----@field coastalHealingPotion T
----@field coldHeart T
----@field consortsColdCore T
----@field convergenceOfFates T
----@field darkmoonDeckPutrescence T
----@field deceiversGrandDesign T
----@field defiledAugmentRune T
----@field deviouslyDeviledEggs T
----@field djaruunPillarOfTheElderFlame T
----@field draughtOfSouls T
----@field dreadfireVessel T
----@field dreamwalkersHealingPotion T
----@field dribblingInkpod T
----@field drinkingHornCover T
----@field elementalPotionOfPowerQualities T
----@field elementalPotionOfUltimatePower T
----@field elementalPotionOfUltimatePowerQualities T
----@field empyrealOrdnance T
----@field eternalAmuletOfTheRedeemed T
----@field eternalEmberfuryTalisman T
----@field eternalHorizonChoker T
----@field eternalTalismanOfEvasion T
----@field eternalWillOfTheMartyr T
----@field eternalWovenIvyNecklace T
----@field everchillBrambles T
----@field fandralsSeedPouch T
----@field felCrystalFragments T
----@field feloiledInfernalMachine T
----@field flameOfBattle T
----@field flaskOfEndlessFathoms T
----@field flaskOfSpringBlossoms T
----@field flaskOfTenThousandScars T
----@field flaskOfTheCountlessArmies T
----@field flaskOfTheCurrents T
----@field flaskOfTheSeventhDemon T
----@field flaskOfTheUndertow T
----@field flaskOfTheVastHorizon T
----@field flaskOfTheWhisperedPact T
----@field galecallersBeak T
----@field galecallersBoon T
----@field gladiatorsBadge T
----@field gladiatorsBadgeAlacrity T
----@field glyphOfAssimilation T
----@field greaterFlaskOfEndlessFathoms T
----@field greaterFlaskOfTheCurrents T
----@field greaterFlaskOfTheUndertow T
----@field greaterFlaskOfTheVastHorizon T
----@field grongsPrimalRage T
----@field healthstone T
----@field heavenlyDrum T
----@field heirloomNeck T
----@field hiddenMastersForbiddenTouch T
----@field hissingRuneQualities T
----@field hornOfValor T
----@field howlingRuneQualities T
----@field hummingBlackDragonscale T
----@field hyperthreadWristWraps T
----@field icedPhialOfCorruptingRageQualities T
----@field imperfectAscendancySerum T
----@field inquisitorsMenacingEye T
----@field inscrutableQuantumDevice T
----@field instructorsDivineBell T
----@field integratedPrimalFire T
----@field irideusFragment T
----@field jesHowler T
----@field kazzalaxFujiedasFury T
----@field kharnalexTheFirstLight T
----@field koltirasNewfoundWill T
----@field kyrianBell T
----@field legionHealthstone T
----@field lifeflameAmpoule T
----@field lightforgedAugmentRune T
----@field luffaWrappings T
----@field lustrousGoldenPlumage T
----@field macabreSheetMusic T
----@field manaGem T
----@field manariTrainingAmulet T
----@field mirrorOfFracturedTomorrows T
----@field mythicKeystone T
----@field neuralSynapseEnhancer T
----@field oraliusWhisperingCrystal T
----@field perseveranceOfTheEbonMartyr T
----@field phialOfGlacialFuryQualities T
----@field phialOfSerenity T
----@field phialOfTepidVersatilityQualities T
----@field pocketSizedComputationDevice T
----@field potionOfBurstingBlood T
----@field potionOfEmpoweredProximity T
----@field potionOfFocusedResolve T
----@field potionOfProlongedPower T
----@field potionOfSpectralAgility T
----@field potionOfTheOldWar T
----@field potionOfUnbridledFury T
----@field potionOfWildMending T
----@field rampingAmplitudeGigavoltEngine T
----@field remoteGuidanceDevice T
----@field repurposedFelFocuser T
----@field ringOfCollapsingFutures T
----@field rotcrustedVoodooDoll T
----@field shadowCoreOil T
----@field shiverVenomRelic T
----@field shroudOfResolve T
----@field soulIgnitor T
----@field soulOfTheSlayer T
----@field soulettingRuby T
----@field specterOfBetrayal T
----@field spectralFlaskOfPower T
----@field sunbloodAmethyst T
----@field superiorBattlePotionOfAgility T
----@field superiorBattlePotionOfIntellect T
----@field superiorBattlePotionOfStamina T
----@field superiorBattlePotionOfStrength T
----@field superiorSteelskinPotion T
----@field theEmperorsCapacitor T
----@field theWildshapersClutch T
----@field thousandboneTongueslicer T
----@field tidesagesWarscroll T
----@field tidestormCodex T
----@field touchOfTheVoid T
----@field treacherousTransmitter T
----@field tuftOfSmolderingPlumage T
----@field twistedHeart T
----@field umbralMoonglaives T
----@field unearthlyChime T
----@field verdantGladiatorsBadgeOfFerocity T
----@field vialOfCeaselessToxins T
----@field vialOfSpectral T
----@field vialOfStorms T
----@field vigorTrinket T
----@field virmensBite T
----@field visionOfDemise T
----@field wakenersFrond T
----@field weightOfTheEarth T
----@field witherbarksBranch T
----@field wrapsOfElectrostaticPotential T
----@field wrathstone T

@@ -367,6 +367,7 @@ local function emitClass(node, root, scope)
         if node.path:match("^cast%.<spell>$") or node.path:match("^cast%.able%.<spell>$") or node.path:match("^cast%.opener%.<spell>$") then
             for _, form in ipairs(CAST_FORMS) do emit("---@field " .. form.name .. " " .. form.sig) end
             emit("---@field rank fun(rank: integer): " .. name .. " The spell at a rank (or the highest known below it)")
+            emit("---@field forAmount fun(amount: number): " .. name .. " The lowest known rank that heals (or hits) for at least amount, else the highest")
         end
         for _, extra in ipairs(node.extraFields or {}) do emit("---@field " .. extra) end
         for _, f in ipairs(staticFields) do emit("---@field " .. f.name .. " " .. f.type) end

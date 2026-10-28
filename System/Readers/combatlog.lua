@@ -335,6 +335,15 @@ function combatLog:common(...)
         end
     end
 
+    -- What each rank of the player's spells did (spell:getRankAmount, for cast.<spell>.forAmount): direct
+    -- heals and hits that weren't critical, overhealing included (SPELL_HEAL: amount, overhealing, absorbed,
+    -- critical; SPELL_DAMAGE: amount, overkill, school, resisted, blocked, absorbed, critical)
+    if source == guid and (param == "SPELL_HEAL" or param == "SPELL_DAMAGE") then
+        local amount = select(15, ...)
+        local critical = param == "SPELL_HEAL" and select(18, ...) or select(21, ...)
+        if not critical and br.functions.misc:canUseValue(amount) then br.functions.spell:noteRankAmount(spell, amount) end
+    end
+
     -- Ranged: Auto Shot fires as SPELL_CAST_SUCCESS (UnitRangedDamage: lo, hi, speed)
     if param == "SPELL_CAST_SUCCESS" and source == guid and spell == sharedAbilities.autoShot then
         local _, _, rangedSpeed = br.game.UnitRangedDamage("player")

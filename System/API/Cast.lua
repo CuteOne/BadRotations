@@ -21,7 +21,9 @@ local _, br = ...
 -- spell data has them: SpellTargetRestrictions ConeDegrees / Width). .rank(n)
 -- gives the spell at a rank (or the highest known below it), with the same forms:
 --   cast.healingTouch.rank(3)("player")    cast.consecration.rank(1).aoe(8, 3)
-local CALL, RANK_CALL = {}, {} -- private keys: the spell's full call, and its call at a rank
+-- .forAmount(n) gives the lowest known rank that heals (or hits) for at least n, else the highest:
+--   cast.healingWave.forAmount(unit.healthMax() - unit.health())("player")
+local CALL, RANK_CALL, RANKS = {}, {}, {} -- private keys: the spell's full call, its call at a rank, its rank IDs
 
 local FORMS = {
     aoe       = function(call, range, minUnits, unit) return call(unit or "player", "aoe", minUnits or 1, range) end,
@@ -49,6 +51,9 @@ local callerMeta = {
             local callAtRank, rank = rawget(api, RANK_CALL), 1
             local ranked = makeCaller(function(...) return callAtRank(rank, ...) end)
             fn = function(n) rank = n; return ranked end
+        elseif key == "forAmount" and rawget(api, RANK_CALL) ~= nil then
+            local ranks = rawget(api, RANKS)
+            fn = function(amount) return api.rank(br.functions.spell:getRankIndexForAmount(ranks, amount)) end
         else
             return nil
         end
@@ -57,9 +62,10 @@ local callerMeta = {
     end,
 }
 
--- call(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies); callAtRank(rank, ...) or nil
-makeCaller = function(call, callAtRank)
-    return setmetatable({ [CALL] = call, [RANK_CALL] = callAtRank }, callerMeta)
+-- call(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies); callAtRank(rank, ...) or nil;
+-- ranks: the spell's ID or list of rank IDs (for .forAmount)
+makeCaller = function(call, callAtRank, ranks)
+    return setmetatable({ [CALL] = call, [RANK_CALL] = callAtRank, [RANKS] = ranks }, callerMeta)
 end
 
 -- br.api.build.cast runs once per spell in the spell list. Per-spell functions (cast.<spell>, cast.able.<spell>,
@@ -155,7 +161,7 @@ br.api.build.cast = function(api, spell, id)
         function(rank, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
             return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng,
                 br.functions.spell:getSpellRank(id, rank), spell, predict, predictPad, enemies, true)
-        end)
+        end, id)
 
     --- Checks if the spell is the one currently being cast.
     -- @function cast.active.<spell>
@@ -402,7 +408,7 @@ br.api.build.cast = function(api, spell, id)
         function(rank, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
             return br.functions.cast:openerStep(spell, id, cast[spell].rank(rank), thisUnit, castType, minUnits, effectRng,
                 predict, predictPad, enemies)
-        end)
+        end, id)
 
     --- Checks if specified power requirements are not met.
     -- @function cast.pool.<spell>
@@ -465,6 +471,7 @@ br.api.build.cast = function(api, spell, id)
     -- cast.swipe.aoe(8, 3)                          --   range, minUnits = 1, unit), pet(unit), dead(unit)
     -- cast.blizzard.ground(8, 3)                    -- on the ground where it covers 3+ enemies
     -- cast.healingTouch.rank(3)("player")           -- rank 3, or the highest known below it
+    -- cast.healingWave.forAmount(missing)("player") -- the lowest known rank that heals that much
     -- cast.consecration.rank(1).aoe(8, 3)           -- the forms work at a rank, and on cast.able / cast.opener
     cast[spell] = makeCaller(
         function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
@@ -474,7 +481,7 @@ br.api.build.cast = function(api, spell, id)
         function(rank, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
             return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng,
                 br.functions.spell:getSpellRank(id, rank), spell, predict, predictPad, enemies)
-        end)
+        end, id)
 
     --- Gets the cast time of player's spell. If the spell has no cast time, it returns the global cooldown.
     -- @function cast.time.<spell>
