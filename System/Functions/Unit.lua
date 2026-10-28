@@ -47,7 +47,9 @@ local autoAttacking = false
 
 -- When BR last started auto attack, and on whom. PLAYER_ENTER_COMBAT comes a round trip later, so
 -- until then auto attack counts as on its way and isn't started again (2026-10-26: four
--- StartAttacks in 0.3 s at 88 ms latency).
+-- StartAttacks in 0.3 s at 88 ms latency). Sent while the player casts, the swing waits for the
+-- cast's end, and so does the game's answer: the wait counts from there (2026-10-26 21:30: every
+-- start sent behind a Lightning Bolt went out twice, 0.3 s apart).
 local attackSentAt, attackSentGUID = -math.huge, nil
 
 -- When the player's target last changed (PLAYER_TARGET_CHANGED, Readers/common.lua)
@@ -912,13 +914,12 @@ function unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency)
 	return true
 end
 
--- Starts auto attack, on thisUnit when given (else the target)
 -- Starts auto attack on thisUnit (default: the target). Not sent again while it's already on, or on
 -- its way, for that same unit; another unit is a switch and always goes out. True when it was sent.
 function unit:startAttack(thisUnit)
 	local guid = br.game.UnitGUID(thisUnit or "target")
 	if guid ~= nil and guid == attackSentGUID and (autoAttacking or unit:isAttackPending(thisUnit)) then return false end
-	attackSentAt, attackSentGUID = br.game.GetTime(), guid
+	attackSentAt, attackSentGUID = br.game.GetTime() + math.max(0, br.functions.cast:getCastTimeRemain("player")), guid
 	br.game.StartAttack(thisUnit)
 	return true
 end
