@@ -14,12 +14,16 @@ local _, br = ...
 --                 idle with an enemy within 8 yd (Idle.log's rule); time at full energy, rage,
 --                 focus or runic power; each 30 s+ cooldown among the profile's abilities while it
 --                 is ready and usable
---   power events  mana spent and gained
+--   power events  mana spent and gained (not the mana a death empties)
+--   your casts    per spell: casts, and the mana each cost (combat log SPELL_CAST_SUCCESS)
+--   between fights (the "rest" before each fight): seconds since the last fight ended, time drinking
+--                 and eating (the player's aura changes), mana gained, and spells cast meanwhile with
+--                 their mana (the out-of-combat heal, buffs)
 -- A value the game hides (secret) isn't added: the event is counted as hidden instead.
 --
 -- Layout: "=== fight N ===", then one line per section. Most are "section key=value ...", values
--- without spaces; "target", "spells" and "ready" hold names: "target <name>", and
--- "spells <name>=<n>; <name>=<n>" (most first).
+-- without spaces; "target", "spells", "spellCasts", "spellMana", "restSpells" and "ready" hold names:
+-- "target <name>", and "spells <name>=<n>; <name>=<n>" (most first).
 br.log.fights = br.log.fights or {}
 local fights = br.log.fights
 local log = br.log
@@ -40,6 +44,13 @@ local fightLine = log:file("Fights.log")
 local current      -- the fight being counted, until combat ends
 local sampler      -- the ticker taking samples
 local playerGUID
+
+-- Between fights, from when the last one ended: open drinking/eating periods (drinkSince, eatSince)
+-- and their totals, casts and their mana, and the mana then (manaAtEnd, nil when unknown)
+local function newRest(manaAtEnd)
+	return { since = GetTime(), drinking = 0, eating = 0, casts = {}, mana = 0, manaAtEnd = manaAtEnd }
+end
+local rest = newRest(nil)
 
 local function usable(value)
 	return value ~= nil and br.functions.misc:canUseValue(value)
@@ -116,6 +127,26 @@ local function sample()
 	end
 end
 
+-- Drinking and eating from the player's buffs: a period opens when the buff appears, closes when it goes
+local function updateRestBuffs()
+	local now, unitFns = GetTime(), br.functions.unit
+	local drinking, eating = unitFns:isDrinking("player"), unitFns:isEating("player")
+	if drinking and not rest.drinkSince then rest.drinkSince = now
+	elseif not drinking and rest.drinkSince then rest.drinking = rest.drinking + now - rest.drinkSince; rest.drinkSince = nil end
+	if eating and not rest.eatSince then rest.eatSince = now
+	elseif not eating and rest.eatSince then rest.eating = rest.eating + now - rest.eatSince; rest.eatSince = nil end
+end
+
+-- The rest before a fight, closed as it starts
+local function closeRest(manaStart)
+	local now, r = GetTime(), rest
+	if r.drinkSince then r.drinking = r.drinking + now - r.drinkSince; r.drinkSince = nil end
+	if r.eatSince then r.eating = r.eating + now - r.eatSince; r.eatSince = nil end
+	r.seconds = now - r.since
+	r.manaGained = (r.manaAtEnd and usable(manaStart)) and math.max(0, manaStart - r.manaAtEnd) or nil
+	return r
+end
+
 local function start(rotationFight)
 	playerGUID = br.game.UnitGUID("player")
 	local mana = br.game.UnitPower("player", 0)
@@ -129,7 +160,7 @@ local function start(rotationFight)
 		busy = 0, swinging = 0, idleNear = 0, controlled = 0, brOff = 0, brPaused = 0, capped = {}, ready = {}, watched = watchedCooldowns(),
 		damage = 0, petDamage = 0, bySpell = {}, taken = 0, healing = 0, overhealing = 0, hidden = 0,
 		manaSpent = 0, manaGained = 0, lastMana = usable(mana) and mana or nil, manaStart = mana,
-		deaths = 0, groupDeaths = 0,
+		deaths = 0, groupDeaths = 0, casts = {}, castMana = {}, rest = closeRest(mana),
 	}
 	if sampler then sampler:Cancel() end
 	sampler = br.game.C_Timer.NewTicker(SAMPLE_EVERY, sample)
@@ -141,6 +172,8 @@ local function stop(rotationFight)
 	if sampler then sampler:Cancel(); sampler = nil end
 	current.manaEnd = br.game.UnitPower("player", 0)
 	current.ended = true
+	rest = newRest(usable(current.manaEnd) and current.manaEnd or nil)
+	updateRestBuffs() -- already drinking as combat ends: counted from now
 end
 
 -- "k=v k=v" from pairs in order, numbers to one decimal
@@ -199,6 +232,12 @@ local function write(rotationFight)
 		"manaStart", manaStart, "manaEnd", manaEnd }))
 	fightLine("deaths " .. fields({ "you", f.deaths, "group", f.groupDeaths }))
 	if next(f.bySpell) then fightLine("spells " .. namedList(f.bySpell, TOP_SPELLS)) end
+	if next(f.casts) then fightLine("spellCasts " .. namedList(f.casts)) end
+	if next(f.castMana) then fightLine("spellMana " .. namedList(f.castMana)) end
+	local r = f.rest
+	fightLine("rest " .. fields({ "since", r.seconds, "drinking", r.drinking, "eating", r.eating,
+		"manaGained", r.manaGained or "unknown", "manaSpent", r.mana }))
+	if next(r.casts) then fightLine("restSpells " .. namedList(r.casts)) end
 	if #f.watched > 0 then
 		local ready = {}
 		for _, watched in ipairs(f.watched) do ready[watched.name] = f.ready[watched.name] or 0 end
@@ -223,20 +262,38 @@ br.log.rotation:onFight(function(phase, rotationFight)
 	if phase == "close" then return write(rotationFight) end
 end)
 
--- Mana spent and gained, from the player's power updates
+-- Mana spent and gained, from the player's power updates; drinking and eating from their buffs (out
+-- of combat only: UNIT_AURA fires often in a fight)
 local powerEvents = br.game.CreateFrame("Frame")
 powerEvents:RegisterUnitEvent("UNIT_POWER_FREQUENT", "player")
-powerEvents:SetScript("OnEvent", function(_, _, _, powerToken)
+powerEvents:RegisterUnitEvent("UNIT_AURA", "player")
+powerEvents:SetScript("OnEvent", function(_, event, _, powerToken)
 	local f = current
+	if event == "UNIT_AURA" then
+		if f == nil or f.ended then updateRestBuffs() end
+		return
+	end
 	if f == nil or f.ended or powerToken ~= "MANA" then return end
 	local mana = br.game.UnitPower("player", 0)
 	if not usable(mana) then return end
 	if f.lastMana then
 		local change = mana - f.lastMana
-		if change < 0 then f.manaSpent = f.manaSpent - change else f.manaGained = f.manaGained + change end
+		if change < 0 then
+			f.manaSpent = f.manaSpent - change
+			f.lastDrop = { amount = -change, at = GetTime(), toZero = mana == 0 }
+		else
+			f.manaGained = f.manaGained + change
+		end
 	end
 	f.lastMana = mana
 end)
+
+-- The mana a spell cast cost (0 for none), by its rank's own ID
+local function manaCost(spellID)
+	local power = br.functions.power
+	if type(spellID) ~= "number" or power == nil then return 0 end
+	return power:getManaCostFromRef(spellID) or 0
+end
 
 local DAMAGE_AT = { SWING_DAMAGE = 12, RANGE_DAMAGE = 15, SPELL_DAMAGE = 15, SPELL_PERIODIC_DAMAGE = 15,
 	DAMAGE_SHIELD = 15, DAMAGE_SPLIT = 15, ENVIRONMENTAL_DAMAGE = 13 }
@@ -245,8 +302,24 @@ local HEAL = { SPELL_HEAL = true, SPELL_PERIODIC_HEAL = true }
 --- One combat log event, as the combat log reader read it (System/Readers/combatlog.lua dispatch)
 function fights:combatEvent(...)
 	local f = current
-	if f == nil or f.ended then return end
 	local _, event, _, sourceGUID, _, sourceFlags, _, destGUID, _, destFlags = ...
+	-- Your casts, in the fight or between fights (auto attack and Auto Shot aren't casts)
+	if event == "SPELL_CAST_SUCCESS" and sourceGUID ~= nil and sourceGUID == (playerGUID or br.game.UnitGUID("player")) then
+		local spellID = select(12, ...)
+		local shared = br.lists.spells and br.lists.spells.Shared and br.lists.spells.Shared.Shared
+		local abilities = shared and shared.abilities or {}
+		if spellID == abilities.autoAttack or spellID == abilities.autoShot then return end
+		local spellName, cost = name(select(13, ...)), manaCost(spellID)
+		if f ~= nil and not f.ended then
+			f.casts[spellName] = (f.casts[spellName] or 0) + 1
+			if cost > 0 then f.castMana[spellName] = (f.castMana[spellName] or 0) + cost end
+		else
+			rest.casts[spellName] = (rest.casts[spellName] or 0) + 1
+			rest.mana = rest.mana + cost
+		end
+		return
+	end
+	if f == nil or f.ended then return end
 	local at = DAMAGE_AT[event]
 	if at then
 		local amount, overkill = select(at, ...)
@@ -273,6 +346,9 @@ function fights:combatEvent(...)
 	elseif event == "UNIT_DIED" then
 		if destGUID == playerGUID then
 			f.deaths = f.deaths + 1
+			-- Dying empties the mana bar: that drop wasn't spent (2026-10-26: 201 mana "spent" with 0 casts)
+			local drop = f.lastDrop
+			if drop and drop.toZero and GetTime() - drop.at <= 1 then f.manaSpent = f.manaSpent - drop.amount end
 		elseif type(destFlags) == "number" and br.game.bit.band(destFlags, GROUP) ~= 0 and br.game.bit.band(destFlags, PLAYER) ~= 0 then
 			f.groupDeaths = f.groupDeaths + 1
 		end
