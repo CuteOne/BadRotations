@@ -146,21 +146,39 @@ local function safe()
     return unit.hp() >= 60 and #enemies.yards8 <= 1 and unit.winning(enemy)
 end
 
--- The fight is going badly: 2+ enemies on you, under half health, or losing (you'd die before it does)
+-- The fight is going badly: 2+ enemies on you, under half health, or losing (you'd die before it does).
+-- Says which, for the debug line; nil when it isn't
 local function pressed()
-    return #enemies.yards8 >= 2 or unit.hp() < 50 or (enemy ~= nil and unit.losing(enemy))
+    if #enemies.yards8 >= 2 then return #enemies.yards8 .. " enemies on you" end
+    if unit.hp() < 50 then return ("health %d%%"):format(unit.hp()) end
+    if enemy ~= nil and unit.losing(enemy) then
+        return ("losing: you %.1fs, it %.1fs"):format(unit.ttd("player"), unit.fightLength(enemy))
+    end
 end
 
 -- Mana may go on damage beyond the pull and Lightning Shield (shocks, woven bolts), by Mana Use.
 -- Conserve: only above Conserve Above, or when the fight is going badly. Over levels 1-11 (204 fights,
 -- 2026-10-28) a fight cost ~130 mana against ~3 mana a second regenerated between pulls: a woven bolt
 -- saves ~1.4 s of fight for ~7.6 s of regen, an Earth Shock ~2.3 s for ~15 s, while swings are free.
--- threshold: the Balanced / Burn mana percent for this spending
+-- threshold: the Balanced / Burn mana percent for this spending. Returns the rule that allowed it ("mana
+-- 84%", "losing: ...", "safe"; shown in the cast's debug line, 2026-10-28: Conserve still spent ~140 mana a
+-- fight and the logs couldn't say why), or nil
 local function spendOnDamage(threshold)
-    local use = ui.value("Mana Use")
-    if use == MANA_CONSERVE then return pressed() or power.mana.percent() >= ui.value("Conserve Above") end
-    return safe() or power.mana.percent() >= threshold
+    local percent = power.mana.percent()
+    local manaWhy = ("mana %d%%"):format(percent)
+    if ui.value("Mana Use") == MANA_CONSERVE then
+        local why = pressed()
+        if why then return why end
+        if percent >= ui.value("Conserve Above") then return manaWhy end
+        return nil
+    end
+    if safe() then return "safe" end
+    if percent >= threshold then return manaWhy end
+    return nil
 end
+
+-- " [why]" for a debug line, when there is a why
+local function tag(why) return type(why) == "string" and (" [" .. why .. "]") or "" end
 
 -- True when a spell costing this much still leaves the mana for one heal (or there's no need for one),
 -- after what casts on their way have promised
@@ -412,14 +430,15 @@ actionList.Shocks = function(manaGate)
     end
     local focused = buff.focused.exists()
     if not focused and not manaGate then return false end
+    local why = focused and "Focused" or manaGate
     -- Flame Shock when it has time to tick
     if not debuff.flameShock.exists(enemy) and unit.livesFor(enemy, 12)
         and (focused or affordable(cast.cost.flameShock()))
     then
-        if cast.flameShock(enemy) then ui.debug("Casting Flame Shock") return true end
+        if cast.flameShock(enemy) then ui.debug("Casting Flame Shock" .. tag(why)) return true end
     end
     if focused or affordable(cast.cost.earthShock()) then
-        if cast.earthShock(enemy) then ui.debug("Casting Earth Shock") return true end
+        if cast.earthShock(enemy) then ui.debug("Casting Earth Shock" .. tag(why)) return true end
     end
 end
 
@@ -445,11 +464,12 @@ actionList.Melee = function()
     -- Weave: spare mana into Lightning Bolt until Windfury Weapon makes the swings worth more. A
     -- finished cast resets the swing, so the bolt goes out just after a swing lands (or before the
     -- first), where it costs the least swing time. Instants don't touch the swing.
-    if ui.checked("Weave Lightning Bolt") and not spell.windfuryWeapon.known()
-        and spendOnDamage(ui.value("Weave Lightning Bolt")) and unit.fightLength(enemy) > 3
+    local weaveWhy = ui.checked("Weave Lightning Bolt") and not spell.windfuryWeapon.known()
+        and spendOnDamage(ui.value("Weave Lightning Bolt"))
+    if weaveWhy and unit.fightLength(enemy) > 3
         and affordable(cast.cost.lightningBolt()) and (distance >= 5 or (unit.sinceSwing() or 0) <= 0.4)
     then
-        if cast.lightningBolt(enemy) then ui.debug("Casting Lightning Bolt [Weave]") return true end
+        if cast.lightningBolt(enemy) then ui.debug("Casting Lightning Bolt [Weave, " .. weaveWhy .. "]") return true end
     end
 end
 
