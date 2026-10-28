@@ -420,7 +420,12 @@ actionList.Shocks = function(manaGate)
     -- inside the totem's 10 yd: the Stoneskin it replaces has next to nothing left to stop at a fight's end
     if unit.isFleeing(enemy) then
         if cast.frostShock(enemy) then ui.debug("Casting Frost Shock [Fleeing]") return true end
-        if cast.earthShock(enemy) then ui.debug("Casting Earth Shock [Fleeing]") return true end
+        -- At the lowest rank that finishes it: it flees with a sliver left, so a top-rank shock is mostly
+        -- overkill (2026-10-28: 7 fleeing shocks were 350 of 500 Earth Shock mana in 17 fights). The rank's
+        -- average with a fifth spare, for a low roll or a partial resist. Only where the game gives a
+        -- mob's real health (a client giving percents says 100 at most): else the top rank
+        local finishing = unit.healthMax(enemy) > 100 and cast.earthShock.forAmount(unit.health(enemy) * 1.2) or cast.earthShock
+        if finishing(enemy) then ui.debug("Casting Earth Shock [Fleeing]") return true end
         -- (an Earthbind still up from an earlier fight counts only within its 10 yd of you: 2026-10-26, one
         -- left 35 s before where the last mob died kept a new one from going down; 0 = can't be located)
         local earthbind = totem.earth.earthbind
