@@ -46,6 +46,16 @@ br.api.build.totem = function(api)
     end
 
     ---
+    -- True when any of your totems is up but you're yards or more away from it (left behind; one that
+    -- can't be located counts as near): time for Totemic Call.
+    -- @function totem.anyLeftBehind
+    -- @tparam[opt=30] number yards
+    -- @treturn boolean
+    totem.anyLeftBehind = function(yards)
+        return totemFn:isAnyLeftBehind(yards)
+    end
+
+    ---
     -- Destroys your totem in a slot, as right-clicking its icon does, on clients where a player can (Wrath
     -- on; not Classic, TBC or Forever). True when it was asked; false otherwise, with no totem there, or
     -- one asked under a second ago.
@@ -171,6 +181,15 @@ br.api.build.totemElement = function(api, elementKey, slot)
     -- @treturn boolean
     element.is = function(...)
         return totemFn:slotMatchesAny(slot, ...)
+    end
+
+    --- True when this slot's totem is up but you're yards or more away from it (left behind; one that
+    -- can't be located counts as near).
+    -- @function totem.<element>.leftBehind
+    -- @tparam[opt=30] number yards
+    -- @treturn boolean
+    element.leftBehind = function(yards)
+        return totemFn:isSlotLeftBehind(slot, yards)
     end
 
     --- Get the name of the active totem in this slot.

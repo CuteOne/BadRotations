@@ -112,6 +112,22 @@ function totem:getSlotInfo(slot)
     return true, name, startTime or 0, duration or 0, icon
 end
 
+-- True when the totem in this slot is up but the player is yards or more away from it (left behind:
+-- of no use there, and a mob walking into it pulls the player back into a fight). One that can't be
+-- located (distance 0) counts as near.
+function totem:isSlotLeftBehind(slot, yards)
+	if not self:getSlotInfo(slot) then return false end
+	return self:slotDistance(slot) >= (yards or 30)
+end
+
+-- True when any slot's totem was left behind (totem:isSlotLeftBehind)
+function totem:isAnyLeftBehind(yards)
+	for slot = 1, (br.game.MAX_TOTEMS or 4) do
+		if self:isSlotLeftBehind(slot, yards) then return true end
+	end
+	return false
+end
+
 -- Returns player distance to the active totem in this slot.
 -- Returns 0 when no totem exists, or its object can't be located.
 function totem:slotDistance(slot)

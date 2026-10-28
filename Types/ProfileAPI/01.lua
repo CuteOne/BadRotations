@@ -9459,6 +9459,12 @@ function C54.duration() end
 ---@return boolean
 function C54.is(...) end
 
+--- True when this slot's totem is up but you're yards or more away from it (left behind; one that
+--- can't be located counts as near).
+---@param yards? number
+---@return boolean
+function C54.leftBehind(yards) end
+
 --- Get the name of the active totem in this slot.
 ---@return string|nil
 function C54.name() end
@@ -9477,6 +9483,12 @@ local C55 = {}
 ---@param candidate? string|number
 ---@return boolean
 function C55.active(candidate) end
+
+--- True when any of your totems is up but you're yards or more away from it (left behind; one that
+--- can't be located counts as near): time for Totemic Call.
+---@param yards? number
+---@return boolean
+function C55.anyLeftBehind(yards) end
 
 --- Destroys your totem in a slot, as right-clicking its icon does, on clients where a player can (Wrath
 --- on; not Classic, TBC or Forever). True when it was asked; false otherwise, with no totem there, or
