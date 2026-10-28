@@ -177,11 +177,10 @@ local function totemsWorthIt()
     return unit.hp(enemy) > 50 and unit.fightLength(enemy) >= ui.value("Totem Fight Length")
 end
 
--- An element needs a totem: none up, or the one up was left 30+ yards behind (0 = can't be
--- located, counted as near). A totem you dropped yourself (Tremor, Grounding, ...) is never replaced.
+-- An element needs a totem: none up, or the one up was left 30+ yards behind. A totem you dropped
+-- yourself (Tremor, Grounding, ...) is never replaced.
 local function needsTotem(element)
-    if not element.active() then return true end
-    return element.distance() >= 30
+    return not element.active() or element.leftBehind(30)
 end
 
 -- Imbues: the spell key and imbue list for an option choice on this hand ("Auto" picks the best known)
@@ -496,12 +495,8 @@ actionList.PreCombat = function()
     -- Totems left behind (30+ yd, nothing fighting you): of no use where they stand, and a mob that walks
     -- into one pulls you back into a fight. Totemic Call (level 30); before it a TBC player can't remove a
     -- totem at all, so neither does BR (a totem destroyed there would be a bot's tell)
-    if ui.checked("Totemic Call") and spell.totemicRecall.known() and #enemies.yards40 == 0 then
-        for _, element in ipairs({ totem.fire, totem.earth, totem.water, totem.air }) do
-            if element.active() and element.distance() >= 30 then
-                if cast.totemicRecall() then ui.debug("Casting Totemic Call") return true end
-            end
-        end
+    if ui.checked("Totemic Call") and spell.totemicRecall.known() and #enemies.yards40 == 0 and totem.anyLeftBehind(30) then
+        if cast.totemicRecall() then ui.debug("Casting Totemic Call") return true end
     end
     -- Pull: from range with Lightning Bolt, or start swinging at a mob you walked up to, the moment you
     -- target it (your target is your choice, as across BR; Bot Options > Safety > Delay Neutral Targets
