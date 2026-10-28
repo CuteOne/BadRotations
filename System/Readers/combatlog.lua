@@ -10,6 +10,8 @@ br.readers.combatLog.enraged = {}
 -- when the next is due and the weapon speed then; 0 before the first (unit.swing reads them)
 br.readers.combatLog.swing = { mh = { last = 0, next = 0, speed = 0 }, oh = { last = 0, next = 0, speed = 0 },
     ranged = { last = 0, next = 0, speed = 0 } }
+-- The player's cast-time spell being cast (SPELL_CAST_START), for the swing reset at its end
+local castingID
 local combatLog = br.readers.combatLog
 -- Feral and Assassination bleed snapshots per debuff key and unit: the damage value when it was
 -- applied (combatLog.bleed), and whether Exsanguinate sped it up (combatLog.exsa). debuff.X.applied /
@@ -316,6 +318,20 @@ function combatLog:common(...)
         hand.speed = speed
         if speed > 0 then
             hand.next = hand.last + speed
+        end
+    end
+
+    -- A cast-time spell finishing resets the main-hand swing where the client does
+    -- (br.client.rules.castResetsSwing). SPELL_CAST_START comes only for cast-time spells, so instants
+    -- and channels leave the timer alone; so do interrupted casts and the off hand (not measured yet).
+    if source == guid and br.client.rules.castResetsSwing then
+        if param == "SPELL_CAST_START" then
+            castingID = spell
+        elseif param == "SPELL_CAST_FAILED" then
+            castingID = nil
+        elseif param == "SPELL_CAST_SUCCESS" and spell == castingID then
+            castingID = nil
+            if swing.mh.next > 0 and swing.mh.speed > 0 then swing.mh.next = br.game.GetTime() + swing.mh.speed end
         end
     end
 

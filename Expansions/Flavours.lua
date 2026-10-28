@@ -59,6 +59,10 @@ local RULES = {
     -- Anniversary's UI does nothing on a right-click (2026-10-26), so BR doesn't either (totem.destroy).
     -- Forever: unverified, the safe choice.
     canDestroyTotems      = { true, Classic = false, TBC = false, Forever = false },
+    -- finishing a cast-time spell resets the main-hand swing: the next comes a weapon speed after the
+    -- cast's end (TBC Anniversary: Melee.log SWING AROUND CAST, 2026-10-26). nil where unmeasured; the
+    -- swing reader then leaves the timer as it is, and Melee.log's lines settle it.
+    castResetsSwing       = { nil, TBC = true },
 }
 br.client.rules = {}
 for name, rule in pairs(RULES) do
