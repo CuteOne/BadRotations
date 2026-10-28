@@ -140,22 +140,16 @@ local function healCost()
     return cast.cost.healingWave()
 end
 
--- Nothing in this fight threatens you: health 60%+, one enemy at most on you, and you're winning: you
--- aren't losing health, it's about to die, or it dies in under half the time you would (unit.ttd on
--- both; the tester's idea, 2026-10-26). Mana Use Burn then spends past its thresholds and the heal
--- held back
+-- Nothing in this fight threatens you: health 60%+, one enemy at most on you, and you're winning
+-- (the tester's idea, 2026-10-26). Mana Use Burn then spends past its thresholds and the heal held back
 local function safe()
     if ui.value("Mana Use") ~= MANA_BURN or enemy == nil then return false end
-    if unit.hp() < 60 or #enemies.yards8 > 1 then return false end
-    local mine, theirs = unit.ttd("player"), unit.fightLength(enemy)
-    return mine >= 999 or theirs < 8 or mine >= 2 * theirs
+    return unit.hp() >= 60 and #enemies.yards8 <= 1 and unit.winning(enemy)
 end
 
 -- The fight is going badly: 2+ enemies on you, under half health, or losing (you'd die before it does)
 local function pressed()
-    if #enemies.yards8 >= 2 or unit.hp() < 50 then return true end
-    local mine = unit.ttd("player")
-    return mine < 999 and enemy ~= nil and mine < unit.fightLength(enemy)
+    return #enemies.yards8 >= 2 or unit.hp() < 50 or (enemy ~= nil and unit.losing(enemy))
 end
 
 -- Mana may go on damage beyond the pull and Lightning Shield (shocks, woven bolts), by Mana Use.

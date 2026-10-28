@@ -669,6 +669,16 @@ br.api.build.unit = function(api)
         return br.functions.unit:livesFor(thisUnit or "target", seconds)
     end
 
+    --- True when you'd die before thisUnit does: your health is falling and your time to die is shorter
+    -- than its fight length (unit.fightLength).
+    -- @function unit.losing
+    -- @param thisUnit The unit, defaults to "target"
+    -- @return boolean
+    -- @usage if unit.losing(enemy) then -- spend the cooldowns, heal
+    unit.losing = function(thisUnit)
+        return br.functions.unit:isLosing(thisUnit or "target")
+    end
+
     --- Get the lowest health friendly unit in range
     -- @function unit.lowest
     -- @param range The range to check for units, defaults to 5 if nil
@@ -970,6 +980,16 @@ br.api.build.unit = function(api)
     unit.weaponDamage = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
         return br.functions.unit:getWeaponDamage(thisUnit)
+    end
+
+    --- True when the fight against thisUnit is going your way: nothing is taking your health down, or it
+    -- dies in half the time you would or less (both times to die; unit.fightLength for it).
+    -- @function unit.winning
+    -- @param thisUnit The unit, defaults to "target"
+    -- @return boolean
+    -- @usage if unit.winning(enemy) then -- no need to hold mana back for a heal
+    unit.winning = function(thisUnit)
+        return br.functions.unit:isWinning(thisUnit or "target")
     end
 
     --- Get weapon imbue charges

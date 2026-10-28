@@ -10127,6 +10127,15 @@ function C59.level(thisUnit) end
 ---@return boolean
 function C59.livesFor(thisUnit, seconds) end
 
+--- True when you'd die before thisUnit does: your health is falling and your time to die is shorter
+--- than its fight length (unit.fightLength).
+--- ```lua
+--- if unit.losing(enemy) then -- spend the cooldowns, heal
+--- ```
+---@param thisUnit? string The unit, defaults to "target"
+---@return boolean
+function C59.losing(thisUnit) end
+
 --- Get the lowest health friendly unit in range
 ---@param range? number The range to check for units, defaults to 5 if nil
 ---@return any # unit The friendly unit with lowest health in range
@@ -10313,3 +10322,12 @@ function C59.valid(thisUnit) end
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return number # Average weapon damage
 function C59.weaponDamage(thisUnit) end
+
+--- True when the fight against thisUnit is going your way: nothing is taking your health down, or it
+--- dies in half the time you would or less (both times to die; unit.fightLength for it).
+--- ```lua
+--- if unit.winning(enemy) then -- no need to hold mana back for a heal
+--- ```
+---@param thisUnit? string The unit, defaults to "target"
+---@return boolean
+function C59.winning(thisUnit) end

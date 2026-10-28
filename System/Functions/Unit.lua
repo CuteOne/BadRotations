@@ -792,6 +792,20 @@ function unit:livesFor(thisUnit, seconds)
 	return ttd < 999 and ttd >= (seconds or 0)
 end
 
+--- True when you'd die before thisUnit does: your health is falling (your time to die is measured) and
+--- that time is shorter than its fight length (unit:getFightLength).
+function unit:isLosing(thisUnit)
+	local mine = br.engines.ttdTable:getTTD("player")
+	return mine < 999 and mine < unit:getFightLength(thisUnit)
+end
+
+--- True when the fight against thisUnit is going your way: nothing is taking your health down (your time
+--- to die isn't measured), or it dies in half the time you would or less.
+function unit:isWinning(thisUnit)
+	local mine = br.engines.ttdTable:getTTD("player")
+	return mine >= 999 or 2 * unit:getFightLength(thisUnit) <= mine
+end
+
 function unit:noteTargetChanged() targetChangedAt = br.game.GetTime() end
 
 function unit:noteFleeEmote(text, guid, name)
