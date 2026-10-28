@@ -799,11 +799,13 @@ function unit:livesFor(thisUnit, seconds)
 	return ttd < 999 and ttd >= (seconds or 0)
 end
 
---- True when you'd die before thisUnit does: your health is falling (your time to die is measured) and
---- that time is shorter than its fight length (unit:getFightLength).
+--- True when you'd die before thisUnit does: both times to die are measured and yours is shorter. Its time
+--- unknown is no: getFightLength's guess for it (999) made any damage taken "losing" (2026-10-28: "you 53.0s,
+--- it 999.0s" let Earthcaller's Conserve spend).
 function unit:isLosing(thisUnit)
-	local mine = br.engines.ttdTable:getTTD("player")
-	return mine < 999 and mine < unit:getFightLength(thisUnit)
+	local ttdTable = br.engines.ttdTable
+	local mine, theirs = ttdTable:getTTD("player"), ttdTable:getTTD(thisUnit)
+	return mine < 999 and theirs < 999 and mine < theirs
 end
 
 --- True when the fight against thisUnit is going your way: nothing is taking your health down (your time

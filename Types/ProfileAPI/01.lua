@@ -10150,8 +10150,8 @@ function C59.level(thisUnit) end
 ---@return boolean
 function C59.livesFor(thisUnit, seconds) end
 
---- True when you'd die before thisUnit does: your health is falling and your time to die is shorter
---- than its fight length (unit.fightLength).
+--- True when you'd die before thisUnit does: both times to die are measured and yours is shorter
+--- (false while its time is unknown).
 --- ```lua
 --- if unit.losing(enemy) then -- spend the cooldowns, heal
 --- ```

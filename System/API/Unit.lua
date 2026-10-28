@@ -669,8 +669,8 @@ br.api.build.unit = function(api)
         return br.functions.unit:livesFor(thisUnit or "target", seconds)
     end
 
-    --- True when you'd die before thisUnit does: your health is falling and your time to die is shorter
-    -- than its fight length (unit.fightLength).
+    --- True when you'd die before thisUnit does: both times to die are measured and yours is shorter
+    -- (false while its time is unknown).
     -- @function unit.losing
     -- @param thisUnit The unit, defaults to "target"
     -- @return boolean
