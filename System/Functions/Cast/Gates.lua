@@ -325,9 +325,11 @@ local function gateDiesSoon(ctx, thisUnit, castType, allTalents, allSpells) -- l
 	if castType == "dead" then return true end
 	local castSeconds = ctx.rawCastTime / 1000
 	if castSeconds <= ctx.gcdMax then return true end
+	-- Pre-cast behind the player's current cast, it starts when that one ends
+	local wait = math.max(0, br.functions.cast:getCastTimeRemain("player"))
 	local ttd = br.engines.ttdTable:getTTD(thisUnit)
-	if castSeconds < ttd then return true end
-	return false, "DIES_SOON", string.format("castTime=%.2fs TTD=%.2fs", plain(castSeconds), plain(ttd))
+	if wait + castSeconds < ttd then return true end
+	return false, "DIES_SOON", string.format("castTime=%.2fs wait=%.2fs TTD=%.2fs", plain(castSeconds), plain(wait), plain(ttd))
 end
 
 local function gateUsable(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
