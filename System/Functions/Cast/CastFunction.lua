@@ -216,6 +216,12 @@ local function runCastFunction(self, thisUnit, castType, minUnits, effectRng, sp
 		return false
 	end
 
+	-- The game refused this spell while the player moved: not sent again until they stop
+	if br.functions.cast:isRejected("moving", spellID, "player") then
+		E.recordRefusal(spellID, "MOVING", "the game refused it while you move; waits until you stop")
+		return false
+	end
+
 	-- ── Step 14: Range check ──────────────────────────────────────────────────
 	local inRange, rangeDetail = E.checkRange(ctx, thisUnit, castType)
 	if not inRange then

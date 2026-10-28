@@ -25,8 +25,12 @@ local castIntentLocks = {} -- Tracks cast intent to prevent multiple cast.able()
 --   range  - "Out of range": this spell, this unit.
 --   cancelled - the player cancelled BR's cast (cast:noteInterrupted): this spell, this unit, until the
 --            player changes target, combat starts, or 3 sec.
+--   moving - "Can't do that while moving": this spell on any unit, until the player stops moving (at
+--            most 10 sec). Learned from the game rather than refusing cast-time spells on the move,
+--            since some clients and buffs allow those (2026-10-28: the racial module's Gift of the Naaru
+--            sent every 0.2 s while the player ran, 6 refusals in a second).
 -- ─────────────────────────────────────────────────────────────────────────────
-local REJECT_DURATION = { aura = 30, los = 1.0, facing = 0.5, behind = 3.0, range = 0.5, cancelled = 3.0 }
+local REJECT_DURATION = { aura = 30, los = 1.0, facing = 0.5, behind = 3.0, range = 0.5, cancelled = 3.0, moving = 10 }
 local UNIT_WIDE_REJECT = { los = true, facing = true, behind = true }
 -- Only attribute an error to BR's last cast if that cast was this recent; older
 -- errors most likely came from the player's own button presses.
@@ -113,6 +117,7 @@ function cast:isRejected(kind, spellID, thisUnit)
 	local expires = rejections[key]
 	if expires and br.game.GetTime() < expires and not (kind == "behind" and behindChanged(guid, thisUnit))
 		and not (kind == "cancelled" and cancelReleased(key))
+		and not (kind == "moving" and not br.functions.misc:isMoving("player"))
 	then
 		return true
 	end
@@ -171,6 +176,7 @@ local function rejectionKindForError(message)
 		return "facing"
 	end
 	if message == errorText("SPELL_FAILED_NOT_BEHIND", "You must be behind your target.") then return "behind" end
+	if message == errorText("SPELL_FAILED_MOVING", "Can't do that while moving") then return "moving" end
 	if message == errorText("SPELL_FAILED_OUT_OF_RANGE", "Out of range.")
 		or message == errorText("ERR_OUT_OF_RANGE", "Out of range.")
 	then
@@ -197,6 +203,7 @@ function E.expectedRefusal(message, castGUID)
 	if kind == "facing" then return "not facing; BR turns to other units meanwhile", mismatch end
 	if kind == "behind" then return "not behind; BR uses attacks that work from the front meanwhile", mismatch end
 	if kind == "range" then return "out of range", mismatch end
+	if kind == "moving" then return "cast while moving; BR waits until you stop" end
 	if message == errorText("SPELL_FAILED_INTERRUPTED", "Interrupted") then
 		-- An on-next-swing attack is dropped when the target dies or changes, or auto attack stops
 		local unit = castGUID and br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(castGUID)
@@ -263,7 +270,8 @@ function cast:handleCastError(message)
 		local refusedUnit = br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(br.botGUID)
 		behindAtRefusal[br.botGUID] = refusedUnit and behindState(refusedUnit) or nil
 	end
-	cast:setRejected(kind, br.botSpell, br.botGUID, duration)
+	-- Moving is about the player, not the unit: that spell waits on every unit
+	cast:setRejected(kind, br.botSpell, kind == "moving" and br.game.UnitGUID("player") or br.botGUID, duration)
 	if E.castTimers then E.castTimers[br.botSpell] = nil end
 	castIntentLocks[br.botSpell] = nil
 end
