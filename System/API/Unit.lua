@@ -349,6 +349,17 @@ br.api.build.unit = function(api)
         return br.runner.state.instance ~= "party"
     end
 
+    --- Seconds the fight against thisUnit should last: its time to die once BR has measured it, else a
+    -- guess (a mob 4+ levels below you: 0, any other: 999). For commitments a guess is good enough for (a
+    -- totem); when the time matters (damage over time), unit.livesFor.
+    -- @function unit.fightLength
+    -- @param thisUnit The unit, defaults to "target"
+    -- @return number
+    -- @usage if unit.fightLength(enemy) >= 10 then -- drop a totem
+    unit.fightLength = function(thisUnit)
+        return br.functions.unit:getFightLength(thisUnit or "target")
+    end
+
     --- Check if player is flying
     -- @function unit.flying
     -- @return boolean True if player is flying
@@ -645,6 +656,17 @@ br.api.build.unit = function(api)
     unit.level = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
         return br.functions.unit:getLevel(thisUnit)
+    end
+
+    --- True when BR has measured thisUnit's time to die and it lives at least seconds more; false while
+    -- it's unknown (unit.ttd's 999). Use it rather than "unit.ttd(x) > N", which reads unknown as long.
+    -- @function unit.livesFor
+    -- @param thisUnit The unit, defaults to "target"
+    -- @number seconds
+    -- @return boolean
+    -- @usage if unit.livesFor(enemy, 12) then -- Flame Shock's 12 s of damage over time can tick
+    unit.livesFor = function(thisUnit, seconds)
+        return br.functions.unit:livesFor(thisUnit or "target", seconds)
     end
 
     --- Get the lowest health friendly unit in range

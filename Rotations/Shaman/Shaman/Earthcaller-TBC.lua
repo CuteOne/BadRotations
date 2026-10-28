@@ -140,14 +140,6 @@ local function healCost()
     return cast.cost.healingWave()
 end
 
--- Seconds the fight against thisUnit should last. While BR is still measuring (999 = unknown), a
--- mob 4+ levels below you counts as a short fight and any other as a long one.
-local function fightLength(thisUnit)
-    local ttd = unit.ttd(thisUnit)
-    if ttd < 999 then return ttd end
-    return unit.level(thisUnit) <= unit.level() - 4 and 0 or 999
-end
-
 -- Nothing in this fight threatens you: health 60%+, one enemy at most on you, and you're winning: you
 -- aren't losing health, it's about to die, or it dies in under half the time you would (unit.ttd on
 -- both; the tester's idea, 2026-10-26). Mana Use Burn then spends past its thresholds and the heal
@@ -155,7 +147,7 @@ end
 local function safe()
     if ui.value("Mana Use") ~= MANA_BURN or enemy == nil then return false end
     if unit.hp() < 60 or #enemies.yards8 > 1 then return false end
-    local mine, theirs = unit.ttd("player"), fightLength(enemy)
+    local mine, theirs = unit.ttd("player"), unit.fightLength(enemy)
     return mine >= 999 or theirs < 8 or mine >= 2 * theirs
 end
 
@@ -163,7 +155,7 @@ end
 local function pressed()
     if #enemies.yards8 >= 2 or unit.hp() < 50 then return true end
     local mine = unit.ttd("player")
-    return mine < 999 and enemy ~= nil and mine < fightLength(enemy)
+    return mine < 999 and enemy ~= nil and mine < unit.fightLength(enemy)
 end
 
 -- Mana may go on damage beyond the pull and Lightning Shield (shocks, woven bolts), by Mana Use.
@@ -175,14 +167,6 @@ local function spendOnDamage(threshold)
     local use = ui.value("Mana Use")
     if use == MANA_CONSERVE then return pressed() or power.mana.percent() >= ui.value("Conserve Above") end
     return safe() or power.mana.percent() >= threshold
-end
-
--- Flame Shock pays when its 12 s of damage over time can tick: the time to die is known and that long.
--- Unknown counted as long put it on every pull (2026-10-28: shocks did no more damage with it than
--- Earth Shock alone at level 8)
-local function flameShockTicks(thisUnit)
-    local ttd = unit.ttd(thisUnit)
-    return ttd < 999 and ttd >= 12
 end
 
 -- True when a spell costing this much still leaves the mana for one heal (or there's no need for one)
@@ -197,7 +181,7 @@ end
 -- aggroed a passing Blood Elf Scout after the player had run off; no Totemic Call before level 30).
 local function totemsWorthIt()
     if #enemies.yards8 >= 2 then return true end
-    return unit.hp(enemy) > 50 and fightLength(enemy) >= ui.value("Totem Fight Length")
+    return unit.hp(enemy) > 50 and unit.fightLength(enemy) >= ui.value("Totem Fight Length")
 end
 
 -- An element needs a totem: none up, or the one up was left 30+ yards behind (0 = can't be
@@ -437,7 +421,7 @@ actionList.Shocks = function(manaGate)
     local focused = buff.focused.exists()
     if not focused and not manaGate then return false end
     -- Flame Shock when it has time to tick
-    if not debuff.flameShock.exists(enemy) and flameShockTicks(enemy)
+    if not debuff.flameShock.exists(enemy) and unit.livesFor(enemy, 12)
         and (focused or affordable(cast.cost.flameShock()))
     then
         if cast.flameShock(enemy) then ui.debug("Casting Flame Shock") return true end
@@ -470,7 +454,7 @@ actionList.Melee = function()
     -- finished cast resets the swing, so the bolt goes out just after a swing lands (or before the
     -- first), where it costs the least swing time. Instants don't touch the swing.
     if ui.checked("Weave Lightning Bolt") and not spell.windfuryWeapon.known()
-        and spendOnDamage(ui.value("Weave Lightning Bolt")) and fightLength(enemy) > 3
+        and spendOnDamage(ui.value("Weave Lightning Bolt")) and unit.fightLength(enemy) > 3
         and affordable(cast.cost.lightningBolt()) and (distance >= 5 or (unit.sinceSwing() or 0) <= 0.4)
     then
         if cast.lightningBolt(enemy) then ui.debug("Casting Lightning Bolt [Weave]") return true end
@@ -487,12 +471,12 @@ actionList.Caster = function()
         return actionList.Shocks(true)
     end
     -- Flame Shock when it has time to tick
-    if not debuff.flameShock.exists(enemy) and flameShockTicks(enemy) and affordable(cast.cost.flameShock()) then
+    if not debuff.flameShock.exists(enemy) and unit.livesFor(enemy, 12) and affordable(cast.cost.flameShock()) then
         if cast.flameShock(enemy) then ui.debug("Casting Flame Shock") return true end
     end
     -- Chain Lightning: on several enemies, or while the mana is plentiful
     local nearTarget = #enemies.get(10, enemy)
-    if (nearTarget >= 2 and ui.mode.rotation ~= 3) or (power.mana.percent() > 50 and fightLength(enemy) > 5) then
+    if (nearTarget >= 2 and ui.mode.rotation ~= 3) or (power.mana.percent() > 50 and unit.fightLength(enemy) > 5) then
         if cast.chainLightning(enemy) then ui.debug("Casting Chain Lightning") return true end
     end
     if actionList.Shocks(false) then return true end

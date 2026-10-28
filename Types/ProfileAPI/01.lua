@@ -9934,6 +9934,16 @@ function C59.falling() end
 ---@return number # Time in seconds player has been falling
 function C59.fallTime() end
 
+--- Seconds the fight against thisUnit should last: its time to die once BR has measured it, else a
+--- guess (a mob 4+ levels below you: 0, any other: 999). For commitments a guess is good enough for (a
+--- totem); when the time matters (damage over time), unit.livesFor.
+--- ```lua
+--- if unit.fightLength(enemy) >= 10 then -- drop a totem
+--- ```
+---@param thisUnit? string The unit, defaults to "target"
+---@return number
+function C59.fightLength(thisUnit) end
+
 --- Check if player is flying
 ---@return boolean # True if player is flying
 function C59.flying() end
@@ -10106,6 +10116,16 @@ function C59.isUnit(thisUnit, otherUnit) end
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return number # The level of the unit
 function C59.level(thisUnit) end
+
+--- True when BR has measured thisUnit's time to die and it lives at least seconds more; false while
+--- it's unknown (unit.ttd's 999). Use it rather than "unit.ttd(x) > N", which reads unknown as long.
+--- ```lua
+--- if unit.livesFor(enemy, 12) then -- Flame Shock's 12 s of damage over time can tick
+--- ```
+---@param thisUnit? string The unit, defaults to "target"
+---@param seconds? number
+---@return boolean
+function C59.livesFor(thisUnit, seconds) end
 
 --- Get the lowest health friendly unit in range
 ---@param range? number The range to check for units, defaults to 5 if nil

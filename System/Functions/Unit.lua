@@ -256,6 +256,20 @@ function unit:getHealth(Unit)
 	return br.game.UnitHealth(Unit)
 end
 
+-- Levels below the player at which a mob counts as a short fight while its time to die is unknown
+local SHORT_FIGHT_LEVELS = 4
+
+--- Seconds the fight against thisUnit should last: its time to die when BR has measured it, else a guess
+--- (a mob 4+ levels below you: 0, a short fight; any other: 999, a long one). For a commitment a guess is
+--- good enough for (a totem); for one that needs the time (damage over time), unit:livesFor.
+function unit:getFightLength(thisUnit)
+	local ttd = br.engines.ttdTable:getTTD(thisUnit)
+	if ttd < 999 then return ttd end
+	local level, mine = unit:getLevel(thisUnit), unit:getLevel("player")
+	if type(level) == "number" and level > 0 and type(mine) == "number" and level <= mine - SHORT_FIGHT_LEVELS then return 0 end
+	return 999
+end
+
 function unit:getHealthMax(Unit)
 	return br.game.UnitHealthMax(Unit)
 end
@@ -770,6 +784,14 @@ end
 --- the mob is then found by name: an enemy in the enemies engine with that name, the player's target
 --- first, otherwise the one lowest on health (mobs flee at low health).
 -- The player's target changed (Readers/common.lua): starts unit:getTargetHeldTime again
+--- True when BR has measured thisUnit's time to die and it lives at least seconds more. An unknown time
+--- (999, while BR measures) is no: "unit.ttd(x) > 12" read it as a long fight on every pull (2026-10-28:
+--- Flame Shock went out at each pull and its damage over time rarely finished).
+function unit:livesFor(thisUnit, seconds)
+	local ttd = br.engines.ttdTable:getTTD(thisUnit)
+	return ttd < 999 and ttd >= (seconds or 0)
+end
+
 function unit:noteTargetChanged() targetChangedAt = br.game.GetTime() end
 
 function unit:noteFleeEmote(text, guid, name)
