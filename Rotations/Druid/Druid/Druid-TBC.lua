@@ -291,7 +291,7 @@ actionList.Extra = function()
     -- parties never got it and it was cast again and again (2026-10-26, a raid)
     if ui.checked("Mark of the Wild") and not unit.flying() and not buff.prowl.exists() then
         local inGroup = unit.inGroup()
-        if inGroup and ui.checked("Gift of the Wild") and spell.giftOfTheWild.known() and mana() > cast.cost.giftOfTheWild() + var.formCost then
+        if inGroup and ui.checked("Gift of the Wild") and spell.giftOfTheWild.known() and power.mana.affordable(cast.cost.giftOfTheWild(), var.formCost) then
             -- Someone who needs the buff and can be given it now
             local giftUnit
             for i = 1, #units.friends do
@@ -319,7 +319,7 @@ actionList.Extra = function()
             end
         end
         -- Fallback to Mark of the Wild (single buff or no reagent)
-        if mana() > cast.cost.markOfTheWild() + var.formCost then
+        if power.mana.affordable(cast.cost.markOfTheWild(), var.formCost) then
             var.markUnit = units.buffUnit("Mark of the Wild", needsMarkOfTheWild, 40)
             if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
                 and not unit.inCombat() and not unit.resting() and unit.distance(var.markUnit) < 40
@@ -342,7 +342,7 @@ actionList.Extra = function()
         end
     end
     -- Thorns
-    if ui.checked("Thorns") and not unit.flying() and not buff.prowl.exists() and mana() > cast.cost.thorns() + var.formCost then
+    if ui.checked("Thorns") and not unit.flying() and not buff.prowl.exists() and power.mana.affordable(cast.cost.thorns(), var.formCost) then
         var.thornUnit = units.buffUnit("Thorns", needsThorns, 40)
         if cast.able.thorns(var.thornUnit) and buff.thorns.refresh(var.thornUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.thornUnit) < 40
@@ -364,7 +364,7 @@ actionList.Extra = function()
     end
     -- Omen of Clarity
     if ui.value("Omen of Clarity") ~= 4 and not unit.flying() and not unit.inCombat() and not unit.resting() and not buff.prowl.exists()
-        and mana() > cast.cost.omenOfClarity() + var.formCost
+        and power.mana.affordable(cast.cost.omenOfClarity(), var.formCost)
     then
         if cast.able.omenOfClarity("player") and buff.omenOfClarity.refresh("player") then
             -- Cancel form if needed to buff
@@ -389,7 +389,7 @@ actionList.Defensive = function()
         -- Abolish Poison
         if ui.checked("Abolish Poison") and cast.able.abolishPoison("player")
             and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player")
-            and mana() > cast.cost.abolishPoison() + var.formCost
+            and power.mana.affordable(cast.cost.abolishPoison(), var.formCost)
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if leaveFormFor(spell.abolishPoison) then
@@ -405,7 +405,7 @@ actionList.Defensive = function()
         -- Cure Poison
         if ui.checked("Cure Poison") and cast.able.curePoison("player")
             and (not ui.checked("Abolish Poison") --[[or not spell.abolishPoison.known()]]) and cast.dispel.curePoison("player")
-            and mana() > cast.cost.curePoison() + var.formCost
+            and power.mana.affordable(cast.cost.curePoison(), var.formCost)
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if leaveFormFor(spell.curePoison) then
@@ -421,7 +421,7 @@ actionList.Defensive = function()
         -- Remove Curse
         if ui.checked("Remove Curse") and cast.able.removeCurse("player")
             and not unit.inCombat() and cast.dispel.removeCurse("player")
-            and mana() > cast.cost.removeCurse() + var.formCost
+            and power.mana.affordable(cast.cost.removeCurse(), var.formCost)
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if leaveFormFor(spell.removeCurse) then
@@ -437,7 +437,7 @@ actionList.Defensive = function()
         -- Barkskin
         if ui.checked("Barkskin") and cast.able.barkskin()
             and unit.hp() <= ui.value("Barkskin") and unit.inCombat()
-            and mana() > cast.cost.barkskin() + var.formCost
+            and power.mana.affordable(cast.cost.barkskin(), var.formCost)
         then
             if cast.barkskin() then
                 ui.debug("Casting Barkskin")
@@ -458,7 +458,7 @@ actionList.Defensive = function()
             and unit.exists("target") and not unit.facing("target", "player") and unit.moving("target")
             and unit.valid("target") and unit.hp("target") < 100 and not debuff.entanglingRoots.exists("target")
             and unit.distance("target") > 8 and unit.inCombat()
-            and mana() > cast.cost.entanglingRoots() + var.formCost
+            and power.mana.affordable(cast.cost.entanglingRoots(), var.formCost)
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if leaveFormFor(spell.entanglingRoots, buff.clearcasting.exists()) then
@@ -475,7 +475,7 @@ actionList.Defensive = function()
         if ui.checked("Faerie Fire") and not buff.prowl.exists() and var.formValue == 1
             and unit.exists("target") and unit.enemy("target") and unit.canAttack("target") and not debuff.faerieFire.exists("target", "any") and not debuff.faerieFireFeral.exists("target", "any")
             and not (buff.catForm.exists() or buff.bearForm.exists())
-            and unit.distance("target") > 8 and mana() > cast.cost.faerieFire() + var.formCost and cast.able.faerieFire("target")
+            and unit.distance("target") > 8 and power.mana.affordable(cast.cost.faerieFire(), var.formCost) and cast.able.faerieFire("target")
         then
             if cast.faerieFire("target") then
                 ui.debug("Casting Faerie Fire")
@@ -485,7 +485,7 @@ actionList.Defensive = function()
         -- Nature's Grasp
         if ui.checked("Nature's Grasp") and cast.able.naturesGrasp()
             and not buff.naturesGrasp.exists("player") and unit.inCombat()
-            and #enemies.yards10 > 0 and mana() > cast.cost.naturesGrasp() + var.formCost
+            and #enemies.yards10 > 0 and power.mana.affordable(cast.cost.naturesGrasp(), var.formCost)
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if leaveFormFor(spell.naturesGrasp, buff.clearcasting.exists()) then
@@ -501,7 +501,7 @@ actionList.Defensive = function()
         -- Regrowth
         if ui.checked("Regrowth") and cast.able.regrowth("player") and not cast.current.regrowth() and not unit.moving()
             and unit.hp() <= ui.value("Regrowth") and not buff.regrowth.exists("player")
-            and (buff.clearcasting.exists() or mana() > cast.cost.regrowth() + var.formCost)
+            and (buff.clearcasting.exists() or power.mana.affordable(cast.cost.regrowth(), var.formCost))
             and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
@@ -516,7 +516,7 @@ actionList.Defensive = function()
             end
         end
         -- Rejuvenation
-        if ui.checked("Rejuvenation") and not cast.current.rejuvenation("target") and mana() > cast.cost.rejuvenation() + var.formCost then
+        if ui.checked("Rejuvenation") and not cast.current.rejuvenation("target") and power.mana.affordable(cast.cost.rejuvenation(), var.formCost) then
             if unit.friend("target") and unit.hp("target") <= ui.value("Rejuvenation")
                 and unit.player("target") and buff.rejuvenation.refresh("target") and cast.able.rejuvenation("target")
             then
@@ -549,7 +549,7 @@ actionList.Defensive = function()
         end
         -- Healing Touch
         if ui.checked("Healing Touch") and not cast.current.healingTouch() and not unit.moving()
-            and (buff.clearcasting.exists() or mana() > cast.cost.healingTouch() + var.formCost)
+            and (buff.clearcasting.exists() or power.mana.affordable(cast.cost.healingTouch(), var.formCost))
             and cast.timeSinceLast.healingTouch() > unit.gcd(true)
         then
             if unit.friend("target") and unit.hp("target") <= ui.value("Healing Touch") and unit.player("target") and cast.able.healingTouch("target") then
