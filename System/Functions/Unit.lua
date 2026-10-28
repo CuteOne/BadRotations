@@ -746,6 +746,15 @@ function unit:isInRaid()
 	return br.game.IsInRaid() == true
 end
 
+-- True when the unlocker reads thisUnit's flags and the server marks it not selectable (a prop, such as
+-- a corpse lying around a camp). Without unit flags it's never known, so false.
+function unit:isNotSelectable(thisUnit)
+	local flag = br.client.notSelectableUnitFlag
+	if not (flag and br.game.UnitFlags) then return false end
+	local flags = br.game.UnitFlags(thisUnit)
+	return type(flags) == "number" and br.game.bit.band(flags, flag) ~= 0
+end
+
 function unit:isOnTaxi(Unit)
 	return br.game.UnitOnTaxi(Unit)
 end

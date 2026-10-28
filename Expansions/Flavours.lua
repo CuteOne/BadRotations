@@ -76,6 +76,12 @@ end
 -- Forever 2026-10-12: fleeing mobs read 0x00880800 against 0x00080800.
 br.client.fleeingUnitFlag = 0x00800000
 
+-- The server's not-selectable unit flag (UNIT_FLAG_NOT_SELECTABLE, the same bit in every version): props
+-- that can't be targeted, attacked or talked to. Confirmed on TBC Anniversary by /qprobe 2026-10-28: the
+-- Crazed Wildkin Corpse (17438) and Stillpine Defender Corpse (17437) in Stillpine Hold read 0x2000300
+-- and 0x2008300.
+br.client.notSelectableUnitFlag = 0x02000000
+
 -- Whether this client hands out secret values (Retail since Midnight, Forever). Other clients
 -- built on the same engine (Anniversary build 70006) carry issecretvalue/canaccessvalue too but
 -- never produce a secret, so the functions existing doesn't mean the client uses them.

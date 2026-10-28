@@ -398,6 +398,9 @@ end
 -- Cheapest and most reliable check first; the caller caches the verdict until the quest log changes.
 function questTracker:isQuestUnit(unit)
 	if not isAliveOrFriend(unit) then return false end
+	-- A prop that can't be selected can't be killed, talked to or have an item used on it, whatever its
+	-- name says (2026-10-28: "Crazed Wildkin Corpse" marked for "Crazed Wildkin slain")
+	if br.functions.unit:isNotSelectable(unit) then return false end
 
 	local guid = getGuid(unit)
 	-- Players and their pets are never quest targets (hunter pets named "Cat" used to match)
