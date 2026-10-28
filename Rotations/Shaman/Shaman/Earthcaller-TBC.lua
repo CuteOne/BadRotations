@@ -161,13 +161,6 @@ local function affordable(cost)
     return mana() - cost >= healCost()
 end
 
--- A cast-time spell stalls the melee swing, so a weave goes out just after a swing lands (or
--- before the first one), where it costs the least swing time. Instants don't touch the swing.
-local function justSwung()
-    local untilNext, _, last = unit.swing()
-    return untilNext == nil or util.time() - last <= 0.4
-end
-
 -- Totems are worth their mana: 2+ enemies are on you, or the target has over half its health left and
 -- the fight should last long enough. A totem dropped in a fight's last seconds buys nothing and is left
 -- standing to pull the next mob that wanders by (2026-10-26: a Stoneskin dropped 2 s before the kill
@@ -440,10 +433,12 @@ actionList.Melee = function()
     if distance >= 5 and not unit.moving(enemy) and affordable(cast.cost.lightningBolt()) then
         if cast.lightningBolt(enemy) then ui.debug("Casting Lightning Bolt [Range]") return true end
     end
-    -- Weave: spare mana into Lightning Bolt until Windfury Weapon makes the swings worth more
+    -- Weave: spare mana into Lightning Bolt until Windfury Weapon makes the swings worth more. A
+    -- finished cast resets the swing, so the bolt goes out just after a swing lands (or before the
+    -- first), where it costs the least swing time. Instants don't touch the swing.
     if ui.checked("Weave Lightning Bolt") and not spell.windfuryWeapon.known()
         and (safe() or power.mana.percent() >= ui.value("Weave Lightning Bolt")) and fightLength(enemy) > 3
-        and affordable(cast.cost.lightningBolt()) and (distance >= 5 or justSwung())
+        and affordable(cast.cost.lightningBolt()) and (distance >= 5 or (unit.sinceSwing() or 0) <= 0.4)
     then
         if cast.lightningBolt(enemy) then ui.debug("Casting Lightning Bolt [Weave]") return true end
     end

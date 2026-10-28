@@ -777,6 +777,16 @@ br.api.build.unit = function(api)
         return br.functions.unit:getRole(thisUnit)
     end
 
+    --- Seconds since the player's last swing landed (or since auto attack started its timer); nil
+    -- before either. A cast right after a swing costs the least swing time where a cast resets it.
+    -- @function unit.sinceSwing
+    -- @string[opt="mh"] hand "mh" for melee (the main hand), "oh" for the off hand, "ranged" for Auto Shot
+    -- @return number|nil
+    -- @usage if (unit.sinceSwing() or 0) <= 0.4 then
+    unit.sinceSwing = function(hand)
+        return br.functions.unit:getSinceSwing(hand)
+    end
+
     --- Check if player is solo (no group)
     -- @function unit.solo
     -- @return boolean True if player is solo

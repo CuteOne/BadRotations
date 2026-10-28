@@ -10183,6 +10183,15 @@ function C59.resting() end
 ---@return string # The role assigned to the unit ("TANK", "HEALER", "DAMAGER", "NONE")
 function C59.role(thisUnit) end
 
+--- Seconds since the player's last swing landed (or since auto attack started its timer); nil
+--- before either. A cast right after a swing costs the least swing time where a cast resets it.
+--- ```lua
+--- if (unit.sinceSwing() or 0) <= 0.4 then
+--- ```
+---@param hand? string "mh" for melee (the main hand), "oh" for the off hand, "ranged" for Auto Shot
+---@return number # |nil
+function C59.sinceSwing(hand) end
+
 --- Check if player is solo (no group)
 ---@return boolean # True if player is solo
 function C59.solo() end
