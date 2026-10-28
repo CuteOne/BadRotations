@@ -285,6 +285,9 @@ end
 actionList.Defensive = function()
     if not ui.useDefensive() then return false end
     local hp = unit.hp()
+    -- Heals cast at the rank the missing health needs (BR learns what each rank heals for): the top rank
+    -- on a small gap was mana thrown away as overhealing
+    local missing = unit.healthMax() - unit.health()
     if unit.inCombat() then
         local onMe = #enemies.yards8
         -- Nature's Swiftness → instant Healing Wave
@@ -310,13 +313,13 @@ actionList.Defensive = function()
             and not (unit.ttd(enemy) < 3 and hp > 20)
         then
             if spell.lesserHealingWave.known() then
-                if cast.lesserHealingWave("player") then ui.debug("Casting Lesser Healing Wave") return true end
-            elseif cast.healingWave("player") then ui.debug("Casting Healing Wave") return true end
+                if cast.lesserHealingWave.forAmount(missing)("player") then ui.debug("Casting Lesser Healing Wave") return true end
+            elseif cast.healingWave.forAmount(missing)("player") then ui.debug("Casting Healing Wave") return true end
         end
     else
         -- Top up after a fight
         if ui.checked("Out of Combat Healing") and hp <= ui.value("Out of Combat Healing") and not unit.moving() then
-            if cast.healingWave("player") then ui.debug("Casting Healing Wave [Out of Combat]") return true end
+            if cast.healingWave.forAmount(missing)("player") then ui.debug("Casting Healing Wave [Out of Combat]") return true end
         end
     end
     -- Cures
