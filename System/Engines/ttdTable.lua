@@ -134,6 +134,20 @@ function ttdTable:estimate(holder, key, hp, targetPercentage)
 	return TTD_NEVER
 end
 
+--- The same samples' plain average instead of the line: health lost since the oldest sample (the first
+-- damage, at most 10 s back) over the time since, carried on to targetPercentage; 999 under MIN_SAMPLE
+-- of damage. Call after estimate, which keeps the samples. With a few big hits the line can lag far
+-- behind the health or project the unit as already dead (999) while it has a sliver left; the average
+-- doesn't (2026-10-28: a level-10 Root Thresher on 14 hp got a 2 s Lightning Bolt).
+function ttdTable:average(holder, key, hp, targetPercentage)
+	local samples = holder[key]
+	local oldest = samples and samples.values[#samples.values]
+	if oldest == nil or oldest.hp <= hp then return TTD_NEVER end
+	local elapsed = br.game.GetTime() - samples.startTime - oldest.time
+	if elapsed < MIN_SAMPLE then return TTD_NEVER end
+	return math.max(0, hp - (targetPercentage or 0)) / ((oldest.hp - hp) / elapsed)
+end
+
 -- The player's health samples (ttdTable:getPlayerTTD)
 local playerSamples = {}
 
@@ -177,4 +191,15 @@ function br.engines.ttdTable:getTTD(unit, hp)
 		return enemyTable.ttd[object]
 	end
 	return TTD_NEVER
+end
+
+--- The sooner of getTTD's estimate and the plain average of the same samples (ttdTable:average), for a
+-- check that would rather skip than waste: a cast that would land after the unit died. Without Enhanced
+-- Time to Die getTTD is already an average (TTDRefresh). Enemies only; the player's is getTTD's.
+function br.engines.ttdTable:getSoonestTTD(unit, hp)
+	local ttd = ttdTable:getTTD(unit, hp)
+	if not br.functions.misc:getOptionCheck("Enhanced Time to Die") then return ttd end
+	local record = br.engines.enemiesEngine.records[objectOf(unit)]
+	if record == nil or record.hp == nil then return ttd end
+	return math.min(ttd, ttdTable:average(br.engines.enemiesEngine.ttd, record.unit, record.hp, hp))
 end
