@@ -123,7 +123,6 @@ end
 --------------
 --- Locals ---
 --------------
-local mana
 local melee -- Style: true for Melee, false for Caster
 -- The enemy the combat lines act on: BR's pick within 30 yd (units.dyn30), which is your target whenever it
 -- can take the spell (Bot Options > Targeting decides the rest). Aiming at "target" by name left the
@@ -163,10 +162,10 @@ local function spendOnDamage(threshold)
     return safe() or power.mana.percent() >= threshold
 end
 
--- True when a spell costing this much still leaves the mana for one heal (or there's no need for one)
+-- True when a spell costing this much still leaves the mana for one heal (or there's no need for one),
+-- after what casts on their way have promised
 local function affordable(cost)
-    if safe() then return mana() >= cost end
-    return mana() - cost >= healCost()
+    return power.mana.affordable(cost, safe() and 0 or healCost())
 end
 
 -- Totems are worth their mana: 2+ enemies are on you, or the target has over half its health left and
@@ -529,7 +528,6 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-    mana = power.mana
     if ui.mode.style == 2 then melee = true
     elseif ui.mode.style == 3 then melee = false
     else melee = not (spell.elementalMastery.known() or spell.totemOfWrath.known()) end
