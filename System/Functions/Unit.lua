@@ -778,6 +778,13 @@ function unit:isPlayer(Unit)
 	return br.game.UnitIsPlayer(Unit)
 end
 
+--- Whether BR may open a fight on thisUnit: a valid unit you can attack, and never a player (attacking
+--- one flags you for PvP)
+function unit:isPullable(thisUnit)
+	return br.functions.misc:isValidUnit(thisUnit) and br.functions.combat:canAttack(thisUnit, "player")
+		and not unit:isPlayer(thisUnit)
+end
+
 --- True while a form cancel BR sent is still on its way (sent within a round trip, form still on).
 --- Records a CHAT_MSG_MONSTER_EMOTE: the flee emote (br.lists.fleeEmotes) marks the mob as fleeing.
 --- guid: the emote's sender GUID. Forever's client leaves it empty, so

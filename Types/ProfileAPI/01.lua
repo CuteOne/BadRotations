@@ -10202,6 +10202,15 @@ function C59.player(thisUnit) end
 ---@return number # x, y, z
 function C59.position(thisUnit) end
 
+--- True when a profile may open a fight on thisUnit: valid, attackable, and never a player (attacking
+--- one flags you for PvP)
+--- ```lua
+--- if unit.pullable("target") and cast.lightningBolt("target") then -- the pull
+--- ```
+---@param thisUnit? string The unit, defaults to "target"
+---@return boolean
+function C59.pullable(thisUnit) end
+
 --- Returns the time remaining on the pull timer (DBM/BigWigs)
 ---@return number # - Returns seconds remaining on pull timer
 function C59.pullTimer() end

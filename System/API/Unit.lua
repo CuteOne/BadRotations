@@ -750,6 +750,16 @@ br.api.build.unit = function(api)
         return br.functions.unit:GetObjectPosition(thisUnit or "player")
     end
 
+    --- True when a profile may open a fight on thisUnit: valid, attackable, and never a player (attacking
+    -- one flags you for PvP)
+    -- @function unit.pullable
+    -- @param thisUnit The unit, defaults to "target"
+    -- @return boolean
+    -- @usage if unit.pullable("target") and cast.lightningBolt("target") then -- the pull
+    unit.pullable = function(thisUnit)
+        return br.functions.unit:isPullable(thisUnit or "target")
+    end
+
     --- Returns the time remaining on the pull timer (DBM/BigWigs)
     -- @function unit.pullTimer
     -- @return number - Returns seconds remaining on pull timer

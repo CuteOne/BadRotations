@@ -501,7 +501,7 @@ actionList.PreCombat = function()
     -- Pull: from range with Lightning Bolt, or start swinging at a mob you walked up to, the moment you
     -- target it (your target is your choice, as across BR; Bot Options > Safety > Delay Neutral Targets
     -- holds neutral ones a moment). Players never (it would flag you for PvP).
-    if unit.valid("target") and unit.canAttack("target") and not unit.player("target") then
+    if unit.pullable("target") then
         local distance = unit.distance("target")
         if distance > 8 and not unit.moving() and (not melee or ui.checked("Pull with Lightning Bolt")) then
             if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Pull]") return true end
