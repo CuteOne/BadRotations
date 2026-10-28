@@ -427,8 +427,7 @@ actionList.Melee = function()
     -- Auto attack: on once the target is close; the game swings as soon as it's in reach (BR's
     -- distance can read a few yards out for a mob that hovers or has a large reach)
     if distance < 8 and not cast.auto.autoAttack() then
-        unit.startAttack()
-        ui.debug("Casting Auto Attack")
+        if unit.startAttack() then ui.debug("Casting Auto Attack") end
     end
     -- Stormstrike
     if units.dyn5 and cast.stormstrike(units.dyn5) then ui.debug("Casting Stormstrike") return true end
@@ -453,8 +452,7 @@ end
 -- Action List - Caster style
 actionList.Caster = function()
     if unit.distance(enemy) < 5 and not cast.auto.autoAttack() then
-        unit.startAttack()
-        ui.debug("Casting Auto Attack")
+        if unit.startAttack() then ui.debug("Casting Auto Attack") end
     end
     if unit.moving() then
         -- Instants while moving
@@ -515,8 +513,7 @@ actionList.PreCombat = function()
             if cast.earthShock("target") then ui.debug("Casting Earth Shock [Pull]") return true end
         end
         if distance < 5 and not cast.auto.autoAttack() then
-            unit.startAttack()
-            ui.debug("Casting Auto Attack [Pull]")
+            if unit.startAttack() then ui.debug("Casting Auto Attack [Pull]") end
             return true
         end
     end
