@@ -20,6 +20,8 @@ local rotationName = "Earthcaller"
 
 -- The imbue dropdowns' choices, in order (ui.value gives the position)
 local IMBUE_CHOICES = { "Auto", "Windfury", "Flametongue", "Frostbrand", "Rockbiter", "None" }
+-- Mana Use choices (ui.value gives the position)
+local MANA_CONSERVE, MANA_BALANCED, MANA_BURN = 1, 2, 3
 
 ---------------
 --- Toggles ---
@@ -62,12 +64,14 @@ local function options()
         tip = "Open on an enemy you target, out of combat and standing still, with Lightning Bolt (Melee style; Caster style always pulls)." })
     ui.checkbox(section, "Pull on the Move", { checked = true,
         tip = "Open on a hostile enemy you target while you're moving with Earth Shock (instant), so you tag it first. Standing still it's Lightning Bolt (cheaper)." })
-    ui.checkbox(section, "Spend Mana When Safe", { checked = true,
-        tip = "While nothing threatens you (health 60%+, one enemy at most on you, and it dies in under half the time you would), shocks and Lightning Bolt ignore the mana thresholds below and no heal's mana is held back. They come back the moment that changes." })
+    ui.dropdown(section, "Mana Use", { choices = { "Conserve", "Balanced", "Burn" }, value = "Conserve", checkbox = false,
+        tip = "Melee style: what mana goes on beyond the pull, Lightning Shield, totems and heals. Conserve: shocks for damage and woven Lightning Bolts only above the Conserve Above percent, or when the fight is going badly (2+ enemies on you, under half health, or you'd die first). Swings are free and mana takes long to come back, so this means the least drinking. Balanced: above the Shock Mana and Weave percents. Burn: as Balanced, and while nothing threatens you mana is spent freely with no heal kept back (when you're about to drink anyway, or in a group)." })
+    ui.spinner(section, "Conserve Above", { value = 80, min = 0, max = 100, step = 5, checkbox = false,
+        tip = "Mana Use Conserve: mana percent above which shocks and woven bolts may go out anyway (mana near full refills nothing between fights)." })
     ui.spinner(section, "Shock Mana", { value = 40, min = 0, max = 100, step = 5, checkbox = false,
-        tip = "Melee style: shocks for damage only above this mana percent (Focused procs, interrupts and fleeing enemies always may). One heal's mana is always kept back." })
+        tip = "Mana Use Balanced and Burn: shocks for damage only above this mana percent (Focused procs, interrupts and fleeing enemies always may). One heal's mana is always kept back." })
     ui.spinner(section, "Weave Lightning Bolt", { value = 50, min = 0, max = 100, step = 5, checked = true,
-        tip = "Melee style, until Windfury Weapon (level 30): Lightning Bolt between swings while mana is above this percent, started just after a swing lands so it costs the least swing time. At low levels a bolt out-damages several swings, and mana left at the end of a fight is wasted." })
+        tip = "Melee style, until Windfury Weapon (level 30): Lightning Bolt between swings, started just after a swing lands so it costs the least swing time. Mana Use Balanced and Burn: while mana is above this percent; Conserve: by its rule." })
     ui.checkbox(section, "Purge", { checked = true, tip = "Purge a magic buff from your target." })
     ui.checkbox(section, "Ancestral Spirit", { checked = true, tip = "Out of combat, resurrect a dead group member." })
     -- Weapons and shields
@@ -146,13 +150,39 @@ end
 
 -- Nothing in this fight threatens you: health 60%+, one enemy at most on you, and you're winning: you
 -- aren't losing health, it's about to die, or it dies in under half the time you would (unit.ttd on
--- both; the tester's idea, 2026-10-26). Then the mana held back for a heal, and the shock and weave
--- thresholds, are mana left unspent: it comes back before the next pull anyway
+-- both; the tester's idea, 2026-10-26). Mana Use Burn then spends past its thresholds and the heal
+-- held back
 local function safe()
-    if not ui.checked("Spend Mana When Safe") or enemy == nil then return false end
+    if ui.value("Mana Use") ~= MANA_BURN or enemy == nil then return false end
     if unit.hp() < 60 or #enemies.yards8 > 1 then return false end
     local mine, theirs = unit.ttd("player"), fightLength(enemy)
     return mine >= 999 or theirs < 8 or mine >= 2 * theirs
+end
+
+-- The fight is going badly: 2+ enemies on you, under half health, or losing (you'd die before it does)
+local function pressed()
+    if #enemies.yards8 >= 2 or unit.hp() < 50 then return true end
+    local mine = unit.ttd("player")
+    return mine < 999 and enemy ~= nil and mine < fightLength(enemy)
+end
+
+-- Mana may go on damage beyond the pull and Lightning Shield (shocks, woven bolts), by Mana Use.
+-- Conserve: only above Conserve Above, or when the fight is going badly. Over levels 1-11 (204 fights,
+-- 2026-10-28) a fight cost ~130 mana against ~3 mana a second regenerated between pulls: a woven bolt
+-- saves ~1.4 s of fight for ~7.6 s of regen, an Earth Shock ~2.3 s for ~15 s, while swings are free.
+-- threshold: the Balanced / Burn mana percent for this spending
+local function spendOnDamage(threshold)
+    local use = ui.value("Mana Use")
+    if use == MANA_CONSERVE then return pressed() or power.mana.percent() >= ui.value("Conserve Above") end
+    return safe() or power.mana.percent() >= threshold
+end
+
+-- Flame Shock pays when its 12 s of damage over time can tick: the time to die is known and that long.
+-- Unknown counted as long put it on every pull (2026-10-28: shocks did no more damage with it than
+-- Earth Shock alone at level 8)
+local function flameShockTicks(thisUnit)
+    local ttd = unit.ttd(thisUnit)
+    return ttd < 999 and ttd >= 12
 end
 
 -- True when a spell costing this much still leaves the mana for one heal (or there's no need for one)
@@ -404,7 +434,7 @@ actionList.Shocks = function(manaGate)
     local focused = buff.focused.exists()
     if not focused and not manaGate then return false end
     -- Flame Shock when it has time to tick
-    if not debuff.flameShock.exists(enemy) and fightLength(enemy) >= 12
+    if not debuff.flameShock.exists(enemy) and flameShockTicks(enemy)
         and (focused or affordable(cast.cost.flameShock()))
     then
         if cast.flameShock(enemy) then ui.debug("Casting Flame Shock") return true end
@@ -425,7 +455,7 @@ actionList.Melee = function()
     -- Stormstrike
     if units.dyn5 and cast.stormstrike(units.dyn5) then ui.debug("Casting Stormstrike") return true end
     -- Shocks
-    if actionList.Shocks(safe() or power.mana.percent() >= ui.value("Shock Mana")) then return true end
+    if actionList.Shocks(spendOnDamage(ui.value("Shock Mana"))) then return true end
     if unit.moving() then return false end
     -- Out of melee with an enemy that isn't coming closer (a caster, a mob that stops just out of
     -- reach): no swing to lose, so bolt it rather than stand idle, keeping a heal's mana. 2026-10-26: 6.3 s
@@ -437,7 +467,7 @@ actionList.Melee = function()
     -- finished cast resets the swing, so the bolt goes out just after a swing lands (or before the
     -- first), where it costs the least swing time. Instants don't touch the swing.
     if ui.checked("Weave Lightning Bolt") and not spell.windfuryWeapon.known()
-        and (safe() or power.mana.percent() >= ui.value("Weave Lightning Bolt")) and fightLength(enemy) > 3
+        and spendOnDamage(ui.value("Weave Lightning Bolt")) and fightLength(enemy) > 3
         and affordable(cast.cost.lightningBolt()) and (distance >= 5 or (unit.sinceSwing() or 0) <= 0.4)
     then
         if cast.lightningBolt(enemy) then ui.debug("Casting Lightning Bolt [Weave]") return true end
@@ -454,7 +484,7 @@ actionList.Caster = function()
         return actionList.Shocks(true)
     end
     -- Flame Shock when it has time to tick
-    if not debuff.flameShock.exists(enemy) and fightLength(enemy) >= 12 and affordable(cast.cost.flameShock()) then
+    if not debuff.flameShock.exists(enemy) and flameShockTicks(enemy) and affordable(cast.cost.flameShock()) then
         if cast.flameShock(enemy) then ui.debug("Casting Flame Shock") return true end
     end
     -- Chain Lightning: on several enemies, or while the mana is plentiful
