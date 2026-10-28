@@ -7532,6 +7532,17 @@ function C48.stopAttack() end
 ---@overload fun(): number
 local C49 = {}
 
+--- True when the player can pay cost and still have keep left, counting what earlier casts are
+--- promised and the game hasn't charged yet (a bolt queued behind the current cast, Maul waiting on a
+--- swing): power.<powerType>() alone doesn't know those
+--- ```lua
+--- if power.mana.affordable(cast.cost.lightningBolt(), cast.cost.healingWave()) then
+--- ```
+---@param cost? number What the spell costs (cast.cost.<spell>())
+---@param keep? number How much to keep back (a heal's cost, the mana to shift back into a form)
+---@return boolean
+function C49.affordable(cost, keep) end
+
 --- Gets the amount of specified power until max is reached
 ---@return number
 function C49.deficit() end

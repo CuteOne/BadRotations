@@ -31,6 +31,18 @@ br.api.build.power = function(power,powerType,powerIndex)
     local isDKRunes = br.functions.unit:getClass("player") == "DEATHKNIGHT" and powerIndex == 5
     local isSoulShards = powerIndex == 7
 
+    --- True when the player can pay cost and still have keep left, counting what earlier casts are
+    -- promised and the game hasn't charged yet (a bolt queued behind the current cast, Maul waiting on a
+    -- swing): power.<powerType>() alone doesn't know those
+    -- @function power.<powerType>.affordable
+    -- @number cost What the spell costs (cast.cost.<spell>())
+    -- @number[opt=0] keep How much to keep back (a heal's cost, the mana to shift back into a form)
+    -- @return boolean
+    -- @usage if power.mana.affordable(cast.cost.lightningBolt(), cast.cost.healingWave()) then
+    power[powerType].affordable = function(cost, keep)
+        return br.functions.power:isAffordable(powerIndex, cost, keep)
+    end
+
     --- Gets the amount of specified power until max is reached
     -- @function power.<powerType>.deficit
     -- @return number

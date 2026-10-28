@@ -426,6 +426,15 @@ function E.affordableAfterPromised(spellID)
 	return true
 end
 
+--- Power of a type (Enum.PowerType) promised to casts BR has sent that the game hasn't charged yet: a
+--- cast-time spell until it ends, an instant for a round trip, an on-next-swing attack until its swing.
+-- local promisedMana = br.functions.cast:getPromisedPower(0)
+function cast:getPromisedPower(powerType)
+	if #E.promised == 0 then return 0 end
+	prunePromised(br.game.GetTime())
+	return promisedPower(powerType, nil)
+end
+
 -- ─────────────────────────────────────────────────────────────────────────────
 -- SECTION: Mana kept to shift back into a form left in combat
 --

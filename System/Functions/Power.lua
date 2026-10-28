@@ -23,6 +23,15 @@ function power:getManaCostFromRef(spellRef, treatAsFree)
 end
 
 -- Return the maximum rune cooldown percent among all runes (0..1)
+--- Whether the player can pay cost of a power type and still have keep left, counting what earlier casts
+--- are promised and the game hasn't charged yet (cast:getPromisedPower). A value BR may not use: false.
+-- if br.functions.power:isAffordable(0, cost, healCost) then
+function power:isAffordable(powerType, cost, keep)
+	local current = power:getPower("player", powerType)
+	if type(current) ~= "number" or not br.functions.misc:canUseValue(current) then return false end
+	return current - br.functions.cast:getPromisedPower(powerType) - (cost or 0) >= (keep or 0)
+end
+
 function power:getMaxRuneCDPercent()
 	local maxPct = 0
 	for i = 1, 6 do
