@@ -35,7 +35,7 @@ clean it.
 | Errors.log | BadRotations' Lua errors with where they happened (a repeated one is counted) |
 | Chat.log | Every line BadRotations printed in chat |
 | Rotation.log | Every spell BadRotations sent, where in the profile it came from, and the game's answer; refused casts and why; a summary per fight |
-| Fights.log | A scorecard per fight, in a fixed layout for scripts: damage and healing done, damage taken, deaths, time busy or idle, time at full energy or rage, mana spent, cooldowns left ready |
+| Fights.log | A scorecard per fight, in a fixed layout for scripts: damage and healing done, damage taken, deaths, time busy or idle, time at full energy or rage, mana spent, casts and mana per spell, cooldowns left ready, and the rest before each fight (time since the last, drinking and eating, mana gained, spells cast in between) |
 | Idle.log | A snapshot whenever you stood idle in combat with an enemy close by: what was refused and why |
 | Target.log | Why BadRotations picked the enemy it picked, when that changes in combat |
 | Cast.log | Spells sent while another cast was still going, and casts the game refused |
