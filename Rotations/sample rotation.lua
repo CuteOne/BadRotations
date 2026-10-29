@@ -1,22 +1,23 @@
--- Sample rotation: the starting point for a profile of your own.
---   1. Copy this file into Rotations/<Class>/<Spec>/ (on clients without specializations,
---      Rotations/<Class>/<Class>/) and give it your own file name.
---   2. At the bottom, set name, specID and expansion. BR then lists it in the rotation dropdown.
---   3. Fill in the action lists with your class's spells, then /reload in game to try each change.
--- "Writing a profile.md", next to this file, walks through every part.
+-- Sample rotation: a starting point for a profile of your own.
+-- Lines starting with two dashes (--) are notes like this one; the game skips them.
+-- "Writing a profile.md", next to this file, explains every part step by step. Start there if
+-- you haven't written Lua before.
 --
--- Spell names: cast.<name>(), buff.<name>.exists() and so on use the names in your class's spell
--- list, Expansions/<Version>/<CLASS>/ (Global.lua next to those folders has the ones every class
--- shares, such as autoAttack). Your editor completes them if you open the BadRotations folder with
--- the Lua extension (see Types/).
+-- To use it:
+--   1. Copy this file into the folder for your class and spec, Rotations/<Class>/<Spec>/ (for the
+--      game versions without specs, Rotations/<Class>/<Class>/), and rename the copy.
+--   2. At the bottom of the file, fill in name, specID and expansion.
+--   3. In game, type /reload. Your profile is now in the rotation list in BR's options.
+--   4. Fill in the action lists below with your class's spells, and /reload after each change.
 
 ---------------
 --- Toggles ---
 ---------------
--- The buttons on the toggle bar. Each click moves to the next mode; the first mode is the default.
--- Keep these four names and the order of their modes: BR's helpers (ui.useAOE, ui.useCDs,
--- ui.useDefensive, ui.useInterrupt) and the shared Base Options read them. Add your own below them.
--- icon: a spell name from your class's list (icon = "fireball") or any spell ID.
+-- The buttons on BR's toggle bar. Each click on a button moves it to its next mode; the first mode
+-- is where it starts. (Guide: "Toggles")
+-- Keep these four buttons as they are: BR reads them by these names and in this order. You can add
+-- buttons of your own after them.
+-- icon: a spell's ID number (any spell), or a spell name from your class's spell list.
 local function toggles()
     ui.toggle("Rotation", { key = "RightShift", modes = {
         { name = "Auto", icon = 1680, tip = "Single target or AoE, by the number of enemies around you." },
@@ -42,9 +43,10 @@ end
 ---------------
 --- Options ---
 ---------------
--- The Rotation Options page. ui.section starts a group; each option after it takes the section,
--- its name, and only the settings you want to change. Read them in the rotation with
--- ui.checked("Name") (its checkbox) and ui.value("Name") (its number or dropdown choice).
+-- The settings players can change on the "Rotation Options" page. (Guide: "Options")
+-- ui.section starts a group. Each option names its group, its own name, and any settings that
+-- differ from the usual (its starting value, a tip, ...). In the rotation, ui.checked("Name") says
+-- whether its box is ticked, and ui.value("Name") gives its number or dropdown choice.
 local function options()
     local section = ui.section("General")
     ui.spinner(section, "Pre-Pull Timer", { value = 5, min = 1, max = 10, tip = "Seconds left on a boss mod pull timer to start your opener." })
@@ -60,18 +62,23 @@ local function options()
     ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "How far into the enemy's cast, in percent (0 = random)." })
 end
 
---------------
---- Locals ---
---------------
--- A profile can't create globals: declare every name of your own as local, here or in a function.
-local enemy -- the enemy the rotation acts on this tick (set in runRotation)
+-------------------------
+--- Your own values ---
+-------------------------
+-- Names you make up to keep a value start with the word local, the first time you use them.
+-- (Guide: "Lua in five minutes")
+local enemy -- the enemy the rotation attacks right now (set in runRotation below)
 
 --------------------
 --- Action Lists ---
 --------------------
--- Each list tries its casts in order. A cast returns true when BR sends it; return true straight
--- away, so BR does one thing per tick and starts again from the top next tick.
--- The commented casts are examples: replace them with your class's spells.
+-- What to cast, in order of priority: BR tries each line from the top, and the first spell that
+-- can be cast right now is cast. (Guide: "Action lists")
+--   if cast.shieldWall() then return true end
+-- means "cast Shield Wall if you can; if it was cast, stop here". BR does one thing at a time and
+-- starts again from the top a moment later.
+-- The examples below are switched off. To use one, remove the -- in front of it and put your
+-- class's spell in place of the example spell.
 local actionList = {}
 
 actionList.Defensive = function()
@@ -96,20 +103,20 @@ end
 
 actionList.PreCombat = function()
     if unit.inCombat() then return end
-    -- A boss mod (DBM, BigWigs) pull timer is nearly done: start the fight on time
+    -- A boss mod (DBM, BigWigs) pull countdown is nearly done: start the fight on time
     if ui.checked("Pre-Pull Timer") and unit.pullTimer() <= ui.value("Pre-Pull Timer") then
         -- if cast.charge(enemy) then return true end
     end
 end
 
 actionList.Combat = function()
-    -- AoE: true on Mult, or on Auto with 3 or more enemies within 8 yards
+    -- Several enemies: the Rotation toggle is on Mult, or on Auto with 3 or more enemies within 8 yards
     if ui.useAOE(8, 3) then
         -- if cast.whirlwind() then return true end
     end
-    -- Single target
+    -- One enemy
     -- if cast.heroicStrike(enemy) then return true end
-    -- Melee: start auto attack once in range (cast.auto tells whether it is already on)
+    -- Melee classes: start auto attack once in range, unless it is already on
     if unit.distance(enemy) < 5 and not cast.auto.autoAttack() then
         if cast.autoAttack(enemy) then return true end
     end
@@ -118,11 +125,12 @@ end
 ----------------
 --- Rotation ---
 ----------------
--- BR runs this many times a second. It doesn't run while BR is paused or you are mounted, on a taxi
--- or dead, so the rotation needn't check for those.
+-- The main part: BR runs it many times a second, and it decides which action list to try.
+-- BR already skips it while you are paused, mounted, on a taxi or dead, and holds new casts while
+-- you are casting, so you don't need to check for those. (Guide: "The rotation")
 local function runRotation()
-    -- The best enemy within 40 yards (BR's pick; see Targeting in Bot Options), or nil. Use
-    -- units.get(5) for one in melee range.
+    -- The best enemy within 40 yards (BR picks it; see Targeting in Bot Options), or nil if there
+    -- is none. units.get(5) gives one in melee range instead.
     enemy = units.get(40)
 
     if ui.mode.rotation == 4 then return end -- the Rotation toggle is Off
@@ -139,14 +147,13 @@ end
 -------------------------
 --- Register Rotation ---
 -------------------------
--- BR loads every .lua file in the spec's folder and offers this rotation when the specID and
--- expansion match your character.
+-- Tells BR about this profile. BR offers it to characters of this spec on this game version.
 registerRotation({
-    name      = "MyProfile",    -- Shown in the rotation dropdown; unique for the spec
-    specID    = 000,            -- Your spec's ID (000 keeps the sample switched off):
-                                -- https://warcraft.wiki.gg/wiki/SpecializationID
-    expansion = "Retail",       -- One of "Retail", "MOP", "TBC", "Classic" or "Forever"
-    author    = "YourName",     -- Optional: shown in README.md
+    name      = "MyProfile",    -- Its name in the rotation list (different from the spec's other profiles)
+    specID    = 000,            -- Your spec's number, from https://warcraft.wiki.gg/wiki/SpecializationID
+                                -- (000 keeps the sample switched off)
+    expansion = "Retail",       -- The game version: "Retail", "MOP", "TBC", "Classic" or "Forever"
+    author    = "YourName",     -- Optional: your name, shown in BR's profile list
     toggles   = toggles,
     options   = options,
     run       = runRotation,
