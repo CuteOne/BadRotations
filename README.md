@@ -79,29 +79,25 @@ the levels before you pick a specialization.
 
 ### Retail
 
-|   class    |         spec          |    rotation    |   author   |last updated|
-|------------|-----------------------|----------------|------------|-----------:|
-|Death Knight|Blood                  |CuteOne         |CuteOne     |  2026-10-25|
-|Death Knight|Starter (before a spec)|Initial         |CuteOne     |  2026-10-25|
-|Demon Hunter|Havoc                  |CuteOne         |CuteOne     |  2026-10-26|
-|Demon Hunter|Starter (before a spec)|Initial         |CuteOne     |  2026-10-25|
-|Demon Hunter|Vengeance              |CuteOne         |CuteOne     |  2026-10-26|
-|Druid       |Feral                  |CuteOne         |CuteOne     |  2026-10-25|
-|Druid       |Starter (before a spec)|Initial Druid   |CuteOne     |  2026-10-25|
-|Evoker      |Devastation            |CuteOne         |CuteOne     |  2026-10-26|
-|Evoker      |Starter (before a spec)|Initial         |Kuukuu      |  2026-10-26|
-|Hunter      |BeastMastery           |BrewBeastMaster |BrewingCoder|  2026-10-25|
-|Hunter      |Marksmanship           |CuteOne         |CuteOne     |  2026-10-25|
-|Hunter      |Starter (before a spec)|Initial         |CuteOne     |  2026-10-25|
-|Paladin     |Retribution            |CuteOne         |CuteOne     |  2026-10-26|
-|Paladin     |Starter (before a spec)|Initial         |CuteOne     |  2026-10-25|
-|Priest      |Starter (before a spec)|Initial         |CuteOne     |  2026-10-25|
-|Rogue       |Starter (before a spec)|Initial         |Yamaraja666 |  2026-10-25|
-|Warlock     |Affliction             |BrewAffliction  |BrewingCoder|  2026-10-25|
-|Warlock     |Destruction            |BrewDestro      |BrewingCoder|  2026-10-25|
-|Warlock     |Starter (before a spec)|Initial         |CuteOne     |  2026-10-25|
-|Warrior     |Fury                   |CuteOne         |CuteOne     |  2026-10-25|
-|Warrior     |Fury                   |BrewFuryLeveling|BrewingCoder|  2026-10-25|
+|   class    |         spec          |  rotation   |  author   |last updated|
+|------------|-----------------------|-------------|-----------|-----------:|
+|Death Knight|Blood                  |CuteOne      |CuteOne    |  2026-10-25|
+|Death Knight|Starter (before a spec)|Initial      |CuteOne    |  2026-10-25|
+|Demon Hunter|Havoc                  |CuteOne      |CuteOne    |  2026-10-26|
+|Demon Hunter|Starter (before a spec)|Initial      |CuteOne    |  2026-10-25|
+|Demon Hunter|Vengeance              |CuteOne      |CuteOne    |  2026-10-26|
+|Druid       |Feral                  |CuteOne      |CuteOne    |  2026-10-25|
+|Druid       |Starter (before a spec)|Initial Druid|CuteOne    |  2026-10-25|
+|Evoker      |Devastation            |CuteOne      |CuteOne    |  2026-10-26|
+|Evoker      |Starter (before a spec)|Initial      |Kuukuu     |  2026-10-26|
+|Hunter      |Marksmanship           |CuteOne      |CuteOne    |  2026-10-25|
+|Hunter      |Starter (before a spec)|Initial      |CuteOne    |  2026-10-25|
+|Paladin     |Retribution            |CuteOne      |CuteOne    |  2026-10-26|
+|Paladin     |Starter (before a spec)|Initial      |CuteOne    |  2026-10-25|
+|Priest      |Starter (before a spec)|Initial      |CuteOne    |  2026-10-25|
+|Rogue       |Starter (before a spec)|Initial      |Yamaraja666|  2026-10-25|
+|Warlock     |Starter (before a spec)|Initial      |CuteOne    |  2026-10-25|
+|Warrior     |Fury                   |CuteOne      |CuteOne    |  2026-10-25|
 
 
 ### Mists of Pandaria Classic
