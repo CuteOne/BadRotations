@@ -152,6 +152,4 @@ registerRotation({
     run       = runRotation,
     -- Optional:
     -- actsWhileCasting = true, -- keep running while you cast or channel (BR waits otherwise)
-    -- handlesRacials = true,   -- the rotation uses racials itself (Base Options' racial doesn't)
-    -- handlesTrinkets = true,  -- the rotation uses trinkets itself (Base Options' trinkets don't)
 })

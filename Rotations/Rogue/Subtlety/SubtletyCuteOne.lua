@@ -1121,7 +1121,6 @@ local function runRotation()
 end -- runRotation
 
 registerRotation({
-    handlesRacials = true,
     name      = "CuteOne",
     specID    = 261,
     expansion = "MOP",

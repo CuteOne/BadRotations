@@ -1097,7 +1097,6 @@ local runRotation = function()
     end -- End Profile
 end -- runRotation
 registerRotation({
-    handlesRacials = true,
     name      = "CuteOne",
     specID    = 70,
     expansion = "Retail",

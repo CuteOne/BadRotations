@@ -8730,8 +8730,6 @@
 ---@field toggles? fun() Builds the toggle bar (ui.toggle)
 ---@field options? fun()|table Builds the Rotation Options page, or a list of { page name, build function }
 ---@field actsWhileCasting? boolean Keep running while the player casts or channels
----@field handlesRacials? boolean The rotation uses racials itself (the shared Racial module doesn't)
----@field handlesTrinkets? boolean The rotation uses trinkets itself (the shared Trinkets module doesn't)
 ---@field author? string Shown in README.md's profile list
 
 --- Registers this file's rotation; BR offers it when specID and expansion match the player.

@@ -65,14 +65,15 @@ local function loadFile(profile, file)
 end
 
 local KNOWN_EXPANSIONS = { Retail = true, MOP = true, TBC = true, Classic = true, Forever = true }
-local FLAG_FIELDS = { "actsWhileCasting", "handlesRacials", "handlesTrinkets" }
+local FLAG_FIELDS = { "actsWhileCasting" }
 -- Every field registerRotation reads; anything else is most likely a typo
 local KNOWN_FIELDS = { name = true, specID = true, expansion = true, run = true, toggles = true, options = true,
     author = true }
 for _, field in ipairs(FLAG_FIELDS) do KNOWN_FIELDS[field] = true end
 
--- State for the load in progress: the file being run and what it registered
-local loading = { file = nil, seen = {} }
+-- State for the load in progress: the file being run, its code and the support files it loaded
+-- (code), and what it registered
+local loading = { file = nil, code = {}, seen = {} }
 
 local function warn(message)
     br.log:warning(message)
@@ -116,12 +117,45 @@ local function validate(def)
     return nil
 end
 
+-- Lua code without its comments, so commented-out code doesn't count
+local function withoutComments(code)
+    code = code:gsub("%-%-%[(=*)%[.-%]%1%]", "")
+    return (code:gsub("%-%-[^\n]*", ""))
+end
+
+--- What a profile's code does itself, so the shared modules (Base Options) leave it alone: racials
+-- when it casts the player's racial (cast.racial, or the race's own key such as cast.stoneform) or
+-- runs module.Racial; trinkets when it uses slot 13 or 14 or runs module.BasicTrinkets. Building
+-- their options (module.Racial(section), module.BasicTrinkets(nil, section)) doesn't count.
+-- @string code The profile file's code and its support files'
+-- @string race UnitRace's token
+-- @treturn boolean racials, boolean trinkets
+function profileLoader:handledByProfile(code, race)
+    code = withoutComments(code)
+    local racials = code:find("module%.Racial%s*%(%s*%)") ~= nil or code:find("module%.Racial%s*%(%s*nil") ~= nil
+    if not racials then
+        -- cast.racial, the race's utility racial, and every key holding the race's racial spell ID
+        local keys = { "racial", br.functions.spell:getRacialKey(race) }
+        local racialID = br.lists.racials and br.lists.racials[race]
+        for key, id in pairs(br.lists.spells.Shared.Shared.abilities) do
+            if racialID and id == racialID then keys[#keys + 1] = key end
+        end
+        for _, key in ipairs(keys) do
+            if code:find("cast[%w_%.]*%." .. key .. "[^%w_]") then racials = true break end
+        end
+    end
+    local trinkets = code:find("module%.BasicTrinkets%s*%(%s*%)") ~= nil
+        or code:find("module%.BasicTrinkets%s*%(%s*1[34]") ~= nil
+        or code:find("use[%w_%.]*%.slot%s*%(%s*1[34]") ~= nil
+    return racials, trinkets
+end
+
 --- Registers a rotation profile. Called by each rotation file as registerRotation (see
 -- Rotations/sample rotation.lua). The rotation is offered only when its specID and expansion match the player.
 -- @tparam table def name, specID (number or list), expansion (one of KNOWN_EXPANSIONS), run, and
 --   optional toggles, options, actsWhileCasting (true: the rotation keeps running while the player
---   casts or channels; it then checks casts itself), handlesRacials / handlesTrinkets (true: the
---   rotation uses racials / trinkets itself, so the shared modules don't), author (shown in README.md)
+--   casts or channels; it then checks casts itself), author (shown in README.md). Whether the
+--   rotation uses racials / trinkets itself is read from its code (handledByProfile).
 function br.loader.registerRotation(def)
     local file = loading.file or "?"
     local problem = validate(def)
@@ -149,6 +183,8 @@ function br.loader.registerRotation(def)
     local entry = {}
     for k, v in pairs(def) do entry[k] = v end
     entry.file = file
+    local _, race = br.game.UnitRace("player")
+    entry.handlesRacials, entry.handlesTrinkets = profileLoader:handledByProfile(table.concat(loading.code, "\n"), race)
     br.game.tinsert(list, entry)
     return true
 end
@@ -167,10 +203,13 @@ function profileLoader:loadProfiles()
     for _, file in pairs(files) do
         if file:sub(-4) == ".lua" then
             loading.file = file
-            loadFile(br.game.ReadFile(path .. file) or "", file)
+            local code = br.game.ReadFile(path .. file) or ""
+            loading.code = { code }
+            loadFile(code, file)
         end
     end
     loading.file = nil
+    loading.code = {}
 
     local list = br.loader.rotations[specID]
     local matchedProfiles = list and #list or 0
@@ -208,6 +247,8 @@ function profileLoader:loadSupport(thisFile)
         warn("support file not found: " .. path)
         return nil
     end
+    -- A profile loads its support files while it runs: their code counts as the profile's
+    if loading.file ~= nil then loading.code[#loading.code + 1] = profile end
     local _, support = loadFile(profile, file)
     return support
 end

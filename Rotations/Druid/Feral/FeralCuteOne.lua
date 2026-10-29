@@ -1513,7 +1513,6 @@ local function runRotation()
 end     -- End runRotation
 
 registerRotation({
-    handlesRacials = true,
     name      = "CuteOne",
     specID    = 103,
     expansion = "Retail",

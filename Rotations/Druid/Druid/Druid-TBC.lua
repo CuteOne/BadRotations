@@ -1531,7 +1531,6 @@ local function runRotation()
     return true
 end             -- End runRotation
 registerRotation({
-    handlesTrinkets = true,
     name      = "CuteOne",
     specID    = 283,
     expansion = "TBC",

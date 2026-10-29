@@ -35,6 +35,10 @@ function profileUI:buildBaseOptionsPage()
     br.ui:text(section_module, "|cffff0000in Rotation Options")
     br.ui:text(section_module, "===General Options===")
     module.autoKeystone(section_module) -- Retail
+    -- A rotation that uses racials / trinkets itself takes them over (ProfileLoader handledByProfile).
+    -- Their options stay, so the settings are kept for profiles that don't.
+    local selected = br.runner and br.runner.selected
+    if selected and selected.handlesRacials then br.ui:text(section_module, "Racials: used by this profile itself") end
     module.Racial(section_module)
     module.TwoForms(section_module) -- Worgen
     br.ui:text(section_module, "===Healing Options===")
@@ -44,6 +48,7 @@ function profileUI:buildBaseOptionsPage()
     if br.client.isMOP then -- checked here too, so the primary stat (secret in combat on Forever) is only read on MoP
         module.FlaskUp(br.functions.unit:getPrimaryStat(), section_module) -- Mists of Pandaria
     end
+    if selected and selected.handlesTrinkets then br.ui:text(section_module, "Trinkets: used by this profile itself") end
     module.BasicTrinkets(nil, section_module)
 end
 

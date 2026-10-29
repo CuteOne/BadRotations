@@ -177,8 +177,8 @@ function Rotation:startRotation()
 	br.debug.cpu:updateDebug(startTime, "rotation")
 end
 
--- Runs the shared modules each tick, before the rotation (a rotation registered with handlesRacials /
--- handlesTrinkets uses those itself)
+-- Runs the shared modules each tick, before the rotation. Racials and trinkets are left to a rotation
+-- whose code uses them itself (ProfileLoader handledByProfile)
 function Rotation:runModules()
 	local api = br.api.profile
 	local module = api.module
