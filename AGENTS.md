@@ -2,7 +2,7 @@
 
 BadRotations is a World of Warcraft combat rotation automation addon (requires a Lua Unlocker). It supports **Classic, TBC, MOP, Retail, and Forever** expansions.
 
-See [README.md](README.md) for project background and profile status. **API source of truth:** the live module files in `System/API/` are authoritative — when you need to know how an API call works, open the relevant `System/API/*.lua` module and read it. `BadRotations API.md` is legacy documentation; do **not** rely on it for signatures, arguments, or behavior. Profile code should call functions defined in `System/API/`; if a needed function doesn't exist there (and isn't purely profile-specific logic), prefer adding it to the appropriate API module over implementing it inline.
+See [README.md](README.md) for project background and profile status. **API source of truth:** the live module files in `System/API/` are authoritative — when you need to know how an API call works, open the relevant `System/API/*.lua` module and read it. Profile code should call functions defined in `System/API/`; if a needed function doesn't exist there (and isn't purely profile-specific logic), prefer adding it to the appropriate API module over implementing it inline.
 
 ---
 

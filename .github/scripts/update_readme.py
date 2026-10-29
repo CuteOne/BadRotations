@@ -1,6 +1,6 @@
 from sys import argv, stderr
 from pathlib import Path, PosixPath
-from typing import DefaultDict, Dict, List
+from typing import Dict, List
 from git import Repo
 from collections import defaultdict
 from pytablewriter import MarkdownTableWriter, style
@@ -26,12 +26,20 @@ FIELDS = {
         "regex": [register_field("author")],
         "default": lambda repo, file: get_first_committer(repo, file),
     },
-    "Patch": {"regex": [register_field("patch")], "default": "Unknown"},
-    "Coverage": {"regex": [register_field("coverage")], "default": "Unknown"},
-    "Status": {"regex": [register_field("status")], "default": "Unknown"},
-    "Readiness": {"regex": [register_field("readiness")], "default": "Untested"},
+    "Flavour": {"regex": [register_field("expansion")], "default": "Unknown"},
 }
-IN_FILTER = re.compile(r"[\[\]<>]+", re.UNICODE)
+# Git names that belong to one author
+AUTHOR_ALIASES = {"ph34rt3hcute1": "CuteOne", "Ashley (CuteOne)": "CuteOne"}
+# Flavours in README order, with the heading each gets
+FLAVOURS = {
+    "Retail": "Retail",
+    "MOP": "Mists of Pandaria Classic",
+    "TBC": "Burning Crusade Classic",
+    "Classic": "Classic Era",
+    "Forever": "World of Warcraft Forever",
+}
+# A profile with specID = 0 is switched off and never loads
+DISABLED = re.compile(r"\bspecID\s*=\s*0\b")
 ORDERED_CLASSES = (
     "Death Knight",
     "Demon Hunter",
@@ -47,15 +55,10 @@ ORDERED_CLASSES = (
     "Warlock",
     "Warrior",
 )
-ICON = {
-    "Raid": ":white_check_mark:",
-    "NoRaid": ":x:",
-    "Basic": ":heavy_check_mark:",
-    "Development": ":interrobang:",
-    "Untested": ":interrobang:",
-}
-CJUST = style.Style(align="center")
+IN_FILTER = re.compile(r"[\[\]<>]+", re.UNICODE)
 RJUST = style.Style(align="right")
+START = "<!-- rotations -->"
+END = "<!-- /rotations -->"
 
 
 def fatal(exit_code: int, err: str) -> None:
@@ -73,7 +76,6 @@ def filter_filepath(path: PosixPath) -> bool:
         and (not path.name == "Blank.lua")
         and (not path.match("Old/*.lua"))
         and (not path.match("Old/**/*.lua"))
-        and (not path.match("Initial/*.lua"))
         and (not path.match("Support/*.lua"))
         and (not path.match("_*.lua"))
     )
@@ -112,12 +114,8 @@ def build_rotation_entry(
         else:
             result[field] = search.group(1).strip()
 
-        if field == "Readiness":
-            try:
-                result[field] = ICON[result[field]]
-            except KeyError:
-                result[field] = ":interrobang:"
-
+    result["Author"] = AUTHOR_ALIASES.get(result["Author"], result["Author"])
+    result["Disabled"] = bool(DISABLED.search(register))
     relative_path = rotation.relative_to(repo_dir)
     result["Updated"] = get_last_commit_date_by_path(relative_path, repo)
 
@@ -132,51 +130,43 @@ def get_last_commit_date_by_path(filepath: PosixPath, repo: Repo) -> int:
     fatal(4, f"Couldn't find git blob for {filepath}")
 
 
-def build_spec_table(info_list: List[Dict[str, str]]) -> List[str]:
-    table = []
-    info_list.sort(key=lambda x: x["Updated"], reverse=True)
-    for x in info_list:
-        date = datetime.fromtimestamp(x["Updated"]).strftime("%m/%d/%Y")
-        table.append(
+def spec_label(wow_class: str, wow_spec: str) -> str:
+    # Clients without specializations keep a class's profiles in Rotations/<Class>/<Class>/
+    if wow_spec == wow_class:
+        return "All"
+    if wow_spec == "Initial":
+        return "Starter (before a spec)"
+    return wow_spec
+
+
+def write_flavour_table(flavour: str, entries: List[Dict[str, str]]) -> str:
+    class_order = {name: i for i, name in enumerate(ORDERED_CLASSES)}
+    entries.sort(
+        key=lambda x: (class_order.get(x["Class"], len(class_order)), x["Spec"], -x["Updated"])
+    )
+    writer = MarkdownTableWriter(
+        headers=("class", "spec", "rotation", "author", "last updated"),
+        type_hints=["str", "str", "str", "str", "str"],
+        column_styles=(None, None, None, None, RJUST),
+        value_matrix=[
             [
+                x["Class"],
+                x["Spec"],
                 filter_input(x["Rotation"], max_len=32),
                 filter_input(x["Author"], max_len=32),
-                filter_input(x["Patch"], max_len=16),
-                filter_input(x["Coverage"], max_len=32),
-                filter_input(x["Status"], max_len=32),
-                filter_input(x["Readiness"], max_len=32),
-                date,
+                datetime.fromtimestamp(x["Updated"]).strftime("%Y-%m-%d"),
             ]
-        )
-    return table
-
-
-def write_class_table(wow_class: str, wow_specs: DefaultDict) -> str:
-    result = f"\n### {wow_class}\n\n"
-    for spec in sorted(wow_specs.keys()):
-        result += f"- {spec}\n\n"
-        writer = MarkdownTableWriter(
-            headers=(
-                "rotation",
-                "author",
-                "patch",
-                "coverage",
-                "status",
-                "readiness",
-                "last updated",
-            ),
-            type_hints=["str", "str", "str", "str", "str", "str", "str"],
-            column_styles=(None, None, CJUST, CJUST, CJUST, CJUST, RJUST),
-            value_matrix=build_spec_table(wow_specs[spec]),
-        )
-        result += f"{writer.dumps()}\n"
-    return result
+            for x in entries
+        ],
+    )
+    return f"\n### {FLAVOURS.get(flavour, flavour)}\n\n{writer.dumps()}\n"
 
 
 def write_readme(readme: PosixPath, insert: str) -> None:
-    contents = readme.read_text().split("\n")
-    offset = contents.index("<!-- rotations -->") + 1
-    readme.write_text("\n".join(contents[:offset]) + insert)
+    contents = readme.read_text()
+    start = contents.index(START) + len(START)
+    end = contents.index(END, start)
+    readme.write_text(contents[:start] + "\n" + insert + "\n" + contents[end:])
 
 
 def main(repo_dir: str) -> None:
@@ -187,21 +177,24 @@ def main(repo_dir: str) -> None:
     repo = Repo(repo_dir)
     rotations = [x for x in rotations_dir.rglob("*.lua") if filter_filepath(x)]
 
-    entries = defaultdict(lambda: defaultdict(list))
-    insert = ""
+    entries = defaultdict(list)
 
     for rotation in rotations:
         wow_class, wow_spec = rotation.relative_to(rotations_dir).parts[:2]
         try:
-            entries[wow_class][wow_spec].append(
-                build_rotation_entry(repo, repo_dir, rotation)
-            )
-        except:
-            # Continue if a rotation fails to parse
-            pass
+            entry = build_rotation_entry(repo, repo_dir, rotation)
+        except Exception as err:
+            error(f"Skipped {rotation.relative_to(rotations_dir)}: {err}")
+            continue
+        if entry["Disabled"]:
+            continue
+        entry["Class"] = wow_class
+        entry["Spec"] = spec_label(wow_class, wow_spec)
+        entries[entry["Flavour"]].append(entry)
 
-    for wow_class in ORDERED_CLASSES:
-        insert += write_class_table(wow_class, entries[wow_class])
+    # Known flavours in their order, then anything unexpected so it is not lost
+    order = [f for f in FLAVOURS if f in entries] + sorted(set(entries) - set(FLAVOURS))
+    insert = "".join(write_flavour_table(f, entries[f]) for f in order)
 
     write_readme(repo_dir / "README.md", insert)
 

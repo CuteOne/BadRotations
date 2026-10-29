@@ -1,270 +1,166 @@
-De BadRotations
+# BadRotations
 
-## Patch 9.0+
+BadRotations (BR) is a free, open-source combat rotation addon for World of Warcraft. It reads the fight
+around you (enemies, your group's health, your cooldowns and resources) and casts your class's rotation for
+you. Movement stays with you: BR never moves or turns your character on its own.
 
-Please refer to list below for status of profiles.
+BR needs a **Lua unlocker** to run. The [Wiki](https://github.com/CuteOne/BadRotations/wiki) explains how to
+set one up and load BR with it.
 
-## First Setup
+## Game versions
 
-Little How-To for the first run: <https://gyazo.com/d11da29a9d7dba4c93e5b65c008c433c>
+BR runs on **Retail**, **Mists of Pandaria Classic**, **Burning Crusade Classic**, **Classic Era** and
+**World of Warcraft Forever**. Each profile is written for one of them. BR detects the client you are
+playing and offers only the profiles made for it. On clients without specializations, a profile covers the
+whole class.
 
-Also be sure to check the Wiki: <https://github.com/CuteOne/BadRotations/wiki>
+The [profile list](#profiles) below shows what is available for each.
 
-**Icons and fonts:** copy the `Media` folder from `3rd Party Files` into your game's `Interface\AddOns` folder, so you have `World of Warcraft\<game version>\Interface\AddOns\Media`. WoW can only load images and fonts from its own `Interface` folder, so without this BadRotations' windows show no icons and use the game's default font. BadRotations itself still runs from wherever your unlocker loads it.
+## Installing
 
-## About
+1. Download BR, either the green **Code → Download ZIP** button above or `git clone`, and put the
+   `BadRotations` folder where your unlocker loads it from. The [Wiki](https://github.com/CuteOne/BadRotations/wiki)
+   has the details for each unlocker.
+2. **Icons and fonts:** copy the `Media` folder from `3rd Party Files` into your game's `Interface\AddOns`
+   folder, so you have `World of Warcraft\<game version>\Interface\AddOns\Media`. WoW only loads images and
+   fonts from its own `Interface` folder. Without this step BR's windows have no icons and use the game's
+   default font. BR itself still runs from wherever your unlocker loads it.
+3. Log in and load BR through your unlocker. The BR button appears on your minimap.
 
-BadRotations Maintained By: CuteOne
+## Using BR
 
--- Intro --
+- **Minimap button:** left-click opens the options window. Shift+left-click shows or hides the toggle bar.
+  Alt+Shift drags the button.
+- **Toggle bar:** buttons for the things you switch often in play: on/off, AoE, cooldowns, defensives,
+  interrupts and whatever else the profile adds. Hover over a button to see what each state does.
+- **Options window:** *Bot Options* (BR itself, per character), *Base Options* (shared features such as
+  racials, trinkets and healthstones, per character and spec) and the profile's own *Rotation Options*.
+  Settings are saved under `Settings/`, separately for each game version.
+- **Chat commands:** `/br` turns BR on or off, and `/br help` lists the rest. Some useful ones:
 
-BadRotations is maintained by CuteOne with additional contributions from other developers who worked on combat rotation bots such as PQR, ProbablyEngine, and others. While it is more of a developer playground as compared to the more "for profit" bots this is free to use and we feel it is just as good, if not better, than the bots you pay money for. Don't agree? Feel free to post any issues you have and we will do our best to resolve them. **Please note that you MUST have a Lua Unlocker to use this tool.**
+  | Command | What it does |
+  |---------|--------------|
+  | `/br why <spell>` | Says why BR last refused to cast a spell |
+  | `/br target` | Shows which enemy BR is focusing on and why |
+  | `/br log` | Shows BR's recent chat lines in a window you can copy from |
+  | `/br pause toggle` | Pauses or resumes BR |
 
--- Features --
+## Logs and privacy
 
-- Object Manager
-- Ground Spells Support
-- Healing Engine
-- Clean User Interface w/ Profile Specific Toggle Buttons and Bot/Profile Specific Options
-- Debug Frame
-- And much more as new features and improvements are constantly added.
+BR writes what it does to plain text files in `BadRotations/Logs/`. **Nothing is ever sent anywhere.** The
+files stay on your computer, other players' names in them are replaced, and you can switch them off under
+*Bot Options → Debug Options → Write Log Files*. [Logs/README.md](Logs/README.md) explains each file.
 
--- Profile Sellers/Stealers --
+## Reporting problems
 
-BadRotations is a free project for anyone to use and contribute to but we do ask that none of the code used here be taken or sold without permission.
+Open an [issue](https://github.com/CuteOne/BadRotations/issues) or ask on
+[Discord](https://discord.gg/VE7V7Mz). Say what went wrong and roughly when, and attach `Session.log` and
+`Errors.log` from `BadRotations/Logs/` (or zip the whole folder). The logs usually show the cause without
+you having to make it happen again.
 
--- Join the Team --
+## Writing a profile
 
-If you are a developer or are interested in being a beta tester, feel free to get in contact with one of the current coders to join BadRotations development team.
+A profile is one Lua file in `Rotations/<Class>/<Spec>/`. It registers itself, so dropping a new file in is
+enough for BR to find it.
 
-## Updates
+- Start from [`Rotations/sample rotation.lua`](Rotations/sample%20rotation.lua).
+- The profile API is documented at **<https://cuteone.github.io/BadRotations/>**, generated from the
+  `System/API` source.
+- `Types/` gives editors that use the Lua language server (such as VS Code with sumneko Lua) completion for
+  the whole profile API.
+- [AGENTS.md](AGENTS.md) describes how BR is put together and the conventions profiles follow.
 
-If you have code to improve a class you can send a "pull request". We will look over it and may merge it with BadRotations.
+Pull requests are welcome.
 
-Current Coders: **See Profile List Below**
+## Profiles
 
-Past Contributors: Masoud, Gabbz, AveryKey, Chumii, Kinks, NOCARRIER, Sphoenix, ragnar, Defmaster
-
-**If you've contributed and you are not list here then please let CuteOne know so you can be added!**
-
-If you want to know what changes were made read the commit messages. Most of the time they contain the most changes.
-
-## Regarding Lua Errors
-
-Please submit any errors as issues here on GitHub or join the BadRotations community:
-
-Discord channel:
-https://discord.gg/VE7V7Mz
-
-Slack channel: (Currently not checked often)
-https://join.slack.com/t/badrotations/shared_invite/enQtODQ2NjkzNDEzOTA0LWQzY2ZjZTBlYzkwNDc4ZGExMzkzZGVkMmNiZWViMGUzNGQxNmVhMTRhNjIzMDQzYjUzNzAyYTdlZTFlZjA2YTg
-
-## Profile Status
-
-Support Status Meanings
-
-- Full - Developer is active and able to fully manage profile.
-- Limited - Developer still supports but is unable to fully manage profile.
-- Sporadic - Developer is not regularly active but still or is assumed to still support.
-- Inactive - Developer has not appeared nor supported in sometime.
-- Unknown - Status of Developer is unknown.
-
-Raidable means if its good to raid with.
-
-- :white_check_mark: - works good
-- :x: - should not be used in raid
-- :heavy_check_mark: - handles rotations, but no advanced features
-- :interrobang: - currently unknown or in development; give feedback :D
-- BH - has BossHelper support, features things like using specific spell based on current boss etc.
+Generated from each profile's `registerRotation` table whenever a profile changes. Starter profiles cover
+the levels before you pick a specialization.
 
 <!-- rotations -->
-### Death Knight
 
-- Blood
-
-|rotation| author |patch |coverage|status |    readiness     |last updated|
-|--------|--------|:----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne |11.0.2|  50%   |Limited|  :interrobang:   |  03/27/2026|
-|ChefLyfe|ChefLyfe|11.0.2|  70%   |Limited|:heavy_check_mark:|  03/27/2026|
-
-- Frost
-
-| rotation  |   author    | patch |coverage|  status   |  readiness  |last updated|
-|-----------|-------------|:-----:|:------:|:---------:|:-----------:|-----------:|
-|CuteOne    |ph34rt3hcute1|Unknown|Unknown |  Unknown  |:interrobang:|  03/27/2026|
-|BrewDKFrost|BrewingCoder |10.2.6 |   0%   |Development|:interrobang:|  03/27/2026|
-
-- Unholy
-
-|  rotation  |   author   |patch |coverage|status |  readiness  |last updated|
-|------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
-|BrewUnholyDK|BrewingCoder|10.2.5|  90%   |Limited|:interrobang:|  03/27/2026|
-
-
-### Demon Hunter
-
-- Havoc
-
-|rotation|author |patch|coverage|status|  readiness  |last updated|
-|--------|-------|:---:|:------:|:----:|:-----------:|-----------:|
-|CuteOne |CuteOne|10.2 |  100%  | Full |:interrobang:|  03/27/2026|
-
-- Vengeance
-
-|rotation|author |patch|coverage|status |    readiness     |last updated|
-|--------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne|10.2 |  100%  |Limited|:white_check_mark:|  03/27/2026|
-
-
-### Druid
-
-- Druid
-
-|rotation|author |patch|coverage|status|  readiness  |last updated|
-|--------|-------|:---:|:------:|:----:|:-----------:|-----------:|
-|CuteOne |CuteOne|2.5.5|  100%  | Full |:interrobang:|  05/26/2026|
-|CuteOne |CuteOne|1.12 |  100%  | Full |:interrobang:|  05/26/2026|
-
-- Feral
-
-|rotation|author |patch |coverage|status|  readiness  |last updated|
-|--------|-------|:----:|:------:|:----:|:-----------:|-----------:|
-|CuteOne |CuteOne|12.0.0|  100%  | Full |:interrobang:|  05/26/2026|
-|CuteOne |CuteOne|5.4.8 |  100%  | Full |:interrobang:|  05/26/2026|
-
-
-### Evoker
-
-- Devastation
-
-|rotation|author |patch|coverage|status|    readiness     |last updated|
-|--------|-------|:---:|:------:|:----:|:----------------:|-----------:|
-|CuteOne |CuteOne|10.0 |  95%   | Full |:heavy_check_mark:|  03/27/2026|
-
-
-### Hunter
-
-- BeastMastery
-
-|   rotation    |   author   |patch |coverage|status |  readiness  |last updated|
-|---------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
-|BrewBeastMaster|BrewingCoder|10.2.6|  75%   |Limited|:interrobang:|  03/27/2026|
-
-- Hunter
-
-|rotation|     author     | patch |coverage|status |    readiness     |last updated|
-|--------|----------------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne         | 2.5.1 |  90%   | Full  |:white_check_mark:|  05/26/2026|
-|CuteOne |Ashley (CuteOne)|Unknown|Unknown |Unknown|  :interrobang:   |  03/27/2026|
-
-- Marksmanship
-
-|rotation|author |patch |coverage|status |    readiness     |last updated|
-|--------|-------|:----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne|11.0.2|  100%  |Limited|:white_check_mark:|  03/27/2026|
-
-
-### Mage
-
-
-### Monk
-
-- BrewMaster
-
-|   rotation   |   author   |patch |coverage|        status        |  readiness  |last updated|
-|--------------|------------|:----:|:------:|:--------------------:|:-----------:|-----------:|
-|BrewBrewMaster|BrewingCoder|10.2.5|  90%   |Limited,Hardcoded Vals|:interrobang:|  03/27/2026|
-
-- MistWeaver
-
-|   rotation   |          author           |patch |coverage|status|    readiness     |last updated|
-|--------------|---------------------------|:----:|:------:|:----:|:----------------:|-----------:|
-|BrewMistWeaver|BrewingCoder/SinWeaver/Lylo|10.2.5|  100%  | Full |:white_check_mark:|  03/27/2026|
-
-- WindWalker
-
-|   rotation   |   author   | patch |coverage|status |  readiness  |last updated|
-|--------------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|BrewWWPVE     |BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  03/27/2026|
-|BrewWindWalker|BrewingCoder|10.2.5 |  95%   |Limited|:interrobang:|  03/27/2026|
-
-- Windwalker
-
-|rotation|   author    | patch |coverage|status |  readiness  |last updated|
-|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  03/27/2026|
-
-
-### Paladin
-
-- Retribution
-
-|rotation|     author     | patch |coverage| status |  readiness  |last updated|
-|--------|----------------|:-----:|:------:|:------:|:-----------:|-----------:|
-|CuteOne |CuteOne         | 10.2  |  90%   |Sporadic|:interrobang:|  03/27/2026|
-|CuteOne |Ashley (CuteOne)|Unknown|Unknown |Unknown |:interrobang:|  03/27/2026|
-
-
-### Priest
-
-
-### Rogue
-
-- Subtlety
-
-|rotation|author |     patch      |coverage|status|    readiness     |last updated|
-|--------|-------|:--------------:|:------:|:----:|:----------------:|-----------:|
-|CuteOne |CuteOne|5.4.8 (Mists of |  100%  | Full |:heavy_check_mark:|  03/27/2026|
-
-
-### Shaman
-
-- Enhancement
-
-|rotation|author |patch |coverage|status |readiness|last updated|
-|--------|-------|:----:|:------:|:-----:|:-------:|-----------:|
-|CuteOne |CuteOne|11.0.2|  100%  |Limited|   :x:   |  03/27/2026|
-
-- Shaman
-
-|rotation|     author     | patch |coverage|status |  readiness  |last updated|
-|--------|----------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|CuteOne |Ashley (CuteOne)|Unknown|Unknown |Unknown|:interrobang:|  05/26/2026|
-
-
-### Warlock
-
-- Affliction
-
-|   rotation   |   author   |patch |coverage|  status   |  readiness  |last updated|
-|--------------|------------|:----:|:------:|:---------:|:-----------:|-----------:|
-|BrewAffliction|BrewingCoder|10.2.6|  50%   |Development|:interrobang:|  03/27/2026|
-
-- Demonology
-
-|rotation |   author   |patch |coverage|  status   |  readiness  |last updated|
-|---------|------------|:----:|:------:|:---------:|:-----------:|-----------:|
-|BrewDemon|BrewingCoder|10.2.6|  50%   |Development|:interrobang:|  03/27/2026|
-
-- Destruction
-
-| rotation |   author   | patch |coverage|status |  readiness  |last updated|
-|----------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|BrewDestro|BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  03/27/2026|
-
-
-### Warrior
-
-- Arms
-
-|rotation|author |patch |coverage|status |    readiness     |last updated|
-|--------|-------|:----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne|11.0.2|  100%  |Limited|:heavy_check_mark:|  03/27/2026|
-
-- Fury
-
-|    rotation    |   author   |patch |coverage|status |    readiness     |last updated|
-|----------------|------------|:----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne         |CuteOne     |11.0.2|  100%  |Limited|:heavy_check_mark:|  03/27/2026|
-|BrewFuryLeveling|BrewingCoder|10.2.6|  20%   |Limited|  :interrobang:   |  03/27/2026|
-
+### Retail
+
+|   class    |         spec          |    rotation    |   author   |last updated|
+|------------|-----------------------|----------------|------------|-----------:|
+|Death Knight|Blood                  |CuteOne         |CuteOne     |  2026-10-25|
+|Death Knight|Starter (before a spec)|Initial         |CuteOne     |  2026-10-25|
+|Demon Hunter|Havoc                  |CuteOne         |CuteOne     |  2026-10-26|
+|Demon Hunter|Starter (before a spec)|Initial         |CuteOne     |  2026-10-25|
+|Demon Hunter|Vengeance              |CuteOne         |CuteOne     |  2026-10-26|
+|Druid       |Feral                  |CuteOne         |CuteOne     |  2026-10-25|
+|Druid       |Starter (before a spec)|Initial Druid   |CuteOne     |  2026-10-25|
+|Evoker      |Devastation            |CuteOne         |CuteOne     |  2026-10-26|
+|Evoker      |Starter (before a spec)|Initial         |Kuukuu      |  2026-10-26|
+|Hunter      |BeastMastery           |BrewBeastMaster |BrewingCoder|  2026-10-25|
+|Hunter      |Marksmanship           |CuteOne         |CuteOne     |  2026-10-25|
+|Hunter      |Starter (before a spec)|Initial         |CuteOne     |  2026-10-25|
+|Paladin     |Retribution            |CuteOne         |CuteOne     |  2026-10-26|
+|Paladin     |Starter (before a spec)|Initial         |CuteOne     |  2026-10-25|
+|Priest      |Starter (before a spec)|Initial         |CuteOne     |  2026-10-25|
+|Rogue       |Starter (before a spec)|Initial         |Yamaraja666 |  2026-10-25|
+|Warlock     |Affliction             |BrewAffliction  |BrewingCoder|  2026-10-25|
+|Warlock     |Destruction            |BrewDestro      |BrewingCoder|  2026-10-25|
+|Warlock     |Starter (before a spec)|Initial         |CuteOne     |  2026-10-25|
+|Warrior     |Fury                   |CuteOne         |CuteOne     |  2026-10-25|
+|Warrior     |Fury                   |BrewFuryLeveling|BrewingCoder|  2026-10-25|
+
+
+### Mists of Pandaria Classic
+
+|   class    |         spec          |  rotation   |  author   |last updated|
+|------------|-----------------------|-------------|-----------|-----------:|
+|Death Knight|Frost                  |CuteOne      |CuteOne    |  2026-10-25|
+|Druid       |Feral                  |CuteOne      |CuteOne    |  2026-10-25|
+|Druid       |Starter (before a spec)|Initial Druid|CuteOne    |  2026-10-25|
+|Mage        |Starter (before a spec)|Initial      |CuteOne    |  2026-10-25|
+|Monk        |Starter (before a spec)|Initial      |CuteOne    |  2026-10-25|
+|Monk        |WindWalker             |CuteOne      |CuteOne    |  2026-10-26|
+|Paladin     |Retribution            |CuteOne      |CuteOne    |  2026-10-25|
+|Paladin     |Starter (before a spec)|Initial      |CuteOne    |  2026-10-25|
+|Rogue       |Subtlety               |CuteOne      |CuteOne    |  2026-10-25|
+|Shaman      |Enhancement            |CuteOne      |CuteOne    |  2026-10-25|
+|Shaman      |Starter (before a spec)|Initial      |CuteOne    |  2026-10-25|
+|Warrior     |Arms                   |CuteOne      |CuteOne    |  2026-10-26|
+|Warrior     |Starter (before a spec)|Initial      |Yamaraja666|  2026-10-25|
+
+
+### Burning Crusade Classic
+
+|class |spec| rotation  |  author   |last updated|
+|------|----|-----------|-----------|-----------:|
+|Druid |All |CuteOne    |CuteOne    |  2026-10-28|
+|Hunter|All |CuteOne    |CuteOne    |  2026-10-25|
+|Shaman|All |Earthcaller|Earthcaller|  2026-10-28|
+|Shaman|All |CuteOne    |CuteOne    |  2026-10-25|
+
+
+### Classic Era
+
+|class |spec|rotation|author |last updated|
+|------|----|--------|-------|-----------:|
+|Druid |All |CuteOne |CuteOne|  2026-10-25|
+|Hunter|All |CuteOne |CuteOne|  2026-10-25|
+
+
+### World of Warcraft Forever
+
+|class|spec|rotation|author |last updated|
+|-----|----|--------|-------|-----------:|
+|Druid|All |CuteOne |CuteOne|  2026-10-25|
+
+
+<!-- /rotations -->
+
+## Credits
+
+BadRotations is maintained by CuteOne. It started among developers of earlier rotation bots such as PQR and
+ProbablyEngine, and many people have contributed since, including Masoud, Gabbz, AveryKey, Chumii, Kinks,
+NOCARRIER, Sphoenix, ragnar, Defmaster, BrewingCoder, Laksmackt, Fiskee, Kuukuu, Hasanuddin Abu Bakar,
+Fengshen and Aura. The full list is in the commit history. If you have contributed and are missing here,
+let CuteOne know.
+
+## License
+
+BadRotations is released under the [GNU General Public License v3.0](LICENSE). If you build on it, please
+credit BadRotations and link back to this repository.
