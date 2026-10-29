@@ -48,7 +48,7 @@ end
 local WAITING_REASONS = {
 	ON_COOLDOWN = true, GCD_BLOCKED = true, CAST_TIMER = true, PET_CAST_TIMER = true, PET_ON_COOLDOWN = true,
 	CURRENT_SPELL = true, DOUBLE_CAST = true, EMPOWER_LOCKED = true, ALREADY_CASTING = true,
-	INTENT_LOCK = true, OPENER = true,
+	INTENT_LOCK = true, OPENER = true, OWN_CAST = true,
 }
 
 -- Refusals of a spell the character doesn't have (not learned yet, talent not taken): left out of

@@ -65,11 +65,9 @@ local function loadFile(profile, file)
 end
 
 local KNOWN_EXPANSIONS = { Retail = true, MOP = true, TBC = true, Classic = true, Forever = true }
-local FLAG_FIELDS = { "actsWhileCasting" }
 -- Every field registerRotation reads; anything else is most likely a typo
 local KNOWN_FIELDS = { name = true, specID = true, expansion = true, run = true, toggles = true, options = true,
     author = true }
-for _, field in ipairs(FLAG_FIELDS) do KNOWN_FIELDS[field] = true end
 
 -- State for the load in progress: the file being run, its code and the support files it loaded
 -- (code), and what it registered
@@ -109,9 +107,6 @@ local function validate(def)
     if not KNOWN_EXPANSIONS[def.expansion] then
         if type(def.expansion) == "table" then return "expansion must be one game version, not a list" end
         return "unknown expansion \"" .. tostring(def.expansion) .. "\""
-    end
-    for _, field in ipairs(FLAG_FIELDS) do
-        if def[field] ~= nil and type(def[field]) ~= "boolean" then return field .. " must be true or false" end
     end
     if def.author ~= nil and type(def.author) ~= "string" then return "author must be a string" end
     return nil
@@ -153,9 +148,8 @@ end
 --- Registers a rotation profile. Called by each rotation file as registerRotation (see
 -- Rotations/sample rotation.lua). The rotation is offered only when its specID and expansion match the player.
 -- @tparam table def name, specID (number or list), expansion (one of KNOWN_EXPANSIONS), run, and
---   optional toggles, options, actsWhileCasting (true: the rotation keeps running while the player
---   casts or channels; it then checks casts itself), author (shown in README.md). Whether the
---   rotation uses racials / trinkets itself is read from its code (handledByProfile).
+--   optional toggles, options, author (shown in README.md). Whether the rotation uses racials /
+--   trinkets itself is read from its code (handledByProfile).
 function br.loader.registerRotation(def)
     local file = loading.file or "?"
     local problem = validate(def)

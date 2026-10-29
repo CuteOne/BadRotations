@@ -150,6 +150,4 @@ registerRotation({
     toggles   = toggles,
     options   = options,
     run       = runRotation,
-    -- Optional:
-    -- actsWhileCasting = true, -- keep running while you cast or channel (BR waits otherwise)
 })

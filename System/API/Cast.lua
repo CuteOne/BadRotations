@@ -23,6 +23,10 @@ local _, br = ...
 --   cast.healingTouch.rank(3)("player")    cast.consecration.rank(1).aoe(8, 3)
 -- .forAmount(n) gives the lowest known rank that heals (or hits) for at least n, else the highest:
 --   cast.healingWave.forAmount(unit.healthMax() - unit.health())("player")
+-- While the player casts or channels, BR sends nothing new (it waits for the spell queue window at
+-- the end of a cast). .whileCasting lets this one go out anyway, for spells the game allows during a
+-- cast (SimC's use_while_casting), with the same forms: cast.iceBlock.whileCasting(),
+-- cast.x.whileCasting.aoe(8). To stop your own cast or channel early, use cast.cancel.<spell>().
 local CALL, RANK_CALL, RANKS = {}, {}, {} -- private keys: the spell's full call, its call at a rank, its rank IDs
 
 local FORMS = {
@@ -54,6 +58,10 @@ local callerMeta = {
         elseif key == "forAmount" and rawget(api, RANK_CALL) ~= nil then
             local ranks = rawget(api, RANKS)
             fn = function(amount) return api.rank(br.functions.spell:getRankIndexForAmount(ranks, amount)) end
+        elseif key == "whileCasting" then
+            local call, callAtRank, casts = rawget(api, CALL), rawget(api, RANK_CALL), br.functions.cast
+            fn = makeCaller(function(...) return casts:callWhileCasting(call, ...) end,
+                callAtRank and function(...) return casts:callWhileCasting(callAtRank, ...) end, rawget(api, RANKS))
         else
             return nil
         end

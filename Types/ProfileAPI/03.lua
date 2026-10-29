@@ -8729,7 +8729,6 @@
 ---@field run fun(): boolean? Runs every tick
 ---@field toggles? fun() Builds the toggle bar (ui.toggle)
 ---@field options? fun()|table Builds the Rotation Options page, or a list of { page name, build function }
----@field actsWhileCasting? boolean Keep running while the player casts or channels
 ---@field author? string Shown in README.md's profile list
 
 --- Registers this file's rotation; BR offers it when specID and expansion match the player.

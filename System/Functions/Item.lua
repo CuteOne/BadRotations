@@ -464,6 +464,7 @@ function item:useItem(itemID, thisUnit)
 				if not br.itemSpamDelay or br.game.GetTime() > br.itemSpamDelay then
 					-- br.game.RunMacroText("/use " .. select(1, GetItemInfo(slotItemID)))
 					br.game.UseItemByName(select(1, br.game.C_Item.GetItemInfo(slotItemID)), thisUnit);
+					br.functions.cast.actions = br.functions.cast.actions + 1
 					br.itemSpamDelay = br.game.GetTime() + 1
 					return true
 				end
@@ -474,6 +475,7 @@ function item:useItem(itemID, thisUnit)
 			if not br.itemSpamDelay or br.game.GetTime() > br.itemSpamDelay then
 				-- br.game.RunMacroText("/use " .. select(1, GetItemInfo(itemID)))
 				br.game.UseItemByName(select(1, br.game.C_Item.GetItemInfo(itemID)), thisUnit);
+				br.functions.cast.actions = br.functions.cast.actions + 1
 				br.itemSpamDelay = br.game.GetTime() + 1
 				return true
 			end

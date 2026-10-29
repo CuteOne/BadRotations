@@ -134,12 +134,10 @@ function misc:isPauseKeyDown()
 	return held == true
 end
 
---- Why the rotation should not act now, or nil when it may.
--- Reasons: "dead", "control disabled", "pause toggle", "pause key", "profile stopped", "mounted",
--- "on a taxi", "in a vehicle", "targeting a spell", "eating", "drinking", "sneaking", "pet battle",
--- "charmed", "item channel", "casting", "channelling".
--- @param skipCastingCheck true for code that acts while the player casts or channels
-function misc:pauseReason(skipCastingCheck)
+--- Why the player's own cast or channel holds new casts and item uses now, or nil: "item channel",
+-- "channelling" or "casting". The rotation still runs; the cast system refuses sends while this
+-- holds (Cast/CastFunction.lua), except casts the profile marks .whileCasting and cast.cancel.
+function misc:ownCastHold()
 	local now = br.game.GetTime()
 
 	-- Resolve the act-through-channel ID set once, now that the spell lists are loaded.
@@ -157,7 +155,7 @@ function misc:pauseReason(skipCastingCheck)
 	-- and Azshara's Font of Power / Latent Arcana (296962) each trigger a
 	-- follow-up channel that must complete uninterrupted. misc.pauseCast
 	-- stores the timestamp at which the follow-up finishes.
-	if br.client.rules.hasBFAItemChannels and not skipCastingCheck then
+	if br.client.rules.hasBFAItemChannels then
 		local sb    = br.lists.spells.Shared.Shared.buffs
 		local items = br.lists.items
 		local lastCast = br.functions.lastCast.lastCastTable.tracker[1]
@@ -183,41 +181,51 @@ function misc:pauseReason(skipCastingCheck)
 		end
 	end
 
-	if memoTime ~= now then
-		memoTime = now
-		memoReason, memoEmpowerRuns = standingReason(now)
-	end
-	local empowering = br.empowerID ~= nil and br.empowerID > 0
-	if memoReason then
-		if empowering and memoEmpowerRuns then return nil end
-		return memoReason
-	end
-	if skipCastingCheck then return nil end
+	-- An Evoker empower must keep updating its charge stage
+	if br.empowerID ~= nil and br.empowerID > 0 then return nil end
 
-	-- Channeling pauses the rotation EXCEPT for act-through channels (nonBlockingChannels):
-	-- those let us move/attack/cast without clipping them, so we keep running and fight back.
+	-- Channelling holds EXCEPT act-through channels (nonBlockingChannels): those let us
+	-- move/attack/cast without clipping them, so we keep acting and fight back.
 	local channelName, _, _, _, _, _, _, channelSpellID = br.game.UnitChannelInfo("player")
 	if channelName ~= nil and not (channelSpellID and nonBlockingChannels and nonBlockingChannels[channelSpellID]) then
-		if empowering then return nil end
 		return "channelling"
 	end
 
-	-- Casting: stay paused until the cast is inside the spell queue window, then
-	-- run the profile once to pre-cast whatever it ranks highest. After that
-	-- choice is sent, stay paused until this cast ends so nothing replaces it.
-	-- Only in combat: a pull spell's window falls before its bolt lands, so out of
-	-- combat the profile would pre-cast a second pull spell instead of letting the
-	-- first decision after the pull use its in-combat priorities.
+	-- Casting holds until the cast is inside the spell queue window; then one send may
+	-- pre-cast whatever the profile ranks highest. After that choice is sent, it holds until
+	-- this cast ends so nothing replaces it. Only in combat: a pull spell's window falls before
+	-- its bolt lands, so out of combat the profile would pre-cast a second pull spell instead of
+	-- letting the first decision after the pull use its in-combat priorities.
 	local castName, _, _, _, endTime, _, castID = br.game.UnitCastingInfo("player")
 	if castName ~= nil then
-		if empowering then return nil end
 		local window = br.game.UnitAffectingCombat("player") and br.functions.cast:getQueueWindow() or 0
 		if (endTime / 1000 - now) > window or br.functions.cast:isQueuedBehind(castID, endTime) then
 			return "casting"
 		end
-		-- Inside the queue window and nothing pre-cast yet: the profile may pre-cast.
+		-- Inside the queue window and nothing pre-cast yet: one send may pre-cast.
 	end
 	return nil
+end
+
+--- Why the rotation should not act now, or nil when it may.
+-- Reasons: "dead", "control disabled", "pause toggle", "pause key", "profile stopped", "mounted",
+-- "on a taxi", "in a vehicle", "targeting a spell", "eating", "drinking", "sneaking", "pet battle",
+-- "charmed", and unless skipCastingCheck, the player's own cast (ownCastHold: "item channel",
+-- "casting", "channelling"). The rotation itself runs through casts (Rotation:startRotation passes
+-- true); the cast system holds its sends instead.
+-- @param skipCastingCheck true for code that acts while the player casts or channels
+function misc:pauseReason(skipCastingCheck)
+	local now = br.game.GetTime()
+	if memoTime ~= now then
+		memoTime = now
+		memoReason, memoEmpowerRuns = standingReason(now)
+	end
+	if memoReason then
+		if br.empowerID ~= nil and br.empowerID > 0 and memoEmpowerRuns then return nil end
+		return memoReason
+	end
+	if skipCastingCheck then return nil end
+	return misc:ownCastHold()
 end
 
 -- if pause() then

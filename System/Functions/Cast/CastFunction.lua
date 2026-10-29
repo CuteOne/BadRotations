@@ -7,6 +7,34 @@ local E = cast.internal
 -- Spells queued to cast (by /br queue or the Queue Casting option): { id, name, target, ... }
 cast.queue = cast.queue or {}
 
+-- True while a profile's .whileCasting cast or item use runs (API/Cast.lua, API/Use.lua): it may
+-- go out during the player's own cast or channel. Cleared each tick (Rotation:startRotation), in
+-- case a profile error left it set.
+cast.allowWhileCasting = false
+
+-- The player's cast state only changes with a send, an item use or a cast stop (cast.actions), so
+-- ownCastHold below is asked again only in a new tick or after one
+local holdTime, holdActions, holdReason
+
+-- misc:ownCastHold, remembered for the tick until BR does something
+local function ownCastHold()
+	local now = br.game.GetTime()
+	if holdTime ~= now or holdActions ~= cast.actions then
+		holdTime, holdActions, holdReason = now, cast.actions, br.functions.misc:ownCastHold()
+	end
+	return holdReason
+end
+
+--- Runs call(...) with sends allowed during the player's own cast or channel.
+-- @return what call returns
+function cast:callWhileCasting(call, ...)
+	local before = cast.allowWhileCasting
+	cast.allowWhileCasting = true
+	local result, detail = call(...)
+	cast.allowWhileCasting = before
+	return result, detail
+end
+
 -- ─────────────────────────────────────────────────────────────────────────────
 -- SECTION: createCastFunction (public entry point)
 --
@@ -69,6 +97,15 @@ local function runCastFunction(self, thisUnit, castType, minUnits, effectRng, sp
 	if E.isCastingOutsideQueueWindow(spellID) then
 		E.recordRefusal(spellID, "ALREADY_CASTING", "casting it, outside the queue window")
 		return false
+	end
+	-- The player's own cast or channel holds new sends (misc:ownCastHold), unless the profile
+	-- marked this one .whileCasting
+	if not cast.allowWhileCasting then
+		local hold = ownCastHold()
+		if hold then
+			E.recordRefusal(spellID, "OWN_CAST", hold)
+			return false
+		end
 	end
 	-- An opener step is waiting: nothing after it in the rotation goes first
 	if E.openerHolds and E.openerHolds() then

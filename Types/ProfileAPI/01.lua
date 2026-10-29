@@ -5661,6 +5661,7 @@ function C1.stackMax(thisUnit, sourceUnit) end
 ---@field targetAOE fun(range?: number, minUnits?: number, unit?: string): boolean
 ---@field rank fun(rank: integer): BR.cast.able.Spell The spell at a rank (or the highest known below it)
 ---@field forAmount fun(amount: number): BR.cast.able.Spell The lowest known rank that heals (or hits) for at least amount, else the highest
+---@field whileCasting BR.cast.able.Spell Goes out even while you cast or channel, for spells the game allows then (SimC use_while_casting)
 local C2 = {}
 
 ---@class BR.cast.able.Base
@@ -5864,6 +5865,7 @@ local C17 = {}
 ---@field targetAOE fun(range?: number, minUnits?: number, unit?: string): boolean
 ---@field rank fun(rank: integer): BR.cast.opener.Spell The spell at a rank (or the highest known below it)
 ---@field forAmount fun(amount: number): BR.cast.opener.Spell The lowest known rank that heals (or hits) for at least amount, else the highest
+---@field whileCasting BR.cast.opener.Spell Goes out even while you cast or channel, for spells the game allows then (SimC use_while_casting)
 local C18 = {}
 
 ---@class BR.cast.opener.Base
@@ -5943,6 +5945,7 @@ local C23 = {}
 ---@field targetAOE fun(range?: number, minUnits?: number, unit?: string): boolean
 ---@field rank fun(rank: integer): BR.cast.Spell The spell at a rank (or the highest known below it)
 ---@field forAmount fun(amount: number): BR.cast.Spell The lowest known rank that heals (or hits) for at least amount, else the highest
+---@field whileCasting BR.cast.Spell Goes out even while you cast or channel, for spells the game allows then (SimC use_while_casting)
 local C24 = {}
 
 

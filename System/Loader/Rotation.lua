@@ -146,8 +146,9 @@ local function pauseText(reason)
 end
 
 -- Start the rotation, unless BR is paused (misc:pauseReason). While paused, neither the shared
--- modules nor the profile run. A rotation registered with actsWhileCasting keeps running while
--- the player casts or channels.
+-- modules nor the profile run. They do run while the player casts or channels: the cast system
+-- holds their sends until the cast allows it (misc:ownCastHold), so a profile can stop its own
+-- cast (cast.cancel) or use what the game allows during one (.whileCasting).
 function Rotation:startRotation()
 	local startTime = br.game.debugprofilestop()
 	-- Not for a moment after a loading screen, so aura data has arrived (System/Core.lua)
@@ -156,7 +157,7 @@ function Rotation:startRotation()
 	end
 
 	local state = self.state
-	local reason = br.functions.misc:pauseReason(self.selected.actsWhileCasting == true)
+	local reason = br.functions.misc:pauseReason(true)
 	-- Shown once when the reason changes, not on every paused tick
 	if reason ~= state.pauseReason and reason and not quietPauses[reason] then
 		br.ui.chatOverlay:Show(pauseText(reason))
@@ -164,6 +165,7 @@ function Rotation:startRotation()
 	state.pauseReason = reason
 
 	if reason == nil then
+		br.functions.cast.allowWhileCasting = false
 		br.functions.cast:openerBeginPass()
 		self:runModules()
 		self.selected.run()
@@ -172,7 +174,8 @@ function Rotation:startRotation()
 	br.log.rotation:endTick()
 	br.debug.melee:watch()
 	br.debug.target:watch()
-	br.debug.idle:watch(reason ~= nil)
+	-- Waiting on your own cast isn't idle
+	br.debug.idle:watch(reason ~= nil or br.functions.misc:ownCastHold() ~= nil)
 	br.debug.melee:readComboPoints()
 	br.debug.cpu:updateDebug(startTime, "rotation")
 end

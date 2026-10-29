@@ -368,6 +368,10 @@ local function emitClass(node, root, scope)
             for _, form in ipairs(CAST_FORMS) do emit("---@field " .. form.name .. " " .. form.sig) end
             emit("---@field rank fun(rank: integer): " .. name .. " The spell at a rank (or the highest known below it)")
             emit("---@field forAmount fun(amount: number): " .. name .. " The lowest known rank that heals (or hits) for at least amount, else the highest")
+            emit("---@field whileCasting " .. name .. " Goes out even while you cast or channel, for spells the game allows then (SimC use_while_casting)")
+        end
+        if node.path:match("^use%.<item>$") then
+            emit("---@field whileCasting fun(slotID?: number, thisUnit?: string): boolean Uses it even while you cast or channel, for items the game allows then")
         end
         for _, extra in ipairs(node.extraFields or {}) do emit("---@field " .. extra) end
         for _, f in ipairs(staticFields) do emit("---@field " .. f.name .. " " .. f.type) end
@@ -621,7 +625,6 @@ emit('---@field expansion "Retail"|"MOP"|"TBC"|"Classic"|"Forever" The flavour i
 emit("---@field run fun(): boolean? Runs every tick")
 emit("---@field toggles? fun() Builds the toggle bar (ui.toggle)")
 emit("---@field options? fun()|table Builds the Rotation Options page, or a list of { page name, build function }")
-emit("---@field actsWhileCasting? boolean Keep running while the player casts or channels")
 emit("---@field author? string Shown in README.md's profile list")
 emit("")
 emit("--- Registers this file's rotation; BR offers it when specID and expansion match the player.")

@@ -14,6 +14,10 @@ local function plainArg(value)
 	return misc:plainText(value)
 end
 
+-- Sends, item uses and cast stops so far (send and stopCasting below, Item useItem); CastFunction's
+-- own-cast hold is rechecked after each
+cast.actions = cast.actions or 0
+
 -- Every cast by name or ID goes through here. The game answers a bad argument with a Lua error, and
 -- on clients with secret values its stack can't be read, so the caller can't be found from the
 -- error report. A refused call is written to Cast.log with its call site and arguments instead,
@@ -31,6 +35,7 @@ local function send(fn, spell, unit, spellID, how)
 	-- noteSendError reads its call site 4 levels up: itself, send, castByName/castByID, the caller
 	if not ok and br.debug.cast and br.debug.cast.noteSendError then br.debug.cast:noteSendError(spell, unit, err) end
 	if ok then
+		cast.actions = cast.actions + 1
 		local id = spellID or (type(spell) == "number" and spell) or nil
 		if id then
 			br.log.rotation:sent(id, br.functions.spell:getName(id), unit, how)
@@ -289,6 +294,7 @@ end
 
 -- Stops the player's cast or channel
 function cast:stopCasting()
+	cast.actions = cast.actions + 1
 	return br.game.SpellStopCasting()
 end
 

@@ -110,6 +110,7 @@ function C62.slot(slotID) end
 --- Uses the item.
 ---@class BR.use.Item
 ---@overload fun(slotID?: number, thisUnit?: string): boolean
+---@field whileCasting fun(slotID?: number, thisUnit?: string): boolean Uses it even while you cast or channel, for items the game allows then
 local C63 = {}
 
 ---@class BR.use.Base
