@@ -7,7 +7,7 @@ br.files = {}
 
 -- Resource Files (Image/Font)
 br.files[#br.files+1] = {file = 'BadRotations/Libs/!LibDraw/Media/LineTemplate.tga', load = true}
-br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/calibrib.ttf', load = true}
+br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/Carlito-Bold.ttf', load = true}
 br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/DejaVuSansMono-Bold.ttf', load = true}
 br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/DejaVuSansMono.ttf', load = true}
 br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/DiesalButtonIcons32x128x512.tga', load = true}
@@ -23,7 +23,6 @@ br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/Hack-Bo
 br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/Hack-Regular.ttf', load = true}
 br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/Inconsolata-Bold.ttf', load = true}
 br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/Inconsolata-Regular.ttf', load = true}
-br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/LUCON-.TTF', load = true}
 br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/monof55.ttf', load = true}
 br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/monof56.ttf', load = true}
 br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/OfficeCodeProp-Bold.ttf', load = true}

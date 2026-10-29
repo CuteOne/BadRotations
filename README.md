@@ -23,7 +23,8 @@ The [profile list](#profiles) below shows which game versions currently have pro
 2. **Icons and fonts:** copy the `Media` folder from `3rd Party Files` into your game's `Interface\AddOns`
    folder, so you have `World of Warcraft\<game version>\Interface\AddOns\Media`. WoW only loads images and
    fonts from its own `Interface` folder. Without this step BR's windows have no icons and use the game's
-   default font. BR itself still runs from wherever your unlocker loads it.
+   default font. BR itself still runs from wherever your unlocker loads it. When an update changes the
+   `Media` folder, copy it again.
 3. Log in and load BR through your unlocker. The BR button appears on your minimap.
 
 ## Using BR

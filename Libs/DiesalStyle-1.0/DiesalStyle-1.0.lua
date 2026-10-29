@@ -130,7 +130,7 @@ end
 
 -- DiesalStyle's own font objects, from the media registered now
 local function setFonts()
-  setLoadingFont(DiesalFontNormal, getMedia('font', 'calibrib'), 11, '')
+  setLoadingFont(DiesalFontNormal, getMedia('font', 'Carlito'), 11, '')
   local standard0755 = getMedia('font', 'Standard0755')
   setLoadingFont(DiesalFontPixel, standard0755, 8, '')
   setLoadingFont(DiesalFontPixelOutLine, standard0755, 8, "OUTLINE, MONOCHROME")
@@ -140,7 +140,7 @@ end
 
 local SHARED_MEDIA = {
   -- LibSharedMedia type, LibSharedMedia name, DiesalStyle media name
-  { 'font', 'Calibri Bold', 'calibrib' },
+  { 'font', 'Carlito Bold', 'Carlito' },
   { 'font', 'Fira Sans', 'FiraSans' },
   { 'font', 'Standard0755', 'Standard0755' },
   { 'font', 'FFF Intelligent', 'FFF Intelligent Thin Condensed' },
@@ -589,7 +589,7 @@ do -- | Text Formatters |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Formatters.tooltip = '|cff' .. Colors.gray_50 .. '%s\n|cff' .. Colors.yellow_500 .. '%s'
 end
 do -- | Set Media |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  addMedia('font', 'calibrib', 'calibrib.ttf')
+  addMedia('font', 'Carlito', 'Carlito-Bold.ttf')
   -- monospaced
   addMedia('font', 'DejaVuSansMono', 'DejaVuSansMono.ttf')
   addMedia('font', 'DejaVuSansMonoBold', 'DejaVuSansMono-Bold.ttf')
@@ -603,8 +603,6 @@ do -- | Set Media |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   addMedia('font', 'InconsolataRegular', 'Inconsolata-Regular.ttf')
   addMedia('font', 'InconsolataBold', 'Inconsolata-Bold.ttf')
-
-  addMedia('font', 'LucidiaMono', 'LUCON.ttf')
 
   addMedia('font', 'MonoFur', 'monof55.ttf')
   addMedia('font', 'MonoFurItalic', 'monof56.ttf')
@@ -1204,7 +1202,7 @@ function DiesalStyle:ReloadMedia()
 
   -- Re-add all media with the new path
   -- Fonts
-  addMedia('font', 'calibrib', 'calibrib.ttf')
+  addMedia('font', 'Carlito', 'Carlito-Bold.ttf')
   -- monospaced
   addMedia('font', 'DejaVuSansMono', 'DejaVuSansMono.ttf')
   addMedia('font', 'DejaVuSansMonoBold', 'DejaVuSansMono-Bold.ttf')
@@ -1218,8 +1216,6 @@ function DiesalStyle:ReloadMedia()
 
   addMedia('font', 'InconsolataRegular', 'Inconsolata-Regular.ttf')
   addMedia('font', 'InconsolataBold', 'Inconsolata-Bold.ttf')
-
-  addMedia('font', 'LucidiaMono', 'LUCON.ttf')
 
   addMedia('font', 'MonoFur', 'monof55.ttf')
   addMedia('font', 'MonoFurItalic', 'monof56.ttf')
