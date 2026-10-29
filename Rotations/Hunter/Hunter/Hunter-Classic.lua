@@ -196,6 +196,7 @@ registerRotation({
     name      = rotationName,
     specID    = 361,
     expansion = "Classic",
+    author    = "CuteOne",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

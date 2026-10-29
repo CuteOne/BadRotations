@@ -231,6 +231,7 @@ registerRotation({
     name      = rotationName,
     specID    = 1456,
     expansion = "Retail",
+    author    = "CuteOne",
     toggles   = toggles,
     options   = options,
     run       = runRotation,
