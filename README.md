@@ -80,70 +80,70 @@ the levels before you pick a specialization.
 
 ### Retail
 
-|   class    |         spec          |  rotation   |author |last updated|
-|------------|-----------------------|-------------|-------|-----------:|
-|Death Knight|Blood                  |CuteOne      |CuteOne|  2026-10-25|
-|Death Knight|Starter (before a spec)|Initial      |CuteOne|  2026-10-25|
-|Demon Hunter|Havoc                  |CuteOne      |CuteOne|  2026-10-26|
-|Demon Hunter|Starter (before a spec)|Initial      |CuteOne|  2026-10-25|
-|Demon Hunter|Vengeance              |CuteOne      |CuteOne|  2026-10-26|
-|Druid       |Feral                  |CuteOne      |CuteOne|  2026-10-25|
-|Druid       |Starter (before a spec)|Initial Druid|CuteOne|  2026-10-25|
-|Evoker      |Devastation            |CuteOne      |CuteOne|  2026-10-26|
-|Evoker      |Starter (before a spec)|Initial      |CuteOne|  2026-10-26|
-|Hunter      |Marksmanship           |CuteOne      |CuteOne|  2026-10-25|
-|Hunter      |Starter (before a spec)|Initial      |CuteOne|  2026-10-25|
-|Paladin     |Retribution            |CuteOne      |CuteOne|  2026-10-26|
-|Paladin     |Starter (before a spec)|Initial      |CuteOne|  2026-10-25|
-|Priest      |Starter (before a spec)|Initial      |CuteOne|  2026-10-25|
-|Rogue       |Starter (before a spec)|Initial      |CuteOne|  2026-10-25|
-|Warlock     |Starter (before a spec)|Initial      |CuteOne|  2026-10-25|
-|Warrior     |Fury                   |CuteOne      |CuteOne|  2026-10-25|
-
+<table>
+<tr><th>Class</th><th>Spec</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
+<tr><th rowspan="2">Death Knight</th><td>Blood</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th rowspan="3">Demon Hunter</th><td>Havoc</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-26</td></tr>
+<tr><td>Vengeance</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-26</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th rowspan="2">Druid</th><td>Feral</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><td>Starter</td><td>Initial Druid</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th rowspan="2">Evoker</th><td>Devastation</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-26</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th rowspan="2">Hunter</th><td>Marksmanship</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th rowspan="2">Paladin</th><td>Retribution</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-26</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th>Priest</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th>Rogue</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th>Warlock</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th>Warrior</th><td>Fury</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+</table>
 
 ### Mists of Pandaria Classic
 
-|   class    |         spec          |  rotation   |author |last updated|
-|------------|-----------------------|-------------|-------|-----------:|
-|Death Knight|Frost                  |CuteOne      |CuteOne|  2026-10-25|
-|Druid       |Feral                  |CuteOne      |CuteOne|  2026-10-25|
-|Druid       |Starter (before a spec)|Initial Druid|CuteOne|  2026-10-25|
-|Mage        |Starter (before a spec)|Initial      |CuteOne|  2026-10-25|
-|Monk        |Starter (before a spec)|Initial      |CuteOne|  2026-10-25|
-|Monk        |WindWalker             |CuteOne      |CuteOne|  2026-10-26|
-|Paladin     |Retribution            |CuteOne      |CuteOne|  2026-10-25|
-|Paladin     |Starter (before a spec)|Initial      |CuteOne|  2026-10-25|
-|Rogue       |Subtlety               |CuteOne      |CuteOne|  2026-10-25|
-|Shaman      |Enhancement            |CuteOne      |CuteOne|  2026-10-25|
-|Shaman      |Starter (before a spec)|Initial      |CuteOne|  2026-10-25|
-|Warrior     |Arms                   |CuteOne      |CuteOne|  2026-10-26|
-|Warrior     |Starter (before a spec)|Initial      |CuteOne|  2026-10-25|
-
+<table>
+<tr><th>Class</th><th>Spec</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
+<tr><th>Death Knight</th><td>Frost</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th rowspan="2">Druid</th><td>Feral</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><td>Starter</td><td>Initial Druid</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th>Mage</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th rowspan="2">Monk</th><td>WindWalker</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th rowspan="2">Paladin</th><td>Retribution</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th>Rogue</th><td>Subtlety</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><th rowspan="2">Shaman</th><td>Enhancement</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th rowspan="2">Warrior</th><td>Arms</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-26</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+</table>
 
 ### Burning Crusade Classic
 
-|class |spec| rotation  |  author   |last updated|
-|------|----|-----------|-----------|-----------:|
-|Druid |All |CuteOne    |CuteOne    |  2026-10-28|
-|Hunter|All |CuteOne    |CuteOne    |  2026-10-25|
-|Shaman|All |Earthcaller|Earthcaller|  2026-10-28|
-|Shaman|All |CuteOne    |CuteOne    |  2026-10-25|
-
+<table>
+<tr><th>Class</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
+<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th>Hunter</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><th rowspan="2">Shaman</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><td>Earthcaller</td><td>Earthcaller</td><td>2026-10-28</td></tr>
+</table>
 
 ### Classic Era
 
-|class |spec|rotation|author |last updated|
-|------|----|--------|-------|-----------:|
-|Druid |All |CuteOne |CuteOne|  2026-10-25|
-|Hunter|All |CuteOne |CuteOne|  2026-10-25|
-
+<table>
+<tr><th>Class</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
+<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><th>Hunter</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
+</table>
 
 ### World of Warcraft Forever
 
-|class|spec|rotation|author |last updated|
-|-----|----|--------|-------|-----------:|
-|Druid|All |CuteOne |CuteOne|  2026-10-25|
-
+<table>
+<tr><th>Class</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
+<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+</table>
 
 <!-- /rotations -->
 

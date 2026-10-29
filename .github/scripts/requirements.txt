@@ -1,3 +1,2 @@
-pytablewriter
 GitPython
 beautifulsoup4

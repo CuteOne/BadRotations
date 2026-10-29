@@ -3,8 +3,9 @@ from pathlib import Path, PosixPath
 from typing import Dict, List
 from git import Repo
 from collections import defaultdict
-from pytablewriter import MarkdownTableWriter, style
 from datetime import datetime
+from html import escape
+from itertools import groupby
 import re
 
 
@@ -56,7 +57,6 @@ ORDERED_CLASSES = (
     "Warrior",
 )
 IN_FILTER = re.compile(r"[\[\]<>]+", re.UNICODE)
-RJUST = style.Style(align="right")
 START = "<!-- rotations -->"
 END = "<!-- /rotations -->"
 
@@ -135,31 +135,48 @@ def spec_label(wow_class: str, wow_spec: str) -> str:
     if wow_spec == wow_class:
         return "All"
     if wow_spec == "Initial":
-        return "Starter (before a spec)"
+        return "Starter"
     return wow_spec
 
 
+def spec_order(spec: str) -> tuple:
+    # Specs alphabetically, the starter profile after them
+    return (spec == "Starter", spec)
+
+
+def cell(tag: str, text: str, rows: int = 1) -> str:
+    span = f' rowspan="{rows}"' if rows > 1 else ""
+    return f"<{tag}{span}>{escape(text)}</{tag}>"
+
+
 def write_flavour_table(flavour: str, entries: List[Dict[str, str]]) -> str:
+    # HTML, not Markdown, so a class and a spec can each span their rows
     class_order = {name: i for i, name in enumerate(ORDERED_CLASSES)}
     entries.sort(
-        key=lambda x: (class_order.get(x["Class"], len(class_order)), x["Spec"], -x["Updated"])
+        key=lambda x: (class_order.get(x["Class"], len(class_order)), spec_order(x["Spec"]), -x["Updated"])
     )
-    writer = MarkdownTableWriter(
-        headers=("class", "spec", "rotation", "author", "last updated"),
-        type_hints=["str", "str", "str", "str", "str"],
-        column_styles=(None, None, None, None, RJUST),
-        value_matrix=[
-            [
-                x["Class"],
-                x["Spec"],
-                filter_input(x["Rotation"], max_len=32),
-                filter_input(x["Author"], max_len=32),
-                datetime.fromtimestamp(x["Updated"]).strftime("%Y-%m-%d"),
-            ]
-            for x in entries
-        ],
-    )
-    return f"\n### {FLAVOURS.get(flavour, flavour)}\n\n{writer.dumps()}\n"
+    # On clients without specializations every profile is "All": leave the column out
+    show_spec = any(x["Spec"] != "All" for x in entries)
+    headers = ["Class"] + (["Spec"] if show_spec else []) + ["Rotation", "Author", "Last updated"]
+    lines = ["<table>", "<tr>" + "".join(cell("th", h) for h in headers) + "</tr>"]
+    for wow_class, class_rows in groupby(entries, key=lambda x: x["Class"]):
+        class_rows = list(class_rows)
+        first_in_class = True
+        for spec, spec_rows in groupby(class_rows, key=lambda x: x["Spec"]):
+            spec_rows = list(spec_rows)
+            for i, x in enumerate(spec_rows):
+                row = ""
+                if first_in_class:
+                    row += cell("th", wow_class, len(class_rows))
+                    first_in_class = False
+                if show_spec and i == 0:
+                    row += cell("td", spec, len(spec_rows))
+                row += cell("td", filter_input(x["Rotation"], max_len=32))
+                row += cell("td", filter_input(x["Author"], max_len=32))
+                row += cell("td", datetime.fromtimestamp(x["Updated"]).strftime("%Y-%m-%d"))
+                lines.append(f"<tr>{row}</tr>")
+    lines.append("</table>")
+    return f"\n### {FLAVOURS.get(flavour, flavour)}\n\n" + "\n".join(lines) + "\n"
 
 
 def write_readme(readme: PosixPath, insert: str) -> None:
