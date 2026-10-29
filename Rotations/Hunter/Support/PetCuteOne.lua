@@ -1,11 +1,11 @@
 -- Action List - Pet Management
 -- BR API Locals
--- Editor types: the keys of Retail Hunter BeastMastery_Marksmanship's spell lists (written by Types/generate.lua)
-local buff = buff --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.buff]]
-local cast = cast --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.cast]]
-local cd = cd --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.cd]]
-local debuff = debuff --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.debuff]]
-local spell = spell --[[@as BR.Retail.Hunter.BeastMastery_Marksmanship.spell]]
+-- Editor types: the keys of Retail Hunter Marksmanship's spell lists (written by Types/generate.lua)
+local buff = buff --[[@as BR.Retail.Hunter.Marksmanship.buff]]
+local cast = cast --[[@as BR.Retail.Hunter.Marksmanship.cast]]
+local cd = cd --[[@as BR.Retail.Hunter.Marksmanship.cd]]
+local debuff = debuff --[[@as BR.Retail.Hunter.Marksmanship.debuff]]
+local spell = spell --[[@as BR.Retail.Hunter.Marksmanship.spell]]
 
 local mode
 local currentTarget
