@@ -4,8 +4,8 @@ BadRotations (BR) is a free, open-source combat rotation addon for World of Warc
 around you (enemies, your group's health, your cooldowns and resources) and casts your class's rotation for
 you. Movement stays with you: BR never moves or turns your character on its own.
 
-BR needs a **Lua unlocker** to run. The [Wiki](https://github.com/CuteOne/BadRotations/wiki) explains how to
-set one up and load BR with it.
+BR needs a **Lua unlocker** to run. [Setting up BR with your unlocker](3rd%20Party%20Files/README.md)
+explains how, step by step.
 
 ## Game versions
 
@@ -17,15 +17,18 @@ The [profile list](#profiles) below shows which game versions currently have pro
 
 ## Installing
 
-1. Download BR, either the green **Code → Download ZIP** button above or `git clone`, and put the
-   `BadRotations` folder where your unlocker loads it from. The [Wiki](https://github.com/CuteOne/BadRotations/wiki)
-   has the details for each unlocker.
+1. Download BR with the green **Code → Download ZIP** button above (or clone it with git) and name the
+   folder exactly `BadRotations`. A ZIP extracts as `BadRotations-master`, so rename it.
 2. **Icons and fonts:** copy the `Media` folder from `3rd Party Files` into your game's `Interface\AddOns`
    folder, so you have `World of Warcraft\<game version>\Interface\AddOns\Media`. WoW only loads images and
    fonts from its own `Interface` folder. Without this step BR's windows have no icons and use the game's
-   default font. BR itself still runs from wherever your unlocker loads it. When an update changes the
-   `Media` folder, copy it again.
-3. Log in and load BR through your unlocker. The BR button appears on your minimap.
+   default font. When an update changes the `Media` folder, copy it again.
+3. Set up your unlocker to load BR: [Setting up BR with your unlocker](3rd%20Party%20Files/README.md) has
+   the steps for each one BR supports.
+4. Log in. The BR button appears on your minimap.
+
+**Updating:** pull with git, or extract the new ZIP over your `BadRotations` folder. Don't delete the
+folder to install a fresh copy: your settings (`Settings/`) and logs (`Logs/`) are inside it.
 
 ## Using BR
 
@@ -45,6 +48,16 @@ The [profile list](#profiles) below shows which game versions currently have pro
   | `/br target` | Shows which enemy BR is focusing on and why |
   | `/br log` | Shows BR's recent chat lines in a window you can copy from |
   | `/br pause toggle` | Pauses or resumes BR |
+
+## Common problems
+
+- **BR doesn't load at all:** check the folder is called exactly `BadRotations` (not
+  `BadRotations-master`) and is where your unlocker expects it.
+- **No icons, or the game's default font in BR's windows:** copy the `Media` folder (Installing, step 2).
+- **"no rotation for spec ... on ..." in chat:** there's no profile for your spec on this game version
+  yet. The [profile list](#profiles) shows what there is.
+- **A spell is never cast:** `/br why <spell>` says why BR last refused it.
+- **Lua errors:** they're in `BadRotations/Logs/Errors.log`. Report them as below.
 
 ## Reporting problems
 
@@ -85,23 +98,23 @@ the levels before you pick a specialization.
 
 <table>
 <tr><th>Class</th><th>Spec</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
-<tr><th rowspan="2">Death Knight</th><td>Blood</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><th rowspan="2">Death Knight</th><td>Blood</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="3">Demon Hunter</th><td>Havoc</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-26</td></tr>
-<tr><td>Vengeance</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-26</td></tr>
+<tr><th rowspan="3">Demon Hunter</th><td>Havoc</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><td>Vengeance</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Druid</th><td>Feral</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><th rowspan="2">Druid</th><td>Feral</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><td>Starter</td><td>Initial Druid</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Evoker</th><td>Devastation</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-26</td></tr>
+<tr><th rowspan="2">Evoker</th><td>Devastation</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Hunter</th><td>Marksmanship</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><th rowspan="2">Hunter</th><td>Marksmanship</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Paladin</th><td>Retribution</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-26</td></tr>
+<tr><th rowspan="2">Paladin</th><td>Retribution</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><th>Priest</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><th>Rogue</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><th>Warlock</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th>Warrior</th><td>Fury</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><th>Warrior</th><td>Fury</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 </table>
 
 ### Mists of Pandaria Classic
@@ -109,17 +122,17 @@ the levels before you pick a specialization.
 <table>
 <tr><th>Class</th><th>Spec</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
 <tr><th>Death Knight</th><td>Frost</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Druid</th><td>Feral</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><th rowspan="2">Druid</th><td>Feral</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><td>Starter</td><td>Initial Druid</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><th>Mage</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><th rowspan="2">Monk</th><td>WindWalker</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><th rowspan="2">Paladin</th><td>Retribution</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th>Rogue</th><td>Subtlety</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
-<tr><th rowspan="2">Shaman</th><td>Enhancement</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><th>Rogue</th><td>Subtlety</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th rowspan="2">Shaman</th><td>Enhancement</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Warrior</th><td>Arms</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-26</td></tr>
+<tr><th rowspan="2">Warrior</th><td>Arms</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
 </table>
 
@@ -128,16 +141,16 @@ the levels before you pick a specialization.
 <table>
 <tr><th>Class</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
 <tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th>Hunter</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
-<tr><th rowspan="2">Shaman</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><td>Earthcaller</td><td>Earthcaller</td><td>2026-10-28</td></tr>
+<tr><th>Hunter</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th rowspan="2">Shaman</th><td>Earthcaller</td><td>Earthcaller</td><td>2026-10-28</td></tr>
+<tr><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 </table>
 
 ### Classic Era
 
 <table>
 <tr><th>Class</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
-<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 <tr><th>Hunter</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 </table>
 
@@ -145,7 +158,7 @@ the levels before you pick a specialization.
 
 <table>
 <tr><th>Class</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
-<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-25</td></tr>
+<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
 </table>
 
 <!-- /rotations -->
