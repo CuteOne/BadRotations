@@ -29,11 +29,12 @@ The [profile list](#profiles) below shows which game versions currently have pro
 
 ## Using BR
 
-- **Minimap button:** left-click opens the options window. Shift+left-click shows or hides the toggle bar.
-  Alt+Shift drags the button.
+- **Minimap button:** left-click opens Bot Options, right-click the profile window (choose the rotation,
+  Base Options, Rotation Options). Shift+left-click shows or hides the toggle bar. Alt+Shift drags the
+  button.
 - **Toggle bar:** buttons for the things you switch often in play: on/off, AoE, cooldowns, defensives,
   interrupts and whatever else the profile adds. Hover over a button to see what each state does.
-- **Options window:** *Bot Options* (BR itself, per character), *Base Options* (shared features such as
+- **Options:** *Bot Options* (BR itself, per character), *Base Options* (shared features such as
   racials, trinkets and healthstones, per character and spec) and the profile's own *Rotation Options*.
   Settings are saved under `Settings/`, separately for each game version.
 - **Chat commands:** `/br` turns BR on or off, and `/br help` lists the rest. Some useful ones:
@@ -60,8 +61,10 @@ replaced. You can switch them off under *Bot Options → Debug Options → Write
 ## Writing a profile
 
 A profile is one Lua file in `Rotations/<Class>/<Spec>/`. It registers itself, so dropping a new file in is
-enough for BR to find it.
+enough for BR to find it. No coding experience is needed to start.
 
+- **[Writing a profile](Rotations/Writing%20a%20profile.md)** walks through it step by step, from the
+  little Lua you need to trying it in game.
 - Start from [`Rotations/sample rotation.lua`](Rotations/sample%20rotation.lua).
 - The profile API is documented at **<https://cuteone.github.io/BadRotations/>**, generated from the
   `System/API` source.
