@@ -150,15 +150,8 @@ the levels before you pick a specialization.
 
 <!-- /rotations -->
 
-## Credits
-
-BadRotations is maintained by CuteOne. It started among developers of earlier rotation bots such as PQR and
-ProbablyEngine, and many people have contributed since, including Masoud, Gabbz, AveryKey, Chumii, Kinks,
-NOCARRIER, Sphoenix, ragnar, Defmaster, BrewingCoder, Laksmackt, Fiskee, Kuukuu, Hasanuddin Abu Bakar,
-Fengshen and Aura. The full list is in the commit history. If you have contributed and are missing here,
-let CuteOne know.
-
 ## License
 
-BadRotations is released under the [GNU General Public License v3.0](LICENSE). If you build on it, please
-credit BadRotations and link back to this repository.
+BadRotations is maintained by CuteOne, with contributions from everyone in the commit history. It is
+released under the [GNU General Public License v3.0](LICENSE). If you build on it, please credit
+BadRotations and link back to this repository.
