@@ -44,18 +44,17 @@ The [profile list](#profiles) below shows which game versions currently have pro
   | `/br log` | Shows BR's recent chat lines in a window you can copy from |
   | `/br pause toggle` | Pauses or resumes BR |
 
-## Logs and privacy
-
-BR writes what it does to plain text files in `BadRotations/Logs/`. **Nothing is ever sent anywhere.** The
-files stay on your computer, other players' names in them are replaced, and you can switch them off under
-*Bot Options → Debug Options → Write Log Files*. [Logs/README.md](Logs/README.md) explains each file.
-
 ## Reporting problems
 
 Open an [issue](https://github.com/CuteOne/BadRotations/issues) or ask on
 [Discord](https://discord.gg/VE7V7Mz). Say what went wrong and roughly when, and attach `Session.log` and
 `Errors.log` from `BadRotations/Logs/` (or zip the whole folder). The logs usually show the cause without
 you having to make it happen again.
+
+BR writes what it does to these plain text files while you play. **Nothing is ever sent anywhere.** The
+files stay on your computer until you choose to share them, and other players' names in them are
+replaced. You can switch them off under *Bot Options → Debug Options → Write Log Files*.
+[Logs/README.md](Logs/README.md) explains each file.
 
 ## Writing a profile
 
