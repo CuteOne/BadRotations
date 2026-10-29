@@ -2,8 +2,6 @@
 local cast = cast --[[@as BR.MOP.Mage.cast]]
 local cd = cd --[[@as BR.MOP.Mage.cd]]
 
-local rotationName = "Initial"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -206,7 +204,7 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "Initial",
     specID    = 1449,
     expansion = "MOP",
     author    = "CuteOne",

@@ -7,8 +7,6 @@ local spell = spell --[[@as BR.Retail.Evoker.Devastation.spell]]
 local talent = talent --[[@as BR.Retail.Evoker.Devastation.talent]]
 local use = use --[[@as BR.Retail.Evoker.Devastation.use]]
 
-local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
-
 ---------------
 --- Toggles ---
 ---------------
@@ -1098,14 +1096,10 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 1467,
     expansion = "Retail",
     author    = "CuteOne",
-    patch     = "10.0",
-    coverage  = "95%",
-    status    = "Full",
-    readiness = "Basic",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

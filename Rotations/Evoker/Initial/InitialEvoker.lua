@@ -4,8 +4,6 @@ local cast = cast --[[@as BR.Retail.Evoker.Initial.cast]]
 local cd = cd --[[@as BR.Retail.Evoker.Initial.cd]]
 local debuff = debuff --[[@as BR.Retail.Evoker.Initial.debuff]]
 
-local rotationName = "Initial" -- Change to name of profile listed in options drop down
-
 ---------------
 --- Toggles ---
 ---------------
@@ -415,7 +413,7 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "Initial",
     specID    = 1465,
     expansion = "Retail",
     author    = "CuteOne",

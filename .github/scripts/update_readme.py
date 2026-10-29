@@ -19,8 +19,7 @@ def register_field(name: str) -> re.Pattern:
 
 FIELDS = {
     "Rotation": {
-        # name = "Literal" in the table, or the profile's local rotationName
-        "regex": [register_field("name"), re.compile(r"local rotationName\s*=\s*\"(.+?)\"")],
+        "regex": [register_field("name")],
         "default": lambda _, file: file.stem,
     },
     "Author": {

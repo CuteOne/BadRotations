@@ -9,7 +9,6 @@ local has = has --[[@as BR.Retail.DemonHunter.Havoc.has]]
 local talent = talent --[[@as BR.Retail.DemonHunter.Havoc.talent]]
 local use = use --[[@as BR.Retail.DemonHunter.Havoc.use]]
 
-local rotationName = "CuteOne"
 ---------------
 --- Toggles ---
 ---------------
@@ -1368,14 +1367,10 @@ local function runRotation()
 end     -- End runRotation
 registerRotation({
     handlesRacials = true,
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 577,
     expansion = "Retail",
     author    = "CuteOne",
-    patch     = "10.2",
-    coverage  = "100%",
-    status    = "Full",
-    readiness = "Untested",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

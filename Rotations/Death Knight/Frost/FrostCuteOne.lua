@@ -6,8 +6,6 @@ local debuff = debuff --[[@as BR.MOP.DeathKnight.Frost.debuff]]
 local spell = spell --[[@as BR.MOP.DeathKnight.Frost.spell]]
 local talent = talent --[[@as BR.MOP.DeathKnight.Frost.talent]]
 
-local rotationName = "CuteOne"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -679,7 +677,7 @@ local function runRotation()
     end -- Pause
 end     -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 251,
     expansion = "MOP",
     author    = "CuteOne",

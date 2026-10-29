@@ -3,8 +3,6 @@ local buff = buff --[[@as BR.Retail.Rogue.buff]]
 local cast = cast --[[@as BR.Retail.Rogue.cast]]
 local spell = spell --[[@as BR.Retail.Rogue.spell]]
 
-local rotationName = "Initial"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -250,7 +248,7 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "Initial",
     specID    = 1453,
     expansion = "Retail",
     author    = "CuteOne",

@@ -5,8 +5,6 @@ local cd = cd --[[@as BR.MOP.Rogue.Subtlety.cd]]
 local debuff = debuff --[[@as BR.MOP.Rogue.Subtlety.debuff]]
 local talent = talent --[[@as BR.MOP.Rogue.Subtlety.talent]]
 
-local rotationName = "CuteOne"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -1124,14 +1122,10 @@ end -- runRotation
 
 registerRotation({
     handlesRacials = true,
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 261,
     expansion = "MOP",
     author    = "CuteOne",
-    patch     = "5.4.8 (Mists of Pandaria)",
-    coverage  = "100%",
-    status    = "Full",
-    readiness = "Basic",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

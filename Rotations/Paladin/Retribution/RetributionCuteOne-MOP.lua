@@ -6,8 +6,6 @@ local debuff = debuff --[[@as BR.MOP.Paladin.Retribution.debuff]]
 local spell = spell --[[@as BR.MOP.Paladin.Retribution.spell]]
 local talent = talent --[[@as BR.MOP.Paladin.Retribution.talent]]
 
-local rotationName = "CuteOne"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -702,7 +700,7 @@ local function runRotation()
 end -- End runRotation
 registerRotation({
     handlesRacials = true,
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 70,
     expansion = "MOP",
     author    = "CuteOne",

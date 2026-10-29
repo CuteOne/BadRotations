@@ -5,8 +5,6 @@ local cd = cd --[[@as BR.Classic.Druid.cd]]
 local debuff = debuff --[[@as BR.Classic.Druid.debuff]]
 local spell = spell --[[@as BR.Classic.Druid.spell]]
 
-local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
-
 ---------------
 --- Toggles ---
 ---------------
@@ -1242,14 +1240,10 @@ local function runRotation()
     return true
 end             -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 283,
     expansion = "Classic",
     author    = "CuteOne",
-    patch     = "1.12",
-    coverage  = "100%",
-    status    = "Full",
-    readiness = "Untested",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

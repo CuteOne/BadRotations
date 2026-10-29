@@ -4,8 +4,6 @@ local cast = cast --[[@as BR.MOP.Shaman.cast]]
 local cd = cd --[[@as BR.MOP.Shaman.cd]]
 local spell = spell --[[@as BR.MOP.Shaman.spell]]
 
-local rotationName = "Initial"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -248,7 +246,7 @@ local function runRotation()
     return true
 end         -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "Initial",
     specID    = 1444,
     expansion = "MOP",
     author    = "CuteOne",

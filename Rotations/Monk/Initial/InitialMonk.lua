@@ -3,8 +3,6 @@ local buff = buff --[[@as BR.MOP.Monk.buff]]
 local cast = cast --[[@as BR.MOP.Monk.cast]]
 local cd = cd --[[@as BR.MOP.Monk.cd]]
 
-local rotationName = "Initial"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -328,7 +326,7 @@ local function runRotation()
 end     -- End runRotation
 registerRotation({
     handlesRacials = true,
-    name      = rotationName,
+    name      = "Initial",
     specID    = 1450,
     expansion = "MOP",
     author    = "CuteOne",

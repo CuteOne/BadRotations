@@ -10,7 +10,6 @@ local spell = spell --[[@as BR.Retail.Druid.Feral.spell]]
 local talent = talent --[[@as BR.Retail.Druid.Feral.talent]]
 local use = use --[[@as BR.Retail.Druid.Feral.use]]
 
-local rotationName = "CuteOne"
 ---------------
 --- Toggles ---
 ---------------
@@ -1515,14 +1514,10 @@ end     -- End runRotation
 
 registerRotation({
     handlesRacials = true,
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 103,
     expansion = "Retail",
     author    = "CuteOne",
-    patch     = "12.0.0",
-    coverage  = "100%",
-    status    = "Full",
-    readiness = "Untested",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

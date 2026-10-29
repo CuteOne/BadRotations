@@ -5,8 +5,6 @@ local cd = cd --[[@as BR.Retail.DemonHunter.Initial.cd]]
 local has = has --[[@as BR.Retail.DemonHunter.Initial.has]]
 local use = use --[[@as BR.Retail.DemonHunter.Initial.use]]
 
-local rotationName = "Initial"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -228,7 +226,7 @@ local function runRotation()
     end -- Pause
 end     -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "Initial",
     specID    = 1456,
     expansion = "Retail",
     author    = "CuteOne",

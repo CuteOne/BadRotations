@@ -6,8 +6,6 @@ local debuff = debuff --[[@as BR.TBC.Druid.debuff]]
 local equiped = equiped --[[@as BR.TBC.Druid.equiped]]
 local spell = spell --[[@as BR.TBC.Druid.spell]]
 
-local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
-
 ---------------
 --- Toggles ---
 ---------------
@@ -1534,14 +1532,10 @@ local function runRotation()
 end             -- End runRotation
 registerRotation({
     handlesTrinkets = true,
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 283,
     expansion = "TBC",
     author    = "CuteOne",
-    patch     = "2.5.5",
-    coverage  = "100%",
-    status    = "Full",
-    readiness = "Untested",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

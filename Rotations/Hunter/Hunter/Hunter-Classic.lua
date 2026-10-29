@@ -1,8 +1,6 @@
 -- Editor types: the keys of Classic Hunter's spell lists (written by Types/generate.lua)
 local cast = cast --[[@as BR.Classic.Hunter.cast]]
 
-local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
-
 ---------------
 --- Toggles ---
 ---------------
@@ -193,7 +191,7 @@ local function runRotation()
     return true
 end             -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 361,
     expansion = "Classic",
     author    = "CuteOne",

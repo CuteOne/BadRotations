@@ -6,7 +6,6 @@ local charges = charges --[[@as BR.Retail.Hunter.Marksmanship.charges]]
 local debuff = debuff --[[@as BR.Retail.Hunter.Marksmanship.debuff]]
 local talent = talent --[[@as BR.Retail.Hunter.Marksmanship.talent]]
 
-local rotationName = "CuteOne"
 local petSupport = loadSupport("PetCuteOne")
 ---------------
 --- Toggles ---
@@ -917,14 +916,10 @@ local function runRotation()
 end         -- End runRotation
 registerRotation({
     handlesRacials = true,
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 254,
     expansion = "Retail",
     author    = "CuteOne",
-    patch     = "11.0.2",
-    coverage  = "100%",
-    status    = "Limited",
-    readiness = "Raid",
     toggles   = toggles,
     options   = options,
     actsWhileCasting = true, -- acts during casts and channels; checks them itself

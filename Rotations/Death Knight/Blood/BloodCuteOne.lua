@@ -6,8 +6,6 @@ local charges = charges --[[@as BR.Retail.DeathKnight.Blood.charges]]
 local debuff = debuff --[[@as BR.Retail.DeathKnight.Blood.debuff]]
 local talent = talent --[[@as BR.Retail.DeathKnight.Blood.talent]]
 
-local rotationName = "CuteOne"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -704,14 +702,10 @@ local function runRotation()
     end -- Pause
 end     -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 250,
     expansion = "Retail",
     author    = "CuteOne",
-    patch     = "11.0.2",
-    coverage  = "50%",
-    status    = "Limited",
-    readiness = "Untested",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

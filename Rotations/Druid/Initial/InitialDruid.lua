@@ -5,8 +5,6 @@ local cd = cd --[[@as BR.Retail.Druid.Initial.cd]]
 local debuff = debuff --[[@as BR.Retail.Druid.Initial.debuff]]
 local spell = spell --[[@as BR.Retail.Druid.Initial.spell]]
 
-local rotationName = "Initial Druid" -- Change to name of profile listed in options drop down
-
 ---------------
 --- Toggles ---
 ---------------
@@ -355,7 +353,7 @@ local function runRotation()
     return true
 end             -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "Initial Druid",
     specID    = 1447,
     expansion = "Retail",
     author    = "CuteOne",

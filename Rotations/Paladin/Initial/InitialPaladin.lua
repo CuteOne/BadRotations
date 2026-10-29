@@ -4,8 +4,6 @@ local cast = cast --[[@as BR.Retail.Paladin.cast]]
 local cd = cd --[[@as BR.Retail.Paladin.cd]]
 local debuff = debuff --[[@as BR.Retail.Paladin.debuff]]
 
-local rotationName = "Initial"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -271,7 +269,7 @@ local function runRotation()
     end -- Pause
 end     -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "Initial",
     specID    = 1451,
     expansion = "Retail",
     author    = "CuteOne",

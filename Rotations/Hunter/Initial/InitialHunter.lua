@@ -4,7 +4,6 @@ local cast = cast --[[@as BR.Retail.Hunter.cast]]
 local cd = cd --[[@as BR.Retail.Hunter.cd]]
 local debuff = debuff --[[@as BR.Retail.Hunter.debuff]]
 
-local rotationName = "Initial"
 local petSupport = loadSupport("PetCuteOne")
 
 ---------------
@@ -295,7 +294,7 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "Initial",
     specID    = 1448,
     expansion = "Retail",
     author    = "CuteOne",

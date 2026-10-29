@@ -7,7 +7,6 @@ local debuff = debuff --[[@as BR.Retail.Paladin.Retribution.debuff]]
 local equiped = equiped --[[@as BR.Retail.Paladin.Retribution.equiped]]
 local talent = talent --[[@as BR.Retail.Paladin.Retribution.talent]]
 
-local rotationName = "CuteOne"
 ---------------
 --- Toggles ---
 ---------------
@@ -1099,14 +1098,10 @@ local runRotation = function()
 end -- runRotation
 registerRotation({
     handlesRacials = true,
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 70,
     expansion = "Retail",
     author    = "CuteOne",
-    patch     = "10.2",
-    coverage  = "90%",
-    status    = "Sporadic",
-    readiness = "Development",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

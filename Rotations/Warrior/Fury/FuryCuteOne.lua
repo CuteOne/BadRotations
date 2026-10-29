@@ -7,8 +7,6 @@ local equiped = equiped --[[@as BR.Retail.Warrior.Fury.equiped]]
 local talent = talent --[[@as BR.Retail.Warrior.Fury.talent]]
 local use = use --[[@as BR.Retail.Warrior.Fury.use]]
 
-local rotationName = "CuteOne"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -1479,14 +1477,10 @@ local function runRotation()
     end -- Pause
 end     -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 72,
     expansion = "Retail",
     author    = "CuteOne",
-    patch     = "11.0.2",
-    coverage  = "100%",
-    status    = "Limited",
-    readiness = "Basic",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

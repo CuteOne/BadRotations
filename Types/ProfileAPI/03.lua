@@ -8732,11 +8732,7 @@
 ---@field actsWhileCasting? boolean Keep running while the player casts or channels
 ---@field handlesRacials? boolean The rotation uses racials itself (the shared Racial module doesn't)
 ---@field handlesTrinkets? boolean The rotation uses trinkets itself (the shared Trinkets module doesn't)
----@field author? string README metadata
----@field patch? string README metadata: the latest patch it was updated for
----@field coverage? string README metadata: estimated percent of class mechanics covered
----@field status? string README metadata: Full, Limited, Sporadic, Inactive or Unknown
----@field readiness? string README metadata: Raid, NoRaid, Basic, Development or Untested
+---@field author? string Shown in README.md's profile list
 
 --- Registers this file's rotation; BR offers it when specID and expansion match the player.
 ---@param def BR.RotationDefinition

@@ -1139,10 +1139,6 @@ registerRotation({
     specID    = 1484, -- Forever Druid class-level spec ID.
     expansion = "Forever",
     author    = "CuteOne",
-    patch     = "Forever 1.60",
-    coverage  = "100%",
-    status    = "Full",
-    readiness = "Untested",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

@@ -9,7 +9,6 @@ local spell = spell --[[@as BR.MOP.Shaman.Enhancement.spell]]
 local talent = talent --[[@as BR.MOP.Shaman.Enhancement.talent]]
 local totem = totem --[[@as BR.MOP.Shaman.Enhancement.totem]]
 
-local rotationName = "CuteOne"
 ---------------
 --- Toggles ---
 ---------------
@@ -950,14 +949,10 @@ local function runRotation()
 end -- End runRotation
 registerRotation({
     handlesRacials = true,
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 263,
     expansion = "MOP",
     author    = "CuteOne",
-    patch     = "11.0.2",
-    coverage  = "100%",
-    status    = "Limited",
-    readiness = "NoRaid",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

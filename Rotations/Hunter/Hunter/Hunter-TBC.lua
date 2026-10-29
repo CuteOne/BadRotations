@@ -19,7 +19,6 @@ local cd = cd --[[@as BR.TBC.Hunter.cd]]
 local debuff = debuff --[[@as BR.TBC.Hunter.debuff]]
 local spell = spell --[[@as BR.TBC.Hunter.spell]]
 
-local rotationName = "CuteOne"
 local petSupport = loadSupport("PetTBC")
 
 ---------------
@@ -1128,14 +1127,10 @@ local function runRotation()
 end
 
 registerRotation({
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 361, -- TBC/Classic Hunter spec ID (same class-level ID as Classic; hasSubSpecs = false)
     expansion = "TBC",
     author    = "CuteOne",
-    patch     = "2.5.1",
-    coverage  = "90%",
-    status    = "Full",
-    readiness = "Raid",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

@@ -7,8 +7,6 @@ local equiped = equiped --[[@as BR.MOP.Warrior.Arms.equiped]]
 local spell = spell --[[@as BR.MOP.Warrior.Arms.spell]]
 local talent = talent --[[@as BR.MOP.Warrior.Arms.talent]]
 
-local rotationName = "CuteOne"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -892,14 +890,10 @@ local function runRotation()
     end -- Pause
 end     -- runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 71,
     expansion = "MOP",
     author    = "CuteOne",
-    patch     = "11.0.2",
-    coverage  = "100%",
-    status    = "Limited",
-    readiness = "Basic",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

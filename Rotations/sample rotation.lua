@@ -1,5 +1,3 @@
-local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
-
 -- A profile sees the profile API by name, and nothing else: cast, buff, debuff, cd, charges, unit, units,
 -- enemies, ui, module, power, talent, spell, has, use, equiped, pet, totem, glyph, heroTree, imbues and
 -- var (all in System/API), plus registerRotation, loadSupport and Lua's standard library. There is no
@@ -205,16 +203,11 @@ end -- End runRotation
 -- Rotations/<Class>/<Class>/ on expansions without specs) is loaded automatically; BR offers the
 -- rotation only when specID and expansion match the player.
 registerRotation({
-    name      = rotationName,   -- Shown in the rotation dropdown; must be unique for the spec
+    name      = "MyProfile",    -- Shown in the rotation dropdown; must be unique for the spec
     specID    = 000,            -- Spec ID(s) this is for: https://wowpedia.fandom.com/wiki/SpecializationID
                                 -- (a list like { 103, 104 } also works)
-    expansion = "Retail",       -- "Retail", "MOP", "TBC", "Classic" or "Forever" (or a list of them)
-    -- README metadata (optional, shown in README.md):
-    author    = "YourName",
-    patch     = "12.0.0",       -- Latest patch you've updated the rotation for
-    coverage  = "100%",         -- Estimated percent coverage of class mechanics
-    status    = "Full",         -- Full, Limited, Sporadic, Inactive or Unknown
-    readiness = "Untested",     -- Raid, NoRaid, Basic, Development or Untested
+    expansion = "Retail",       -- One of "Retail", "MOP", "TBC", "Classic" or "Forever"
+    author    = "YourName",     -- Optional: shown in README.md
     -- actsWhileCasting = true, -- Optional: keep running while casting or channelling (BR pauses otherwise)
     -- handlesRacials = true,   -- Optional: the rotation uses racials itself (the shared Racial module doesn't)
     -- handlesTrinkets = true,  -- Optional: the rotation uses trinkets itself (the shared Trinkets module doesn't)

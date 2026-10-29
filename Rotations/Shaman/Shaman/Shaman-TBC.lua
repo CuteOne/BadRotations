@@ -6,8 +6,6 @@ local debuff = debuff --[[@as BR.TBC.Shaman.debuff]]
 local imbues = imbues --[[@as BR.TBC.Shaman.imbues]]
 local totem = totem --[[@as BR.TBC.Shaman.totem]]
 
-local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
-
 ---------------
 --- Toggles ---
 ---------------
@@ -639,7 +637,7 @@ local function runRotation()
     return true
 end             -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 261,
     expansion = "TBC",
     author    = "CuteOne",

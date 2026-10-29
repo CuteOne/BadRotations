@@ -7,8 +7,6 @@ local debuff = debuff --[[@as BR.Retail.DemonHunter.Vengeance.debuff]]
 local talent = talent --[[@as BR.Retail.DemonHunter.Vengeance.talent]]
 local use = use --[[@as BR.Retail.DemonHunter.Vengeance.use]]
 
-local rotationName = "CuteOne"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -1054,14 +1052,10 @@ local function runRotation()
     end --End Rotation Logic
 end     -- End runRotation
 registerRotation({
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 581,
     expansion = "Retail",
     author    = "CuteOne",
-    patch     = "10.2",
-    coverage  = "100%",
-    status    = "Limited",
-    readiness = "Raid",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

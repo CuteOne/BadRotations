@@ -65,8 +65,11 @@ local function loadFile(profile, file)
 end
 
 local KNOWN_EXPANSIONS = { Retail = true, MOP = true, TBC = true, Classic = true, Forever = true }
-local METADATA_FIELDS = { "author", "patch", "coverage", "status", "readiness" }
 local FLAG_FIELDS = { "actsWhileCasting", "handlesRacials", "handlesTrinkets" }
+-- Every field registerRotation reads; anything else is most likely a typo
+local KNOWN_FIELDS = { name = true, specID = true, expansion = true, run = true, toggles = true, options = true,
+    author = true }
+for _, field in ipairs(FLAG_FIELDS) do KNOWN_FIELDS[field] = true end
 
 -- State for the load in progress: the file being run and what it registered
 local loading = { file = nil, seen = {} }
@@ -75,7 +78,7 @@ local function warn(message)
     br.log:warning(message)
 end
 
--- value may be a single item or a list; returns true if any item equals wanted
+-- value may be a single item or a list (specID); returns true if any item equals wanted
 local function matches(value, wanted)
     if type(value) == "table" then
         for _, v in ipairs(value) do
@@ -84,10 +87,6 @@ local function matches(value, wanted)
         return false
     end
     return value == wanted
-end
-
-local function listText(value)
-    return type(value) == "table" and table.concat(value, "/") or tostring(value)
 end
 
 -- Checks a registration and returns an error message, or nil when it is valid.
@@ -104,34 +103,34 @@ local function validate(def)
     for _, id in ipairs(specIDs) do
         if type(id) ~= "number" then return "specID must be a number or list of numbers" end
     end
-    local expansions = type(def.expansion) == "table" and def.expansion or { def.expansion }
-    if #expansions == 0 then return "missing expansion" end
-    for _, exp in ipairs(expansions) do
-        if not KNOWN_EXPANSIONS[exp] then return "unknown expansion \"" .. tostring(exp) .. "\"" end
+    -- One game version per profile: a profile for another client is a separate file
+    if def.expansion == nil then return "missing expansion" end
+    if not KNOWN_EXPANSIONS[def.expansion] then
+        if type(def.expansion) == "table" then return "expansion must be one game version, not a list" end
+        return "unknown expansion \"" .. tostring(def.expansion) .. "\""
     end
     for _, field in ipairs(FLAG_FIELDS) do
         if def[field] ~= nil and type(def[field]) ~= "boolean" then return field .. " must be true or false" end
     end
-    -- README metadata is free text; it only has to be a string when present
-    for _, field in ipairs(METADATA_FIELDS) do
-        if def[field] ~= nil and type(def[field]) ~= "string" then return field .. " must be a string" end
-    end
+    if def.author ~= nil and type(def.author) ~= "string" then return "author must be a string" end
     return nil
 end
 
 --- Registers a rotation profile. Called by each rotation file as registerRotation (see
 -- Rotations/sample rotation.lua). The rotation is offered only when its specID and expansion match the player.
--- @tparam table def name, specID (number or list), expansion (string or list), run, and optional
---   toggles, options, actsWhileCasting (true: the rotation keeps running while the player casts or
---   channels; it then checks casts itself), handlesRacials / handlesTrinkets (true: the rotation uses
---   racials / trinkets itself, so the shared modules don't), plus README metadata: author, patch,
---   coverage, status, readiness
+-- @tparam table def name, specID (number or list), expansion (one of KNOWN_EXPANSIONS), run, and
+--   optional toggles, options, actsWhileCasting (true: the rotation keeps running while the player
+--   casts or channels; it then checks casts itself), handlesRacials / handlesTrinkets (true: the
+--   rotation uses racials / trinkets itself, so the shared modules don't), author (shown in README.md)
 function br.loader.registerRotation(def)
     local file = loading.file or "?"
     local problem = validate(def)
     if problem then
         warn(file .. ": " .. problem .. " - rotation not registered.")
         return false
+    end
+    for field in pairs(def) do
+        if not KNOWN_FIELDS[field] then warn(file .. ": unknown field \"" .. tostring(field) .. "\" ignored.") end
     end
     loading.seen[#loading.seen + 1] = { file = file, name = def.name, expansion = def.expansion }
 
@@ -186,7 +185,7 @@ function profileLoader:loadProfiles()
             else
                 local found = {}
                 for _, r in ipairs(loading.seen) do
-                    found[#found + 1] = r.name .. " (" .. listText(r.expansion) .. ")"
+                    found[#found + 1] = r.name .. " (" .. r.expansion .. ")"
                 end
                 warn("no rotation for spec " .. specID .. " on " .. br.client.flavour .. ". Found: " .. table.concat(found, ", "))
             end

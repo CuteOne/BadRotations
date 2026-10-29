@@ -7,8 +7,6 @@ local debuff = debuff --[[@as BR.MOP.Monk.Windwalker.debuff]]
 local spell = spell --[[@as BR.MOP.Monk.Windwalker.spell]]
 local talent = talent --[[@as BR.MOP.Monk.Windwalker.talent]]
 
-local rotationName = "CuteOne"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -916,7 +914,7 @@ local function runRotation()
 end     -- End runRotation
 registerRotation({
     handlesRacials = true,
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 269,
     expansion = "MOP",
     author    = "CuteOne",

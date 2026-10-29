@@ -9,7 +9,6 @@ local spell = spell --[[@as BR.MOP.Druid.Feral.spell]]
 local talent = talent --[[@as BR.MOP.Druid.Feral.talent]]
 local use = use --[[@as BR.MOP.Druid.Feral.use]]
 
-local rotationName = "CuteOne"
 ---------------
 --- Toggles ---
 ---------------
@@ -1818,14 +1817,10 @@ end -- End runRotation
 
 registerRotation({
     handlesRacials = true,
-    name      = rotationName,
+    name      = "CuteOne",
     specID    = 103,
     expansion = "MOP",
     author    = "CuteOne",
-    patch     = "5.4.8",
-    coverage  = "100%",
-    status    = "Full",
-    readiness = "Untested",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

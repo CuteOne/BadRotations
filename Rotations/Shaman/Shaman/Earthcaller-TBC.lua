@@ -6,8 +6,6 @@ local imbues = imbues --[[@as BR.TBC.Shaman.imbues]]
 local spell = spell --[[@as BR.TBC.Shaman.spell]]
 local totem = totem --[[@as BR.TBC.Shaman.totem]]
 
-local rotationName = "Earthcaller"
-
 -- A Shaman profile for TBC that plays at every level, from 1 to 70. It goes by the spells the
 -- character knows (TBC reads no talent tree): a level 1 Shaman bolts and melees with Rockbiter,
 -- totems, shocks and imbues join as they're learned, and the talent spells (Stormstrike,
@@ -581,14 +579,10 @@ local function runRotation()
 end
 
 registerRotation({
-    name      = rotationName,
+    name      = "Earthcaller",
     specID    = 261, -- TBC Shaman class-level spec ID
     expansion = "TBC",
     author    = "Earthcaller",
-    patch     = "2.5.6",
-    coverage  = "90%",
-    status    = "Full",
-    readiness = "Untested",
     toggles   = toggles,
     options   = options,
     run       = runRotation,

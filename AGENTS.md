@@ -47,8 +47,6 @@ The runner, `br.runner` (`System/Loader/Rotation.lua`), sits beside the profile 
 Every rotation file **must** follow this structure (order matters):
 
 ```lua
-local rotationName = "AuthorName"
-
 local function toggles()
     -- Toggle bar buttons (see "Toggles and Options" below)
     ui.toggle("Rotation", { key = "RightShift", modes = {
@@ -88,10 +86,10 @@ end
 -- Registration — BR loads every file in the class/spec folder; each file registers itself.
 -- Spec IDs: https://wowpedia.fandom.com/wiki/SpecializationID
 registerRotation({
-    name      = rotationName,
+    name      = "AuthorName",     -- shown in the rotation dropdown; unique for the spec
     specID    = 250,              -- or a list, e.g. { 250, 251 }
-    expansion = "Retail",         -- "Retail", "MOP", "TBC", "Classic", "Forever", or a list
-    author    = "AuthorName",     -- optional README metadata: author, patch, coverage, status, readiness
+    expansion = "Retail",         -- one of "Retail", "MOP", "TBC", "Classic", "Forever"
+    author    = "AuthorName",     -- optional; shown in README.md
     toggles   = toggles,
     options   = options,
     run       = runRotation,
@@ -106,8 +104,9 @@ registerRotation({
 - A profile sees only the profile API: the tables in `System/API/` by name (`cast`, `buff`, `debuff`, `cd`, `charges`, `unit`, `units`, `enemies`, `ui`, `module`, `power`, `talent`, `spell`, `has`, `use`, `equiped`, `pet`, `totem`, `glyph`, `heroTree`, `imbues`, `var`), `registerRotation`, `loadSupport` and Lua's standard library (`System/Loader/ProfileAPI.lua`). No `br`, no game API: reading any other name, or setting a global, is an error that names the line (`.tests/profile_env_check.lua` checks every profile). If a profile needs something the API lacks, add it to the API (and Functions below it).
 - `var` keeps values between ticks, is shared with the support files the profile loads, and starts empty for each spec.
 - The API is built after the profile files load, so nothing at file level may call it (`local t = util.time()` at the top errors); call it in `toggles`, `options` and `run`.
-- Register with `registerRotation` only — it validates the definition and offers the rotation only when `specID` and `expansion` match the player. Optional flags: `actsWhileCasting`, and `handlesRacials` / `handlesTrinkets` when the rotation uses racials / trinkets itself (the shared modules then don't).
-- README metadata (`author`, `patch`, `coverage`, `status`, `readiness`) lives in the registration table; `.github/scripts/update_readme.py` reads it from there.
+- Register with `registerRotation` only — it validates the definition and offers the rotation only when `specID` and `expansion` match the player. Optional flags: `actsWhileCasting`, and `handlesRacials` / `handlesTrinkets` when the rotation uses racials / trinkets itself (the shared modules then don't). A field it doesn't know is reported as a warning.
+- One game version per profile: `expansion` is a single flavour; a profile for another client is a separate file (e.g. `FeralCuteOne.lua` / `FeralCuteOne-MOP.lua`).
+- `name` and `author` are written in the registration table; `.github/scripts/update_readme.py` reads them from there for the README's profile list.
 - Support files (e.g. Hunter pets) return their table (`return { options = ..., run = ... }`); the profile loads one at the top with `local petSupport = loadSupport("PetCuteOne")`.
 - Rotations retired when profiles moved to the profile API (they didn't convert cleanly) are in `Rotations/Retired.zip`, with the reasons in its `RETIRED.txt`.
 
