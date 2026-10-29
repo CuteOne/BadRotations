@@ -360,18 +360,27 @@ These are for when the basics work.
 
 ## Getting help from an AI
 
-An AI assistant can write a good first draft of a profile, if you give it the right material. Attach or
-paste these four files:
+An AI assistant can write a good first draft of a profile, if you give it the right material and keep it
+to what a profile writer does. Attach or paste these three:
 - this guide;
 - [`sample rotation.lua`](sample%20rotation.lua);
-- your class's spell list file(s) from `Expansions/<Version>/<CLASS>/`;
-- [AGENTS.md](../AGENTS.md).
+- your class's spell list file(s) from `Expansions/<Version>/<CLASS>/`.
+
+Keep the AI to your own profile, as you would yourself:
+- It writes or changes **your profile file only**, plus a support file of your own in
+  `Rotations/<Class>/Support/` if you need one.
+- It doesn't change BR's own files: `System/`, `Expansions/` (the spell lists included), `Libs/`,
+  `Settings/`, or other people's profiles. When something seems missing from BR, or a spell isn't in
+  the list, it tells you instead. You can then ask on BR's Discord or open an issue.
+- An AI that works inside your BadRotations folder (such as Claude Code, Copilot or Codex) may read BR's
+  files to understand them, but give it this rule too. BR's own developer notes (`AGENTS.md`) are for
+  people working on BR itself, not on a profile.
 
 Then copy the prompt below, fill in the parts in `<angle brackets>`, and send it with the files.
 
 ```text
 I want a BadRotations (BR) profile for World of Warcraft. I've attached BR's guide
-"Writing a profile.md", its "sample rotation.lua", my class's spell list file(s) and AGENTS.md.
+"Writing a profile.md", its "sample rotation.lua" and my class's spell list file(s).
 
 My character:
 - Game version: <Retail / MOP / TBC / Classic / Forever>
@@ -383,17 +392,21 @@ My character:
   Earth Shock when Stormstrike is on cooldown; heal myself under 40% health">
 
 Please write the profile as one Lua file, following these rules:
-1. Start from sample rotation.lua and keep its layout and its four toggles (Rotation, Cooldown,
+1. Only write my profile file. Don't create or change any other file: not BR's System/, Expansions/
+   (spell lists), Libs/ or Settings/ folders, and not other profiles. If BR seems to lack something I
+   need, or a spell is missing from the list, tell me what and why instead.
+2. Start from sample rotation.lua and keep its layout and its four toggles (Rotation, Cooldown,
    Defensive, Interrupt).
-2. Use only BR functions that appear in the guide, the sample or AGENTS.md. A profile can't use
-   WoW's own API or "br."; if something isn't there, tell me instead of inventing it.
-3. Use only spell names that are in the spell list files I attached, spelled exactly as there.
-4. Write each action as `if cast.<spell>(...) then return true end`. Don't check whether a spell is
+3. Use only BR functions that appear in the guide or the sample, or in BR's API reference
+   (https://cuteone.github.io/BadRotations/). A profile can't use WoW's own API or "br."; don't
+   invent functions.
+4. Use only spell names that are in the spell list files I attached, spelled exactly as there.
+5. Write each action as `if cast.<spell>(...) then return true end`. Don't check whether a spell is
    ready, affordable or in range: BR does that. Only add conditions that are my choices.
-5. It must play well at my level: ask spell.<name>.known() before relying on a spell I might not
+6. It must play well at my level: ask spell.<name>.known() before relying on a spell I might not
    have yet, and have a fallback.
-6. Put a short plain-English note above each rule saying what it does and why.
-7. Fill in name, specID and expansion at the bottom, and tell me which folder to put the file in.
+7. Put a short plain-English note above each rule saying what it does and why.
+8. Fill in name, specID and expansion at the bottom, and tell me which folder to put the file in.
 
 If anything about how I want it to play is unclear, ask me before writing the code.
 ```

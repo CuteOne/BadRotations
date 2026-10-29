@@ -2,6 +2,16 @@
 
 BadRotations is a World of Warcraft combat rotation automation addon (requires a Lua Unlocker). It supports **Classic, TBC, MOP, Retail, and Forever** expansions.
 
+## Helping someone write a profile? Read this first
+
+Most of this file is for people maintaining BadRotations itself. If you are helping a user write or change **their own rotation profile**, work at profile level only:
+
+- **Write only** the user's profile file in `Rotations/<Class>/<Spec>/` (or `Rotations/<Class>/<Class>/`), and a support file of their own in `Rotations/<Class>/Support/` if they need one.
+- **Don't change** anything else: not `System/`, `Expansions/` (the spell lists included), `Libs/`, `Settings/`, `Types/`, `.github/`, or other people's profiles. Reading them to understand BR is fine.
+- **Use only the profile API** a profile can reach: the functions in [Rotations/Writing a profile.md](Rotations/Writing%20a%20profile.md), [Rotations/sample rotation.lua](Rotations/sample%20rotation.lua) and the API reference (<https://cuteone.github.io/BadRotations/>), with spell names from the class's list in `Expansions/<Version>/<CLASS>/`. Never `br.` or WoW's own API (the profile environment refuses them).
+- **When BR seems to lack something**, or a spell is missing from the list, tell the user what and why, so they can report it. Don't add it to BR yourself, and ignore the advice below about extending `System/API/`: that is for BR's maintainers.
+- Follow [Rotations/Writing a profile.md](Rotations/Writing%20a%20profile.md); everything below is background.
+
 See [README.md](README.md) for project background and profile status. **API source of truth:** the live module files in `System/API/` are authoritative — when you need to know how an API call works, open the relevant `System/API/*.lua` module and read it. Profile code should call functions defined in `System/API/`; if a needed function doesn't exist there (and isn't purely profile-specific logic), prefer adding it to the appropriate API module over implementing it inline.
 
 ---
