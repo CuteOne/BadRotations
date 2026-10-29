@@ -360,16 +360,46 @@ These are for when the basics work.
 
 ## Getting help from an AI
 
-An AI assistant can write a good first draft of a profile, if you give it the right material:
+An AI assistant can write a good first draft of a profile, if you give it the right material. Attach or
+paste these four files:
 - this guide;
 - [`sample rotation.lua`](sample%20rotation.lua);
 - your class's spell list file(s) from `Expansions/<Version>/<CLASS>/`;
 - [AGENTS.md](../AGENTS.md).
 
-Ask it to:
-- use only the BR functions in this guide and the API reference;
-- use only spell names that are in your spell list;
-- explain each rule in plain words next to the code, so you can check it does what you meant.
+Then copy the prompt below, fill in the parts in `<angle brackets>`, and send it with the files.
+
+```text
+I want a BadRotations (BR) profile for World of Warcraft. I've attached BR's guide
+"Writing a profile.md", its "sample rotation.lua", my class's spell list file(s) and AGENTS.md.
+
+My character:
+- Game version: <Retail / MOP / TBC / Classic / Forever>
+- Class and spec: <for example "Shaman, Enhancement", or just the class on versions without specs>
+- Level: <for example "levelling, now 34" or "max level">
+- What I do most: <for example "solo questing", "dungeons as a healer", "raids">
+- How I want it to play: <your rules in plain words, best first, for example
+  "keep Lightning Shield up; Flame Shock if it isn't on the target; Stormstrike on cooldown;
+  Earth Shock when Stormstrike is on cooldown; heal myself under 40% health">
+
+Please write the profile as one Lua file, following these rules:
+1. Start from sample rotation.lua and keep its layout and its four toggles (Rotation, Cooldown,
+   Defensive, Interrupt).
+2. Use only BR functions that appear in the guide, the sample or AGENTS.md. A profile can't use
+   WoW's own API or "br."; if something isn't there, tell me instead of inventing it.
+3. Use only spell names that are in the spell list files I attached, spelled exactly as there.
+4. Write each action as `if cast.<spell>(...) then return true end`. Don't check whether a spell is
+   ready, affordable or in range: BR does that. Only add conditions that are my choices.
+5. It must play well at my level: ask spell.<name>.known() before relying on a spell I might not
+   have yet, and have a fallback.
+6. Put a short plain-English note above each rule saying what it does and why.
+7. Fill in name, specID and expansion at the bottom, and tell me which folder to put the file in.
+
+If anything about how I want it to play is unclear, ask me before writing the code.
+```
 
 Then try it in game as in [Trying it in game](#trying-it-in-game). The AI can't see your game, so paste
-any error, or what `/br why <spell>` says, back to it.
+back to it:
+- any error from `Errors.log`;
+- what `/br why <spell>` says about a spell it never casts;
+- anything it does that you didn't want, in plain words.
