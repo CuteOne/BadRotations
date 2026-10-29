@@ -9,12 +9,11 @@ set one up and load BR with it.
 
 ## Game versions
 
-BR runs on **Retail**, **Mists of Pandaria Classic**, **Burning Crusade Classic**, **Classic Era** and
-**World of Warcraft Forever**. Each profile is written for one of them. BR detects the client you are
-playing and offers only the profiles made for it. On clients without specializations, a profile covers the
-whole class.
+BR is not tied to one version of WoW. Each client gets a thin layer under `Expansions/` with its spell
+lists and game rules. Adding a version means adding that layer, not changing BR itself. Profiles are
+written for one game version, and BR offers only the profiles made for the client you are playing.
 
-The [profile list](#profiles) below shows what is available for each.
+The [profile list](#profiles) below shows which game versions currently have profiles.
 
 ## Installing
 
