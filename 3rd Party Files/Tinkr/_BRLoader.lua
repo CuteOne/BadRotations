@@ -104,8 +104,4 @@ for i = 1, #br.files do
     end
 end
 
--- Call BR Load Function
-if UnitExists('player') then
-    print "[Tinkr] Loading BR"
-    br.load()
-end
+-- BR starts itself once its files have run (System/Bootstrap.lua: after login it starts on the next frame)
