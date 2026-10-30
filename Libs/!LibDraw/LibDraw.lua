@@ -6,7 +6,8 @@ local tinsert, tremove = tinsert, tremove
 
 local function WorldToScreen (wX, wY, wZ)
 	if wZ == nil then wZ = select(3,br.functions.unit:GetObjectPosition("player")) end
-	local sX, sY = br._G.WorldToScreen(wX, wY, wZ)
+	if br.game.WorldToScreen == nil then return false, false end
+	local sX, sY = br.game.WorldToScreen(wX, wY, wZ)
 	if not sX or sX == 0 then
 		return false, false
 	end
@@ -192,7 +193,7 @@ local flags = bit.bor(0x100)
 function LibDraw.GroundCircle(x, y, z, size)
 	local lx, ly, nx, ny, fx, fy, fz = false, false, false, false, false, false, false
 	for v=0, full_circle, small_circle_step do
-		fx, fy, fz = br._G.TraceLine(  (x+cos(v)*size), (y+sin(v)*size), z+100, (x+cos(v)*size), (y+sin(v)*size), z-100, flags )
+		fx, fy, fz = br.game.TraceLine(  (x+cos(v)*size), (y+sin(v)*size), z+100, (x+cos(v)*size), (y+sin(v)*size), z-100, flags )
 		if fx == nil then
 			fx, fy, fz = (x+cos(v)*size), (y+sin(v)*size), z
 		end
@@ -235,7 +236,7 @@ function LibDraw.Texture(config, x, y, z, alphaA)
 		bottom = 1
 	end
 	if not scale then
-		local cx, cy, cz = br._G.GetCameraPosition()
+		local cx, cy, cz = br.game.GetCameraPosition()
 		scale = width / LibDraw.Distance(x, y, z, cx, cy, cz)
 	end
 	local sx, sy = WorldToScreen(x, y, z)
@@ -317,7 +318,7 @@ local arrowZ = {
 }
 
 function LibDraw.DrawHelper()
-	local playerX, playerY, playerZ = br._G.ObjectPosition("player")
+	local playerX, playerY, playerZ = br.game.ObjectPosition("player")
 	local old_red, old_green, old_blue, old_alpha, old_width = LibDraw.line.r, LibDraw.line.g, LibDraw.line.b, LibDraw.line.a, LibDraw.line.w
 	-- X
 	LibDraw.SetColor(255, 0, 0, 100)
@@ -342,8 +343,8 @@ function LibDraw.Distance(ax, ay, az, bx, by, bz)
 end
 
 function LibDraw.Camera()
-	local fX, fY, fZ = br._G.ObjectPosition("player")
-	local sX, sY, sZ = br._G.GetCameraPosition()
+	local fX, fY, fZ = br.game.ObjectPosition("player")
+	local sX, sY, sZ = br.game.GetCameraPosition()
 	return sX, sY, sZ, atan2(sY - fY, sX - fX), atan((sZ - fZ) / sqrt(((fX - sX) ^ 2) + ((fY - sY) ^ 2)))
 end
 
