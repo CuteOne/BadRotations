@@ -62,6 +62,10 @@ Get it from [nilname.com](https://nilname.com).
 BR's support for each unlocker lives in `BadRotations/Unlockers/`. If yours isn't listed here, ask on
 [BR's Discord](https://discord.gg/VE7V7Mz) whether it works and how to load BR with it.
 
+To make BR work with an unlocker yourself, including a private one, see
+[Unlockers/README.md](../Unlockers/README.md): what an adapter provides, and how a loader runs BR. You
+don't need to change BR's own files.
+
 ## 4. In game
 
 Log in. Chat says "Initializing Please Wait...", then BR's button appears on the minimap. Type `/br` to
