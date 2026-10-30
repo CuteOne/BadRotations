@@ -1,6 +1,8 @@
 .*
 !.luarc.json
 !.wowluarc.json
+!.github/
+__pycache__/
 Simc.lua
 System/SimC/aplList.lua
 System/SimC/parser.lua
