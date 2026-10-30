@@ -18,7 +18,6 @@ br.unlockers.raw = nil
 -- "no unlocker" case are handled here, not by any adapter. Unlockers/README.md is the contract.
 local adapters = {
     { name = "NN",       fn = "NNUnlock" },
-    { name = "Tinkr",    fn = "TinkrUnlock" },
     { name = "Daemonic", fn = "DaemonicUnlock" },
 }
 local reportedNoUnlocker = false

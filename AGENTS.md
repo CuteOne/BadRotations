@@ -45,7 +45,7 @@ The runner, `br.runner` (`System/Loader/Rotation.lua`), sits beside the profile 
 | `Rotations/{Class}/{Spec}/` | Rotation profile Lua files |
 | `Settings/{Flavour}/{Class}/{Spec}/` | Saved settings per flavour and spec/profile |
 | `Libs/` | Third-party libs (LibStub, DiesalGUI, LibSharedMedia) |
-| `Unlockers/` | Unlocker integrations (daemonic, nn, tinkr) |
+| `Unlockers/` | Unlocker adapters: `nn.lua` (Daemonic writes its own `daemonic.lua` at launch); the contract is `Unlockers/README.md` |
 
 ---
 

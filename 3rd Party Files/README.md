@@ -10,7 +10,6 @@ unlockers it supports, and what the files in this folder are for.
 |--------|------------|
 | `Media` | BR's icons and fonts. Every unlocker needs this copied into the game (step 2 below). |
 | `NoName` | The loader file for the NilName unlocker. |
-| `Tinkr` | The loader file for the Tinkr unlocker. |
 
 ## 1. Get BadRotations
 
@@ -57,15 +56,6 @@ Get it from [nilname.com](https://nilname.com).
    the `BadRotations` folder inside it: `scripts\BadRotations`.
 2. Copy `_BRLoader.lua` from `BadRotations\3rd Party Files\NoName` into the `scripts` folder.
 3. Start the game through NilName.
-
-### Tinkr (macOS)
-
-Get it from [tinkr.site](https://tinkr.site/).
-
-1. In the folder with the Tinkr files, make a folder called `scripts` (if there isn't one), and put the
-   `BadRotations` folder inside it: `scripts/BadRotations`.
-2. Copy `_BRLoader.lua` from `BadRotations/3rd Party Files/Tinkr` into the `scripts` folder.
-3. Start the game through Tinkr.
 
 ### Other unlockers
 

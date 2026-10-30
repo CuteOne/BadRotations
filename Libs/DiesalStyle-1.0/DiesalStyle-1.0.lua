@@ -65,7 +65,7 @@ local function addMedia(mediaType, name, mediaFile)
   Media[mediaType] = Media[mediaType] or {}
 
   -- Build a list of candidate paths to try in order:
-  --   [1] the current MediaPath (may be scripts-relative for Tinkr/NoName)
+  --   [1] the current MediaPath (may be scripts-relative for NoName)
   --   [2] the standard addon fallback path (provided by the host addon via SetMediaPath)
   local basePath = DiesalStyle.MediaPath or "Interface\\AddOns\\Media\\"
   local candidates = { basePath .. mediaFile }
