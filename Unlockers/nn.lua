@@ -89,8 +89,6 @@ local globalCacheList =
 	"UnitReaction",
 	"UnitStat",
 	"UnitThreatSituation",
-	"UnitTarget",
-	"WriteFile",
 }
 
 local _, br = ...
@@ -254,6 +252,12 @@ function br.unlockers:NNUnlock()
 		if not x then return nil end
 		return x, y, z
 	end
+	-- NN's UnitTarget returns false for no target (its docs); BR reads none as nil
+	b.UnitTarget = function(unit)
+		local target = UnitTarget(unit)
+		if not target then return nil end
+		return target
+	end
 	b.UnitCreator = function(unit)
 		return UnitCreator(unit)
 	end
@@ -340,16 +344,21 @@ function br.unlockers:NNUnlock()
 	b.GetWoWDirectory = function()
 		return "\\scripts"
 	end
-	b.GetDirectoryFiles = function(pattern)
-		if pattern == nil or pattern == "*" then return {} end
-		local str = pattern .. "*.lua"
-		local filter = str:gsub(str:match("*.lua"), "*")
+	-- BR passes the folder, ending in a separator; NN's ListFiles takes a glob and gives names
+	b.GetDirectoryFiles = function(folder)
+		if folder == nil then return {} end
 		local names = {}
-		for _, file in ipairs(ListFiles(filter) or {}) do
-			if file:match(".lua") then names[#names + 1] = file end
+		for _, name in ipairs(ListFiles(folder .. "*") or {}) do
+			if name:match("%.lua$") then names[#names + 1] = name end
 		end
 		return names
 	end
+	-- NN's WriteFile appends, but does nothing when asked to append to a file that doesn't exist yet
+	b.WriteFile = function(path, text, append)
+		if append and not FileExists(path) then append = false end
+		return WriteFile(path, text, append)
+	end
+	br.unlockers.nativeAppend = true
 
 	br.unlockers.raw = C_Timer.Nn
 	b.print("NN Unlocker Loaded")

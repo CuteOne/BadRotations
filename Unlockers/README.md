@@ -143,7 +143,7 @@ BR keeps its settings and logs in its own folder, so it reads and writes files t
 | `WriteFile(path, text, append)` | Writes the file; with `append`, adds `text` to its end (see `nativeAppend`) |
 | `CreateDirectory(path)` | Makes the folder |
 | `DirectoryExists(path)` | Whether the folder exists |
-| `GetDirectoryFiles(pattern)` | A list of the names (not paths) of the files matching `"folder\*.lua"`; an empty list when there are none |
+| `GetDirectoryFiles(folder)` | A list of the names (not paths) of the `.lua` files in `folder` (which BR passes ending in its separator); an empty list when there are none |
 | `GetWoWDirectory()` | The folder that holds the `BadRotations` folder. If it contains `_retail_`, BR is taken to be in `<it>\Interface\AddOns` instead. |
 
 ### Optional
