@@ -375,7 +375,7 @@ local function hideFrom(first)
     shown = first - 1
 end
 
--- Without the unlocker's WorldToScreen (NN's is left out) nothing is drawn
+-- Without the unlocker's WorldToScreen nothing is drawn
 local function project(x, y, z)
     if br.game.WorldToScreen == nil then return nil end
     local sx, sy = br.game.WorldToScreen(x, y, z)

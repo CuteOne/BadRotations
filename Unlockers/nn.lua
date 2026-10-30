@@ -265,6 +265,16 @@ function br.unlockers:NNUnlock()
 	b.CancelPendingSpell = b.SpellStopTargeting
 	b.ClickPosition = ClickPosition
 	b.GetMousePosition = b.GetCursorPosition
+	-- NN's WorldToScreen gives sx, sy from 0 to 1 and whether the point is visible (-1, -1 off screen).
+	-- Its docs don't name the corner (0, 0) is; this reads it as the bottom-left, the game's own frame
+	-- convention, like the Daemonic adapter's conversion.
+	b.WorldToScreen = function(x, y, z)
+		local sx, sy, visible = WorldToScreen(x, y, z)
+		if not visible or sx < 0 or sy < 0 then return nil end
+		local scale = UIParent:GetScale()
+		local width, height = UIParent:GetWidth() * scale, UIParent:GetHeight() * scale
+		return sx * width, -(height - sy * height)
+	end
 
 	--------------------------------
 	-- actions
