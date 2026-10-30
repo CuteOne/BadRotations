@@ -229,15 +229,14 @@ function br.unlockers:NNUnlock()
 		local objectType = ObjectType(...)
 		return objectType == 8 or objectType == 11
 	end
+	-- The creature or game object ID, from its GUID (NN's UnitGUID takes tokens and objects). NN has no
+	-- ObjectID: ObjectId is for game objects only, ObjectUnitId for NPCs.
 	b.ObjectID = function(unit)
 		if unit == nil then return nil end
-		if type(unit) == "string" then
-			local guid = UnitGUID(unit)
-			if guid == nil then return nil end
-			local _, _, _, _, _, npcID = strsplit('-', guid)
-			return tonumber(npcID)
-		end
-		return ObjectID(unit)
+		local guid = b.UnitGUID(unit)
+		if guid == nil then return nil end
+		local _, _, _, _, _, id = strsplit('-', guid)
+		return tonumber(id)
 	end
 	b.ObjectName = ObjectName
 
