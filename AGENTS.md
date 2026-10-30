@@ -59,9 +59,12 @@ Every rotation file **must** follow this structure (order matters):
 ```lua
 local function toggles()
     -- Toggle bar buttons (see "Toggles and Options" below)
+    -- Rotation (Auto/Mult/Sing/Off), Cooldown, Defensive, Interrupt first, as in the sample:
+    -- ui.useAOE / useCDs / useDefensive / useInterrupt read them by name and mode order
     ui.toggle("Rotation", { key = "RightShift", modes = {
-        { name = "Auto", icon = "whirlwind", overlay = "Automatic Rotation", tip = "..." },
-        { name = "Off",  icon = "enragedRegeneration", overlay = "DPS Rotation Disabled", tip = "..." },
+        { name = "Auto", icon = "whirlwind", tip = "..." },
+        ...
+        { name = "Off",  icon = "whirlwind", tip = "..." },
     } })
 end
 
@@ -72,29 +75,34 @@ local function options()
 end
 
 -- The profile API is there by name (cast, buff, unit, ui, var, ...); keep your own names local
-local energy
+local enemy
 
--- Action lists return true if a spell was cast (stops fallthrough)
+-- Action lists return true if a spell was cast (one action per tick, stops fallthrough)
 local actionList = {}
-actionList.PreCombat  = function() ... end
-actionList.Interrupt  = function() ... end
 actionList.Defensive  = function() ... end
+actionList.Interrupt  = function() ... end
 actionList.Cooldown   = function() ... end
-actionList.SlayerMt   = function() ... end  -- Main rotation
+actionList.PreCombat  = function() ... end
+actionList.Combat     = function()  -- Main rotation
+    if cast.whirlwind.aoe(8, 3) then return true end
+    if cast.heroicStrike(enemy) then return true end
+end
 
 local function runRotation()
-    energy = power.energy()         -- per-tick values
-    units.get(5); enemies.get(8)    -- build dynamic tables
+    enemy = units.get(40)           -- the enemy BR picked (Bot Options > Targeting), or nil
 
+    if ui.mode.rotation == 4 then return end -- Rotation toggle Off
     if actionList.Defensive() then return true end
-    if unit.inCombat() and unit.valid("target") then
+    if actionList.PreCombat() then return true end
+    if unit.inCombat() and enemy then
         if actionList.Interrupt() then return true end
-        ...
+        if ui.useCDs() and actionList.Cooldown() then return true end
+        if actionList.Combat() then return true end
     end
 end
 
 -- Registration — BR loads every file in the class/spec folder; each file registers itself.
--- Spec IDs: https://wowpedia.fandom.com/wiki/SpecializationID
+-- Spec IDs: https://warcraft.wiki.gg/wiki/SpecializationID
 registerRotation({
     name      = "AuthorName",     -- shown in the rotation dropdown; unique for the spec
     specID    = 250,              -- or a list, e.g. { 250, 251 }
@@ -108,7 +116,7 @@ registerRotation({
 
 **Rules:**
 - Action lists **must return `true`** after a successful cast.
-- Always call `unit.valid("target")` before targeting operations.
+- The enemy to attack comes from `units.get(40)` (or `units.get(5)` for melee), which is `nil` when there is none; check it before use. Count enemies with `enemies.get(8)` then `#enemies.yards8`.
 - Use `ui.debug("msg")` for debug prints (shown when Bot Options > Debug Options > **Addon Debug Messages** is ticked and set to Profile Only or All; see "Debugging a Profile").
 - Spell references: number `123456`, string `"Fireball"`, or ranked table `{123456, 123457}` (highest known rank is auto-selected).
 - A profile sees only the profile API: the tables in `System/API/` by name (`cast`, `buff`, `debuff`, `cd`, `charges`, `unit`, `units`, `enemies`, `ui`, `module`, `power`, `talent`, `spell`, `has`, `use`, `equiped`, `pet`, `totem`, `glyph`, `heroTree`, `imbues`, `var`), `registerRotation`, `loadSupport` and Lua's standard library (`System/Loader/ProfileAPI.lua`). No `br`, no game API: reading any other name, or setting a global, is an error that names the line (`.tests/profile_env_check.lua` checks every profile). If a profile needs something the API lacks, add it to the API (and Functions below it).
@@ -170,13 +178,13 @@ At the end of startup BR runs every options page once without building frames (`
 
 | Name in profiles | Module file | Common calls |
 |-------------|-------------|--------------|
-| `cast` | `System/API/Cast.lua` | `cast.fireball("target")`, `cast.able.fireball("target")` |
-| `buff` | `System/API/Buff.lua` | `buff.combustion.exist()`, `.remain()`, `.stack()` |
+| `cast` | `System/API/Cast.lua` | `cast.fireball(enemy)`; `cast.able.fireball(enemy)` only asks |
+| `buff` | `System/API/Buff.lua` | `buff.combustion.exists()`, `.remain()`, `.stack()` |
 | `debuff` | `System/API/Debuff.lua` | Same signature as `buff` but for hostile auras |
-| `cd` | `System/API/CD.lua` | `cd.pyroblast.remain()`, `.active()` |
+| `cd` | `System/API/CD.lua` | `cd.pyroblast.remain()`, `.ready()` |
 | `unit` | `System/API/Unit.lua` | `unit.hp("target")`, `.distance()`, `.inCombat()`, `.valid()` |
 | `enemies` | `System/API/Enemies.lua` | `enemies.get(8)` → `enemies.yards8[i]` |
-| `power` | `System/API/Power.lua` | `power.mana.current()`, `.deficit()` |
+| `power` | `System/API/Power.lua` | `power.mana()`, `power.mana.percent()`, `.deficit()` |
 | `talent` | `System/API/Talent.lua` | `talent.talentName` (boolean) |
 | `ui` | `System/API/UI.lua` | `ui.checked("option")`, `.value("option")`, `.mode[]` |
 | `units` | `System/API/Units.lua` | `units.get(5)` → `units.dyn5`; `units.friends` (group members) |
@@ -236,6 +244,6 @@ Each profile also starts with a generated block (`-- Editor types: ...`): `local
 
 ## No Build Step
 
-The addon loads directly as Lua files — no compilation or bundling needed. API documentation can be generated with `config.ld` (LDoc). There are no automated tests.
+The addon loads directly as Lua files — no compilation or bundling needed. API documentation can be generated with `config.ld` (LDoc). There is no test suite in the repository.
 
 To add a new rotation: create `Rotations/{Class}/{Spec}/{Name}.lua` (on expansions without specs, `Rotations/{Class}/{Class}/`) ending with the `registerRotation` block above. `System/Loader/ProfileLoader.lua` loads every file in that folder, and the registration decides whether the rotation is offered for the player's spec and expansion.
