@@ -34,7 +34,8 @@ local unlockList =
 	"UseItemByName",
 }
 
--- Game functions BR calls that NN has its own version of (they accept NN's objects)
+-- Game functions BR calls that NN has its own version of (they accept NN's objects: numbers, one per
+-- object, from Objects() and Object(token))
 local globalCacheList =
 {
 	"AscendStop",
@@ -47,7 +48,6 @@ local globalCacheList =
 	"ScreenToWorld",
 	"SpellIsTargeting",
 	"StartAttack",
-	"TraceLine",
 	"UnitAffectingCombat",
 	"UnitAttackPower",
 	"UnitAttackSpeed",
@@ -248,6 +248,12 @@ function br.unlockers:NNUnlock()
 	--------------------------------
 	b.ObjectPosition = ObjectPosition
 	b.ObjectFacing = ObjectFacing
+	-- NN's TraceLine returns false when nothing is hit (its docs); BR reads no hit as nil
+	b.TraceLine = function(...)
+		local x, y, z = TraceLine(...)
+		if not x then return nil end
+		return x, y, z
+	end
 	b.UnitCreator = function(unit)
 		return UnitCreator(unit)
 	end
