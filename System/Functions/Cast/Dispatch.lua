@@ -455,7 +455,6 @@ local function facingDetail(ctx, thisUnit, castType)
 		parts[#parts + 1] = ("%d° off, centres %.1fyd apart, edge %.1fyd"):format(plain(angle), plain(centres),
 			plain(br.functions.range:getEdgeDistance(who, thisUnit) or 0))
 	end
-	if br.game.ObjectIsFacing ~= nil then parts[#parts + 1] = "unlocker facing check" end
 	return table.concat(parts, ", ")
 end
 

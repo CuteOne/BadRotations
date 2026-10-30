@@ -13,9 +13,9 @@ br.unlockers.raw = nil
 
 -- Unlocker adapters, in priority order. Each adapter file (Unlockers/*.lua)
 -- defines br.unlockers:<fn>(): it sets up its functions (written into br.game, they land in
--- br.unlockers.functions, Expansions/Flavours.lua) and returns true only when its
+-- br.unlockers.functions, Expansions/Layers.lua) and returns true only when its
 -- unlocker is present, and returns false quietly otherwise. Detection and the
--- "no unlocker" case are handled here, not by any adapter.
+-- "no unlocker" case are handled here, not by any adapter. Unlockers/README.md is the contract.
 local adapters = {
     { name = "NN",       fn = "NNUnlock" },
     { name = "Tinkr",    fn = "TinkrUnlock" },
@@ -30,16 +30,22 @@ function unlockers:registerAdapter(name, unlock)
     table.insert(adapters, 1, { name = name, unlock = unlock })
 end
 
--- What BR expects from an adapter's file functions (in br.game). Unlockers/ewt.txt is the API BR was
--- first built on; this is the part of it BR relies on now:
---   ReadFile(path)                    the file's text, or nil when it doesn't exist
---   WriteFile(path, text, append)     writes the file; append adds the text to its end
---   CreateDirectory(path)             makes the folder
---   DirectoryExists(path)             whether the folder exists
---   GetDirectoryFiles(pattern)        the names of the files matching "folder\*.lua"
---   GetWoWDirectory()                 the folder BR's own folder is found from (misc:getAddonPath)
--- An adapter whose unlocker appends by itself sets unlockers.nativeAppend; for the others append
--- is done here, by reading the file and writing it back with the text added.
+-- The functions BR needs that the game doesn't have (Unlockers/README.md says what each returns). Once an
+-- adapter is picked, the ones neither it nor the client provides are listed in unlockers.missing
+-- (Session.log). UnitFlags, WorldToScreen and FaceDirection are optional: BR does without them (no unit
+-- flag checks, no drawings, no /br disengage).
+unlockers.needed = {
+    "GetObjectCount", "GetObjectWithIndex", "GetObjectWithGUID", "ObjectPointer", "ObjectExists",
+    "ObjectIsUnit", "ObjectIsGameObject", "ObjectID", "ObjectName",
+    "ObjectPosition", "ObjectFacing", "UnitTarget", "UnitCreator", "UnitBoundingRadius", "UnitCombatReach",
+    "TraceLine",
+    "IsAoEPending", "CancelPendingSpell", "ClickPosition", "GetMousePosition", "ScreenToWorld",
+    "ObjectInteract",
+    "ReadFile", "WriteFile", "CreateDirectory", "DirectoryExists", "GetDirectoryFiles", "GetWoWDirectory",
+}
+unlockers.missing = {}
+-- An adapter whose unlocker appends to files by itself sets unlockers.nativeAppend; for the others
+-- append is done here, by reading the file and writing it back with the text added.
 unlockers.nativeAppend = false
 -- Once, when the adapter is picked (loadUnlockerAPI runs until one is)
 local function emulateAppend()
@@ -64,7 +70,12 @@ function unlockers:loadUnlockerAPI()
             break
         end
     end
-    if unlocked then emulateAppend() end
+    if unlocked then
+        emulateAppend()
+        for _, name in ipairs(unlockers.needed) do
+            if unlockers.functions[name] == nil then unlockers.missing[#unlockers.missing + 1] = name end
+        end
+    end
 
     -- Called every pulse until an unlocker is found, so report only once.
     if not unlocked and not reportedNoUnlocker then

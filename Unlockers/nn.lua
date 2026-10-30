@@ -1,50 +1,25 @@
 ---@diagnostic disable: param-type-mismatch, undefined-global
 --------------------------------------------------------------------------------------------------------------------------------
--- unlockList
+-- NN (NilName) adapter: loaded by 3rd Party Files/NoName/_BRLoader.lua. Unlockers/README.md lists what an
+-- adapter provides.
 --------------------------------------------------------------------------------------------------------------------------------
+
+-- Protected game functions BR calls, sent through NN's Unlock
 local unlockList =
 {
-	"AcceptBattlefieldPort",
 	"AcceptProposal",
-	"AcceptTrade",
-	"AssistUnit",
-	"AttackTarget",
-	"CameraOrSelectOrMoveStart",
-	"CameraOrSelectOrMoveStop",
-	"CancelItemTempEnchantment",
-	"CancelLogout",
 	"CancelShapeshiftForm",
-	"CancelUnitBuff",
 	"CastPetAction",
 	"CastShapeshiftForm",
-	"CastSpell",
 	"CastSpellByID",
 	"CastSpellByName",
-	"ChangeActionBarPage",
-	"ClearOverrideBindings",
 	"ClearTarget",
-	"CreateMacro",
 	"DeleteCursorItem",
-	"DeleteMacro",
-	"DescendStop",
 	"DestroyTotem",
-	"FocusUnit",
-	"ForceQuit",
 	"GetComboPoints",
-	"GetUnscaledFrameRect",
-	"GuildControlSetRank",
-	"GuildControlSetRankFlag",
-	"GuildDemote",
-	"GuildPromote",
-	"GuildUninvite",
-	"JoinBattlefield",
 	"JumpOrAscendStart",
-	"Logout",
 	"MoveBackwardStart",
 	"MoveBackwardStop",
-	"MoveForwardStart",
-	"MoveForwardStop",
-	"ObjectType",
 	"PetAssistMode",
 	"PetAttack",
 	"PetDefensiveAssistMode",
@@ -52,153 +27,53 @@ local unlockList =
 	"PetFollow",
 	"PetPassiveMode",
 	"PetStopAttack",
-	"PetWait",
-	"PickupAction",
-	"PickupCompanion",
-	"PickupMacro",
-	"PickupPetAction",
-	"C_Spell.PickupSpell",
-	"PickupSpellBookItem",
-	"Quit",
-	"ReplaceEnchant",
-	"ReplaceTradeEnchant",
-	"RunMacro",
-	-- "C_Macro.RunMacroText",
-	"StartAttack",
-	"SendChatMessage",
-	"SetBinding",
-	"SetBindingClick",
-	"SetBindingItem",
-	"SetBindingMacro",
-	"SetBindingSpell",
-	"SetCurrentTitle",
-	"SetMoveEnabled",
-	"SetOverrideBinding",
-	"SetOverrideBindingClick",
-	"SetOverrideBindingItem",
-	"SetOverrideBindingMacro",
-	"SetOverrideBindingSpell",
-	"SetTurnEnabled",
-	"ShowUIPanel",
-	"SitStandOrDescendStart",
 	"SpellStopCasting",
 	"SpellStopTargeting",
-	"SpellTargetUnit",
-	"StrafeLeftStart",
-	"StrafeLeftStop",
-	"StrafeRightStart",
-	"StrafeRightStop",
-	"Stuck",
-	"TargetLastEnemy",
-	"TargetLastTarget",
-	"TargetNearestEnemy",
-	"TargetNearestFriend",
-	-- "TargetUnit",
-	"ToggleAutoRun",
-	"ToggleRun",
-	"TurnLeftStart",
-	"TurnLeftStop",
-	"TurnOrActionStart",
-	"TurnOrActionStop",
-	"TurnRightStart",
-	"TurnRightStop",
-	"UninviteUnit",
-	"UseAction",
+	"StartAttack",
 	"UseContainerItem",
 	"UseItemByName",
-	"UseToy",
-	"UseToyByName"
 }
 
+-- Game functions BR calls that NN has its own version of (they accept NN's objects)
 local globalCacheList =
 {
 	"AscendStop",
-	-- "CanSummonFriend", -- Not Provided
-	"CheckInteractDistance",
-	"CombatTextSetActiveUnit",
-	"CopyToClipboard",
 	"CreateDirectory",
-	"DemoteAssistant",
 	"DirectoryExists",
-	"DropItemOnUnit",
-	"FollowUnit",
-	"GetAnglesBetweenPositions",
-	"GetDefaultLanguage",
-	"GetPartyAssignment",
-	"GetPlayerInfoByGUID",
-	"GetPositionFromPosition",
 	"GetRaidTargetIndex",
-	"GetReadyCheckStatus",
-	"GetUnitName",
 	"GetUnitSpeed",
-	"InitiateTrade",
-	"IsItemInRange",
 	"IsSpellInRange",
-	"PitchDownStart",
-	"PitchDownStop",
-	"PitchUpStart",
-	"PromoteToAssistant",
 	"ReadFile",
 	"ScreenToWorld",
-	"SetPortraitTexture",
-	"SetRaidTarget",
-	"SpellCanTargetUnit",
 	"SpellIsTargeting",
-	"SpellTargetItem",
 	"StartAttack",
-	-- "SummonFriend", -- Not Provided
-	"SwapRaidSubgroup",
-	"ToggleGameMenu",
-	-- "ToggleSpellAutoCast", -- Not Provided
 	"TraceLine",
 	"UnitAffectingCombat",
-	"UnitArmor",
 	"UnitAttackPower",
 	"UnitAttackSpeed",
-	-- "UnitAura", -- Not Provided
-	-- "UnitAuraSlots", -- Not Provided
-	-- "UnitBuff",-- Not Provided
-	"UnitCanAssist",
 	"UnitCanAttack",
-	"UnitCanCooperate",
 	"UnitCastingInfo",
 	"UnitChannelInfo",
 	"UnitClass",
 	"UnitClassification",
-	"UnitCreatureFamily",
 	"UnitCreatureType",
 	"UnitDamage",
-	-- "UnitDebuff", -- Not Provided
 	"UnitDetailedThreatSituation",
 	"UnitExists",
 	"UnitGetIncomingHeals",
-	"UnitGetTotalHealAbsorbs",
 	"UnitGroupRolesAssigned",
 	"UnitGUID",
 	"UnitHealth",
 	"UnitHealthMax",
-	"UnitInBattleground",
 	"UnitInParty",
 	"UnitInRaid",
 	"UnitInRange",
-	"UnitIsAFK",
 	"UnitIsCharmed",
 	"UnitIsConnected",
-	"UnitIsCorpse",
-	"UnitIsDead",
 	"UnitIsDeadOrGhost",
-	"UnitIsDND",
 	"UnitIsEnemy",
-	"UnitIsFeignDeath",
 	"UnitIsFriend",
-	"UnitIsGhost",
-	"UnitIsInMyGuild",
 	"UnitIsPlayer",
-	"UnitIsPossessed",
-	"UnitIsPVP",
-	"UnitIsPVPFreeForAll",
-	"UnitIsPVPSanctuary",
-	"UnitIsSameServer",
 	"UnitIsTapDenied",
 	"UnitIsTrivial",
 	"UnitIsUnit",
@@ -206,91 +81,37 @@ local globalCacheList =
 	"UnitLevel",
 	"UnitName",
 	"UnitOnTaxi",
-	-- "UnitPhaseReason",
-	-- "UnitInPhase", -- Not Provided in Build 66709; fallback handled in Expansions/Retail/Functions.lua
-	"UnitPlayerControlled",
-	"UnitPlayerOrPetInParty",
-	"UnitPlayerOrPetInRaid",
 	"UnitPower",
 	"UnitPowerMax",
 	"UnitPowerType",
-	"UnitPVPName",
 	"UnitRace",
-	"UnitRangedAttackPower",
 	"UnitRangedDamage",
 	"UnitReaction",
-	"UnitSelectionColor",
-	"UnitSex",
 	"UnitStat",
 	"UnitThreatSituation",
 	"UnitTarget",
-	"UnitUsingVehicle",
-	"UnitXP",
-	"UnitXPMax",
-	"UseInventoryItem",
-	-- "WorldToScreen",
-	"WriteFile"
+	"WriteFile",
 }
 
-
---------------------------------------------------------------------------------------------------------------------------------
--- functions exported to BadRotations
---------------------------------------------------------------------------------------------------------------------------------
-local Nn, br = ...
+local _, br = ...
 local b = br.game
+-- Only the ones this client has, read before other addons can hook them
+local present = {}
+for _, name in ipairs(unlockList) do
+	if _G[name] ~= nil then present[#present + 1] = name end
+end
 -- NN's own globals (Object, Unlocker) share names with things in the editor's WoW API stubs
 ---@diagnostic disable: cannot-call
-local funcCopies = {}
-local globalFuncCopies = {}
-
--- local NoName = ...
--- local read   = NoName.Utils.Storage.read
--- local write  = NoName.Utils.Storage.write
--- local JSON   = NoName.Utils.JSON
--- local AceGUI = NoName.Utils.AceGUI
-
--- print "Loading Files. "
--- NoName:Require('/scripts/BadRotations/System/Lists/FileList', br)
--- for file, load in (br.files) do
--- 	if load then
--- 		NoName:Require('/scripts/'..file, br)
--- 	end
--- end
-
--- helper function
-local function stringsplit(inputstr, sep)
-	if sep == nil then
-		sep = "%s"
-	end
-	local t = {}
-	for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-		-- b.print(str)
-		table.insert(t, str)
-	end
-	return t
-end
-
--- make a backup copy of all APIs before AddOns hook them
-for i = 1, #unlockList do
-	local func = unlockList[i]
-	funcCopies[func] = _G[func]
-end
-
-for i = 1, #globalCacheList do
-	local func = globalCacheList[i]
-	globalFuncCopies[func] = _G[func]
-end
 
 -- NN's protected call, if it has one under the name other unlockers use (not documented for NN)
 if C_Timer.Nn and type(C_Timer.Nn.CallProtected) == "function" then
 	br.unlockers.protect = C_Timer.Nn.CallProtected
 end
 
--- print("NN File Called")
 function br.unlockers:NNUnlock()
 	if not C_Timer.Nn then return false end
+	-- NN's functions are globals in its own environment
 	setfenv(1, C_Timer.Nn)
-	-- print("NN Api Loaded")
 
 	--------------------------------
 	-- secret unwrap helpers
@@ -340,29 +161,19 @@ function br.unlockers:NNUnlock()
 	end
 
 	--------------------------------
-	-- API unlocking
+	-- unlocked and NN's own game functions
 	--------------------------------
-	---
-	for k, v in pairs(funcCopies) do
-		b[k] = function(...) return Unlock(k, ...) end
+	for _, name in ipairs(present) do
+		b[name] = function(...) return Unlock(name, ...) end
 	end
 
-	for _, v in pairs(globalCacheList) do
-		local fn = C_Timer.Nn[v]
+	for _, name in ipairs(globalCacheList) do
+		local fn = C_Timer.Nn[name]
 		if fn ~= nil then
-			b[v] = function(...) return unwrap(fn(...)) end
+			b[name] = function(...) return unwrap(fn(...)) end
 		end
 	end
 
-	for k, v in pairs(globalFuncCopies) do
-		if not b[k] then
-			b[k] = function(...) return v(...) end
-		end
-	end
-
-	--------------------------------
-	-- API copy/rename/unlock
-	--------------------------------
 	-- C_Spell proxy: intercepts all method calls and unwraps any secret-wrapped
 	-- return values. A table first return has its fields unwrapped via UnwrapTable;
 	-- every other return is unwrapped via unwrap(). All returns are kept
@@ -388,199 +199,107 @@ function br.unlockers:NNUnlock()
 			end
 		})
 	end
-	-- b.DirectoryExists = DirectoryExists
-	b.ClickPosition = ClickPosition
-	b.ObjectName = ObjectName
-	b.ObjectPosition = ObjectPosition
-	b.UnitMovementFlags = UnitMovementFlag
-	b.ObjectFacing = ObjectFacing
-	b.ObjectExists = ObjectExists
-	b.GetCameraPosition = GetCameraPosition
-	b.UnitFacing = UnitFacing
-	b.GetMousePosition = b.GetCursorPosition
-	b.CancelPendingSpell = b.SpellStopTargeting
-	b.ObjectIsVisible = b.UnitIsVisible
-	b.IsAoEPending = b.SpellIsTargeting
-	b.ObjectInteract = b.ObjectInteract
-	b.InteractUnit = b.ObjectInteract
-	b.GetDistanceBetweenPositions = Distance
-	b.GetDistanceBetweenObjects = Distance
-	b.RunMacroText = RunMacroText
-	b.AuraUtil = AuraUtil
 
 	local ObjectUnit = function(unit)
 		return type(unit) == "number" and Object(unit) or unit
 	end
 
-	b.CastSpellByName = function(spellName, unit)
-		if unit == nil then return CastSpellByName(spellName) end
-		return CastSpellByName(spellName, ObjectUnit(unit))
+	--------------------------------
+	-- object manager
+	--------------------------------
+	local om = {}
+	b.GetObjectCount = function()
+		-- Call Objects() exactly once: the snapshot used for GetObjectWithIndex must match
+		-- the count returned, otherwise index overruns return nil under heavy load.
+		om = Objects()
+		return #om
 	end
-
+	b.GetObjectWithIndex = function(index)
+		return om[index]
+	end
+	b.GetObjectWithGUID = function(...)
+		return Object(...)
+	end
 	b.ObjectPointer = function(unit)
 		return Object(unit)
 	end
-
+	b.ObjectExists = ObjectExists
+	b.ObjectIsUnit = function(...)
+		return ObjectType(...) == 5
+	end
+	b.ObjectIsGameObject = function(...)
+		local objectType = ObjectType(...)
+		return objectType == 8 or objectType == 11
+	end
 	b.ObjectID = function(unit)
 		if unit == nil then return nil end
-		if (type(unit) == "string") then
+		if type(unit) == "string" then
 			local guid = UnitGUID(unit)
 			if guid == nil then return nil end
-			local _, _, _, _, _, npc_id = strsplit('-', guid)
-			return tonumber(npc_id)
+			local _, _, _, _, _, npcID = strsplit('-', guid)
+			return tonumber(npcID)
 		end
 		return ObjectID(unit)
 	end
+	b.ObjectName = ObjectName
 
+	--------------------------------
+	-- position and unit fields
+	--------------------------------
+	b.ObjectPosition = ObjectPosition
+	b.ObjectFacing = ObjectFacing
 	b.UnitCreator = function(unit)
 		return UnitCreator(unit)
 	end
-
 	b.UnitBoundingRadius = function(unit)
 		return ObjectBoundingRadius(unit)
 	end
-
 	b.UnitCombatReach = function(unit)
 		return CombatReach(unit)
 	end
 
 	--------------------------------
-	-- API conversions
+	-- ground spells and the screen
 	--------------------------------
-	b.GetWoWDirectory = function()
-		return "\\scripts"
-	end
-
-	local om = {}
-	b.GetObjectCount = function()
-		-- Call Objects() exactly once: the snapshot used for GetObjectWithIndex must match
-		-- the count returned, otherwise index overruns return nil under heavy load.
-		local objects = Objects()
-		om = objects
-		return #objects
-	end
-
-	b.GetObjectWithIndex = function(index)
-		return om[index]
-	end
-
-	b.ObjectIsUnit = function(...)
-		return ObjectType(...) == 5
-	end
-
-	b.UnitCastID = function(...)
-		local spellId1 = select(9, b.UnitCastingInfo(...)) or 0
-		local spellId2 = select(9, b.UnitChannelInfo(...)) or 0
-		local castGUID = b.UnitTarget(select(1, ...))
-		return spellId1, spellId2, castGUID, castGUID
-	end
-
-	b.GetDirectoryFiles = function(...)
-		local str = ...
-		if str == nil or str == "*" then return {} end
-		-- print("str: "..tostring(str))
-		str = str .. "*.lua" --:match("*.lua") or str
-		local filter = str:gsub(str:match("*.lua"), "*")
-		-- print("Filter: "..filter)
-		local files = ListFiles(filter) or {}
-		local returnFiles = ""
-		for i = 1, #files do
-			-- print("File: "..files[i])
-			if files[i]:match(".lua") then
-				if returnFiles == "" then
-					returnFiles = files[i]
-				else
-					returnFiles = returnFiles .. "|" .. files[i]
-				end
-			end
-		end
-		return stringsplit(returnFiles, "|")
-	end
-
-	b.FaceDirection = function(arg)
-		if type(arg) == "number" then
-			SetPlayerFacing(arg)
-		else
-			arg = b.GetAnglesBetweenObjects("player", arg)
-			SetPlayerFacing(arg)
-		end
-	end
-
-	b.GetObjectWithGUID = function(...)
-		return Object(...)
-	end
-
-	b.IsHackEnabled = function(...) return false end
+	b.IsAoEPending = b.SpellIsTargeting
+	b.CancelPendingSpell = b.SpellStopTargeting
+	b.ClickPosition = ClickPosition
+	b.GetMousePosition = b.GetCursorPosition
 
 	--------------------------------
-	-- math
+	-- actions
 	--------------------------------
-
-	b.GetAnglesBetweenObjects = function(Object1, Object2)
-		if Object1 and Object2 then
-			local X1, Y1, Z1 = b.ObjectPosition(Object1)
-			local X2, Y2, Z2 = b.ObjectPosition(Object2)
-			return GetAnglesBetweenPositions(X1, Y1, Z1, X2, Y2, Z2)
-		else
-			return 0, 0
-		end
+	b.CastSpellByName = function(spellName, unit)
+		if unit == nil then return CastSpellByName(spellName) end
+		return CastSpellByName(spellName, ObjectUnit(unit))
 	end
-
-	b.GetPositionBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2, DistanceFromPosition1)
-		local AngleXY, AngleXYZ = b.GetAnglesBetweenPositions(X1, Y1, Z1, X2, Y2, Z2)
-		return b.GetPositionFromPosition(X1, Y1, Z1, DistanceFromPosition1, AngleXY, AngleXYZ)
-	end
-
-	b.GetPositionBetweenObjects = function(unit1, unit2, DistanceFromPosition1)
-		local X1, Y1, Z1 = b.ObjectPosition(unit1)
-		local X2, Y2, Z2 = b.ObjectPosition(unit2)
-		if not X1 or not X2 then return end
-		local AngleXY, AngleXYZ = b.GetAnglesBetweenPositions(X1, Y1, Z1, X2, Y2, Z2)
-		return b.GetPositionFromPosition(X1, Y1, Z1, DistanceFromPosition1, AngleXY, AngleXYZ)
-	end
-
-	b.ObjectIsFacing = function(obj1, obj2, degrees)
-		local Facing = b.UnitFacing(obj1)
-		local AngleToUnit = b.GetAnglesBetweenObjects(obj1, obj2)
-		local AngleDifference = Facing > AngleToUnit and Facing - AngleToUnit or AngleToUnit - Facing
-		local ShortestAngle = AngleDifference < math.pi and AngleDifference or math.pi * 2 - AngleDifference
-		degrees = degrees and b.rad(degrees) / 2 or math.pi / 2
-		return ShortestAngle < degrees
-	end
-
-	------------------------- Miscellaneous -------------------
-	b.ObjectIsGameObject = function(...)
-		local ObjType = ObjectType(...)
-		return ObjType == 8 or ObjType == 11
-	end
-
+	b.RunMacroText = RunMacroText
 	b.TargetUnit = function(unit)
 		if Object(unit) then
 			return TargetUnit(Object(unit))
-		else
-			return
 		end
 	end
-
 	b.InteractUnit = function(unit)
 		return ObjectInteract(Object(unit))
 	end
+	b.ObjectInteract = b.InteractUnit
+	b.FaceDirection = function(direction)
+		SetPlayerFacing(direction)
+	end
+	b.AuraUtil = AuraUtil
 
-	------------------------------------------
-	--- API - Unit Function Object Handler ---
-	------------------------------------------
+	--------------------------------
+	-- auras and the combat log
+	--------------------------------
 	b.UnitAura = function(unit, index, filter)
 		return UnwrapAuraTable(C_UnitAuras.GetAuraDataByIndex(ObjectUnit(unit), index, filter))
 	end
-
 	b.UnitBuff = function(unit, index, filter)
 		return UnwrapAuraTable(C_UnitAuras.GetBuffDataByIndex(ObjectUnit(unit), index, filter))
 	end
-
 	b.UnitDebuff = function(unit, index, filter)
 		return UnwrapAuraTable(C_UnitAuras.GetDebuffDataByIndex(ObjectUnit(unit), index, filter))
 	end
-
 	-- Proxy C_UnitAuras so that index-based aura lookups apply ObjectUnit conversion and
 	-- UnwrapAuraTable, matching UnitAura/UnitBuff/UnitDebuff above. All other C_UnitAuras
 	-- methods pass through to the real namespace unchanged.
@@ -595,24 +314,25 @@ function br.unlockers:NNUnlock()
 			return UnwrapAuraTable(C_UnitAuras.GetDebuffDataByIndex(ObjectUnit(unit), index, filter))
 		end,
 	}, { __index = C_UnitAuras })
-
 	b.CombatLogGetCurrentEventInfo = function()
 		return unwrap(CombatLogGetCurrentEventInfo())
 	end
 
 	--------------------------------
-	-- extra APIs
+	-- files
 	--------------------------------
-	b.GetMapId = function()
-		return select(8, b.GetInstanceInfo())
+	b.GetWoWDirectory = function()
+		return "\\scripts"
 	end
-	-- b.WorldToScreen = Nn.WorldToScreen
-
-	--------------------------------
-	-- missing APIs
-	--------------------------------
-	b.IsQuestObject = function(obj)
-		return false
+	b.GetDirectoryFiles = function(pattern)
+		if pattern == nil or pattern == "*" then return {} end
+		local str = pattern .. "*.lua"
+		local filter = str:gsub(str:match("*.lua"), "*")
+		local names = {}
+		for _, file in ipairs(ListFiles(filter) or {}) do
+			if file:match(".lua") then names[#names + 1] = file end
+		end
+		return names
 	end
 
 	br.unlockers.raw = C_Timer.Nn

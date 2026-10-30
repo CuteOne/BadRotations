@@ -237,16 +237,7 @@ function unit:getFacing(Unit1, Unit2, Degrees)
 		return nil
 	end
 
-	-- A unit facing its target (see getServerFacing) is worked out here; otherwise the unlocker's own
-	-- check is preferred when present.
-	-- Note: our Degrees parameter is treated as a HALF-angle (e.g. 90 == 180deg front hemisphere).
-	local _, fromTarget = br.functions.unit:getServerFacing(Unit1)
-	if br.game.ObjectIsFacing ~= nil and not fromTarget then
-		local ok, result = pcall(br.game.ObjectIsFacing, Unit1, Unit2, Degrees * 2)
-		if not ok then return nil end
-		return result == true
-	end
-
+	-- Degrees is a HALF-angle (90 == the front 180 degrees); the facing is the server's (getServerFacing)
 	local angle = br.functions.unit:getFacingAngle(Unit1, Unit2)
 	if angle == nil then return nil end
 	return angle < Degrees

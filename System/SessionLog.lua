@@ -98,6 +98,9 @@ local function writeEnvironment()
 	line(("unlocker %s: protected call %s, appends to files %s, secret values on this client %s"):format(
 		tostring(br.unlockers.selected), yesNo(br.unlockers.protect ~= nil), yesNo(br.unlockers.nativeAppend),
 		yesNo(br.client.hasSecretValues)))
+	if #br.unlockers.missing > 0 then
+		line("unlocker lacks " .. table.concat(br.unlockers.missing, ", ") .. " (Unlockers/README.md)")
+	end
 	local base, sep = br.functions.misc:getAddonPath()
 	line("BadRotations folder " .. base .. ", logs in " .. base .. sep .. "Logs")
 	log:notePlayer("player")

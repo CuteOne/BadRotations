@@ -248,7 +248,7 @@ function range:getFacingDistance()
             angle2 = deg(atan(deltaY / deltaX) + (math.pi / 2))
         end
         local Dist = br.functions.misc:round2(math.tan(abs(angle2 - angle1) * math.pi / 180) * targetDistance * 10000) / 10000
-        if br.game.ObjectIsFacing("player", "target") then
+        if br.functions.unit:getFacing("player", "target") then
             return Dist
         else
             return -(abs(Dist))

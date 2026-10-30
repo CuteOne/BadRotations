@@ -375,7 +375,9 @@ local function hideFrom(first)
     shown = first - 1
 end
 
+-- Without the unlocker's WorldToScreen (NN's is left out) nothing is drawn
 local function project(x, y, z)
+    if br.game.WorldToScreen == nil then return nil end
     local sx, sy = br.game.WorldToScreen(x, y, z)
     if not sx or sx == 0 then return nil end
     return sx, sy
@@ -401,7 +403,7 @@ local function render()
     local width, height = host:GetWidth(), host:GetHeight()
     local psx, psy
     if opts.lines then psx, psy = project(px, py, pz) end
-    local ObjectPosition, UnitFacing = br.game.ObjectPosition, br.game.UnitFacing
+    local ObjectPosition, ObjectFacing = br.game.ObjectPosition, br.game.ObjectFacing
 
     local used = 0
     for i = 1, n do
@@ -410,7 +412,7 @@ local function render()
         if e.unit then
             local x, y, z = ObjectPosition(e.obj)
             if x then e.x, e.y, e.z = x, y, z end
-            facing = UnitFacing(e.obj)
+            facing = ObjectFacing(e.obj)
             if facing then facing = facing + tracker.facingOffset end
         end
         local sx, sy = project(e.x, e.y, e.z)
@@ -528,13 +530,13 @@ function tracker:dump()
     say(("Tracker: %d objects known, %d drawn, generation %d"):format(total, #tracked, generation))
     say(("  facing offset %.2f, ring base %.2f scale %.2f"):format(tracker.facingOffset, tracker.ringBase, tracker.ringScale))
     local px, py, pz = br.game.ObjectPosition("player")
-    say(("  player %.2f %.2f %.2f facing %s"):format(px or 0, py or 0, pz or 0, tostring(br.game.UnitFacing("player"))))
+    say(("  player %.2f %.2f %.2f facing %s"):format(px or 0, py or 0, pz or 0, tostring(br.game.ObjectFacing("player"))))
     for kind, n in pairs(kinds) do say("  " .. kind .. ": " .. n) end
     for _, e in ipairs(tracked) do
         local x, y, z = br.game.ObjectPosition(e.obj)
         say(("  %s [%s] %s %.1fy  pos %.2f %.2f %.2f  facing %s  radius %.2f (combat reach %s, height %s)"):format(
             e.kind, e.id, e.name, e.dist, x or 0, y or 0, z or 0,
-            e.unit and tostring(br.game.UnitFacing(e.obj)) or "-", e.radius,
+            e.unit and tostring(br.game.ObjectFacing(e.obj)) or "-", e.radius,
             e.unit and tostring(br.game.UnitCombatReach(e.obj)) or "-",
             br.game.ObjectHeight and tostring(br.game.ObjectHeight(e.obj)) or "n/a"))
         say("    guid " .. tostring(e.guid))
