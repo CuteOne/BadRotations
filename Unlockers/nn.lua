@@ -260,6 +260,12 @@ function br.unlockers:NNUnlock()
 	b.UnitCreator = function(unit)
 		return UnitCreator(unit)
 	end
+	-- NN's UnitFlags(object): the unit's flags (its docs show an object; a token is turned into one)
+	b.UnitFlags = function(unit)
+		local object = type(unit) == "string" and Object(unit) or unit
+		if not object then return nil end
+		return UnitFlags(object)
+	end
 	b.UnitBoundingRadius = function(unit)
 		return ObjectBoundingRadius(unit)
 	end
