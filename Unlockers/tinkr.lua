@@ -394,10 +394,17 @@ function unlock.TinkrUnlock()
 	end
 	b.UnitBoundingRadius = function(...) return ObjectBoundingRadius(Object(...)) end
 	b.UnitCombatReach = function(...) return ObjectCombatReach(Object(...)) end
+	-- Not the unit's target: Tinkr's API (WoW-U/vscode-tinkr-api) has no call for that, only the
+	-- destination of the unit's current cast. Until one is found, "is it targeting me" checks only see casts.
 	b.UnitTarget = function(...) return ObjectCastingTarget(Object(...)) end
 	b.UnitCastID = function(...) return ObjectCastingInfo(Object(...)) end
 	------------------------- World ---------------------------
-	b.TraceLine = TraceLine
+	-- BR reads no hit as nil; a false from Tinkr is turned into that
+	b.TraceLine = function(...)
+		local x, y, z = TraceLine(...)
+		if not x then return nil end
+		return x, y, z
+	end
 	b.GetCameraPosition = CameraPosition
 	b.CancelPendingSpell = b.SpellStopTargeting
 	b.ClickPosition = Click
@@ -448,7 +455,6 @@ function unlock.TinkrUnlock()
 		return "scripts"
 	end
 	------------------------- Miscellaneous -------------------
-	b.GetKeyState = GetKeyState
 	b.UnitFacing = b.ObjectFacing
 
 	b.ObjectInteract = b.InteractUnit
@@ -462,11 +468,13 @@ function unlock.TinkrUnlock()
 		local ObjType = ObjectType(...)
 		return ObjType == 8 or ObjType == 11
 	end
+	-- %q quotes the text, so quotes and backslashes in it don't break the code Eval runs
 	b.RunMacroText = function(text)
-		return Eval("RunMacroText(\"" .. text .. "\")", "")
+		return Eval(("RunMacroText(%q)"):format(text), "")
 	end
-	b.UseItemByName = function(text)
-		return Eval("UseItemByName(\"" .. text .. "\")", "")
+	-- The unit BR passes is dropped: it may be a Tinkr object, which the code Eval runs can't name
+	b.UseItemByName = function(name)
+		return Eval(("UseItemByName(%q)"):format(name), "")
 	end
 	b.TargetUnit = function(unit)
 		if Object(unit) then
@@ -485,14 +493,11 @@ function unlock.TinkrUnlock()
 	------------------------------------------
 	--- API - Unit Function Object Handler ---
 	------------------------------------------
+	-- No unit: the game's own choice (self, or the current target)
 	b.CastSpellByName = function(spell, unit)
-		-- return Eval("CastSpellByName(\"" .. spell .. "\", \"" .. Object(unit) .. "\")", "")
-		if Object(unit) then
-			b.print("CastSpellByName: Passed " .. tostring(unit) .. " with object ref " .. tostring(Object(unit)))
-			return CastSpellByName(spell, Object(unit))
-		else
-			return nil
-		end
+		if unit == nil then return CastSpellByName(spell) end
+		local object = Object(unit)
+		if object then return CastSpellByName(spell, object) end
 	end
 	-- b.GetRaidTargetIndex = function(...)
 	-- 	return GetRaidTargetIndex(Object(...))

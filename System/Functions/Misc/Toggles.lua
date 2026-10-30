@@ -13,9 +13,9 @@ local KEY_HELD = {
 	function() return br.game.IsRightShiftKeyDown() end,   -- RightShift
 	function() return br.game.IsRightAltKeyDown() end,     -- RightAlt
 	function() return false end,                         -- None
-	function() return br.game.GetKeyState(0x04) end,       -- MMouse
-	function() return br.game.GetKeyState(0x05) end,       -- Mouse4
-	function() return br.game.GetKeyState(0x06) end,       -- Mouse5
+	function() return misc:isMouseButtonDown("MiddleButton") end, -- MMouse
+	function() return misc:isMouseButtonDown("Button4") end,      -- Mouse4
+	function() return misc:isMouseButtonDown("Button5") end,      -- Mouse5
 }
 -- When each toggle's key last cycled it
 local lastCycled = {}

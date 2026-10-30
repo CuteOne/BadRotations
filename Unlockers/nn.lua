@@ -348,10 +348,8 @@ function br.unlockers:NNUnlock()
 	end
 
 	for _, v in pairs(globalCacheList) do
-		if C_Timer.Nn[v] == nil then
-			b.print("Function: " .. tostring(v) .. ", was not provided.")
-		else
-			local fn = C_Timer.Nn[v]
+		local fn = C_Timer.Nn[v]
+		if fn ~= nil then
 			b[v] = function(...) return unwrap(fn(...)) end
 		end
 	end
@@ -392,7 +390,6 @@ function br.unlockers:NNUnlock()
 	end
 	-- b.DirectoryExists = DirectoryExists
 	b.ClickPosition = ClickPosition
-	b.GetKeyState = GetKeyState
 	b.ObjectName = ObjectName
 	b.ObjectPosition = ObjectPosition
 	b.UnitMovementFlags = UnitMovementFlag
@@ -480,7 +477,7 @@ function br.unlockers:NNUnlock()
 
 	b.GetDirectoryFiles = function(...)
 		local str = ...
-		if str == nil or str == "*" then return "" end
+		if str == nil or str == "*" then return {} end
 		-- print("str: "..tostring(str))
 		str = str .. "*.lua" --:match("*.lua") or str
 		local filter = str:gsub(str:match("*.lua"), "*")
