@@ -632,7 +632,7 @@ actionList.Generators = function()
     -- call_action_list,name=finishers,if=holy_power=5|buff.echoes_of_wrath.up&set_bonus.tier31_4pc&talent.crusading_strikes|(debuff.judgment.up|holy_power=4)&buff.divine_resonance.up&!set_bonus.tier31_2pc
     if (holyPower() == 5 or buff.echoesOfWrath.exists() and equiped.tier(31) >= 4
             and talent.crusadingStrikes or (debuff.judgment.exists(units.dyn5) or holyPower() == 4)
-            and buff.divineResonance.exists() and not equiped.tier(31) >= 2)
+            and buff.divineResonance.exists() and equiped.tier(31) < 2)
     then
         if actionList.Finishers() then return true end
     end
