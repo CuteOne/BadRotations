@@ -42,7 +42,7 @@ end
 local function loadFile(profile, file)
     local func, errorMessage = br.game.loadstring(profile, file);
     if not func then
-        br.log:error(file .. " cannot load. Please inform devs! " .. tostring(errorMessage))
+        br.log:error(file .. " cannot load (Logs/Errors.log has the details): " .. tostring(errorMessage))
         errorhandler(errorMessage)
         return false
     end
@@ -58,7 +58,7 @@ local function loadFile(profile, file)
 
     local success, result = xpcall(func, captureError);
     if not success then
-        br.log:error(file .. " cannot run. Please inform devs! " .. tostring(actualError))
+        br.log:error(file .. " cannot run (Logs/Errors.log has the details): " .. tostring(actualError))
         return false
     end
     return true, result
