@@ -705,21 +705,30 @@ function unit:isEnemyNear(radius)
 end
 
 -- Evading mobs (an evade bug, or a mob leashing home): marked by the combat log reader when an attack of
--- yours comes back "EVADE", lifted when one lands, when it hits you, or after EVADE_MARK seconds (then the
--- next attack tries again). GUID -> GetTime the mark runs out.
-local EVADE_MARK = 10
+-- yours comes back "EVADE", lifted when one lands, when it hits you, after EVADE_MARK seconds, or once you
+-- have moved EVADE_MOVED yards from where you stood (a mob stuck in a tree evades until you find a spot it
+-- can reach you from, 2026-10-31): the next attack then tries again. GUID -> { until_, x, y }.
+local EVADE_MARK, EVADE_MOVED = 10, 2
 local evading = {}
 
---- True while thisUnit evades your attacks (an attack of yours came back "EVADE" in the last 10 s and none
--- has landed since): BR doesn't pick it, and its damage spells aren't sent at it.
+--- True while thisUnit evades your attacks (an attack of yours came back "EVADE" in the last 10 s, none
+-- has landed since and you haven't moved 2 yd from where you stood): BR doesn't pick it, and its damage
+-- spells aren't sent at it.
 function unit:isEvading(thisUnit)
 	if next(evading) == nil or thisUnit == nil then return false end
 	local guid = br.game.UnitGUID(thisUnit)
-	local until_ = guid and evading[guid]
-	if until_ == nil then return false end
-	if br.game.GetTime() >= until_ then
+	local mark = guid and evading[guid]
+	if mark == nil then return false end
+	local lifted
+	if br.game.GetTime() >= mark.until_ then
+		lifted = "mark ran out (10 s)"
+	elseif mark.x then
+		local x, y = br.game.ObjectPosition("player")
+		if x and math.sqrt((x - mark.x) ^ 2 + (y - mark.y) ^ 2) >= EVADE_MOVED then lifted = "you moved 2 yd: trying from here" end
+	end
+	if lifted then
 		evading[guid] = nil
-		if br.debug.target and br.debug.target.noteEvade then br.debug.target:noteEvade(guid, nil, "mark ran out (10 s)") end
+		if br.debug.target and br.debug.target.noteEvade then br.debug.target:noteEvade(guid, nil, lifted) end
 		return false
 	end
 	return true
@@ -833,7 +842,8 @@ function unit:noteTargetChanged() targetChangedAt = br.game.GetTime() end
 function unit:noteEvade(guid, name)
 	if guid == nil then return end
 	local first = evading[guid] == nil
-	evading[guid] = br.game.GetTime() + EVADE_MARK
+	local x, y = br.game.ObjectPosition("player")
+	evading[guid] = { until_ = br.game.GetTime() + EVADE_MARK, x = x, y = y }
 	if first then
 		br.log:systemDebug(tostring(name or "A mob") .. " is evading: BR holds its attacks")
 		if br.debug.target and br.debug.target.noteEvade then br.debug.target:noteEvade(guid, name, "evading") end

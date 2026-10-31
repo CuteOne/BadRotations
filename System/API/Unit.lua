@@ -266,7 +266,8 @@ br.api.build.unit = function(api)
     end
 
     --- Whether the unit evades your attacks (an evade bug, or leashing home): an attack of yours came back
-    -- "EVADE" and none has landed since (10 s at most). BR doesn't pick it and holds its damage spells.
+    -- "EVADE" and none has landed since (10 s at most, or until you move 2 yd). BR doesn't pick it and holds
+    -- its damage spells.
     -- @function unit.evading
     -- @param thisUnit The unit to check, defaults to "target" if nil
     -- @return boolean True while it evades
