@@ -179,7 +179,7 @@ actionList.Extra = function()
     -- -- totem.exists() with no args doesn't work (requires a candidate), so check slots directly.
     -- local anyTotemUp = totem.fire.active() or totem.earth.active()
     --                 or totem.water.active() or totem.air.active()
-    -- if cast.able.totemicRecall() and anyTotemUp then
+    -- if cast.able.totemicCall() and anyTotemUp then
     --     -- OOC with no nearby enemies: free mana recovery between pulls
     --     local recallOOC = not unit.inCombat() and #enemies.yards20 == 0
     --     -- IC: all buff totems have drifted out of effective range — they're doing nothing,
@@ -189,7 +189,7 @@ actionList.Extra = function()
     --         and (not totem.earth.active() or totem.earth.distance() > 25)
     --         and (not totem.water.active() or totem.water.distance() > 25)
     --     if recallOOC or allDrifted then
-    --         if cast.totemicRecall() then ui.debug("Casting Totemic Call [Extra]") return true end
+    --         if cast.totemicCall() then ui.debug("Casting Totemic Call [Extra]") return true end
     --     end
     -- end
 end -- End Action List - Extra

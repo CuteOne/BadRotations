@@ -80,7 +80,7 @@ br.lists.spells.HUNTER.Shared = {
         silencingShot     = 34490,                    -- talent; 3s school silence
         scatterShot       = 19503,                             -- 4s disorient (single rank, lv21)
         -- Survival talents
-        wyvernSting       = {19386, 24131, 24132, 27068},      -- R1-R4 (lv20+); sleep + DoT
+        wyvernSting       = {19386, 24132, 24133, 27068},      -- R1-R4 (lv20+); sleep + DoT
         -- Additional aspects
         aspectOfTheMonkey = 13163,                             -- Dodge aura; early-level fallback
         aspectOfTheWild   = {20043, 20190, 27045},             -- R1-R3 (lv46/56/68); +Nature resist
@@ -110,7 +110,7 @@ br.lists.spells.HUNTER.Shared = {
         scorpidSting  = 3043,
         viperSting    = {3034, 14279, 14280, 27018},
         concussiveShot = 5116,
-        wyvernSting   = {19386, 24131, 24132, 27068},
+        wyvernSting   = {19386, 24132, 24133, 27068}, -- the sleep (the DoT after it is another aura)
         screech       = {24423, 24577, 24578, 24579, 27051}, -- Carrion Bird/Bat/Owl melee-AP debuff (any rank)
         scorpidPoison = {24640, 24583, 24586, 24587, 27060},  -- Scorpid AP-reducing poison (any rank)
         aimedShot     = {19434, 20900, 20901, 20902, 20903, 20904, 27065}, -- Aimed Shot debuff: +240 ranged damage taken (R1-R7)

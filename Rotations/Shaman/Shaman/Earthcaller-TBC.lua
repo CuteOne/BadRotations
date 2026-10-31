@@ -518,8 +518,8 @@ actionList.PreCombat = function()
     -- Totems left behind (30+ yd, nothing fighting you): of no use where they stand, and a mob that walks
     -- into one pulls you back into a fight. Totemic Call (level 30); before it a TBC player can't remove a
     -- totem at all, so neither does BR (a totem destroyed there would be a bot's tell)
-    if ui.checked("Totemic Call") and spell.totemicRecall.known() and #enemies.yards40 == 0 and totem.anyLeftBehind(30) then
-        if cast.totemicRecall() then ui.debug("Casting Totemic Call") return true end
+    if ui.checked("Totemic Call") and spell.totemicCall.known() and #enemies.yards40 == 0 and totem.anyLeftBehind(30) then
+        if cast.totemicCall() then ui.debug("Casting Totemic Call") return true end
     end
     -- Pull: from range with Lightning Bolt, or start swinging at a mob you walked up to, the moment you
     -- target it (your target is your choice, as across BR; Bot Options > Safety > Delay Neutral Targets

@@ -7,84 +7,50 @@ br.lists.spells.ROGUE.Shared = {
                 cheapShot           = 1833,
                 shiv                = 5938,
                 cloakOfShadows      = 31224,
-                combatReadiness     = 74001,  -- MoP defensive CD
-                cripplingPoison     = 3408,
-                deadlyPoison        = 2823,
+                deadlyThrow         = 26679,
                 distract            = 1725,
                 evasion             = {5277, 26669},
                 eviscerate          = {2098, 6760, 6761, 6762, 8623, 8624, 11299, 11300, 31016, 26865},
                 feint               = {1966, 6768, 8637, 11303, 25302, 27448},
                 gouge               = {1776, 1777, 8629, 11285, 11286, 38764},
-                instantPoison       = 6603,   -- MoP version
                 kick                = {1766, 1767, 1768, 1769, 38768},
                 kidneyShot          = {408, 8643},
-                mindNumbingPoison   = 5761,   -- MoP version (previously Crippling in later expansions)
-                paralyticPoison     = 108211, -- MoP poison
                 pickLock            = 1804,
                 pickPocket          = 921,
-                redirect            = 73981,  -- MoP ability
-                recuperate          = 73651,  -- MoP healing finisher
                 sap                 = {6770, 2070, 11297},
-                shroudOfConcealment = 114018, -- MoP group stealth
                 sinisterStrike      = {1752, 1757, 1758, 1759, 1760, 8621, 11293, 11294, 26861, 26862},
                 sliceAndDice        = {5171, 6774},
                 sprint              = {2983, 8696, 11305},
                 stealth             = {1784, 1785, 1786, 1787},
-                throw               = 2764,   -- MoP version
-                tricksOfTheTrade    = 57934,
+                throw               = 2764,
                 vanish              = {1856, 1857, 26889},
-                woundPoison         = 8679,
             },
             buffs      = {
                 cloakOfShadows      = 31224,
-                combatReadiness     = 74001,
-                cripplingPoison     = 3408,
-                deadlyPoison        = 2823,
                 evasion             = {5277, 26669},
                 feint               = {1966, 6768, 8637, 11303, 25302, 27448},
-                instantPoison       = 6603,
-                mindNumbingPoison   = 5761,
-                paralyticPoison     = 108211,
-                recuperate          = 73651,
-                shroudOfConcealment = 114018,
                 sliceAndDice        = {5171, 6774},
                 sprint              = {2983, 8696, 11305},
                 stealth             = {1784, 1785, 1786, 1787},
-                tricksOfTheTrade    = 57934,
                 vanish              = {1856, 1857, 26889},
-                woundPoison         = 8679,
             },
             debuffs    = {
                 blind           = 2094,
                 cheapShot       = 1833,
-                cripplingPoison = 3408,
+                cripplingPoison = {3409, 11201}, -- Ranks 1-2
+                deadlyPoison    = {2818, 2819, 11353, 11354, 25349, 26968, 27187}, -- Ranks 1-7
                 garrote         = {703, 8631, 8632, 8633, 11289, 11290, 26839, 26884},
                 gouge           = {1776, 1777, 8629, 11285, 11286, 38764},
                 kidneyShot      = {408, 8643},
-                mindNumbingPoison = 5761,
-                paralyticPoison = 113952, -- Debuff version
+                mindNumbingPoison = {5760, 8692, 11398}, -- Ranks 1-3
                 rupture         = {1943, 8639, 8640, 11273, 11274, 11275, 26867},
                 sap             = {6770, 2070, 11297},
-                woundPoison     = 8679,
+                woundPoison     = {13218, 13222, 13223, 13224, 27189}, -- Ranks 1-5
             },
             glyphs     = {
-                glyphOfAdrenalineRush  = 56803,
-                glyphOfBlind           = 91299,
-                glyphOfCloakOfShadows  = 63269,
-                glyphOfExposedArmor    = 56805,
-                glyphOfFanOfKnives     = 63254,
-                glyphOfFeint           = 63257,
-                glyphOfGarrote         = 56812,
-                glyphOfGouge           = 56809,
-                glyphOfKick            = 63252,
-                glyphOfKillingSpree    = 63249,
-                glyphOfSap             = 56798,
-                glyphOfSprint          = 63250,
-                glyphOfTricksOfTheTrade = 63256,
+
             },
             talents    = {
-                -- Tier 2 (Level 30) - Shared across all Rogue specs
-                deadlyThrow       = 26679,
-                combatReadiness   = 74001,
+
             },
         }
