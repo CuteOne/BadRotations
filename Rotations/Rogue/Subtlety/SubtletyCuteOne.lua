@@ -81,7 +81,7 @@ local function options()
     -- Use Combat Potion
     ui.checkbox(section, "Use Combat Potion")
     -- Trinkets
-    module.BasicTrinkets(section)
+    module.BasicTrinkets(nil, section)
     -------------------------
     --- DEFENSIVE OPTIONS ---
     -------------------------
