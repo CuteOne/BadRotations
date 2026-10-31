@@ -339,11 +339,8 @@ actionList.Precombat = function()
         if ui.checked("Pre-Pull Timer") and unit.pullTimer() <= ui.value("Pre-Pull Timer") then
             -- Potion
             -- potion
-            if ui.value("Potion") ~= 5 and unit.pullTimer() <= 1 and (var.inRaid or var.inInstance) then
-                if ui.value("Potion") == 1 and use.able.potionOfUnbridledFury() then
-                    use.potionOfUnbridledFury()
-                    ui.debug("Using Potion of Unbridled Fury")
-                end
+            if ui.checked("Potion") and unit.pullTimer() <= 1 and (var.inRaid or var.inInstance) and use.able.potion() then
+                if use.potion() then ui.debug("Using Potion [Pre-Pull]") end
             end
         end -- End Pre-Pull
         -- Pull
