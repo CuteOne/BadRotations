@@ -8,7 +8,7 @@ br.lists.spells.HUNTER.Shared = {
         steadyShot        = 34120,                                                          -- TBC only; single rank, level 62
         multiShot         = {2643, 14288, 14289, 14290, 25294, 27021},                     -- R1-R6 (lv18/30/42/54/60/67)
         arcaneShot        = {3044, 14281, 14282, 14283, 14284, 14285, 14286, 14287, 27019}, -- R1-R9 (lv6-69)
-        aimedShot         = {19434, 20900, 20901, 20902, 20903, 20904, 20905, 27065},      -- R1-R8 (lv20-70); MM talent
+        aimedShot         = {19434, 20900, 20901, 20902, 20903, 20904, 27065},      -- R1-R7 (lv20-70); MM talent
         killCommand       = 34026,                                                          -- Single rank; activated on pet crit, off GCD
         -- Major Cooldowns
         rapidFire         = 3045,
@@ -22,7 +22,7 @@ br.lists.spells.HUNTER.Shared = {
         -- Melee
         raptorStrike      = {2973, 14260, 14261, 14262, 14263, 14264, 14265, 14266, 27014},       -- R1-R8 (lv1-66)
         wingClip          = {2974, 14267, 14268},                                               -- R1-R2 (lv10/30); R3 not present in TBC
-        mongooseBite      = {1495, 14269, 14270, 14271, 14272, 36916},                    -- R1-R6 (lv16-66); usable after dodging
+        mongooseBite      = {1495, 14269, 14270, 14271, 36916},                    -- R1-R5 (lv16-66); usable after dodging
         counterattack     = {19306, 20909, 20910, 27067},                                         -- R1-R3 (lv20/30/40); SV talent, usable after parrying
         -- Survival / Defensive
         feignDeath        = 5384,
@@ -77,7 +77,7 @@ br.lists.spells.HUNTER.Shared = {
         scorpidPoison     = {24640, 24583, 24586, 24587, 27060},                                -- R1-R5 (lv8/24/40/56/64); Scorpid only
         -- Marksmanship talents
         trueShotAura      = 19506,                              -- +125 RAP party aura (single rank)
-        silencingShot     = {34490, 34489},                    -- R1-R2 (lv28/38); 3s school silence
+        silencingShot     = 34490,                    -- talent; 3s school silence
         scatterShot       = 19503,                             -- 4s disorient (single rank, lv21)
         -- Survival talents
         wyvernSting       = {19386, 24131, 24132, 27068},      -- R1-R4 (lv20+); sleep + DoT
@@ -113,11 +113,11 @@ br.lists.spells.HUNTER.Shared = {
         wyvernSting   = {19386, 24131, 24132, 27068},
         screech       = {24423, 24577, 24578, 24579, 27051}, -- Carrion Bird/Bat/Owl melee-AP debuff (any rank)
         scorpidPoison = {24640, 24583, 24586, 24587, 27060},  -- Scorpid AP-reducing poison (any rank)
-        aimedShot     = {19434, 20900, 20901, 20902, 20903, 20904, 20905, 27065}, -- Aimed Shot debuff: +240 ranged damage taken (R1-R8)
+        aimedShot     = {19434, 20900, 20901, 20902, 20903, 20904, 27065}, -- Aimed Shot debuff: +240 ranged damage taken (R1-R7)
     },
     glyphs     = {},
     interrupts = {
-        silencingShot = {34490, 34489},
+        silencingShot = 34490,
     },
     talents = {}, -- TBC has no talent-spell API (hasSubSpecs = false); cast.able.* handles talent gates
 }
