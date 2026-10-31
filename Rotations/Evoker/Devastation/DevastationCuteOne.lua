@@ -111,7 +111,7 @@ local function options()
     -- Tail Swipe
     ui.checkbox(section, "Tail Swipe")
     -- Interrupt Percentage
-    ui.spinner(section, "InterruptAt", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
