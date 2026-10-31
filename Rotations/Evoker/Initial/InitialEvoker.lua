@@ -74,7 +74,7 @@ local function options()
     -- Tail Swipe
     ui.checkbox(section, "Tail Swipe")
     -- Interrupt Percentage
-    ui.spinner(section, "InterruptAt", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
+    ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
@@ -210,7 +210,7 @@ end     -- End Action List - Interrupt
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
     -- Deep Breath
-    if ui.alwaysCdAoENever("Deep Breath", 1, 20) and cast.able.deepBreath("player", "rect", 1, 20, 12) then
+    if ui.alwaysCdAoENever("Deep Breath", 3, #enemies.yards20r) and cast.able.deepBreath("player", "rect", 1, 20, 12) then
         if cast.deepBreath("player", "rect", 1, 20, 12) then
             ui.debug("Casting Deep Breath [Cooldowns]")
             return true
@@ -365,6 +365,7 @@ local function runRotation()
     enemies.get(8)
     enemies.get(15, "player", false, true) -- makes enemies.yards15f
     enemies.get(25, "player", false, true)
+    enemies.rect.get(20, 12) -- makes enemies.yards20r (Deep Breath's path)
 
     -- Cancel if casting with no enemies
     if #enemies.yards25f == 0 then
