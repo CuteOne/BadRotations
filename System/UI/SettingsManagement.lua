@@ -335,6 +335,9 @@ end
 -- More removals than this in one clean-up are treated as a malfunction and undone
 local CLEANUP_MAX_REMOVED = 50
 
+--- Removes saved values whose option is no longer made (orphaned) or is made on another page
+-- (misplaced; the value goes with the option when the player hasn't set one there). True when it
+-- carried a value to a new page: the option windows, built with the defaults, need building again.
 function settingsManagement:cleanSettings()
 	if br.data and br.data.settings then
 		-- Check if Power toggle is off - if so, skip cleaning as UI was never built
@@ -375,6 +378,7 @@ function settingsManagement:cleanSettings()
 		-- the replaced tables, so no change made in them was saved.)
 		local removedItems = {}
 		local removals = {} -- { table, key } pairs, removed only if the clean-up goes ahead
+		local moves = {}    -- { page table, page name, key, value }: values carried to the option's new page
 		local marked = {}   -- table -> { key = true }: each entry listed once
 		local function markRemoved(t, key, label)
 			marked[t] = marked[t] or {}
@@ -390,17 +394,23 @@ function settingsManagement:cleanSettings()
 			-- ========================================
 			-- PHASE 1: Remove duplicate/misplaced options
 			-- ========================================
-			-- Build a map of where each option SHOULD exist (from br.data.ui which reflects actual UI)
+			-- Build a map of where each option SHOULD exist (from br.data.ui which reflects actual UI).
+			-- An option made on two pages or more has no one right page (misc:registerOption warns about
+			-- it): left alone everywhere. 2026-10-26: the potion options were on Base Options and a
+			-- profile's page for a session, and the player's values on Base Options were removed as
+			-- "misplaced" (whichever page pairs() saw last counted as right).
 			local optionToCorrectPage = {}
 			for page, pageData in pairs(br.data.ui) do
 				if type(pageData) == "table" and page ~= "PageList" and page ~= "currentPage" and page ~= "totalPages" then
 					for option, _ in pairs(pageData) do
 						if type(option) == "string" then
-							optionToCorrectPage[option] = page
+							local known = optionToCorrectPage[option]
+							optionToCorrectPage[option] = (known == nil or known == page) and page or false
 						end
 					end
 				end
 			end
+			local defaults = br.functions.misc:getOptionDefaults()
 
 			-- Scan all pages in saved settings and remove options that belong on a different page
 			for page, pageData in pairs(settings) do
@@ -413,6 +423,15 @@ function settingsManagement:cleanSettings()
 							-- Only if we actually found where it should be
 							if correctPage and type(correctPage) == "string" and correctPage ~= page then
 								local cleanName = option:gsub(" Check", ""):gsub(" Drop", ""):gsub(" Status", "")
+								-- The option moved to another page (a BR change): the player's value goes with
+								-- it, unless they have set one there already (it differs from the default)
+								local target = settings[correctPage]
+								local default = defaults[correctPage] and defaults[correctPage][option]
+								if target ~= nil and (target[option] == nil or target[option] == default)
+									and pageData[option] ~= default
+								then
+									moves[#moves + 1] = { target, correctPage, option, pageData[option] }
+								end
 								markRemoved(pageData, option, cleanName .. " (misplaced on " .. page .. ", should be on " .. correctPage .. ")")
 							end
 						end
@@ -470,13 +489,22 @@ function settingsManagement:cleanSettings()
 					.. " settings, which looks like a problem rather than leftovers. Nothing was changed.")
 				return
 			end
+			for _, move in ipairs(moves) do
+				move[1][move[3]] = move[4]
+				br.ui.elementOptions.mirror(move[2], move[3], move[4])
+			end
 			for _, removal in ipairs(removals) do removal[1][removal[2]] = nil end
+			if #moves > 0 then
+				br.log:say("Settings", "Clean-up carried " .. #moves .. " setting(s) to the page their option moved to")
+			end
 			if #removedItems > 0 then
 				br.log:say("Settings", "Clean-up removed " .. #removedItems .. " duplicate/orphaned setting(s)")
 				-- Save immediately so cleaned settings persist
 				br.data.collectGarbage = false -- Prevent re-running cleanup
 				settingsManagement:saveSettings()
 			end
+			-- The option windows were built with the defaults: the caller rebuilds them
+			return #moves > 0
 		end
 	end
 end

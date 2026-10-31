@@ -183,8 +183,11 @@ stages.UI_CLEANUP = function()
 	if not br.ui.window.config.frame:IsShown() then
 		br.ui:toggleWindow("config")
 	end
-	if br.ui.settingsManagement:registerAllOptions() then
-		br.ui.settingsManagement:cleanSettings()
+	if br.ui.settingsManagement:registerAllOptions() and br.ui.settingsManagement:cleanSettings() then
+		-- a value moved to its option's new page: the windows show it once built again
+		br.ui:closeWindow("profile")
+		br.runner:createOptions()
+		br.ui:recreateWindows()
 	end
 	-- Bot Options opens on the very first load only
 	if firstLoad then
