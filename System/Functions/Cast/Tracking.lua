@@ -204,6 +204,8 @@ function E.expectedRefusal(message, castGUID)
 	if kind == "behind" then return "not behind; BR uses attacks that work from the front meanwhile", mismatch end
 	if kind == "range" then return "out of range", mismatch end
 	if kind == "moving" then return "cast while moving; BR waits until you stop" end
+	-- The target died while the spell was on its way (2026-10-31: Earth Shock at a fleeing sprite)
+	if message == errorText("SPELL_FAILED_TARGETS_DEAD", "Your target is dead") then return "the target died" end
 	if message == errorText("SPELL_FAILED_INTERRUPTED", "Interrupted") then
 		-- An on-next-swing attack is dropped when the target dies or changes, or auto attack stops
 		local unit = castGUID and br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(castGUID)
