@@ -365,7 +365,7 @@ actionList.Extra = function()
         and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
         and not (buff.thorns.refresh() and ui.checked("Thorns"))
     then
-        if buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() then
+        if unit.formActive() then
             if unit.cancelFormFor(spell.aquaticForm) then
                 return true
             end
@@ -384,7 +384,7 @@ actionList.Extra = function()
         and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
         and not (buff.thorns.refresh() and ui.checked("Thorns"))
     then
-        if buff.catForm.exists() or buff.bearForm.exists() then
+        if unit.formActive() then
             if unit.cancelFormFor(spell.travelForm) then
                 return true
             end
@@ -453,7 +453,7 @@ actionList.Extra = function()
             and (var.markUnit == "player" or unit.player(var.markUnit))
         then
             -- Cancel form if needed to buff
-            local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
+            local needsCancel = unit.formActive()
             if needsCancel then
                 if unit.cancelFormFor(spell.markOfTheWild) then
                     return true
@@ -474,7 +474,7 @@ actionList.Extra = function()
             and (var.thornUnit == "player" or unit.player(var.thornUnit))
         then
             -- Cancel form if needed to buff
-            local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
+            local needsCancel = unit.formActive()
             if needsCancel then
                 if unit.cancelFormFor(spell.thorns) then
                     return true
@@ -491,7 +491,7 @@ actionList.Extra = function()
     if ui.value("Omen of Clarity") ~= 4 and not unit.inCombat() then
         if cast.able.omenOfClarity("player") and buff.omenOfClarity.refresh("player") then
             -- Cancel form if needed to buff
-            local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
+            local needsCancel = unit.formActive()
             if needsCancel then
                 if unit.cancelFormFor(spell.omenOfClarity) then
                     return true
@@ -513,7 +513,7 @@ actionList.Defensive = function()
         if ui.checked("Abolish Poison") and cast.able.abolishPoison("player")
             and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player")
         then
-            if buff.catForm.exists() or buff.bearForm.exists() then
+            if unit.formActive() then
                 if unit.cancelFormFor(spell.abolishPoison) then
                     return true
                 end
@@ -528,7 +528,7 @@ actionList.Defensive = function()
         if ui.checked("Cure Poison") and cast.able.curePoison("player")
             and (not ui.checked("Abolish Poison") --[[or not spell.known.abolishPoison()]]) and cast.dispel.curePoison("player")
         then
-            if buff.catForm.exists() or buff.bearForm.exists() then
+            if unit.formActive() then
                 if unit.cancelFormFor(spell.curePoison) then
                     return true
                 end
@@ -543,7 +543,7 @@ actionList.Defensive = function()
         if ui.checked("Remove Curse") and cast.able.removeCurse("player")
             and not unit.inCombat() and cast.dispel.removeCurse("player")
         then
-            if buff.catForm.exists() or buff.bearForm.exists() then
+            if unit.formActive() then
                 if unit.cancelFormFor(spell.removeCurse) then
                     return true
                 end
@@ -569,7 +569,7 @@ actionList.Defensive = function()
             and unit.valid("target") and unit.hp("target") < 100 and not debuff.entanglingRoots.exists("target")
             and unit.distance("target") > 8 and unit.inCombat()
         then
-            if buff.catForm.exists() or buff.bearForm.exists() then
+            if unit.formActive() then
                 if unit.cancelFormFor(spell.entanglingRoots, freeDPS) then
                     return true
                 end
@@ -583,7 +583,7 @@ actionList.Defensive = function()
         -- Faerie Fire (Caster)
         if ui.checked("Faerie Fire") and cast.able.faerieFire("target")
             and unit.exists("target") and unit.enemy("target") and unit.canAttack("target") and not debuff.faerieFire.exists("target")
-            and not (buff.catForm.exists() or buff.bearForm.exists())
+            and not unit.formActive()
             and unit.distance("target") > 8 and noShapeshiftPower
         then
             if cast.faerieFire("target") then
@@ -596,7 +596,7 @@ actionList.Defensive = function()
             and not buff.naturesGrasp.exists("player") and unit.inCombat()
             and #enemies.yards10 > 0
         then
-            if buff.catForm.exists() or buff.bearForm.exists() then
+            if unit.formActive() then
                 if unit.cancelFormFor(spell.naturesGrasp, freeDPS) then
                     return true
                 end
@@ -613,7 +613,7 @@ actionList.Defensive = function()
             and (freeHeal or noShapeshiftPower)
             and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         then
-            if buff.catForm.exists() or buff.bearForm.exists() then
+            if unit.formActive() then
                 if unit.cancelFormFor(spell.regrowth, freeHeal) then
                     return true
                 end
@@ -629,7 +629,7 @@ actionList.Defensive = function()
             if cast.able.rejuvenation("target") and unit.friend("target") and unit.hp("target") <= ui.value("Rejuvenation")
                 and unit.player("target") and buff.rejuvenation.refresh("target")
             then
-                if buff.catForm.exists() or buff.bearForm.exists() then
+                if unit.formActive() then
                     if unit.cancelFormFor(spell.rejuvenation, freeHeal) then
                         return true
                     end
@@ -644,7 +644,7 @@ actionList.Defensive = function()
                 and buff.rejuvenation.refresh("player") and not buff.clearcasting.exists()
                 and (unit.solo() or ui.checked("Self Heal In Group"))
             then
-                if buff.catForm.exists() or buff.bearForm.exists() then
+                if unit.formActive() then
                     if unit.cancelFormFor(spell.rejuvenation, freeHeal) then
                         return true
                     end
@@ -661,7 +661,7 @@ actionList.Defensive = function()
             and (freeHeal or noShapeshiftPower)
         then
             if cast.able.healingTouch("target") and unit.friend("target") and unit.hp("target") <= ui.value("Healing Touch") and unit.player("target") then
-                if buff.catForm.exists() or buff.bearForm.exists() then
+                if unit.formActive() then
                     if unit.cancelFormFor(spell.healingTouch, freeHeal) then
                         return true
                     end
@@ -675,7 +675,7 @@ actionList.Defensive = function()
             if cast.able.healingTouch("player") and not unit.friend("target") and unit.hp() <= ui.value("Healing Touch")
                 and (not unit.inGroup() or ui.checked("Self Heal In Group"))
             then
-                if buff.catForm.exists() or buff.bearForm.exists() then
+                if unit.formActive() then
                     if unit.cancelFormFor(spell.healingTouch, freeHeal) then
                         return true
                     end
@@ -1047,7 +1047,7 @@ actionList.PreCombat = function()
             local formValue = ui.mode.forms
             local thisDistance = unit.distance("target") or 99
             -- Wrath
-            if not unit.moving() and not (buff.catForm.exists() or buff.bearForm.exists()) and thisDistance < 30 then
+            if not unit.moving() and not (buff.catForm.exists() or buff.bearForm.exists() or buff.direBearForm.exists()) and thisDistance < 30 then
                 if cast.able.wrath("target") and (unit.level() < 2 or not cast.last.wrath() or cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) then
                     if cast.wrath("target") then
                         ui.debug("Casting Wrath [Precombat]")
@@ -1152,7 +1152,7 @@ actionList.Combat = function()
         end
 
         -- Call Action List - Caster Form
-        if formValue == 1 and not (buff.catForm.exists() or buff.bearForm.exists()) then
+        if formValue == 1 and not (buff.catForm.exists() or buff.bearForm.exists() or buff.direBearForm.exists()) then
             if actionList.CasterForm() then return true end
         end
     end -- End In Combat Rotation
