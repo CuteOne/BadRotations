@@ -976,7 +976,7 @@ function unit:startAttack(thisUnit)
 	local castLeft = math.max(0, br.functions.cast:getCastTimeRemain("player"))
 	attackSentAt, attackSentGUID = br.game.GetTime() + castLeft, guid
 	br.game.StartAttack(thisUnit)
-	if br.debug.melee and br.debug.melee.noteAttackSent then br.debug.melee:noteAttackSent(castLeft) end
+	if br.debug.melee and br.debug.melee.noteAttackSent then br.debug.melee:noteAttackSent(castLeft, thisUnit or "target") end
 	return true
 end
 

@@ -495,7 +495,22 @@ end
 -- cast was left at the send, when the game answered and any resends: whether a start sent during a cast
 -- is dropped follows from it.
 local ATTACK_START_LINES, ATTACK_START_WAIT = 15, 2
-local attackStart, attackStartLines = nil, 0 -- { sentAt, castLeft, resends = { seconds after the first } }
+local attackStart, attackStartLines = nil, 0 -- { sentAt, castLeft, at, resends = { seconds after the first } }
+
+-- The unit at a start's send: is it in melee by BR's reading, and was a GCD (a queued spell firing) on?
+-- 2026-10-31: a start sent with no cast, right as a queued totem fired and the target stood at BR's
+-- 5.0 yd melee edge, had no answer until the resend 1.1 s later.
+local function attackTargetState(thisUnit)
+    if thisUnit == nil or not br.game.UnitExists(thisUnit) then return "no unit" end
+    local rangeFns = br.functions.range
+    local distance = plainNumber(rangeFns:getDistance(thisUnit) or -1)
+    local _, flat, dz = rangeFns:getCenterDistance("player", thisUnit)
+    return ("%s at BR distance %.2fyd (%s), edge %.2fyd, centre flat %s, height %s, GCD %.2fs"):format(
+        unitName(thisUnit), distance, distance < 5 and "in melee" or "out of melee",
+        plainNumber(rangeFns:getEdgeDistance("player", thisUnit) or -1),
+        flat and ("%.2fyd"):format(plainNumber(flat)) or "?", dz and ("%+.1fyd"):format(plainNumber(dz)) or "?",
+        plainNumber(br.functions.spell:getGlobalCD() or 0))
+end
 
 local function attackStartLine(answeredAt)
     local a = attackStart
@@ -508,19 +523,19 @@ local function attackStartLine(answeredAt)
         answer = ("game said on %.2fs after the first send"):format(answeredAt - a.sentAt)
         if a.castLeft > 0 then answer = answer .. (", %.2fs after the cast's end"):format(answeredAt - a.sentAt - a.castLeft) end
     end
-    meleeLine(("AUTO ATTACK START sent %s | %s | resent %s"):format(
-        a.castLeft > 0 and ("with %.2fs of a cast left"):format(a.castLeft) or "with no cast", answer,
+    meleeLine(("AUTO ATTACK START sent %s at %s | %s | resent %s"):format(
+        a.castLeft > 0 and ("with %.2fs of a cast left"):format(a.castLeft) or "with no cast", a.at, answer,
         #resends > 0 and (table.concat(resends, ", ") .. " after the first") or "never"))
 end
 
--- unit:startAttack sent StartAttack. castLeft: seconds left on the player's cast or channel (0 for none).
-function br.debug.melee:noteAttackSent(castLeft)
+-- unit:startAttack sent StartAttack at thisUnit. castLeft: seconds left on the player's cast or channel (0 for none).
+function br.debug.melee:noteAttackSent(castLeft, thisUnit)
     if attackStartLines >= ATTACK_START_LINES then return end
     local now = br.game.GetTime()
     if attackStart then
         attackStart.resends[#attackStart.resends + 1] = now - attackStart.sentAt
     else
-        attackStart = { sentAt = now, castLeft = castLeft, resends = {} }
+        attackStart = { sentAt = now, castLeft = castLeft, at = attackTargetState(thisUnit), resends = {} }
     end
 end
 
@@ -848,8 +863,9 @@ function br.debug.cast:noteSend(spellID, thisUnit)
     end
     local behind, remain = currentCast(now)
     previousSend = lastSend
-    lastSend = { name = printable(br.functions.spell:getName(spellID)), at = now, behind = behind, remain = remain,
-        window = br.functions.cast:getQueueWindow(), gcd = br.functions.spell:getGlobalCD() or 0, pushbacks = pushbacks }
+    lastSend = { spellID = spellID, name = printable(br.functions.spell:getName(spellID)), at = now, behind = behind,
+        remain = remain, window = br.functions.cast:getQueueWindow(), gcd = br.functions.spell:getGlobalCD() or 0,
+        cd = br.functions.spell:getSpellCD(spellID) or 0, pushbacks = pushbacks }
     if behind then
         castWrite(("pre-cast %s behind %s: %.2fs left, window %.2fs, GCD %.2fs, pushbacks %d, latency %dms | previous send %s"):format(
             lastSend.name, behind, remain or -1, lastSend.window, lastSend.gcd, pushbacks,
@@ -945,6 +961,21 @@ function br.debug.cast:noteNotBehind(spellID, guid)
         speed and ("%.1f"):format(plainNumber(speed)) or "?",
         clientAngle and (", the client's facing puts you %s off"):format(degrees(clientAngle)) or "",
         degrees(yourAngle)))
+end
+
+-- The game refused a BR cast with "Spell is not ready yet" (2026-10-31, TBC: Searing Totem sent about
+-- 0.06 s after the client's GCD from Strength of Earth Totem ended; 2026-10-12, Forever: Faerie Fire
+-- twice in one fight). The GCD and the spell's own cooldown BR saw at the send and now, the send
+-- before it and the latency: a GCD only just over at the send points at the server's GCD ending later.
+function br.debug.cast:noteNotReady(spellID)
+    local now = br.game.GetTime()
+    local spellFns = br.functions.spell
+    local sent = lastSend and lastSend.spellID == spellID and lastSend or nil
+    castWrite(("NOT READY %s: at the send%s GCD %s, its cooldown %s | now GCD %.2fs, its cooldown %.2fs | send before %s | latency %dms"):format(
+        printable(spellFns:getName(spellID)), sent and (" (%.2fs before)"):format(now - sent.at) or " (not BR's last send)",
+        sent and ("%.2fs"):format(plainNumber(sent.gcd)) or "?", sent and ("%.2fs"):format(plainNumber(sent.cd)) or "?",
+        plainNumber(spellFns:getGlobalCD() or 0), plainNumber(spellFns:getSpellCD(spellID) or 0),
+        describeSend(sent and previousSend or lastSend, now), plainNumber(br.functions.misc:getHomeLatency() or 0) * 1000))
 end
 
 local inProgressText = br.game.SPELL_FAILED_SPELL_IN_PROGRESS or "Another action is in progress"

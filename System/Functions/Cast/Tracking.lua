@@ -254,6 +254,12 @@ function cast:handleCastError(message)
 			br.log:systemDebug(text)
 		end)
 	end
+	if br.debug.cast and (errorAt - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW
+		and (message == errorText("SPELL_FAILED_NOT_READY", "Spell is not ready yet.")
+			or message == errorText("ERR_SPELL_COOLDOWN", "Spell is not ready yet."))
+	then
+		br.debug.cast:noteNotReady(br.botSpell)
+	end
 	local kind = rejectionKindForError(message)
 	if not kind then return end
 	-- A cast on yourself can't be out of sight or facing the wrong way: never mark the player
