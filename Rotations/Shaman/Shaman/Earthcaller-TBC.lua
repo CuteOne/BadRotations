@@ -138,10 +138,14 @@ local function healCost()
 end
 
 -- Nothing in this fight threatens you: health 60%+, one enemy at most on you, and you're winning
--- (the tester's idea, 2026-10-26). Mana Use Burn then spends past its thresholds and the heal held back
+-- (the tester's idea, 2026-10-26)
+local function unthreatened()
+    return enemy ~= nil and unit.hp() >= 60 and #enemies.yards8 <= 1 and unit.winning(enemy)
+end
+
+-- Mana Use Burn, unthreatened: it spends past its thresholds and the heal held back
 local function safe()
-    if ui.value("Mana Use") ~= MANA_BURN or enemy == nil then return false end
-    return unit.hp() >= 60 and #enemies.yards8 <= 1 and unit.winning(enemy)
+    return ui.value("Mana Use") == MANA_BURN and unthreatened()
 end
 
 -- The fight is going badly: 2+ enemies on you, under half health, or losing (you'd die before it does).
@@ -461,7 +465,12 @@ actionList.Melee = function()
     -- Out of melee with an enemy that isn't coming closer (a caster, a mob that stops just out of
     -- reach): no swing to lose, so bolt it rather than stand idle, keeping a heal's mana. 2026-10-26: 6.3 s
     -- idle at 5.9 yd from a Mutated Root Lasher with 72 mana (the rule was 10 yd+, the weave needs 50%)
-    if distance >= 5 and not unit.moving(enemy) and affordable(cast.cost.lightningBolt()) then
+    -- The heal's mana is spent on it too while nothing threatens you: with no swing landing the bolt is
+    -- the only damage (2026-10-31: 4.9 s idle twice at 6 yd from a hovering Vile Sprite, 69-82 mana, full health)
+    local boltCost = cast.cost.lightningBolt()
+    if distance >= 5 and not unit.moving(enemy)
+        and (affordable(boltCost) or (unthreatened() and power.mana.affordable(boltCost, 0)))
+    then
         if cast.lightningBolt(enemy) then ui.debug("Casting Lightning Bolt [Range]") return true end
     end
     -- Weave: spare mana into Lightning Bolt until Windfury Weapon makes the swings worth more. A
