@@ -11,7 +11,9 @@ local spell = spell --[[@as BR.TBC.Druid.spell]]
 --   levels 10-19 Bear Form (the Cat style's melee form until Cat Form): Maul, Demoralizing Roar, Swipe;
 --   levels 20+   Cat Form or Bear / Dire Bear Form, by the Form toggle.
 -- Caster form is used as a human Feral uses it: buffs between fights, a heal after one, and shifting out
--- to heal mid-fight when it goes badly solo (Barkskin, Regrowth, Healing Touch, then back into form).
+-- to heal mid-fight from Bear Form when it goes badly solo (Barkskin, Regrowth, Healing Touch, then back
+-- into form). Cat Form is never left in combat except to powershift: in TBC the energy and the shift's
+-- mana matter too much (the user's rule for TBC Feral).
 -- The profile never moves, turns or faces you, and never casts Travel, Aquatic or Flight Form (or acts
 -- while you're in one): where you go is yours.
 --
@@ -115,7 +117,7 @@ local function options()
     -- Defensive
     section = ui.section("Defensive")
     ui.spinner(section, "Shift Out to Heal", { value = 35, min = 5, max = 90, step = 5, checked = true,
-        tip = "In combat, solo or not tanking for a group: leave your form below this health percent and heal (Barkskin, Regrowth, Healing Touch)." })
+        tip = "In combat in Bear Form, solo or not tanking for a group: leave it below this health percent and heal (Barkskin, Regrowth, Healing Touch). Cat Form is never left in combat except to powershift." })
     ui.spinner(section, "Heal Until", { value = 70, min = 20, max = 100, step = 5, checkbox = false,
         tip = "Mid-fight healing goes on until this health percent, then back into form." })
     ui.spinner(section, "Out of Combat Healing", { value = 70, min = 5, max = 100, step = 5, checked = true,
@@ -224,13 +226,14 @@ actionList.Defensive = function()
         if inBear and ui.checked("Frenzied Regeneration") and hp <= ui.value("Frenzied Regeneration") then
             if cast.frenziedRegeneration() then say("frenziedRegeneration") return true end
         end
-        -- Leave the form to heal: unit.cancelFormFor keeps it while prowling, tanking for a group or
-        -- without the mana to heal and shift back; under 15% it leaves anyway. Not when the enemy dies
-        -- first, nor while Frenzied Regeneration runs (leaving Bear Form would end it)
+        -- Leave Bear Form to heal (Cat Form is only left in combat to powershift): unit.cancelFormFor
+        -- keeps it while tanking for a group or without the mana to heal and shift back; under 15% it
+        -- leaves anyway. Not when the enemy dies first, nor while Frenzied Regeneration runs (leaving
+        -- Bear Form would end it)
         local heal = combatHeal()
         local shiftAt = ui.value("Shift Out to Heal")
         local regenerating = inBear and cast.timeSinceLast.frenziedRegeneration() < 10
-        if (inCat or inBear) and ui.checked("Shift Out to Heal") and hp <= shiftAt
+        if inBear and ui.checked("Shift Out to Heal") and hp <= shiftAt
             and not (enemy and unit.ttd(enemy) < 3 and hp > 20) and (not regenerating or hp <= 15)
         then
             if unit.cancelFormFor(spell[heal], false, hp <= 15) then
