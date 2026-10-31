@@ -643,7 +643,8 @@ for _, name in ipairs(TABLES) do
 end
 
 -- Into files at block boundaries
-os.execute('mkdir -p "' .. OUT_DIR .. '" && rm -f "' .. OUT_DIR .. '"/*.lua')
+-- only its own numbered files: a mistaken folder argument ("." once) must not take other files with it
+os.execute('mkdir -p "' .. OUT_DIR .. '" && rm -f "' .. OUT_DIR .. '"/[0-9][0-9].lua')
 local files, current, size = {}, nil, 0
 local function newFile() current = {}; size = 0; files[#files + 1] = current; for _, h in ipairs(HEADER) do current[#current + 1] = h end end
 newFile()
