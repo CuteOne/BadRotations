@@ -489,13 +489,12 @@ local function watchSwingAroundCast()
         c.speed, c.due + castFor - finished, c.due - finished, verdict))
 end
 
--- Auto attack starts (2026-10-28): BR sent StartAttack twice, 0.3-0.5 s apart, whenever it went out with
--- a cast nearly done, as PLAYER_ENTER_COMBAT hadn't come a round trip after the cast's end. Each start BR
--- sends (15 a session) writes, once the game says auto attack is on or 2 s after the cast's end, how much
--- cast was left at the send, when the game answered and any resends: whether a start sent during a cast
--- is dropped follows from it.
+-- Auto attack starts (2026-10-28): each start BR sends (15 a session) writes, once the game says auto
+-- attack is on or 2 s after the send, where the unit was, when the game answered and any resends.
+-- 2026-10-31 it showed starts sent during a cast or with a spell send on its way go unanswered, so
+-- unit:startAttack no longer sends then; a start that still waits for a resend would show here.
 local ATTACK_START_LINES, ATTACK_START_WAIT = 15, 2
-local attackStart, attackStartLines = nil, 0 -- { sentAt, castLeft, at, resends = { seconds after the first } }
+local attackStart, attackStartLines = nil, 0 -- { sentAt, at, resends = { seconds after the first } }
 
 -- The unit at a start's send: is it in melee by BR's reading, and was a GCD (a queued spell firing) on?
 -- 2026-10-31: a start sent with no cast, right as a queued totem fired and the target stood at BR's
@@ -521,21 +520,19 @@ local function attackStartLine(answeredAt)
     local answer = ("no answer in %ds"):format(ATTACK_START_WAIT)
     if answeredAt then
         answer = ("game said on %.2fs after the first send"):format(answeredAt - a.sentAt)
-        if a.castLeft > 0 then answer = answer .. (", %.2fs after the cast's end"):format(answeredAt - a.sentAt - a.castLeft) end
     end
-    meleeLine(("AUTO ATTACK START sent %s at %s | %s | resent %s"):format(
-        a.castLeft > 0 and ("with %.2fs of a cast left"):format(a.castLeft) or "with no cast", a.at, answer,
+    meleeLine(("AUTO ATTACK START sent at %s | %s | resent %s"):format(a.at, answer,
         #resends > 0 and (table.concat(resends, ", ") .. " after the first") or "never"))
 end
 
--- unit:startAttack sent StartAttack at thisUnit. castLeft: seconds left on the player's cast or channel (0 for none).
-function br.debug.melee:noteAttackSent(castLeft, thisUnit)
+-- unit:startAttack sent StartAttack at thisUnit
+function br.debug.melee:noteAttackSent(thisUnit)
     if attackStartLines >= ATTACK_START_LINES then return end
     local now = br.game.GetTime()
     if attackStart then
         attackStart.resends[#attackStart.resends + 1] = now - attackStart.sentAt
     else
-        attackStart = { sentAt = now, castLeft = castLeft, at = attackTargetState(thisUnit), resends = {} }
+        attackStart = { sentAt = now, at = attackTargetState(thisUnit), resends = {} }
     end
 end
 
@@ -545,7 +542,7 @@ function br.debug.melee:noteAttackOn()
 end
 
 local function watchAttackStart(now)
-    if attackStart and now - attackStart.sentAt - attackStart.castLeft > ATTACK_START_WAIT then attackStartLine(nil) end
+    if attackStart and now - attackStart.sentAt > ATTACK_START_WAIT then attackStartLine(nil) end
 end
 
 function br.debug.melee:watch()
