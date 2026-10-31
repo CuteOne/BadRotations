@@ -1170,193 +1170,66 @@ function C65.timer(timerName, interval) end
 ---@field able BR.Classic.Druid.use.able
 
 ---@class BR.Keys.Classic.Hunter.Abilities<T>
----@field acidBite T
----@field acidSpit T
----@field agileReflexes T
----@field ankleCrack T
+---@field aimedShot T
 ---@field arcaneShot T
----@field aspectOfTheChameleon T
 ---@field aspectOfTheCheetah T
----@field aspectOfTheTurtle T
+---@field aspectOfTheHawk T
+---@field aspectOfTheMonkey T
+---@field aspectOfThePack T
+---@field aspectOfTheWild T
 ---@field autoAttack T
 ---@field autoShot T
 ---@field beastLore T
----@field beastOfOpportunity T
 ---@field berserking T
----@field bindingShot T
+---@field bestialWrath T
 ---@field bite T
----@field blackArrow T
----@field blackrockMunitions T
----@field bloodBolt T
 ---@field bloodFury T
----@field bloodyScreech T
----@field bornToBeWild T
----@field bristle T
----@field bulwark T
----@field burrowAttack T
----@field burstingShot T
 ---@field callPet T
----@field callPet1 T
----@field callPet2 T
----@field callPet3 T
----@field callPet4 T
----@field callPet5 T
----@field camouflage T
 ---@field cannibalize T
----@field catchOut T
----@field catlikeReflexes T
----@field chiJiTranq T
+---@field charge T
 ---@field claw T
----@field commandPet T
 ---@field concussiveShot T
----@field corneredPrey T
----@field counterShot T
----@field coveringFire T
----@field crescentSteel T
----@field cullTheHerd T
----@field darkChains T
----@field darkEmpowerment T
----@field darknessCalls T
+---@field counterattack T
 ---@field dash T
----@field deadlySting T
----@field deathShade T
----@field defenseMatrix T
----@field denRecovery T
----@field devilsaurTranquilizer T
 ---@field disenchant T
 ---@field disengage T
 ---@field dismissPet T
----@field disruptiveRounds T
----@field dontLookBack T
----@field dragonsGuile T
----@field dustCloud T
+---@field distractingShot T
+---@field dive T
 ---@field eagleEye T
----@field embraceTheShadows T
----@field emergencySalve T
----@field entrapment T
 ---@field escapeArtist T
----@field eternalGuardian T
----@field exhilaration T
----@field extrapolatedShots T
----@field eyeOfTheBeast T
----@field eyesClosed T
----@field feast T
----@field featherFlurry T
+---@field explosiveTrap T
 ---@field feedPet T
 ---@field feignDeath T
----@field fetch T
 ---@field flare T
----@field fleethoof T
----@field fortitudeOfTheBear T
 ---@field freezingTrap T
----@field frenziedTear T
----@field frostBreath T
----@field froststormBreath T
----@field furiousAssault T
----@field furiousBite T
----@field ghillieSuit T
+---@field frostTrap T
+---@field furiousHowl T
 ---@field global T
----@field gnaw T
----@field gore T
----@field graveReaper T
----@field grievousBite T
 ---@field growl T
----@field gruesomeBite T
----@field hardenCarapace T
----@field highExplosiveTrap T
----@field howlOfThePack T
----@field huntersAvoidance T
 ---@field huntersMark T
----@field implosiveTrap T
----@field improvedKillShot T
----@field improvedTraps T
----@field infectedBite T
+---@field immolationTrap T
 ---@field intimidation T
----@field invigoratingPulse T
----@field keenEyesight T
----@field kindlingFlare T
----@field kodoTranquilizer T
----@field lockJaw T
----@field loneSurvivor T
----@field lunarStorm T
----@field mastersCall T
+---@field lightningBreath T
 ---@field mendPet T
----@field misdirection T
----@field momentOfOpportunity T
----@field monsterousBite T
----@field naturalMending T
----@field naturesGrace T
----@field netherEnergy T
----@field noHardFeelings T
----@field obsidianSkin T
----@field overshadow T
----@field overwatch T
----@field packAssault T
----@field packCoordination T
----@field paddedArmor T
----@field pathfinding T
+---@field mongooseBite T
+---@field multiShot T
 ---@field perception T
----@field petrifyingGaze T
----@field pin T
----@field play T
----@field playDead T
----@field posthaste T
----@field primalAgility T
----@field primalRage T
----@field prowl T
----@field quickLoad T
 ---@field racial T
----@field ravage T
----@field rejuvenatingWind T
----@field releaseAndReload T
----@field restBear T
----@field restRodent T
+---@field rapidFire T
+---@field raptorStrike T
 ---@field revivePet T
----@field roarOfSacrifice T
----@field savageRend T
----@field scaleShield T
 ---@field scareBeast T
 ---@field scatterShot T
----@field scatteredPrey T
----@field scoutsInstincts T
----@field scrappy T
----@field sentinel T
----@field sentinelPrecision T
----@field sentinelWatch T
----@field serenityDust T
----@field serpentSwiftness T
----@field serratedTips T
----@field shadowErasure T
----@field shadowHounds T
----@field shadowLash T
----@field shadowSurge T
+---@field scorpidPoison T
+---@field scorpidSting T
+---@field screech T
+---@field serpentSting T
 ---@field shadowmeld T
 ---@field shellShield T
----@field sideline T
----@field smack T
----@field smokeScreen T
----@field solidShell T
----@field sonicScreech T
----@field soothingWater T
----@field specializedArsenal T
----@field spiritPulse T
----@field spiritWalk T
----@field spiritmend T
----@field sporeCloud T
----@field steadyShot T
 ---@field stoneform T
----@field surfaceTrot T
----@field survivalOfTheFittest T
----@field swarmOfFlies T
----@field symphonicArsenal T
----@field talonRend T
 ---@field tameBeast T
----@field tarTrap T
----@field tarcoatedBindings T
----@field tendonRip T
----@field territorialInstincts T
----@field tirelessHunt T
----@field toxicSting T
+---@field thunderstomp T
 ---@field trackBeasts T
 ---@field trackDemons T
 ---@field trackDragonkin T
@@ -1364,57 +1237,44 @@ function C65.timer(timerName, interval) end
 ---@field trackGiants T
 ---@field trackHidden T
 ---@field trackHumanoids T
----@field trackMechanicals T
 ---@field trackUndead T
----@field trailblazer T
----@field trample T
 ---@field tranquilizingShot T
----@field trickBirdOfPrey T
----@field trickCrane T
----@field triggerFinger T
----@field unnaturalCauses T
----@field updraft T
----@field viciousHunt T
----@field wakeUp T
+---@field trueShotAura T
+---@field viperSting T
+---@field volley T
 ---@field warStomp T
----@field warpTime T
----@field webSpray T
----@field wildAttacks T
----@field wildernessMedicine T
 ---@field willOfTheForsaken T
 ---@field wingClip T
----@field wingedAgility T
----@field witheringFire T
+---@field wyvernSting T
 
 ---@class BR.Keys.Classic.Hunter.Buffs<T>
----@field aspectOfTheTurtle T
----@field eagletalonsTrueFocus T
+---@field aspectOfTheCheetah T
+---@field aspectOfTheHawk T
+---@field aspectOfTheMonkey T
+---@field aspectOfThePack T
+---@field aspectOfTheWild T
+---@field bestialWrath T
+---@field dash T
+---@field dive T
 ---@field feignDeath T
----@field flayersMark T
----@field killingFrenzy T
+---@field furiousHowl T
 ---@field mendPet T
----@field nesingwarysTrappingApparatus T
----@field playDead T
----@field prowl T
 ---@field racial T
----@field resonatingArrow T
----@field spiritWalk T
----@field surfaceTrot T
----@field updraft T
----@field volley T
----@field wildSpirits T
+---@field rapidFire T
+---@field shellShield T
+---@field trueShotAura T
 
 ---@class BR.Keys.Classic.Hunter.Debuffs<T>
----@field bestialFerocity T
+---@field aimedShot T
+---@field concussiveShot T
 ---@field freezingTrap T
 ---@field huntersMark T
----@field intimidation T
----@field latentPoison T
----@field mortalWounds T
----@field resonatingArrow T
----@field soulforgeEmbers T
----@field tarTrap T
----@field wildMark T
+---@field scorpidPoison T
+---@field scorpidSting T
+---@field screech T
+---@field serpentSting T
+---@field viperSting T
+---@field wyvernSting T
 
 ---@class BR.Keys.Classic.Hunter.Glyphs<T>
 
@@ -1580,95 +1440,6 @@ function C65.timer(timerName, interval) end
 ---@class BR.Keys.Classic.Hunter.Totems<T>
 
 ---@class BR.Classic.Hunter.talent.rank
----@field beastOfOpportunity integer
----@field bindingShot integer
----@field blackArrow integer
----@field blackrockMunitions integer
----@field bornToBeWild integer
----@field burstingShot integer
----@field camouflage integer
----@field catchOut integer
----@field concussiveShot integer
----@field corneredPrey integer
----@field counterShot integer
----@field coveringFire integer
----@field crescentSteel integer
----@field cullTheHerd integer
----@field darkChains integer
----@field darkEmpowerment integer
----@field darknessCalls integer
----@field deathShade integer
----@field denRecovery integer
----@field devilsaurTranquilizer integer
----@field disruptiveRounds integer
----@field dontLookBack integer
----@field embraceTheShadows integer
----@field emergencySalve integer
----@field entrapment integer
----@field extrapolatedShots integer
----@field eyesClosed integer
----@field frenziedTear integer
----@field furiousAssault integer
----@field ghillieSuit integer
----@field graveReaper integer
----@field highExplosiveTrap integer
----@field howlOfThePack integer
----@field huntersAvoidance integer
----@field implosiveTrap integer
----@field improvedKillShot integer
----@field improvedTraps integer
----@field intimidation integer
----@field invigoratingPulse integer
----@field keenEyesight integer
----@field kindlingFlare integer
----@field kodoTranquilizer integer
----@field loneSurvivor integer
----@field lunarStorm integer
----@field misdirection integer
----@field momentOfOpportunity integer
----@field naturalMending integer
----@field noHardFeelings integer
----@field overshadow integer
----@field overwatch integer
----@field packAssault integer
----@field packCoordination integer
----@field paddedArmor integer
----@field pathfinding integer
----@field posthaste integer
----@field quickLoad integer
----@field rejuvenatingWind integer
----@field releaseAndReload integer
----@field roarOfSacrifice integer
----@field scareBeast integer
----@field scatterShot integer
----@field scatteredPrey integer
----@field scoutsInstincts integer
----@field scrappy integer
----@field sentinel integer
----@field sentinelPrecision integer
----@field sentinelWatch integer
----@field serratedTips integer
----@field shadowErasure integer
----@field shadowHounds integer
----@field shadowLash integer
----@field shadowSurge integer
----@field sideline integer
----@field smokeScreen integer
----@field specializedArsenal integer
----@field survivalOfTheFittest integer
----@field symphonicArsenal integer
----@field tarTrap integer
----@field tarcoatedBindings integer
----@field territorialInstincts integer
----@field tirelessHunt integer
----@field trailblazer integer
----@field tranquilizingShot integer
----@field triggerFinger integer
----@field unnaturalCauses integer
----@field viciousHunt integer
----@field wildAttacks integer
----@field wildernessMedicine integer
----@field witheringFire integer
 
 
 ---@class BR.Classic.Hunter.buff : BR.Keys.Classic.Hunter.Buffs<BR.buff.Spell>
@@ -1792,95 +1563,6 @@ function C65.timer(timerName, interval) end
 
 ---@class BR.Classic.Hunter.talent
 ---@field rank BR.Classic.Hunter.talent.rank The rank of each talent (0 when not taken)
----@field beastOfOpportunity boolean # true while the talent is taken
----@field bindingShot boolean # true while the talent is taken
----@field blackArrow boolean # true while the talent is taken
----@field blackrockMunitions boolean # true while the talent is taken
----@field bornToBeWild boolean # true while the talent is taken
----@field burstingShot boolean # true while the talent is taken
----@field camouflage boolean # true while the talent is taken
----@field catchOut boolean # true while the talent is taken
----@field concussiveShot boolean # true while the talent is taken
----@field corneredPrey boolean # true while the talent is taken
----@field counterShot boolean # true while the talent is taken
----@field coveringFire boolean # true while the talent is taken
----@field crescentSteel boolean # true while the talent is taken
----@field cullTheHerd boolean # true while the talent is taken
----@field darkChains boolean # true while the talent is taken
----@field darkEmpowerment boolean # true while the talent is taken
----@field darknessCalls boolean # true while the talent is taken
----@field deathShade boolean # true while the talent is taken
----@field denRecovery boolean # true while the talent is taken
----@field devilsaurTranquilizer boolean # true while the talent is taken
----@field disruptiveRounds boolean # true while the talent is taken
----@field dontLookBack boolean # true while the talent is taken
----@field embraceTheShadows boolean # true while the talent is taken
----@field emergencySalve boolean # true while the talent is taken
----@field entrapment boolean # true while the talent is taken
----@field extrapolatedShots boolean # true while the talent is taken
----@field eyesClosed boolean # true while the talent is taken
----@field frenziedTear boolean # true while the talent is taken
----@field furiousAssault boolean # true while the talent is taken
----@field ghillieSuit boolean # true while the talent is taken
----@field graveReaper boolean # true while the talent is taken
----@field highExplosiveTrap boolean # true while the talent is taken
----@field howlOfThePack boolean # true while the talent is taken
----@field huntersAvoidance boolean # true while the talent is taken
----@field implosiveTrap boolean # true while the talent is taken
----@field improvedKillShot boolean # true while the talent is taken
----@field improvedTraps boolean # true while the talent is taken
----@field intimidation boolean # true while the talent is taken
----@field invigoratingPulse boolean # true while the talent is taken
----@field keenEyesight boolean # true while the talent is taken
----@field kindlingFlare boolean # true while the talent is taken
----@field kodoTranquilizer boolean # true while the talent is taken
----@field loneSurvivor boolean # true while the talent is taken
----@field lunarStorm boolean # true while the talent is taken
----@field misdirection boolean # true while the talent is taken
----@field momentOfOpportunity boolean # true while the talent is taken
----@field naturalMending boolean # true while the talent is taken
----@field noHardFeelings boolean # true while the talent is taken
----@field overshadow boolean # true while the talent is taken
----@field overwatch boolean # true while the talent is taken
----@field packAssault boolean # true while the talent is taken
----@field packCoordination boolean # true while the talent is taken
----@field paddedArmor boolean # true while the talent is taken
----@field pathfinding boolean # true while the talent is taken
----@field posthaste boolean # true while the talent is taken
----@field quickLoad boolean # true while the talent is taken
----@field rejuvenatingWind boolean # true while the talent is taken
----@field releaseAndReload boolean # true while the talent is taken
----@field roarOfSacrifice boolean # true while the talent is taken
----@field scareBeast boolean # true while the talent is taken
----@field scatterShot boolean # true while the talent is taken
----@field scatteredPrey boolean # true while the talent is taken
----@field scoutsInstincts boolean # true while the talent is taken
----@field scrappy boolean # true while the talent is taken
----@field sentinel boolean # true while the talent is taken
----@field sentinelPrecision boolean # true while the talent is taken
----@field sentinelWatch boolean # true while the talent is taken
----@field serratedTips boolean # true while the talent is taken
----@field shadowErasure boolean # true while the talent is taken
----@field shadowHounds boolean # true while the talent is taken
----@field shadowLash boolean # true while the talent is taken
----@field shadowSurge boolean # true while the talent is taken
----@field sideline boolean # true while the talent is taken
----@field smokeScreen boolean # true while the talent is taken
----@field specializedArsenal boolean # true while the talent is taken
----@field survivalOfTheFittest boolean # true while the talent is taken
----@field symphonicArsenal boolean # true while the talent is taken
----@field tarTrap boolean # true while the talent is taken
----@field tarcoatedBindings boolean # true while the talent is taken
----@field territorialInstincts boolean # true while the talent is taken
----@field tirelessHunt boolean # true while the talent is taken
----@field trailblazer boolean # true while the talent is taken
----@field tranquilizingShot boolean # true while the talent is taken
----@field triggerFinger boolean # true while the talent is taken
----@field unnaturalCauses boolean # true while the talent is taken
----@field viciousHunt boolean # true while the talent is taken
----@field wildAttacks boolean # true while the talent is taken
----@field wildernessMedicine boolean # true while the talent is taken
----@field witheringFire boolean # true while the talent is taken
 
 
 
@@ -12064,3 +11746,393 @@ function C65.timer(timerName, interval) end
 ---@field vileCorruption T
 
 ---@class BR.Keys.Retail.Druid.Feral.Glyphs<T>
+
+---@class BR.Keys.Retail.Druid.Feral.Items<T>
+---@field abyssalHealingPotion T
+---@field ailuroPouncers T
+---@field algetharPuzzleBox T
+---@field aquipotentNautilus T
+---@field archavonsHeavyHand T
+---@field ascendedFlute T
+---@field ashesOfTheEmbersoul T
+---@field ashvanesRazorCoral T
+---@field azsharasFontOfPower T
+---@field battlePotionOfAgility T
+---@field battlePotionOfIntellect T
+---@field battlePotionOfStrength T
+---@field battleScarredAugmentRune T
+---@field beaconToTheBeyond T
+---@field benevolentGong T
+---@field bottledFlayedWingToxin T
+---@field burningSeeds T
+---@field buzzingRuneQualities T
+---@field bygoneBeeAlmanac T
+---@field chatoyantSignet T
+---@field chirpingRuneQualities T
+---@field coastalHealingPotion T
+---@field coldHeart T
+---@field consortsColdCore T
+---@field convergenceOfFates T
+---@field darkmoonDeckPutrescence T
+---@field deceiversGrandDesign T
+---@field defiledAugmentRune T
+---@field deviouslyDeviledEggs T
+---@field djaruunPillarOfTheElderFlame T
+---@field draughtOfSouls T
+---@field dreadfireVessel T
+---@field dreamwalkersHealingPotion T
+---@field dribblingInkpod T
+---@field drinkingHornCover T
+---@field elementalPotionOfPowerQualities T
+---@field elementalPotionOfUltimatePower T
+---@field elementalPotionOfUltimatePowerQualities T
+---@field empyrealOrdnance T
+---@field eternalAmuletOfTheRedeemed T
+---@field eternalEmberfuryTalisman T
+---@field eternalHorizonChoker T
+---@field eternalTalismanOfEvasion T
+---@field eternalWillOfTheMartyr T
+---@field eternalWovenIvyNecklace T
+---@field everchillBrambles T
+---@field fandralsSeedPouch T
+---@field felCrystalFragments T
+---@field feloiledInfernalMachine T
+---@field flameOfBattle T
+---@field flaskOfEndlessFathoms T
+---@field flaskOfSpringBlossoms T
+---@field flaskOfTenThousandScars T
+---@field flaskOfTheCountlessArmies T
+---@field flaskOfTheCurrents T
+---@field flaskOfTheSeventhDemon T
+---@field flaskOfTheUndertow T
+---@field flaskOfTheVastHorizon T
+---@field flaskOfTheWhisperedPact T
+---@field galecallersBeak T
+---@field galecallersBoon T
+---@field gladiatorsBadge T
+---@field gladiatorsBadgeAlacrity T
+---@field glyphOfAssimilation T
+---@field greaterFlaskOfEndlessFathoms T
+---@field greaterFlaskOfTheCurrents T
+---@field greaterFlaskOfTheUndertow T
+---@field greaterFlaskOfTheVastHorizon T
+---@field grongsPrimalRage T
+---@field healthstone T
+---@field heavenlyDrum T
+---@field heirloomNeck T
+---@field hiddenMastersForbiddenTouch T
+---@field hissingRuneQualities T
+---@field hornOfValor T
+---@field howlingRuneQualities T
+---@field hummingBlackDragonscale T
+---@field hyperthreadWristWraps T
+---@field icedPhialOfCorruptingRageQualities T
+---@field imperfectAscendancySerum T
+---@field inquisitorsMenacingEye T
+---@field inscrutableQuantumDevice T
+---@field instructorsDivineBell T
+---@field integratedPrimalFire T
+---@field irideusFragment T
+---@field jesHowler T
+---@field kazzalaxFujiedasFury T
+---@field kharnalexTheFirstLight T
+---@field koltirasNewfoundWill T
+---@field kyrianBell T
+---@field legionHealthstone T
+---@field lifeflameAmpoule T
+---@field lightforgedAugmentRune T
+---@field luffaWrappings T
+---@field lustrousGoldenPlumage T
+---@field macabreSheetMusic T
+---@field manaGem T
+---@field manariTrainingAmulet T
+---@field mirrorOfFracturedTomorrows T
+---@field mythicKeystone T
+---@field neuralSynapseEnhancer T
+---@field oraliusWhisperingCrystal T
+---@field perseveranceOfTheEbonMartyr T
+---@field phialOfGlacialFuryQualities T
+---@field phialOfSerenity T
+---@field phialOfTepidVersatilityQualities T
+---@field pocketSizedComputationDevice T
+---@field potionOfBurstingBlood T
+---@field potionOfEmpoweredProximity T
+---@field potionOfFocusedResolve T
+---@field potionOfProlongedPower T
+---@field potionOfSpectralAgility T
+---@field potionOfTheOldWar T
+---@field potionOfUnbridledFury T
+---@field potionOfWildMending T
+---@field rampingAmplitudeGigavoltEngine T
+---@field remoteGuidanceDevice T
+---@field repurposedFelFocuser T
+---@field ringOfCollapsingFutures T
+---@field rotcrustedVoodooDoll T
+---@field shadowCoreOil T
+---@field shiverVenomRelic T
+---@field shroudOfResolve T
+---@field soulIgnitor T
+---@field soulOfTheSlayer T
+---@field soulettingRuby T
+---@field specterOfBetrayal T
+---@field spectralFlaskOfPower T
+---@field sunbloodAmethyst T
+---@field superiorBattlePotionOfAgility T
+---@field superiorBattlePotionOfIntellect T
+---@field superiorBattlePotionOfStamina T
+---@field superiorBattlePotionOfStrength T
+---@field superiorSteelskinPotion T
+---@field theEmperorsCapacitor T
+---@field theWildshapersClutch T
+---@field thousandboneTongueslicer T
+---@field tidesagesWarscroll T
+---@field tidestormCodex T
+---@field touchOfTheVoid T
+---@field treacherousTransmitter T
+---@field tuftOfSmolderingPlumage T
+---@field twistedHeart T
+---@field umbralMoonglaives T
+---@field unearthlyChime T
+---@field verdantGladiatorsBadgeOfFerocity T
+---@field vialOfCeaselessToxins T
+---@field vialOfSpectral T
+---@field vialOfStorms T
+---@field vigorTrinket T
+---@field virmensBite T
+---@field visionOfDemise T
+---@field wakenersFrond T
+---@field weightOfTheEarth T
+---@field witherbarksBranch T
+---@field wrapsOfElectrostaticPotential T
+---@field wrathstone T
+
+---@class BR.Keys.Retail.Druid.Feral.Totems<T>
+
+---@class BR.Retail.Druid.Feral.talent.rank
+---@field aessinasRenewal integer
+---@field apexPredatorsCraving integer
+---@field ashamanesGuidance integer
+---@field astralInfluence integer
+---@field berserk integer
+---@field berserkHeartOfTheLion integer
+---@field bloodSplattered integer
+---@field bloodtalons integer
+---@field carnivorousInstinct integer
+---@field chomp integer
+---@field circleOfLifeAndDeath integer
+---@field circleOfTheHeavens integer
+---@field circleOfTheWild integer
+---@field coiledToSpring integer
+---@field convokeTheSpirits integer
+---@field cyclone integer
+---@field doubleclawedRake integer
+---@field dreadfulBleeding integer
+---@field felineSwiftness integer
+---@field feralFrenzy integer
+---@field fluidForm integer
+---@field focusedFrenzy integer
+---@field forestwalk integer
+---@field franticFrenzy integer
+---@field franticMomentum integer
+---@field frenziedRegeneration integer
+---@field galeWinds integer
+---@field giftOfTheWild integer
+---@field grievousWounds integer
+---@field heartOfTheWild integer
+---@field hibernate integer
+---@field hungerForBattle integer
+---@field improvedBarkskin integer
+---@field improvedStampedingRoar integer
+---@field incapacitatingRoar integer
+---@field incarnationAvatarOfAshamane integer
+---@field incessantTempest integer
+---@field infectedWounds integer
+---@field innervate integer
+---@field instinctsOfTheClaw integer
+---@field ironfur integer
+---@field killerInstinct integer
+---@field laceratingClaws integer
+---@field lingeringHealing integer
+---@field loreOfTheGrove integer
+---@field lunarInspiration integer
+---@field lycarasInspiration integer
+---@field lycarasTeachings integer
+---@field maim integer
+---@field massEntanglement integer
+---@field mattedFur integer
+---@field mercilessClaws integer
+---@field mightyBash integer
+---@field momentOfClarity integer
+---@field moonkinForm integer
+---@field naturalRecovery integer
+---@field nurturingInstinct integer
+---@field oakskin integer
+---@field omenOfClarity integer
+---@field panthersGuile integer
+---@field perfectlyhonedInstincts integer
+---@field pouncingStrikes integer
+---@field predator integer
+---@field primalFury integer
+---@field primalWrath integer
+---@field ragingFury integer
+---@field rake integer
+---@field rampantFerocity integer
+---@field rejuvenation integer
+---@field removeCorruption integer
+---@field rip integer
+---@field ripAndTear integer
+---@field saberJaws integer
+---@field sabertooth integer
+---@field savageFury integer
+---@field skullBash integer
+---@field soothe integer
+---@field soulOfTheForest integer
+---@field stampedingRoar integer
+---@field starfire integer
+---@field starlightConduit integer
+---@field starsurge integer
+---@field suddenAmbush integer
+---@field sunfire integer
+---@field survivalInstincts integer
+---@field swipe integer
+---@field symbioticRelationship integer
+---@field tasteForBlood integer
+---@field thickHide integer
+---@field tigerDash integer
+---@field tigersFury integer
+---@field tigersTenacity integer
+---@field tirelessEnergy integer
+---@field typhoon integer
+---@field unseenPredator integer
+---@field ursineVigor integer
+---@field ursocsSpirit integer
+---@field ursolsVortex integer
+---@field veinripper integer
+---@field verdantHeart integer
+---@field wellhonedInstincts integer
+---@field wildCharge integer
+---@field wildGrowth integer
+---@field wildSlashes integer
+
+
+---@class BR.Retail.Druid.Feral.buff : BR.Keys.Retail.Druid.Feral.Buffs<BR.buff.Spell>
+
+
+
+
+---@class BR.Retail.Druid.Feral.cast.able : BR.cast.able.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.able.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.active : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.active.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.auto : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.cancel : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.cost : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.current : BR.cast.current.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.dispel : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.dispel.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.empowered : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.empowered.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.inFlight : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.inFlightRemain : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.Retail.Druid.Feral.cast.last.time : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.Retail.Druid.Feral.cast.last : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.last.Spell>
+---@field time BR.Retail.Druid.Feral.cast.last.time
+
+
+---@class BR.Retail.Druid.Feral.cast.maxRank : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.noControl : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.opener : BR.cast.opener.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.pool : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.range : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.regen : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.safe : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.safe.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.time : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.time.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.timeSinceLast : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.timeSinceLast.Spell>
+
+---@class BR.Retail.Druid.Feral.cast : BR.cast.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.Spell>
+---@field able BR.Retail.Druid.Feral.cast.able
+---@field active BR.Retail.Druid.Feral.cast.active
+---@field auto BR.Retail.Druid.Feral.cast.auto
+---@field cancel BR.Retail.Druid.Feral.cast.cancel
+---@field cost BR.Retail.Druid.Feral.cast.cost
+---@field current BR.Retail.Druid.Feral.cast.current
+---@field dispel BR.Retail.Druid.Feral.cast.dispel
+---@field empowered BR.Retail.Druid.Feral.cast.empowered
+---@field inFlight BR.Retail.Druid.Feral.cast.inFlight
+---@field inFlightRemain BR.Retail.Druid.Feral.cast.inFlightRemain
+---@field last BR.Retail.Druid.Feral.cast.last
+---@field maxRank BR.Retail.Druid.Feral.cast.maxRank
+---@field noControl BR.Retail.Druid.Feral.cast.noControl
+---@field opener BR.Retail.Druid.Feral.cast.opener
+---@field pool BR.Retail.Druid.Feral.cast.pool
+---@field range BR.Retail.Druid.Feral.cast.range
+---@field regen BR.Retail.Druid.Feral.cast.regen
+---@field safe BR.Retail.Druid.Feral.cast.safe
+---@field time BR.Retail.Druid.Feral.cast.time
+---@field timeSinceLast BR.Retail.Druid.Feral.cast.timeSinceLast
+
+
+---@class BR.Retail.Druid.Feral.cd : BR.cd.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cd.Spell>, BR.Keys.Retail.Druid.Feral.Items<BR.cd.Item>
+
+
+---@class BR.Retail.Druid.Feral.charges : BR.Keys.Retail.Druid.Feral.Abilities<BR.charges.Spell>, BR.Keys.Retail.Druid.Feral.Items<BR.charges.Item>
+
+
+---@class BR.Retail.Druid.Feral.debuff : BR.Keys.Retail.Druid.Feral.Debuffs<BR.debuff.Spell>
+
+
+---@class BR.Retail.Druid.Feral.equiped : BR.equiped.Base, BR.Keys.Retail.Druid.Feral.Items<BR.equiped.Item>
+
+
+---@class BR.Retail.Druid.Feral.glyph : BR.glyph.Base, BR.Keys.Retail.Druid.Feral.Glyphs<BR.glyph.K>
+
+
+---@class BR.Retail.Druid.Feral.has : BR.has.Base, BR.Keys.Retail.Druid.Feral.Items<BR.has.Item>
+
+
+---@class BR.Retail.Druid.Feral.heroTree
+---@field druidOfTheClaw boolean # true for the active hero talent tree
+---@field elunesChosen boolean # true for the active hero talent tree
+---@field keeperOfTheGrove boolean # true for the active hero talent tree
+---@field wildstalker boolean # true for the active hero talent tree
+
+
+---@class BR.Retail.Druid.Feral.imbues
+
+
+---@class BR.Retail.Druid.Feral.spell : BR.Keys.Retail.Druid.Feral.Abilities<BR.spell.K>

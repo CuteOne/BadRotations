@@ -2322,6 +2322,7 @@
 ---@field trueshot T
 ---@field truthsWake T
 ---@field turnEvil T
+---@field turnUndead T
 ---@field twinGuardian T
 ---@field twinMoonfire T
 ---@field twinMoons T
@@ -5358,6 +5359,7 @@
 ---@field survivalInstincts integer
 ---@field survivalOfTheFittest integer
 ---@field swallowedAnger integer
+---@field sweepingStrikes integer
 ---@field swiftDeath integer
 ---@field swiftEnd integer
 ---@field swiftJustice integer
@@ -9190,6 +9192,7 @@ function C52.texture() end
 ---@field survivalInstincts boolean # true while the talent is taken
 ---@field survivalOfTheFittest boolean # true while the talent is taken
 ---@field swallowedAnger boolean # true while the talent is taken
+---@field sweepingStrikes boolean # true while the talent is taken
 ---@field swiftDeath boolean # true while the talent is taken
 ---@field swiftEnd boolean # true while the talent is taken
 ---@field swiftJustice boolean # true while the talent is taken

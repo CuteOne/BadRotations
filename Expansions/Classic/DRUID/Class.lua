@@ -10,7 +10,7 @@ br.lists.spells.DRUID.Shared = {
                 maul                = {6807, 6808, 6809, 8972, 9745, 9880, 9881}, -- Ranks 1-7
                 swipe               = {779, 780, 769, 9754, 9908}, -- Ranks 1-5
                 -- Cat Form
-                claw                = {1082, 3029, 5201, 9849, 9850, 9851}, -- Ranks 1-6
+                claw                = {1082, 3029, 5201, 9849, 9850}, -- Ranks 1-5
                 faerieFireFeral     = 16857,
                 ferociousBite       = {22568, 22827, 22828, 22829, 31018}, -- Ranks 1-5
                 pounce              = {9005, 9823, 9827},
