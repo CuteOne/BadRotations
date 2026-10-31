@@ -704,6 +704,27 @@ function unit:isEnemyNear(radius)
 	return unit:anyInAggroRange(0, radius)
 end
 
+-- Evading mobs (an evade bug, or a mob leashing home): marked by the combat log reader when an attack of
+-- yours comes back "EVADE", lifted when one lands, when it hits you, or after EVADE_MARK seconds (then the
+-- next attack tries again). GUID -> GetTime the mark runs out.
+local EVADE_MARK = 10
+local evading = {}
+
+--- True while thisUnit evades your attacks (an attack of yours came back "EVADE" in the last 10 s and none
+-- has landed since): BR doesn't pick it, and its damage spells aren't sent at it.
+function unit:isEvading(thisUnit)
+	if next(evading) == nil or thisUnit == nil then return false end
+	local guid = br.game.UnitGUID(thisUnit)
+	local until_ = guid and evading[guid]
+	if until_ == nil then return false end
+	if br.game.GetTime() >= until_ then
+		evading[guid] = nil
+		if br.debug.target and br.debug.target.noteEvade then br.debug.target:noteEvade(guid, nil, "mark ran out (10 s)") end
+		return false
+	end
+	return true
+end
+
 function unit:isExplosive(Unit)
 	return br.lists.unitRules.explosive[br.functions.unit:GetObjectID(Unit)] ~= nil
 end
@@ -773,7 +794,7 @@ end
 --- one flags you for PvP)
 function unit:isPullable(thisUnit)
 	return br.functions.misc:isValidUnit(thisUnit) and br.functions.combat:canAttack(thisUnit, "player")
-		and not unit:isPlayer(thisUnit)
+		and not unit:isPlayer(thisUnit) and not unit:isEvading(thisUnit)
 end
 
 --- True while a form cancel BR sent is still on its way (sent within a round trip, form still on).
@@ -807,6 +828,24 @@ function unit:isWinning(thisUnit)
 end
 
 function unit:noteTargetChanged() targetChangedAt = br.game.GetTime() end
+
+--- The combat log reader: an attack of yours on guid came back "EVADE"
+function unit:noteEvade(guid, name)
+	if guid == nil then return end
+	local first = evading[guid] == nil
+	evading[guid] = br.game.GetTime() + EVADE_MARK
+	if first then
+		br.log:systemDebug(tostring(name or "A mob") .. " is evading: BR holds its attacks")
+		if br.debug.target and br.debug.target.noteEvade then br.debug.target:noteEvade(guid, name, "evading") end
+	end
+end
+
+--- The combat log reader: an attack of yours landed on guid, or it hit you (why): it isn't evading now
+function unit:noteEvadeEnded(guid, why)
+	if guid == nil or evading[guid] == nil then return end
+	evading[guid] = nil
+	if br.debug.target and br.debug.target.noteEvade then br.debug.target:noteEvade(guid, nil, why) end
+end
 
 function unit:noteFleeEmote(text, guid, name)
 	if not (text and br.lists.fleeEmotes[text]) then return end

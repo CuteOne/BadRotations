@@ -456,8 +456,8 @@ function enemiesEngineFunctions:getShieldCoefficient(unit)
 	return coef
 end
 
--- Facts about the selected target, read once per frame: whether BR may attack it at all, its
--- distance, and whether it is in front of the player
+-- Facts about the selected target, read once per frame: whether BR may attack it at all (not while it
+-- evades: unit:isEvading), its distance, and whether it is in front of the player
 local targetFacts = { at = nil }
 local function readTargetFacts()
 	local now = br.game.GetTime()
@@ -465,7 +465,7 @@ local function readTargetFacts()
 	targetFacts.at = now
 	local unitFns, misc = br.functions.unit, br.functions.misc
 	local ok = unitFns:GetObjectExists("target") and not unitFns:GetUnitIsDeadOrGhost("target")
-		and br.functions.cast:isUnitVisible("target") and misc:isValidUnit("target")
+		and br.functions.cast:isUnitVisible("target") and misc:isValidUnit("target") and not unitFns:isEvading("target")
 		and not (misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack("target"))
 	targetFacts.attackable = ok and true or false
 	targetFacts.distance = ok and br.functions.range:getDistance("target") or nil
@@ -534,7 +534,9 @@ local function pickDynamicTarget(range, facing)
 			local unitFns = br.functions.unit
 			local targetExists = unitFns:GetObjectExists("target")
 			local meleeRequest = facing and range <= MELEE_RETARGET
+			-- (an evading target: another enemy BR may attack takes over, 2026-10-31 the user's call)
 			local wantRetarget = autoTargetDynamic or not targetExists or not br.functions.cast:isUnitVisible("target")
+				or unitFns:isEvading("target")
 				or (misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack("target"))
 				or (meleeRequest and (br.engines.targeting:isPriority(result)
 					or (not usable and misc:isTargeting(result))))

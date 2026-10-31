@@ -157,6 +157,20 @@ function combatLog:common(...)
             br.engines.enemiesEngine:forget(deadUnit)
         end
     end
+    -- Evading mobs (Functions/Unit.lua unit:noteEvade): an attack of yours that comes back "EVADE"
+    -- marks the mob; one that lands, or the mob hitting you, lifts the mark. The miss type is SWING_MISSED's
+    -- 12th value and the other misses' 15th.
+    if source == guid then
+        if param == "SWING_MISSED" then
+            if spell == "EVADE" then br.functions.unit:noteEvade(destination, destName) end
+        elseif param == "SPELL_MISSED" or param == "RANGE_MISSED" or param == "SPELL_PERIODIC_MISSED" then
+            if spellType == "EVADE" then br.functions.unit:noteEvade(destination, destName) end
+        elseif param == "SWING_DAMAGE" or param == "SPELL_DAMAGE" or param == "RANGE_DAMAGE" or param == "SPELL_PERIODIC_DAMAGE" then
+            br.functions.unit:noteEvadeEnded(destination, "your attack landed")
+        end
+    elseif destination == guid and (param == "SWING_DAMAGE" or param == "SPELL_DAMAGE" or param == "RANGE_DAMAGE") then
+        br.functions.unit:noteEvadeEnded(source, "it hit you")
+    end
     --[[Combat Validation]]
     if br.runner ~= nil then
         local inInstance, instanceType = br.game.IsInInstance()

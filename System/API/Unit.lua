@@ -265,6 +265,15 @@ br.api.build.unit = function(api)
         return br.functions.unit:isEnemyNear(range)
     end
 
+    --- Whether the unit evades your attacks (an evade bug, or leashing home): an attack of yours came back
+    -- "EVADE" and none has landed since (10 s at most). BR doesn't pick it and holds its damage spells.
+    -- @function unit.evading
+    -- @param thisUnit The unit to check, defaults to "target" if nil
+    -- @return boolean True while it evades
+    unit.evading = function(thisUnit)
+        return br.functions.unit:isEvading(thisUnit or "target")
+    end
+
     --- Check if a unit exists
     -- @function unit.exists
     -- @param thisUnit The unit to check

@@ -253,6 +253,12 @@ local function runCastFunction(self, thisUnit, castType, minUnits, effectRng, sp
 		return false
 	end
 
+	-- An evading unit (unit:isEvading): its damage spells wait until an attack lands on it again
+	if ctx.spellType == "Harmful" and br.functions.unit:isEvading(thisUnit) then
+		E.recordRefusal(spellID, "EVADING", "it evades your attacks")
+		return false
+	end
+
 	-- The game refused this spell while the player moved: not sent again until they stop
 	if br.functions.cast:isRejected("moving", spellID, "player") then
 		E.recordRefusal(spellID, "MOVING", "the game refused it while you move; waits until you stop")

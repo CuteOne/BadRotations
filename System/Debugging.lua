@@ -328,6 +328,11 @@ function br.debug.target:report(reason, units)
     if #list > units then say(("... %d more"):format(#list - units)) end
 end
 
+-- An evading mob marked or lifted (Functions/Unit.lua): its GUID's tail, name, what happened
+function br.debug.target:noteEvade(guid, name, what)
+    targetLine(("EVADE %s #%s: %s"):format(name and printable(name) or "", tostring(guid):sub(-6), what))
+end
+
 -- Automatic reports in combat, so nothing depends on running /br target at the right moment: when BR's
 -- focus changes, the target changes, or BR changes the target. At most one per AUTO_GAP seconds and
 -- AUTO_PER_COMBAT per fight. Called by Player:startRotation after the rotation.

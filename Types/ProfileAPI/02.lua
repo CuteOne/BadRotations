@@ -190,6 +190,12 @@ function C59.enemy(thisUnit, playerUnit) end
 ---@return boolean # True when an enemy is already fighting within range, or an idle one's aggro range reaches you
 function C59.enemyNear(range) end
 
+--- Whether the unit evades your attacks (an evade bug, or leashing home): an attack of yours came back
+--- "EVADE" and none has landed since (10 s at most). BR doesn't pick it and holds its damage spells.
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@return boolean # True while it evades
+function C59.evading(thisUnit) end
+
 --- Check if a unit exists
 ---@param thisUnit? string The unit to check
 ---@return boolean # True if the unit exists
