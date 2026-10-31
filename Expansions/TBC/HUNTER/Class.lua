@@ -51,7 +51,7 @@ br.lists.spells.HUNTER.Shared = {
         mendPet           = {136, 3111, 3661, 3662, 13542, 13543, 13544, 27046},           -- R1-R8 (lv12/20/28/36/44/52/60/68)
         feedPet           = 6991,
         -- Pet Abilities (cast from pet action bar / by bot targeting pet)
-        bite              = {17253, 17254, 17255, 17256, 17257, 17258, 17259, 17260, 27050},     -- R1-R9 (lv1/8/16/24/32/40/48/56/62); universal
+        bite              = {17253, 17255, 17256, 17257, 17258, 17259, 17260, 17261, 27050},     -- R1-R9 (lv1/8/16/24/32/40/48/56/64); universal
         claw              = {16827, 16828, 16829, 16830, 16831, 16832, 27049},                   -- R1-R6+R9 (R7-R8 IDs unconfirmed); Cat/Bear/Raptor/Scorpid/Crab
         dash              = {23099, 23109, 23110},                                               -- R1-R3 (lv30/40/50); Wolf/Cat/Boar/others
         growl             = {2649, 14916, 14917, 14918, 14919, 14920, 14921, 27047},            -- R1-R8 (lv1/10/20/30/40/50/60/70); all pets
