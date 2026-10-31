@@ -1,7 +1,7 @@
 ---
 -- These functions help in retrieving information about spell and item charges.
 -- Charge functions are the profile API table `charges` (br.api.profile.charges); profiles use it by name.
--- For spell charges, `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+-- For spell charges, `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in Expansions/<Flavour>/ (Global.lua, <CLASS>/Class.lua, <CLASS>/<Spec>.lua)
 -- For item charges, `item` in the function represent the name in the item list defined in System/List/Items.lua
 -- @module charges
 local _, br = ...

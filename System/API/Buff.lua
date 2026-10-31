@@ -1,7 +1,7 @@
 ---
 -- These functions help in retrieving information about buffs.
 -- Buff functions are the profile API table `buff` (br.api.profile.buff); profiles use it by name.
--- `spell` in the function represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+-- `spell` in the function represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in Expansions/<Flavour>/ (Global.lua, <CLASS>/Class.lua, <CLASS>/<Spec>.lua)
 -- @module buff
 local _, br = ...
 

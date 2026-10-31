@@ -34,7 +34,7 @@ local function loadList(path, into)
 end
 local flavourBrs, flavourBrByName = {}, {}
 -- As br.lists:loadExpansionSpells loads them: Global.lua first (it starts br.lists.spells), then the class
--- and spec files (Spells.lua is only a fallback for a flavour without Global.lua)
+-- and spec files
 for _, dir in ipairs(lines('find Expansions -mindepth 1 -maxdepth 1 -type d | sort')) do
     local flavourBr = newBr()
     loadList(dir .. "/Global.lua", flavourBr)

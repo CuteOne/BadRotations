@@ -61,16 +61,7 @@ function br.lists:loadExpansionSpells()
     -- 1. Global.lua — always loaded first; initialises br.lists.spells
     local globalPath = expBase .. sep .. "Global.lua"
     if not loadFile(globalPath, expansion .. " Global") then
-        -- Fallback to legacy monolithic Spells.lua
-        br.log:warning(expansion .. " Global.lua not found; falling back to Spells.lua")
-        local legacy = br.game.ReadFile(expBase .. sep .. "Spells.lua")
-        if legacy then
-            local func = assert(loadstring(legacy, expansion .. " Spells"))
-            setfenv(func, setmetatable({}, {__index = br.game}))
-            func(nil, br)
-        else
-            br.log:error(expansion .. " spell lists not found!")
-        end
+        br.log:error(expansion .. " spell lists not found (" .. globalPath .. ")")
         return
     end
 

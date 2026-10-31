@@ -1,7 +1,7 @@
 ---
 -- These functions help in retrieving information about spells.
 -- Spell functions are the profile API table `spell` (br.api.profile.spell); profiles use it by name.
--- `k` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+-- `k` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in Expansions/<Flavour>/ (Global.lua, <CLASS>/Class.lua, <CLASS>/<Spec>.lua)
 -- @module spell
 local _, br = ...
 

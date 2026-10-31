@@ -1,7 +1,7 @@
 ---
 -- These functions help in retrieving information about spell and item cooldowns.
 -- CD functions are the profile API table `cd` (br.api.profile.cd); profiles use it by name.
--- For spell CDs, `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+-- For spell CDs, `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in Expansions/<Flavour>/ (Global.lua, <CLASS>/Class.lua, <CLASS>/<Spec>.lua)
 -- For item CDs, `item` in the function represent the name in the item list defined in System/List/Items.lua
 -- For slot CDs, `slot` in the function represents equipement slots, pass the ID matching the equipement slot id you wish to check.
 -- @module cd

@@ -1,7 +1,7 @@
 ---
 -- These functions help in casting spells and retrieving information about casts.
 -- Cast functions are the profile API table `cast` (br.api.profile.cast); profiles use it by name.
--- `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+-- `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in Expansions/<Flavour>/ (Global.lua, <CLASS>/Class.lua, <CLASS>/<Spec>.lua)
 -- @module cast
 local _, br = ...
 
