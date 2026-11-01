@@ -248,6 +248,7 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 		-- the cast it lands at the end of (its own, or the one it went behind), followed through pushback
 		local castKey = castBeforeKey or (castEnd and E.currentCastKey()) or nil
 		E.promiseHeal(ctx.spellID, thisUnit, landsBy + after + hold, castKey, after, hold)
+		if br.debug.cast then br.debug.cast:noteHealSent(ctx.spellID, thisUnit, castEnd ~= nil) end
 	end
 
 	if castSucceeded then

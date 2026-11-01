@@ -496,6 +496,7 @@ end
 --- heal for, else its tooltip's "<low> to <high>"; nothing when neither is known.
 -- br.functions.cast:noteHealingItemUsed(healPot, "player")
 function cast:noteHealingItemUsed(itemID, thisUnit)
+	if br.debug.cast then br.debug.cast:noteHealItem(itemID, thisUnit or "player") end
 	local _, spellID = br.game.C_Item.GetItemSpell(itemID)
 	if spellID == nil then return end
 	local amount = br.functions.spell:getRankAmount(spellID)

@@ -918,6 +918,44 @@ function br.debug.cast:noteSend(spellID, thisUnit)
     end
 end
 
+-- Heals on their way (diagnostic, 2026-11-01 TBC): a Healing Potion went out 0.16-0.18 s before a pushed-back
+-- Healing Wave landed, at 35% health with ~40% of health on its way, so that heal wasn't counted. Either its
+-- amount was unknown (no rank seen this session, tooltip unread) or the cast didn't show yet at the send
+-- (its promise then lasts one round trip). HEAL SENT says which; HEAL ITEM what the potion saw.
+local HEAL_LINES = 30
+local healLines = 0
+local function healthState(unit)
+    local unitFns = br.functions.unit
+    return ("health %.0f%%, after heals %.0f%% (%d on their way)"):format(plainNumber(unitFns:getHP(unit) or -1),
+        plainNumber(unitFns:getHPAfterHeals(unit) or -1), plainNumber(br.functions.cast:getHealsOnTheirWay(unit) or 0))
+end
+
+-- A spell sent (cast dispatcher): written when BR counts it as a heal, or its description speaks of healing
+function br.debug.cast:noteHealSent(spellID, thisUnit, castShowing)
+    if healLines >= HEAL_LINES then return end
+    local spellFns, C = br.functions.spell, br.game.C_Spell
+    local amount = spellFns:getHealAmount(spellID)
+    local desc = printable(C.GetSpellDescription and C.GetSpellDescription(spellID) or "<no GetSpellDescription>")
+    if amount == nil and not desc:lower():find("heal", 1, true) then return end
+    healLines = healLines + 1
+    local _, left = currentCast(br.game.GetTime())
+    castWrite(("HEAL SENT %s %d → %s: amount %s (rank amount %s, helpful %s, harmful %s, description \"%s\") | cast showing at the send %s%s | %s"):format(
+        printable(spellFns:getName(spellID)), spellID, printable(br.game.UnitName(thisUnit) or thisUnit),
+        amount and ("%.0f"):format(amount) or "none", tostring(spellFns:getRankAmount(spellID)),
+        tostring(C.IsSpellHelpful(spellID)), tostring(C.IsSpellHarmful(spellID)), desc:sub(1, 70),
+        castShowing and "yes" or "no", left and (" (%.2fs left)"):format(left) or "", healthState(thisUnit)))
+end
+
+-- A healing item used (cast:noteHealingItemUsed, the Healthstone/Potion module), before its own heal is counted
+function br.debug.cast:noteHealItem(itemID, thisUnit)
+    if healLines >= HEAL_LINES then return end
+    healLines = healLines + 1
+    local casting, left = currentCast(br.game.GetTime())
+    castWrite(("HEAL ITEM %s at %s: %s | casting %s%s"):format(printable(br.game.C_Item.GetItemInfo(itemID) or itemID),
+        printable(br.game.UnitName(thisUnit) or thisUnit), healthState(thisUnit), casting or "nothing",
+        left and (" (%.2fs left)"):format(left) or ""))
+end
+
 -- A cast by name or ID the game refused with a Lua error (cast:castByName, cast:castByID). The error report's stack is
 -- secret on Forever, so the call site and arguments are written here instead: the first few per
 -- call site, then a count every 100th. "flagged" and "usable" tell whether the game marked the
