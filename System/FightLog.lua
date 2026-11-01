@@ -46,11 +46,12 @@ local sampler      -- the ticker taking samples
 local playerGUID
 
 -- Between fights, from when the last one ended: open drinking/eating periods (drinkSince, eatSince)
--- and their totals, casts and their mana, and the mana then (manaAtEnd, nil when unknown)
-local function newRest(manaAtEnd)
-	return { since = GetTime(), drinking = 0, eating = 0, casts = {}, mana = 0, manaAtEnd = manaAtEnd }
+-- and their totals, casts and their mana, and the mana then (manaAtEnd, nil when unknown). afterFight:
+-- it began at a fight's end (the first of a session began at the load: not a gap between fights)
+local function newRest(manaAtEnd, afterFight)
+	return { since = GetTime(), drinking = 0, eating = 0, casts = {}, mana = 0, manaAtEnd = manaAtEnd, afterFight = afterFight }
 end
-local rest = newRest(nil)
+local rest = newRest(nil, false)
 
 local function usable(value)
 	return value ~= nil and br.functions.misc:canUseValue(value)
@@ -172,7 +173,7 @@ local function stop(rotationFight)
 	if sampler then sampler:Cancel(); sampler = nil end
 	current.manaEnd = br.game.UnitPower("player", 0)
 	current.ended = true
-	rest = newRest(usable(current.manaEnd) and current.manaEnd or nil)
+	rest = newRest(usable(current.manaEnd) and current.manaEnd or nil, true)
 	updateRestBuffs() -- already drinking as combat ends: counted from now
 end
 
@@ -223,8 +224,13 @@ local function write(rotationFight)
 		timeParts[#timeParts + 1] = seconds
 	end
 	fightLine("time " .. fields(timeParts))
+	-- the damage over the fight and the time since the one before (the rest, drinking, walking to it): what
+	-- counts for kills per hour, where a fight's dps doesn't count the drinking it costs (2026-11-01)
+	local r = f.rest
+	local cycle = r.afterFight and duration + r.seconds or nil
+	local cycleDps = cycle and cycle > 0 and f.damage / cycle or nil
 	fightLine("damage " .. fields({ "done", f.damage, "dps", perSecond(f.damage), "pet", f.petDamage, "taken", f.taken,
-		"hidden", f.hidden }))
+		"hidden", f.hidden, "cycleDps", cycleDps or "unknown" }))
 	local effective = f.healing
 	fightLine("healing " .. fields({ "done", effective, "hps", perSecond(effective), "over", f.overhealing,
 		"overPct", (effective + f.overhealing) > 0 and f.overhealing * 100 / (effective + f.overhealing) or 0,
@@ -234,7 +240,6 @@ local function write(rotationFight)
 	if next(f.bySpell) then fightLine("spells " .. namedList(f.bySpell, TOP_SPELLS)) end
 	if next(f.casts) then fightLine("spellCasts " .. namedList(f.casts)) end
 	if next(f.castMana) then fightLine("spellMana " .. namedList(f.castMana)) end
-	local r = f.rest
 	fightLine("rest " .. fields({ "since", r.seconds, "drinking", r.drinking, "eating", r.eating,
 		"manaGained", r.manaGained or "unknown", "manaSpent", r.mana }))
 	if next(r.casts) then fightLine("restSpells " .. namedList(r.casts)) end
@@ -249,8 +254,9 @@ local function write(rotationFight)
 		local notPlaying = (f.controlled > 0 and (", crowd controlled %.1fs"):format(f.controlled) or "")
 			.. (f.brOff > 0 and (", BR off %.1fs"):format(f.brOff) or "")
 			.. (f.brPaused > 0 and (", BR paused %.1fs"):format(f.brPaused) or "")
-		br.log:systemDebug(("[FIGHT] %.1fs%s: %.1f dps, %d casts%s, %s mana, idle %.1fs%s"):format(duration,
-			f.target and (" vs " .. f.target) or "", perSecond(f.damage), rotationFight.sent or 0,
+		br.log:systemDebug(("[FIGHT] %.1fs%s: %.1f dps%s, %d casts%s, %s mana, idle %.1fs%s"):format(duration,
+			f.target and (" vs " .. f.target) or "", perSecond(f.damage),
+			cycleDps and (" (%.1f counting the %.0fs since the last fight)"):format(cycleDps, r.seconds) or "", rotationFight.sent or 0,
 			failed > 0 and (" (" .. failed .. " didn't land)") or "", tostring(math.floor(f.manaSpent + 0.5)), f.idleNear,
 			notPlaying))
 	end
