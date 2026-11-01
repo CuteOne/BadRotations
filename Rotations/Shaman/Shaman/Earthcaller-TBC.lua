@@ -179,6 +179,20 @@ local function spendOnDamage(threshold)
     return nil
 end
 
+-- A Lightning Bolt woven in melee pays: it hits for more than the swings it costs. The cast's end restarts the
+-- swing (TBC), so the next swing comes the cast (and the time since the last swing) later: that many swings'
+-- worth of weapon damage is lost. Hit while casting, the cast is pushed back about 0.5 s (2026-11-01: two hits,
+-- a 2.0 s bolt took 3.07 s). At level 13 a rank 2 bolt (~30) lost about as much as it hit for (~27).
+local PUSHBACK = 0.5
+local function weavePays()
+    local bolt = spell.lightningBolt.amount()
+    local _, speed = unit.swing()
+    if bolt == nil or not speed or speed <= 0 then return false end
+    local castTime = cast.time.lightningBolt() + (#enemies.yards8 > 0 and PUSHBACK or 0)
+    local lost = unit.weaponDamage() * (castTime + (unit.sinceSwing() or 0)) / speed
+    return bolt > lost
+end
+
 -- " [why]" for a debug line, when there is a why
 local function tag(why) return type(why) == "string" and (" [" .. why .. "]") or "" end
 
@@ -364,6 +378,21 @@ actionList.Totems = function()
         if cast.magmaTotem.aoe(8, 3) then ui.debug("Casting Magma Totem") return true end
         if not spell.magmaTotem.known() and cast.fireNovaTotem.aoe(8, 3) then ui.debug("Casting Fire Nova Totem") return true end
     end
+    -- Fire: single target (Searing Totem reaches 20 yards). Before the earth totem: Searing Totem is the most
+    -- damage per mana Earthcaller has (2.6, against 1.5 for Lightning Shield, 2026-11-01), so when mana is
+    -- short it gets the mana first
+    local fire = ui.value("Fire Totem")
+    if fire ~= 5 and needsTotem(totem.fire) and unit.distance(enemy) < 20 then
+        local key
+        if fire == 2 then key = "searingTotem"
+        elseif fire == 3 then key = "totemOfWrath"
+        elseif fire == 4 then key = "flametongueTotem"
+        elseif spell.totemOfWrath.known() then key = "totemOfWrath"
+        else key = "searingTotem" end
+        if affordable(cast.cost[key]()) then
+            if cast[key]() then ui.debug("Casting " .. spell[key].name()) return true end
+        end
+    end
     -- Earth
     local earth = ui.value("Earth Totem")
     if earth ~= 5 and needsTotem(totem.earth) then
@@ -374,19 +403,6 @@ actionList.Totems = function()
         elseif melee and spell.strengthOfEarthTotem.known() then key = "strengthOfEarthTotem"
         else key = "stoneskinTotem" end
         if (melee and inMelee or not melee) and affordable(cast.cost[key]()) then
-            if cast[key]() then ui.debug("Casting " .. spell[key].name()) return true end
-        end
-    end
-    -- Fire: single target (Searing Totem reaches 20 yards)
-    local fire = ui.value("Fire Totem")
-    if fire ~= 5 and needsTotem(totem.fire) and unit.distance(enemy) < 20 then
-        local key
-        if fire == 2 then key = "searingTotem"
-        elseif fire == 3 then key = "totemOfWrath"
-        elseif fire == 4 then key = "flametongueTotem"
-        elseif spell.totemOfWrath.known() then key = "totemOfWrath"
-        else key = "searingTotem" end
-        if affordable(cast.cost[key]()) then
             if cast[key]() then ui.debug("Casting " .. spell[key].name()) return true end
         end
     end
@@ -476,12 +492,11 @@ actionList.Melee = function()
     then
         if cast.lightningBolt(enemy) then ui.debug("Casting Lightning Bolt [Range]") return true end
     end
-    -- Weave: spare mana into Lightning Bolt until Windfury Weapon makes the swings worth more. A
+    -- Weave: spare mana into Lightning Bolt, when the bolt is worth more than the swing time it costs. A
     -- finished cast resets the swing, so the bolt goes out just after a swing lands (or before the
     -- first), where it costs the least swing time. Instants don't touch the swing.
-    local weaveWhy = ui.checked("Weave Lightning Bolt") and not spell.windfuryWeapon.known()
-        and spendOnDamage(ui.value("Weave Lightning Bolt"))
-    if weaveWhy and unit.fightLength(enemy) > 3
+    local weaveWhy = ui.checked("Weave Lightning Bolt") and spendOnDamage(ui.value("Weave Lightning Bolt"))
+    if weaveWhy and unit.fightLength(enemy) > 3 and (distance >= 5 or weavePays())
         and affordable(cast.cost.lightningBolt()) and (distance >= 5 or (unit.sinceSwing() or 0) <= 0.4)
     then
         if cast.lightningBolt(enemy) then ui.debug("Casting Lightning Bolt [Weave, " .. weaveWhy .. "]") return true end
