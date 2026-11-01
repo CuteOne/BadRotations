@@ -283,14 +283,18 @@ local function scan()
     table.sort(tracked, byDistance)
     for i = #tracked, MAX_DRAWN + 1, -1 do tracked[i] = nil end
 
-    -- Labels only for the markers that get drawn
+    -- Labels only for the markers that get drawn. A unit shows the distance its spell ranges are measured
+    -- on, edge to edge (both combat reaches off the centres): a tag at 32 y was a 30 yd Lightning Bolt in
+    -- range, 2026-11-01. Objects have no reach: the centre distance.
+    local range = br.functions.range
     for i = 1, #tracked do
         local e = tracked[i]
         local shownName = e.name ~= "" and e.name or (e.kind == "quest" and "Quest object" or "Object")
+        local shown = e.unit and range:getEdgeDistance("player", e.obj) or e.dist
         if opts.extra then
-            e.label = shownName .. "  [" .. e.id .. "] \n" .. e.guid .. "  [ZDiff: " .. floor(e.dz) .. "]  " .. floor(e.dist) .. "y"
+            e.label = shownName .. "  [" .. e.id .. "] \n" .. e.guid .. "  [ZDiff: " .. floor(e.dz) .. "]  " .. floor(shown) .. "y"
         else
-            e.label = shownName .. "  [" .. floor(e.dist) .. "y]"
+            e.label = shownName .. "  [" .. floor(shown) .. "y]"
         end
     end
 
