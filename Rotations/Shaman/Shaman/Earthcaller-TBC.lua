@@ -281,13 +281,16 @@ end
 actionList.Defensive = function()
     if not ui.useDefensive() then return false end
     local hp = unit.hp()
+    -- Heals go by health after the heals already on their way: a Healing Wave about to land is the heal
+    -- for this gap (2026-11-01: a potion and a second wave sent 0.16 s before the first landed)
+    local healedHp = unit.hpAfterHeals()
     -- Heals cast at the rank the missing health needs (BR learns what each rank heals for): the top rank
     -- on a small gap was mana thrown away as overhealing
-    local missing = unit.healthMax() - unit.health()
+    local missing = unit.healthMax() - unit.healthAfterHeals()
     if unit.inCombat() then
         local onMe = #enemies.yards8
         -- Nature's Swiftness → instant Healing Wave
-        if ui.checked("Nature's Swiftness") and hp <= ui.value("Nature's Swiftness") then
+        if ui.checked("Nature's Swiftness") and healedHp <= ui.value("Nature's Swiftness") then
             if buff.naturesSwiftness.exists() then
                 if cast.healingWave("player") then ui.debug("Casting Healing Wave [Nature's Swiftness]") return true end
             elseif cast.naturesSwiftness() then ui.debug("Casting Nature's Swiftness") return true end
@@ -305,8 +308,8 @@ actionList.Defensive = function()
             if cast.earthElementalTotem() then ui.debug("Casting Earth Elemental Totem [Defensive]") return true end
         end
         -- Heal, unless the target dies first
-        if ui.checked("Healing Wave") and hp <= ui.value("Healing Wave") and not unit.moving()
-            and not (unit.ttd(enemy) < 3 and hp > 20)
+        if ui.checked("Healing Wave") and healedHp <= ui.value("Healing Wave") and not unit.moving()
+            and not (unit.ttd(enemy) < 3 and healedHp > 20)
         then
             if spell.lesserHealingWave.known() then
                 if cast.lesserHealingWave.forAmount(missing)("player") then ui.debug("Casting Lesser Healing Wave") return true end
@@ -314,7 +317,7 @@ actionList.Defensive = function()
         end
     else
         -- Top up after a fight
-        if ui.checked("Out of Combat Healing") and hp <= ui.value("Out of Combat Healing") and not unit.moving() then
+        if ui.checked("Out of Combat Healing") and healedHp <= ui.value("Out of Combat Healing") and not unit.moving() then
             if cast.healingWave.forAmount(missing)("player") then ui.debug("Casting Healing Wave [Out of Combat]") return true end
         end
     end
