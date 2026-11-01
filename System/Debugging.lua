@@ -760,7 +760,10 @@ function br.debug.idle:watch(paused)
         for i = 1, math.min(3, #list) do
             local parts = {}
             for _, part in ipairs(list[i].parts) do parts[#parts + 1] = ("%s %.1f"):format(part[1], plainNumber(part[2])) end
-            idleLine(("    %s %.1fyd: %.1f = %s"):format(unitName(list[i].unit), plainNumber(list[i].distance or 0),
+            -- in front of you or not: BR's facing picks (units.get(range)) skip a unit behind you (2026-11-01)
+            local angle = br.functions.unit:getFacingAngle("player", list[i].unit)
+            idleLine(("    %s %.1fyd %s: %.1f = %s"):format(unitName(list[i].unit), plainNumber(list[i].distance or 0),
+                angle and ("%d° off your facing"):format(plainNumber(angle)) or "facing unknown",
                 plainNumber(list[i].score), table.concat(parts, ", ")))
         end
     end
