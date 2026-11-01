@@ -708,11 +708,15 @@ function br.debug.idle:watch(paused)
         return
     end
     idleRuns = idleRuns + 1
+    -- swinging at a target in melee isn't idle: it restarts the clock, as an action does (2026-11-01: 10 s of
+    -- swings were logged as idle the moment the target died)
+    if br.functions.unit:isAutoAttacking() and br.game.UnitExists("target") and br.functions.range:getDistance("target") < 5 then
+        lastActionAt = now
+        return
+    end
     if idleLogged or now - lastActionAt < IDLE_AFTER then return end
     if #br.engines.enemiesEngineFunctions:getEnemies("player", 8) == 0 then return end
-    -- swinging at a target in melee isn't idle
     local targetDist = br.game.UnitExists("target") and br.functions.range:getDistance("target") or 99
-    if br.functions.unit:isAutoAttacking() and targetDist < 5 then return end
     idleLogged = true
     local dyn5 = br.engines.enemiesEngineFunctions.dynamicPicks.dyn5
     local spec = br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
