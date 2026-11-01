@@ -165,7 +165,7 @@ actionList.Defensive = function()
         module.BasicHealing()
         -- Rejuvenation
         if ui.checked("Rejuvenation") and not cast.current.rejuvenation() then
-            if cast.able.rejuvenation("target") and unit.friend("target") and unit.hp("target") <= ui.value("Rejuvenation")
+            if cast.able.rejuvenation("target") and unit.friend("target") and unit.hpAfterHeals("target") <= ui.value("Rejuvenation")
                 and unit.player("target") and buff.rejuvenation.refresh("target")
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
@@ -178,7 +178,7 @@ actionList.Defensive = function()
                     end
                 end
             end
-            if cast.able.rejuvenation("player") and not unit.friend("target") and unit.hp() <= ui.value("Rejuvenation") and buff.rejuvenation.refresh("player") then
+            if cast.able.rejuvenation("player") and not unit.friend("target") and unit.hpAfterHeals() <= ui.value("Rejuvenation") and buff.rejuvenation.refresh("player") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     -- CancelShapeshiftForm()
                     unit.cancelForm()

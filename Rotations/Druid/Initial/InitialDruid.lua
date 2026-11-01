@@ -157,7 +157,7 @@ actionList.Defensive = function()
         module.BasicHealing()
         -- Regrowth
         if ui.checked("Regrowth") and cast.able.regrowth() and not cast.current.regrowth() and not unit.moving() then
-            if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") and unit.player("target") then
+            if unit.friend("target") and unit.hpAfterHeals("target") <= ui.value("Regrowth") and unit.player("target") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     -- CancelShapeshiftForm()
                     unit.cancelForm()
@@ -168,7 +168,7 @@ actionList.Defensive = function()
                     end
                 end
             end
-            if not unit.friend("target") and unit.hp() <= ui.value("Regrowth") then
+            if not unit.friend("target") and unit.hpAfterHeals() <= ui.value("Regrowth") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     -- CancelShapeshiftForm()
                     unit.cancelForm()

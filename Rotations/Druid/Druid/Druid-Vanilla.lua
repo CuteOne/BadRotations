@@ -304,21 +304,21 @@ local function needsFormBreak()
         then
             return true
         end
-        -- Healing
+        -- Healing, by health after the heals already on their way (unit.hpAfterHeals), as the casts below
         if ui.checked("Regrowth") and cast.able.regrowth("player") and not cast.current.regrowth() and not unit.moving()
-            and unit.hp() <= ui.value("Regrowth") and not buff.regrowth.exists("player")
+            and unit.hpAfterHeals() <= ui.value("Regrowth") and not buff.regrowth.exists("player")
             and (freeHeal or noShapeshiftPower)
             and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         then
             return true
         end
         if ui.checked("Rejuvenation") and not cast.current.rejuvenation("target") then
-            if cast.able.rejuvenation("target") and unit.friend("target") and unit.hp("target") <= ui.value("Rejuvenation")
+            if cast.able.rejuvenation("target") and unit.friend("target") and unit.hpAfterHeals("target") <= ui.value("Rejuvenation")
                 and unit.player("target") and buff.rejuvenation.refresh("target")
             then
                 return true
             end
-            if cast.able.rejuvenation("player") and not unit.friend("target") and unit.hp() <= ui.value("Rejuvenation")
+            if cast.able.rejuvenation("player") and not unit.friend("target") and unit.hpAfterHeals() <= ui.value("Rejuvenation")
                 and buff.rejuvenation.refresh("player") and not buff.clearcasting.exists()
                 and (unit.solo() or ui.checked("Self Heal In Group"))
             then
@@ -328,10 +328,10 @@ local function needsFormBreak()
         if ui.checked("Healing Touch") and not cast.current.healingTouch() and not unit.moving()
             and (freeHeal or noShapeshiftPower)
         then
-            if cast.able.healingTouch("target") and unit.friend("target") and unit.hp("target") <= ui.value("Healing Touch") and unit.player("target") then
+            if cast.able.healingTouch("target") and unit.friend("target") and unit.hpAfterHeals("target") <= ui.value("Healing Touch") and unit.player("target") then
                 return true
             end
-            if cast.able.healingTouch("player") and not unit.friend("target") and unit.hp() <= ui.value("Healing Touch")
+            if cast.able.healingTouch("player") and not unit.friend("target") and unit.hpAfterHeals() <= ui.value("Healing Touch")
                 and (not unit.inGroup() or ui.checked("Self Heal In Group"))
             then
                 return true
@@ -609,7 +609,7 @@ actionList.Defensive = function()
         end
         -- Regrowth
         if ui.checked("Regrowth") and cast.able.regrowth("player") and not cast.current.regrowth() and not unit.moving()
-            and unit.hp() <= ui.value("Regrowth") and not buff.regrowth.exists("player")
+            and unit.hpAfterHeals() <= ui.value("Regrowth") and not buff.regrowth.exists("player")
             and (freeHeal or noShapeshiftPower)
             and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         then
@@ -626,7 +626,7 @@ actionList.Defensive = function()
         end
         -- Rejuvenation
         if ui.checked("Rejuvenation") and not cast.current.rejuvenation("target") then
-            if cast.able.rejuvenation("target") and unit.friend("target") and unit.hp("target") <= ui.value("Rejuvenation")
+            if cast.able.rejuvenation("target") and unit.friend("target") and unit.hpAfterHeals("target") <= ui.value("Rejuvenation")
                 and unit.player("target") and buff.rejuvenation.refresh("target")
             then
                 if unit.formActive() then
@@ -640,7 +640,7 @@ actionList.Defensive = function()
                     end
                 end
             end
-            if cast.able.rejuvenation("player") and not unit.friend("target") and unit.hp() <= ui.value("Rejuvenation")
+            if cast.able.rejuvenation("player") and not unit.friend("target") and unit.hpAfterHeals() <= ui.value("Rejuvenation")
                 and buff.rejuvenation.refresh("player") and not buff.clearcasting.exists()
                 and (unit.solo() or ui.checked("Self Heal In Group"))
             then
@@ -660,7 +660,7 @@ actionList.Defensive = function()
         if ui.checked("Healing Touch") and not cast.current.healingTouch() and not unit.moving()
             and (freeHeal or noShapeshiftPower)
         then
-            if cast.able.healingTouch("target") and unit.friend("target") and unit.hp("target") <= ui.value("Healing Touch") and unit.player("target") then
+            if cast.able.healingTouch("target") and unit.friend("target") and unit.hpAfterHeals("target") <= ui.value("Healing Touch") and unit.player("target") then
                 if unit.formActive() then
                     if unit.cancelFormFor(spell.healingTouch, freeHeal) then
                         return true
@@ -672,7 +672,7 @@ actionList.Defensive = function()
                     end
                 end
             end
-            if cast.able.healingTouch("player") and not unit.friend("target") and unit.hp() <= ui.value("Healing Touch")
+            if cast.able.healingTouch("player") and not unit.friend("target") and unit.hpAfterHeals() <= ui.value("Healing Touch")
                 and (not unit.inGroup() or ui.checked("Self Heal In Group"))
             then
                 if unit.formActive() then
@@ -1190,9 +1190,9 @@ local function runRotation()
 
     -- Omen of Clarity Logic
     local omenSetting = ui.value("Omen of Clarity")
-    needsHealing = (ui.checked("Regrowth") and unit.hp() <= ui.value("Regrowth"))
-        or (ui.checked("Healing Touch") and unit.hp() <= ui.value("Healing Touch"))
-        or (ui.checked("Rejuvenation") and unit.hp() <= ui.value("Rejuvenation"))
+    needsHealing = (ui.checked("Regrowth") and unit.hpAfterHeals() <= ui.value("Regrowth"))
+        or (ui.checked("Healing Touch") and unit.hpAfterHeals() <= ui.value("Healing Touch"))
+        or (ui.checked("Rejuvenation") and unit.hpAfterHeals() <= ui.value("Rejuvenation"))
 
     freeDPS = omenSetting ~= 4 and omenSetting ~= 2 and buff.clearcasting.exists()
         and (not needsHealing or omenSetting == 3)

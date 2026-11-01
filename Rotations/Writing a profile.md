@@ -190,10 +190,13 @@ end
 In the rotation:
 
 ```lua
-if ui.checked("Use Healing Wave") and unit.hp() <= ui.value("Healing Wave At") then
+if ui.checked("Use Healing Wave") and unit.hpAfterHeals() <= ui.value("Healing Wave At") then
     if cast.healingWave("player") then return true end
 end
 ```
+
+For a heal, ask `unit.hpAfterHeals()` rather than `unit.hp()`: it counts the heals you've already sent
+that haven't landed yet, so a second heal (or a potion) doesn't go out for the same missing health.
 
 - `ui.checked("Name")`: is its tick box ticked?
 - `ui.value("Name")`: its number, or the number of the dropdown choice (1 for the first).
@@ -229,6 +232,7 @@ You only add the conditions that are *your* choice, such as "only under 20% heal
 |---|---|---|
 | your health | `unit.hp()` | percent |
 | the enemy's health | `unit.hp(enemy)` | percent |
+| your health once your heals on their way land | `unit.hpAfterHeals()` | percent |
 | how far away it is | `unit.distance(enemy)` | yards |
 | a buff on you | `buff.lightningShield.exists()` | true / false |
 | how long it lasts | `buff.lightningShield.remain()` | seconds |

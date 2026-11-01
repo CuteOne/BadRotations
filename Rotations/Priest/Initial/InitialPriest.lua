@@ -70,7 +70,7 @@ end -- End Action List - Extra
 -- Action List - Defensive
 actionList.Defensive = function()
     -- Flash Heal
-    if ui.checked("Flash Heal") and cast.able.flashHeal(var.friendUnit) and not unit.moving() and unit.hp(var.friendUnit) <= ui.value("Flash Heal") then
+    if ui.checked("Flash Heal") and cast.able.flashHeal(var.friendUnit) and not unit.moving() and unit.hpAfterHeals(var.friendUnit) <= ui.value("Flash Heal") then
         if cast.flashHeal(var.friendUnit) then
             ui.debug("Casting Flash Heal")
             return true

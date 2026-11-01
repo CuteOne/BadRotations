@@ -103,7 +103,7 @@ actionList.Defensive = function()
         -- Word of Glory
         if ui.checked("Word of Glory") and cast.able.wordOfGlory() then
             local thisUnit = unit.friend("target") and "target" or "player"
-            if unit.inCombat(thisUnit) and unit.hp(thisUnit) <= ui.value("Word of Glory") then
+            if unit.inCombat(thisUnit) and unit.hpAfterHeals(thisUnit) <= ui.value("Word of Glory") then
                 if cast.wordOfGlory(thisUnit) then
                     ui.debug("Casting Word of Glory on " .. unit.name(thisUnit))
                     return true
@@ -113,8 +113,8 @@ actionList.Defensive = function()
         -- Flash of Light
         if ui.checked("Flash of Light") and cast.able.flashOfLight() and not unit.moving() then
             local thisUnit = unit.friend("target") and "target" or "player"
-            if (unit.inCombat() and unit.hp(thisUnit) <= ui.value("Flash of Light"))
-                or (not unit.inCombat() and unit.hp() < 90)
+            if (unit.inCombat() and unit.hpAfterHeals(thisUnit) <= ui.value("Flash of Light"))
+                or (not unit.inCombat() and unit.hpAfterHeals() < 90)
             then
                 if cast.flashOfLight(thisUnit) then
                     ui.debug("Casting Flash of Light on " .. unit.name(thisUnit))

@@ -221,7 +221,7 @@ actionList.Defensive = function()
             end
         end
         -- Emerald Blossom
-        if ui.checked("Emerald Blossom") and cast.able.emeraldBlossom("player") and unit.hp() <= ui.value("Emerald Blossom") then
+        if ui.checked("Emerald Blossom") and cast.able.emeraldBlossom("player") and unit.hpAfterHeals() <= ui.value("Emerald Blossom") then
             if cast.emeraldBlossom("player") then
                 ui.debug("Casting Emerald Blossom")
                 return true
@@ -249,7 +249,7 @@ actionList.Defensive = function()
         -- Living Flame
         if ui.checked("Living Flame Heal") and var.moveCast then
             thisUnit = unit.friend("target") and "target" or "player"
-            if cast.able.livingFlame(thisUnit) and unit.hp(thisUnit) <= ui.value("Living Flame Heal")
+            if cast.able.livingFlame(thisUnit) and unit.hpAfterHeals(thisUnit) <= ui.value("Living Flame Heal")
                 and cast.timeSinceLast.livingFlame() > cast.time.livingFlame() + unit.gcd(true)
             then
                 if cast.livingFlame(thisUnit) then
@@ -257,7 +257,7 @@ actionList.Defensive = function()
                     return true
                 end
             end
-            if cast.able.livingFlame("player") and not unit.inCombat() and unit.hp() <= ui.value("Living Flame OoC") then
+            if cast.able.livingFlame("player") and not unit.inCombat() and unit.hpAfterHeals() <= ui.value("Living Flame OoC") then
                 if cast.livingFlame("player") then
                     ui.debug("Casting Living Flame [OoC]")
                     return true
@@ -298,7 +298,7 @@ actionList.Defensive = function()
         -- Verdant Embrace
         if ui.checked("Verdant Embrace") then
             thisUnit = unit.friend("target") and "target" or "player"
-            if cast.able.verdantEmbrace(thisUnit) and unit.hp(thisUnit) <= ui.value("Verdant Embrace") then
+            if cast.able.verdantEmbrace(thisUnit) and unit.hpAfterHeals(thisUnit) <= ui.value("Verdant Embrace") then
                 if cast.verdantEmbrace(thisUnit) then
                     ui.debug("Casting Verdant Embrace on " .. unit.name(thisUnit))
                     return true

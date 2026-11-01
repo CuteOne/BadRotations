@@ -220,7 +220,10 @@ actionList.Defensive = function()
     if not ui.useDefensive() then return false end
     if module.BasicHealing() then return true end
     local hp = unit.hp()
-    local missing = unit.healthMax() - unit.health()
+    -- Heals go by health after the heals already on their way (a Healing Touch about to land covers its
+    -- gap); Frenzied Regeneration by health now
+    local healedHp = unit.hpAfterHeals()
+    local missing = unit.healthMax() - unit.healthAfterHeals()
     if unit.inCombat() then
         -- Bear: rage into health first
         if inBear and ui.checked("Frenzied Regeneration") and hp <= ui.value("Frenzied Regeneration") then
@@ -233,7 +236,7 @@ actionList.Defensive = function()
         local heal = combatHeal()
         local shiftAt = ui.value("Shift Out to Heal")
         local regenerating = inBear and cast.timeSinceLast.frenziedRegeneration() < 10
-        if inBear and ui.checked("Shift Out to Heal") and hp <= shiftAt
+        if inBear and ui.checked("Shift Out to Heal") and healedHp <= shiftAt
             and not (enemy and unit.ttd(enemy) < 3 and hp > 20) and (not regenerating or hp <= 15)
         then
             if unit.cancelFormFor(spell[heal], false, hp <= 15) then
@@ -244,8 +247,8 @@ actionList.Defensive = function()
         end
         if caster then
             -- Healing in caster form: after leaving a form for it, or with no form known yet
-            if var.healing and hp >= ui.value("Heal Until") then var.healing = false end
-            local healing = var.healing or (wantForm == nil and ui.checked("Shift Out to Heal") and hp <= shiftAt)
+            if var.healing and healedHp >= ui.value("Heal Until") then var.healing = false end
+            local healing = var.healing or (wantForm == nil and ui.checked("Shift Out to Heal") and healedHp <= shiftAt)
             if healing then
                 local attacked = #enemies.yards5 > 0
                 if ui.checked("Barkskin") and attacked and not buff.barkskin.exists() then
@@ -269,7 +272,7 @@ actionList.Defensive = function()
     else
         var.healing = false
         -- Top up after a fight, at the rank the missing health needs (not from Prowl)
-        if ui.checked("Out of Combat Healing") and hp <= ui.value("Out of Combat Healing") and not unit.moving() then
+        if ui.checked("Out of Combat Healing") and healedHp <= ui.value("Out of Combat Healing") and not unit.moving() then
             if inCat or inBear then
                 if unit.cancelFormFor(spell.healingTouch) then
                     var.leftForm = true

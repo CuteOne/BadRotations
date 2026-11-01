@@ -899,7 +899,7 @@ local function runRotation()
 
 
     var.healUnit = ui.value("Heal Target") == 1 and unit.lowest(40) or "player"
-    var.healHP = unit.hp(var.healUnit)
+    var.healHP = unit.hpAfterHeals(var.healUnit)
     var.unitsNeedingHealing = 0
     if ui.checked("Use HST While Solo") and unit.hp("player") <= ui.value("Healing Stream Totem") then
         var.unitsNeedingHealing = var.unitsNeedingHealing + 1

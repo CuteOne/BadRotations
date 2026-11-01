@@ -511,10 +511,10 @@ actionList.Defensive = function()
         end
         -- Regrowth
         if ui.checked("Regrowth") and cast.able.regrowth("player") and not (unit.mounted() or unit.flying()) and not cast.current.regrowth() then
-            local thisHP = unit.hp()
+            local thisHP = unit.hpAfterHeals()
             local regrowthUnit = "player"
             local lowestUnit = unit.lowest(40)
-            local fhp = unit.hp(lowestUnit)
+            local fhp = unit.hpAfterHeals(lowestUnit)
             if ui.value("Auto Heal") == 1 and unit.distance(lowestUnit) < 40 then
                 thisHP = fhp; regrowthUnit = lowestUnit
             else

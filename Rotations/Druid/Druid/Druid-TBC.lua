@@ -496,9 +496,11 @@ actionList.Defensive = function()
                 end
             end
         end
+        -- Heals below go by health after the heals already on their way (unit.hpAfterHeals): a heal about
+        -- to land covers its gap
         -- Regrowth
         if ui.checked("Regrowth") and cast.able.regrowth("player") and not cast.current.regrowth() and not unit.moving()
-            and unit.hp() <= ui.value("Regrowth") and not buff.regrowth.exists("player")
+            and unit.hpAfterHeals() <= ui.value("Regrowth") and not buff.regrowth.exists("player")
             and (buff.clearcasting.exists() or power.mana.affordable(cast.cost.regrowth(), var.formCost))
             and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         then
@@ -515,7 +517,7 @@ actionList.Defensive = function()
         end
         -- Rejuvenation
         if ui.checked("Rejuvenation") and not cast.current.rejuvenation("target") and power.mana.affordable(cast.cost.rejuvenation(), var.formCost) then
-            if unit.friend("target") and unit.hp("target") <= ui.value("Rejuvenation")
+            if unit.friend("target") and unit.hpAfterHeals("target") <= ui.value("Rejuvenation")
                 and unit.player("target") and buff.rejuvenation.refresh("target") and cast.able.rejuvenation("target")
             then
                 if unit.formActive() then
@@ -529,7 +531,7 @@ actionList.Defensive = function()
                     end
                 end
             end
-            if cast.able.rejuvenation("player") and not unit.friend("target") and unit.hp() <= ui.value("Rejuvenation")
+            if cast.able.rejuvenation("player") and not unit.friend("target") and unit.hpAfterHeals() <= ui.value("Rejuvenation")
                 and buff.rejuvenation.refresh("player") and not buff.clearcasting.exists()
                 and (unit.solo() or ui.checked("Self Heal In Group"))
             then
@@ -550,7 +552,7 @@ actionList.Defensive = function()
             and (buff.clearcasting.exists() or power.mana.affordable(cast.cost.healingTouch(), var.formCost))
             and cast.timeSinceLast.healingTouch() > unit.gcd(true)
         then
-            if unit.friend("target") and unit.hp("target") <= ui.value("Healing Touch") and unit.player("target") and cast.able.healingTouch("target") then
+            if unit.friend("target") and unit.hpAfterHeals("target") <= ui.value("Healing Touch") and unit.player("target") and cast.able.healingTouch("target") then
                 if unit.formActive() then
                     if leaveFormFor(spell.healingTouch, buff.clearcasting.exists()) then
                         return true
@@ -562,7 +564,7 @@ actionList.Defensive = function()
                     end
                 end
             end
-            if not unit.friend("target") and unit.hp() <= ui.value("Healing Touch")
+            if not unit.friend("target") and unit.hpAfterHeals() <= ui.value("Healing Touch")
                 and (not unit.inGroup() or ui.checked("Self Heal In Group")) and cast.able.healingTouch("player")
             then
                 if unit.formActive() then

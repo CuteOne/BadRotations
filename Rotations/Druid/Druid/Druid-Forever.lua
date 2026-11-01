@@ -428,14 +428,15 @@ actionList.Defensive = function()
             end
         end
     end
-    -- Heals: you first, then the Heal Others unit (if any) at the same thresholds
+    -- Heals: you first, then the Heal Others unit (if any) at the same thresholds, by health after the
+    -- heals already on their way (unit.hpAfterHeals): a heal about to land covers its gap
     local other = var.healOther
     local otherName = other and (" on " .. unit.name(other)) or ""
     -- Healing Touch: the emergency heal, leaves any form regardless of Energy/Rage. Nature's Swiftness
     -- (off the GCD) makes it instant.
     if ui.checked("Healing Touch") and not cast.current.healingTouch() then
-        local selfLow = inGroupOk and unit.hp() <= ui.value("Healing Touch")
-        local otherLow = other ~= nil and unit.hp(other) <= ui.value("Healing Touch")
+        local selfLow = inGroupOk and unit.hpAfterHeals() <= ui.value("Healing Touch")
+        local otherLow = other ~= nil and unit.hpAfterHeals(other) <= ui.value("Healing Touch")
         if (selfLow or otherLow) and ui.checked("Nature's Swiftness") and unit.inCombat() and not inForm
             and not buff.moonkinForm.exists() and cast.able.naturesSwiftness() and not buff.naturesSwiftness.exists()
         then
@@ -457,7 +458,7 @@ actionList.Defensive = function()
     if ui.checked("Regrowth") and (freeHeal or noShapeshiftPower) then
         for i = 1, 2 do -- you, then the Heal Others unit
             local thisUnit = i == 1 and "player" or other
-            if thisUnit ~= nil and (i == 2 or inGroupOk) and unit.hp(thisUnit) <= ui.value("Regrowth") then
+            if thisUnit ~= nil and (i == 2 or inGroupOk) and unit.hpAfterHeals(thisUnit) <= ui.value("Regrowth") then
                 local label = i == 1 and "" or otherName
                 if cast.able.swiftmend(thisUnit) and (buff.rejuvenation.exists(thisUnit) or buff.regrowth.exists(thisUnit)) then
                     if casterCast("swiftmend", thisUnit, "Swiftmend" .. label, freeHeal, false, true) then return true end
@@ -470,12 +471,12 @@ actionList.Defensive = function()
     end
     -- Rejuvenation: too slow to justify two shapeshifts in combat
     if ui.checked("Rejuvenation") and (not unit.inCombat() or not inForm) then
-        if unit.hp() <= ui.value("Rejuvenation") and buff.rejuvenation.refresh("player") and not buff.clearcasting.exists()
+        if unit.hpAfterHeals() <= ui.value("Rejuvenation") and buff.rejuvenation.refresh("player") and not buff.clearcasting.exists()
             and (unit.solo() or ui.checked("Self Heal In Group")) and cast.able.rejuvenation("player")
         then
             if casterCast("rejuvenation", "player", "Rejuvenation", freeHeal, false, true) then return true end
         end
-        if other ~= nil and unit.hp(other) <= ui.value("Rejuvenation") and buff.rejuvenation.refresh(other)
+        if other ~= nil and unit.hpAfterHeals(other) <= ui.value("Rejuvenation") and buff.rejuvenation.refresh(other)
             and cast.able.rejuvenation(other)
         then
             if casterCast("rejuvenation", other, "Rejuvenation" .. otherName, freeHeal, false, true) then return true end
@@ -1102,9 +1103,9 @@ local function runRotation()
 
     -- Clearcasting Use: 1 Any, 2 DPS Only, 3 Healing Only, 4 None
     local omenSetting = ui.value("Clearcasting Use")
-    local needsHealing = (ui.checked("Regrowth") and unit.hp() <= ui.value("Regrowth"))
-        or (ui.checked("Healing Touch") and unit.hp() <= ui.value("Healing Touch"))
-        or (ui.checked("Rejuvenation") and unit.hp() <= ui.value("Rejuvenation"))
+    local needsHealing = (ui.checked("Regrowth") and unit.hpAfterHeals() <= ui.value("Regrowth"))
+        or (ui.checked("Healing Touch") and unit.hpAfterHeals() <= ui.value("Healing Touch"))
+        or (ui.checked("Rejuvenation") and unit.hpAfterHeals() <= ui.value("Rejuvenation"))
     freeDPS = (omenSetting == 1 or omenSetting == 2) and buff.clearcasting.exists()
         and (not needsHealing or omenSetting == 2)
     freeHeal = (omenSetting == 1 or omenSetting == 3) and buff.clearcasting.exists()

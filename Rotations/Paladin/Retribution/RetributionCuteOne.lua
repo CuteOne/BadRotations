@@ -147,14 +147,14 @@ local canGlory = function()
     local otherCounter = 0
     if holyPower() >= 3 then
         if #units.friends == 1 then
-            if unit.hp("player") <= optionValue then
+            if unit.hpAfterHeals("player") <= optionValue then
                 var.gloryUnit = "player"
                 return true
             end
         end
         for i = 1, #units.friends do
             local thisUnit = units.friends[i].unit
-            local thisHP = unit.hp(thisUnit)
+            local thisHP = unit.hpAfterHeals(thisUnit)
             if thisHP < optionValue then
                 -- Emergency Single
                 if thisHP < 25 then
@@ -165,7 +165,7 @@ local canGlory = function()
                 if otherCounter < 2 then
                     for j = 1, #units.friends do
                         local otherUnit = units.friends[j].unit
-                        local otherHP = unit.hp(otherUnit)
+                        local otherHP = unit.hpAfterHeals(otherUnit)
                         local distanceFromYou = unit.distance(otherUnit, "player")
                         if distanceFromYou < 30 and otherHP < optionValue then
                             otherCounter = otherCounter + 1
@@ -312,7 +312,7 @@ actionList.Defensive = function()
                 -- Instant Cast
                 if talent.selflessHealer and buff.selflessHealer.stack() == 4 then
                     -- Don't waste instant heal!
-                    var.flashUnit = unit.hp(var.flashUnit) <= ui.value("Flash of Light") and var.flashUnit or
+                    var.flashUnit = unit.hpAfterHeals(var.flashUnit) <= ui.value("Flash of Light") and var.flashUnit or
                         var.lowestUnit
                     if cast.flashOfLight(var.flashUnit) then
                         ui.debug("Casting Flash of Light on " .. unit.name(var.flashUnit) .. " [Instant]")
@@ -320,8 +320,8 @@ actionList.Defensive = function()
                     end
                 end
                 -- Long Cast
-                if not unit.moving("player") and ((unit.inCombat() and unit.hp(var.flashUnit) <= ui.value("Flash of Light"))
-                        or (not unit.inCombat() and unit.hp(var.flashUnit) <= 90))
+                if not unit.moving("player") and ((unit.inCombat() and unit.hpAfterHeals(var.flashUnit) <= ui.value("Flash of Light"))
+                        or (not unit.inCombat() and unit.hpAfterHeals(var.flashUnit) <= 90))
                 then
                     if cast.flashOfLight(var.flashUnit) then
                         ui.debug("Casting Flash of Light on " .. unit.name(var.flashUnit) .. " [Long]")

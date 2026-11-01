@@ -554,10 +554,10 @@ actionList.Defensive = function()
         if ui.checked("Rejuvenation") and not (unit.mounted() or unit.flying())
             and (ui.value("Auto Heal") ~= 1 or (ui.value("Auto Heal") == 1 and unit.distance(units.friends[1].unit) < 40))
         then
-            local thisHP = unit.hp()
+            local thisHP = unit.hpAfterHeals()
             local rejuvUnit = "player"
             local lowestUnit = unit.lowest(40)
-            local fhp = unit.hp(lowestUnit)
+            local fhp = unit.hpAfterHeals(lowestUnit)
             if ui.value("Auto Heal") == 1 then
                 thisHP = fhp; rejuvUnit = lowestUnit
             end
@@ -578,10 +578,10 @@ actionList.Defensive = function()
         if ui.checked("Healing Touch") and cast.able.healingTouch("player")
             and not (unit.mounted() or unit.flying()) and not cast.current.healingTouch()
         then
-            local thisHP = unit.hp()
+            local thisHP = unit.hpAfterHeals()
             local healingTouchUnit = "player"
             local lowestUnit = unit.lowest(40)
-            local fhp = unit.hp(lowestUnit)
+            local fhp = unit.hpAfterHeals(lowestUnit)
             if ui.value("Auto Heal") == 1 and unit.distance(lowestUnit) < 40 then
                 thisHP = fhp; healingTouchUnit = lowestUnit
             else
@@ -590,10 +590,10 @@ actionList.Defensive = function()
             if not unit.inCombat() then
                 -- Out of Combat: Only heal player unless mouseover is available
                 local oocHealUnit = "player"
-                local oocHP = unit.hp("player")
+                local oocHP = unit.hpAfterHeals("player")
                 if unit.exists("mouseover") and unit.friend("mouseover") and unit.distance("mouseover") < 40 then
                     oocHealUnit = "mouseover"
-                    oocHP = unit.hp("mouseover")
+                    oocHP = unit.hpAfterHeals("mouseover")
                 end
                 if oocHP <= ui.value("Healing Touch") and (not unit.moving() or buff.predatorySwiftness.exists()) then
                     return castHealingTouch(oocHealUnit, "OoC")
@@ -613,7 +613,7 @@ actionList.Defensive = function()
                     return castHealingTouch(healingTouchUnit, "InC DoC Hold")
                 end
                 -- Nature's Swiftness - Emergency Heal
-                if cast.able.naturesSwiftness() and unit.hp() <= 20
+                if cast.able.naturesSwiftness() and unit.hpAfterHeals() <= 20
                     and not buff.naturesSwiftness.exists() and not buff.predatorySwiftness.exists()
                 then
                     if cast.naturesSwiftness() then

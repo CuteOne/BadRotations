@@ -208,12 +208,12 @@ actionList.Defensive = function()
         end
         -- * Healing Wave
         if ui.checked("Healing Wave") and cast.able.healingWave() and not unit.moving() then
-            if unit.friend("target") and unit.hp("target") <= ui.value("Healing Wave") then
+            if unit.friend("target") and unit.hpAfterHeals("target") <= ui.value("Healing Wave") then
                 if cast.healingWave("target") then
                     ui.debug("Casting Healing Wave on " .. unit.name("target") .. " [Defensive]")
                     return true
                 end
-            elseif unit.hp("player") <= ui.value("Healing Wave") then
+            elseif unit.hpAfterHeals("player") <= ui.value("Healing Wave") then
                 if cast.healingWave("player") then
                     ui.debug("Casting Healing Wave on " .. unit.name("player") .. " [Defensive]")
                     return true

@@ -136,7 +136,7 @@ actionList.Defensive = function()
         -- Basic Healing
         module.BasicHealing()
         -- Emerald Blossom
-        if ui.checked("Emerald Blossom") and cast.able.emeraldBlossom("player") and unit.hp() <= ui.value("Emerald Blossom") then
+        if ui.checked("Emerald Blossom") and cast.able.emeraldBlossom("player") and unit.hpAfterHeals() <= ui.value("Emerald Blossom") then
             if cast.emeraldBlossom("player") then
                 ui.debug("Casting Emerald Blossom")
                 return true
@@ -145,7 +145,7 @@ actionList.Defensive = function()
         -- Living Flame
         if ui.checked("Living Flame Heal") and not unit.moving() then
             thisUnit = unit.friend("target") and "target" or "player"
-            if cast.able.livingFlame(thisUnit) and unit.hp(thisUnit) <= ui.value("Living Flame Heal") then
+            if cast.able.livingFlame(thisUnit) and unit.hpAfterHeals(thisUnit) <= ui.value("Living Flame Heal") then
                 if cast.livingFlame(thisUnit) then
                     ui.debug("Casting Living Flame on " .. unit.name(thisUnit))
                     return true

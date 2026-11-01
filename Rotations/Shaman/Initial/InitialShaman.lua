@@ -98,12 +98,12 @@ actionList.Defensive = function()
     if ui.useDefensive() then
         -- Healing Surge
         if ui.checked("Healing Surge") and cast.able.healingSurge() and not unit.moving() then
-            if unit.friend("target") and unit.hp("target") <= ui.value("Healing Surge") then
+            if unit.friend("target") and unit.hpAfterHeals("target") <= ui.value("Healing Surge") then
                 if cast.healingSurge("target") then
                     ui.debug("Casting Healing Surge on " .. unit.name("target") .. " [Defensive]")
                     return true
                 end
-            elseif unit.hp("player") <= ui.value("Healing Surge") then
+            elseif unit.hpAfterHeals("player") <= ui.value("Healing Surge") then
                 if cast.healingSurge("player") then
                     ui.debug("Casting Healing Surge on " .. unit.name("player") .. " [Defensive]")
                     return true
