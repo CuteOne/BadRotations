@@ -411,6 +411,10 @@ events:RegisterEvent("UNIT_SPELLCAST_START")
 events:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 events:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 events:RegisterEvent("UNIT_SPELLCAST_FAILED")
+-- A send the game turned away while another cast was still on (2026-11-01, TBC: a Lightning Shield
+-- pre-cast refused "Another action is in progress" after a pushback) fails quietly. Without it the
+-- send stayed waiting and took the next cast of the spell as its answer; that one then said "no answer".
+events:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
 events:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 events:RegisterEvent("UI_ERROR_MESSAGE")
 events:RegisterEvent("PLAYER_REGEN_DISABLED")
