@@ -12,6 +12,15 @@ br.api.build.spell = function(api, k, v)
     -- @section spell[k]
     spell[k] = spell[k] or {}
 
+    --- What the spell's current rank heals or hits for: the average BR saw it do (direct, not critical,
+    -- from 2 casts), else the middle of its tooltip's "<low> to <high>", else nil.
+    -- @function spell.<k>.amount
+    -- @return number|nil
+    -- @usage if (spell.lightningBolt.amount() or 0) > unit.weaponDamage() then
+    spell[k].amount = function()
+        return br.functions.spell:getRankAmount(br.functions.spell:currentRank(v))
+    end
+
     --- Returns the spell's cast time.
     -- @function spell.<k>.castTime
     -- @return number

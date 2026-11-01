@@ -7669,6 +7669,14 @@ local C51 = {}
 ---@class BR.spell.K
 local C52 = {}
 
+--- What the spell's current rank heals or hits for: the average BR saw it do (direct, not critical,
+--- from 2 casts), else the middle of its tooltip's "<low> to <high>", else nil.
+--- ```lua
+--- if (spell.lightningBolt.amount() or 0) > unit.weaponDamage() then
+--- ```
+---@return number|nil
+function C52.amount() end
+
 --- Returns the spell's cast time.
 ---@return number
 function C52.castTime() end

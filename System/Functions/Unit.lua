@@ -505,8 +505,15 @@ end
 -- when the last swing landed. hand: "mh" (melee, the default), "oh" (off hand) or "ranged" (Auto Shot)
 function unit:getSwing(hand)
 	local swing = br.readers.combatLog.swing[hand or "mh"]
-	if swing == nil or swing.next == 0 then return nil, swing and swing.speed or 0, 0 end
-	return math.max(0, swing.next - br.game.GetTime()), swing.speed, swing.last
+	local speed = swing and swing.speed or 0
+	-- before a swing has been seen, the weapon's speed from the game (a profile weighing a cast against the
+	-- swings it costs needs it from the first second of a fight)
+	if speed == 0 and hand ~= "ranged" then
+		local mainSpeed, offSpeed = br.game.UnitAttackSpeed("player")
+		speed = (hand == "oh" and offSpeed or mainSpeed) or 0
+	end
+	if swing == nil or swing.next == 0 then return nil, speed, 0 end
+	return math.max(0, swing.next - br.game.GetTime()), speed, swing.last
 end
 
 -- Seconds the player has kept their current target (since the last target change)
