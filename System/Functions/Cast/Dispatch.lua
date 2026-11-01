@@ -244,8 +244,10 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 		local hold = br.functions.misc:getRoundTripHold(ctx.latency)
 		local _, _, _, _, castEnd = br.game.UnitCastingInfo("player")
 		local landsBy = castEnd and castEnd / 1000 or br.game.GetTime()
-		if castBeforeKey ~= nil then landsBy = landsBy + cast:getCastTime(ctx.spellID) end
-		E.promiseHeal(ctx.spellID, thisUnit, landsBy + hold)
+		local after = castBeforeKey ~= nil and cast:getCastTime(ctx.spellID) or 0
+		-- the cast it lands at the end of (its own, or the one it went behind), followed through pushback
+		local castKey = castBeforeKey or (castEnd and E.currentCastKey()) or nil
+		E.promiseHeal(ctx.spellID, thisUnit, landsBy + after + hold, castKey, after, hold)
 	end
 
 	if castSucceeded then

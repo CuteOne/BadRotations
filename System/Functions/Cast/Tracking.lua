@@ -461,21 +461,47 @@ end
 -- heal BR sends is kept here with the amount its rank heals for (spell:getHealAmount) until it lands,
 -- fails, or the time it should have landed by passes.
 -- ─────────────────────────────────────────────────────────────────────────────
-E.promisedHeals = {} -- { spellID, guid, amount, untilTime }
+E.promisedHeals = {} -- { spellID, guid, amount, untilTime, castKey, after, hold }
 
+-- A heal that lands at the end of a cast (its own, or the one it was pre-cast behind) is on its way until
+-- that cast's live end: pushback moves it (2026-11-01: a Healing Wave pushed back twice outlived its
+-- send-time deadline, and a potion and Gift of the Naaru went out 0.18 s before it landed).
 local function pruneHeals(now)
 	local heals = E.promisedHeals
+	local key = E.currentCastKey()
+	local liveEnd = key and select(5, br.game.UnitCastingInfo("player"))
 	for i = #heals, 1, -1 do
-		if now > heals[i].untilTime then table.remove(heals, i) end
+		local entry = heals[i]
+		if liveEnd and entry.castKey == key then
+			entry.untilTime = math.max(entry.untilTime, liveEnd / 1000 + entry.after + entry.hold)
+		end
+		if now > entry.untilTime then table.remove(heals, i) end
 	end
 end
 
--- Record a sent heal at a unit, on its way until untilTime. Nothing for a spell that isn't a direct heal.
-function E.promiseHeal(spellID, thisUnit, untilTime)
-	local amount = br.functions.spell:getHealAmount(spellID)
+-- Record a heal at a unit, on its way until untilTime. castKey: the cast it lands at the end of (after
+-- seconds later: a pre-cast's own cast time), so pushback on that cast moves it; hold: the round trip after.
+-- amount: what it heals for when the caller knows (an item); else what the rank heals for, nothing for a
+-- spell that isn't a direct heal.
+function E.promiseHeal(spellID, thisUnit, untilTime, castKey, after, hold, amount)
+	amount = amount or br.functions.spell:getHealAmount(spellID)
 	local guid = amount and br.game.UnitGUID(thisUnit)
 	if guid == nil then return end
-	E.promisedHeals[#E.promisedHeals + 1] = { spellID = spellID, guid = guid, amount = amount, untilTime = untilTime }
+	E.promisedHeals[#E.promisedHeals + 1] = { spellID = spellID, guid = guid, amount = amount, untilTime = untilTime,
+		castKey = castKey, after = after or 0, hold = hold or 0 }
+end
+
+--- A healing item used on a unit (the Healthstone/Potion module): its heal is on its way for a round trip,
+--- or until the combat log shows it (its use spell's SPELL_HEAL). The amount is what that spell was seen to
+--- heal for, else its tooltip's "<low> to <high>"; nothing when neither is known.
+-- br.functions.cast:noteHealingItemUsed(healPot, "player")
+function cast:noteHealingItemUsed(itemID, thisUnit)
+	local _, spellID = br.game.C_Item.GetItemSpell(itemID)
+	if spellID == nil then return end
+	local amount = br.functions.spell:getRankAmount(spellID)
+	if amount == nil then return end
+	local hold = br.functions.misc:getRoundTripHold()
+	E.promiseHeal(spellID, thisUnit or "player", br.game.GetTime() + hold, nil, 0, hold, amount)
 end
 
 -- Drop one promise of spellID: the oldest (at guid, when given), or the newest
