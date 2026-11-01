@@ -6,6 +6,9 @@
 -- profiles use. The game never loads these files.
 
 
+---@class BR.Retail.Druid.Feral.spell : BR.Keys.Retail.Druid.Feral.Abilities<BR.spell.K>
+
+
 ---@class BR.Retail.Druid.Feral.talent
 ---@field rank BR.Retail.Druid.Feral.talent.rank The rank of each talent (0 when not taken)
 ---@field aessinasRenewal boolean # true while the talent is taken

@@ -355,7 +355,9 @@ function combatLog:common(...)
     if source == guid and (param == "SPELL_HEAL" or param == "SPELL_DAMAGE") then
         local amount = select(15, ...)
         local critical = param == "SPELL_HEAL" and select(18, ...) or select(21, ...)
-        if not critical and br.functions.misc:canUseValue(amount) then br.functions.spell:noteRankAmount(spell, amount) end
+        if not critical and br.functions.misc:canUseValue(amount) then br.functions.spell:noteRankAmount(spell, amount, param == "SPELL_HEAL") end
+        -- a heal BR sent landed: health shows it now, so it's no longer on its way
+        if param == "SPELL_HEAL" then br.functions.cast:noteHealLanded(spell, destination) end
     end
 
     -- Ranged: Auto Shot fires as SPELL_CAST_SUCCESS (UnitRangedDamage: lo, hi, speed)

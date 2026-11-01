@@ -265,6 +265,23 @@ function unit:getHealthMax(Unit)
 	return br.game.UnitHealthMax(Unit)
 end
 
+--- The unit's health once BR's heals on their way to it land (cast:getHealsOnTheirWay), at most its maximum.
+--- What to decide another heal or a potion on: health alone still misses a heal that's about to land.
+-- local after = br.functions.unit:getHealthAfterHeals("player")
+function unit:getHealthAfterHeals(Unit)
+	local health, maxHealth = self:getHealth(Unit), self:getHealthMax(Unit)
+	if type(health) ~= "number" or type(maxHealth) ~= "number" then return health end
+	return math.min(maxHealth, health + br.functions.cast:getHealsOnTheirWay(Unit))
+end
+
+--- unit:getHealthAfterHeals as a percent of the unit's maximum health (0 when it has none)
+-- if br.functions.unit:getHPAfterHeals("player") < 40 then
+function unit:getHPAfterHeals(Unit)
+	local maxHealth = self:getHealthMax(Unit)
+	if type(maxHealth) ~= "number" or maxHealth <= 0 then return 0 end
+	return 100 * (self:getHealthAfterHeals(Unit) or 0) / maxHealth
+end
+
 function unit:getLevel(Unit)
 	return br.game.UnitLevel(Unit)
 end

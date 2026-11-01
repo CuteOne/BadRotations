@@ -61,7 +61,8 @@ br.api.build.module = function(api)
         -- Abilities - Call, module.BasicHealing(), in your rotation to use these
         if section == nil then
             -- Health Potion / Stones
-            if ui.checked("Healthstone/Potion") and unit.inCombat() and unit.hp() <= ui.value("Healthstone/Potion") then
+            -- after your heals on their way: not a potion with a heal about to land
+            if ui.checked("Healthstone/Potion") and unit.inCombat() and unit.hpAfterHeals() <= ui.value("Healthstone/Potion") then
                 -- Healthstone first: it doesn't share the potion's cooldown, so the potion stays ready for
                 -- a second emergency
                 if use.able.healthstone() and has.healthstone() then
@@ -316,8 +317,8 @@ br.api.build.module = function(api)
             end
         elseif race == "Draenei" then
             label = "Gift of the Naaru"
-            shouldUse = unit.hp() <= optionValue
             thisUnit = thisUnit or "player"
+            shouldUse = unit.hpAfterHeals(thisUnit) <= optionValue
         elseif race == "Dwarf" then
             label = "Stoneform"
             shouldUse = unit.inCombat() and unit.hp() <= optionValue

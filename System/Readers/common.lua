@@ -30,6 +30,7 @@ _superFrame:RegisterEvent("UNIT_SPELLCAST_START")
 _superFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
 _superFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 _superFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")
+_superFrame:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
 _superFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
 _superFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 _superFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
@@ -373,6 +374,12 @@ function common:commonReaders()
 		-- The player's cast interrupted: out of combat that's the player cancelling BR's cast
 		if event == "UNIT_SPELLCAST_INTERRUPTED" and select(1, ...) == "player" then
 			br.functions.cast:noteInterrupted(select(3, ...))
+		end
+		-- A heal of BR's that failed isn't on its way any more
+		if (event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_FAILED_QUIET" or event == "UNIT_SPELLCAST_INTERRUPTED")
+			and select(1, ...) == "player"
+		then
+			br.functions.cast:noteHealFailed(select(3, ...), event == "UNIT_SPELLCAST_FAILED_QUIET")
 		end
 		if event == "UNIT_SPELLCAST_SUCCEEDED" then
 			local SourceUnit = select(1, ...)

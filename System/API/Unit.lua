@@ -467,6 +467,25 @@ br.api.build.unit = function(api)
         return br.functions.unit:getHealthMax(thisUnit)
     end
 
+    --- Get unit's health once your heals on their way to it land (sent, not landed yet), at most its maximum.
+    -- Decide another heal or a potion on this: unit.health() still misses a heal about to land.
+    -- @function unit.healthAfterHeals
+    -- @param thisUnit The unit to check, defaults to "player" if nil
+    -- @return number Health of the unit after your heals on their way
+    unit.healthAfterHeals = function(thisUnit)
+        if thisUnit == nil then thisUnit = "player" end
+        return br.functions.unit:getHealthAfterHeals(thisUnit)
+    end
+
+    --- Get unit's health percentage once your heals on their way to it land
+    -- @function unit.hpAfterHeals
+    -- @param thisUnit The unit to check, defaults to "player" if nil
+    -- @return number Health percentage of the unit after your heals on their way (0-100)
+    unit.hpAfterHeals = function(thisUnit)
+        if thisUnit == nil then thisUnit = "player" end
+        return br.functions.misc:round2(br.functions.unit:getHPAfterHeals(thisUnit), 2)
+    end
+
     --- Get unit's health percentage
     -- @function unit.hp
     -- @param thisUnit The unit to check, defaults to "player" if nil

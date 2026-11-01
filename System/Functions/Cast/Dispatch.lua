@@ -238,6 +238,15 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 			E.promiseCosts(ctx.spellID, now + hold)             -- instant: until the server's reply
 		end
 	end
+	-- A heal is on its way until it lands: its own cast's end, or (pre-cast) the current cast's end and
+	-- then its own cast time. Clearcasting or not.
+	if castSucceeded or (details and details.inconclusive) then
+		local hold = br.functions.misc:getRoundTripHold(ctx.latency)
+		local _, _, _, _, castEnd = br.game.UnitCastingInfo("player")
+		local landsBy = castEnd and castEnd / 1000 or br.game.GetTime()
+		if castBeforeKey ~= nil then landsBy = landsBy + cast:getCastTime(ctx.spellID) end
+		E.promiseHeal(ctx.spellID, thisUnit, landsBy + hold)
+	end
 
 	if castSucceeded then
 		local sameSpellCastRemain = E.getSameSpellCastRemain(ctx.spellID)

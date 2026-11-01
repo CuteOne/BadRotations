@@ -209,6 +209,21 @@ do
         end
     end
 
+    -- IsSpellHelpful / IsSpellHarmful: the old globals IsHelpfulSpell / IsHarmfulSpell where the client
+    -- lacks them. Those take a name, not an ID, so an ID is looked up first.
+    local function byName(old)
+        return function(spell)
+            if not base[old] then return false end
+            if type(spell) == "number" then
+                spell = base.GetSpellInfo and base.GetSpellInfo(spell)
+                if spell == nil then return false end
+            end
+            return base[old](spell) and true or false
+        end
+    end
+    if not (base.C_Spell and base.C_Spell.IsSpellHelpful) then cs.IsSpellHelpful = byName("IsHelpfulSpell") end
+    if not (base.C_Spell and base.C_Spell.IsSpellHarmful) then cs.IsSpellHarmful = byName("IsHarmfulSpell") end
+
     -- IsAutoRepeatSpell: Retail uses C_Spell.IsAutoRepeatSpell; Classic/TBC expose
     -- it as a top-level global.  Polyfill so gateAutoRepeat never calls a nil function.
     if not (base.C_Spell and base.C_Spell.IsAutoRepeatSpell) then

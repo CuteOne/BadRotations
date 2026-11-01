@@ -301,6 +301,17 @@ function C59.health(thisUnit) end
 ---@return number # Maximum health of the unit
 function C59.healthMax(thisUnit) end
 
+--- Get unit's health once your heals on their way to it land (sent, not landed yet), at most its maximum.
+--- Decide another heal or a potion on this: unit.health() still misses a heal about to land.
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return number # Health of the unit after your heals on their way
+function C59.healthAfterHeals(thisUnit) end
+
+--- Get unit's health percentage once your heals on their way to it land
+---@param thisUnit? string The unit to check, defaults to "player" if nil
+---@return number # Health percentage of the unit after your heals on their way (0-100)
+function C59.hpAfterHeals(thisUnit) end
+
 --- Get unit's health percentage
 ---@param thisUnit? string The unit to check, defaults to "player" if nil
 ---@return number # Health percentage of the unit (0-100)
@@ -12140,6 +12151,3 @@ function C65.timer(timerName, interval) end
 
 
 ---@class BR.Retail.Druid.Feral.imbues
-
-
----@class BR.Retail.Druid.Feral.spell : BR.Keys.Retail.Druid.Feral.Abilities<BR.spell.K>

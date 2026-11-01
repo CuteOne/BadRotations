@@ -452,6 +452,71 @@ function cast:getPromisedPower(powerType)
 end
 
 -- ─────────────────────────────────────────────────────────────────────────────
+-- SECTION: Heals on their way
+--
+-- Like power, a heal BR sent shows in the unit's health only once it lands: at the end of its cast, or
+-- of the cast it was pre-cast behind and then its own. Until then a heal or potion decided on health
+-- alone was a second heal for the same gap (2026-11-01, TBC: Healing Wave pushed back to 4.7 s, then a
+-- Healing Potion and a second Healing Wave sent 0.16 s before the first landed; 46% overhealed). Each
+-- heal BR sends is kept here with the amount its rank heals for (spell:getHealAmount) until it lands,
+-- fails, or the time it should have landed by passes.
+-- ─────────────────────────────────────────────────────────────────────────────
+E.promisedHeals = {} -- { spellID, guid, amount, untilTime }
+
+local function pruneHeals(now)
+	local heals = E.promisedHeals
+	for i = #heals, 1, -1 do
+		if now > heals[i].untilTime then table.remove(heals, i) end
+	end
+end
+
+-- Record a sent heal at a unit, on its way until untilTime. Nothing for a spell that isn't a direct heal.
+function E.promiseHeal(spellID, thisUnit, untilTime)
+	local amount = br.functions.spell:getHealAmount(spellID)
+	local guid = amount and br.game.UnitGUID(thisUnit)
+	if guid == nil then return end
+	E.promisedHeals[#E.promisedHeals + 1] = { spellID = spellID, guid = guid, amount = amount, untilTime = untilTime }
+end
+
+-- Drop one promise of spellID: the oldest (at guid, when given), or the newest
+local function dropHeal(spellID, guid, newest)
+	local heals = E.promisedHeals
+	local first, last, step = 1, #heals, 1
+	if newest then first, last, step = #heals, 1, -1 end
+	for i = first, last, step do
+		local entry = heals[i]
+		if entry.spellID == spellID and (guid == nil or entry.guid == guid) then
+			table.remove(heals, i)
+			return
+		end
+	end
+end
+
+--- The player's heal landed on destGUID (combat log SPELL_HEAL): the unit's health has it now.
+function cast:noteHealLanded(spellID, destGUID)
+	if #E.promisedHeals > 0 then dropHeal(spellID, destGUID) end
+end
+
+--- The player's cast of spellID failed or was interrupted (Readers/common.lua). A quiet failure is a send
+--- the game turned away while another cast was on (the newest, pre-cast one); any other, the cast going.
+function cast:noteHealFailed(spellID, quiet)
+	if #E.promisedHeals > 0 then dropHeal(spellID, nil, quiet) end
+end
+
+--- Health BR's heals on their way to the unit will add (0 when none): sent, not landed yet.
+-- local coming = br.functions.cast:getHealsOnTheirWay("player")
+function cast:getHealsOnTheirWay(thisUnit)
+	if #E.promisedHeals == 0 then return 0 end
+	pruneHeals(br.game.GetTime())
+	local guid = br.game.UnitGUID(thisUnit)
+	local total = 0
+	for _, entry in ipairs(E.promisedHeals) do
+		if entry.guid == guid then total = total + entry.amount end
+	end
+	return total
+end
+
+-- ─────────────────────────────────────────────────────────────────────────────
 -- SECTION: Mana kept to shift back into a form left in combat
 --
 -- Leaving a form to cast (unit.cancelFormFor) is only worth it with the mana to shift back. That is

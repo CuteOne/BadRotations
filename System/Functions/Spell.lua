@@ -723,12 +723,14 @@ local rankAmounts = {}
 local tooltipAmounts = {}
 local AMOUNT_SAMPLES = 2 -- casts seen before what a rank did replaces its tooltip
 
---- A rank's heal or hit landed (direct, not critical): amount includes any overhealing.
-function spell:noteRankAmount(spellID, amount)
+--- A rank's heal or hit landed (direct, not critical): amount includes any overhealing. heal: true for
+--- a heal (SPELL_HEAL), false for a hit; spell:getHealAmount only answers for heals.
+function spell:noteRankAmount(spellID, amount, heal)
 	if type(spellID) ~= "number" or type(amount) ~= "number" or amount <= 0 then return end
 	local seen = rankAmounts[spellID]
 	if seen == nil then seen = { total = 0, count = 0 }; rankAmounts[spellID] = seen end
 	seen.total, seen.count = seen.total + amount, seen.count + 1
+	if heal then seen.heal = true else seen.hit = true end
 end
 
 --- How much a rank heals or hits for: the average of what it did (from 2 casts), else the middle of its
@@ -746,6 +748,19 @@ function spell:getRankAmount(spellID)
 		tooltipAmounts[spellID] = guess
 	end
 	return guess or nil
+end
+
+--- How much a rank heals for, or nil when it isn't a direct heal: spell:getRankAmount for a rank seen
+--- healing, or not yet seen at all and helpful only (a hit, Lightning Shield's say, is never a heal).
+-- local onItsWay = br.functions.spell:getHealAmount(331) -- Healing Wave rank 1
+function spell:getHealAmount(spellID)
+	local seen = rankAmounts[spellID]
+	if seen and seen.hit then return nil end
+	if not (seen and seen.heal) then
+		local C = br.game.C_Spell
+		if not (C.IsSpellHelpful(spellID) and not C.IsSpellHarmful(spellID)) then return nil end
+	end
+	return self:getRankAmount(spellID)
 end
 
 --- The rank (its position in the list) to cast for at least amount: the lowest known rank that does
