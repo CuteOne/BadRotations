@@ -295,6 +295,42 @@ function br.debug.range:probe(arg)
     end)
 end
 
+-- Range flips (2026-11-01, TBC: Lightning Bolt in range by the game at a mob BR measured about 32 yd away):
+-- every time the game's range answer for a ranged spell at a unit changes, BR's own sum at that moment, so
+-- the edge the game uses can be read off. Called by the cast gate (Cast/Dispatch.lua E.checkRange) with the
+-- answer it asked for anyway. One line per change, at most RANGE_FLIP_LINES a session.
+local RANGE_FLIP_LINES = 60
+local rangeFlips, rangeFlipLines, rangeFlipKeys = {}, 0, 0 -- "spellID|guid" -> the game's last answer
+function br.debug.range:noteGameAnswer(spellID, spellName, maxRange, unit, inRange)
+    if type(inRange) ~= "boolean" or type(maxRange) ~= "number" or maxRange <= 5 then return end
+    local guid = br.game.UnitGUID(unit)
+    if guid == nil then return end
+    local key = spellID .. "|" .. guid
+    local last = rangeFlips[key]
+    if last == nil then
+        if rangeFlipLines >= RANGE_FLIP_LINES then return end -- capped: no new units kept
+        -- a long session meets many units: start over now and then rather than keep them all
+        rangeFlipKeys = rangeFlipKeys + 1
+        if rangeFlipKeys > 300 then rangeFlips, rangeFlipKeys = {}, 1 end
+    end
+    rangeFlips[key] = inRange
+    if last == nil or last == inRange or rangeFlipLines >= RANGE_FLIP_LINES then return end
+    rangeFlipLines = rangeFlipLines + 1
+    local range = br.functions.range
+    local centre, flat, dz = range:getCenterDistance("player", unit)
+    if centre == nil then return end
+    centre, flat, dz = plainNumber(centre), plainNumber(flat), plainNumber(dz)
+    local reachYou, reachIt = plainNumber(range:getCombatReach("player")), plainNumber(range:getCombatReach(unit))
+    local bounding = br.game.UnitBoundingRadius
+    local edge = plainNumber(range:getEdgeDistance("player", unit) or -1)
+    rangeLine(("RANGE FLIP %s (%d yd) at %s: game %s -> %s, BR's edge %.2f says %s | centre %.2f (flat %.2f, height %+.2f) | reach you %.2f, it %.2f%s | at a flip the game's limit is here: it adds %.2f to the range (3D) or %.2f (flat), BR adds %.2f | moving: you %.1f, it %.1f yd/s"):format(
+        printable(spellName), maxRange, unitName(unit), inOut(last), inOut(inRange), edge, inOut(edge <= maxRange),
+        centre, flat, dz, reachYou, reachIt,
+        bounding and (" | bounding you %.2f, it %.2f"):format(plainNumber(bounding("player") or 0), plainNumber(bounding(unit) or 0)) or "",
+        centre - maxRange, flat - maxRange, reachYou + reachIt,
+        plainNumber(br.game.GetUnitSpeed("player") or 0), plainNumber(br.game.GetUnitSpeed(unit) or 0)))
+end
+
 ----------------------------------------------------------------------------------------------------
 -- /br target: the enemy BR focuses on and why (br.engines.targeting:explain), in chat and Target.log
 ----------------------------------------------------------------------------------------------------

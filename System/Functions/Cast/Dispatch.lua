@@ -356,6 +356,9 @@ function E.checkRange(ctx, thisUnit, castType)
 	-- API check entirely for pet spells and always measure pet-to-target distance directly.
 	if castType ~= "pet" then
 		local spellInRange = br.game.C_Spell.IsSpellInRange(ctx.spellName, thisUnit)
+		if br.debug.range and br.debug.range.noteGameAnswer then
+			br.debug.range:noteGameAnswer(ctx.spellID, ctx.spellName, ctx.maxRange, thisUnit, spellInRange)
+		end
 		if spellInRange == false then
 			local timerKey = ctx.spellID .. "_" .. (br.game.UnitGUID(thisUnit) or thisUnit)
 			E.rangeDelayTimers[timerKey] = nil
