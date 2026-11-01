@@ -122,9 +122,12 @@ end
 --- Locals ---
 --------------
 local melee -- Style: true for Melee, false for Caster
--- The enemy the combat lines act on: BR's pick within 30 yd (units.dyn30), which is your target whenever it
--- can take the spell (Bot Options > Targeting decides the rest). Aiming at "target" by name left the
--- rotation idle with the target dead and another mob hitting you (2026-10-26: 4-5 s twice)
+-- The enemy the combat lines act on: BR's pick within 30 yd, which is your target whenever it can take the
+-- spell (Bot Options > Targeting decides the rest). Aiming at "target" by name left the rotation idle with
+-- the target dead and another mob hitting you (2026-10-26: 4-5 s twice). In front of you or not
+-- (units.dyn30AOE): a mob attacking from behind left the in-front pick empty, so no totem, shield or auto
+-- attack went out until you turned (2026-11-01: a Moonstalker, 6 s; the same at fight starts on Forever,
+-- 2026-10-13). Spells that need facing it are still refused by BR's facing check.
 local enemy
 local actionList = {}
 
@@ -581,9 +584,10 @@ local function runRotation()
     enemies.get(20)
     enemies.get(40)
     -- BR's picks (Targeting Mode): melee (it also switches your target to a mob attacking you when yours
-    -- can't take melee, as auto attack only hits your target) and the 30 yd one the rotation acts on
+    -- can't take melee, as auto attack only hits your target) and the 30 yd one the rotation acts on,
+    -- facing it or not (see enemy above)
     units.get(5)
-    enemy = units.get(30)
+    enemy = units.get(30, true)
 
     if ui.pause() or ui.mode.rotation == 4 or unit.mounted() or unit.flying() or unit.taxi() then return true end
 
