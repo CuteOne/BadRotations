@@ -92,6 +92,15 @@ local function options()
     ui.spinner(section, "Hurricane", { value = 3, min = 2, max = 10, step = 1,
         tip = "Channel Hurricane on your target when at least this many enemies are within 8 yards of it" })
     ui.checkbox(section, "Hibernate", { tip = "In Caster Form, Hibernate a Beast or Dragonkin attacking you that isn't your target" })
+    ui.dropdown(section, "Mana Use", { choices = { "Conserve", "Balanced", "Burn" }, value = "Balanced", checkbox = false,
+        tip = "What mana goes on damage spells (Wrath, Starfire, Moonfire and Insect Swarm's damage over time, Hurricane). "
+            .. "One heal's mana (Regrowth once known, Healing Touch before) is always kept back. Balanced: damage down to that heal. "
+            .. "Conserve: as Balanced, but with an enemy in melee (auto attack costs nothing) only above Conserve Above, or when the "
+            .. "fight is going badly (2+ enemies on you, under half health, or you'd die first). Burn: as Balanced, and while nothing "
+            .. "threatens you (60%+ health, one enemy at most on you, winning) no heal is kept back. Fights aren't refused at low mana: "
+            .. "the Moonfire finisher and heals always may." })
+    ui.spinner(section, "Conserve Above", { value = 60, min = 0, max = 100, step = 5, checkbox = false,
+        tip = "Mana Use Conserve: mana percent above which damage spells still go out with an enemy in melee." })
 
     section = ui.section("Form Management")
     ui.checkbox(section, "Aquatic Form", { checked = true, tip = "Shift to Aquatic Form while swimming" })
@@ -256,6 +265,48 @@ local function hibernateTarget(thisUnit)
     return (unit.beast(thisUnit) or unit.dragonkin(thisUnit)) and not unit.isUnit(thisUnit, "target")
         and unit.isTanking(thisUnit) and cast.able.hibernate(thisUnit)
 end
+
+-- Mana Use (as Earthcaller-TBC's): fights started on 23-38 mana and ended on 0-2 at level 7, and twice the heal BR
+-- wanted (Rejuvenation) couldn't be afforded (Fights 2026-11-05, Palemane area). Mana Use choices (ui.value)
+local MANA_CONSERVE, MANA_BURN = 1, 3
+
+-- The heal mana is kept back for: Regrowth once known, Healing Touch before
+local function healCost()
+    if spell.regrowth.known() then return cast.cost.regrowth() end
+    return cast.cost.healingTouch()
+end
+
+-- Nothing in this fight threatens you: 60%+ health, one enemy at most on you, and you're winning
+local function unthreatened(thisUnit)
+    return thisUnit ~= nil and unit.hp() >= 60 and #enemies.yards8 <= 1 and unit.winning(thisUnit)
+end
+
+-- The fight is going badly; says why (for the debug line), nil when it isn't
+local function pressed(thisUnit)
+    if #enemies.yards8 >= 2 then return #enemies.yards8 .. " enemies on you" end
+    if unit.hp() < 50 then return ("health %d%%"):format(unit.hp()) end
+    if thisUnit ~= nil and unit.losing(thisUnit) then return "losing" end
+end
+
+-- Mana may go on this damage spell, by Mana Use. Returns why ("mana 64%", "2 enemies on you", "free", "safe"), shown
+-- in the cast's debug line, or nil to hold it
+local function spendOnDamage(spellKey, thisUnit)
+    if freeDPS then return "free" end
+    local percent = power.mana.percent()
+    local manaWhy = ("mana %d%%"):format(percent)
+    if ui.value("Mana Use") == MANA_BURN and unthreatened(thisUnit) then return "safe" end
+    if not power.mana.affordable(cast.cost[spellKey](), healCost()) then return nil end
+    if ui.value("Mana Use") == MANA_CONSERVE and thisUnit ~= nil and unit.distance(thisUnit) < 5 then
+        local why = pressed(thisUnit)
+        if why then return why end
+        if percent >= ui.value("Conserve Above") then return manaWhy end
+        return nil
+    end
+    return manaWhy
+end
+
+-- " [why]" for a debug line
+local function tag(why) return type(why) == "string" and (" [" .. why .. "]") or "" end
 
 --------------------
 --- Action Lists ---
@@ -432,6 +483,9 @@ actionList.Defensive = function()
     -- heals already on their way (unit.hpAfterHeals): a heal about to land covers its gap
     local other = var.healOther
     local otherName = other and (" on " .. unit.name(other)) or ""
+    -- War Stomp (Tauren) right before a cast-time heal on yourself while something hits you: the heal then
+    -- lands inside the 2 s stun, without pushback (module.RacialStun: needs an enemy within 8 yd attacking you)
+    local function stunFirst() return unit.inCombat() and module.RacialStun() end
     -- Healing Touch: the emergency heal, leaves any form regardless of Energy/Rage. Nature's Swiftness
     -- (off the GCD) makes it instant.
     if ui.checked("Healing Touch") and not cast.current.healingTouch() then
@@ -447,6 +501,7 @@ actionList.Defensive = function()
         end
         if not unit.moving() or buff.naturesSwiftness.exists() then
             if selfLow and cast.able.healingTouch("player") then
+                if not buff.naturesSwiftness.exists() and stunFirst() then return true end
                 if casterCast("healingTouch", "player", "Healing Touch", freeHeal, true, true) then return true end
             end
             if otherLow and cast.able.healingTouch(other) then
@@ -464,6 +519,7 @@ actionList.Defensive = function()
                     if casterCast("swiftmend", thisUnit, "Swiftmend" .. label, freeHeal, false, true) then return true end
                 end
                 if cast.able.regrowth(thisUnit) and not cast.current.regrowth() and not unit.moving() and not buff.regrowth.exists(thisUnit) then
+                    if i == 1 and stunFirst() then return true end
                     if casterCast("regrowth", thisUnit, "Regrowth" .. label, freeHeal, false, true) then return true end
                 end
             end
@@ -874,23 +930,26 @@ actionList.CasterForm = function()
     local thisUnit = units.dyn30AOE
     local ttd = unit.ttd(thisUnit)
     -- Hurricane: no cooldown on Forever; channel it into a pack
-    if ui.checked("Hurricane") and not unit.moving() and cast.able.hurricane.ground(8, ui.value("Hurricane")) then
+    local why = ui.checked("Hurricane") and not unit.moving() and spendOnDamage("hurricane", thisUnit)
+    if why and cast.able.hurricane.ground(8, ui.value("Hurricane")) then
         if cast.hurricane.ground(8, ui.value("Hurricane")) then
-            ui.debug("Casting Hurricane")
+            ui.debug("Casting Hurricane" .. tag(why))
             return true
         end
     end
     -- Moonfire: 12 sec DoT, where it pays off, or while moving
     if cast.able.moonfire(thisUnit) and debuff.moonfire.refresh(thisUnit) and (ttd > 9 or unit.moving()) then
-        if cast.moonfire(thisUnit) then
-            ui.debug("Casting Moonfire")
+        why = spendOnDamage("moonfire", thisUnit)
+        if why and cast.moonfire(thisUnit) then
+            ui.debug("Casting Moonfire" .. tag(why))
             return true
         end
     end
     -- Insect Swarm (talent)
     if cast.able.insectSwarm(thisUnit) and debuff.insectSwarm.refresh(thisUnit) and (ttd > 9 or unit.moving()) then
-        if cast.insectSwarm(thisUnit) then
-            ui.debug("Casting Insect Swarm")
+        why = spendOnDamage("insectSwarm", thisUnit)
+        if why and cast.insectSwarm(thisUnit) then
+            ui.debug("Casting Insect Swarm" .. tag(why))
             return true
         end
     end
@@ -900,15 +959,29 @@ actionList.CasterForm = function()
     local starfireTime = math.max(0, 3.5 - 0.5 * buff.eclipse.stack())
     local buildEclipse = spell.eclipse.known() and not buff.eclipse.exists() and not freeDPS
     if cast.able.starfire() and not buildEclipse and ttd > starfireTime then
-        if cast.starfire() then
-            ui.debug("Casting Starfire")
+        why = spendOnDamage("starfire", thisUnit)
+        if why and cast.starfire() then
+            ui.debug("Casting Starfire" .. tag(why))
             return true
         end
     end
+    -- A target that dies before Wrath would land: finish it with instant Moonfire, else start nothing. Wrath on a
+    -- dying target was the most common lost cast (Fights 2026-11-05: 51 in 90 fights, "Interrupted" or "target is
+    -- dead"). ttd 999 is unknown, which doesn't count as dying.
+    if ttd < 999 and ttd < cast.time.wrath() + 0.2 then
+        if cast.able.moonfire(thisUnit) then
+            if cast.moonfire(thisUnit) then
+                ui.debug("Casting Moonfire [Finish]")
+                return true
+            end
+        end
+        return false
+    end
     -- Wrath: Eclipse builder and filler (cheap 2 sec cast, also when Starfire wouldn't land in time)
     if cast.able.wrath() then
-        if cast.wrath() then
-            ui.debug("Casting Wrath")
+        why = spendOnDamage("wrath", thisUnit)
+        if why and cast.wrath() then
+            ui.debug("Casting Wrath" .. tag(why))
             return true
         end
     end
