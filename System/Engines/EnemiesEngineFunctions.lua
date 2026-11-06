@@ -491,6 +491,23 @@ end
 -- Facing requests up to this range (yards) are melee: auto attack follows the WoW target, so BR switches
 -- it to its pick in the cases dynamicTarget describes
 local MELEE_RETARGET = 8
+-- A melee switch while the target is still within MELEE_RETARGET yards (at the edge of melee) waits until it has
+-- been out of melee MELEE_EDGE_WAIT seconds, and not within MELEE_SWITCH_GAP of BR's last melee switch (2026-11-05,
+-- Forever: BR switched between two mobs at the melee edge 4 times in 2 s, their distances reading 0 and 5 yd in
+-- turn, and on that client each switch stops auto attack). A target further off (fled), gone, out of sight,
+-- evading or a priority pick is still switched from at once.
+local MELEE_EDGE_WAIT, MELEE_SWITCH_GAP = 1.0, 2.0
+local meleeOut = { guid = nil, since = nil } -- the target, and since when it couldn't take melee
+local lastMeleeSwitchAt = -math.huge
+
+-- Notes whether the target can take a melee request now; returns how long it hasn't (0 when it can)
+local function noteMeleeOut(usable, now)
+	if usable then meleeOut.since = nil; return 0 end
+	local guid = br.game.UnitGUID("target")
+	if not br.functions.misc:canUseValue(guid) then guid = nil end
+	if meleeOut.since == nil or meleeOut.guid ~= guid then meleeOut.guid, meleeOut.since = guid, now end
+	return now - meleeOut.since
+end
 
 --- The unit a request of this range (yards) and facing should attack: the selected target when it can
 --- take it, otherwise BR's pick (br.engines.targeting), or nil.
@@ -509,6 +526,9 @@ local function pickDynamicTarget(range, facing)
 	if mode == 0 then mode = 2 end
 	local autoTargetDynamic = mode == 3
 	local usable = targetUsable(range, facing)
+	local meleeRequest = facing and range <= MELEE_RETARGET
+	local now = br.game.GetTime()
+	local meleeOutFor = meleeRequest and noteMeleeOut(usable, now) or 0
 	local result
 
 	local dynamicOn = mode ~= 1 and (inCombat or not misc:isChecked("Targeting Only In Combat"))
@@ -533,18 +553,22 @@ local function pickDynamicTarget(range, facing)
 		do
 			local unitFns = br.functions.unit
 			local targetExists = unitFns:GetObjectExists("target")
-			local meleeRequest = facing and range <= MELEE_RETARGET
+			-- the target still at the edge of melee: the switch waits (MELEE_EDGE_WAIT, MELEE_SWITCH_GAP)
+			local facts = readTargetFacts()
+			local atEdge = facts.attackable and (facts.distance or 99) <= MELEE_RETARGET
+			local edgeReady = not atEdge or (meleeOutFor >= MELEE_EDGE_WAIT and now - lastMeleeSwitchAt >= MELEE_SWITCH_GAP)
 			-- (an evading target: another enemy BR may attack takes over, 2026-10-31 the user's call)
 			local wantRetarget = autoTargetDynamic or not targetExists or not br.functions.cast:isUnitVisible("target")
 				or unitFns:isEvading("target")
 				or (misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack("target"))
 				or (meleeRequest and (br.engines.targeting:isPriority(result)
-					or (not usable and misc:isTargeting(result))))
+					or (not usable and edgeReady and misc:isTargeting(result))))
 			if wantRetarget and not unitFns:GetUnitIsUnit(result, "target") and not unitFns:isDummy(result)
 				and not (facing and unitFns:isExplosive(result))
 			then
 				-- for the targeting logs; set first, as the game may say the target changed inside TargetUnit
-				enemiesEngineFunctions.lastRetargetAt = br.game.GetTime()
+				enemiesEngineFunctions.lastRetargetAt = now
+				if meleeRequest then lastMeleeSwitchAt = now end
 				br.game.TargetUnit(result)
 				targetFacts.at = nil -- the target changed: read it afresh
 				br.functions.range:clearDistanceMemo()
