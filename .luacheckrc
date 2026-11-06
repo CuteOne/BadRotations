@@ -22,6 +22,9 @@ globals = {
 	"br",
 }
 read_globals = {
+    -- secret values (Retail since Midnight, WoW Forever)
+    'canaccessvalue',
+    'issecretvalue',
     '8.0_WARFRONTS_-_ARATHI_-_CONSTRUCT_BUILDING_-_BARRACKS',
     '82_TAUREN_HERITAGE_TOY_ERROR',
     '90POA_BOSS_01',
@@ -41260,8 +41263,12 @@ read_globals = {
     }
 }
 
--- Profiles run in the profile API (System/Loader/ProfileAPI.lua): its tables and functions are their globals
+-- Profiles run in the profile API (System/Loader/ProfileAPI.lua): its tables and functions are their globals.
+-- var is the profile's own scratch table: it sets fields on it
 files["Rotations"] = {
+	globals = {
+		"var",
+	},
 	read_globals = {
 		"buff",
 		"cast",
@@ -41284,7 +41291,7 @@ files["Rotations"] = {
 		"unit",
 		"units",
 		"use",
-		"var",
+		"util",
 		"print",
 		"registerRotation",
 		"loadSupport",
