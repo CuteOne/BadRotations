@@ -306,7 +306,10 @@ function common:commonReaders()
 		if event == "AZERITE_ESSENCE_ACTIVATED" and br.runner then
 			br.runner:requestRebuild()
 		end
-		if event == "PLAYER_TARGET_CHANGED" then br.functions.unit:noteTargetChanged() end
+		if event == "PLAYER_TARGET_CHANGED" then
+			br.functions.unit:noteTargetChanged()
+			if br.debug.melee and br.debug.melee.noteTargetChanged then pcall(br.debug.melee.noteTargetChanged, br.debug.melee) end
+		end
 		-- Auto-attack on / off
 		if event == "PLAYER_ENTER_COMBAT" or event == "PLAYER_LEAVE_COMBAT" then
 			br.functions.unit:setAutoAttacking(event == "PLAYER_ENTER_COMBAT")

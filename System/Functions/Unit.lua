@@ -1015,6 +1015,7 @@ end
 function unit:setAutoAttacking(on)
 	autoAttacking = on and true or false
 	if on and br.debug.melee and br.debug.melee.noteAttackOn then br.debug.melee:noteAttackOn() end
+	if not on and br.debug.melee and br.debug.melee.noteAttackOff then pcall(br.debug.melee.noteAttackOff, br.debug.melee) end
 	-- Either answer ends the wait; after a stop (the target died) a new start goes out at once
 	attackSentAt = -math.huge
 end

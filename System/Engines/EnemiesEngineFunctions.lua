@@ -543,10 +543,11 @@ local function pickDynamicTarget(range, facing)
 			if wantRetarget and not unitFns:GetUnitIsUnit(result, "target") and not unitFns:isDummy(result)
 				and not (facing and unitFns:isExplosive(result))
 			then
+				-- for the targeting logs; set first, as the game may say the target changed inside TargetUnit
+				enemiesEngineFunctions.lastRetargetAt = br.game.GetTime()
 				br.game.TargetUnit(result)
 				targetFacts.at = nil -- the target changed: read it afresh
 				br.functions.range:clearDistanceMemo()
-				enemiesEngineFunctions.lastRetargetAt = br.game.GetTime() -- for the targeting log
 			end
 		end
 	end

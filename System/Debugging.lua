@@ -582,6 +582,47 @@ function br.debug.melee:noteAttackOn()
     if attackStart then attackStartLine(br.game.GetTime()) end
 end
 
+-- Target changes and auto attack stops in combat (2026-11-05: auto attack went off within half a second, six
+-- times, each after the fleeing target's attacker took BR's focus; who changed the target, and in which order,
+-- wasn't logged). Melee.log gets each target change (from, to, by BR's dynamic targeting or not, auto attack
+-- then) and each auto attack stop (the target, how long after the last target change and who made it).
+local TARGET_LINES = 60 -- per session
+local targetLines = 0
+local lastTarget = { text = "none", at = -math.huge, byBR = false }
+
+local function targetWrite(text)
+    if targetLines >= TARGET_LINES then return end
+    targetLines = targetLines + 1
+    meleeLine(text)
+end
+
+local function targetText()
+    return br.functions.unit:GetUnitExists("target") and meleeUnit("target") or "none"
+end
+
+-- PLAYER_TARGET_CHANGED (Readers/common.lua)
+function br.debug.melee:noteTargetChanged()
+    local now = br.game.GetTime()
+    local retargetAt = br.engines.enemiesEngineFunctions and br.engines.enemiesEngineFunctions.lastRetargetAt
+    local byBR = retargetAt ~= nil and now - retargetAt <= 0.5
+    local to = targetText()
+    if br.game.UnitAffectingCombat("player") then
+        targetWrite(("TARGET CHANGED %s -> %s, by %s | auto attack %s"):format(lastTarget.text, to,
+            byBR and "BR (dynamic targeting)" or "not BR (you, or the game)",
+            br.functions.unit:isAutoAttacking() and "on" or "off"))
+    end
+    lastTarget.text, lastTarget.at, lastTarget.byBR = to, now, byBR
+end
+
+-- PLAYER_LEAVE_COMBAT: the game says auto attack is off (Functions/Unit.lua setAutoAttacking)
+function br.debug.melee:noteAttackOff()
+    if not br.game.UnitAffectingCombat("player") then return end
+    local since = br.game.GetTime() - lastTarget.at
+    targetWrite(("AUTO ATTACK STOPPED: target %s | %s"):format(targetText(), since < 60
+        and ("%.2fs after the target changed (by %s)"):format(since, lastTarget.byBR and "BR" or "not BR")
+        or "the target hasn't changed for a minute or more"))
+end
+
 local function watchAttackStart(now)
     if attackStart and now - attackStart.sentAt > ATTACK_START_WAIT then attackStartLine(nil) end
 end
