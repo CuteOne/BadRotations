@@ -227,6 +227,9 @@ end
 function unit:getFacing(Unit1, Unit2, Degrees)
 	if Degrees == nil then Degrees = 90 end
 	if Unit2 == nil then Unit2 = "player" end
+	-- A unit faces itself: the angle between two identical positions means nothing, and it refused self-cast
+	-- spells with no range (War Stomp "NOT_FACING, unit player, 157° off", Fights 2026-11-05).
+	if Unit1 == Unit2 or br.game.UnitIsUnit(Unit1, Unit2) then return true end
 
 	-- We can only do accurate facing math when the unlocker APIs are available.
 	if not br.unlocked then
