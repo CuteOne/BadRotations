@@ -30,6 +30,75 @@ local function isAttackablePlayer(Unit)
 	return false
 end
 
+-- Enemy players: BR fights one only once the fight with them is on: you attacked them yourself (a harmful spell
+-- you cast with them targeted, or auto attack you started on them), or the combat log saw them hit you. Targeting
+-- one isn't enough (a PvP realm: a player clicked to look at mustn't be pulled), and neither is a group member's
+-- fight with them. Kept until combat ends. GUID -> why ("you attacked" / "attacked you").
+local engagedPlayers = {}
+local ENGAGED_WHY = { ["you attacked"] = true, ["attacked you"] = true }
+
+--- Records that the fight with an enemy player is on: why is "you attacked" or "attacked you".
+-- Called by the events below and by the combat log reader (Readers/combatlog.lua).
+function misc.notePlayerEngaged(guid, why)
+	if guid == nil or not ENGAGED_WHY[why] or not misc:canUseValue(guid) then return end
+	engagedPlayers[guid] = engagedPlayers[guid] or why
+end
+
+--- Why BR may fight the enemy player Unit ("you attacked" / "attacked you"), or nil.
+function misc:playerEngagedWhy(Unit)
+	local guid = br.game.UnitGUID(Unit)
+	if guid == nil or not misc:canUseValue(guid) then return nil end
+	return engagedPlayers[guid]
+end
+
+-- An enemy player as the target, by its GUID (nil for anything else)
+local function enemyPlayerTarget()
+	if not (br.game.UnitIsPlayer("target") and br.game.UnitCanAttack("player", "target")) then return nil end
+	if br.game.UnitInParty("target") or br.game.UnitInRaid("target") then return nil end -- a mind-controlled friend
+	return br.game.UnitGUID("target")
+end
+
+local OWN_SEND_WINDOW = 0.5 -- seconds: a SENT this soon after BR sent the same spell is BR's
+local engagedFrame = br.game.CreateFrame("Frame")
+for _, event in ipairs({ "UNIT_SPELLCAST_SENT", "PLAYER_ENTER_COMBAT", "PLAYER_REGEN_ENABLED" }) do
+	engagedFrame:RegisterEvent(event)
+end
+--- Feeds the engaged-player events (the frame above; the tests call it directly).
+function misc.engagedPlayerEvent(event, unit, _, _, spellID)
+	if event == "PLAYER_REGEN_ENABLED" then
+		br.game.wipe(engagedPlayers)
+		return
+	end
+	local now = br.game.GetTime()
+	if event == "UNIT_SPELLCAST_SENT" then
+		if unit ~= "player" or spellID == nil or not misc:canUseValue(spellID) then return end
+		local E = br.functions.cast and br.functions.cast.internal
+		local sentAt = E and E.sentAt and E.sentAt[spellID]
+		if sentAt and now - sentAt <= OWN_SEND_WINDOW then return end -- BR's
+		if not br.game.C_Spell.IsSpellHarmful(spellID) then return end
+		misc.notePlayerEngaged(enemyPlayerTarget(), "you attacked")
+	elseif event == "PLAYER_ENTER_COMBAT" then
+		-- Auto attack came on: yours unless BR started it on this unit just now
+		local guid = enemyPlayerTarget()
+		local sentAt, sentGUID = br.functions.unit:lastAttackSent()
+		if guid ~= nil and not (sentGUID == guid and now - sentAt <= 1) then misc.notePlayerEngaged(guid, "you attacked") end
+	end
+end
+engagedFrame:SetScript("OnEvent", function(_, event, ...) misc.engagedPlayerEvent(event, ...) end)
+
+-- Whether BR may fight the enemy player Unit, with the reason when it may not. Players of the group (attackable
+-- only while mind-controlled) and the unitRules debuff cases aren't asked here.
+local function enemyPlayerValidity(Unit)
+	if not misc:playerEngagedWhy(Unit) then
+		return false, "Player: you haven't attacked them and they haven't attacked you"
+	end
+	local unitFunctions = br.functions.unit
+	if unitFunctions:GetUnitIsDeadOrGhost(Unit) then return false, "Dead or Ghost" end
+	if not br.game.UnitCanAttack("player", Unit) then return false, "Cannot Attack" end
+	if misc:getOptionCheck("Don't break CCs") and misc:isCCProtected(Unit) then return false, "Is CC'd (Don't break CCs)" end
+	return true
+end
+
 -- True when Unit belongs in the enemies list; false and the reason (shown by the Target Validation
 -- Debug tooltip) when it doesn't. distance: the unit's distance from the player if the caller has
 -- just measured it.
@@ -171,6 +240,14 @@ function misc:isValidUnit(Unit)
 
 	local now = br.game.GetTime()
 	local guid = br.game.UnitGUID(Unit)
+
+	-- Enemy players: only once the fight with them is on (enemyPlayerValidity), ahead of the damaged table (a group
+	-- member's fight doesn't count) and of the "your target" rule
+	if br.game.UnitIsPlayer(Unit) and not isAttackablePlayer(Unit)
+		and not (br.game.UnitInParty(Unit) or br.game.UnitInRaid(Unit))
+	then
+		return enemyPlayerValidity(Unit)
+	end
 
 	-- PRIORITY: Units in damaged table bypass most validation checks
 	-- These are units actively in combat with our group (attacking or being attacked)

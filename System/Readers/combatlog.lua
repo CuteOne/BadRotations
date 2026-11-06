@@ -239,6 +239,10 @@ function combatLog:common(...)
                     attackingUnit.damageTimestamp = currentTime
                     br.engines.enemiesEngine.damaged[attackSource] = attackingUnit
                 end
+                -- An enemy player hitting you may be fought back (Functions/Misc/Units.lua enemyPlayerValidity)
+                if destPtr == br.game.ObjectPointer("player") and br.game.UnitIsPlayer(attackSource) then
+                    br.functions.misc.notePlayerEngaged(source, "attacked you")
+                end
             end
         end
 

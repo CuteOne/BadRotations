@@ -619,6 +619,11 @@ end
 
 function unit:isAutoAttacking() return autoAttacking end
 
+-- When BR last sent a start of auto attack, and at whom (GUID): kept as sent, unlike attackSentAt, which the
+-- game's answer clears; so an auto attack that comes on can be told BR's from the player's own
+local lastStartAt, lastStartGUID = -math.huge, nil
+function unit:lastAttackSent() return lastStartAt, lastStartGUID end
+
 -- True while an auto attack BR started is on its way (no PLAYER_ENTER_COMBAT yet, within a round
 -- trip). thisUnit (default "target") must be the unit it was started on.
 function unit:isAttackPending(thisUnit)
@@ -1057,6 +1062,7 @@ function unit:startAttack(thisUnit)
 	if br.functions.cast:getCastTimeRemain("player") > 0 then return false end
 	if br.botCastTime and now - br.botCastTime < br.functions.misc:getRoundTripHold() then return false end
 	attackSentAt, attackSentGUID = now, guid
+	lastStartAt, lastStartGUID = now, guid
 	br.game.StartAttack(thisUnit)
 	if br.debug.melee and br.debug.melee.noteAttackSent then br.debug.melee:noteAttackSent(thisUnit or "target") end
 	return true
