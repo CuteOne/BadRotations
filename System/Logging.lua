@@ -227,25 +227,39 @@ end
 -- append). A file's first write in a session trims it if it grew past LOG_MAX_BYTES, so the
 -- folder stays small without anyone emptying it; each file's line cap bounds one session. Without
 -- the unlocker's file functions the lines wait.
+-- The last flush that wrote something: milliseconds, files and bytes (System/Core.lua's Perf.log)
+log.lastFlush = { ms = 0, files = 0, bytes = 0, at = 0 }
+local writeFiles
 function log:flush()
 	if not dirty then return end
+	local clock = br.game.debugprofilestop
+	local started = clock and clock()
+	local written, bytes = writeFiles()
+	if started and written > 0 then
+		local last = log.lastFlush
+		last.ms, last.files, last.bytes, last.at = clock() - started, written, bytes, GetTime()
+	end
+end
+writeFiles = function()
 	local writeFile, readFile = br.game.WriteFile, br.game.ReadFile
 	local dir, sep = logFolder()
-	if writeFile == nil or readFile == nil or dir == nil then return end
+	if writeFile == nil or readFile == nil or dir == nil then return 0, 0 end
 	-- Nothing is written before the player's settings are loaded, and nothing at all with
 	-- Write Log Files unticked (Bot Options > Debug Options): the lines are dropped
 	local specSettings = br.data and br.data.settings and br.loader and br.data.settings[br.loader.selectedSpec]
-	if not (specSettings and specSettings[br.loader.selectedProfile]) then return end
+	if not (specSettings and specSettings[br.loader.selectedProfile]) then return 0, 0 end
 	dirty = false
 	local misc = br.functions and br.functions.misc
 	if misc and misc.isUnchecked and misc:isUnchecked("Write Log Files") then
 		for _, state in pairs(files) do wipe(state.pending) end
-		return
+		return 0, 0
 	end
+	local written, bytes = 0, 0
 	for name, state in pairs(files) do
 		if #state.pending > 0 then
 			local path = dir .. sep .. name
 			local added = log.private(tconcat(state.pending, "\n")) .. "\n"
+			written, bytes = written + 1, bytes + #added
 			if not state.started then
 				state.started = true
 				local ok, current = pcall(readFile, path)
@@ -261,6 +275,7 @@ function log:flush()
 			wipe(state.pending)
 		end
 	end
+	return written, bytes
 end
 
 ---------------------------------------------------------------------------------------------------

@@ -63,25 +63,39 @@ br.unlockers = {}
 br.lifecycle = { steps = { start = {}, frame = {}, tick = {}, powerOff = {}, logout = {} } }
 local lifecycle = br.lifecycle
 
-local function add(list, order, name, fn)
+local function add(list, kind, order, name, fn)
 	local at = #list + 1
 	for i = #list, 1, -1 do
 		if list[i].order <= order then break end
 		at = i
 	end
-	table.insert(list, at, { order = order, name = name, fn = fn })
+	table.insert(list, at, { order = order, name = name, key = kind .. " " .. name, fn = fn })
 end
 
-function lifecycle:onStart(order, name, fn) add(self.steps.start, order, name, fn) end
-function lifecycle:onFrame(order, name, fn) add(self.steps.frame, order, name, fn) end
-function lifecycle:onTick(order, name, fn) add(self.steps.tick, order, name, fn) end
-function lifecycle:onPowerOff(order, name, fn) add(self.steps.powerOff, order, name, fn) end
-function lifecycle:onLogout(order, name, fn) add(self.steps.logout, order, name, fn) end
+function lifecycle:onStart(order, name, fn) add(self.steps.start, "start", order, name, fn) end
+function lifecycle:onFrame(order, name, fn) add(self.steps.frame, "frame", order, name, fn) end
+function lifecycle:onTick(order, name, fn) add(self.steps.tick, "tick", order, name, fn) end
+function lifecycle:onPowerOff(order, name, fn) add(self.steps.powerOff, "powerOff", order, name, fn) end
+function lifecycle:onLogout(order, name, fn) add(self.steps.logout, "logout", order, name, fn) end
+
+-- When a table, run() adds each step's milliseconds to it under "<kind> <name>" (System/Core.lua's Perf.log)
+lifecycle.timing = nil
 
 --- Runs one list's steps in order; returns true (and stops) when a step returns true.
 function lifecycle:run(kind, ...)
+	local timing = self.timing
+	if timing == nil then
+		for _, step in ipairs(self.steps[kind]) do
+			if step.fn(...) == true then return true end
+		end
+		return false
+	end
+	local clock = br.game.debugprofilestop
 	for _, step in ipairs(self.steps[kind]) do
-		if step.fn(...) == true then return true end
+		local started = clock()
+		local stop = step.fn(...) == true
+		timing[step.key] = (timing[step.key] or 0) + (clock() - started)
+		if stop then return true end
 	end
 	return false
 end
