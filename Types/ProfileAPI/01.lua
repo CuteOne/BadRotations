@@ -7441,6 +7441,15 @@ function C45.CombatPotionUp(section) end
 ---@param section? boolean If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
 function C45.FlaskUp(buffType, section) end
 
+--- War Stomp just before a cast-time heal on yourself, so the heal lands while what's hitting you is stunned
+--- (no pushback). Tauren only; needs the Racial module's "Use Racial" ticked and an enemy within 8 yd attacking
+--- you. A profile calls it right before casting the heal; it doesn't count as the profile handling racials.
+--- ```lua
+--- if hpLow and module.RacialStun() then return true end -- then the heal, next tick
+--- ```
+---@return boolean # True when War Stomp was cast
+function C45.RacialStun() end
+
 --- Racial Module - Uses the player's racial abilities based on the options set in the Profile Options.
 --- Uses the race's named racial (e.g. cast.stoneform) when the expansion defines one, otherwise cast.racial.
 --- On Classic-era expansions cast.racial only maps damage racials, so the named key matters there.

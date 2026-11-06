@@ -240,6 +240,59 @@ br.api.build.module = function(api)
         end
     end
 
+    -- War Stomp (Tauren): a 2 s stun on up to 5 enemies within 8 yd, 2 min cooldown. Worth spending on an
+    -- interrupt, a heal that mustn't be pushed back, or several enemies hitting you; not on one mob at full
+    -- health the moment it reaches melee (Fights 2026-11-05: it went off there in about 20 fights).
+    -- Enemies within 8 yd attacking you (their target is you) that won't die in the next 1.5 s
+    local function stompTargets()
+        local list = {}
+        local nearby = enemies.get(8)
+        for i = 1, #nearby do
+            local thisUnit = nearby[i]
+            local itsTarget = unit.target(thisUnit)
+            if itsTarget ~= nil and unit.isUnit(itsTarget, "player") and unit.ttd(thisUnit) >= 1.5 then
+                list[#list + 1] = thisUnit
+            end
+        end
+        return list, #nearby
+    end
+    -- An enemy within 8 yd casting something that can be interrupted (only while the Interrupt toggle allows)
+    local function stompInterrupt()
+        if ui.mode.interrupt ~= nil and ui.mode.interrupt ~= 1 then return nil end
+        local nearby = enemies.get(8)
+        for i = 1, #nearby do
+            if unit.interruptable(nearby[i]) then return nearby[i] end
+        end
+    end
+    local function names(list)
+        local out = {}
+        for i = 1, #list do out[i] = tostring(unit.name(list[i])) end
+        return table.concat(out, ", ")
+    end
+    local function castWarStomp(reason)
+        local able = cast.able.warStomp or cast.able.racial
+        local castIt = cast.warStomp or cast.racial
+        if able("player") and castIt("player") then
+            ui.debug("Casting Racial - War Stomp (" .. reason .. ")")
+            return true
+        end
+        return false
+    end
+
+    --- War Stomp just before a cast-time heal on yourself, so the heal lands while what's hitting you is stunned
+    -- (no pushback). Tauren only; needs the Racial module's "Use Racial" ticked and an enemy within 8 yd attacking
+    -- you. A profile calls it right before casting the heal; it doesn't count as the profile handling racials.
+    -- @function module.RacialStun
+    -- @return boolean True when War Stomp was cast
+    -- @usage if hpLow and module.RacialStun() then return true end -- then the heal, next tick
+    module.RacialStun = function()
+        if unit.race() ~= "Tauren" or not unit.inCombat() then return false end
+        if not br.functions.misc:getModuleOption("Use Racial", "Check") then return false end
+        local attackers = stompTargets()
+        if #attackers == 0 then return false end
+        return castWarStomp("before a heal, " .. names(attackers) .. " on you")
+    end
+
     --- Racial Module - Uses the player's racial abilities based on the options set in the Profile Options.
     -- Uses the race's named racial (e.g. cast.stoneform) when the expansion defines one, otherwise cast.racial.
     -- On Classic-era expansions cast.racial only maps damage racials, so the named key matters there.
@@ -279,9 +332,10 @@ br.api.build.module = function(api)
             elseif race == "Pandaren" then
                 br.ui:checkbox(section, "Use Racial", { tip = "Use Quaking Palm when the profile requests it" })
             elseif race == "Tauren" then
-                br.ui:spinner(section, "Use Racial", { value = 30, tip = "Health Percent to cast War Stomp at" })
-                br.ui:spinner(section, "Use Racial Enemies", { value = 2, min = 1, max = 10, step = 1, checkbox = false,
-                    tip = "Or when at least this many enemies are within 8 yards" })
+                br.ui:spinner(section, "Use Racial", { value = 30,
+                    tip = "War Stomp at this health percent while an enemy within 8 yards attacks you; also interrupts a cast within 8 yards (Interrupt toggle)" })
+                br.ui:spinner(section, "Use Racial Enemies", { value = 2, min = 1, max = 10, step = 1,
+                    tip = "Also War Stomp when at least this many enemies within 8 yards are attacking you" })
             elseif race == "Undead" then
                 br.ui:checkbox(section, "Use Racial", { tip = "Auto-use Will of the Forsaken when feared/charmed" })
             elseif race == "Worgen" then
@@ -343,9 +397,21 @@ br.api.build.module = function(api)
             label = "Quaking Palm"
             shouldUse = thisUnit ~= nil
         elseif race == "Tauren" then
-            label = "War Stomp"
-            shouldUse = unit.inCombat() and (unit.hp() <= optionValue
-                or #br.engines.enemiesEngineFunctions:getEnemies("player", 8) >= br.functions.misc:getModuleOption("Use Racial Enemies", "Value"))
+            -- Decided and cast here (with its reason in the debug line), not by the shared cast below
+            if not unit.inCombat() then return false end
+            local caster = stompInterrupt()
+            if caster then return castWarStomp("interrupt " .. tostring(unit.name(caster))) end
+            local attackers, inRange = stompTargets()
+            if #attackers > 0 and unit.hp() <= optionValue then
+                return castWarStomp(("low health, %s on you"):format(names(attackers)))
+            end
+            if br.functions.misc:getModuleOption("Use Racial Enemies", "Check")
+                and #attackers >= br.functions.misc:getModuleOption("Use Racial Enemies", "Value")
+            then
+                return castWarStomp(("%d attacking you within 8 yd: %s; %d enemies within 8 yd"):format(#attackers,
+                    names(attackers), inRange))
+            end
+            return false
         elseif race == "Undead" then
             label = "Will of the Forsaken"
             shouldUse = br.functions.unit:hasLossOfControl("fearCharm")
