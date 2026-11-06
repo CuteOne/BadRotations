@@ -1050,12 +1050,14 @@ end
 -- 0.06 s after the client's GCD from Strength of Earth Totem ended; 2026-10-12, Forever: Faerie Fire
 -- twice in one fight). The GCD and the spell's own cooldown BR saw at the send and now, the send
 -- before it and the latency: a GCD only just over at the send points at the server's GCD ending later.
-function br.debug.cast:noteNotReady(spellID)
+-- yours: the player's own key press, not a spell BR sent (Functions/Cast/Tracking.lua)
+function br.debug.cast:noteNotReady(spellID, yours)
     local now = br.game.GetTime()
     local spellFns = br.functions.spell
     local sent = lastSend and lastSend.spellID == spellID and lastSend or nil
-    castWrite(("NOT READY %s: at the send%s GCD %s, its cooldown %s | now GCD %.2fs, its cooldown %.2fs | send before %s | latency %dms"):format(
-        printable(spellFns:getName(spellID)), sent and (" (%.2fs before)"):format(now - sent.at) or " (not BR's last send)",
+    castWrite(("NOT READY %s%s: at the send%s GCD %s, its cooldown %s | now GCD %.2fs, its cooldown %.2fs | send before %s | latency %dms"):format(
+        printable(spellFns:getName(spellID)), yours and " (your cast)" or "",
+        sent and (" (%.2fs before)"):format(now - sent.at) or " (not BR's last send)",
         sent and ("%.2fs"):format(plainNumber(sent.gcd)) or "?", sent and ("%.2fs"):format(plainNumber(sent.cd)) or "?",
         plainNumber(spellFns:getGlobalCD() or 0), plainNumber(spellFns:getSpellCD(spellID) or 0),
         describeSend(sent and previousSend or lastSend, now), plainNumber(br.functions.misc:getHomeLatency() or 0) * 1000))

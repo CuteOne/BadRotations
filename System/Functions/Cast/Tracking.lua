@@ -145,7 +145,12 @@ end
 function cast:isAuraBounced(spellID, thisUnit) return cast:isRejected("aura", spellID, thisUnit or "player") end
 
 -- Remember which spell BR last sent and at whom, so UI errors can be pinned on it.
+-- spell ID -> when BR last sent it: a refused spell BR didn't send lately is the player's own key press
+E.sentAt = {}
+local BR_SEND_WINDOW = 6 -- seconds: a pre-cast refused at its handover, an on-next-swing attack failing at the swing
+
 function E.recordBotCast(spellID, thisUnit)
+	E.sentAt[spellID] = br.game.GetTime()
 	br.botCast     = true
 	br.botSpell    = spellID
 	br.botUnit     = thisUnit
@@ -229,7 +234,11 @@ function cast:handleCastError(message)
 	-- frame for it. Without one the error isn't about a cast at all (auto-loot's "There is no loot.",
 	-- a profession, ...) and isn't reported.
 	local errorAt = br.game.GetTime()
-	if (errorAt - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW and E.showRefusal("problem") then
+	local nearSend = (errorAt - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW
+	local notReady = message == errorText("SPELL_FAILED_NOT_READY", "Spell is not ready yet.")
+		or message == errorText("ERR_SPELL_COOLDOWN", "Spell is not ready yet.")
+	local report = nearSend and E.showRefusal("problem")
+	if report or (nearSend and notReady and br.debug.cast) then
 		local lastCastGUID = br.botGUID
 		br.game.C_Timer.After(0, function()
 			local failed = br.functions.lastCast and br.functions.lastCast.lastCastTable
@@ -237,10 +246,20 @@ function cast:handleCastError(message)
 				return
 			end
 			local spellID = failed.lastFailedSpellID
+			-- BR's, or the player's own key press (2026-11-05: the player's Entangling Roots refused "not ready" as
+			-- BR's Wrath took the GCD 0.03 s before; both the chat line and Cast.log blamed BR)
+			local sentAt = E.sentAt[spellID]
+			local mine = sentAt ~= nil and errorAt - sentAt <= BR_SEND_WINDOW
+			if notReady and br.debug.cast then br.debug.cast:noteNotReady(spellID, not mine) end
+			if not report then return end
+			local spellName = tostring(br.functions.spell:getName(spellID))
+			if not mine then
+				return br.log:systemDebug("[YOUR CAST] " .. spellName .. " — game said: " .. message
+					.. " (BR had just sent " .. tostring(br.functions.spell:getName(br.botSpell)) .. ")")
+			end
 			local expected, mismatch = E.expectedRefusal(message, lastCastGUID)
 			local kind = expected == nil and "problem" or mismatch and "mismatch" or "expected"
 			if not E.showRefusal(kind) then return end
-			local spellName = tostring(br.functions.spell:getName(spellID))
 			local text = "[CAST FAIL][SERVER] " .. spellName .. " — game said: " .. message
 			-- Expected and nothing BR could have known (the target died, a stronger aura): Gate.log
 			if kind == "expected" then
@@ -255,12 +274,6 @@ function cast:handleCastError(message)
 			end
 			br.log:systemDebug(text)
 		end)
-	end
-	if br.debug.cast and (errorAt - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW
-		and (message == errorText("SPELL_FAILED_NOT_READY", "Spell is not ready yet.")
-			or message == errorText("ERR_SPELL_COOLDOWN", "Spell is not ready yet."))
-	then
-		br.debug.cast:noteNotReady(br.botSpell)
 	end
 	local kind = rejectionKindForError(message)
 	if not kind then return end
