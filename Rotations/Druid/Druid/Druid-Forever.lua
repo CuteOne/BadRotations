@@ -1063,9 +1063,9 @@ actionList.PreCombat = function()
                 end
             end
         end
-        -- Auto Attack (do not break Prowl)
-        if not buff.prowl.exists() and not cast.auto.autoAttack() and not unit.deadOrGhost("target") then
-            unit.startAttack()
+        -- Auto Attack (do not break Prowl). unit.startAttack() sends nothing while casting or just after a send, and
+        -- then the rotation goes on (2026-11-05: three "Casting Auto Attack" ticks held back the next Wrath).
+        if not buff.prowl.exists() and not cast.auto.autoAttack() and not unit.deadOrGhost("target") and unit.startAttack() then
             ui.debug("Casting Auto Attack [Precombat]")
             return true
         end
@@ -1076,9 +1076,10 @@ end -- End Action List - PreCombat
 actionList.Combat = function()
     if not (unit.inCombat() and unit.valid("target")) then return false end
     local inMelee = unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5
-    -- Start Attack (do not break Prowl)
-    if not buff.prowl.exists() and unit.exists(units.dyn5) and not cast.auto.autoAttack() and not unit.deadOrGhost("target") then
-        unit.startAttack()
+    -- Start Attack (do not break Prowl); when unit.startAttack() sends nothing yet, the rotation goes on (see PreCombat)
+    if not buff.prowl.exists() and unit.exists(units.dyn5) and not cast.auto.autoAttack() and not unit.deadOrGhost("target")
+        and unit.startAttack()
+    then
         ui.debug("Casting Auto Attack")
         return true
     end
