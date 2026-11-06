@@ -5,7 +5,8 @@
 --   * Omen of Clarity is trained; Clearcasting isn't spent by Wrath, so it goes to Shred/Claw or Starfire.
 --   * Berserk: crits on combo point builders, and Primal Bite hits 3 targets with no cooldown.
 --   * Eclipse: each Wrath makes the next Starfires faster (beta: 0.5 sec per stack; the live tooltip, 2026-11-05,
---     says the next 2 Starfires 0.03 sec, up to 4 charges: unconfirmed in game, the Starfire timing still assumes 0.5).
+--     says the next 2 Starfires 0.03 sec, up to 4 charges, 3 talent ranks: unconfirmed in game; the Starfire timing
+--     reads the game's cast time).
 --   * Shifting Power: 55% of base mana on an 8 sec cooldown (live build; 16 sec in the beta).
 --   * Hurricane has no cooldown; Nature's Grasp and Shifting Power work while shapeshifted.
 
@@ -458,9 +459,13 @@ actionList.Defensive = function()
             end
         end
         -- Entangling Roots (fleeing enemies)
+        -- Only on a target that outlives the root and a Wrath after it, with a heal's mana kept (2026-11-05: 3 of 3
+        -- Roots on fleeing centaurs failed, two on targets the Wrath already in flight killed; 50 mana each)
         if ui.checked("Entangling Roots") and cast.able.entanglingRoots("target") and unit.isFleeing("target")
             and unit.valid("target") and unit.hp("target") < 100 and not debuff.entanglingRoots.exists("target")
             and unit.distance("target") > 8 and not unit.moving()
+            and unit.livesFor("target", cast.time.entanglingRoots() + cast.time.wrath())
+            and power.mana.affordable(cast.cost.entanglingRoots(), healCost())
         then
             if casterCast("entanglingRoots", "target", "Entangling Roots", freeDPS) then return true end
         end
@@ -527,14 +532,20 @@ actionList.Defensive = function()
             end
         end
     end
-    -- Rejuvenation: too slow to justify two shapeshifts in combat
+    -- Rejuvenation: too slow to justify two shapeshifts in combat. In combat it's recast only once it's gone: a
+    -- recast with ~3 s left threw away its last tick (2026-11-05: recast every 8.4-8.8 s of its 12 s, ticks every 3 s),
+    -- and the Bloom talent heals only when it runs out
+    local function rejuvenationDue(thisUnit)
+        if unit.inCombat() then return not buff.rejuvenation.exists(thisUnit) end
+        return buff.rejuvenation.refresh(thisUnit)
+    end
     if ui.checked("Rejuvenation") and (not unit.inCombat() or not inForm) then
-        if unit.hpAfterHeals() <= ui.value("Rejuvenation") and buff.rejuvenation.refresh("player") and not buff.clearcasting.exists()
+        if unit.hpAfterHeals() <= ui.value("Rejuvenation") and rejuvenationDue("player") and not buff.clearcasting.exists()
             and (unit.solo() or ui.checked("Self Heal In Group")) and cast.able.rejuvenation("player")
         then
             if casterCast("rejuvenation", "player", "Rejuvenation", freeHeal, false, true) then return true end
         end
-        if other ~= nil and unit.hpAfterHeals(other) <= ui.value("Rejuvenation") and buff.rejuvenation.refresh(other)
+        if other ~= nil and unit.hpAfterHeals(other) <= ui.value("Rejuvenation") and rejuvenationDue(other)
             and cast.able.rejuvenation(other)
         then
             if casterCast("rejuvenation", other, "Rejuvenation" .. otherName, freeHeal, false, true) then return true end
@@ -961,7 +972,7 @@ actionList.CasterForm = function()
     if unit.moving() then return false end
     -- Starfire: the main nuke. Wrath first to build Eclipse when it has no charges (Eclipse talent),
     -- and Starfire straight away with Eclipse or Clearcasting (which Wrath can't spend).
-    local starfireTime = math.max(0, 3.5 - 0.5 * buff.eclipse.stack())
+    local starfireTime = cast.time.starfire() -- the game's: Improved Starfire, Eclipse ranks and haste included
     local buildEclipse = spell.eclipse.known() and not buff.eclipse.exists() and not freeDPS
     if cast.able.starfire() and not buildEclipse and ttd > starfireTime then
         why = spendOnDamage("starfire", thisUnit)
