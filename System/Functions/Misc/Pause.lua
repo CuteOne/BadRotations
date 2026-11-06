@@ -24,6 +24,40 @@ local nonBlockingChannels
 -- load after this file). Names absent on the active expansion resolve to nil and are
 -- skipped, so this is safe to share across Classic/TBC/MOP/Retail.
 
+-- The logout countdown (/logout, /camp, /quit, the menu's Log Out / Exit Game). The game refuses
+-- every cast until it ends ("Another action is in progress"), and a buff that never lands is asked
+-- for again every tick: 2026-11-06 on Forever, Thorns and Bear Form 0.2 s apart for 9 s, all refused.
+-- No client has an IsLoggingOut(); the events say when it starts and when it's called off. Combat
+-- calls it off too. LOGOUT_SAFETY caps the pause in case a cancel ever goes unannounced (the
+-- countdown is 20 s).
+local LOGOUT_SAFETY = 30
+local logoutStartedAt
+
+--- Feeds the logout events (the frame below; the tests call it directly).
+function misc.logoutEvent(event)
+	if event == "PLAYER_CAMPING" or event == "PLAYER_QUITING" then
+		logoutStartedAt = br.game.GetTime()
+	else -- LOGOUT_CANCEL, PLAYER_REGEN_DISABLED
+		logoutStartedAt = nil
+	end
+end
+
+local logoutFrame = br.game.CreateFrame("Frame")
+for _, event in ipairs({ "PLAYER_CAMPING", "PLAYER_QUITING", "LOGOUT_CANCEL", "PLAYER_REGEN_DISABLED" }) do
+	logoutFrame:RegisterEvent(event)
+end
+logoutFrame:SetScript("OnEvent", function(_, event) misc.logoutEvent(event) end)
+
+--- True while the logout (or quit) countdown runs.
+function misc:isLoggingOut()
+	if logoutStartedAt == nil then return false end
+	if br.game.GetTime() - logoutStartedAt > LOGOUT_SAFETY then
+		logoutStartedAt = nil
+		return false
+	end
+	return true
+end
+
 -- Why the player can't act right now, apart from casting: checked once per tick (memo below).
 -- Returns the reason, and whether an Evoker empower may run through it (it must keep updating
 -- its charge stage; only the deliberate pauses stop it).
@@ -63,6 +97,8 @@ local function standingReason(now)
 	if br.functions.misc:isPauseKeyDown() then return "pause key", false end
 
 	if br.profileStop then return "profile stopped", true end
+
+	if misc:isLoggingOut() then return "logging out", true end
 
 	-- Mounted or flying — but NOT when targeting a boss. Some outdoor/encounter
 	-- sequences require the rotation to function while the player is airborne
@@ -208,7 +244,7 @@ function misc:ownCastHold()
 end
 
 --- Why the rotation should not act now, or nil when it may.
--- Reasons: "dead", "control disabled", "pause toggle", "pause key", "profile stopped", "mounted",
+-- Reasons: "dead", "control disabled", "pause toggle", "pause key", "profile stopped", "logging out", "mounted",
 -- "on a taxi", "in a vehicle", "targeting a spell", "eating", "drinking", "sneaking", "pet battle",
 -- "charmed", and unless skipCastingCheck, the player's own cast (ownCastHold: "item channel",
 -- "casting", "channelling"). The rotation itself runs through casts (Rotation:startRotation passes
