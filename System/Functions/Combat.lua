@@ -281,8 +281,10 @@ function combat:hasThreat(unit, playerUnit)
 	if targetUnit == "None" then
 		targetFriend = false
 	else
-		targetFriend = (targetUnit == br.game.ObjectPointer("player") or br.game.UnitName(targetUnit) == br.game.UnitName("player")
-			or (br.functions.unit:GetUnitExists("pet") and br.game.UnitName(targetUnit) == br.game.UnitName("pet"))
+		-- By object, not name: names aren't unique (WoW Forever players share display names; hunter pets share
+		-- names everywhere), so a name match would count a mob fighting someone else as fighting you.
+		targetFriend = (targetUnit == br.game.ObjectPointer("player")
+			or (br.functions.unit:GetUnitExists("pet") and targetUnit == br.game.ObjectPointer("pet"))
 			or br.game.UnitInParty(targetUnit) or br.game.UnitInRaid(targetUnit))
 	end
 
