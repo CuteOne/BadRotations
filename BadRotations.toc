@@ -63,6 +63,7 @@ System\Secrets.lua
 System\Logging.lua
 System\RotationLog.lua
 System\FightLog.lua
+System\SpellsLog.lua
 System\SessionLog.lua
 System\UI\UI.lua
 System\UI\MinimapButton.lua
