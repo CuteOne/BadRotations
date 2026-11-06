@@ -204,6 +204,11 @@ local function debugBehind(label, thisUnit)
     ))
 end
 
+-- Caster Form, or Moonkin Form once it's learned (option)
+local function casterForm()
+    return (ui.checked("Moonkin Form") and spell.moonkinForm.known()) and "moonkin" or "caster"
+end
+
 -- Resolve the Forms toggle (Auto/Caster/Cat/Bear) into a form we can actually use. A forced form
 -- that isn't learned yet falls back to Caster; Caster becomes Moonkin once it's learned (option).
 local function resolveForm()
@@ -217,7 +222,7 @@ local function resolveForm()
         elseif hasBear then form = "bear" end
     elseif mode == 3 and hasCat then form = "cat"
     elseif mode == 4 and hasBear then form = "bear" end
-    if form == "caster" and ui.checked("Moonkin Form") and spell.moonkinForm.known() then form = "moonkin" end
+    if form == "caster" then form = casterForm() end
     return form
 end
 
@@ -310,6 +315,28 @@ end
 
 -- " [why]" for a debug line
 local function tag(why) return type(why) == "string" and (" [" .. why .. "]") or "" end
+
+-- A target you can't get to in melee (up on a ledge, across water) leaves Bear or Cat Form with nothing to do
+-- (Fights 2026-11-06 15:28: a Dustwind Storm Witch on a ledge at 23 yd, 17 s in Bear Form without an attack).
+-- In combat, once the target has stayed beyond REACH_BACK yards for REACH_WAIT seconds without the gap closing
+-- by a yard, it is out of reach: fight it from range until it comes within REACH_BACK yards or the target changes.
+-- Returns the distance when out of reach, else nil.
+local REACH_WAIT, REACH_BACK = 3, 8
+local function outOfReach(thisUnit)
+    local guid = unit.inCombat() and unit.exists(thisUnit) and unit.guid(thisUnit) or nil
+    local dist = guid and unit.distance(thisUnit)
+    if dist == nil or dist < REACH_BACK then var.reach = nil; return nil end
+    local now, r = util.time(), var.reach
+    if r == nil or r.guid ~= guid then
+        var.reach = { guid = guid, best = dist, since = now }
+        return nil
+    end
+    if not r.out then
+        if dist < r.best - 1 then r.best, r.since = dist, now end
+        r.out = now - r.since >= REACH_WAIT
+    end
+    return r.out and dist or nil
+end
 
 --------------------
 --- Action Lists ---
@@ -1201,6 +1228,21 @@ local function runRotation()
     freeDPS = (omenSetting == 1 or omenSetting == 2) and buff.clearcasting.exists()
         and (not needsHealing or omenSetting == 2)
     freeHeal = (omenSetting == 1 or omenSetting == 3) and buff.clearcasting.exists()
+
+    -- Out of reach (see outOfReach): Bear or Cat hands over to Caster Form while nothing is in melee with you and
+    -- mana may go on Wrath or Moonfire; back to the toggle's form once the target comes near
+    local reachDist = (activeForm == "bear" or activeForm == "cat") and #enemies.yards5 == 0 and outOfReach("target")
+    if reachDist and (spendOnDamage("wrath", "target") or spendOnDamage("moonfire", "target")) then
+        activeForm = casterForm()
+        if not var.reachSaid then
+            ui.debug(("Out of reach: %s %.0f yd, no closer in %d s, fighting from range"):format(
+                unit.name("target") or "target", reachDist, REACH_WAIT))
+            var.reachSaid = true
+        end
+    elseif var.reachSaid then
+        ui.debug("Back in reach")
+        var.reachSaid = nil
+    end
 
     -- Low on Energy/Rage, so leaving Cat or Bear Form to heal doesn't waste much
     noShapeshiftPower = ((not buff.catForm.exists() or energy < ui.value("Break Form for Heals Below Energy"))
