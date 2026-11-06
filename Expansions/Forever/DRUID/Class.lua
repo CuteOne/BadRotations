@@ -1,7 +1,8 @@
 local _, br = ...
 br.lists.spells.DRUID = br.lists.spells.DRUID or {}
 -- WoW Forever (1.60) Druid. IDs and ranks from Wowhead's Forever database (class spell list and
--- tooltips, 2026-10-11). Talents are listed with the abilities and checked with spell.<key>.known().
+-- tooltips, 2026-10-11), rechecked on the live build 70790 (2026-11-05: every ID's tooltip, and the
+-- talent tree from Logs/Spells.log). Talents are listed with the abilities and checked with spell.<key>.known().
 br.lists.spells.DRUID.Shared = {
             abilities     = {
                 -- Bear Form
@@ -12,7 +13,7 @@ br.lists.spells.DRUID.Shared = {
                 feralChargeBear     = 16979,
                 frenziedRegeneration = 22842,
                 growl               = 6795,
-                lacerate            = {414644, 1235826, 1235827}, -- Ranks 1-3 (42/50/58)
+                lacerate            = {1328617, 414644, 1235826, 1235827}, -- Rank 1 the talent, Ranks 3-5 (42/50/58); Rank 2 not seen yet (Spells.log will show it)
                 maul                = {6807, 6808, 6809, 8972, 9745, 9880, 9881}, -- Ranks 1-7
                 primalBite          = {407995, 1238069, 1238070, 1238073}, -- Talent, Ranks 1-4
                 swipe               = {779, 780, 769, 9754, 9908}, -- Ranks 1-5
@@ -113,7 +114,7 @@ br.lists.spells.DRUID.Shared = {
                 faerieFire          = {770, 778, 9749, 9907},
                 hibernate           = {2637, 18657, 18658},
                 insectSwarm         = {5570, 24974, 24975, 24976, 24977},
-                lacerate            = {414644, 1235826, 1235827},
+                lacerate            = {1328617, 414644, 1235826, 1235827},
                 moonfire            = {8921, 8924, 8925, 8926, 8927, 8928, 8929, 9833, 9834, 9835},
                 pounceBleed         = {9007, 9824, 9826},
                 rake                = {1822, 1823, 1824, 9904},
