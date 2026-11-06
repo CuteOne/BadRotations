@@ -144,11 +144,46 @@ end
 -- True while a stronger aura on the unit refused this spell (Buff.lua's refresh checks it).
 function cast:isAuraBounced(spellID, thisUnit) return cast:isRejected("aura", spellID, thisUnit or "player") end
 
+-- Rank upgrades that didn't take. Buff.lua's refresh upgrades a lower rank of a buff on a unit straight away; when
+-- BR's cast of the buff went out and the same lower rank is still there once it has settled, asking again would
+-- loop (2026-11-05, Forever: Mark of the Wild recast every 1.7 s after rank 2 was learned, each cast "done").
+-- Such an upgrade isn't asked for again on that unit (refresh then goes by the time left), and Cast.log says why.
+local UPGRADE_SETTLE = 1.5 -- seconds after the send for the aura to show the new rank
+local upgrades = {} -- "<guid>:<aura spell ID>:<wanted rank ID>" -> { askedAt, stuck }
+
+--- Buff.lua's refresh: whether upgrading auraID on the unit to rankID (a rank of the list ranks) is worth asking for.
+-- local ask = br.functions.cast:rankUpgradeWanted("player", 1126, 5232, { 1126, 5232, 6756 })
+function cast:rankUpgradeWanted(thisUnit, auraID, rankID, ranks)
+	local guid = br.game.UnitGUID(thisUnit)
+	if guid == nil or not br.functions.misc:canUseValue(guid) then return true end
+	local key = guid .. ":" .. auraID .. ":" .. rankID
+	local entry = upgrades[key]
+	local now = br.game.GetTime()
+	if entry == nil then
+		upgrades[key] = { askedAt = now }
+		return true
+	end
+	if entry.stuck then return false end
+	-- BR sent a rank of this buff at the unit since the ask, it has settled, and the lower rank is still there
+	for _, id in ipairs(type(ranks) == "table" and ranks or { ranks }) do
+		local sentAt = E.sentAt[id]
+		if sentAt and sentAt >= entry.askedAt and now - sentAt >= UPGRADE_SETTLE and E.sentTo[id] == guid then
+			entry.stuck = true
+			if br.debug.cast and br.debug.cast.noteUpgradeStuck then
+				pcall(br.debug.cast.noteUpgradeStuck, br.debug.cast, thisUnit, auraID, rankID, id, now - sentAt, ranks)
+			end
+			return false
+		end
+	end
+	return true
+end
+
 -- Remember which spell BR last sent and at whom, so UI errors can be pinned on it.
 -- spell ID -> when BR last sent it: a refused spell BR didn't send lately is the player's own key press
 E.sentAt = {}
 local BR_SEND_WINDOW = 6 -- seconds: a pre-cast refused at its handover, an on-next-swing attack failing at the swing
 
+E.sentTo = {} -- spell ID -> the GUID BR last sent it at
 function E.recordBotCast(spellID, thisUnit)
 	E.sentAt[spellID] = br.game.GetTime()
 	br.botCast     = true
@@ -156,6 +191,7 @@ function E.recordBotCast(spellID, thisUnit)
 	br.botUnit     = thisUnit
 	br.botGUID     = br.game.UnitGUID(thisUnit)
 	br.botCastTime = br.game.GetTime()
+	E.sentTo[spellID] = br.botGUID
 	-- a weapon imbue: the hands' enchants now, to see where it lands (Functions/Item.lua)
 	br.functions.item:noteImbueSent(spellID)
 end

@@ -5,6 +5,16 @@
 -- @module buff
 local _, br = ...
 
+-- A spell ID's place in a rank list (1 = rank 1), or nil when it isn't one of them
+local function rankIndex(ranks, id)
+    if id == nil then return nil end
+    if type(ranks) ~= "table" then return ranks == id and 1 or nil end
+    for i = 1, #ranks do
+        if ranks[i] == id then return i end
+    end
+    return nil
+end
+
 br.api.build.buffs = function(buff, k, v)
     local buff = buff[k]
     -- The spell list entry (a rank list on ranked clients); v is set to its current rank at the
@@ -126,15 +136,23 @@ br.api.build.buffs = function(buff, k, v)
         if br.functions.cast:isAuraBounced(v, thisUnit) then return false end
 
         -- Classic: when sourceUnit is omitted, treat refresh checks as "any source".
-        -- A higher rank already on the unit (same name, higher spellId) is left alone; a lower rank,
-        -- from anyone, is upgraded straight away. (If a rank ID ever misleads, the game refuses the
-        -- cast and the aura-bounce memory holds it until that aura ends.)
+        -- A higher rank already on the unit (same name, later in the rank list) is left alone; a lower rank,
+        -- from anyone, is upgraded straight away. Ranks go by their place in the list, not their IDs (Mark of the
+        -- Wild's rank 4 has a lower ID than rank 3). (If a rank ID ever misleads, the game refuses the cast and the
+        -- aura-bounce memory holds it; an upgrade cast that leaves the lower rank there isn't asked for again:
+        -- cast:rankUpgradeWanted.)
         if (br.client.rules.hasSpellRanks and sourceUnit == nil) then
             local auraInfo = br.functions.aura:UnitBuffID(thisUnit, v)
-            if auraInfo and auraInfo.spellId and auraInfo.spellId > v then
+            local auraID = auraInfo and auraInfo.spellId
+            -- (an aura rank the list doesn't have goes by ID, as before)
+            local onRank, wantRank = rankIndex(ref, auraID), rankIndex(ref, v)
+            if not (onRank and wantRank) then onRank, wantRank = auraID, auraID and v end
+            if onRank and onRank > wantRank then
                 return false
             end
-            if auraInfo and auraInfo.spellId and auraInfo.spellId < v then
+            if onRank and onRank < wantRank
+                and br.functions.cast:rankUpgradeWanted(thisUnit, auraID, v, ref)
+            then
                 return true
             end
             local remain = math.abs(br.functions.aura:getBuffRemain(thisUnit, v))

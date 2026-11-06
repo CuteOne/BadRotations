@@ -1091,6 +1091,25 @@ end
 -- 0.06 s after the client's GCD from Strength of Earth Totem ended; 2026-10-12, Forever: Faerie Fire
 -- twice in one fight). The GCD and the spell's own cooldown BR saw at the send and now, the send
 -- before it and the latency: a GCD only just over at the send points at the server's GCD ending later.
+-- A buff's rank upgrade that didn't take (Functions/Cast/Tracking.lua cast:rankUpgradeWanted): what BR sent, what
+-- the game calls the spell by name, what each "known" check says per rank, and the aura there
+function br.debug.cast:noteUpgradeStuck(thisUnit, auraID, rankID, sentID, ago, ranks)
+    local G, spellFns = br.game, br.functions.spell
+    local name = spellFns:getName(rankID)
+    local byName = spellFns:getSpellID(name)
+    local parts, auraRank = {}, "?"
+    for i, id in ipairs(type(ranks) == "table" and ranks or { ranks }) do
+        if id == auraID then auraRank = tostring(i) end
+        local function yes(v) return v and "y" or "n" end
+        parts[#parts + 1] = ("r%d %d %s%s%s%s"):format(i, id, yes(G.IsPlayerSpell(id)), yes(G.IsSpellKnown and G.IsSpellKnown(id)),
+            yes(spellFns:isSpellInSpellbook(id, "spell")), yes(spellFns:isKnown(id)))
+    end
+    castWrite(("RANK UPGRADE didn't take: %s on %s: rank %s (%d) still there %.1fs after BR sent %d (%s); the buff check wanted %d"
+        .. " | the game by name: %s | per rank IsPlayerSpell/IsSpellKnown/spellbook/BR known: %s"):format(
+        printable(name), unitName(thisUnit), auraRank, auraID, plainNumber(ago), sentID,
+        byName == sentID and "by name" or "by ID", rankID, tostring(byName), table.concat(parts, ", ")))
+end
+
 -- yours: the player's own key press, not a spell BR sent (Functions/Cast/Tracking.lua)
 function br.debug.cast:noteNotReady(spellID, yours)
     local now = br.game.GetTime()
