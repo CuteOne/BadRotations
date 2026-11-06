@@ -83,21 +83,40 @@ end)
 -- Perf.log: whether BR is behind a stutter (user report 2026-11-06, on Veil). Always on and cheap (two clock reads
 -- per frame step). Lines:
 --   HITCH   a gap of HITCH_SECONDS or more between two frames, with what BR did in the frame before it and whether
---           the log files were written in that gap: a hitch with little BR time in it isn't BR's
---   SPIKE   BR's own work in one frame took SPIKE_MS or more, by step
+--           the log files were written in that gap: a hitch with little BR time in it isn't BR's. (Exactly 100 ms gaps
+--           are the game's 10 FPS cap while its window is in the background: not counted.)
+--   SPIKE   BR's own work in one frame took SPIKE_LINE_MS or more, by step (every frame over SPIKE_MS is counted in
+--           the minute line)
 --   FLUSH   writing the log files took FLUSH_MS or more (they're written once a second, System/Logging.lua)
---   minute  once a minute: FPS, BR's milliseconds per frame (average, worst, share of real time), spikes, hitches,
---           log writes
-local HITCH_SECONDS, SPIKE_MS, FLUSH_MS, SUMMARY_SECONDS = 0.1, 10, 5, 60
+--   minute  once a minute: FPS, BR's milliseconds per frame (average, worst, share of real time), spikes over
+--           SPIKE_MS by size and by step, hitches, log writes
+-- Nothing but the minute line in the first QUIET_SECONDS after BR loads (the game itself crawls then).
+-- First session, 2026-11-06 18:07: 400 lines in 2 minutes, 153 spikes of 10-25 ms (rotation tick ~9 ms, enemies
+-- engine ~5.5 ms in them), one hitch after the load (184 ms, BR 3.4 ms of it).
+local HITCH_SECONDS, SPIKE_MS, SPIKE_LINE_MS, FLUSH_MS, SUMMARY_SECONDS, QUIET_SECONDS = 0.12, 10, 20, 5, 60, 15
 local perfWrite
 local function perfLine(text)
-    perfWrite = perfWrite or (br.log and br.log.file and br.log:file("Perf.log", 400))
+    perfWrite = perfWrite or (br.log and br.log.file and br.log:file("Perf.log", 2000))
     if perfWrite then perfWrite(text) end
 end
-local perf = { timing = {}, lastTiming = {}, lastTotal = 0, flushAt = 0 }
+local perf = { timing = {}, lastTiming = {}, lastTotal = 0, flushAt = 0, sizes = { 0, 0, 0 }, bySteps = {} }
 local function perfReset(now)
     perf.since, perf.frames, perf.brTotal, perf.brMax, perf.spikes, perf.hitches, perf.hitchMax = now, 0, 0, 0, 0, 0, 0
     perf.flushes, perf.flushTotal, perf.flushMax = 0, 0, 0
+    perf.sizes[1], perf.sizes[2], perf.sizes[3] = 0, 0, 0
+    for _, s in pairs(perf.bySteps) do s.n, s.sum, s.max = 0, 0, 0 end
+end
+-- Spikes by step this minute: "tick rotation 152x avg 8.8 max 17.5", most time first
+local function perfStepSummary()
+    local list = {}
+    for key, s in pairs(perf.bySteps) do if s.n > 0 then list[#list + 1] = { key, s } end end
+    table.sort(list, function(a, b) return a[2].sum > b[2].sum end)
+    local parts = {}
+    for i = 1, math.min(#list, 5) do
+        local s = list[i][2]
+        parts[i] = ("%s %dx avg %.1f max %.1f"):format(list[i][1], s.n, s.sum / s.n, s.max)
+    end
+    return #parts > 0 and table.concat(parts, ", ") or "none"
 end
 -- The steps that took at least 0.5 ms, longest first, and the rest of BR's time in that frame ("other")
 local function perfSteps(timing, total)
@@ -119,7 +138,8 @@ local function perfContext()
 end
 local function perfFrame(elapsed, total)
     local now = br.game.GetTime()
-    if perf.since == nil then perfReset(now) end
+    if perf.since == nil then perfReset(now); perf.quietUntil = now + QUIET_SECONDS end
+    local quiet = now < perf.quietUntil
     -- the log files, when they were written since the last frame
     local flush = br.log and br.log.lastFlush
     local flushed = flush and flush.at ~= perf.flushAt
@@ -131,26 +151,39 @@ local function perfFrame(elapsed, total)
             perfLine(("FLUSH %.1f ms: %d files, %.1f KB"):format(flush.ms, flush.files, flush.bytes / 1024))
         end
     end
-    if elapsed and elapsed >= HITCH_SECONDS and not core:isSettling() then
+    if elapsed and elapsed >= HITCH_SECONDS and not quiet and not core:isSettling() then
         perf.hitches = perf.hitches + 1
         if elapsed > perf.hitchMax then perf.hitchMax = elapsed end
         perfLine(("HITCH %.0f ms between frames | BR in the frame before: %.1f ms (%s) | log write in the gap: %s | %s")
             :format(elapsed * 1000, perf.lastTotal, perfSteps(perf.lastTiming, perf.lastTotal),
                 flushed and ("%.1f ms"):format(flush.ms) or "no", perfContext()))
     end
-    if total >= SPIKE_MS then
+    if total >= SPIKE_MS and not quiet then
         perf.spikes = perf.spikes + 1
-        perfLine(("SPIKE BR %.1f ms in one frame: %s | %s"):format(total, perfSteps(perf.timing, total), perfContext()))
+        local size = total < 16 and 1 or total < 25 and 2 or 3
+        perf.sizes[size] = perf.sizes[size] + 1
+        for key, ms in pairs(perf.timing) do
+            if ms >= 0.5 then
+                local s = perf.bySteps[key]
+                if not s then s = { n = 0, sum = 0, max = 0 }; perf.bySteps[key] = s end
+                s.n, s.sum = s.n + 1, s.sum + ms
+                if ms > s.max then s.max = ms end
+            end
+        end
+        if total >= SPIKE_LINE_MS then
+            perfLine(("SPIKE BR %.1f ms in one frame: %s | %s"):format(total, perfSteps(perf.timing, total), perfContext()))
+        end
     end
     perf.frames, perf.brTotal = perf.frames + 1, perf.brTotal + total
     if total > perf.brMax then perf.brMax = total end
     perf.timing, perf.lastTiming, perf.lastTotal = perf.lastTiming, perf.timing, total
     local seconds = now - perf.since
     if seconds >= SUMMARY_SECONDS then
-        perfLine(("minute: FPS %.0f | BR %.2f ms/frame avg, %.1f worst, %.1f%% of real time | spikes %d, hitches %d (worst %.0f ms) | log writes %d, %.1f ms avg, %.1f worst | %s")
+        perfLine(("minute: FPS %.0f | BR %.2f ms/frame avg, %.1f worst, %.1f%% of real time | spikes %d (10-16 ms %d, 16-25 %d, 25+ %d; by step: %s) | hitches %d (worst %.0f ms) | log writes %d, %.1f ms avg, %.1f worst | %s")
             :format(perf.frames / seconds, perf.brTotal / perf.frames, perf.brMax, perf.brTotal / (seconds * 10),
-                perf.spikes, perf.hitches, perf.hitchMax * 1000, perf.flushes,
-                perf.flushes > 0 and perf.flushTotal / perf.flushes or 0, perf.flushMax, perfContext()))
+                perf.spikes, perf.sizes[1], perf.sizes[2], perf.sizes[3], perfStepSummary(), perf.hitches,
+                perf.hitchMax * 1000, perf.flushes, perf.flushes > 0 and perf.flushTotal / perf.flushes or 0,
+                perf.flushMax, perfContext()))
         perfReset(now)
     end
 end
