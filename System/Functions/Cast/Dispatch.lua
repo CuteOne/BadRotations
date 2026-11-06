@@ -223,31 +223,25 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 
 	if castSucceeded or (details and details.inconclusive) then E.noteReshiftSpellSent(castName) end
 
-	-- Sent: its costs are promised until the client charges them (see E.promiseCosts)
-	if (castSucceeded or (details and details.inconclusive))
-		and not br.functions.aura:isBuffUp("clearcasting")
-	then
+	-- Sent: what happens at its end (its cost charged, its heal landing) waits on a cast: its own, or (pre-cast)
+	-- the current one and then its own cast time. Both follow that cast through pushback (E.followCast).
+	if castSucceeded or (details and details.inconclusive) then
 		local now = br.game.GetTime()
 		local hold = br.functions.misc:getRoundTripHold(ctx.latency)
 		local _, _, _, _, castEnd = br.game.UnitCastingInfo("player")
-		if castBeforeKey == nil and br.game.C_Spell.IsCurrentSpell(ctx.spellID) and castEnd == nil then
-			E.promiseCosts(ctx.spellID, now + 6, true)          -- on-next-swing: until the swing
-		elseif castEnd then
-			E.promiseCosts(ctx.spellID, castEnd / 1000 + hold)  -- cast-time, or pre-cast behind a cast
-		else
-			E.promiseCosts(ctx.spellID, now + hold)             -- instant: until the server's reply
-		end
-	end
-	-- A heal is on its way until it lands: its own cast's end, or (pre-cast) the current cast's end and
-	-- then its own cast time. Clearcasting or not.
-	if castSucceeded or (details and details.inconclusive) then
-		local hold = br.functions.misc:getRoundTripHold(ctx.latency)
-		local _, _, _, _, castEnd = br.game.UnitCastingInfo("player")
-		local landsBy = castEnd and castEnd / 1000 or br.game.GetTime()
 		local after = castBeforeKey ~= nil and cast:getCastTime(ctx.spellID) or 0
-		-- the cast it lands at the end of (its own, or the one it went behind), followed through pushback
 		local castKey = castBeforeKey or (castEnd and E.currentCastKey()) or nil
-		E.promiseHeal(ctx.spellID, thisUnit, landsBy + after + hold, castKey, after, hold)
+		local endsBy = (castEnd and castEnd / 1000 or now) + after + hold
+		-- its costs are promised until the client charges them (see E.promiseCosts); Clearcasting makes it free
+		if not br.functions.aura:isBuffUp("clearcasting") then
+			if castBeforeKey == nil and br.game.C_Spell.IsCurrentSpell(ctx.spellID) and castEnd == nil then
+				E.promiseCosts(ctx.spellID, now + 6, true)                       -- on-next-swing: until the swing
+			else
+				E.promiseCosts(ctx.spellID, endsBy, false, castKey, after, hold) -- a cast's end, or the server's reply
+			end
+		end
+		-- a heal is on its way until it lands, Clearcasting or not
+		E.promiseHeal(ctx.spellID, thisUnit, endsBy, castKey, after, hold)
 		if br.debug.cast then br.debug.cast:noteHealSent(ctx.spellID, thisUnit, castEnd ~= nil) end
 	end
 

@@ -371,6 +371,28 @@ function cast:isQueuedBehind(castID, endTime)
 	return key ~= nil and key == E.queuedBehindCast
 end
 
+-- The player's current cast for E.followCast: its key, live end (ms) and spell ID; nil when not casting
+function E.currentCastFacts()
+	local name, _, _, _, endTime, _, castID, _, spellID = br.game.UnitCastingInfo("player")
+	if name == nil then return nil end
+	return castID or endTime, endTime, spellID
+end
+
+-- Something that happens at the end of a cast (a cost charged, a heal landing) follows that cast's live end, so
+-- pushback moves it. entry: { spellID, untilTime, castKey (the cast it waits on), after (seconds more: a pre-cast's
+-- own cast time), hold (the round trip after) }. A pre-cast waits on the cast it was sent behind; once that one is
+-- over and its own cast is on, it follows its own (2026-11-05: Wrath pre-cast behind Wrath, pushed back, went
+-- uncounted before its end and the Moonfire queued behind it came back "Not enough mana").
+function E.followCast(entry, key, liveEnd, spellID)
+	if key == nil or entry.castKey == nil then return end
+	if entry.castKey ~= key and entry.after > 0 and spellID == entry.spellID then
+		entry.castKey, entry.after = key, 0
+	end
+	if entry.castKey == key then
+		entry.untilTime = math.max(entry.untilTime, liveEnd / 1000 + entry.after + entry.hold)
+	end
+end
+
 -- ─────────────────────────────────────────────────────────────────────────────
 -- SECTION: Power already promised to casts the client hasn't charged yet
 --
@@ -382,26 +404,50 @@ end
 -- swing with "Not enough rage". Like a player keeping a tally, each send records its costs here
 -- and the usability gate requires current power minus what's promised to cover the next spell.
 -- ─────────────────────────────────────────────────────────────────────────────
-E.promised = {} -- { spellID, type, amount, untilTime, swing }
+E.promised = {} -- { spellID, type, amount, untilTime, swing, castKey, after, hold, send }
+local promiseSends = 0 -- numbers each send's promises, so a failed send drops all of its costs together
 
--- Drop promises that have been charged (time passed, or the queued swing landed / dropped off)
+-- Drop promises that have been charged (time passed, or the queued swing landed / dropped off). A cost charged
+-- at a cast's end follows that cast through pushback (E.followCast).
 local function prunePromised(now)
 	local promised = E.promised
+	local key, liveEnd, spellID = E.currentCastFacts()
 	for i = #promised, 1, -1 do
 		local entry = promised[i]
+		E.followCast(entry, key, liveEnd, spellID)
 		local done = now > entry.untilTime
 			or (entry.swing and not (br.game.C_Spell.IsCurrentSpell(entry.spellID)))
 		if done then table.remove(promised, i) end
 	end
 end
 
--- Record a sent spell's costs. kind: "swing" (on-next-swing attack, held until it lands), or a
--- time the cost will have been charged by.
-function E.promiseCosts(spellID, untilTime, swing)
+-- Record a sent spell's costs, charged by untilTime. swing: an on-next-swing attack, held until it lands.
+-- castKey: the cast the cost is charged at the end of (after seconds later: a pre-cast's own cast time), hold:
+-- the round trip after (see E.followCast).
+function E.promiseCosts(spellID, untilTime, swing, castKey, after, hold)
 	local costs = br.functions.power:getSpellCosts(spellID)
+	if #costs == 0 then return end
+	promiseSends = promiseSends + 1
 	for i = 1, #costs do
 		E.promised[#E.promised + 1] = { spellID = spellID, type = costs[i].type, amount = costs[i].amount,
-			untilTime = untilTime, swing = swing }
+			untilTime = untilTime, swing = swing, castKey = castKey, after = after or 0, hold = hold or 0,
+			send = promiseSends }
+	end
+end
+
+-- A send of spellID failed, so its costs won't be charged: drop the promises of the oldest send, or the newest
+local function dropPromise(spellID, newest)
+	local promised = E.promised
+	local send
+	for i = 1, #promised do
+		local entry = promised[i]
+		if entry.spellID == spellID and (send == nil or (newest and entry.send > send) or (not newest and entry.send < send)) then
+			send = entry.send
+		end
+	end
+	if send == nil then return end
+	for i = #promised, 1, -1 do
+		if promised[i].send == send then table.remove(promised, i) end
 	end
 end
 
@@ -463,18 +509,15 @@ end
 -- ─────────────────────────────────────────────────────────────────────────────
 E.promisedHeals = {} -- { spellID, guid, amount, untilTime, castKey, after, hold }
 
--- A heal that lands at the end of a cast (its own, or the one it was pre-cast behind) is on its way until
--- that cast's live end: pushback moves it (2026-11-01: a Healing Wave pushed back twice outlived its
--- send-time deadline, and a potion and Gift of the Naaru went out 0.18 s before it landed).
+-- A heal that lands at the end of a cast (its own, or the one it was pre-cast behind and then its own) is on
+-- its way until that cast's live end: pushback moves it (E.followCast; 2026-11-01: a Healing Wave pushed back
+-- twice outlived its send-time deadline, and a potion and Gift of the Naaru went out 0.18 s before it landed).
 local function pruneHeals(now)
 	local heals = E.promisedHeals
-	local key = E.currentCastKey()
-	local liveEnd = key and select(5, br.game.UnitCastingInfo("player"))
+	local key, liveEnd, spellID = E.currentCastFacts()
 	for i = #heals, 1, -1 do
 		local entry = heals[i]
-		if liveEnd and entry.castKey == key then
-			entry.untilTime = math.max(entry.untilTime, liveEnd / 1000 + entry.after + entry.hold)
-		end
+		E.followCast(entry, key, liveEnd, spellID)
 		if now > entry.untilTime then table.remove(heals, i) end
 	end
 end
@@ -524,10 +567,12 @@ function cast:noteHealLanded(spellID, destGUID)
 	if #E.promisedHeals > 0 then dropHeal(spellID, destGUID) end
 end
 
---- The player's cast of spellID failed or was interrupted (Readers/common.lua). A quiet failure is a send
---- the game turned away while another cast was on (the newest, pre-cast one); any other, the cast going.
-function cast:noteHealFailed(spellID, quiet)
+--- The player's cast of spellID failed or was interrupted (Readers/common.lua): its heal isn't on its way and
+--- its cost won't be charged. A quiet failure is a send the game turned away while another cast was on (the
+--- newest, pre-cast one); any other, the cast going.
+function cast:noteCastFailed(spellID, quiet)
 	if #E.promisedHeals > 0 then dropHeal(spellID, nil, quiet) end
+	if #E.promised > 0 then dropPromise(spellID, quiet) end
 end
 
 --- Health BR's heals on their way to the unit will add (0 when none): sent, not landed yet.
