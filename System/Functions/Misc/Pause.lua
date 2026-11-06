@@ -58,6 +58,18 @@ function misc:isLoggingOut()
 	return true
 end
 
+-- A batch of crafts (Create All, or a count): the game starts the next craft about 0.1 s after one ends, so a send in
+-- that gap is refused ("Another action is in progress") and a buff that never lands is asked for again at every gap:
+-- 2026-11-06 on Forever, Thorns refused 4 times during a run of Linen Bandages. Out of combat only, so a fight is
+-- never paused by a craft. C_TradeSkillUI.IsRecipeRepeating is on Forever's client but undocumented: taken to be
+-- true while the batch has crafts left; on a client without it nothing pauses.
+local function isCraftingBatch()
+	local tradeSkill = br.game.C_TradeSkillUI
+	local isRepeating = tradeSkill and tradeSkill.IsRecipeRepeating
+	if type(isRepeating) ~= "function" or br.functions.misc:isInCombat("player") then return false end
+	return isRepeating() == true
+end
+
 -- Why the player can't act right now, apart from casting: checked once per tick (memo below).
 -- Returns the reason, and whether an Evoker empower may run through it (it must keep updating
 -- its charge stage; only the deliberate pauses stop it).
@@ -99,6 +111,8 @@ local function standingReason(now)
 	if br.profileStop then return "profile stopped", true end
 
 	if misc:isLoggingOut() then return "logging out", true end
+
+	if isCraftingBatch() then return "crafting", true end
 
 	-- Mounted or flying — but NOT when targeting a boss. Some outdoor/encounter
 	-- sequences require the rotation to function while the player is airborne
@@ -244,7 +258,7 @@ function misc:ownCastHold()
 end
 
 --- Why the rotation should not act now, or nil when it may.
--- Reasons: "dead", "control disabled", "pause toggle", "pause key", "profile stopped", "logging out", "mounted",
+-- Reasons: "dead", "control disabled", "pause toggle", "pause key", "profile stopped", "logging out", "crafting", "mounted",
 -- "on a taxi", "in a vehicle", "targeting a spell", "eating", "drinking", "sneaking", "pet battle",
 -- "charmed", and unless skipCastingCheck, the player's own cast (ownCastHold: "item channel",
 -- "casting", "channelling"). The rotation itself runs through casts (Rotation:startRotation passes
