@@ -4,7 +4,9 @@
 --   * Tiger's Fury: +15% Physical damage for 6 sec on a 30 sec cooldown, costs nothing.
 --   * Omen of Clarity is trained; Clearcasting isn't spent by Wrath, so it goes to Shred/Claw or Starfire.
 --   * Berserk: crits on combo point builders, and Primal Bite hits 3 targets with no cooldown.
---   * Eclipse: each Wrath makes the next Starfires 0.5 sec faster.
+--   * Eclipse: each Wrath makes the next Starfires faster (beta: 0.5 sec per stack; the live tooltip, 2026-11-05,
+--     says the next 2 Starfires 0.03 sec, up to 4 charges: unconfirmed in game, the Starfire timing still assumes 0.5).
+--   * Shifting Power: 55% of base mana on an 8 sec cooldown (live build; 16 sec in the beta).
 --   * Hurricane has no cooldown; Nature's Grasp and Shifting Power work while shapeshifted.
 
 ---------------
@@ -845,8 +847,11 @@ actionList.CatForm = function()
             return true
         end
     end
-    -- Shifting Power (talent): 40 Energy for Mana, when it won't overcap
-    if ui.checked("Shifting Power") and cast.able.shiftingPower() and energy <= 60 and not buff.clearcasting.exists() then
+    -- Shifting Power (talent): 40 Energy for Mana, when it won't overcap. It costs 55% of base mana on an 8 sec
+    -- cooldown (live build, was 16 sec in the beta), so it keeps back a heal and the shift back into Cat Form.
+    if ui.checked("Shifting Power") and cast.able.shiftingPower() and energy <= 60 and not buff.clearcasting.exists()
+        and power.mana.affordable(cast.cost.shiftingPower(), healCost() + cast.cost.catForm())
+    then
         if cast.shiftingPower() then
             ui.debug("Casting Shifting Power")
             return true
@@ -967,9 +972,11 @@ actionList.CasterForm = function()
     end
     -- A target that dies before Wrath would land: finish it with instant Moonfire, else start nothing. Wrath on a
     -- dying target was the most common lost cast (Fights 2026-11-05: 51 in 90 fights, "Interrupted" or "target is
-    -- dead"). ttd 999 is unknown, which doesn't count as dying.
+    -- dead"). ttd 999 is unknown, which doesn't count as dying. Not while your Moonfire is on it: its damage over
+    -- time keeps hitting (Fights 2026-11-05 20:35: a second finisher on a cougar that lived 4.5 s more, the
+    -- fight ended on 10 mana).
     if ttd < 999 and ttd < cast.time.wrath() + 0.2 then
-        if cast.able.moonfire(thisUnit) then
+        if cast.able.moonfire(thisUnit) and not debuff.moonfire.exists(thisUnit) then
             if cast.moonfire(thisUnit) then
                 ui.debug("Casting Moonfire [Finish]")
                 return true
