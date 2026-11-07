@@ -55,6 +55,22 @@ local function powerToggle()
     return settings and settings.toggles and settings.toggles["Power"]
 end
 
+-- Work that runs at the update rate besides the tick (the enemies engine) goes about halfway between two ticks, so
+-- the two don't land in one frame: on 2026-11-06 (Forever on Veil, Perf.log) 131 of 133 in-combat frames over 10 ms
+-- held both, up to 27 ms (rotation up to 18, enemies engine up to 9). BETWEEN_FROM / BETWEEN_TO: the part of the
+-- interval after a tick in which it may run; past 2 intervals it runs anyway (a low frame rate can step over the
+-- window).
+local BETWEEN_FROM, BETWEEN_TO = 0.3, 0.8
+core.lastTickAt = nil -- GetTime() of the last tick
+--- Whether a job at the update rate, last run `since` seconds ago, should run in this frame.
+function core:isBetweenTicks(since, rate)
+    if since < rate then return false end
+    local tickAt = self.lastTickAt
+    if tickAt == nil or since >= 2 * rate then return true end
+    local phase = br.game.GetTime() - tickAt
+    return phase >= rate * BETWEEN_FROM and phase < rate * BETWEEN_TO
+end
+
 --- True when the player has Power on.
 function core:isPowerOn() return powerToggle() == 1 end
 
@@ -203,6 +219,7 @@ local function pulse(elapsed)
         else
             powerWasOn = true
             if readable and br.functions.misc:useTimer("playerUpdate", core:getUpdateRate()) then
+                core.lastTickAt = br.game.GetTime()
                 local tickStarted = br.game.debugprofilestop()
                 br.lifecycle:run("tick")
                 core:recordTickCost("rotation", br.game.debugprofilestop() - tickStarted)

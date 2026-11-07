@@ -463,12 +463,13 @@ function engine:Update()
 	end
 end
 
--- The enemies engine at the update rate (at most every 0.05 s), while Power is on
+-- The enemies engine at the update rate (at most every 0.05 s), while Power is on, about halfway between two
+-- rotation ticks (core:isBetweenTicks): in the tick's frame the two together made BR's longest frames
 local sinceUpdate = 0
 br.lifecycle:onFrame(10, "enemies engine", function(elapsed, active)
 	if not active then return end
 	sinceUpdate = sinceUpdate + elapsed
-	if sinceUpdate < math.max(0.05, br.core:getUpdateRate()) then return end
+	if not br.core:isBetweenTicks(sinceUpdate, math.max(0.05, br.core:getUpdateRate())) then return end
 	sinceUpdate = 0
 	local started = br.game.debugprofilestop()
 	engine:Update()
