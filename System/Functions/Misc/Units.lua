@@ -58,7 +58,6 @@ local function enemyPlayerTarget()
 	return br.game.UnitGUID("target")
 end
 
-local OWN_SEND_WINDOW = 0.5 -- seconds: a SENT this soon after BR sent the same spell is BR's
 local engagedFrame = br.game.CreateFrame("Frame")
 for _, event in ipairs({ "UNIT_SPELLCAST_SENT", "PLAYER_ENTER_COMBAT", "PLAYER_REGEN_ENABLED" }) do
 	engagedFrame:RegisterEvent(event)
@@ -73,8 +72,7 @@ function misc.engagedPlayerEvent(event, unit, _, _, spellID)
 	if event == "UNIT_SPELLCAST_SENT" then
 		if unit ~= "player" or spellID == nil or not misc:canUseValue(spellID) then return end
 		local E = br.functions.cast and br.functions.cast.internal
-		local sentAt = E and E.sentAt and E.sentAt[spellID]
-		if sentAt and now - sentAt <= OWN_SEND_WINDOW then return end -- BR's
+		if E and E.isBotSend and E.isBotSend(spellID) then return end -- BR's
 		if not br.game.C_Spell.IsSpellHarmful(spellID) then return end
 		misc.notePlayerEngaged(enemyPlayerTarget(), "you attacked")
 	elseif event == "PLAYER_ENTER_COMBAT" then

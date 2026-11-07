@@ -155,9 +155,11 @@ function unit:anyInAggroRange(offset, radius)
 end
 
 --- Cancels the player's shapeshift form, unless the player isn't in one or a cancel is already on
--- its way. Returns true when a cancel was sent now.
+-- its way, or the player's own cast holds BR (misc:ownCastHold: leaving a form interrupts a Hearthstone
+-- the same as a send would). Returns true when a cancel was sent now.
 function unit:cancelShapeshiftForm()
 	if (br.game.GetShapeshiftForm() or 0) == 0 or unit:isFormCancelPending() then return false end
+	if not br.functions.cast.allowWhileCasting and br.functions.misc:ownCastHold() ~= nil then return false end
 	br.game.CancelShapeshiftForm()
 	formCancelSentAt = br.game.GetTime()
 	return true
@@ -1093,6 +1095,7 @@ function unit:startAttack(thisUnit)
 	if br.botCastTime and now - br.botCastTime < br.functions.misc:getRoundTripHold() then return false end
 	attackSentAt, attackSentGUID = now, guid
 	lastStartAt, lastStartGUID = now, guid
+	br.functions.cast.internal.noteBotAction()
 	br.game.StartAttack(thisUnit)
 	if br.debug.melee and br.debug.melee.noteAttackSent then br.debug.melee:noteAttackSent(thisUnit or "target") end
 	return true

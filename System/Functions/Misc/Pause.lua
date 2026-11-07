@@ -184,9 +184,45 @@ function misc:isPauseKeyDown()
 	return held == true
 end
 
+-- The player's own key press, from the game sending it (UNIT_SPELLCAST_SENT that isn't BR's) until its cast shows
+-- (then "casting" holds), it goes off or it fails. A BR send in that gap interrupts it: 2026-11-07 on Forever, BR's
+-- Bear Form went out 0.1 s after the player pressed Hearthstone, before the cast showed, and interrupted it.
+-- Capped (OWN_SEND_HOLD, or a round trip when longer) in case no answer comes.
+local OWN_SEND_HOLD = 0.5
+local ownSendAt, ownSendGUID
+
+--- Feeds the player's cast events (the frame below; the tests call it directly). SENT is (unit, target, castGUID,
+-- spellID); the others are (unit, castGUID, spellID).
+function misc.ownSendEvent(event, unit, arg2, arg3, arg4)
+	if unit ~= "player" then return end
+	if event == "UNIT_SPELLCAST_SENT" then
+		local castGUID, spellID = arg3, arg4
+		if spellID ~= nil and not misc:canUseValue(spellID) then spellID = nil end
+		if br.functions.cast.internal.isBotSend(spellID) then return end
+		ownSendAt = br.game.GetTime()
+		ownSendGUID = castGUID ~= nil and misc:canUseValue(castGUID) and castGUID or nil
+	elseif ownSendAt ~= nil then
+		-- The cast showed, went off or failed: the one the player sent, or any when the IDs can't be compared
+		local castGUID = arg2
+		if ownSendGUID == nil or castGUID == nil or not misc:canUseValue(castGUID) or castGUID == ownSendGUID then
+			ownSendAt, ownSendGUID = nil, nil
+		end
+	end
+end
+
+local ownSendFrame = br.game.CreateFrame("Frame")
+for _, event in ipairs({ "UNIT_SPELLCAST_SENT", "UNIT_SPELLCAST_START", "UNIT_SPELLCAST_CHANNEL_START",
+	"UNIT_SPELLCAST_SUCCEEDED", "UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_FAILED_QUIET", "UNIT_SPELLCAST_INTERRUPTED",
+	"UNIT_SPELLCAST_STOP" })
+do
+	ownSendFrame:RegisterEvent(event)
+end
+ownSendFrame:SetScript("OnEvent", function(_, event, ...) misc.ownSendEvent(event, ...) end)
+
 --- Why the player's own cast or channel holds new casts and item uses now, or nil: "item channel",
--- "channelling" or "casting". The rotation still runs; the cast system refuses sends while this
--- holds (Cast/CastFunction.lua), except casts the profile marks .whileCasting and cast.cancel.
+-- "channelling", "casting" or "your cast starting" (a key press of the player's the game hasn't answered yet).
+-- The rotation still runs; the cast system refuses sends while this holds (Cast/CastFunction.lua), except casts
+-- the profile marks .whileCasting and cast.cancel.
 function misc:ownCastHold()
 	local now = br.game.GetTime()
 
@@ -254,6 +290,11 @@ function misc:ownCastHold()
 		end
 		-- Inside the queue window and nothing pre-cast yet: one send may pre-cast.
 	end
+	-- The player pressed something the game hasn't answered yet (no cast showing, not gone off or failed)
+	if ownSendAt ~= nil then
+		if now - ownSendAt <= math.max(OWN_SEND_HOLD, misc:getRoundTripHold()) then return "your cast starting" end
+		ownSendAt, ownSendGUID = nil, nil
+	end
 	return nil
 end
 
@@ -261,7 +302,7 @@ end
 -- Reasons: "dead", "control disabled", "pause toggle", "pause key", "profile stopped", "logging out", "crafting", "mounted",
 -- "on a taxi", "in a vehicle", "targeting a spell", "eating", "drinking", "sneaking", "pet battle",
 -- "charmed", and unless skipCastingCheck, the player's own cast (ownCastHold: "item channel",
--- "casting", "channelling"). The rotation itself runs through casts (Rotation:startRotation passes
+-- "casting", "channelling", "your cast starting"). The rotation itself runs through casts (Rotation:startRotation passes
 -- true); the cast system holds its sends instead.
 -- @param skipCastingCheck true for code that acts while the player casts or channels
 function misc:pauseReason(skipCastingCheck)

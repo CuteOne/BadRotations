@@ -26,6 +26,8 @@ cast.actions = cast.actions or 0
 -- spellID: the spell a send by name is (the row then follows that ID); how: see rotation:sent.
 local function send(fn, spell, unit, spellID, how)
 	spell, unit = plainArg(spell), plainArg(unit)
+	local id = spellID or (type(spell) == "number" and spell) or nil
+	E.noteBotAction(id)
 	local ok, err
 	if unit == nil then
 		ok, err = pcall(fn, spell)
@@ -36,7 +38,6 @@ local function send(fn, spell, unit, spellID, how)
 	if not ok and br.debug.cast and br.debug.cast.noteSendError then br.debug.cast:noteSendError(spell, unit, err) end
 	if ok then
 		cast.actions = cast.actions + 1
-		local id = spellID or (type(spell) == "number" and spell) or nil
 		if id then
 			br.log.rotation:sent(id, br.functions.spell:getName(id), unit, how)
 		else
@@ -279,11 +280,14 @@ end
 
 -- Runs a macro's text (/cast, /use, ...)
 function cast:runMacro(text)
+	E.noteBotAction()
 	br.game.RunMacroText(text)
 end
 
 -- Shifts into the form at that index of the stance bar (0 leaves the form)
 function cast:shapeshift(formIndex)
+	local formSpellID = formIndex and formIndex > 0 and select(4, br.game.GetShapeshiftFormInfo(formIndex)) or nil
+	E.noteBotAction(formSpellID)
 	return br.game.CastShapeshiftForm(formIndex)
 end
 
@@ -301,7 +305,10 @@ end
 -- Stops an auto-repeating spell (Auto Shot, Shoot): casting it again turns it off
 function cast:stopAutoRepeat(spellID)
 	local name = br.functions.spell:getName(spellID)
-	if name then br.game.CastSpellByName(name) end
+	if name then
+		E.noteBotAction(spellID)
+		br.game.CastSpellByName(name)
+	end
 end
 
 -- Runs castFn while stepping back with a jump, which cancels a movement spell's animation

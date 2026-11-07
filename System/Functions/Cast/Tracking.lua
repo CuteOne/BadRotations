@@ -184,8 +184,41 @@ E.sentAt = {}
 local BR_SEND_WINDOW = 6 -- seconds: a pre-cast refused at its handover, an on-next-swing attack failing at the swing
 
 E.sentTo = {} -- spell ID -> the GUID BR last sent it at
+
+-- When BR last sent or used anything (a spell, a form, an item, a macro, auto attack). Every BR send marks it
+-- just before the game call, so a UNIT_SPELLCAST_SENT the game fires during the call is known as BR's.
+E.lastBotActionAt = nil
+local OWN_SEND_WINDOW = 0.5 -- seconds: a SENT this soon after BR sent the same spell is BR's
+-- spell name -> when BR last sent it: a pre-cast's SENT comes at the queue's handover, maybe as another rank's ID
+local sentNameAt = {}
+
+--- Marks a BR send or use about to go out; spellID (optional) is the spell it casts.
+function E.noteBotAction(spellID)
+	local now = br.game.GetTime()
+	E.lastBotActionAt = now
+	if spellID ~= nil then
+		E.sentAt[spellID] = now
+		local name = br.functions.spell:getName(spellID)
+		if name ~= nil then sentNameAt[name] = now end
+	end
+end
+
+--- True when a UNIT_SPELLCAST_SENT for spellID is BR's own: BR sent that spell (any rank) in the last half second,
+-- or BR acted in this very frame (the game fires SENT inside the call; a key press is handled apart from BR's
+-- tick). Otherwise it's the player's key press.
+function E.isBotSend(spellID)
+	local now = br.game.GetTime()
+	if E.lastBotActionAt == now then return true end
+	if spellID == nil then return false end
+	local sentAt = E.sentAt[spellID]
+	if sentAt ~= nil and now - sentAt <= OWN_SEND_WINDOW then return true end
+	local name = br.functions.spell:getName(spellID)
+	sentAt = name ~= nil and sentNameAt[name] or nil
+	return sentAt ~= nil and now - sentAt <= OWN_SEND_WINDOW
+end
+
 function E.recordBotCast(spellID, thisUnit)
-	E.sentAt[spellID] = br.game.GetTime()
+	E.noteBotAction(spellID)
 	br.botCast     = true
 	br.botSpell    = spellID
 	br.botUnit     = thisUnit

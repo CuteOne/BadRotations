@@ -452,6 +452,16 @@ function item:TierScan(thisTier)
 	return equippedItems
 end
 
+-- Uses the item by name, marked as BR's first (with the spell it casts), so the game's UNIT_SPELLCAST_SENT for it
+-- isn't taken for the player's own key press (misc:ownCastHold)
+local function useAsBR(itemID, thisUnit)
+	local _, spellID = br.game.C_Item.GetItemSpell(itemID)
+	if spellID ~= nil and not br.functions.misc:canUseValue(spellID) then spellID = nil end
+	br.functions.cast.internal.noteBotAction(spellID)
+	br.game.UseItemByName(select(1, br.game.C_Item.GetItemInfo(itemID)), thisUnit)
+	br.functions.cast.actions = br.functions.cast.actions + 1
+end
+
 -- br.functions.item:useItem(12345)
 function item:useItem(itemID, thisUnit)
 	if type(itemID) == "table" then itemID = self:getHighestHeldRank(itemID) end
@@ -462,9 +472,7 @@ function item:useItem(itemID, thisUnit)
 			local slotItemID = br.game.GetInventoryItemID("player", itemID)
 			if br.game.C_Container.GetItemCooldown(slotItemID) == 0 then
 				if not br.itemSpamDelay or br.game.GetTime() > br.itemSpamDelay then
-					-- br.game.RunMacroText("/use " .. select(1, GetItemInfo(slotItemID)))
-					br.game.UseItemByName(select(1, br.game.C_Item.GetItemInfo(slotItemID)), thisUnit);
-					br.functions.cast.actions = br.functions.cast.actions + 1
+					useAsBR(slotItemID, thisUnit)
 					br.itemSpamDelay = br.game.GetTime() + 1
 					return true
 				end
@@ -473,9 +481,7 @@ function item:useItem(itemID, thisUnit)
 	elseif itemID > 19 and (br.game.C_Item.GetItemCount(itemID) > 0 or br.game.PlayerHasToy(itemID)) then
 		if br.game.C_Container.GetItemCooldown(itemID) == 0 then
 			if not br.itemSpamDelay or br.game.GetTime() > br.itemSpamDelay then
-				-- br.game.RunMacroText("/use " .. select(1, GetItemInfo(itemID)))
-				br.game.UseItemByName(select(1, br.game.C_Item.GetItemInfo(itemID)), thisUnit);
-				br.functions.cast.actions = br.functions.cast.actions + 1
+				useAsBR(itemID, thisUnit)
 				br.itemSpamDelay = br.game.GetTime() + 1
 				return true
 			end
