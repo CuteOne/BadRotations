@@ -73,6 +73,12 @@ function Rotation:requestRebuild()
 	self.rebuildNeeded = true
 end
 
+--- The spellbook changed (SPELLS_CHANGED): at the next tick, rebuild if a ranked ability's
+-- highest known rank changed (a rank bought at a trainer, profileAPI:ranksChanged).
+function Rotation:noteSpellsChanged()
+	self.rankCheckNeeded = true
+end
+
 --------------
 --- UPDATE ---
 --------------
@@ -83,6 +89,10 @@ function Rotation:update()
 	if not br.game.UnitAffectingCombat("player") then self:updateOOC() end
 	self:baseUpdate()
 	br.functions.aura:cleanBleedSnapshots(self.specID)
+	if self.rankCheckNeeded then
+		self.rankCheckNeeded = false
+		if br.loader.profileAPI:ranksChanged() then self.rebuildNeeded = true end
+	end
 	if self.rebuildNeeded then self:rebuild() end
 	self:getToggleModes()
 	self:startRotation()

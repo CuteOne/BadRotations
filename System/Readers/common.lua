@@ -451,6 +451,7 @@ function common:commonReaders()
 			br.functions.cast:clearSpellFacts()
 			br.functions.spell:clearRankCache()
 			br.functions.lastCast:clearAbilityIDs()
+			if event == "SPELLS_CHANGED" and br.runner then br.runner:noteSpellsChanged() end
 			br.functions.range:invalidateMeleeSpellCache()
 		end
 	end

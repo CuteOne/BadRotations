@@ -156,15 +156,21 @@ local function buildItems(rotation)
     end
 end
 
+-- The rank each ranked ability was built with: ability -> { ranks = the rank list, picked = its ID }
+-- (profileAPI:ranksChanged)
+local rankPicks = {}
+
 -- Builds cast, charges, cd and spell functions for every ability.
 local function buildAbilities(rotation)
     local spells = rotation.spells
+    br.game.wipe(rankPicks)
     for spell, id in pairs(spells.abilities) do
         -- Rank tables (Classic-era) resolve to the highest known rank
         local resolvedID = spellCompiler:resolve(id)
         if resolvedID ~= id then
             spells.abilities[spell] = resolvedID
             spells[spell] = resolvedID
+            rankPicks[spell] = { ranks = id, picked = resolvedID }
         end
         br.api.build.cast(profile, spell, resolvedID)
         br.api.build.charges(profile.charges, spell, resolvedID)
@@ -176,6 +182,17 @@ local function buildAbilities(rotation)
     if cast.able == nil then cast.able = {} end
     if cast.racial == nil then cast.racial = function() return false end end
     if cast.able.racial == nil then cast.able.racial = function() return false end end
+end
+
+--- True when a ranked ability's highest known rank is no longer the one it was built with: a rank
+-- bought at a trainer. The abilities are built with one rank's ID, and Forever takes the old rank
+-- away when the next is learned, so until a rebuild the ability isn't known at all (2026-11-07:
+-- "Maul skipped (not known)" after Maul rank 2 at level 18).
+function profileAPI:ranksChanged()
+    for _, pick in pairs(rankPicks) do
+        if spellCompiler:resolve(pick.ranks) ~= pick.picked then return true end
+    end
+    return false
 end
 
 --- Builds the profile API for the rotation's spec (rotation.spells already compiled).
