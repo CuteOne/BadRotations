@@ -573,12 +573,23 @@ actionList.Defensive = function()
             end
         end
     end
-    -- Rejuvenation: too slow to justify two shapeshifts in combat. In combat it's recast only once it's gone: a
-    -- recast with ~3 s left threw away its last tick (2026-11-05: recast every 8.4-8.8 s of its 12 s, ticks every 3 s),
-    -- and the Bloom talent heals only when it runs out
+    -- Out of combat and standing still, one Healing Touch at the Rejuvenation threshold instead of Rejuvenations:
+    -- more health for the mana, and you're not in a hurry (the user's call, 2026-11-06). While moving, Rejuvenation.
+    if ui.checked("Healing Touch") and ui.checked("Rejuvenation") and not unit.inCombat() and not unit.moving()
+        and not cast.current.healingTouch()
+    then
+        if inGroupOk and unit.hpAfterHeals() <= ui.value("Rejuvenation") and cast.able.healingTouch("player") then
+            if casterCast("healingTouch", "player", "Healing Touch [Out of combat]", freeHeal, false, true) then return true end
+        end
+        if other ~= nil and unit.hpAfterHeals(other) <= ui.value("Rejuvenation") and cast.able.healingTouch(other) then
+            if casterCast("healingTouch", other, "Healing Touch [Out of combat]" .. otherName, freeHeal, false, true) then return true end
+        end
+    end
+    -- Rejuvenation: too slow to justify two shapeshifts in combat. It's recast only once it's gone: a recast with
+    -- ~3 s left threw away its last tick (2026-11-05: recast every 8.4-8.8 s of its 12 s, ticks every 3 s), and the
+    -- Bloom talent heals only when it runs out. Out of combat too (2026-11-06: several Rejuvenations after a fight).
     local function rejuvenationDue(thisUnit)
-        if unit.inCombat() then return not buff.rejuvenation.exists(thisUnit) end
-        return buff.rejuvenation.refresh(thisUnit)
+        return not buff.rejuvenation.exists(thisUnit)
     end
     if ui.checked("Rejuvenation") and (not unit.inCombat() or not inForm) then
         if unit.hpAfterHeals() <= ui.value("Rejuvenation") and rejuvenationDue("player") and not buff.clearcasting.exists()
