@@ -1292,6 +1292,36 @@ function br.debug.form:noteLeftFormFor(spellID)
     leftFormFor = { spellID = spellID, at = br.game.GetTime(), form = formName(br.game.GetShapeshiftForm()) }
 end
 
+-- A form left for a spell, then nothing sent at all (2026-11-07, Forever: Bear Form left for Healing Touch as a
+-- fight ended, no Healing Touch, caster form for 18 s): once, LEFT_FORM_WAIT after leaving, what became of that
+-- spell since (the profile didn't ask for it, BR refused it and why, or it passed), and the player's state.
+local LEFT_FORM_WAIT = 3
+local LEFT_FORM_FORGET = 30
+function br.debug.form:watch()
+    local left = leftFormFor
+    if left == nil or left.waitNoted then return end
+    local after = br.game.GetTime() - left.at
+    if after > LEFT_FORM_FORGET then leftFormFor = nil return end
+    if after < LEFT_FORM_WAIT then return end
+    left.waitNoted = true
+    local name = br.functions.spell:getName(left.spellID)
+    local record = name and br.functions.cast:getRefusal(name)
+    local fate
+    if record and record.refusedAt and record.refusedAt >= left.at then
+        fate = ("refused %s %s, %.1fs ago"):format(tostring(record.reason), printable(record.detail or ""),
+            br.game.GetTime() - record.refusedAt)
+    elseif record and record.passedAt and record.passedAt >= left.at then
+        fate = ("passed BR's checks %.1fs ago, not sent"):format(br.game.GetTime() - record.passedAt)
+    else
+        fate = "the profile hasn't asked for it since"
+    end
+    formWrite(("left %s for %s, nothing sent %.1fs later | %s: %s | health %d%%, speed %.1f, combat %s, form %s, mana %d, GCD %.2fs"):format(
+        left.form, printable(name), after, printable(name), fate, plainNumber(br.functions.unit:getHP("player") or 0),
+        plainNumber(br.game.GetUnitSpeed("player") or 0), tostring(br.game.UnitAffectingCombat("player") and true or false),
+        formName(br.game.GetShapeshiftForm()), plainNumber(br.game.UnitPower("player", 0) or 0),
+        br.functions.spell:getGlobalCD() or 0))
+end
+
 -- Dispatch, just before each send
 function br.debug.form:noteSendAfterLeaving(spellID)
     local left = leftFormFor
