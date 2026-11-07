@@ -236,11 +236,16 @@ end
 -- Casts a Caster Form spell, leaving the current form first when it blocks the spell: Cat, Bear,
 -- Travel and Aquatic Form block every caster spell, Moonkin Form blocks heals. free: Clearcasting
 -- makes the spell free; emergency: leave the form even when shifting back isn't affordable.
+-- A form left for a heal is held off (see Forms) until the heal goes out or HEAL_SHIFT_HOLD passes.
+local HEAL_SHIFT_HOLD = 1.5
 local function casterCast(spellKey, thisUnit, label, free, emergency, isHeal)
     if inForm or (isHeal and buff.moonkinForm.exists()) then
-        return unit.cancelFormFor(spell[spellKey], free, emergency)
+        local left = unit.cancelFormFor(spell[spellKey], free, emergency)
+        if left and isHeal then var.leftFormForHealAt = util.time() end
+        return left
     end
     if cast[spellKey](thisUnit) then
+        if isHeal then var.leftFormForHealAt = nil end
         ui.debug("Casting " .. label)
         return true
     end
@@ -404,6 +409,10 @@ actionList.Forms = function()
     local keepAquatic = ui.checked("Aquatic Form") and unit.swimming() and buff.aquaticForm.exists()
         and not unit.anyInAggroRange() and (not unit.exists("target") or unit.friend("target"))
     if keepAquatic or buff.travelForm.exists() or unit.gcd() > 0 or unit.isCasting("player") then return false end
+    -- Just left a form for a heal that hasn't gone out yet (held by BR's cast timer, say): wait for it rather than
+    -- shift straight back (Form.log 2026-11-05 22:19 and 2026-11-06 19:30: Rejuvenation not cast, Bear Form 0.27 s
+    -- later, two shifts' mana for nothing)
+    if var.leftFormForHealAt and util.time() - var.leftFormForHealAt < HEAL_SHIFT_HOLD then return false end
     if not ((unit.moving() and unit.movingTime() > ui.value("Shift Wait Time")) or unit.inCombat() or unit.anyInAggroRange(5)) then
         return false
     end
