@@ -320,12 +320,17 @@ local function tag(why) return type(why) == "string" and (" [" .. why .. "]") or
 -- (Fights 2026-11-06 15:28: a Dustwind Storm Witch on a ledge at 23 yd, 17 s in Bear Form without an attack).
 -- In combat, once the target has stayed beyond REACH_BACK yards for REACH_WAIT seconds without the gap closing
 -- by a yard, it is out of reach: fight it from range until it comes within REACH_BACK yards or the target changes.
--- Returns the distance when out of reach, else nil.
-local REACH_WAIT, REACH_BACK = 3, 8
+-- Not beyond REACH_MAX (Wrath and Moonfire range: shifting can't reach it either) and not while it flees (it comes
+-- back or dies in a few seconds; 2026-11-06 17:48: two fleeing murlocs at 10-11 yd cost two shifts each for a
+-- Rejuvenation and one Moonfire; 19:36: a hyena at 62 yd). Returns the distance when out of reach, else nil.
+local REACH_WAIT, REACH_BACK, REACH_MAX = 3, 8, 30
 local function outOfReach(thisUnit)
     local guid = unit.inCombat() and unit.exists(thisUnit) and unit.guid(thisUnit) or nil
     local dist = guid and unit.distance(thisUnit)
-    if dist == nil or dist < REACH_BACK then var.reach = nil; return nil end
+    if dist == nil or dist < REACH_BACK or dist > REACH_MAX or unit.isFleeing(thisUnit) then
+        var.reach = nil
+        return nil
+    end
     local now, r = util.time(), var.reach
     if r == nil or r.guid ~= guid then
         var.reach = { guid = guid, best = dist, since = now }
