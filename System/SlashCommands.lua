@@ -450,7 +450,7 @@ local function handler(message, editbox)
 			)
 		end
 	elseif msg1 == "cpu" then
-		br.debug.cpu:profile(msg2)
+		if msg2 == "all" then br.debug.cpu:profileAll(msg3) else br.debug.cpu:profile(msg2) end
 	elseif msg1 == "range" then
 		br.debug.range:probe(msg2)
 	elseif msg1 == "log" then

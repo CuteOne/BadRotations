@@ -99,6 +99,99 @@ local PROFILE_TARGETS = {
 }
 local profiling = false
 
+--- Deep profile run ("/br cpu all [seconds]")
+-- Wraps every function in BR's System modules (br.functions.<module>, br.engines.<engine>) and every game function
+-- BR holds in br.game (the unlocker adapter's wrappers among them) for a few seconds, then writes to Logs/Cpu.log the
+-- functions by their own time (minus what they called that was also wrapped) and by total time, with calls per
+-- second. Code that copied a function into a local before the run isn't counted. The wrappers add a little to every
+-- call; the report says how many calls there were.
+-- Why (2026-11-06, Forever on Veil): /br cpu out of combat with nothing near gave the profile pulse 4 ms a tick, and
+-- the functions /br cpu wraps didn't account for it.
+local DEEP_SKIP = { debugprofilestop = true, GetTime = true, GetTimePreciseSec = true, print = true }
+local cpuLine
+function br.debug.cpu:profileAll(seconds)
+    if profiling then
+        br.log:say("CPU", "A profile run is already going.")
+        return
+    end
+    seconds = tonumber(seconds) or 30
+    cpuLine = cpuLine or br.log:file("Cpu.log", 400)
+    local clock = br.game.debugprofilestop
+    local stats, restore, wrapped = {}, {}, {}
+    local childTime, depth = {}, 0
+    local function wrap(owner, key, label)
+        local original = rawget(owner, key)
+        if type(original) ~= "function" or wrapped[original] then return end
+        local s = { label = label, self = 0, total = 0, calls = 0 }
+        stats[#stats + 1] = s
+        local function finish(myDepth, started, ...)
+            local spent = clock() - started
+            local inner = childTime[myDepth] or 0
+            depth = myDepth - 1
+            if depth > 0 then childTime[depth] = (childTime[depth] or 0) + spent end
+            s.self, s.total, s.calls = s.self + spent - inner, s.total + spent, s.calls + 1
+            return ...
+        end
+        local wrapper = function(...)
+            local myDepth = depth + 1
+            depth = myDepth
+            childTime[myDepth] = 0
+            return finish(myDepth, clock(), original(...))
+        end
+        wrapped[original], wrapped[wrapper] = true, true
+        restore[#restore + 1] = { owner, key, original, wrapper }
+        owner[key] = wrapper
+    end
+    local function wrapModules(root, prefix)
+        for name, module in pairs(root) do
+            if type(module) == "table" and type(name) == "string" then
+                for key in pairs(module) do
+                    if type(key) == "string" then wrap(module, key, prefix .. name .. ":" .. key) end
+                end
+            end
+        end
+    end
+    wrapModules(br.functions, "")
+    wrapModules(br.engines, "")
+    for key in pairs(br.game) do
+        if type(key) == "string" and not DEEP_SKIP[key] then wrap(br.game, key, "game." .. key) end
+    end
+    profiling = true
+    local frames = 0
+    local counter = br.game.CreateFrame("Frame")
+    counter:SetScript("OnUpdate", function() frames = frames + 1 end)
+    br.log:say("CPU", ("Deep profile of %d functions for %d s (Logs\\Cpu.log)..."):format(#stats, seconds))
+    br.game.C_Timer.After(seconds, function()
+        -- put back only what still holds the wrapper: code that set a new function meanwhile keeps it
+        for i = #restore, 1, -1 do local r = restore[i]; if rawget(r[1], r[2]) == r[4] then r[1][r[2]] = r[3] end end
+        counter:SetScript("OnUpdate", nil)
+        profiling = false
+        local calls, gameCalls, gameTime = 0, 0, 0
+        for _, s in ipairs(stats) do
+            calls = calls + s.calls
+            if s.label:sub(1, 5) == "game." then gameCalls, gameTime = gameCalls + s.calls, gameTime + s.self end
+        end
+        local function report(title, field, count)
+            table.sort(stats, function(a, b) return a[field] > b[field] end)
+            cpuLine(title)
+            for i = 1, math.min(count, #stats) do
+                local s = stats[i]
+                if s.calls == 0 then break end
+                cpuLine(("  %-52s %7.2f ms/s  %7.0f calls/s  %7.1f us/call (total %.2f ms/s)"):format(s.label,
+                    s[field] / seconds, s.calls / seconds, s[field] * 1000 / s.calls, s.total / seconds))
+            end
+        end
+        cpuLine(("=== deep profile %d s | FPS %.0f | combat %s | %d functions wrapped | %.0f calls/s | game calls %.0f/s, their own time %.2f ms/s"):format(
+            seconds, frames / seconds, br.game.UnitAffectingCombat("player") and "yes" or "no", #stats,
+            calls / seconds, gameCalls / seconds, gameTime / seconds))
+        report("-- by own time", "self", 40)
+        report("-- by total time (includes what they call)", "total", 25)
+        br.log:flush()
+        br.log:say("CPU", ("Deep profile done: %.0f calls/s, %.0f of them game calls (%.2f ms/s); details in Logs\\Cpu.log"):format(
+            calls / seconds, gameCalls / seconds, gameTime / seconds))
+    end)
+end
+
 function br.debug.cpu:profile(seconds)
     if profiling then
         br.log:say("CPU", "A profile run is already going.")
