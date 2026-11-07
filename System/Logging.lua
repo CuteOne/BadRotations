@@ -124,13 +124,22 @@ local function wordByte(b)
 	return b ~= nil and (b >= 128 or (b >= 48 and b <= 57) or (b >= 65 and b <= 90) or (b >= 97 and b <= 122))
 end
 
--- Every whole-word name in text replaced (withRealm: a "-Realm" after it too)
-local function replaceName(text, name, replacement, withRealm)
+-- A "-" joining the match at first..last to a word or a stand-in already put in: "Name-Realm", "Realm-Name",
+-- "Realm-<realm>", "Party1[PRIEST]-Realm"
+local function hyphenJoined(text, first, last)
+	local after, before = text:byte(last + 2), text:byte(first - 2)
+	return (text:sub(last + 1, last + 1) == "-" and (wordByte(after) or after == 60)) -- "<"
+		or (text:sub(first - 1, first - 1) == "-" and (wordByte(before) or before == 62 or before == 93)) -- ">" "]"
+end
+
+-- Every whole-word name in text replaced (withRealm: a "-Realm" after it too; joined: only where a "-" joins
+-- it to a word, for realm names, which can be ordinary words: "Out", "Forever")
+local function replaceName(text, name, replacement, withRealm, joined)
 	local parts, from = {}, 1
 	while true do
 		local first, last = text:find(name, from, true)
 		if not first then break end
-		if wordByte(text:byte(first - 1)) or wordByte(text:byte(last + 1)) then
+		if wordByte(text:byte(first - 1)) or wordByte(text:byte(last + 1)) or (joined and not hyphenJoined(text, first, last)) then
 			parts[#parts + 1] = text:sub(from, last)
 		else
 			if withRealm and text:sub(last + 1, last + 1) == "-" and wordByte(text:byte(last + 2)) then
@@ -159,7 +168,9 @@ function log.private(text)
 	end
 	for i = 1, #realms do
 		local realm = realms[i]
-		if text:find(realm, 1, true) then text = replaceName(text, realm, "<realm>") end
+		-- Only joined to a name: a realm called "Out" made "[Out of combat]" read "[<realm> of combat]"
+		-- (Chat.log, and "flavour=Forever" in Fights.log, 2026-11-07)
+		if text:find(realm, 1, true) then text = replaceName(text, realm, "<realm>", false, true) end
 	end
 	return (text:gsub("Player%-%d+%-%x+", "Player-<guid>")
 		:gsub("([A-Za-z]:[\\/][Uu]sers[\\/])[^\\/]+", "%1<user>")
