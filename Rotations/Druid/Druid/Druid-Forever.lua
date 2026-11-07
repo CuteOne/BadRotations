@@ -352,28 +352,31 @@ end
 -- until the flee ends (Fights 2026-11-07: 10 of 13 idles, 7-18 s each, came after "%s attempts to run away in fear!";
 -- Plainstriders ran about 20 s, 9 yd ahead). Once it has fled out of melee for FLEE_WAIT seconds within REACH_MAX
 -- yards, finish it from range (Moonfire works on the move), and stay out of form for that target until it dies or
--- the target changes, so it coming back into melee doesn't cost a second shift. True while that holds.
+-- the target changes, so it coming back into melee doesn't cost a second shift. Not even beyond REACH_MAX: it
+-- comes back or dies to the Moonfire on it (2026-11-07 16:02:56: back to Bear at 30 yd, Caster again 5 s later,
+-- dead 0.6 s after, two shifts for nothing). True while that holds; the second result is true while the FLEE_WAIT
+-- runs, so a player already out of form isn't shifted to Bear just before it ends.
 local FLEE_WAIT = 2
 local function fleeChase(thisUnit)
     local guid = unit.inCombat() and unit.exists(thisUnit) and not unit.deadOrGhost(thisUnit) and unit.guid(thisUnit) or nil
     local f = var.flee
     if guid == nil then
         var.flee = nil
-        return false
+        return false, false
     end
+    if f ~= nil and f.guid == guid and f.out then return true, false end
     local dist = unit.distance(thisUnit)
-    if f ~= nil and f.guid == guid and f.out then return dist <= REACH_MAX end
     if unit.isFleeing(thisUnit) ~= "flee" or dist < 5 or dist > REACH_MAX then
         var.flee = nil
-        return false
+        return false, false
     end
     local now = util.time()
     if f == nil or f.guid ~= guid then
         var.flee = { guid = guid, since = now }
-        return false
+        return false, true
     end
     f.out = now - f.since >= FLEE_WAIT
-    return f.out
+    return f.out, not f.out
 end
 
 --------------------
@@ -1299,14 +1302,20 @@ local function runRotation()
     end
     -- A fleeing target (see fleeChase): out of Bear or Cat while no other enemy is in melee with you
     var.fleeChase = false
+    local fleeWaiting = false
     if (activeForm == "bear" or activeForm == "cat") and not reachDist then
         local othersInMelee = false
         for i = 1, #enemies.yards5 do
             if not unit.isUnit(enemies.yards5[i], "target") then othersInMelee = true break end
         end
-        var.fleeChase = not othersInMelee and fleeChase("target")
-            and (spendOnDamage("moonfire", "target") or spendOnDamage("wrath", "target")) and true or false
+        local chase, waiting = fleeChase("target")
+        local mana = (chase or waiting) and (spendOnDamage("moonfire", "target") or spendOnDamage("wrath", "target"))
+        var.fleeChase = not othersInMelee and chase and mana and true or false
+        -- Already out of form (a heal, say) while the wait runs: stay out rather than shift to Bear and straight
+        -- back (2026-11-07 15:56:00: Bear Form, Caster Form 0.8 s later, Bear again when it died: three shifts)
+        fleeWaiting = not othersInMelee and waiting and mana and not buff.bearForm.exists() and not buff.catForm.exists()
     end
+    if fleeWaiting then activeForm = casterForm() end
     if var.fleeChase then
         activeForm = casterForm()
         if var.fleeSaid ~= var.flee.guid then
