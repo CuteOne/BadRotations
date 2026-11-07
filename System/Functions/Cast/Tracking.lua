@@ -217,8 +217,16 @@ function E.isBotSend(spellID)
 	return sentAt ~= nil and now - sentAt <= OWN_SEND_WINDOW
 end
 
+-- BR's last send with a cast time, and when: "Can't do that while moving" is about that one, not the
+-- instant BR may have sent after it in the same tick (2026-11-07 Forever: War Stomp's error landed on the
+-- Maul and Swipe sent next, so War Stomp went out 10 times while the player moved)
+E.lastTimedSend, E.lastTimedSendAt = nil, nil
+
 function E.recordBotCast(spellID, thisUnit)
 	E.noteBotAction(spellID)
+	if br.functions.cast:getCastTime(spellID) > 0 then
+		E.lastTimedSend, E.lastTimedSendAt = spellID, br.game.GetTime()
+	end
 	br.botCast     = true
 	br.botSpell    = spellID
 	br.botUnit     = thisUnit
@@ -360,10 +368,19 @@ function cast:handleCastError(message)
 		local refusedUnit = br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(br.botGUID)
 		behindAtRefusal[br.botGUID] = refusedUnit and behindState(refusedUnit) or nil
 	end
-	-- Moving is about the player, not the unit: that spell waits on every unit
-	cast:setRejected(kind, br.botSpell, kind == "moving" and br.game.UnitGUID("player") or br.botGUID, duration)
-	if E.castTimers then E.castTimers[br.botSpell] = nil end
-	castIntentLocks[br.botSpell] = nil
+	-- Moving is about the player, not the unit: that spell waits on every unit. It's about BR's last send with a
+	-- cast time (an instant can go out on the move), when there was one just now.
+	local refused = br.botSpell
+	if kind == "moving" then
+		if E.lastTimedSend ~= nil and (br.game.GetTime() - E.lastTimedSendAt) <= REJECT_ATTRIBUTION_WINDOW then
+			refused = E.lastTimedSend
+		end
+		cast:setRejected(kind, refused, br.game.UnitGUID("player"), duration)
+	else
+		cast:setRejected(kind, refused, br.botGUID, duration)
+	end
+	if E.castTimers then E.castTimers[refused] = nil end
+	castIntentLocks[refused] = nil
 end
 
 -- One visibility rule for every cast path: the player always passes; any other

@@ -281,6 +281,11 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 
 	E.castTimers[ctx.spellID] = br.game.GetTime() + 0.10
 	E.setCastIntentLock(ctx.spellID, 0.20)
+	-- A cast-time spell that didn't start while the player moves: the game refused it for moving, so it waits
+	-- until they stop, whatever the error is later pinned on (cast:handleCastError)
+	if br.functions.misc:isMoving("player") and cast:getCastTime(ctx.spellID) > 0 then
+		cast:setRejected("moving", ctx.spellID, br.game.UnitGUID("player"))
+	end
 	return E.printReport(ctx, false, "Cast Failed")
 end
 
