@@ -317,6 +317,25 @@ function E.checkUnitValidity(thisUnit, castType)
 	return E.isUnitVisible(thisUnit)
 end
 
+-- The player running in to a standing target, at the melee edge: the server has the player where they were up to
+-- a round trip ago, so a melee spell the client calls in range can come back "Out of range" (2026-11-07, Forever:
+-- Growl refused 8 times at 0.8-1.0 yd inside melee reach while running in at 7 yd/s; each retry 0.5-1 s later
+-- landed). In range only once the player is further inside than they run in a round trip. Both running: the
+-- leeway rule (Range.lua) decides instead. Returns the refusal reason, or nil.
+function E.runnerAtMeleeEdge(ctx, thisUnit)
+	if ctx.maxRange > 5 then return nil end
+	local speed = br.game.GetUnitSpeed("player") or 0
+	if speed <= 0 or (br.game.GetUnitSpeed(thisUnit) or 0) > 0 then return nil end
+	local range = br.functions.range
+	local centre = range:getCenterDistance("player", thisUnit)
+	if centre == nil then return nil end
+	local inside = range:getMeleeReach("player", thisUnit) - centre
+	local needed = speed * br.functions.misc:getRoundTripHold()
+	if inside >= needed then return nil end
+	return string.format("moving: running in at the melee edge (%.1f yd inside, needs %.1f at %.1f yd/s)",
+		inside, needed, speed)
+end
+
 -- A moving target near a ranged spell's edge: the server sees it where it was a round trip ago, so a
 -- cast the client calls in range can come back "Out of range" (2026-10-26, TBC: Lightning Bolt at
 -- 29.9 of 30 yd on a Vale Moth flying in at 6 yd/s). In range only once it's further inside than it
@@ -371,6 +390,8 @@ function E.checkRange(ctx, thisUnit, castType)
 			then
 				return false, "moving: the game says in range, the melee rule doesn't"
 			end
+			local runningIn = E.runnerAtMeleeEdge(ctx, thisUnit)
+			if runningIn then return false, runningIn end
 			local atEdge = E.moverAtRangeEdge(ctx, thisUnit)
 			if atEdge then return false, atEdge end
 			if br.functions.misc:isMoving("player") and ctx.maxRange > 0 then
@@ -406,7 +427,11 @@ function E.checkRange(ctx, thisUnit, castType)
 	-- getDistance is 0 in melee, else edge to edge (what spell ranges are measured against).
 	-- maxRange 0 (pet melee abilities): melee.
 	if ctx.maxRange == 0 then
-		if distance < 5 then return true end
+		if distance < 5 then
+			local runningIn = castType ~= "pet" and E.runnerAtMeleeEdge(ctx, thisUnit)
+			if runningIn then return false, runningIn end
+			return true
+		end
 		return false, string.format("IsSpellInRange=nil, distance %.1f: not in melee", distance or -1)
 	end
 	if distance >= ctx.minRange and distance <= ctx.maxRange then
