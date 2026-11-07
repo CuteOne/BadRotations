@@ -240,6 +240,10 @@ function misc:isValidUnit(Unit)
 
 	local now = br.game.GetTime()
 	local guid = br.game.UnitGUID(Unit)
+	-- A unit without a GUID doesn't exist: every check below ends in false for it, and with no GUID the answer
+	-- couldn't be cached, so it was worked out in full on every call (2026-11-06 /br cpu all, out of combat with no
+	-- target: 88 calls a second at 187 us each, most of them getEnemies asking about the empty "target")
+	if guid == nil then return false, "Doesn't exist" end
 
 	-- Enemy players: only once the fight with them is on (enemyPlayerValidity), ahead of the damaged table (a group
 	-- member's fight doesn't count) and of the "your target" rule
