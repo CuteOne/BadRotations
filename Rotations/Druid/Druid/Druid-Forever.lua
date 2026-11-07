@@ -348,6 +348,34 @@ local function outOfReach(thisUnit)
     return r.out and dist or nil
 end
 
+-- A target that flees at low health runs at your speed, so chasing it in Bear or Cat Form keeps you out of melee
+-- until the flee ends (Fights 2026-11-07: 10 of 13 idles, 7-18 s each, came after "%s attempts to run away in fear!";
+-- Plainstriders ran about 20 s, 9 yd ahead). Once it has fled out of melee for FLEE_WAIT seconds within REACH_MAX
+-- yards, finish it from range (Moonfire works on the move), and stay out of form for that target until it dies or
+-- the target changes, so it coming back into melee doesn't cost a second shift. True while that holds.
+local FLEE_WAIT = 2
+local function fleeChase(thisUnit)
+    local guid = unit.inCombat() and unit.exists(thisUnit) and not unit.deadOrGhost(thisUnit) and unit.guid(thisUnit) or nil
+    local f = var.flee
+    if guid == nil then
+        var.flee = nil
+        return false
+    end
+    local dist = unit.distance(thisUnit)
+    if f ~= nil and f.guid == guid and f.out then return dist <= REACH_MAX end
+    if unit.isFleeing(thisUnit) ~= "flee" or dist < 5 or dist > REACH_MAX then
+        var.flee = nil
+        return false
+    end
+    local now = util.time()
+    if f == nil or f.guid ~= guid then
+        var.flee = { guid = guid, since = now }
+        return false
+    end
+    f.out = now - f.since >= FLEE_WAIT
+    return f.out
+end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -995,7 +1023,8 @@ end -- End Action List - Cat Form
 
 -- Action List - Caster Form (and Moonkin Form)
 actionList.CasterForm = function()
-    local thisUnit = units.dyn30AOE
+    -- a fleeing target BR left Bear or Cat for (fleeChase) is the one to finish, whatever the dynamic pick
+    local thisUnit = var.fleeChase and "target" or units.dyn30AOE
     local ttd = unit.ttd(thisUnit)
     -- Hurricane: no cooldown on Forever; channel it into a pack
     local why = ui.checked("Hurricane") and not unit.moving() and spendOnDamage("hurricane", thisUnit)
@@ -1267,6 +1296,24 @@ local function runRotation()
     elseif var.reachSaid then
         ui.debug("Back in reach")
         var.reachSaid = nil
+    end
+    -- A fleeing target (see fleeChase): out of Bear or Cat while no other enemy is in melee with you
+    var.fleeChase = false
+    if (activeForm == "bear" or activeForm == "cat") and not reachDist then
+        local othersInMelee = false
+        for i = 1, #enemies.yards5 do
+            if not unit.isUnit(enemies.yards5[i], "target") then othersInMelee = true break end
+        end
+        var.fleeChase = not othersInMelee and fleeChase("target")
+            and (spendOnDamage("moonfire", "target") or spendOnDamage("wrath", "target")) and true or false
+    end
+    if var.fleeChase then
+        activeForm = casterForm()
+        if var.fleeSaid ~= var.flee.guid then
+            ui.debug(("Fleeing: %s %.0f yd, out of melee for %d s, finishing it from range"):format(
+                unit.name("target") or "target", unit.distance("target"), FLEE_WAIT))
+            var.fleeSaid = var.flee.guid
+        end
     end
 
     -- Low on Energy/Rage, so leaving Cat or Bear Form to heal doesn't waste much
