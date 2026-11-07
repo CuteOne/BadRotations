@@ -114,6 +114,36 @@ local function hasBuffNamed(Unit, names)
 	return false
 end
 
+-- The player's eating and drinking, from one scan of their buffs, made again only when their auras change
+-- (UNIT_AURA, a loading screen) or the last scan is FED_MAX_AGE old (in case an event is ever missed: a stale
+-- "eating" would keep BR paused). The pause check asks both every tick; two scans through the unlocker each time
+-- cost 167 + 120 us (2026-11-06 /br cpu all, Forever on Veil).
+local FED_MAX_AGE = 2
+local playerFed = { stale = true, at = 0, eating = false, drinking = false }
+local function playerFedState()
+	local now = br.game.GetTime()
+	if playerFed.stale or now - playerFed.at > FED_MAX_AGE then
+		local eating, drinking = false, false
+		for i = 1, 40 do
+			local auraInfo = br.game.C_UnitAuras.GetBuffDataByIndex("player", i)
+			if not auraInfo then break end
+			local name = auraInfo.name
+			if eatingBuffNames[name] then eating = true end
+			if drinkingBuffNames[name] then drinking = true end
+		end
+		playerFed.eating, playerFed.drinking, playerFed.stale, playerFed.at = eating, drinking, false, now
+	end
+	return playerFed
+end
+local fedWatch = br.game.CreateFrame and br.game.CreateFrame("Frame")
+if fedWatch then
+	fedWatch:RegisterEvent("UNIT_AURA")
+	fedWatch:RegisterEvent("PLAYER_ENTERING_WORLD")
+	fedWatch:SetScript("OnEvent", function(_, event, unitID)
+		if event ~= "UNIT_AURA" or unitID == "player" then playerFed.stale = true end
+	end)
+end
+
 -- True if any enemy (in combat or not) within radius yards would aggro on the player.
 -- if br.functions.unit:anyInAggroRange(5) then
 function unit:anyInAggroRange(offset, radius)
@@ -702,7 +732,7 @@ end
 
 -- if br.functions.unit:isDrinking([Unit]) == true then
 function unit:isDrinking(Unit)
-	Unit = Unit or "player"
+	if Unit == nil or Unit == "player" then return playerFedState().drinking end
 	return hasBuffNamed(Unit, drinkingBuffNames)
 end
 
@@ -716,7 +746,7 @@ end
 
 -- if br.functions.unit:isEating([Unit]) == true then
 function unit:isEating(Unit)
-	Unit = Unit or "player"
+	if Unit == nil or Unit == "player" then return playerFedState().eating end
 	return hasBuffNamed(Unit, eatingBuffNames)
 end
 
