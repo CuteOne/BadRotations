@@ -68,6 +68,7 @@ br.lists.spells.DRUID.Shared = {
                 -- Passives and talents
                 eclipse             = 408248, -- Talent: Wrath speeds up the next Starfires
                 omenOfClarity       = 16864,
+                predatoryDiscipline = 1328613, -- Talent: Ferocious Bite keeps its extra Energy (ID from wowsims/forever, unconfirmed in game)
                 rendAndTear         = 1223246, -- Talent: +20% melee damage on bleeding targets
                 -- General
                 autoAttack          = 6603,

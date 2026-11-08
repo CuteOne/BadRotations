@@ -1632,6 +1632,7 @@
 ---@field preciseShots T
 ---@field preciseSigils T
 ---@field predator T
+---@field predatoryDiscipline T
 ---@field premeditation T
 ---@field preparation T
 ---@field presenceofMind T

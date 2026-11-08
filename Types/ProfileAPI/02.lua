@@ -1647,6 +1647,7 @@ function C65.timer(timerName, interval) end
 ---@field omenOfClarity T
 ---@field perception T
 ---@field pounce T
+---@field predatoryDiscipline T
 ---@field primalBite T
 ---@field prowl T
 ---@field racial T

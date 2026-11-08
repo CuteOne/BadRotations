@@ -93,7 +93,7 @@ local function options()
 
     section = ui.section("Caster Form")
     ui.checkbox(section, "Moonkin Form", { checked = true, tip = "Use Moonkin Form (talent) when the Forms toggle picks Caster" })
-    ui.spinner(section, "Hurricane", { value = 3, min = 2, max = 10, step = 1,
+    ui.spinner(section, "Hurricane", { value = 4, min = 2, max = 10, step = 1,
         tip = "Channel Hurricane on your target when at least this many enemies are within 8 yards of it" })
     ui.checkbox(section, "Hibernate", { tip = "In Caster Form, Hibernate a Beast or Dragonkin attacking you that isn't your target" })
     ui.dropdown(section, "Mana Use", { choices = { "Conserve", "Balanced", "Burn" }, value = "Balanced", checkbox = false,
@@ -804,6 +804,14 @@ actionList.BearForm = function()
             return true
         end
     end
+    local lacerateStacks = debuff.lacerate.stack(units.dyn5)
+    -- Lacerate at 5 stacks about to fall off (it starts again at 1): first, as wowsims/forever's Bear rotation
+    if cast.able.lacerate(units.dyn5) and lacerateStacks >= 5 and debuff.lacerate.remain(units.dyn5) <= 3 then
+        if cast.lacerate(units.dyn5) then
+            ui.debug("Casting Lacerate [Keep Stack]")
+            return true
+        end
+    end
     -- Primal Bite (talent): high threat on a 6 sec cooldown; Berserk makes it hit 3 targets with no cooldown
     if cast.able.primalBite(units.dyn5) then
         if cast.primalBite(units.dyn5) then
@@ -819,17 +827,16 @@ actionList.BearForm = function()
             return true
         end
     end
-    -- Swipe (multi-target, hits 3)
-    if cast.able.swipe() and ui.useAOE(8, 3) then
+    -- Swipe (hits 3): from 2 enemies once the target bleeds (Rend and Tear raises Swipe), else 3 (the sim's rule)
+    if cast.able.swipe() and ui.useAOE(8, debuff.lacerate.exists(units.dyn5) and 2 or 3) then
         if cast.swipe() then
             ui.debug("Casting Swipe")
             return true
         end
     end
-    -- Lacerate: a bleed (Rend and Tear) with high threat; stack to 5, refresh before it falls off
-    if cast.able.lacerate(units.dyn5) and unit.ttd(units.dyn5) > 6
-        and (debuff.lacerate.stack(units.dyn5) < 5 or debuff.lacerate.remain(units.dyn5) < 4)
-    then
+    -- Lacerate: a bleed (Rend and Tear) with high threat, and the filler for every global cooldown, 5 stacks or not
+    -- (the sim's); stacking up starts only on a target that lives 6+ sec
+    if cast.able.lacerate(units.dyn5) and (lacerateStacks > 0 or unit.ttd(units.dyn5) > 6) then
         if cast.lacerate(units.dyn5) then
             ui.debug("Casting Lacerate")
             return true
@@ -959,9 +966,10 @@ actionList.CatForm = function()
             return true
         end
     end
-    -- Shifting Power (talent): 40 Energy for Mana, when it won't overcap. It costs 55% of base mana on an 8 sec
-    -- cooldown (live build, was 16 sec in the beta), so it keeps back a heal and the shift back into Cat Form.
-    if ui.checked("Shifting Power") and cast.able.shiftingPower() and energy <= 60 and not buff.clearcasting.exists()
+    -- Shifting Power (talent): 40 Energy for Mana, at 57 Energy or less (wowsims/forever's ceiling; the game refuses
+    -- it at full Energy). It costs 55% of base mana on an 8 sec cooldown (live build, was 16 sec in the beta), so it
+    -- keeps back a heal and the shift back into Cat Form.
+    if ui.checked("Shifting Power") and cast.able.shiftingPower() and energy <= 57 and not buff.clearcasting.exists()
         and power.mana.affordable(cast.cost.shiftingPower(), healCost() + cast.cost.catForm())
     then
         if cast.shiftingPower() then
@@ -970,35 +978,63 @@ actionList.CatForm = function()
         end
     end
 
-    -- Finishers
-    if comboPoints == 5 or (comboPoints >= 3 and ttd < 6) then
-        -- Rip: 12 sec bleed (Rend and Tear), on a target that outlives it. Before Ferocious Bite (level 32)
-        -- it is the only finisher, so half its ticks beat Claws on full combo points (2026-11-07, level 20:
-        -- fights of 11-19 sec ended on 5 unspent combo points).
-        -- Recast only once it's gone: no Pandemic on Forever, so a recast throws away the ticks left (refreshed with
-        -- 30% left, Rip lost its last tick; the same measured for Rejuvenation, 2026-11-05). Druid-TBC's rule.
-        local ripTime = spell.ferociousBite.known() and 10 or 6
-        if comboPoints == 5 and cast.able.rip(thisUnit) and ttd > ripTime and not debuff.rip.exists(thisUnit) then
-            if cast.rip(thisUnit) then
-                ui.debug("Casting Rip")
-                return true
-            end
+    -- Finishers, in the order of wowsims/forever's Cat rotation (2026-11-08, master 125e53455)
+    local ripUp = debuff.rip.exists(thisUnit)
+    -- Fight left for a new Rip to pay off: 8 sec (the sim's), 6 before Ferocious Bite (level 32), while Rip is the only
+    -- finisher (2026-11-07, level 20: fights of 11-19 sec ended on 5 unspent combo points)
+    local ripTime = spell.ferociousBite.known() and 8 or 6
+    -- Ferocious Bite spends all your Energy unless Predatory Discipline (talent) keeps it, so without the talent it goes
+    -- out only at the end of the fight: in the last second on 2+ combo points, or once a Rip wouldn't pay off, on 5
+    -- and at most 55 Energy (more goes on a builder first)
+    local keepsBiteEnergy = spell.predatoryDiscipline.known()
+    if cast.able.ferociousBite(thisUnit) and ((ttd <= 1 and comboPoints >= 2)
+        or (ttd < ripTime and comboPoints >= 5 and (keepsBiteEnergy or energy <= 55)))
+    then
+        if cast.ferociousBite(thisUnit) then
+            ui.debug("Casting Ferocious Bite [Fight End]")
+            return true
         end
-        -- Before Ferocious Bite Rip is the only finisher: with its last tick due, hold the combo points for the
-        -- recast rather than build past 5 (not near the Energy cap, which the wait would waste)
-        if comboPoints == 5 and not spell.ferociousBite.known() and ttd > ripTime + 2 and energy < 80
-            and debuff.rip.exists(thisUnit) and debuff.rip.remain(thisUnit) < 2
-        then
-            return false
-        end
-        -- Ferocious Bite: at 35 Energy rather than pooling, or early on a target about to die
-        if cast.able.ferociousBite(thisUnit) and energy >= 35 then
+    end
+    -- With Predatory Discipline, Bite mid-fight while Rip has 2+ sec left: on 4 combo points at 85 Energy (60 with
+    -- Clearcasting), on 5 at 70 (50). Builders pool for it meanwhile (the sim's numbers).
+    local poolForBite = false
+    if keepsBiteEnergy and comboPoints >= 4 and ripUp and debuff.rip.remain(thisUnit) >= 2 then
+        local clearcasting = buff.clearcasting.exists()
+        local need = comboPoints >= 5 and (clearcasting and 50 or 70) or (clearcasting and 60 or 85)
+        if energy >= need and cast.able.ferociousBite(thisUnit) then
             if cast.ferociousBite(thisUnit) then
-                ui.debug("Casting Ferocious Bite")
+                ui.debug("Casting Ferocious Bite [Predatory Discipline]")
                 return true
             end
         end
-        if spell.ferociousBite.known() then return false end -- pool for the finisher
+        poolForBite = true
+    end
+    -- Clearcasting: the free hit goes on Shred, ahead of the bleeds (the sim's order)
+    if freeDPS and not poolForBite and behind and cast.able.shred(thisUnit) then
+        if cast.shred(thisUnit) then
+            ui.debug("Casting Shred [Clearcasting]")
+            return true
+        end
+    end
+    -- Rip (Rend and Tear) once it's gone, at 4 combo points: on Forever its attack power part counts 4 at most, so a
+    -- 5th adds only a little base damage. A 5th is built only when one more builder and Rip right after it fit in the
+    -- Energy there plus a tick's 10 (the sim's rule without Blood Frenzy). Recast only once gone: no Pandemic on
+    -- Forever, a recast throws the ticks left away (Druid-TBC's rule; the same measured for Rejuvenation, 2026-11-05).
+    if not ripUp and ttd > ripTime and comboPoints >= 4 and cast.able.rip(thisUnit) then
+        local builder = (behind and spell.shred.known()) and "shred" or "claw"
+        local oneMore = comboPoints < 5 and ttd >= ripTime + 1 and cast.able[builder](thisUnit)
+            and energy + 10 >= cast.cost[builder]() + cast.cost.rip()
+        if not oneMore and cast.rip(thisUnit) then
+            ui.debug(("Casting Rip [%d combo points]"):format(comboPoints))
+            return true
+        end
+    end
+    -- Before Ferocious Bite Rip is the only finisher: with its last tick due, hold the combo points for the
+    -- recast rather than build past 5 (not near the Energy cap, which the wait would waste)
+    if comboPoints == 5 and not spell.ferociousBite.known() and ttd > ripTime + 2 and energy < 80
+        and ripUp and debuff.rip.remain(thisUnit) < 2
+    then
+        return false
     end
 
     -- Combo Point Builders
@@ -1009,21 +1045,6 @@ actionList.CatForm = function()
             return true
         end
     end
-    -- Clearcasting: spend the free hit on the most expensive builder
-    if freeDPS then
-        if behind and cast.able.shred(thisUnit) then
-            if cast.shred(thisUnit) then
-                ui.debug("Casting Shred [Clearcasting]")
-                return true
-            end
-        end
-        if cast.able.claw(thisUnit) then
-            if cast.claw(thisUnit) then
-                ui.debug("Casting Claw [Clearcasting]")
-                return true
-            end
-        end
-    end
     -- Rake: keep a bleed up on anything that lives long enough (Rend and Tear); recast once it's gone (see Rip)
     if cast.able.rake(thisUnit) and not debuff.rake.exists(thisUnit) and ttd > 6 then
         if cast.rake(thisUnit) then
@@ -1031,6 +1052,7 @@ actionList.CatForm = function()
             return true
         end
     end
+    if poolForBite then return false end -- Energy kept for the Predatory Discipline Bite
     -- Swipe (multi-target)
     if cast.able.swipeCat() and ui.useAOE(8, 3) then
         if cast.swipeCat() then
@@ -1067,16 +1089,17 @@ actionList.CasterForm = function()
             return true
         end
     end
-    -- Moonfire: 12 sec DoT, where it pays off, or while moving
-    if cast.able.moonfire(thisUnit) and debuff.moonfire.refresh(thisUnit) and (ttd > 9 or unit.moving()) then
+    -- Moonfire: 12 sec DoT, where it pays off, or while moving. Recast only once it's gone (no Pandemic: a refresh
+    -- throws its last tick away; wowsims/forever's rule too)
+    if cast.able.moonfire(thisUnit) and not debuff.moonfire.exists(thisUnit) and (ttd > 9 or unit.moving()) then
         why = spendOnDamage("moonfire", thisUnit)
         if why and cast.moonfire(thisUnit) then
             ui.debug("Casting Moonfire" .. tag(why))
             return true
         end
     end
-    -- Insect Swarm (talent)
-    if cast.able.insectSwarm(thisUnit) and debuff.insectSwarm.refresh(thisUnit) and (ttd > 9 or unit.moving()) then
+    -- Insect Swarm (talent), recast once it's gone (see Moonfire)
+    if cast.able.insectSwarm(thisUnit) and not debuff.insectSwarm.exists(thisUnit) and (ttd > 9 or unit.moving()) then
         why = spendOnDamage("insectSwarm", thisUnit)
         if why and cast.insectSwarm(thisUnit) then
             ui.debug("Casting Insect Swarm" .. tag(why))
@@ -1087,7 +1110,9 @@ actionList.CasterForm = function()
     -- Starfire: the main nuke. Wrath first to build Eclipse when it has no charges (Eclipse talent),
     -- and Starfire straight away with Eclipse or Clearcasting (which Wrath can't spend).
     local starfireTime = cast.time.starfire() -- the game's: Improved Starfire, Eclipse ranks and haste included
-    local buildEclipse = spell.eclipse.known() and not buff.eclipse.exists() and not freeDPS
+    -- A Starfire already casting takes the last Eclipse stack, so another one queued behind it builds first (the sim's guard)
+    local eclipseLeft = buff.eclipse.exists() and not (cast.current.starfire() and buff.eclipse.stack() <= 1)
+    local buildEclipse = spell.eclipse.known() and not eclipseLeft and not freeDPS
     if cast.able.starfire() and not buildEclipse and ttd > starfireTime then
         why = spendOnDamage("starfire", thisUnit)
         if why and cast.starfire() then
