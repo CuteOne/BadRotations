@@ -20,7 +20,7 @@ local log = br.log
 local LOG_MAX_BYTES = 262144 -- a file bigger than this when a session starts keeps its newest half
 local FLUSH_EVERY = 1        -- seconds between writes
 local DEFAULT_CAP = 2000     -- lines per file per session, unless the file asks for another (a runaway guard)
-local CHAT_CAP = 3000        -- Chat.log lines per session
+local CHAT_CAP = 6000        -- Chat.log lines per session (3000 filled by 21:37 of a 19:48 session)
 local RECENT_LINES = 500     -- chat lines /br log shows
 
 local GetTime, date = br.game.GetTime, br.game.date

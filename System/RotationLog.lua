@@ -28,7 +28,7 @@ local ERROR_WAIT = 0.5   -- a red error this soon before a failed cast is its re
 local WINDOW_ROWS = 300  -- rows the window keeps
 
 local GetTime, wipe, tremove = br.game.GetTime, br.game.wipe, table.remove
-local rowLine = log:file("Rotation.log")
+local rowLine = log:file("Rotation.log", 6000) -- 2000 filled in an hour of play (2026-11-07)
 
 ---------------------------------------------------------------------------------------------------
 -- Where in the profile: function ranges per profile file
