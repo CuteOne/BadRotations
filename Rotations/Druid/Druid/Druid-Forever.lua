@@ -44,10 +44,10 @@ local function toggles()
         { name = "Off", icon = "bash", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
     ui.toggle("Forms", { modes = {
-        { name = "Auto",   icon = "catForm",  overlay = "Automatic Form", tip = "Bear when your group role is Tank, otherwise Cat, Bear, then Caster - whichever you have learned. Fights a target out of reach from Caster Form, and from Bear a fleeing one too (Cat runs it down)." },
+        { name = "Auto",   icon = "catForm",  overlay = "Automatic Form", tip = "Bear when your group role is Tank, otherwise Cat, Bear, then Caster - whichever you have learned. Fights a target out of reach from Caster Form (any setting), and from Bear a fleeing one too." },
         { name = "Caster", icon = "wrath",    overlay = "Caster Form",    tip = "Will force and use Caster Form (Moonkin Form once learned, if enabled). Heals, Bash and Travel/Aquatic Form still leave it when their options are on." },
-        { name = "Cat",    icon = "catForm",  overlay = "Cat Form",       tip = "Will force and use Cat Form (Caster until learned). Stays in Cat for targets out of reach or fleeing; heals, Bash and Travel/Aquatic Form still leave it when their options are on." },
-        { name = "Bear",   icon = "bearForm", overlay = "Bear Form",      tip = "Will force and use Bear Form (Caster until learned). Stays in Bear for targets out of reach or fleeing; heals and Travel/Aquatic Form still leave it when their options are on." },
+        { name = "Cat",    icon = "catForm",  overlay = "Cat Form",       tip = "Will force and use Cat Form (Caster until learned). Stays in Cat for fleeing targets; a target out of reach, heals, Bash and Travel/Aquatic Form still leave it (their options)." },
+        { name = "Bear",   icon = "bearForm", overlay = "Bear Form",      tip = "Will force and use Bear Form (Caster until learned). Stays in Bear for fleeing targets; a target out of reach, heals and Travel/Aquatic Form still leave it (their options)." },
     } })
     ui.toggle("Prowl", { modes = {
         { name = "On",  icon = "prowl", overlay = "Prowl Enabled",  tip = "Rotation will use Prowl in Cat Form just before you come into an enemy's aggro range" },
@@ -481,18 +481,6 @@ end -- End Action List - Forms
 actionList.Defensive = function()
     if not ui.useDefensive() then return false end
     local inGroupOk = not unit.inGroup() or ui.checked("Self Heal In Group")
-    -- Cure Poison (Abolish Poison once learned): in combat only while already out of Cat or Bear Form, so it rides
-    -- along with a heal. Gating it on low Energy wasn't enough: Claw keeps Energy low, and Bristleback Hunters
-    -- re-poisoned three times in one fight, two shifts each (Rotation.log 2026-11-08 09:58, 834 mana)
-    if ui.checked("Cure Poison") and (not unit.inCombat() or not inForm) then
-        if spell.abolishPoison.known() then
-            if cast.able.abolishPoison("player") and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player") then
-                if casterCast("abolishPoison", "player", "Abolish Poison") then return true end
-            end
-        elseif cast.able.curePoison("player") and cast.dispel.curePoison("player") then
-            if casterCast("curePoison", "player", "Cure Poison") then return true end
-        end
-    end
     -- Remove Curse
     if ui.checked("Remove Curse") and not unit.inCombat() and cast.able.removeCurse("player") and cast.dispel.removeCurse("player") then
         if casterCast("removeCurse", "player", "Remove Curse") then return true end
@@ -635,6 +623,19 @@ actionList.Defensive = function()
             and cast.able.rejuvenation(other)
         then
             if casterCast("rejuvenation", other, "Rejuvenation" .. otherName, freeHeal, false, true) then return true end
+        end
+    end
+    -- Cure Poison (Abolish Poison once learned): after the heals, so a form left for a heal casts the heal first
+    -- (2026-11-08 10:35:58: Cure Poison went out ahead of the Regrowth BR left Cat for). In combat only while already
+    -- out of Cat or Bear Form, so it rides along with a heal. Gating it on low Energy wasn't enough: Claw keeps Energy low, and Bristleback Hunters
+    -- re-poisoned three times in one fight, two shifts each (Rotation.log 2026-11-08 09:58, 834 mana)
+    if ui.checked("Cure Poison") and (not unit.inCombat() or not inForm) then
+        if spell.abolishPoison.known() then
+            if cast.able.abolishPoison("player") and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player") then
+                if casterCast("abolishPoison", "player", "Abolish Poison") then return true end
+            end
+        elseif cast.able.curePoison("player") and cast.dispel.curePoison("player") then
+            if casterCast("curePoison", "player", "Cure Poison") then return true end
         end
     end
 end -- End Action List - Defensive
@@ -1297,13 +1298,16 @@ local function runRotation()
         and (not needsHealing or omenSetting == 2)
     freeHeal = (omenSetting == 1 or omenSetting == 3) and buff.clearcasting.exists()
 
-    -- Out of reach (Bear or Cat) and fleeing targets (Bear) swap to Caster Form only on Auto: a form the player
-    -- picks on the Forms toggle stays up (their call, 2026-11-08)
-    local autoMelee = ui.mode.forms == 1 and (activeForm == "bear" or activeForm == "cat")
-    if not autoMelee then var.reach, var.flee = nil, nil end
+    -- A target out of reach hands Bear or Cat over to Caster Form on any Forms setting (2026-11-08 10:35: 19 s idle in
+    -- Cat at full Energy, a Bristleback Thornweaver casting from 20 yd); a fleeing one only on Auto, from Bear (the
+    -- user's calls, 2026-11-08)
+    local meleeForm = activeForm == "bear" or activeForm == "cat"
+    local autoMelee = ui.mode.forms == 1 and meleeForm
+    if not meleeForm then var.reach = nil end
+    if not autoMelee then var.flee = nil end
     -- Out of reach (see outOfReach): Bear or Cat hands over to Caster Form while nothing is in melee with you and
     -- mana may go on Wrath or Moonfire; back to the toggle's form once the target comes near
-    local reachDist = autoMelee and #enemies.yards5 == 0 and outOfReach("target")
+    local reachDist = meleeForm and #enemies.yards5 == 0 and outOfReach("target")
     if reachDist and (spendOnDamage("wrath", "target") or spendOnDamage("moonfire", "target")) then
         activeForm = casterForm()
         if not var.reachSaid then
