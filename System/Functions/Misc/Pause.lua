@@ -282,9 +282,17 @@ function misc:ownCastHold()
 	-- this cast ends so nothing replaces it. Only in combat: a pull spell's window falls before
 	-- its bolt lands, so out of combat the profile would pre-cast a second pull spell instead of
 	-- letting the first decision after the pull use its in-combat priorities.
-	local castName, _, _, _, endTime, _, castID = br.game.UnitCastingInfo("player")
+	-- Only behind a cast of one of the rotation's spells: a send while Skinning, mining or a Hearthstone casts
+	-- interrupts it instead of queueing (2026-11-07 18:59:26: Faerie Fire behind Skinning at 0.18 s left
+	-- interrupted the Skinning)
+	local castName, _, _, _, endTime, _, castID, _, castSpellID = br.game.UnitCastingInfo("player")
 	if castName ~= nil then
 		local window = br.game.UnitAffectingCombat("player") and br.functions.cast:getQueueWindow() or 0
+		if window > 0 and castSpellID ~= nil and misc:canUseValue(castSpellID)
+			and not br.functions.lastCast:isAbility(castSpellID)
+		then
+			window = 0
+		end
 		if (endTime / 1000 - now) > window or br.functions.cast:isQueuedBehind(castID, endTime) then
 			return "casting"
 		end

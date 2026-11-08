@@ -158,6 +158,12 @@ lastCastFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")    -- Fired when a spell
 
 lastCastFrame:SetScript("OnEvent", eventTracker)
 
+--- True when spellID is one of the rotation's abilities (any rank of a rank list)
+-- if br.functions.lastCast:isAbility(spellID) then
+function lastCast:isAbility(spellID)
+    return isAbility(spellID)
+end
+
 function lastCast:clearAbilityIDs()
     abilityIDs, ignoredIDs = nil, nil
 end
