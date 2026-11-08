@@ -46,7 +46,7 @@ local function toggles()
     ui.toggle("Forms", { modes = {
         { name = "Auto",   icon = "catForm",  overlay = "Automatic Form", tip = "Bear when your group role is Tank, otherwise Cat, Bear, then Caster - whichever you have learned. Fights a target out of reach from Caster Form (any setting), and a fleeing one it can't catch too (Cat: after a Feral Charge try)." },
         { name = "Caster", icon = "wrath",    overlay = "Caster Form",    tip = "Will force and use Caster Form (Moonkin Form once learned, if enabled). Heals, Bash and Travel/Aquatic Form still leave it when their options are on." },
-        { name = "Cat",    icon = "catForm",  overlay = "Cat Form",       tip = "Will force and use Cat Form (Caster until learned). A fleeing target it can't catch in 2 sec: Feral Charge (Cat) from 8 yards, else finished from range. A target out of reach, heals, Bash and Travel/Aquatic Form still leave it (their options)." },
+        { name = "Cat",    icon = "catForm",  overlay = "Cat Form",       tip = "Will force and use Cat Form (Caster until learned). Stays in Cat for fleeing targets (Feral Charge (Cat) from 8 yards). A target out of reach, heals, Bash and Travel/Aquatic Form still leave it (their options)." },
         { name = "Bear",   icon = "bearForm", overlay = "Bear Form",      tip = "Will force and use Bear Form (Caster until learned). Stays in Bear for fleeing targets; a target out of reach, heals and Travel/Aquatic Form still leave it (their options)." },
     } })
     ui.toggle("Prowl", { modes = {
@@ -1370,10 +1370,11 @@ local function runRotation()
     freeHeal = (omenSetting == 1 or omenSetting == 3) and buff.clearcasting.exists()
 
     -- A target out of reach hands Bear or Cat over to Caster Form on any Forms setting (2026-11-08 10:35: 19 s idle in
-    -- Cat at full Energy, a Bristleback Thornweaver casting from 20 yd); a fleeing one Cat on any setting and Bear on
-    -- Auto (the user's calls, 2026-11-08)
+    -- Cat at full Energy, a Bristleback Thornweaver casting from 20 yd); a fleeing one only on Auto: Cat or Bear
+    -- picked on the toggle stays in form and chases (Feral Charge (Cat) in Combat closes 8-25 yd) (the user's calls,
+    -- 2026-11-08: "don't like breaking form (when toggled to cat) to cast on fleeing mobs")
     local meleeForm = activeForm == "bear" or activeForm == "cat"
-    local fleeForm = activeForm == "cat" or (ui.mode.forms == 1 and activeForm == "bear")
+    local fleeForm = ui.mode.forms == 1 and meleeForm
     if not meleeForm then var.reach = nil end
     if not fleeForm then var.flee = nil end
     -- Out of reach (see outOfReach): Bear or Cat hands over to Caster Form while nothing is in melee with you and
