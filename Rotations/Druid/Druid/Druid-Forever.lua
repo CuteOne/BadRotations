@@ -50,7 +50,7 @@ local function toggles()
         { name = "Bear",   icon = "bearForm", overlay = "Bear Form",      tip = "Will force and use Bear Form (Caster until learned). Stays in Bear for targets out of reach or fleeing; heals and Travel/Aquatic Form still leave it when their options are on." },
     } })
     ui.toggle("Prowl", { modes = {
-        { name = "On",  icon = "prowl", overlay = "Prowl Enabled",  tip = "Rotation will use Prowl when near enemies" },
+        { name = "On",  icon = "prowl", overlay = "Prowl Enabled",  tip = "Rotation will use Prowl in Cat Form just before you come into an enemy's aggro range" },
         { name = "Off", icon = "prowl", overlay = "Prowl Disabled", tip = "Rotation will not use Prowl" },
     } })
 end
@@ -1095,12 +1095,17 @@ actionList.CasterForm = function()
     end
 end -- End Action List - Caster Form
 
+-- Yards outside the nearest aggro radius at which Prowl goes up (see PreCombat)
+local PROWL_LEAD = 2
+
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if unit.inCombat() or unit.flying() or unit.mounted() then return false end
-    -- Prowl
+    -- Prowl: only just before a mob would notice you, PROWL_LEAD yards outside its aggro radius (a rotation
+    -- tick and the send at a run), since Prowl slows you. unit.enemyNear(20) prowled 20 yd from the target whatever its
+    -- aggro radius: 5 yd early for a mob 5 levels below (the user's call, 2026-11-08)
     if not (buff.prowl.exists() or buff.shadowmeld.exists()) and ui.mode.prowl == 1 and buff.catForm.exists()
-        and cast.able.prowl("player") and unit.enemyNear(20) and not unit.resting()
+        and cast.able.prowl("player") and unit.anyInAggroRange(PROWL_LEAD, 40) and not unit.resting()
     then
         if cast.prowl("player") then
             ui.debug("Casting Prowl [Precombat]")
