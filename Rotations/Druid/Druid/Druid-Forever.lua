@@ -77,11 +77,12 @@ local function options()
 
     section = ui.section("Cat Form")
     ui.dropdown(section, "Cat Opener", { choices = { "Pounce", "Ravage", "Shred", "Rake" }, value = "Ravage", checkbox = false,
-        tip = "Select Spell to Open with from Stealth (falls back to the next learned option)" })
+        tip = "Select Spell to Open with from Stealth (falls back to the next learned option). Ravage and Shred need you behind the target: "
+            .. "from Prowl you get 4 sec in melee range to step behind it (over once you stand still or it attacks you), then Rake or Claw" })
     ui.checkbox(section, "Tiger's Fury", { checked = true, tip = "Use Tiger's Fury on cooldown in Cat Form" })
     ui.checkbox(section, "Shifting Power", { checked = true, tip = "Use Shifting Power (talent) to convert Mana into Energy in Cat Form" })
     ui.checkbox(section, "Feral Charge (Cat)", { checked = true, tip = "Leap behind your target from 8-25 yards in combat (talent)" })
-    ui.checkbox(section, "Cower", { tip = "In a group, Cower when you pull your target's attention in Cat Form" })
+    ui.checkbox(section, "Cower", { tip = "In a group, Cower when you pull your target's attention in Cat Form, while a tank is alive within 40 yards to take it back" })
 
     section = ui.section("Bear Form")
     ui.checkbox(section, "Bear Opener", { tip = "Open a Bear Form pull with Enrage, Demoralizing Roar, then Maul, in that order" })
@@ -541,7 +542,7 @@ actionList.Defensive = function()
         end
         -- Cower: in a group, when the target turns on you in Cat Form
         if ui.checked("Cower") and unit.inGroup() and buff.catForm.exists() and cast.able.cower("target")
-            and unit.threatStatus() >= 2 and unit.role("player") ~= "TANK"
+            and unit.threatStatus() >= 2 and unit.role("player") ~= "TANK" and unit.isTankInRange()
         then
             if cast.cower("target") then
                 ui.debug("Casting Cower")
@@ -844,10 +845,40 @@ actionList.BearForm = function()
     end
 end -- End Action List - Bear Form
 
+-- Stealth openers, in the Cat Opener option's order: the chosen one, else the next one learned, down to Claw.
+-- Ravage and Shred need you behind the target.
+local STEALTH_OPENERS = { "pounce", "ravage", "shred", "rake", "claw" }
+local STEALTH_OPENER_NAMES = { pounce = "Pounce", ravage = "Ravage", shred = "Shred", rake = "Rake", claw = "Claw" }
+local OPENS_BEHIND = { ravage = true, shred = true }
+-- From Prowl in front of the target, time to step behind it for Ravage or Shred (Druid-TBC's Ravage wait): up to
+-- STEALTH_WAIT seconds from reaching melee range, then the next opener that works from the front. Not while it
+-- attacks you (it turns to face you), and over once you've stood still for STEALTH_STILL seconds (opening from
+-- where you stand). Before, a Ravage player in front of it got nothing at all (every fallback needed Ravage or
+-- Shred unlearned), and a Shred player a Claw straight away (the user's call, 2026-11-08).
+local STEALTH_WAIT, STEALTH_STILL = 4, 1.5
+local function stealthWait(spellName)
+    if unit.isUnit("targettarget", "player") then return false end
+    local guid, now = unit.guid("target"), util.time()
+    local w = var.stealthWait
+    if w == nil or w.guid ~= guid then
+        w = { guid = guid, since = now }
+        var.stealthWait = w
+        if unit.standingTime() <= STEALTH_STILL then
+            ui.debug(("Stealth Opener: up to %d s to get behind %s for %s"):format(STEALTH_WAIT, unit.name("target") or "target", spellName))
+        end
+    end
+    if not w.over then w.over = now - w.since > STEALTH_WAIT or unit.standingTime() > STEALTH_STILL end
+    return not w.over
+end
+
 -- Action List - Cat Opener (Stealth + Non-Stealth)
 actionList.CatOpener = function()
+    var.stealthHold = false
     if not buff.catForm.exists() then return false end
-    if not unit.valid("target") or unit.deadOrGhost("target") or unit.distance("target") >= 5 then return false end
+    if not unit.valid("target") or unit.deadOrGhost("target") or unit.distance("target") >= 5 then
+        var.stealthWait = nil -- the time to get behind starts again on reaching melee range
+        return false
+    end
     if unit.player("target") then return false end
 
     -- Tiger's Fury before the opening hit
@@ -858,47 +889,30 @@ actionList.CatOpener = function()
         end
     end
 
-    local opener = ui.value("Cat Opener")
-
-    -- Stealth Opener
+    -- Stealth Opener: the first learned opener from the Cat Opener option on. One that needs you behind the target
+    -- waits for you to get there (stealthWait), then gives way to the next that doesn't. A pick that's learned but
+    -- not castable yet (Energy, say) is waited for rather than swapped for a weaker one.
     if buff.prowl.exists() then
-        -- Pounce (Opener 1)
-        if opener == 1 and cast.able.pounce() then
-            if cast.pounce("target") then
-                ui.debug("Casting Pounce [Stealth Opener]")
-                return true
-            end
-        end
-        -- Ravage from behind (Opener 2 or fallback)
-        if (opener == 2 or (opener <= 1 and not spell.pounce.known()))
-            and cast.able.ravage() and unit.isBehind("target", "player")
-        then
-            if cast.ravage("target") then
-                ui.debug("Casting Ravage [Stealth Opener]")
-                return true
-            end
-        end
-        -- Shred from behind (Opener 3 or fallback)
-        if (opener == 3 or (opener <= 2 and not spell.ravage.known()))
-            and cast.able.shred() and unit.isBehind("target", "player") and not unit.facing("target", "player")
-        then
-            if cast.shred("target") then
-                ui.debug("Casting Shred [Stealth Opener]")
-                return true
-            end
-        end
-        -- Rake (Opener 4 or fallback)
-        if (opener == 4 or (opener <= 3 and not spell.shred.known())) and cast.able.rake() then
-            if cast.rake("target") then
-                ui.debug("Casting Rake [Stealth Opener]")
-                return true
-            end
-        end
-        -- Claw (ultimate fallback)
-        if not spell.rake.known() and cast.able.claw() then
-            if cast.claw("target") then
-                ui.debug("Casting Claw [Stealth Opener]")
-                return true
+        local behind = unit.isBehind("target", "player") and not unit.facing("target", "player")
+        local passed
+        for i = ui.value("Cat Opener"), #STEALTH_OPENERS do
+            local key = STEALTH_OPENERS[i]
+            local name = STEALTH_OPENER_NAMES[key]
+            if spell[key].known() and not (OPENS_BEHIND[key] and passed) then
+                if OPENS_BEHIND[key] and not behind then
+                    if stealthWait(name) then
+                        var.stealthHold = true
+                        return false
+                    end
+                    passed = name
+                else
+                    if not cast.able[key]("target") then return false end
+                    if cast[key]("target") then
+                        ui.debug(("Casting %s [Stealth Opener%s]"):format(name, passed and (", not behind for " .. passed) or ""))
+                        return true
+                    end
+                    return false
+                end
             end
         end
         return false
@@ -961,12 +975,21 @@ actionList.CatForm = function()
         -- Rip: 12 sec bleed (Rend and Tear), on a target that outlives it. Before Ferocious Bite (level 32)
         -- it is the only finisher, so half its ticks beat Claws on full combo points (2026-11-07, level 20:
         -- fights of 11-19 sec ended on 5 unspent combo points).
+        -- Recast only once it's gone: no Pandemic on Forever, so a recast throws away the ticks left (refreshed with
+        -- 30% left, Rip lost its last tick; the same measured for Rejuvenation, 2026-11-05). Druid-TBC's rule.
         local ripTime = spell.ferociousBite.known() and 10 or 6
-        if comboPoints == 5 and cast.able.rip(thisUnit) and ttd > ripTime and debuff.rip.refresh(thisUnit) then
+        if comboPoints == 5 and cast.able.rip(thisUnit) and ttd > ripTime and not debuff.rip.exists(thisUnit) then
             if cast.rip(thisUnit) then
                 ui.debug("Casting Rip")
                 return true
             end
+        end
+        -- Before Ferocious Bite Rip is the only finisher: with its last tick due, hold the combo points for the
+        -- recast rather than build past 5 (not near the Energy cap, which the wait would waste)
+        if comboPoints == 5 and not spell.ferociousBite.known() and ttd > ripTime + 2 and energy < 80
+            and debuff.rip.exists(thisUnit) and debuff.rip.remain(thisUnit) < 2
+        then
+            return false
         end
         -- Ferocious Bite: at 35 Energy rather than pooling, or early on a target about to die
         if cast.able.ferociousBite(thisUnit) and energy >= 35 then
@@ -1001,8 +1024,8 @@ actionList.CatForm = function()
             end
         end
     end
-    -- Rake: keep a bleed up on anything that lives long enough (Rend and Tear)
-    if cast.able.rake(thisUnit) and debuff.rake.refresh(thisUnit) and ttd > 6 then
+    -- Rake: keep a bleed up on anything that lives long enough (Rend and Tear); recast once it's gone (see Rip)
+    if cast.able.rake(thisUnit) and not debuff.rake.exists(thisUnit) and ttd > 6 then
         if cast.rake(thisUnit) then
             ui.debug("Casting Rake")
             return true
@@ -1096,17 +1119,21 @@ actionList.CasterForm = function()
     end
 end -- End Action List - Caster Form
 
--- Yards outside the nearest aggro radius at which Prowl goes up (see PreCombat)
-local PROWL_LEAD = 2
+-- Yards outside the nearest aggro radius at which Prowl goes up, and how near a neutral target first (see PreCombat)
+local PROWL_LEAD, PROWL_NEUTRAL = 2, 8
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if unit.inCombat() or unit.flying() or unit.mounted() then return false end
     -- Prowl: only just before a mob would notice you, PROWL_LEAD yards outside its aggro radius (a rotation
     -- tick and the send at a run), since Prowl slows you. unit.enemyNear(20) prowled 20 yd from the target whatever its
-    -- aggro radius: 5 yd early for a mob 5 levels below (the user's call, 2026-11-08)
+    -- aggro radius: 5 yd early for a mob 5 levels below (the user's call, 2026-11-08). Hostile mobs only: a neutral
+    -- one doesn't notice you coming, so for a neutral target Prowl waits until PROWL_NEUTRAL yards (Druid-TBC's rule)
+    -- instead of slowing you all the way in from its aggro radius
     if not (buff.prowl.exists() or buff.shadowmeld.exists()) and ui.mode.prowl == 1 and buff.catForm.exists()
-        and cast.able.prowl("player") and unit.anyInAggroRange(PROWL_LEAD, 40) and not unit.resting()
+        and cast.able.prowl("player") and not unit.resting()
+        and (unit.anyInAggroRange(PROWL_LEAD, 40, true)
+            or (unit.valid("target") and unit.reaction("target") == 4 and (unit.distance("target") or 99) < PROWL_NEUTRAL))
     then
         if cast.prowl("player") then
             ui.debug("Casting Prowl [Precombat]")
@@ -1247,7 +1274,11 @@ actionList.Combat = function()
     end
     -- Call Action List - Cat Form
     if activeForm == "cat" and buff.catForm.exists() and inMelee then
-        if buff.prowl.exists() and actionList.CatOpener() then return true end
+        if buff.prowl.exists() then
+            if actionList.CatOpener() then return true end
+            -- still in the time to get behind for the opener: no Claw from Cat Form out of Prowl
+            if var.stealthHold then return true end
+        end
         if actionList.CatForm() then return true end
     end
     -- Call Action List - Caster Form (and Moonkin Form)
