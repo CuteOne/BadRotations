@@ -27,7 +27,11 @@ local REPORT_CODES = {
 	["Invalid Unit"]          = "INVALID_UNIT",
 	["No Control"]            = "NO_CONTROL",
 	["Cast Failed"]           = "CAST_FAILED",
+	["Send Error"]            = "SEND_ERROR",
 }
+
+-- Seconds a spell is held after the game threw on its send (see the send in E.dispatch)
+E.SEND_ERROR_HOLD = 2
 
 -- Refusals that are part of normal play, not a problem
 local EXPECTED_REPORTS = {
@@ -202,10 +206,19 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 	-- A lower rank than the best one known (cast.<spell>.rank(n)) has to be sent by ID: on ranked
 	-- clients casting by name sends the highest known rank.
 	local bestRankID = br.client.rules.hasSpellRanks and castName == ctx.spellName and br.functions.spell:getSpellID(castName)
+	local sent
 	if bestRankID and bestRankID ~= ctx.spellID then
-		cast:castByID(ctx.spellID, thisUnit)
+		sent = cast:castByID(ctx.spellID, thisUnit)
 	else
-		cast:castByName(castName, thisUnit)
+		sent = cast:castByName(castName, thisUnit)
+	end
+	-- The game threw on the call itself (a bad argument; Cast.log has the SEND ERROR): nothing went out, so the
+	-- profile isn't told it did, and the spell is held SEND_ERROR_HOLD seconds. Before, the failed send read as a
+	-- cast not yet confirmed, held one round trip: Feral Charge went out 7 times in 1.3 s, each a "Usage:
+	-- CastSpellByID" error (Forever on Veil, 2026-11-08 14:45)
+	if not sent then
+		E.castTimers[ctx.spellID] = br.game.GetTime() + E.SEND_ERROR_HOLD
+		return E.printReport(ctx, false, "Send Error")
 	end
 	if br.game.IsAoEPending() then
 		local X, Y, Z = br.game.ObjectPosition(thisUnit)
