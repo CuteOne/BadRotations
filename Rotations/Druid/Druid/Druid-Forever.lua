@@ -44,10 +44,10 @@ local function toggles()
         { name = "Off", icon = "bash", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
     ui.toggle("Forms", { modes = {
-        { name = "Auto",   icon = "catForm",  overlay = "Automatic Form", tip = "Bear when your group role is Tank, otherwise Cat, Bear, then Caster - whichever you have learned. Fights a target out of reach from Caster Form (any setting), and a fleeing one it can't catch too (Cat: after a Feral Charge try)." },
+        { name = "Auto",   icon = "catForm",  overlay = "Automatic Form", tip = "Bear when your group role is Tank, otherwise Cat, Bear, then Caster - whichever you have learned. Fights a target out of reach (up on a ledge or pillar you can't get to) from Caster Form (any setting), and a fleeing one it can't catch too (Cat: after a Feral Charge try)." },
         { name = "Caster", icon = "wrath",    overlay = "Caster Form",    tip = "Will force and use Caster Form (Moonkin Form once learned, if enabled). Heals, Bash and Travel/Aquatic Form still leave it when their options are on." },
-        { name = "Cat",    icon = "catForm",  overlay = "Cat Form",       tip = "Will force and use Cat Form (Caster until learned). Stays in Cat for fleeing targets (Feral Charge (Cat) from 8 yards). A target out of reach, heals, Bash and Travel/Aquatic Form still leave it (their options)." },
-        { name = "Bear",   icon = "bearForm", overlay = "Bear Form",      tip = "Will force and use Bear Form (Caster until learned). Stays in Bear for fleeing targets; a target out of reach, heals and Travel/Aquatic Form still leave it (their options)." },
+        { name = "Cat",    icon = "catForm",  overlay = "Cat Form",       tip = "Will force and use Cat Form (Caster until learned). Stays in Cat for fleeing targets (Feral Charge (Cat) from 8 yards). A target out of reach (on a ledge or pillar), heals, Bash and Travel/Aquatic Form still leave it (their options)." },
+        { name = "Bear",   icon = "bearForm", overlay = "Bear Form",      tip = "Will force and use Bear Form (Caster until learned). Stays in Bear for fleeing targets; a target out of reach (on a ledge or pillar), heals and Travel/Aquatic Form still leave it (their options)." },
     } })
     ui.toggle("Prowl", { modes = {
         { name = "On",  icon = "prowl", overlay = "Prowl Enabled",  tip = "Rotation will use Prowl in Cat Form just before you come into an enemy's aggro range" },
@@ -322,14 +322,17 @@ end
 -- " [why]" for a debug line
 local function tag(why) return type(why) == "string" and (" [" .. why .. "]") or "" end
 
--- A target you can't get to in melee (up on a ledge, across water) leaves Bear or Cat Form with nothing to do
+-- A target you can't get to in melee (up on a ledge or pillar) leaves Bear or Cat Form with nothing to do
 -- (Fights 2026-11-06 15:28: a Dustwind Storm Witch on a ledge at 23 yd, 17 s in Bear Form without an attack).
--- In combat, once the target has stayed beyond REACH_BACK yards for REACH_WAIT seconds without the gap closing
--- by a yard, it is out of reach: fight it from range until it comes within REACH_BACK yards or the target changes.
--- Not beyond REACH_MAX (Wrath and Moonfire range: shifting can't reach it either) and not while it flees (it comes
--- back or dies in a few seconds; 2026-11-06 17:48: two fleeing murlocs at 10-11 yd cost two shifts each for a
--- Rejuvenation and one Moonfire; 19:36: a hyena at 62 yd). Returns the distance when out of reach, else nil.
-local REACH_WAIT, REACH_BACK, REACH_MAX = 3, 8, 30
+-- In combat, a target beyond REACH_BACK yards that stands at least REACH_UP yards above or below you counts as out
+-- of reach once you have spent REACH_WAIT seconds moving without the gap closing by a yard: fight it from range until
+-- it comes within REACH_BACK yards or the target changes. The clock runs only while you move and it stands still on
+-- that height (the user's call, 2026-11-08: you standing there, or a mob on its way around a fence, isn't out of
+-- reach; it's meant for mobs with no way up to them). Not beyond REACH_MAX (Wrath and Moonfire range: shifting can't
+-- reach it either) and not while it flees (it comes back or dies in a few seconds; 2026-11-06 17:48: two fleeing
+-- murlocs at 10-11 yd cost two shifts each for a Rejuvenation and one Moonfire; 19:36: a hyena at 62 yd). Returns the
+-- distance and the height gap when out of reach, else nil.
+local REACH_WAIT, REACH_BACK, REACH_MAX, REACH_UP = 3, 8, 30, 4
 local function outOfReach(thisUnit)
     local guid = unit.inCombat() and unit.exists(thisUnit) and unit.guid(thisUnit) or nil
     local dist = guid and unit.distance(thisUnit)
@@ -339,14 +342,23 @@ local function outOfReach(thisUnit)
     end
     local now, r = util.time(), var.reach
     if r == nil or r.guid ~= guid then
-        var.reach = { guid = guid, best = dist, since = now }
+        var.reach = { guid = guid, best = dist, tried = 0, last = now }
         return nil
     end
     if not r.out then
-        if dist < r.best - 1 then r.best, r.since = dist, now end
-        r.out = now - r.since >= REACH_WAIT
+        local _, _, pz = unit.position("player")
+        local _, _, tz = unit.position(thisUnit)
+        local rise = pz and tz and math.abs(tz - pz) or 0
+        if dist < r.best - 1 or rise < REACH_UP or unit.moving(thisUnit) then
+            -- closing in, on level ground, or it's moving (coming round to you): the wait starts over from here
+            r.best, r.tried = dist, 0
+        elseif unit.moving("player") then
+            r.tried = r.tried + (now - r.last)
+        end
+        r.last, r.rise = now, rise
+        r.out = r.tried >= REACH_WAIT
     end
-    return r.out and dist or nil
+    return r.out and dist or nil, r.rise
 end
 
 -- A target that flees at low health runs at your speed, so chasing it in Bear or Cat Form keeps you out of melee
@@ -1369,7 +1381,7 @@ local function runRotation()
         and (not needsHealing or omenSetting == 2)
     freeHeal = (omenSetting == 1 or omenSetting == 3) and buff.clearcasting.exists()
 
-    -- A target out of reach hands Bear or Cat over to Caster Form on any Forms setting (2026-11-08 10:35: 19 s idle in
+    -- A target out of reach (a ledge or pillar, see outOfReach) hands Bear or Cat over to Caster Form on any Forms setting (2026-11-08 10:35: 19 s idle in
     -- Cat at full Energy, a Bristleback Thornweaver casting from 20 yd); a fleeing one only on Auto: Cat or Bear
     -- picked on the toggle stays in form and chases (Feral Charge (Cat) in Combat closes 8-25 yd) (the user's calls,
     -- 2026-11-08: "don't like breaking form (when toggled to cat) to cast on fleeing mobs")
@@ -1379,14 +1391,15 @@ local function runRotation()
     if not fleeForm then var.flee = nil end
     -- Out of reach (see outOfReach): Bear or Cat hands over to Caster Form while nothing is in melee with you and
     -- mana may go on Wrath or Moonfire; back to the toggle's form once the target comes near
-    local reachDist = meleeForm and #enemies.yards5 == 0 and outOfReach("target")
+    local reachDist, reachRise
+    if meleeForm and #enemies.yards5 == 0 then reachDist, reachRise = outOfReach("target") end
     local reachSwap = false
     if reachDist and (spendOnDamage("wrath", "target") or spendOnDamage("moonfire", "target")) then
         activeForm = casterForm()
         reachSwap = true
         if not var.reachSaid then
-            ui.debug(("Out of reach: %s %.0f yd, no closer in %d s, fighting from range"):format(
-                unit.name("target") or "target", reachDist, REACH_WAIT))
+            ui.debug(("Out of reach: %s %.0f yd, %.0f yd up or down, no closer in %d s of moving, fighting from range"):format(
+                unit.name("target") or "target", reachDist, reachRise or 0, REACH_WAIT))
             var.reachSaid = true
         end
     elseif var.reachSaid then
