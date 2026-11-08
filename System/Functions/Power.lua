@@ -209,14 +209,18 @@ function power:getSpellCost(spell)
 end
 
 -- Every resource a spell costs right now, as a list of { type = power type, amount = cost }
--- (a spell can cost two, such as energy and combo points); costs of 0 are left out.
+-- (a spell can cost two, such as energy and combo points); costs of 0 are left out, and so are costs
+-- that apply only under an aura the player doesn't have: one spell can cost Rage in Bear Form and
+-- Energy in Cat Form (Forever's Feral Charge, 2026-11-08: refused in Cat Form on "power 0, cost 5",
+-- the Bear Form Rage, with 100 Energy).
 function power:getSpellCosts(spellID)
 	local costs = {}
 	local list = br.game.C_Spell.GetSpellPowerCost(spellID)
 	if type(list) ~= "table" then return costs end
 	for _, entry in ipairs(list) do
 		local amount = entry.minCost or entry.cost or 0
-		if entry.type ~= nil and amount > 0 then
+		local otherAura = (entry.requiredAuraID or 0) ~= 0 and entry.hasRequiredAura == false
+		if entry.type ~= nil and amount > 0 and not otherAura then
 			costs[#costs + 1] = { type = entry.type, amount = amount }
 		end
 	end
