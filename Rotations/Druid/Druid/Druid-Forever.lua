@@ -44,10 +44,10 @@ local function toggles()
         { name = "Off", icon = "bash", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
     ui.toggle("Forms", { modes = {
-        { name = "Auto",   icon = "catForm",  overlay = "Automatic Form", tip = "Bear when your group role is Tank, otherwise Cat, Bear, then Caster - whichever you have learned." },
-        { name = "Caster", icon = "wrath",    overlay = "Caster Form",    tip = "Will force and use Caster Form (Moonkin Form once learned, if enabled)" },
-        { name = "Cat",    icon = "catForm",  overlay = "Cat Form",       tip = "Will force and use Cat Form (Caster until learned)" },
-        { name = "Bear",   icon = "bearForm", overlay = "Bear Form",      tip = "Will force and use Bear Form (Caster until learned)" },
+        { name = "Auto",   icon = "catForm",  overlay = "Automatic Form", tip = "Bear when your group role is Tank, otherwise Cat, Bear, then Caster - whichever you have learned. Fights a target out of reach or fleeing from Caster Form." },
+        { name = "Caster", icon = "wrath",    overlay = "Caster Form",    tip = "Will force and use Caster Form (Moonkin Form once learned, if enabled). Heals, Bash and Travel/Aquatic Form still leave it when their options are on." },
+        { name = "Cat",    icon = "catForm",  overlay = "Cat Form",       tip = "Will force and use Cat Form (Caster until learned). Stays in Cat for targets out of reach or fleeing; heals, Bash and Travel/Aquatic Form still leave it when their options are on." },
+        { name = "Bear",   icon = "bearForm", overlay = "Bear Form",      tip = "Will force and use Bear Form (Caster until learned). Stays in Bear for targets out of reach or fleeing; heals and Travel/Aquatic Form still leave it when their options are on." },
     } })
     ui.toggle("Prowl", { modes = {
         { name = "On",  icon = "prowl", overlay = "Prowl Enabled",  tip = "Rotation will use Prowl when near enemies" },
@@ -1289,9 +1289,13 @@ local function runRotation()
         and (not needsHealing or omenSetting == 2)
     freeHeal = (omenSetting == 1 or omenSetting == 3) and buff.clearcasting.exists()
 
+    -- Out of reach and fleeing targets swap Bear or Cat for Caster Form only on Auto: a form the player picks on
+    -- the Forms toggle stays up (their call, 2026-11-08)
+    local autoMelee = ui.mode.forms == 1 and (activeForm == "bear" or activeForm == "cat")
+    if not autoMelee then var.reach, var.flee = nil, nil end
     -- Out of reach (see outOfReach): Bear or Cat hands over to Caster Form while nothing is in melee with you and
     -- mana may go on Wrath or Moonfire; back to the toggle's form once the target comes near
-    local reachDist = (activeForm == "bear" or activeForm == "cat") and #enemies.yards5 == 0 and outOfReach("target")
+    local reachDist = autoMelee and #enemies.yards5 == 0 and outOfReach("target")
     if reachDist and (spendOnDamage("wrath", "target") or spendOnDamage("moonfire", "target")) then
         activeForm = casterForm()
         if not var.reachSaid then
@@ -1306,7 +1310,7 @@ local function runRotation()
     -- A fleeing target (see fleeChase): out of Bear or Cat while no other enemy is in melee with you
     var.fleeChase = false
     local fleeWaiting = false
-    if (activeForm == "bear" or activeForm == "cat") and not reachDist then
+    if autoMelee and not reachDist then
         local othersInMelee = false
         for i = 1, #enemies.yards5 do
             if not unit.isUnit(enemies.yards5[i], "target") then othersInMelee = true break end
