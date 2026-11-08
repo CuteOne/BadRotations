@@ -125,11 +125,13 @@ local function wordByte(b)
 end
 
 -- A "-" joining the match at first..last to a word or a stand-in already put in: "Name-Realm", "Realm-Name",
--- "Realm-<realm>", "Party1[PRIEST]-Realm"
+-- "Realm-<realm>", "Party1[PRIEST]-Realm"; or a folder of a path: "Settings\Realm\Druid" (the settings folder)
+local function isSeparator(b) return b == 47 or b == 92 end -- "/" "\"
 local function hyphenJoined(text, first, last)
 	local after, before = text:byte(last + 2), text:byte(first - 2)
 	return (text:sub(last + 1, last + 1) == "-" and (wordByte(after) or after == 60)) -- "<"
 		or (text:sub(first - 1, first - 1) == "-" and (wordByte(before) or before == 62 or before == 93)) -- ">" "]"
+		or (isSeparator(text:byte(first - 1)) and isSeparator(text:byte(last + 1)))
 end
 
 -- Every whole-word name in text replaced (withRealm: a "-Realm" after it too; joined: only where a "-" joins
