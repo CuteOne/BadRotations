@@ -44,7 +44,7 @@ local function toggles()
         { name = "Off", icon = "bash", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
     ui.toggle("Forms", { modes = {
-        { name = "Auto",   icon = "catForm",  overlay = "Automatic Form", tip = "Bear when your group role is Tank, otherwise Cat, Bear, then Caster - whichever you have learned. Fights a target out of reach or fleeing from Caster Form." },
+        { name = "Auto",   icon = "catForm",  overlay = "Automatic Form", tip = "Bear when your group role is Tank, otherwise Cat, Bear, then Caster - whichever you have learned. Fights a target out of reach from Caster Form, and from Bear a fleeing one too (Cat runs it down)." },
         { name = "Caster", icon = "wrath",    overlay = "Caster Form",    tip = "Will force and use Caster Form (Moonkin Form once learned, if enabled). Heals, Bash and Travel/Aquatic Form still leave it when their options are on." },
         { name = "Cat",    icon = "catForm",  overlay = "Cat Form",       tip = "Will force and use Cat Form (Caster until learned). Stays in Cat for targets out of reach or fleeing; heals, Bash and Travel/Aquatic Form still leave it when their options are on." },
         { name = "Bear",   icon = "bearForm", overlay = "Bear Form",      tip = "Will force and use Bear Form (Caster until learned). Stays in Bear for targets out of reach or fleeing; heals and Travel/Aquatic Form still leave it when their options are on." },
@@ -109,9 +109,9 @@ local function options()
     ui.checkbox(section, "Aquatic Form", { checked = true, tip = "Shift to Aquatic Form while swimming" })
     ui.checkbox(section, "Travel Form", { tip = "Shift to Travel Form while moving out of combat" })
     ui.spinner(section, "Break Form for Heals Below Energy", { value = 30, min = 1, step = 1, checkbox = false,
-        tip = "Only leave Cat Form to heal when Energy is below this" })
+        tip = "Only leave Cat Form to heal or cure poison when Energy is below this" })
     ui.spinner(section, "Break Form for Heals Below Rage", { value = 10, min = 1, step = 1, checkbox = false,
-        tip = "Only leave Bear Form to heal when Rage is below this" })
+        tip = "Only leave Bear Form to heal or cure poison when Rage is below this" })
 
     section = ui.section("Cooldowns")
     ui.dropdown(section, "Berserk", { choices = "AlwaysCdNever", value = "Cooldowns", checkbox = false,
@@ -137,9 +137,9 @@ local function options()
     ui.spinner(section, "Barkskin", { value = 65, checked = true, tip = "Health Percent to Cast At" })
     ui.spinner(section, "Frenzied Regeneration", { value = 45, checked = true, tip = "Health Percent to Cast At (Bear Form)" })
     ui.spinner(section, "Bash", { value = 35, tip = "Health Percent to stun your target at (Bear Form)" })
-    ui.checkbox(section, "Cure Poison", { checked = true, tip = "Cure poisons on yourself (uses Abolish Poison once learned)" })
+    ui.checkbox(section, "Cure Poison", { checked = true, tip = "Cure poisons on yourself (uses Abolish Poison once learned). In combat it leaves Cat or Bear Form only below the Break Form for Heals Energy/Rage" })
     ui.checkbox(section, "Remove Curse", { checked = true, tip = "Remove curses on yourself out of combat" })
-    ui.checkbox(section, "Entangling Roots", { tip = "Enable/Disable Using Entangling Roots on fleeing enemies" })
+    ui.checkbox(section, "Entangling Roots", { tip = "Entangling Roots on fleeing enemies, only when already out of Cat or Bear Form (Cat runs them down)" })
     ui.spinner(section, "Nature's Grasp", { value = 40,
         tip = "Escape tool: cast at or below this Health Percent while running from an enemy chasing you within 10 yards. The root breaks on damage, so it's meant for fleeing, not fighting." })
     ui.spinner(section, "Dash", { value = 40, tip = "Escape tool: Dash in Cat Form at or below this Health Percent while running from an enemy chasing you" })
@@ -481,8 +481,9 @@ end -- End Action List - Forms
 actionList.Defensive = function()
     if not ui.useDefensive() then return false end
     local inGroupOk = not unit.inGroup() or ui.checked("Self Heal In Group")
-    -- Cure Poison (Abolish Poison once learned)
-    if ui.checked("Cure Poison") then
+    -- Cure Poison (Abolish Poison once learned): leaves Cat or Bear Form in combat only when Energy/Rage is low,
+    -- as Regrowth does; a poison isn't worth the Energy or Rage and two shifts
+    if ui.checked("Cure Poison") and noShapeshiftPower then
         if spell.abolishPoison.known() then
             if cast.able.abolishPoison("player") and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player") then
                 if casterCast("abolishPoison", "player", "Abolish Poison") then return true end
@@ -532,8 +533,9 @@ actionList.Defensive = function()
         end
         -- Entangling Roots (fleeing enemies)
         -- Only on a target that outlives the root and a Wrath after it, with a heal's mana kept (2026-11-05: 3 of 3
-        -- Roots on fleeing centaurs failed, two on targets the Wrath already in flight killed; 50 mana each)
-        if ui.checked("Entangling Roots") and cast.able.entanglingRoots("target") and unit.isFleeing("target")
+        -- Roots on fleeing centaurs failed, two on targets the Wrath already in flight killed; 50 mana each).
+        -- Only when already out of form: Cat runs a fleeing mob down, and Bear on Auto leaves for it (fleeChase)
+        if ui.checked("Entangling Roots") and not inForm and cast.able.entanglingRoots("target") and unit.isFleeing("target")
             and unit.valid("target") and unit.hp("target") < 100 and not debuff.entanglingRoots.exists("target")
             and unit.distance("target") > 8 and not unit.moving()
             and unit.livesFor("target", cast.time.entanglingRoots() + cast.time.wrath())
@@ -1289,8 +1291,8 @@ local function runRotation()
         and (not needsHealing or omenSetting == 2)
     freeHeal = (omenSetting == 1 or omenSetting == 3) and buff.clearcasting.exists()
 
-    -- Out of reach and fleeing targets swap Bear or Cat for Caster Form only on Auto: a form the player picks on
-    -- the Forms toggle stays up (their call, 2026-11-08)
+    -- Out of reach (Bear or Cat) and fleeing targets (Bear) swap to Caster Form only on Auto: a form the player
+    -- picks on the Forms toggle stays up (their call, 2026-11-08)
     local autoMelee = ui.mode.forms == 1 and (activeForm == "bear" or activeForm == "cat")
     if not autoMelee then var.reach, var.flee = nil, nil end
     -- Out of reach (see outOfReach): Bear or Cat hands over to Caster Form while nothing is in melee with you and
@@ -1307,10 +1309,12 @@ local function runRotation()
         ui.debug("Back in reach")
         var.reachSaid = nil
     end
-    -- A fleeing target (see fleeChase): out of Bear or Cat while no other enemy is in melee with you
+    -- A fleeing target (see fleeChase): out of Bear while no other enemy is in melee with you. Not Cat: it runs a
+    -- fleeing mob down, and a shift each way costs the Energy and combo points (the user's call, 2026-11-08)
     var.fleeChase = false
     local fleeWaiting = false
-    if autoMelee and not reachDist then
+    if activeForm ~= "bear" then var.flee = nil end
+    if autoMelee and activeForm == "bear" and not reachDist then
         local othersInMelee = false
         for i = 1, #enemies.yards5 do
             if not unit.isUnit(enemies.yards5[i], "target") then othersInMelee = true break end
