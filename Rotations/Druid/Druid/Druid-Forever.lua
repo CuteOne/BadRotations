@@ -928,14 +928,14 @@ actionList.CatOpener = function()
     -- Non-Stealth Opener
     local behindTarget = unit.isBehind("target", "player")
     -- Shred (from behind)
-    if behindTarget and cast.able.shred() and not unit.facing("target", "player") then
+    if behindTarget and cast.able.shred("target") and not unit.facing("target", "player") then
         if cast.shred("target") then
             ui.debug("Casting Shred [Opener]")
             return true
         end
     end
     -- Claw (fallback)
-    if cast.able.claw() and (not spell.shred.known() or not behindTarget) then
+    if cast.able.claw("target") and (not spell.shred.known() or not behindTarget) then
         if cast.claw("target") then
             ui.debug("Casting Claw [Opener]")
             return true
@@ -1078,11 +1078,14 @@ end -- End Action List - Cat Form
 
 -- Action List - Caster Form (and Moonkin Form)
 actionList.CasterForm = function()
-    -- a fleeing target BR left Bear or Cat for (fleeChase) is the one to finish, whatever the dynamic pick
-    local thisUnit = var.fleeChase and "target" or units.dyn30AOE
+    -- Left Bear or Cat for your target (out of reach, fleeing, or the flee wait): that one, never BR's own pick, and
+    -- every spell at it. Starfire and Wrath went out with no unit, so BR picked one: a Hillsbrad Farmer 22.7 yd off
+    -- that wasn't fighting you, pulled while finishing a fleeing Peasant (2026-11-08 15:43:47)
+    local thisUnit = var.rangeTarget and "target" or units.dyn30AOE
     local ttd = unit.ttd(thisUnit)
     -- Hurricane: no cooldown on Forever; channel it into a pack
-    local why = ui.checked("Hurricane") and not unit.moving() and spendOnDamage("hurricane", thisUnit)
+    -- Hurricane: not while finishing your target from range (it lands where the most enemies are, fighting or not)
+    local why = ui.checked("Hurricane") and not var.rangeTarget and not unit.moving() and spendOnDamage("hurricane", thisUnit)
     if why and cast.able.hurricane.ground(8, ui.value("Hurricane")) then
         if cast.hurricane.ground(8, ui.value("Hurricane")) then
             ui.debug("Casting Hurricane" .. tag(why))
@@ -1113,9 +1116,9 @@ actionList.CasterForm = function()
     -- A Starfire already casting takes the last Eclipse stack, so another one queued behind it builds first (the sim's guard)
     local eclipseLeft = buff.eclipse.exists() and not (cast.current.starfire() and buff.eclipse.stack() <= 1)
     local buildEclipse = spell.eclipse.known() and not eclipseLeft and not freeDPS
-    if cast.able.starfire() and not buildEclipse and ttd > starfireTime then
+    if cast.able.starfire(thisUnit) and not buildEclipse and ttd > starfireTime then
         why = spendOnDamage("starfire", thisUnit)
-        if why and cast.starfire() then
+        if why and cast.starfire(thisUnit) then
             ui.debug("Casting Starfire" .. tag(why))
             return true
         end
@@ -1135,9 +1138,9 @@ actionList.CasterForm = function()
         return false
     end
     -- Wrath: Eclipse builder and filler (cheap 2 sec cast, also when Starfire wouldn't land in time)
-    if cast.able.wrath() then
+    if cast.able.wrath(thisUnit) then
         why = spendOnDamage("wrath", thisUnit)
-        if why and cast.wrath() then
+        if why and cast.wrath(thisUnit) then
             ui.debug("Casting Wrath" .. tag(why))
             return true
         end
@@ -1376,8 +1379,10 @@ local function runRotation()
     -- Out of reach (see outOfReach): Bear or Cat hands over to Caster Form while nothing is in melee with you and
     -- mana may go on Wrath or Moonfire; back to the toggle's form once the target comes near
     local reachDist = meleeForm and #enemies.yards5 == 0 and outOfReach("target")
+    local reachSwap = false
     if reachDist and (spendOnDamage("wrath", "target") or spendOnDamage("moonfire", "target")) then
         activeForm = casterForm()
+        reachSwap = true
         if not var.reachSaid then
             ui.debug(("Out of reach: %s %.0f yd, no closer in %d s, fighting from range"):format(
                 unit.name("target") or "target", reachDist, REACH_WAIT))
@@ -1414,6 +1419,8 @@ local function runRotation()
         fleeWaiting = not othersInMelee and waiting and mana and not buff.bearForm.exists() and not buff.catForm.exists()
     end
     if fleeWaiting then activeForm = casterForm() end
+    -- Caster Form is fighting your target from range for a Bear or Cat player: the Caster list sticks to it
+    var.rangeTarget = reachSwap or fleeWaiting or var.fleeChase or false
     if var.fleeChase then
         activeForm = casterForm()
         if var.fleeSaid ~= var.flee.guid then
