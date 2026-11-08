@@ -954,8 +954,11 @@ actionList.CatForm = function()
 
     -- Finishers
     if comboPoints == 5 or (comboPoints >= 3 and ttd < 6) then
-        -- Rip: 12 sec bleed (Rend and Tear), on a target that outlives it
-        if comboPoints == 5 and cast.able.rip(thisUnit) and ttd > 10 and debuff.rip.refresh(thisUnit) then
+        -- Rip: 12 sec bleed (Rend and Tear), on a target that outlives it. Before Ferocious Bite (level 32)
+        -- it is the only finisher, so half its ticks beat Claws on full combo points (2026-11-07, level 20:
+        -- fights of 11-19 sec ended on 5 unspent combo points).
+        local ripTime = spell.ferociousBite.known() and 10 or 6
+        if comboPoints == 5 and cast.able.rip(thisUnit) and ttd > ripTime and debuff.rip.refresh(thisUnit) then
             if cast.rip(thisUnit) then
                 ui.debug("Casting Rip")
                 return true
