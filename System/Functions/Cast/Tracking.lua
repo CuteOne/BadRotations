@@ -561,27 +561,31 @@ local function promisedPower(powerType, spellID)
 end
 
 -- Can the player pay for spellID after what earlier casts have been promised? Returns true, or
--- false and a description. Free when nothing is promised (the usual case).
+-- false and a description. Checked even with nothing promised: on Forever IsSpellUsable said a
+-- Healing Touch was usable, no power flag, on 35 mana, and BR sent 10 spells the server turned away
+-- "Not enough mana" in 2 s (2026-11-08 10:36, Druid-Forever on Veil)
 function E.affordableAfterPromised(spellID)
-	if #E.promised == 0 then return true end
-	prunePromised(br.game.GetTime())
-	if #E.promised == 0 then return true end
+	if #E.promised > 0 then prunePromised(br.game.GetTime()) end
 	local costs = br.functions.power:getSpellCosts(spellID)
+	if #costs == 0 then return true end
 	-- A spell's own promise is left out (it isn't another cast), except while the player is casting it:
 	-- then the one asked for now is a second, pre-cast behind the first, and the first's cost is charged
 	-- only when it ends (2026-10-26: a Lightning Bolt queued behind a Lightning Bolt on 21 mana came back
 	-- "Not enough mana")
-	local exclude = not br.functions.cast:isCastingSpell(spellID, "player") and spellID or nil
+	local anyPromised = #E.promised > 0
+	local exclude = anyPromised and not br.functions.cast:isCastingSpell(spellID, "player") and spellID or nil
 	for i = 1, #costs do
 		local cost = costs[i]
-		local promised = promisedPower(cost.type, exclude)
-		if promised > 0 then
-			local current = br.game.UnitPower("player", cost.type)
-			if type(current) == "number" and br.functions.misc:canUseValue(current) and current - promised < cost.amount then
-				return false, string.format("power %d, %d promised to earlier casts, cost %d",
-					br.functions.misc:plainNumber(current), br.functions.misc:plainNumber(promised),
+		local promised = anyPromised and promisedPower(cost.type, exclude) or 0
+		local current = br.game.UnitPower("player", cost.type)
+		if type(current) == "number" and br.functions.misc:canUseValue(current) and current - promised < cost.amount then
+			if promised == 0 then
+				return false, string.format("power %d, cost %d", br.functions.misc:plainNumber(current),
 					br.functions.misc:plainNumber(cost.amount))
 			end
+			return false, string.format("power %d, %d promised to earlier casts, cost %d",
+				br.functions.misc:plainNumber(current), br.functions.misc:plainNumber(promised),
+				br.functions.misc:plainNumber(cost.amount))
 		end
 	end
 	return true
