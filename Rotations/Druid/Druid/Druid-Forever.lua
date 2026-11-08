@@ -1249,6 +1249,17 @@ actionList.Combat = function()
         ui.debug("Casting Auto Attack")
         return true
     end
+    -- Out of the toggle's Cat or Bear Form without the mana to shift back: swing at the target while the mana comes
+    -- back. The auto attack above waits for a melee pick (2026-11-08 13:27: your own Healing Touch left 29 mana, 5 s
+    -- idle with a Dalaran Wizard at 5.6 yd and no auto attack)
+    local formKey = (activeForm == "cat" and "catForm") or (activeForm == "bear" and "bearForm") or nil
+    if formKey and not inForm and not buff.moonkinForm.exists() and not buff.prowl.exists() and spell[formKey].known()
+        and not power.mana.affordable(cast.cost[formKey]()) and not cast.auto.autoAttack()
+        and not unit.deadOrGhost("target") and (unit.distance("target") or 99) < 8 and unit.startAttack()
+    then
+        ui.debug("Casting Auto Attack [no mana to shift]")
+        return true
+    end
     -- Call Action List - Interrupts
     if actionList.Interrupts() then return true end
     -- Call Action List - Cooldowns
