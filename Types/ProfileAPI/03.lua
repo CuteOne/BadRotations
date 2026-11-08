@@ -6,6 +6,16 @@
 -- profiles use. The game never loads these files.
 
 
+---@class BR.Retail.Druid.Feral.heroTree
+---@field druidOfTheClaw boolean # true for the active hero talent tree
+---@field elunesChosen boolean # true for the active hero talent tree
+---@field keeperOfTheGrove boolean # true for the active hero talent tree
+---@field wildstalker boolean # true for the active hero talent tree
+
+
+---@class BR.Retail.Druid.Feral.imbues
+
+
 ---@class BR.Retail.Druid.Feral.spell : BR.Keys.Retail.Druid.Feral.Abilities<BR.spell.K>
 
 

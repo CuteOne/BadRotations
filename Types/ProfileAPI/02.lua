@@ -59,8 +59,9 @@ function C59.aggroRange(thisUnit) end
 --- Check if any nearby enemy would aggro on the player
 ---@param offset? any Optional extra yards added to each aggro radius
 ---@param radius? any Optional search radius in yards, defaults to 40
+---@param hostileOnly? any Optional: leave out a neutral target (it doesn't notice you coming), as for stealthing
 ---@return boolean # True if any enemy (in combat or not) is within its aggro radius
-function C59.anyInAggroRange(offset, radius) end
+function C59.anyInAggroRange(offset, radius, hostileOnly) end
 
 --- Check if an enemy is attacking someone other than you
 --- ```lua
@@ -12141,13 +12142,3 @@ function C65.timer(timerName, interval) end
 
 
 ---@class BR.Retail.Druid.Feral.has : BR.has.Base, BR.Keys.Retail.Druid.Feral.Items<BR.has.Item>
-
-
----@class BR.Retail.Druid.Feral.heroTree
----@field druidOfTheClaw boolean # true for the active hero talent tree
----@field elunesChosen boolean # true for the active hero talent tree
----@field keeperOfTheGrove boolean # true for the active hero talent tree
----@field wildstalker boolean # true for the active hero talent tree
-
-
----@class BR.Retail.Druid.Feral.imbues

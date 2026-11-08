@@ -47,9 +47,10 @@ br.api.build.unit = function(api)
     -- @function unit.anyInAggroRange
     -- @param offset Optional extra yards added to each aggro radius
     -- @param radius Optional search radius in yards, defaults to 40
+    -- @param hostileOnly Optional: leave out a neutral target (it doesn't notice you coming), as for stealthing
     -- @return boolean True if any enemy (in combat or not) is within its aggro radius
-    unit.anyInAggroRange = function(offset, radius)
-        return br.functions.unit:anyInAggroRange(offset, radius)
+    unit.anyInAggroRange = function(offset, radius, hostileOnly)
+        return br.functions.unit:anyInAggroRange(offset, radius, hostileOnly)
     end
 
     --- Check if an enemy is attacking someone other than you

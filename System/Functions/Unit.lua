@@ -146,10 +146,10 @@ end
 
 -- True if any enemy (in combat or not) within radius yards would aggro on the player.
 -- if br.functions.unit:anyInAggroRange(5) then
-function unit:anyInAggroRange(offset, radius)
+function unit:anyInAggroRange(offset, radius, hostileOnly)
 	local nearby = br.engines.enemiesEngineFunctions:getEnemies("player", radius or 40, true)
 	for i = 1, #nearby do
-		if unit:isInAggroRange(nearby[i], offset) then return true end
+		if unit:isInAggroRange(nearby[i], offset, hostileOnly) then return true end
 	end
 	return false
 end
@@ -957,10 +957,10 @@ function unit:isHumanoid(Unit)
 	return unit:isCreatureType(Unit, "humanoid")
 end
 
--- True if thisUnit would aggro on the player: hostile (or neutral and targeted) and within
--- its aggro radius plus offset yards.
+-- True if thisUnit would aggro on the player: hostile (or neutral and targeted, unless hostileOnly)
+-- and within its aggro radius plus offset yards.
 -- if br.functions.unit:isInAggroRange("target", 5) then
-function unit:isInAggroRange(thisUnit, offset)
+function unit:isInAggroRange(thisUnit, offset, hostileOnly)
 	if thisUnit == nil then thisUnit = "target" end
 	if not unit:GetObjectExists(thisUnit) or unit:GetUnitIsDeadOrGhost(thisUnit)
 		or not br.game.UnitCanAttack("player", thisUnit)
@@ -968,7 +968,7 @@ function unit:isInAggroRange(thisUnit, offset)
 		return false
 	end
 	local reaction = unit:GetUnitReaction(thisUnit, "player") or 10
-	if not (reaction < 4 or (reaction == 4 and unit:GetUnitIsUnit("target", thisUnit))) then
+	if not (reaction < 4 or (not hostileOnly and reaction == 4 and unit:GetUnitIsUnit("target", thisUnit))) then
 		return false
 	end
 	local distance = br.functions.range:getDistance("player", thisUnit)
