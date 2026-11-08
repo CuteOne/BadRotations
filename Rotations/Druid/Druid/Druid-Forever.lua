@@ -109,9 +109,9 @@ local function options()
     ui.checkbox(section, "Aquatic Form", { checked = true, tip = "Shift to Aquatic Form while swimming" })
     ui.checkbox(section, "Travel Form", { tip = "Shift to Travel Form while moving out of combat" })
     ui.spinner(section, "Break Form for Heals Below Energy", { value = 30, min = 1, step = 1, checkbox = false,
-        tip = "Only leave Cat Form to heal or cure poison when Energy is below this" })
+        tip = "Only leave Cat Form to heal when Energy is below this" })
     ui.spinner(section, "Break Form for Heals Below Rage", { value = 10, min = 1, step = 1, checkbox = false,
-        tip = "Only leave Bear Form to heal or cure poison when Rage is below this" })
+        tip = "Only leave Bear Form to heal when Rage is below this" })
 
     section = ui.section("Cooldowns")
     ui.dropdown(section, "Berserk", { choices = "AlwaysCdNever", value = "Cooldowns", checkbox = false,
@@ -137,7 +137,7 @@ local function options()
     ui.spinner(section, "Barkskin", { value = 65, checked = true, tip = "Health Percent to Cast At" })
     ui.spinner(section, "Frenzied Regeneration", { value = 45, checked = true, tip = "Health Percent to Cast At (Bear Form)" })
     ui.spinner(section, "Bash", { value = 35, tip = "Health Percent to stun your target at (Bear Form)" })
-    ui.checkbox(section, "Cure Poison", { checked = true, tip = "Cure poisons on yourself (uses Abolish Poison once learned). In combat it leaves Cat or Bear Form only below the Break Form for Heals Energy/Rage" })
+    ui.checkbox(section, "Cure Poison", { checked = true, tip = "Cure poisons on yourself (uses Abolish Poison once learned). In combat only while already out of Cat or Bear Form (for a heal, say)" })
     ui.checkbox(section, "Remove Curse", { checked = true, tip = "Remove curses on yourself out of combat" })
     ui.checkbox(section, "Entangling Roots", { tip = "Entangling Roots on fleeing enemies, only when already out of Cat or Bear Form (Cat runs them down)" })
     ui.spinner(section, "Nature's Grasp", { value = 40,
@@ -481,9 +481,10 @@ end -- End Action List - Forms
 actionList.Defensive = function()
     if not ui.useDefensive() then return false end
     local inGroupOk = not unit.inGroup() or ui.checked("Self Heal In Group")
-    -- Cure Poison (Abolish Poison once learned): leaves Cat or Bear Form in combat only when Energy/Rage is low,
-    -- as Regrowth does; a poison isn't worth the Energy or Rage and two shifts
-    if ui.checked("Cure Poison") and noShapeshiftPower then
+    -- Cure Poison (Abolish Poison once learned): in combat only while already out of Cat or Bear Form, so it rides
+    -- along with a heal. Gating it on low Energy wasn't enough: Claw keeps Energy low, and Bristleback Hunters
+    -- re-poisoned three times in one fight, two shifts each (Rotation.log 2026-11-08 09:58, 834 mana)
+    if ui.checked("Cure Poison") and (not unit.inCombat() or not inForm) then
         if spell.abolishPoison.known() then
             if cast.able.abolishPoison("player") and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player") then
                 if casterCast("abolishPoison", "player", "Abolish Poison") then return true end
