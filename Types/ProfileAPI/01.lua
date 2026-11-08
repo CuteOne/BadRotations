@@ -840,6 +840,7 @@
 ---@field feralAffinity T
 ---@field feralCharge T
 ---@field feralChargeBear T
+---@field feralChargeCat T
 ---@field feralFrenzy T
 ---@field feralLunge T
 ---@field feralSpirit T

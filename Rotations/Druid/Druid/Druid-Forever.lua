@@ -44,9 +44,9 @@ local function toggles()
         { name = "Off", icon = "bash", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
     } })
     ui.toggle("Forms", { modes = {
-        { name = "Auto",   icon = "catForm",  overlay = "Automatic Form", tip = "Bear when your group role is Tank, otherwise Cat, Bear, then Caster - whichever you have learned. Fights a target out of reach from Caster Form (any setting), and from Bear a fleeing one too." },
+        { name = "Auto",   icon = "catForm",  overlay = "Automatic Form", tip = "Bear when your group role is Tank, otherwise Cat, Bear, then Caster - whichever you have learned. Fights a target out of reach from Caster Form (any setting), and a fleeing one it can't catch too (Cat: after a Feral Charge try)." },
         { name = "Caster", icon = "wrath",    overlay = "Caster Form",    tip = "Will force and use Caster Form (Moonkin Form once learned, if enabled). Heals, Bash and Travel/Aquatic Form still leave it when their options are on." },
-        { name = "Cat",    icon = "catForm",  overlay = "Cat Form",       tip = "Will force and use Cat Form (Caster until learned). Stays in Cat for fleeing targets; a target out of reach, heals, Bash and Travel/Aquatic Form still leave it (their options)." },
+        { name = "Cat",    icon = "catForm",  overlay = "Cat Form",       tip = "Will force and use Cat Form (Caster until learned). A fleeing target it can't catch in 2 sec: Feral Charge (Cat) from 8 yards, else finished from range. A target out of reach, heals, Bash and Travel/Aquatic Form still leave it (their options)." },
         { name = "Bear",   icon = "bearForm", overlay = "Bear Form",      tip = "Will force and use Bear Form (Caster until learned). Stays in Bear for fleeing targets; a target out of reach, heals and Travel/Aquatic Form still leave it (their options)." },
     } })
     ui.toggle("Prowl", { modes = {
@@ -140,7 +140,7 @@ local function options()
     ui.spinner(section, "Bash", { value = 35, tip = "Health Percent to stun your target at (Bear Form)" })
     ui.checkbox(section, "Cure Poison", { checked = true, tip = "Cure poisons on yourself (uses Abolish Poison once learned). In combat only while already out of Cat or Bear Form (for a heal, say)" })
     ui.checkbox(section, "Remove Curse", { checked = true, tip = "Remove curses on yourself out of combat" })
-    ui.checkbox(section, "Entangling Roots", { tip = "Entangling Roots on fleeing enemies, only when already out of Cat or Bear Form (Cat runs them down)" })
+    ui.checkbox(section, "Entangling Roots", { tip = "Entangling Roots on fleeing enemies, only when already out of Cat or Bear Form (a fleeing target Cat or Bear can't catch is finished from range)" })
     ui.spinner(section, "Nature's Grasp", { value = 40,
         tip = "Escape tool: cast at or below this Health Percent while running from an enemy chasing you within 10 yards. The root breaks on damage, so it's meant for fleeing, not fighting." })
     ui.spinner(section, "Dash", { value = 40, tip = "Escape tool: Dash in Cat Form at or below this Health Percent while running from an enemy chasing you" })
@@ -524,7 +524,7 @@ actionList.Defensive = function()
         -- Entangling Roots (fleeing enemies)
         -- Only on a target that outlives the root and a Wrath after it, with a heal's mana kept (2026-11-05: 3 of 3
         -- Roots on fleeing centaurs failed, two on targets the Wrath already in flight killed; 50 mana each).
-        -- Only when already out of form: Cat runs a fleeing mob down, and Bear on Auto leaves for it (fleeChase)
+        -- Only when already out of form: Cat and Bear (Auto) leave for a fleeing mob themselves (fleeChase)
         if ui.checked("Entangling Roots") and not inForm and cast.able.entanglingRoots("target") and unit.isFleeing("target")
             and unit.valid("target") and unit.hp("target") < 100 and not debuff.entanglingRoots.exists("target")
             and unit.distance("target") > 8 and not unit.moving()
@@ -1253,11 +1253,12 @@ actionList.Combat = function()
     if actionList.Interrupts() then return true end
     -- Call Action List - Cooldowns
     if actionList.Cooldowns() then return true end
-    -- Feral Charge (Cat): leap behind the target to get into melee (and behind it)
+    -- Feral Charge (Cat): leap behind the target to get into melee (and behind it). Its own spell, Feral Charge (Cat):
+    -- the talent's ID is the Bear Form charge, which the game refuses in Cat Form (2026-11-08: never sent in Cat)
     if ui.checked("Feral Charge (Cat)") and buff.catForm.exists() and not buff.prowl.exists()
-        and unit.distance("target") >= 8 and unit.distance("target") < 25 and cast.able.feralCharge("target")
+        and unit.distance("target") >= 8 and unit.distance("target") < 25 and cast.able.feralChargeCat("target")
     then
-        if cast.feralCharge("target") then
+        if cast.feralChargeCat("target") then
             ui.debug("Casting Feral Charge (Cat)")
             return true
         end
@@ -1355,12 +1356,12 @@ local function runRotation()
     freeHeal = (omenSetting == 1 or omenSetting == 3) and buff.clearcasting.exists()
 
     -- A target out of reach hands Bear or Cat over to Caster Form on any Forms setting (2026-11-08 10:35: 19 s idle in
-    -- Cat at full Energy, a Bristleback Thornweaver casting from 20 yd); a fleeing one only on Auto, from Bear (the
-    -- user's calls, 2026-11-08)
+    -- Cat at full Energy, a Bristleback Thornweaver casting from 20 yd); a fleeing one Cat on any setting and Bear on
+    -- Auto (the user's calls, 2026-11-08)
     local meleeForm = activeForm == "bear" or activeForm == "cat"
-    local autoMelee = ui.mode.forms == 1 and meleeForm
+    local fleeForm = activeForm == "cat" or (ui.mode.forms == 1 and activeForm == "bear")
     if not meleeForm then var.reach = nil end
-    if not autoMelee then var.flee = nil end
+    if not fleeForm then var.flee = nil end
     -- Out of reach (see outOfReach): Bear or Cat hands over to Caster Form while nothing is in melee with you and
     -- mana may go on Wrath or Moonfire; back to the toggle's form once the target comes near
     local reachDist = meleeForm and #enemies.yards5 == 0 and outOfReach("target")
@@ -1375,17 +1376,26 @@ local function runRotation()
         ui.debug("Back in reach")
         var.reachSaid = nil
     end
-    -- A fleeing target (see fleeChase): out of Bear while no other enemy is in melee with you. Not Cat: it runs a
-    -- fleeing mob down, and a shift each way costs the Energy and combo points (the user's call, 2026-11-08)
+    -- A fleeing target (see fleeChase): out of Cat or Bear while no other enemy is in melee with you. Cat runs at a
+    -- fleeing mob's speed and doesn't catch it (2026-11-08 12:34 and 12:37: Wrathtail Wave Riders 5-6.5 yd ahead for
+    -- 6-7 s, one lost at 29 yd), so as a player would: Feral Charge (Cat) once it's 8+ yd ahead, else finish it from
+    -- range (the user's call, 2026-11-08)
     var.fleeChase = false
     local fleeWaiting = false
-    if activeForm ~= "bear" then var.flee = nil end
-    if autoMelee and activeForm == "bear" and not reachDist then
+    if fleeForm and not reachDist then
         local othersInMelee = false
         for i = 1, #enemies.yards5 do
             if not unit.isUnit(enemies.yards5[i], "target") then othersInMelee = true break end
         end
         local chase, waiting = fleeChase("target")
+        -- Feral Charge (Cat) can reach it: the charge (Combat) goes first, staying in Cat, and the wait starts over (a
+        -- finished wait otherwise holds for that target, and would shift out right after the charge landed)
+        local dist = unit.distance("target") or 99
+        if chase and activeForm == "cat" and buff.catForm.exists() and ui.checked("Feral Charge (Cat)") and dist >= 8
+            and dist < 25 and cast.able.feralChargeCat("target")
+        then
+            chase, waiting, var.flee = false, false, nil
+        end
         local mana = (chase or waiting) and (spendOnDamage("moonfire", "target") or spendOnDamage("wrath", "target"))
         var.fleeChase = not othersInMelee and chase and mana and true or false
         -- Already out of form (a heal, say) while the wait runs: stay out rather than shift to Bear and straight

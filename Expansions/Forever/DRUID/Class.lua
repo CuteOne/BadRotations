@@ -33,7 +33,8 @@ br.lists.spells.DRUID.Shared = {
                 tigersFury          = 5217,
                 -- Cat or Bear Form
                 berserk             = 417141, -- Talent
-                feralCharge         = 1238122, -- Talent: charge in Bear Form, leap behind the target in Cat Form
+                feralCharge         = 1238122, -- Talent (the Bear Form charge; refused in Cat Form: "power 0, cost 5" Rage)
+                feralChargeCat      = 414924, -- Feral Charge (Cat): the spellbook's Cat Form leap behind the target, learned with the talent (Spells.log 2026-11-08)
                 -- Caster Form
                 barkskin            = 22812,
                 entanglingRoots     = {339, 1062, 5195, 5196, 9852, 9853}, -- Ranks 1-6

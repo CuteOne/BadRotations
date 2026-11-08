@@ -1627,6 +1627,7 @@ function C65.timer(timerName, interval) end
 ---@field faerieFire T
 ---@field feralCharge T
 ---@field feralChargeBear T
+---@field feralChargeCat T
 ---@field ferociousBite T
 ---@field frenziedRegeneration T
 ---@field giftOfTheWild T
