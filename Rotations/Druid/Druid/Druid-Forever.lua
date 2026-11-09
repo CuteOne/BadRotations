@@ -1165,10 +1165,11 @@ actionList.CasterForm = function()
     end
 end -- End Action List - Caster Form
 
--- Yards outside the nearest aggro radius at which Prowl goes up, and how near a neutral target first (see PreCombat)
+-- Yards outside the nearest aggro radius at which Prowl goes up, and how near a neutral or tagged target first (see PreCombat)
 local PROWL_LEAD, PROWL_NEUTRAL = 1, 8
 -- True while the gap to thisUnit is shrinking (you closing in, or it walking at you), from one rotation tick to
--- the next: a mob you walk away from or past at the same distance doesn't need Prowl
+-- the next: a mob you walk away from or past at the same distance doesn't need Prowl. Asked twice in a tick (the
+-- aggro check and the quiet-target check both ask about your target), the second gets the first's answer
 local function closingOn(thisUnit)
     local guid = unit.guid(thisUnit)
     if guid == nil then return false end
@@ -1176,9 +1177,20 @@ local function closingOn(thisUnit)
     if gaps == nil or gaps.n > 200 then gaps = { n = 0 } var.prowlGaps = gaps end
     local now, dist = util.time(), unit.distance(thisUnit) or 99
     local last = gaps[guid]
+    if last ~= nil and last.at == now then return last.closing end
     if last == nil then gaps.n = gaps.n + 1 end
-    gaps[guid] = { dist = dist, at = now }
-    return last ~= nil and now - last.at < 1 and dist < last.dist - 0.05
+    local closing = last ~= nil and now - last.at < 1 and dist < last.dist - 0.05
+    gaps[guid] = { dist = dist, at = now, closing = closing }
+    return closing
+end
+
+-- A neutral or tagged mob (someone else's) doesn't notice you coming: no aggro radius to beat, so Prowl waits for the
+-- last moment, PROWL_NEUTRAL yards, and only for your target while you close in on it, as in going to attack it (the
+-- user's call, 2026-11-09)
+local function prowlForQuietTarget()
+    if not unit.exists("target") or not unit.canAttack("target") or unit.deadOrGhost("target") then return false end
+    if not (unit.reaction("target") == 4 or unit.tapDenied("target")) then return false end
+    return (unit.distance("target") or 99) < PROWL_NEUTRAL and closingOn("target")
 end
 
 actionList.PreCombat = function()
@@ -1187,13 +1199,12 @@ actionList.PreCombat = function()
     -- its aggro radius, since Prowl slows you; only a hostile mob the gap to is shrinking (closingOn). The radius
     -- is the server's (centre to centre, 18 yd +/- level, see unit:getAggroRange); BR used edge distance, 20 yd and
     -- a 2 yd lead, which prowled 5-8 yd early (the user's calls, 2026-11-08: "right before I would aggro with
-    -- proximity"). Facing doesn't change proximity aggro, only what a mob sees through Prowl. Hostile mobs only: a
-    -- neutral one doesn't notice you coming, so for a neutral target Prowl waits until PROWL_NEUTRAL yards (Druid-TBC's
-    -- rule) instead of slowing you all the way in from its aggro radius
+    -- proximity"). Facing doesn't change proximity aggro, only what a mob sees through Prowl. Hostile untagged mobs
+    -- only (unit.anyInAggroRange leaves tagged ones out): a neutral or tagged target gets Prowl at the last moment
+    -- (prowlForQuietTarget) instead of slowing you all the way in from its aggro radius
     if not (buff.prowl.exists() or buff.shadowmeld.exists()) and ui.mode.prowl == 1 and buff.catForm.exists()
         and cast.able.prowl("player") and not unit.resting()
-        and (unit.anyInAggroRange(PROWL_LEAD, 40, true, closingOn)
-            or (unit.valid("target") and unit.reaction("target") == 4 and (unit.distance("target") or 99) < PROWL_NEUTRAL))
+        and (unit.anyInAggroRange(PROWL_LEAD, 40, true, closingOn) or prowlForQuietTarget())
     then
         if cast.prowl("player") then
             ui.debug("Casting Prowl [Precombat]")
