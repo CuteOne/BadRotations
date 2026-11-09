@@ -431,6 +431,32 @@ br.debug.target = br.debug.target or {}
 local targetLine = br.log:file("Target.log")
 local TARGET_REPORT_UNITS = 6
 
+-- Why your target isn't one of BR's candidates: each check targeting's candidate filter
+-- (Targeting.lua attackable, over getEnemies) and isValidUnit make that it fails. 2026-11-08 21:08 on
+-- Forever a fleeing target dropped off the list with nothing in the logs to say why.
+local function targetLeftOut()
+    local unitFns, misc, cast = br.functions.unit, br.functions.misc, br.functions.cast
+    local why = {}
+    if unitFns:GetUnitIsDeadOrGhost("target") then why[#why + 1] = "dead" end
+    local valid, invalidWhy = misc:isValidUnit("target")
+    if not valid then why[#why + 1] = "not valid (" .. printable(invalidWhy or "no reason given") .. ")" end
+    if not cast:isUnitVisible("target") then
+        why[#why + 1] = cast:isRejected("los", nil, "target") and "out of sight (a cast's sight refusal)" or "out of sight"
+    end
+    if unitFns:isEvading("target") then why[#why + 1] = "evading" end
+    if unitFns:isHeldBack("target") then why[#why + 1] = "held back (unit rules)" end
+    if unitFns:isDummy("target") then why[#why + 1] = "a dummy" end
+    if misc:getOptionCheck("Don't break CCs") and misc:isCCProtected("target") then why[#why + 1] = "CC protected (Don't break CCs)" end
+    if misc:getOptionCheck("Safe Damage Check") and not br.engines.enemiesEngineFunctions:isSafeToAttack("target") then
+        why[#why + 1] = "not safe (Safe Damage Check)"
+    end
+    local distance = plainNumber(br.functions.range:getDistance("target") or 99)
+    if distance >= 50 then why[#why + 1] = "50 yd or more" end
+    if #why == 0 then why[1] = "passes every check (not in the enemies list this tick)" end
+    return ("Your target isn't a candidate: %s | %.1fyd, fleeing %s"):format(table.concat(why, ", "), distance,
+        tostring(unitFns:isFleeing("target")))
+end
+
 -- reason (optional): why an automatic report was made (written to the log only, not chat); units:
 -- how many candidates to list
 function br.debug.target:report(reason, units)
@@ -445,6 +471,13 @@ function br.debug.target:report(reason, units)
     local focus, list = br.engines.targeting:explain()
     say(("Targeting Mode %s (1 Off, 2 Assist, 3 Full) | your target: %s"):format(tostring(misc:getValue("Targeting Mode")),
         br.game.UnitExists("target") and unitName("target") or "none"))
+    if br.game.UnitExists("target") and br.game.UnitCanAttack("player", "target") then
+        local listed = false
+        for i = 1, #list do
+            if br.functions.unit:GetUnitIsUnit(list[i].unit, "target") then listed = true; break end
+        end
+        if not listed then say(targetLeftOut()) end
+    end
     if #list == 0 then return say("No enemy BR may attack.") end
     say("Focus: " .. (focus and unitName(focus) or "none"))
     for i = 1, math.min(units, #list) do
