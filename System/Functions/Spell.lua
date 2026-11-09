@@ -897,8 +897,11 @@ function spell:isSpellInSpellbook(spellID, spellType)
 		-- Try modern API first if available
 		if br.game.C_SpellBook and br.game.C_SpellBook.GetSpellBookItemInfo then
 			local spellBookItemInfo = br.game.C_SpellBook.GetSpellBookItemInfo(spellSlot, bank)
-			if spellBookItemInfo and spellBookItemInfo.actionID then
-				return spellBookItemInfo.actionID == spellID
+			-- the slot can hold the spell as its spellID with a different actionID (Forever 2026-11-08:
+			-- Feral Charge (Cat) 414924 listed known by the spellbook scan, refused NOT_KNOWN all day);
+			-- a lower rank's slot holds the current rank in both, so that stays false
+			if spellBookItemInfo and (spellBookItemInfo.actionID or spellBookItemInfo.spellID) then
+				return spellBookItemInfo.actionID == spellID or spellBookItemInfo.spellID == spellID
 			end
 		end
 		-- Older API fallback (TBC / Classic: GetSpellBookItemInfo(slot, "PET" | "SPELL"))

@@ -87,6 +87,15 @@ local function scanSpellbook(class, ids)
 				local item = book.GetSpellBookItemInfo(slot, bank)
 				local kind = item and ITEM_KINDS[plain(item.itemType)]
 				local id = item and (plain(item.spellID) or plain(item.actionID))
+				-- a listed spell the book has but BR's known check misses: what the slot holds (2026-11-08:
+				-- Feral Charge (Cat) 414924 refused NOT_KNOWN while the book listed it)
+				local known = br.functions and br.functions.spell and br.functions.spell.isKnown
+				if kind == "known" and id and ids[id] and known and not plain(item.isPassive) and not known(br.functions.spell, id) then
+					local found = br.game.FindSpellBookSlotBySpellID and br.game.FindSpellBookSlotBySpellID(id, false)
+					note("unknown:" .. id, "x", ("spellbook (%s): %s %d in the lists but BR reads it as not known: slot %d spellID %s actionID %s, FindSpellBookSlotBySpellID %s, IsPlayerSpell %s, IsSpellKnown %s"):format(
+						tab, plain(item.name) or spellName(id), id, slot, tostring(plain(item.spellID)), tostring(plain(item.actionID)),
+						tostring(plain(found)), tostring(br.game.IsPlayerSpell(id)), tostring(br.game.IsSpellKnown(id))))
+				end
 				if kind and id and not ids[id] then
 					local rank = plain(item.subName)
 					note("book:" .. id, kind, ("spellbook (%s): %s%s %d not in the %s lists (%s%s%s)"):format(tab,
