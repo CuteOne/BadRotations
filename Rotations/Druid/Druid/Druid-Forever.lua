@@ -992,7 +992,7 @@ actionList.CatForm = function()
 
     -- Finishers, in the order of wowsims/forever's Cat rotation (2026-11-08, master 125e53455)
     local ripUp = debuff.rip.exists(thisUnit)
-    -- Fight left for a new Rip to pay off: 8 sec (the sim's), 6 before Ferocious Bite (level 32), while Rip is the only
+    -- Fight left for a new Rip to pay off: 8 sec (the sim's), 6 before Ferocious Bite is learned (Forever's own 1328618 was in the spellbook at 24), while Rip is the only
     -- finisher (2026-11-07, level 20: fights of 11-19 sec ended on 5 unspent combo points)
     local ripTime = spell.ferociousBite.known() and 8 or 6
     -- Ferocious Bite spends all your Energy unless Predatory Discipline (talent) keeps it, so without the talent it goes
