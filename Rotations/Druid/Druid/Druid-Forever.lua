@@ -623,12 +623,13 @@ actionList.Defensive = function()
     -- Rejuvenation: too slow to justify two shapeshifts in combat. It's recast only once it's gone: a recast with
     -- ~3 s left threw away its last tick (2026-11-05: recast every 8.4-8.8 s of its 12 s, ticks every 3 s), and the
     -- Bloom talent heals only when it runs out. Out of combat too (2026-11-06: several Rejuvenations after a fight).
-    -- Kept for healing on the move, where the cast-time heals can't go (the user's call, 2026-11-09): standing
-    -- still, Healing Touch and Regrowth heal at their own thresholds, unless both are unticked.
+    -- Out of combat it's for healing on the move: standing still, the Healing Touch above heals more for the mana, and
+    -- waits for its mana rather than a Rejuvenation going out the moment its smaller cost is there (the user's call,
+    -- 2026-11-09: back from dying, low on mana, a Rejuvenation went out instead of waiting for a denser heal).
     local function rejuvenationDue(thisUnit)
         return not buff.rejuvenation.exists(thisUnit)
     end
-    local rejuvenationNow = unit.moving() or not (ui.checked("Healing Touch") or ui.checked("Regrowth"))
+    local rejuvenationNow = unit.inCombat() or unit.moving() or not ui.checked("Healing Touch")
     if ui.checked("Rejuvenation") and rejuvenationNow and (not unit.inCombat() or not inForm) then
         if unit.hpAfterHeals() <= ui.value("Rejuvenation") and rejuvenationDue("player") and not buff.clearcasting.exists()
             and (unit.solo() or ui.checked("Self Heal In Group")) and cast.able.rejuvenation("player")
