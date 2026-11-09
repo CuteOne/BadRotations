@@ -158,6 +158,16 @@ local function tableLoad(sfile)
     return parse(br.game.ReadFile(sfile), sfile)
 end
 
+--- A small table this flavour keeps across sessions (Settings/<Flavour>/<name>.lua): what BR learned about
+--- the game world rather than one character's settings (unit:isBleedImmune's marks). nil when there's none.
+function settingsManagement:readFlavourTable(name)
+	return tableLoad(settingsRoot() .. name .. ".lua")
+end
+
+function settingsManagement:writeFlavourTable(name, tbl)
+	tableSave(tbl, settingsRoot() .. name .. ".lua")
+end
+
 -- Live settings files taken over this session from the root before the flavour split (path -> true)
 local tookOver = {}
 

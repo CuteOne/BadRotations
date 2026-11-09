@@ -809,12 +809,48 @@ end
 -- A bleed BR sent (br.lists.bleeds[class]: ability key -> the debuff key it puts on) that the game
 -- confirms (UNIT_SPELLCAST_SUCCEEDED) and whose debuff of yours isn't on the unit BLEED_CHECK_AFTER
 -- seconds later counts a miss for that NPC ID; a bleed that shows resets the count (and lifts a mark).
--- BLEED_IMMUNE_AFTER misses in a row mark the NPC ID for the session. A dodged or parried bleed looks
--- the same (no debuff), but three in a row on one kind of mob is ~1 in 1000 by avoidance alone.
-local BLEED_CHECK_AFTER, BLEED_SEND_WINDOW, BLEED_IMMUNE_AFTER = 0.6, 1.0, 3
+-- BLEED_IMMUNE_AFTER misses in a row mark the NPC ID. A dodged, parried or missed bleed looks the same (no
+-- debuff): on Forever ~16% of Rakes were avoided (2026-11-09, mobs 1-2 levels up, mostly from the front), and
+-- three in a row marked a harpy, so it takes five (~1 in 10000 by avoidance alone). Marks are kept across
+-- sessions in Settings/<Flavour>/BleedImmune.lua (a fact about the mob, not your character); delete the file
+-- to start over.
+local BLEED_CHECK_AFTER, BLEED_SEND_WINDOW, BLEED_IMMUNE_AFTER = 0.6, 1.0, 5
+local BLEED_FILE = "BleedImmune"
 local bleedNames, bleedNamesFor -- [ability name] = its debuff's name; the spell table it was built from
-local bleedPending = {}         -- { debuffName, spellName, guid, npcID, name, at }
-local bleedMisses, bleedImmune = {}, {} -- [npcID] = misses in a row; [npcID] = true
+local bleedPending = {}         -- { debuffName, spellName, guid, npcID, name, at, energy, combo }
+local bleedMisses = {}          -- [npcID] = misses in a row
+local bleedImmune               -- [npcID] = true; read from the file on first use
+
+-- The marks, read from this flavour's file the first time they're needed
+local function bleedMarks()
+	if bleedImmune then return bleedImmune end
+	bleedImmune = {}
+	local sm = br.ui and br.ui.settingsManagement
+	local ok, saved = pcall(function() return sm and sm.readFlavourTable and sm:readFlavourTable(BLEED_FILE) end)
+	if ok and type(saved) == "table" and type(saved.immune) == "table" then
+		for npcID, marked in pairs(saved.immune) do
+			if marked == true and tonumber(npcID) then bleedImmune[tonumber(npcID)] = true end
+		end
+	end
+	return bleedImmune
+end
+
+local function saveBleedMarks()
+	local sm = br.ui and br.ui.settingsManagement
+	if not (sm and sm.writeFlavourTable) then return end
+	local immune = {}
+	for npcID in pairs(bleedMarks()) do immune[npcID] = true end
+	pcall(sm.writeFlavourTable, sm, BLEED_FILE, { immune = immune })
+end
+
+-- Your Energy and combo points now, as plain numbers (nil where the client hides them): for the BLEED
+-- lines, to tell an immune bleed from an avoided one (an avoided one gives back 80% of its Energy)
+local function bleedPower()
+	local misc = br.functions.misc
+	local energy = br.game.UnitPower("player", 3)
+	local combo = br.game.UnitPower("player", 4)
+	return misc:canUseValue(energy) and misc:plainNumber(energy) or nil, misc:canUseValue(combo) and misc:plainNumber(combo) or nil
+end
 
 local function bleedSpellName(ref)
 	if type(ref) == "table" then ref = ref[1] end
@@ -850,21 +886,30 @@ local function settleBleeds(now)
 			-- a unit gone or dead by now tells nothing (the debuff falls off with death)
 			if obj and unit:GetObjectExists(obj) and not unit:GetUnitIsDeadOrGhost(obj) then
 				local landed = br.functions.aura:findByName(entry.debuffName, obj, "HARMFUL|PLAYER") ~= nil
-				local npcID = entry.npcID
+				local npcID, marks = entry.npcID, bleedMarks()
+				local note = br.debug.cast and br.debug.cast.noteBleed
+				local energy, combo = bleedPower()
+				local power = (" | Energy %s -> %s, combo points %s -> %s"):format(tostring(entry.energy), tostring(energy),
+					tostring(entry.combo), tostring(combo))
 				if landed then
-					if bleedImmune[npcID] and br.debug.cast and br.debug.cast.noteBleed then
-						br.debug.cast:noteBleed(entry.name, npcID, entry.spellName, "landed: no longer counted bleed-immune")
+					if marks[npcID] then
+						marks[npcID] = nil
+						saveBleedMarks()
+						if note then br.debug.cast:noteBleed(entry.name, npcID, entry.spellName, "landed: no longer counted bleed-immune" .. power) end
 					end
-					bleedMisses[npcID], bleedImmune[npcID] = 0, nil
+					bleedMisses[npcID] = 0
 				else
 					local misses = (bleedMisses[npcID] or 0) + 1
 					bleedMisses[npcID] = misses
-					local nowImmune = misses >= BLEED_IMMUNE_AFTER and not bleedImmune[npcID]
-					if nowImmune then bleedImmune[npcID] = true end
-					if br.debug.cast and br.debug.cast.noteBleed then
-						br.debug.cast:noteBleed(entry.name, npcID, entry.spellName, nowImmune
-							and ("no %s after it, %d in a row: counted bleed-immune for the session"):format(entry.debuffName, misses)
-							or ("no %s after it (%d in a row)"):format(entry.debuffName, misses))
+					local nowImmune = misses >= BLEED_IMMUNE_AFTER and not marks[npcID]
+					if nowImmune then
+						marks[npcID] = true
+						saveBleedMarks()
+					end
+					if note then
+						br.debug.cast:noteBleed(entry.name, npcID, entry.spellName, (nowImmune
+							and ("no %s after it, %d in a row: counted bleed-immune (kept in Settings)"):format(entry.debuffName, misses)
+							or ("no %s after it (%d in a row)"):format(entry.debuffName, misses)) .. power)
 					end
 				end
 			end
@@ -885,8 +930,9 @@ local function noteBleedSucceeded(spellID)
 	local obj = unit:getObjectFromGUID(br.botGUID)
 	local npcID = obj and unit:GetObjectID(obj)
 	if not npcID or npcID == 0 then return end
+	local energy, combo = bleedPower()
 	bleedPending[#bleedPending + 1] = { debuffName = debuffName, spellName = spellName, guid = br.botGUID,
-		npcID = npcID, name = br.game.UnitName(obj), at = now + BLEED_CHECK_AFTER }
+		npcID = npcID, name = br.game.UnitName(obj), at = now + BLEED_CHECK_AFTER, energy = energy, combo = combo }
 	-- looked at on time, not when next asked: a bleed that landed may have run out by then
 	br.game.C_Timer.After(BLEED_CHECK_AFTER, function() settleBleeds(br.game.GetTime()) end)
 end
@@ -900,13 +946,14 @@ if bleedWatch then
 end
 
 --- True when thisUnit's kind of mob (NPC ID) took BLEED_IMMUNE_AFTER of your bleeds in a row without the
---- bleed showing (learned this session): the profile skips bleeds on it.
+--- bleed showing (learned, and kept across sessions): the profile skips bleeds on it.
 -- if not br.functions.unit:isBleedImmune("target") then (Rake)
 function unit:isBleedImmune(thisUnit)
 	if bleedPending[1] then settleBleeds(br.game.GetTime()) end
-	if next(bleedImmune) == nil or thisUnit == nil then return false end
+	local marks = bleedMarks()
+	if next(marks) == nil or thisUnit == nil then return false end
 	local npcID = unit:GetObjectID(thisUnit)
-	return npcID ~= nil and bleedImmune[npcID] == true
+	return npcID ~= nil and marks[npcID] == true
 end
 
 function unit:isExplosive(Unit)
