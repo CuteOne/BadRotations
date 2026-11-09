@@ -39,14 +39,17 @@ end
 -- Allows "regain control" spells (e.g., freedom/berserker rage) via canRegainControl().
 function combat:cannotCast(spellID)
 	if not br.game.C_LossOfControl then return false end
-	local hard, event = combat:hasHardControl()
-	if not hard or not event or not event.locType then
-		return false
+	if not combat:hasHardControl() then return false end
+	local LoC = br.game.C_LossOfControl
+	for i = 0, LoC.GetActiveLossOfControlDataCount() do -- 0 as well, as hasHardControl reads
+		local event = LoC.GetActiveLossOfControlData(i)
+		if event and event.locType and combat:controlBlocks(event.locType, spellID)
+			and not (spellID ~= nil and combat:canRegainControl(spellID, event.locType))
+		then
+			return true
+		end
 	end
-	if spellID ~= nil and combat:canRegainControl(spellID, event.locType) then
-		return false
-	end
-	return true
+	return false
 end
 
 function combat:canRegainControl(spellID, controlEvent)
@@ -199,6 +202,32 @@ local HARD_CONTROL_TYPES = {
 	DISORIENT = true,
 	HORROR = true,
 }
+
+-- What a silence or a pacify leaves usable (2026-11-09, Forever: silenced by satyrs, Claw, Rake and
+-- Ferocious Bite were refused until it ended, though the game lets them through). Silence stops spells,
+-- pacify stops melee and shot abilities, so these two block only one kind; every other hard type blocks
+-- everything. A spell paid for with Rage, Focus or Energy counts as an ability: what the client tells
+-- addons of a spell, and right for Cat and Bear, Rogues and Warriors (Hunter shots cost mana, so they
+-- stay blocked under a silence, as before).
+local PARTIAL_CONTROL = { SILENCE = "spells", PACIFY = "abilities" }
+local ABILITY_POWER = { [1] = true, [2] = true, [3] = true } -- Enum.PowerType Rage, Focus, Energy
+
+local function isAbility(spellID)
+	for _, cost in ipairs(br.functions.power:getSpellCosts(spellID)) do
+		if ABILITY_POWER[cost.type] then return true end
+	end
+	return false
+end
+
+-- Whether a loss-of-control type stops this spell (no spell: whether it stops anything). Roots,
+-- snares, disarms and school lockouts stop nothing here: the game refuses what they block.
+-- if br.functions.combat:controlBlocks(event.locType, spellID) then
+function combat:controlBlocks(locType, spellID)
+	if not HARD_CONTROL_TYPES[locType] then return false end
+	local partial = PARTIAL_CONTROL[locType]
+	if partial == nil or spellID == nil then return true end
+	return (partial == "abilities") == isAbility(spellID)
+end
 
 -- Returns true if the player is under a "hard" loss-of-control effect (typically prevents casting/attacking).
 -- Also returns the matching event table (or nil).
@@ -407,7 +436,10 @@ function combat:isIncapacitated(spellID)
 			event = br.game.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
 				local eventType = event.locType
-				local canRegain = combat:canRegainControl(spellID, eventType)
+				-- Only effects that stop this spell count (2026-11-09: any effect did, so a disarm or
+				-- a silence refused Claw too)
+				local canRegain = not (eventType and combat:controlBlocks(eventType, spellID))
+					or combat:canRegainControl(spellID, eventType)
 
 				-- If we cannot regain control (meaning we are incapacitated)
 				if not canRegain then
