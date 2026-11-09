@@ -6,6 +6,12 @@
 -- profiles use. The game never loads these files.
 
 
+---@class BR.Retail.Druid.Feral.cd : BR.cd.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cd.Spell>, BR.Keys.Retail.Druid.Feral.Items<BR.cd.Item>
+
+
+---@class BR.Retail.Druid.Feral.charges : BR.Keys.Retail.Druid.Feral.Abilities<BR.charges.Spell>, BR.Keys.Retail.Druid.Feral.Items<BR.charges.Item>
+
+
 ---@class BR.Retail.Druid.Feral.debuff : BR.Keys.Retail.Druid.Feral.Debuffs<BR.debuff.Spell>
 
 

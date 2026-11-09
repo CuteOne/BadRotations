@@ -1069,12 +1069,13 @@ function unit:isHumanoid(Unit)
 end
 
 -- True if thisUnit would aggro on the player: hostile (or neutral and targeted, unless hostileOnly)
--- and within its aggro radius plus offset yards.
+-- and within its aggro radius plus offset yards. A mob tagged by someone else (tap denied) doesn't: it's
+-- busy with them, and doesn't notice you walking up (the user's call, 2026-11-09).
 -- if br.functions.unit:isInAggroRange("target", 5) then
 function unit:isInAggroRange(thisUnit, offset, hostileOnly)
 	if thisUnit == nil then thisUnit = "target" end
 	if not unit:GetObjectExists(thisUnit) or unit:GetUnitIsDeadOrGhost(thisUnit)
-		or not br.game.UnitCanAttack("player", thisUnit)
+		or not br.game.UnitCanAttack("player", thisUnit) or unit:isTapDenied(thisUnit)
 	then
 		return false
 	end
@@ -1121,6 +1122,11 @@ function unit:isInstanceBoss(thisUnit)
 		if level and level < 0 then return true end
 	end
 	return false
+end
+
+-- True when thisUnit is tagged by someone else: its kill (loot, experience) isn't yours
+function unit:isTapDenied(thisUnit)
+	return br.game.UnitIsTapDenied(thisUnit or "target") == true
 end
 
 function unit:isTankInRange(range)

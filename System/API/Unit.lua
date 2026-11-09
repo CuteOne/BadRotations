@@ -940,6 +940,15 @@ br.api.build.unit = function(api)
         return br.functions.unit:getTarget(thisUnit)
     end
 
+    --- Whether the unit is tagged by someone else (tap denied): its kill isn't yours, and it doesn't
+    -- proximity-aggro you (unit.inAggroRange leaves it out)
+    -- @function unit.tapDenied
+    -- @param thisUnit The unit to check, defaults to "target" if nil
+    -- @return boolean True when it's tagged by someone else
+    unit.tapDenied = function(thisUnit)
+        return br.functions.unit:isTapDenied(thisUnit or "target")
+    end
+
     --- Check if a unit is on a taxi
     -- @function unit.taxi
     -- @param thisUnit The unit to check, defaults to "player" if nil
