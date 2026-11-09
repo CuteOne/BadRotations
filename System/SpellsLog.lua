@@ -92,9 +92,10 @@ local function scanSpellbook(class, ids)
 				local known = br.functions and br.functions.spell and br.functions.spell.isKnown
 				if kind == "known" and id and ids[id] and known and not plain(item.isPassive) and not known(br.functions.spell, id) then
 					local found = br.game.FindSpellBookSlotBySpellID and br.game.FindSpellBookSlotBySpellID(id, false)
-					note("unknown:" .. id, "x", ("spellbook (%s): %s %d in the lists but BR reads it as not known: slot %d spellID %s actionID %s, FindSpellBookSlotBySpellID %s, IsPlayerSpell %s, IsSpellKnown %s"):format(
+					note("unknown:" .. id, "x", ("spellbook (%s): %s %d in the lists but BR reads it as not known: slot %d spellID %s actionID %s, FindSpellBookSlotBySpellID %s, IsPlayerSpell %s, IsSpellKnown %s, base %s"):format(
 						tab, plain(item.name) or spellName(id), id, slot, tostring(plain(item.spellID)), tostring(plain(item.actionID)),
-						tostring(plain(found)), tostring(br.game.IsPlayerSpell(id)), tostring(br.game.IsSpellKnown(id))))
+						tostring(plain(found)), tostring(br.game.IsPlayerSpell(id)), tostring(br.game.IsSpellKnown(id)),
+						tostring(br.game.FindBaseSpellByID and br.game.FindBaseSpellByID(id))))
 				end
 				if kind and id and not ids[id] then
 					local rank = plain(item.subName)

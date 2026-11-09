@@ -834,6 +834,20 @@ function spell:isAutoRepeating(spellID)
 	return br.game.C_Spell.IsAutoRepeatSpell(spell:getName(spellID)) == true
 end
 
+-- True while spellID is what a known spell turns into right now (Forever 2026-11-08: the Feral Charge
+-- talent 1238122 shows as Feral Charge (Cat) 414924 in Cat Form; neither IsPlayerSpell nor
+-- IsSpellKnown knows 414924 itself, so BR refused it NOT_KNOWN and Cat never charged)
+local function isActiveOverride(spellID)
+	local findBase = br.game.FindBaseSpellByID
+	if spellID == nil or findBase == nil then return false end
+	local base = findBase(spellID)
+	base = base ~= nil and tonumber(base) or nil
+	if base == nil or base == spellID then return false end
+	local getOverride = br.game.C_Spell and br.game.C_Spell.GetOverrideSpell
+	if not (getOverride and getOverride(base) == spellID) then return false end
+	return br.game.IsPlayerSpell(base) or br.game.IsSpellKnown(base) or br.functions.spell:isSpellInSpellbook(base, "spell")
+end
+
 function spell:isKnown(spellID)
 	if spellID == nil then return false end
 
@@ -841,6 +855,7 @@ function spell:isKnown(spellID)
 	if br.client.rules.hasSpellRanks then
 		-- Check if this specific spell ID is known
 		return br.game.IsPlayerSpell(tonumber(spellID)) or br.game.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID, "spell")
+			or isActiveOverride(tonumber(spellID))
 	end
 
 	-- For non-Classic, use the existing logic
@@ -853,6 +868,7 @@ function spell:isKnown(spellID)
 		inBook = br.functions.spell:isSpellInSpellbook(spellID, "spell")
 	end
 	return inBook or br.game.IsPlayerSpell(tonumber(spellID)) or br.game.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID,"spell")
+		or isActiveOverride(tonumber(spellID))
 end
 
 -- True once the player's level reaches the level the spell is learned at
