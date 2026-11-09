@@ -1160,19 +1160,33 @@ actionList.CasterForm = function()
 end -- End Action List - Caster Form
 
 -- Yards outside the nearest aggro radius at which Prowl goes up, and how near a neutral target first (see PreCombat)
-local PROWL_LEAD, PROWL_NEUTRAL = 2, 8
+local PROWL_LEAD, PROWL_NEUTRAL = 1, 8
+-- True while the gap to thisUnit is shrinking (you closing in, or it walking at you), from one rotation tick to
+-- the next: a mob you walk away from or past at the same distance doesn't need Prowl
+local function closingOn(thisUnit)
+    local guid = unit.guid(thisUnit)
+    if guid == nil then return false end
+    local gaps = var.prowlGaps
+    if gaps == nil or gaps.n > 200 then gaps = { n = 0 } var.prowlGaps = gaps end
+    local now, dist = util.time(), unit.distance(thisUnit) or 99
+    local last = gaps[guid]
+    if last == nil then gaps.n = gaps.n + 1 end
+    gaps[guid] = { dist = dist, at = now }
+    return last ~= nil and now - last.at < 1 and dist < last.dist - 0.05
+end
 
--- Action List - Pre-Combat
 actionList.PreCombat = function()
     if unit.inCombat() or unit.flying() or unit.mounted() then return false end
-    -- Prowl: only just before a mob would notice you, PROWL_LEAD yards outside its aggro radius (a rotation
-    -- tick and the send at a run), since Prowl slows you. unit.enemyNear(20) prowled 20 yd from the target whatever its
-    -- aggro radius: 5 yd early for a mob 5 levels below (the user's call, 2026-11-08). Hostile mobs only: a neutral
-    -- one doesn't notice you coming, so for a neutral target Prowl waits until PROWL_NEUTRAL yards (Druid-TBC's rule)
-    -- instead of slowing you all the way in from its aggro radius
+    -- Prowl: only just before a mob would notice you, PROWL_LEAD yards (about a rotation tick at a run) outside
+    -- its aggro radius, since Prowl slows you; only a hostile mob the gap to is shrinking (closingOn). The radius
+    -- is the server's (centre to centre, 18 yd +/- level, see unit:getAggroRange); BR used edge distance, 20 yd and
+    -- a 2 yd lead, which prowled 5-8 yd early (the user's calls, 2026-11-08: "right before I would aggro with
+    -- proximity"). Facing doesn't change proximity aggro, only what a mob sees through Prowl. Hostile mobs only: a
+    -- neutral one doesn't notice you coming, so for a neutral target Prowl waits until PROWL_NEUTRAL yards (Druid-TBC's
+    -- rule) instead of slowing you all the way in from its aggro radius
     if not (buff.prowl.exists() or buff.shadowmeld.exists()) and ui.mode.prowl == 1 and buff.catForm.exists()
         and cast.able.prowl("player") and not unit.resting()
-        and (unit.anyInAggroRange(PROWL_LEAD, 40, true)
+        and (unit.anyInAggroRange(PROWL_LEAD, 40, true, closingOn)
             or (unit.valid("target") and unit.reaction("target") == 4 and (unit.distance("target") or 99) < PROWL_NEUTRAL))
     then
         if cast.prowl("player") then
