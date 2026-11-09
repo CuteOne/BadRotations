@@ -176,7 +176,7 @@ end
 -- rule as Classic emulators have it (vmangos Creature::GetAttackDistance, 2026-11-08): each mob has its own
 -- base (18 for most by 1.12, 20 earlier); Logs/Aggro.log records the distances Forever's mobs really aggro at.
 -- if br.functions.unit:getAggroRange("target") > 15 then
-local AGGRO_BASE, AGGRO_LEVEL_CAP, AGGRO_MIN, AGGRO_HEIGHT = 18, 25, 5, 3
+local AGGRO_BASE, AGGRO_LEVEL_CAP, AGGRO_MIN, AGGRO_HEIGHT = 18, 25, 5, 8
 unit.AGGRO_HEIGHT = AGGRO_HEIGHT
 function unit:getAggroRange(thisUnit)
 	if thisUnit == nil then thisUnit = "target" end
@@ -1131,7 +1131,8 @@ function unit:isInAggroRange(thisUnit, offset, hostileOnly)
 		return false
 	end
 	-- centre to centre, as the server measures it (BR's usual distance is edge to edge, 3+ yards less); a mob
-	-- more than AGGRO_HEIGHT yards above or below you doesn't proximity-aggro (vmangos BasicAI, non-flyers)
+	-- more than AGGRO_HEIGHT yards above or below you doesn't proximity-aggro. vmangos BasicAI has 3 yd, but on
+	-- Forever mobs aggroed with nothing of yours at 5.6, 6.2 and 7.5 yd of height (Aggro.log 2026-11-09)
 	local distance, _, dz = br.functions.range:getCenterDistance("player", thisUnit)
 	if distance == nil or math.abs(dz or 0) > AGGRO_HEIGHT then return false end
 	return distance < unit:getAggroRange(thisUnit) + (offset or 0)
