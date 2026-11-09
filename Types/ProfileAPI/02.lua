@@ -53,15 +53,16 @@ function C59.aberration(thisUnit) end
 
 --- Get a unit's aggro radius against the player
 ---@param thisUnit? string The unit to check, defaults to "target"
----@return number # Aggro radius in yards (20 +/- level difference, minimum 5)
+---@return number # Aggro radius in yards, centre to centre (18 +/- level difference, growth capped at 25 levels, minimum 5)
 function C59.aggroRange(thisUnit) end
 
 --- Check if any nearby enemy would aggro on the player
 ---@param offset? any Optional extra yards added to each aggro radius
 ---@param radius? any Optional search radius in yards, defaults to 40
 ---@param hostileOnly? any Optional: leave out a neutral target (it doesn't notice you coming), as for stealthing
+---@param accept? any Optional function(unit): only enemies it returns true for count
 ---@return boolean # True if any enemy (in combat or not) is within its aggro radius
-function C59.anyInAggroRange(offset, radius, hostileOnly) end
+function C59.anyInAggroRange(offset, radius, hostileOnly, accept) end
 
 --- Check if an enemy is attacking someone other than you
 --- ```lua
@@ -331,8 +332,9 @@ function C59.id(thisUnit) end
 --- Check if a unit would aggro on the player
 ---@param thisUnit? string The unit to check, defaults to "target"
 ---@param offset? any Optional extra yards added to the aggro radius
----@return boolean # True if hostile (or neutral and targeted) and within its aggro radius
-function C59.inAggroRange(thisUnit, offset) end
+---@param hostileOnly? any Optional: leave out a neutral target
+---@return boolean # True if hostile (or neutral and targeted) and within its aggro radius (centre to centre,
+function C59.inAggroRange(thisUnit, offset, hostileOnly) end
 
 --- Check if a unit is in combat
 ---@param thisUnit? string The unit to check, defaults to "player" if nil

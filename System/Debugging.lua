@@ -1416,3 +1416,72 @@ function br.debug.imbue:noteUnlisted(offHand, enchantID, listed)
     imbueWrite(("%s enchant %s is not in the list {%s} (spells {%s}); counted as the imbue"):format(hand,
         tostring(enchantID), table.concat(ids, ","), table.concat(spells, ",")))
 end
+
+----------------------------------------------------------------------------------------------------
+-- Aggro recorder (2026-11-08): what radius Forever's mobs really aggro at, to tune unit:getAggroRange
+-- (18 yd +/- level, centre to centre, from the Classic emulators). When you enter combat, every enemy
+-- within 45 yd is measured at once; half a second later, the ones attacking you go to Aggro.log with that
+-- distance, the level gap and how long since you last cast or started a swing. A pull with nothing of yours
+-- just before it (no cast, no swing, not stealthed) is a proximity aggro: its distance is the radius.
+----------------------------------------------------------------------------------------------------
+local aggroLine = br.log:file("Aggro.log", 400)
+local AGGRO_SCAN, AGGRO_ANSWER = 45, 0.5
+local lastOwnAction, lastOwnWhat = 0, "nothing"
+local aggroEvents = br.game.CreateFrame("Frame")
+aggroEvents:RegisterEvent("PLAYER_REGEN_DISABLED")
+aggroEvents:RegisterEvent("UNIT_SPELLCAST_SENT")
+aggroEvents:RegisterEvent("PLAYER_ENTER_COMBAT")
+aggroEvents:SetScript("OnEvent", function(_, event, a, _, _, d)
+    local now = br.game.GetTime()
+    if event == "UNIT_SPELLCAST_SENT" then
+        -- the payload can be secret on Forever: a secret compare throws, so pcall, and count it as a cast anyway
+        local okSent, isPlayer = pcall(function() return a == "player" end)
+        if not okSent or isPlayer then
+            local spellID = okSent and plainNumber(d) or nil
+            lastOwnAction, lastOwnWhat = now, printable(spellID and br.functions.spell:getName(spellID) or "a cast")
+        end
+        return
+    end
+    if event == "PLAYER_ENTER_COMBAT" then
+        lastOwnAction, lastOwnWhat = now, "auto attack"
+        return
+    end
+    local ok, err = pcall(function()
+        local unitFns, rangeFns = br.functions.unit, br.functions.range
+        local sinceOwn = now - lastOwnAction
+        local own = lastOwnWhat
+        local stealthed = br.game.IsStealthed and br.game.IsStealthed() and true or false
+        local playerLevel = plainNumber(br.game.UnitLevel("player")) or 0
+        local seen = {}
+        local nearby = br.engines.enemiesEngineFunctions:getEnemies("player", AGGRO_SCAN, true)
+        for i = 1, #nearby do
+            local u = nearby[i]
+            local centre, flat, dz = rangeFns:getCenterDistance("player", u)
+            if centre then
+                seen[#seen + 1] = { unit = u, centre = centre, flat = flat, dz = dz or 0,
+                    edge = rangeFns:getEdgeDistance("player", u) or centre,
+                    level = plainNumber(br.game.UnitLevel(u)) or 0,
+                    reaction = plainNumber(unitFns:GetUnitReaction(u, "player")) or 0,
+                    facesYou = unitFns:getFacing(u, "player") and true or false,
+                    radius = unitFns:getAggroRange(u) }
+            end
+        end
+        br.game.C_Timer.After(AGGRO_ANSWER, function()
+            pcall(function()
+                for _, m in ipairs(seen) do
+                    local itsTarget = unitFns:GetObjectExists(m.unit) and unitFns:getTarget(m.unit)
+                    if itsTarget and unitFns:GetUnitIsUnit(itsTarget, "player") then
+                        local likelyProximity = sinceOwn > 2 and not stealthed
+                        aggroLine(("%s %s lvl %d (you %d, gap %+d) %s: centre %.1f yd (flat %.1f, height %+.1f), edge %.1f, BR radius %d | your last action: %s %.1f s before%s%s"):format(
+                            likelyProximity and "PROXIMITY?" or "pulled   ", unitName(m.unit), m.level, playerLevel,
+                            m.level - playerLevel, m.reaction == 4 and "neutral" or (m.reaction < 4 and "hostile" or "other"),
+                            m.centre, m.flat, m.dz, m.edge, m.radius, own, sinceOwn,
+                            stealthed and " | you were stealthed" or "",
+                            m.facesYou and " | it faced you" or " | it faced away"))
+                    end
+                end
+            end)
+        end)
+    end)
+    if not ok then aggroLine("aggro snapshot failed: " .. printable(err)) end
+end)

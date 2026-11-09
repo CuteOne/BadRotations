@@ -144,12 +144,13 @@ if fedWatch then
 	end)
 end
 
--- True if any enemy (in combat or not) within radius yards would aggro on the player.
+-- True if any enemy (in combat or not) within radius yards would aggro on the player. accept(unit), when
+-- given, picks which enemies count; it is asked about every enemy in radius, before the aggro check.
 -- if br.functions.unit:anyInAggroRange(5) then
-function unit:anyInAggroRange(offset, radius, hostileOnly)
+function unit:anyInAggroRange(offset, radius, hostileOnly, accept)
 	local nearby = br.engines.enemiesEngineFunctions:getEnemies("player", radius or 40, true)
 	for i = 1, #nearby do
-		if unit:isInAggroRange(nearby[i], offset, hostileOnly) then return true end
+		if (accept == nil or accept(nearby[i])) and unit:isInAggroRange(nearby[i], offset, hostileOnly) then return true end
 	end
 	return false
 end
@@ -170,15 +171,20 @@ function unit:clearTarget()
 	return br.game.ClearTarget()
 end
 
--- Aggro radius of a unit against the player: 20 yards, +/- 1 per level difference, minimum 5.
+-- Aggro radius of a unit against the player, centre to centre: AGGRO_BASE yards, 1 more per level it is above
+-- you and 1 less per level below, at most AGGRO_LEVEL_CAP levels' worth of growth, never under 5. The server
+-- rule as Classic emulators have it (vmangos Creature::GetAttackDistance, 2026-11-08): each mob has its own
+-- base (18 for most by 1.12, 20 earlier); Logs/Aggro.log records the distances Forever's mobs really aggro at.
 -- if br.functions.unit:getAggroRange("target") > 15 then
+local AGGRO_BASE, AGGRO_LEVEL_CAP, AGGRO_MIN, AGGRO_HEIGHT = 18, 25, 5, 3
+unit.AGGRO_HEIGHT = AGGRO_HEIGHT
 function unit:getAggroRange(thisUnit)
 	if thisUnit == nil then thisUnit = "target" end
 	local thisLevel = br.game.UnitLevel(thisUnit) or 0
 	local playerLevel = br.game.UnitLevel("player") or 0
 	-- UnitLevel returns -1 for skull-level units; treat them as far above the player
 	if thisLevel < 0 then thisLevel = playerLevel + 10 end
-	return math.max(20 + (thisLevel - playerLevel), 5)
+	return math.max(AGGRO_BASE + math.min(thisLevel - playerLevel, AGGRO_LEVEL_CAP), AGGRO_MIN)
 end
 
 -- The unit's attack power, buffs and debuffs included
@@ -971,8 +977,11 @@ function unit:isInAggroRange(thisUnit, offset, hostileOnly)
 	if not (reaction < 4 or (not hostileOnly and reaction == 4 and unit:GetUnitIsUnit("target", thisUnit))) then
 		return false
 	end
-	local distance = br.functions.range:getDistance("player", thisUnit)
-	return distance ~= nil and distance < unit:getAggroRange(thisUnit) + (offset or 0)
+	-- centre to centre, as the server measures it (BR's usual distance is edge to edge, 3+ yards less); a mob
+	-- more than AGGRO_HEIGHT yards above or below you doesn't proximity-aggro (vmangos BasicAI, non-flyers)
+	local distance, _, dz = br.functions.range:getCenterDistance("player", thisUnit)
+	if distance == nil or math.abs(dz or 0) > AGGRO_HEIGHT then return false end
+	return distance < unit:getAggroRange(thisUnit) + (offset or 0)
 end
 
 function unit:isInstanceBoss(thisUnit)

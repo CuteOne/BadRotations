@@ -38,7 +38,7 @@ br.api.build.unit = function(api)
     --- Get a unit's aggro radius against the player
     -- @function unit.aggroRange
     -- @param thisUnit The unit to check, defaults to "target"
-    -- @return number Aggro radius in yards (20 +/- level difference, minimum 5)
+    -- @return number Aggro radius in yards, centre to centre (18 +/- level difference, growth capped at 25 levels, minimum 5)
     unit.aggroRange = function(thisUnit)
         return br.functions.unit:getAggroRange(thisUnit)
     end
@@ -48,9 +48,10 @@ br.api.build.unit = function(api)
     -- @param offset Optional extra yards added to each aggro radius
     -- @param radius Optional search radius in yards, defaults to 40
     -- @param hostileOnly Optional: leave out a neutral target (it doesn't notice you coming), as for stealthing
+    -- @param accept Optional function(unit): only enemies it returns true for count
     -- @return boolean True if any enemy (in combat or not) is within its aggro radius
-    unit.anyInAggroRange = function(offset, radius, hostileOnly)
-        return br.functions.unit:anyInAggroRange(offset, radius, hostileOnly)
+    unit.anyInAggroRange = function(offset, radius, hostileOnly, accept)
+        return br.functions.unit:anyInAggroRange(offset, radius, hostileOnly, accept)
     end
 
     --- Check if an enemy is attacking someone other than you
@@ -517,9 +518,11 @@ br.api.build.unit = function(api)
     -- @function unit.inAggroRange
     -- @param thisUnit The unit to check, defaults to "target"
     -- @param offset Optional extra yards added to the aggro radius
-    -- @return boolean True if hostile (or neutral and targeted) and within its aggro radius
-    unit.inAggroRange = function(thisUnit, offset)
-        return br.functions.unit:isInAggroRange(thisUnit, offset)
+    -- @param hostileOnly Optional: leave out a neutral target
+    -- @return boolean True if hostile (or neutral and targeted) and within its aggro radius (centre to centre,
+    -- within 3 yards of your height)
+    unit.inAggroRange = function(thisUnit, offset, hostileOnly)
+        return br.functions.unit:isInAggroRange(thisUnit, offset, hostileOnly)
     end
 
     --- Check if a unit is in combat
