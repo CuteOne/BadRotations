@@ -848,7 +848,9 @@ actionList.BearForm = function()
     end
     -- Lacerate: a bleed (Rend and Tear) with high threat, and the filler for every global cooldown, 5 stacks or not
     -- (the sim's); stacking up starts only on a target that lives 6+ sec
-    if cast.able.lacerate(units.dyn5) and (lacerateStacks > 0 or unit.ttd(units.dyn5) > 6) then
+    if cast.able.lacerate(units.dyn5) and (lacerateStacks > 0 or unit.ttd(units.dyn5) > 6)
+        and not unit.bleedImmune(units.dyn5)
+    then
         if cast.lacerate(units.dyn5) then
             ui.debug("Casting Lacerate")
             return true
@@ -917,7 +919,8 @@ actionList.CatOpener = function()
         for i = ui.value("Cat Opener"), #STEALTH_OPENERS do
             local key = STEALTH_OPENERS[i]
             local name = STEALTH_OPENER_NAMES[key]
-            if spell[key].known() and not (OPENS_BEHIND[key] and passed) then
+            -- Rake misses in full on a bleed-immune mob; Pounce stays (its stun and combo point land, wowsims/forever)
+            if spell[key].known() and not (OPENS_BEHIND[key] and passed) and not (key == "rake" and unit.bleedImmune("target")) then
                 if OPENS_BEHIND[key] and not behind then
                     if stealthWait(name) then
                         var.stealthHold = true
@@ -992,6 +995,9 @@ actionList.CatForm = function()
 
     -- Finishers, in the order of wowsims/forever's Cat rotation (2026-11-08, master 125e53455)
     local ripUp = debuff.rip.exists(thisUnit)
+    -- A mob that has shown immune to your bleeds (unit.bleedImmune: three in a row never showed): no Rake or Rip,
+    -- and Ferocious Bite is the finisher, as when a Rip wouldn't pay off
+    local bleedImmune = unit.bleedImmune(thisUnit)
     -- Fight left for a new Rip to pay off: 8 sec (the sim's), 6 before Ferocious Bite is learned (Forever's own 1328618 was in the spellbook at 24), while Rip is the only
     -- finisher (2026-11-07, level 20: fights of 11-19 sec ended on 5 unspent combo points)
     local ripTime = spell.ferociousBite.known() and 8 or 6
@@ -1000,7 +1006,7 @@ actionList.CatForm = function()
     -- and at most 55 Energy (more goes on a builder first)
     local keepsBiteEnergy = spell.predatoryDiscipline.known()
     if cast.able.ferociousBite(thisUnit) and ((ttd <= 1 and comboPoints >= 2)
-        or (ttd < ripTime and comboPoints >= 5 and (keepsBiteEnergy or energy <= 55)))
+        or ((ttd < ripTime or bleedImmune) and comboPoints >= 5 and (keepsBiteEnergy or energy <= 55)))
     then
         if cast.ferociousBite(thisUnit) then
             ui.debug("Casting Ferocious Bite [Fight End]")
@@ -1010,7 +1016,7 @@ actionList.CatForm = function()
     -- With Predatory Discipline, Bite mid-fight while Rip has 2+ sec left: on 4 combo points at 85 Energy (60 with
     -- Clearcasting), on 5 at 70 (50). Builders pool for it meanwhile (the sim's numbers).
     local poolForBite = false
-    if keepsBiteEnergy and comboPoints >= 4 and ripUp and debuff.rip.remain(thisUnit) >= 2 then
+    if keepsBiteEnergy and comboPoints >= 4 and ((ripUp and debuff.rip.remain(thisUnit) >= 2) or bleedImmune) then
         local clearcasting = buff.clearcasting.exists()
         local need = comboPoints >= 5 and (clearcasting and 50 or 70) or (clearcasting and 60 or 85)
         if energy >= need and cast.able.ferociousBite(thisUnit) then
@@ -1032,7 +1038,7 @@ actionList.CatForm = function()
     -- 5th adds only a little base damage. A 5th is built only when one more builder and Rip right after it fit in the
     -- Energy there plus a tick's 10 (the sim's rule without Blood Frenzy). Recast only once gone: no Pandemic on
     -- Forever, a recast throws the ticks left away (Druid-TBC's rule; the same measured for Rejuvenation, 2026-11-05).
-    if not ripUp and ttd > ripTime and comboPoints >= 4 and cast.able.rip(thisUnit) then
+    if not ripUp and not bleedImmune and ttd > ripTime and comboPoints >= 4 and cast.able.rip(thisUnit) then
         local builder = (behind and spell.shred.known()) and "shred" or "claw"
         local oneMore = comboPoints < 5 and ttd >= ripTime + 1 and cast.able[builder](thisUnit)
             and energy + 10 >= cast.cost[builder]() + cast.cost.rip()
@@ -1058,7 +1064,7 @@ actionList.CatForm = function()
         end
     end
     -- Rake: keep a bleed up on anything that lives long enough (Rend and Tear); recast once it's gone (see Rip)
-    if cast.able.rake(thisUnit) and not debuff.rake.exists(thisUnit) and ttd > 6 then
+    if cast.able.rake(thisUnit) and not debuff.rake.exists(thisUnit) and ttd > 6 and not bleedImmune then
         if cast.rake(thisUnit) then
             ui.debug("Casting Rake")
             return true
