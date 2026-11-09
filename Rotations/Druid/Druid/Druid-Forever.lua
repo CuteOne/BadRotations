@@ -1061,6 +1061,7 @@ actionList.CatForm = function()
     if cast.able.rake(thisUnit) and not debuff.rake.exists(thisUnit) and ttd > 6 then
         if cast.rake(thisUnit) then
             ui.debug("Casting Rake")
+            var.rakeCheck = { unit = thisUnit, guid = unit.guid(thisUnit), at = util.time(), cp = comboPoints, energy = energy }
             return true
         end
     end
@@ -1351,6 +1352,20 @@ local function runRotation()
     energy      = power.energy()
     mana        = power.mana.percent()
     rage        = power.rage()
+    -- Rake check (diagnostic, 2026-11-08: Rakes recast 2 s apart on Razormane quillboar, Energy spent beyond what
+    -- Cat regenerates): 0.7 s after each Rake, before the next GCD lands, is it on the target (yours, or anyone's),
+    -- and did it add a combo point (a hit does, a miss/dodge/parry doesn't)
+    local rakeCheck = var.rakeCheck
+    if rakeCheck and util.time() - rakeCheck.at >= 0.7 then
+        var.rakeCheck = nil
+        local u = rakeCheck.unit
+        local same = unit.exists(u) and unit.guid(u) == rakeCheck.guid
+        ui.debug(("Rake check: %s | yours on it %s (%.1f s left), anyone's %s | combo points %d -> %d | energy %d -> %d"):format(
+            same and (unit.name(u) or "target") or "target gone or changed",
+            tostring(same and debuff.rake.exists(u)), same and debuff.rake.remain(u) or 0,
+            tostring(same and debuff.rake.exists(u, "any")),
+            rakeCheck.cp or -1, comboPoints or -1, rakeCheck.energy or -1, energy or -1))
+    end
     -- General Locals
     profileStop = profileStop or false
     haltProfile = (unit.inCombat() and profileStop) or ui.pause() or ui.mode.rotation == 4 or unit.id("target") == 156716
