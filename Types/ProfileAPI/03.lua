@@ -6,6 +6,18 @@
 -- profiles use. The game never loads these files.
 
 
+---@class BR.Retail.Druid.Feral.debuff : BR.Keys.Retail.Druid.Feral.Debuffs<BR.debuff.Spell>
+
+
+---@class BR.Retail.Druid.Feral.equiped : BR.equiped.Base, BR.Keys.Retail.Druid.Feral.Items<BR.equiped.Item>
+
+
+---@class BR.Retail.Druid.Feral.glyph : BR.glyph.Base, BR.Keys.Retail.Druid.Feral.Glyphs<BR.glyph.K>
+
+
+---@class BR.Retail.Druid.Feral.has : BR.has.Base, BR.Keys.Retail.Druid.Feral.Items<BR.has.Item>
+
+
 ---@class BR.Retail.Druid.Feral.heroTree
 ---@field druidOfTheClaw boolean # true for the active hero talent tree
 ---@field elunesChosen boolean # true for the active hero talent tree

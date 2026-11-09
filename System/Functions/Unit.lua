@@ -804,6 +804,111 @@ function unit:isEvading(thisUnit)
 	return true
 end
 
+-- Bleed immunity, learned per NPC ID (2026-11-09: on Forever, under Veil, BR has no combat log, so an
+-- "Immune" Rake never reaches it; the profile recast Rake on a Rogue Flame Spirit every other GCD).
+-- A bleed BR sent (br.lists.bleeds[class]: ability key -> the debuff key it puts on) that the game
+-- confirms (UNIT_SPELLCAST_SUCCEEDED) and whose debuff of yours isn't on the unit BLEED_CHECK_AFTER
+-- seconds later counts a miss for that NPC ID; a bleed that shows resets the count (and lifts a mark).
+-- BLEED_IMMUNE_AFTER misses in a row mark the NPC ID for the session. A dodged or parried bleed looks
+-- the same (no debuff), but three in a row on one kind of mob is ~1 in 1000 by avoidance alone.
+local BLEED_CHECK_AFTER, BLEED_SEND_WINDOW, BLEED_IMMUNE_AFTER = 0.6, 1.0, 3
+local bleedNames, bleedNamesFor -- [ability name] = its debuff's name; the spell table it was built from
+local bleedPending = {}         -- { debuffName, spellName, guid, npcID, name, at }
+local bleedMisses, bleedImmune = {}, {} -- [npcID] = misses in a row; [npcID] = true
+
+local function bleedSpellName(ref)
+	if type(ref) == "table" then ref = ref[1] end
+	return ref and br.functions.spell:getName(ref) or nil
+end
+
+-- The class's bleeds by name, rebuilt when the profile's spell table changes
+local function currentBleedNames()
+	local spells = br.runner and br.runner.spells
+	if spells == bleedNamesFor and bleedNames then return bleedNames end
+	bleedNames, bleedNamesFor = {}, spells
+	local _, class = br.game.UnitClass("player")
+	local list = br.lists.bleeds and br.lists.bleeds[class]
+	if not (spells and list) then return bleedNames end
+	for abilityKey, debuffKey in pairs(list) do
+		local ability = bleedSpellName((spells.abilities and spells.abilities[abilityKey]) or spells[abilityKey])
+		local debuff = bleedSpellName(spells.debuffs and spells.debuffs[debuffKey])
+		if ability and debuff then bleedNames[ability] = debuff end
+	end
+	return bleedNames
+end
+
+-- Settles the bleeds due a look: each one landed or not, on the unit it was sent at
+local function settleBleeds(now)
+	local i = 1
+	while bleedPending[i] do
+		local entry = bleedPending[i]
+		if now + 0.05 < entry.at then -- (the timer may fire a hair early on the clock)
+			i = i + 1
+		else
+			table.remove(bleedPending, i)
+			local obj = unit:getObjectFromGUID(entry.guid)
+			-- a unit gone or dead by now tells nothing (the debuff falls off with death)
+			if obj and unit:GetObjectExists(obj) and not unit:GetUnitIsDeadOrGhost(obj) then
+				local landed = br.functions.aura:findByName(entry.debuffName, obj, "HARMFUL|PLAYER") ~= nil
+				local npcID = entry.npcID
+				if landed then
+					if bleedImmune[npcID] and br.debug.cast and br.debug.cast.noteBleed then
+						br.debug.cast:noteBleed(entry.name, npcID, entry.spellName, "landed: no longer counted bleed-immune")
+					end
+					bleedMisses[npcID], bleedImmune[npcID] = 0, nil
+				else
+					local misses = (bleedMisses[npcID] or 0) + 1
+					bleedMisses[npcID] = misses
+					local nowImmune = misses >= BLEED_IMMUNE_AFTER and not bleedImmune[npcID]
+					if nowImmune then bleedImmune[npcID] = true end
+					if br.debug.cast and br.debug.cast.noteBleed then
+						br.debug.cast:noteBleed(entry.name, npcID, entry.spellName, nowImmune
+							and ("no %s after it, %d in a row: counted bleed-immune for the session"):format(entry.debuffName, misses)
+							or ("no %s after it (%d in a row)"):format(entry.debuffName, misses))
+					end
+				end
+			end
+		end
+	end
+end
+
+-- BR's own bleed confirmed by the game: look for its debuff shortly
+local function noteBleedSucceeded(spellID)
+	local misc = br.functions.misc
+	if not misc:canUseValue(spellID) or br.botSpell == nil or br.botGUID == nil then return end
+	local spellName = br.functions.spell:getName(spellID)
+	local debuffName = spellName and currentBleedNames()[spellName]
+	if debuffName == nil then return end
+	local now = br.game.GetTime()
+	if now - (br.botCastTime or -math.huge) > BLEED_SEND_WINDOW or br.functions.spell:getName(br.botSpell) ~= spellName then return end
+	if not misc:canUseValue(br.botGUID) then return end
+	local obj = unit:getObjectFromGUID(br.botGUID)
+	local npcID = obj and unit:GetObjectID(obj)
+	if not npcID or npcID == 0 then return end
+	bleedPending[#bleedPending + 1] = { debuffName = debuffName, spellName = spellName, guid = br.botGUID,
+		npcID = npcID, name = br.game.UnitName(obj), at = now + BLEED_CHECK_AFTER }
+	-- looked at on time, not when next asked: a bleed that landed may have run out by then
+	br.game.C_Timer.After(BLEED_CHECK_AFTER, function() settleBleeds(br.game.GetTime()) end)
+end
+
+local bleedWatch = br.game.CreateFrame and br.game.CreateFrame("Frame")
+if bleedWatch then
+	bleedWatch:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	bleedWatch:SetScript("OnEvent", function(_, _, unitID, _, spellID)
+		if unitID == "player" then noteBleedSucceeded(spellID) end
+	end)
+end
+
+--- True when thisUnit's kind of mob (NPC ID) took BLEED_IMMUNE_AFTER of your bleeds in a row without the
+--- bleed showing (learned this session): the profile skips bleeds on it.
+-- if not br.functions.unit:isBleedImmune("target") then (Rake)
+function unit:isBleedImmune(thisUnit)
+	if bleedPending[1] then settleBleeds(br.game.GetTime()) end
+	if next(bleedImmune) == nil or thisUnit == nil then return false end
+	local npcID = unit:GetObjectID(thisUnit)
+	return npcID ~= nil and bleedImmune[npcID] == true
+end
+
 function unit:isExplosive(Unit)
 	return br.lists.unitRules.explosive[br.functions.unit:GetObjectID(Unit)] ~= nil
 end

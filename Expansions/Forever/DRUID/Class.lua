@@ -129,3 +129,7 @@ br.lists.spells.DRUID.Shared = {
             talentsHeroic = {
             },
         }
+
+-- Bleeds: the ability key -> the debuff key it puts on the target (unit:isBleedImmune learns from them)
+br.lists.bleeds = br.lists.bleeds or {}
+br.lists.bleeds.DRUID = { lacerate = "lacerate", pounce = "pounceBleed", rake = "rake", rip = "rip" }

@@ -192,6 +192,12 @@ function C59.enemy(thisUnit, playerUnit) end
 ---@return boolean # True when an enemy is already fighting within range, or an idle one's aggro range reaches you
 function C59.enemyNear(range) end
 
+--- Whether the unit's kind of mob (NPC ID) has shown immune to your bleeds this session: three of
+--- them in a row went out and the bleed never showed on it (unit:isBleedImmune).
+---@param thisUnit? string The unit to check, defaults to "target" if nil
+---@return boolean # True when it is counted bleed-immune
+function C59.bleedImmune(thisUnit) end
+
 --- Whether the unit evades your attacks (an evade bug, or leashing home): an attack of yours came back
 --- "EVADE" and none has landed since (10 s at most, or until you move 2 yd). BR doesn't pick it and holds
 --- its damage spells.
@@ -12134,15 +12140,3 @@ function C65.timer(timerName, interval) end
 
 
 ---@class BR.Retail.Druid.Feral.charges : BR.Keys.Retail.Druid.Feral.Abilities<BR.charges.Spell>, BR.Keys.Retail.Druid.Feral.Items<BR.charges.Item>
-
-
----@class BR.Retail.Druid.Feral.debuff : BR.Keys.Retail.Druid.Feral.Debuffs<BR.debuff.Spell>
-
-
----@class BR.Retail.Druid.Feral.equiped : BR.equiped.Base, BR.Keys.Retail.Druid.Feral.Items<BR.equiped.Item>
-
-
----@class BR.Retail.Druid.Feral.glyph : BR.glyph.Base, BR.Keys.Retail.Druid.Feral.Glyphs<BR.glyph.K>
-
-
----@class BR.Retail.Druid.Feral.has : BR.has.Base, BR.Keys.Retail.Druid.Feral.Items<BR.has.Item>

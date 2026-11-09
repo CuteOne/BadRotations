@@ -267,6 +267,15 @@ br.api.build.unit = function(api)
         return br.functions.unit:isEnemyNear(range)
     end
 
+    --- Whether the unit's kind of mob (NPC ID) has shown immune to your bleeds this session: three of
+    -- them in a row went out and the bleed never showed on it (unit:isBleedImmune).
+    -- @function unit.bleedImmune
+    -- @param thisUnit The unit to check, defaults to "target" if nil
+    -- @return boolean True when it is counted bleed-immune
+    unit.bleedImmune = function(thisUnit)
+        return br.functions.unit:isBleedImmune(thisUnit or "target")
+    end
+
     --- Whether the unit evades your attacks (an evade bug, or leashing home): an attack of yours came back
     -- "EVADE" and none has landed since (10 s at most, or until you move 2 yd). BR doesn't pick it and holds
     -- its damage spells.
