@@ -126,7 +126,7 @@ local function options()
         tip = "Set how to use Thorns" })
 
     section = ui.section("Defensive")
-    ui.checkbox(section, "Self Heal In Group", { checked = true, tip = "Enable/Disable Healing Self while Grouped" })
+    ui.checkbox(section, "Self Heal In Group", { checked = true, tip = "Heal yourself in a group even when it has a healer. Off: only while the group has none (no member in the Healer role or seen healing others), or yours is dead or beyond 40 yards" })
     ui.dropdown(section, "Heal Others", { choices = { "Player", "Target", "Mouseover", "Focus" }, checkbox = false,
         tip = "Besides yourself, also heal this friendly player with the heals below (Player: only yourself)" })
     ui.dropdown(section, "Heal Others Key", { choices = "Toggle", value = "None", checkbox = false,
@@ -507,7 +507,8 @@ end -- End Action List - Forms
 -- Action List - Defensive
 actionList.Defensive = function()
     if not ui.useDefensive() then return false end
-    local inGroupOk = not unit.inGroup() or ui.checked("Self Heal In Group")
+    -- Grouped: your own heals with Self Heal In Group, or while no one else heals (no healer, or yours is dead or away)
+    local inGroupOk = not unit.inGroup() or ui.checked("Self Heal In Group") or not unit.groupHealer()
     -- Remove Curse
     if ui.checked("Remove Curse") and not unit.inCombat() and cast.able.removeCurse("player") and cast.dispel.removeCurse("player") then
         if casterCast("removeCurse", "player", "Remove Curse") then return true end
@@ -646,7 +647,7 @@ actionList.Defensive = function()
     local rejuvenationNow = unit.inCombat() or unit.moving() or not ui.checked("Healing Touch")
     if ui.checked("Rejuvenation") and rejuvenationNow and (not unit.inCombat() or not inForm) then
         if unit.hpAfterHeals() <= ui.value("Rejuvenation") and rejuvenationDue("player") and not buff.clearcasting.exists()
-            and (unit.solo() or ui.checked("Self Heal In Group")) and cast.able.rejuvenation("player")
+            and inGroupOk and cast.able.rejuvenation("player")
         then
             if casterCast("rejuvenation", "player", "Rejuvenation", freeHeal, false, true) then return true end
         end
