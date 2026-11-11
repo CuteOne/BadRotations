@@ -837,12 +837,20 @@ end
 -- True while spellID is what a known spell turns into right now (Forever 2026-11-08: the Feral Charge
 -- talent 1238122 shows as Feral Charge (Cat) 414924 in Cat Form; neither IsPlayerSpell nor
 -- IsSpellKnown knows 414924 itself, so BR refused it NOT_KNOWN and Cat never charged)
+-- A spell's base is static game data, so it's looked up once: most spells are their own base (false here), and
+-- isKnown asks this for every spell not known otherwise (unlearned ranks and talents), every tick
+local baseOf = {}
 local function isActiveOverride(spellID)
 	local findBase = br.game.FindBaseSpellByID
 	if spellID == nil or findBase == nil then return false end
-	local base = findBase(spellID)
-	base = base ~= nil and tonumber(base) or nil
-	if base == nil or base == spellID then return false end
+	local base = baseOf[spellID]
+	if base == nil then
+		local found = findBase(spellID) -- (a local: a call answering nothing would leave tonumber no argument)
+		base = tonumber(found) or false
+		if base == spellID then base = false end
+		baseOf[spellID] = base
+	end
+	if not base then return false end
 	local getOverride = br.game.C_Spell and br.game.C_Spell.GetOverrideSpell
 	if not (getOverride and getOverride(base) == spellID) then return false end
 	return br.game.IsPlayerSpell(base) or br.game.IsSpellKnown(base) or br.functions.spell:isSpellInSpellbook(base, "spell")
