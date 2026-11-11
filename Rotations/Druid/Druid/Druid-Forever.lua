@@ -561,17 +561,17 @@ actionList.Defensive = function()
             if casterCast("entanglingRoots", "target", "Entangling Roots", freeDPS) then return true end
         end
         -- Bash (low health stun)
-        if ui.checked("Bash") and unit.hp() <= ui.value("Bash") and buff.bearForm.exists() and cast.able.bash("target") then
-            if cast.bash("target") then
+        if ui.checked("Bash") and unit.hp() <= ui.value("Bash") and buff.bearForm.exists() and cast.able.bash(units.dyn5) then
+            if cast.bash(units.dyn5) then
                 ui.debug("Casting Bash [Defensive]")
                 return true
             end
         end
         -- Cower: in a group, when the target turns on you in Cat Form
-        if ui.checked("Cower") and unit.inGroup() and buff.catForm.exists() and cast.able.cower("target")
+        if ui.checked("Cower") and unit.inGroup() and buff.catForm.exists() and cast.able.cower(units.dyn5)
             and unit.threatStatus() >= 2 and unit.role("player") ~= "TANK" and unit.isTankInRange()
         then
-            if cast.cower("target") then
+            if cast.cower(units.dyn5) then
                 ui.debug("Casting Cower")
                 return true
             end
@@ -1306,11 +1306,17 @@ end -- End Action List - PreCombat
 
 -- Action List - Combat
 actionList.Combat = function()
-    if not (unit.inCombat() and unit.valid("target")) then return false end
+    -- Your target, or BR's pick when your target isn't an enemy it can hit (Targeting Mode Assist leaves a friendly
+    -- you targeted to invite, or a mob at range, selected: 2026-11-11, the user). The Cat, Bear and Caster lists
+    -- already fight BR's picks (units.dyn5, units.dyn30AOE); spells written for "target" stay with your target.
+    if not (unit.inCombat() and (unit.valid("target") or unit.exists(units.dyn5) or unit.exists(units.dyn30AOE))) then
+        return false
+    end
     local inMelee = unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5
-    -- Start Attack (do not break Prowl); when unit.startAttack() sends nothing yet, the rotation goes on (see PreCombat)
-    if not buff.prowl.exists() and unit.exists(units.dyn5) and not cast.auto.autoAttack() and not unit.deadOrGhost("target")
-        and unit.startAttack()
+    -- Start Attack (do not break Prowl) on the melee pick, your target or not; when unit.startAttack() sends nothing
+    -- yet, the rotation goes on (see PreCombat). Already swinging at your target as the pick: nothing to send
+    if not buff.prowl.exists() and unit.exists(units.dyn5) and not unit.deadOrGhost(units.dyn5)
+        and not (cast.auto.autoAttack() and unit.isUnit(units.dyn5, "target")) and unit.startAttack(units.dyn5)
     then
         ui.debug("Casting Auto Attack")
         return true
@@ -1319,9 +1325,11 @@ actionList.Combat = function()
     -- back. The auto attack above waits for a melee pick (2026-11-08 13:27: your own Healing Touch left 29 mana, 5 s
     -- idle with a Dalaran Wizard at 5.6 yd and no auto attack)
     local formKey = (activeForm == "cat" and "catForm") or (activeForm == "bear" and "bearForm") or nil
-    if formKey and not inForm and not buff.moonkinForm.exists() and not buff.prowl.exists() and spell[formKey].known()
-        and not power.mana.affordable(cast.cost[formKey]()) and not cast.auto.autoAttack()
-        and not unit.deadOrGhost("target") and (unit.distance("target") or 99) < 8 and unit.startAttack()
+    local swingAt = unit.exists(units.dyn5) and units.dyn5
+        or (unit.valid("target") and (unit.distance("target") or 99) < 8 and "target") or nil
+    if formKey and swingAt and not inForm and not buff.moonkinForm.exists() and not buff.prowl.exists()
+        and spell[formKey].known() and not power.mana.affordable(cast.cost[formKey]()) and not cast.auto.autoAttack()
+        and not unit.deadOrGhost(swingAt) and unit.startAttack(swingAt)
     then
         ui.debug("Casting Auto Attack [no mana to shift]")
         return true
@@ -1399,7 +1407,6 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    comboPoints = power.comboPoints()
     energy      = power.energy()
     mana        = power.mana.percent()
     rage        = power.rage()
@@ -1409,6 +1416,8 @@ local function runRotation()
     -- Units
     units.get(5)        -- Makes a variable called, units.dyn5
     units.get(30, true) -- Makes a variable called, units.dyn30AOE (Forever caster range)
+    -- Combo points sit on the unit they were built on (Forever): the melee pick's, your target or not
+    comboPoints = power.comboPoints(units.dyn5 or "target")
     -- Enemies
     enemies.get(5)      -- Makes a varaible called, enemies.yards5
     enemies.get(5, "player", false, true)  -- makes enemies.yards5f
