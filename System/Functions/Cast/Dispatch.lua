@@ -217,6 +217,7 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 	-- cast not yet confirmed, held one round trip: Feral Charge went out 7 times in 1.3 s, each a "Usage:
 	-- CastSpellByID" error (Forever on Veil, 2026-11-08 14:45)
 	if not sent then
+		E.undoBotCast(ctx.spellID)
 		E.castTimers[ctx.spellID] = br.game.GetTime() + E.SEND_ERROR_HOLD
 		return E.printReport(ctx, false, "Send Error")
 	end
