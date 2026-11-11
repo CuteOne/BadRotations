@@ -140,25 +140,15 @@ local function healCost()
     return cast.cost.healingWave()
 end
 
--- Nothing in this fight threatens you: health 60%+, one enemy at most on you, and you're winning
--- (the tester's idea, 2026-10-26)
+-- Nothing in this fight threatens you (unit.unthreatened: health 60%+, one enemy at most on you, and you're winning;
+-- the tester's idea, 2026-10-26)
 local function unthreatened()
-    return enemy ~= nil and unit.hp() >= 60 and #enemies.yards8 <= 1 and unit.winning(enemy)
+    return enemy ~= nil and unit.unthreatened(enemy)
 end
 
 -- Mana Use Burn, unthreatened: it spends past its thresholds and the heal held back
 local function safe()
     return ui.value("Mana Use") == MANA_BURN and unthreatened()
-end
-
--- The fight is going badly: 2+ enemies on you, under half health, or losing (you'd die before it does).
--- Says which, for the debug line; nil when it isn't
-local function pressed()
-    if #enemies.yards8 >= 2 then return #enemies.yards8 .. " enemies on you" end
-    if unit.hp() < 50 then return ("health %d%%"):format(unit.hp()) end
-    if enemy ~= nil and unit.losing(enemy) then
-        return ("losing: you %.1fs, it %.1fs"):format(unit.ttd("player"), unit.fightLength(enemy))
-    end
 end
 
 -- Mana may go on damage beyond the pull and Lightning Shield (shocks, woven bolts), by Mana Use.
@@ -172,7 +162,8 @@ local function spendOnDamage(threshold)
     local percent = power.mana.percent()
     local manaWhy = ("mana %d%%"):format(percent)
     if ui.value("Mana Use") == MANA_CONSERVE then
-        local why = pressed()
+        -- the fight is going badly (2+ enemies on you, under half health, or you'd die first): says which
+        local why = unit.pressure(enemy)
         if why then return why end
         if percent >= ui.value("Conserve Above") then return manaWhy end
         return nil

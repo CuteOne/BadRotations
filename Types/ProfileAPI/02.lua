@@ -504,6 +504,15 @@ function C59.player(thisUnit) end
 ---@return number # x, y, z
 function C59.position(thisUnit) end
 
+--- Why the fight against thisUnit is going badly, for a debug line: "2 enemies on you" (within 8 yd),
+--- "health 45%" (under half) or "losing: you 8.0s, it 12.5s" (unit.losing); nil when it isn't.
+--- ```lua
+--- local why = unit.pressure(enemy); if why then ui.debug("Casting Earth Shock [" .. why .. "]") end
+--- ```
+---@param thisUnit? string The unit fought, defaults to "target"
+---@return string|nil
+function C59.pressure(thisUnit) end
+
 --- True when a profile may open a fight on thisUnit: valid, attackable, and never a player (attacking
 --- one flags you for PvP)
 --- ```lua
@@ -653,6 +662,15 @@ function C59.ttdGroup(range, percent) end
 ---@param thisUnit? string The unit to check
 ---@return boolean # True if the unit is Undead
 function C59.undead(thisUnit) end
+
+--- True when nothing in the fight against thisUnit threatens you: 60%+ health, one enemy at most within 8 yd,
+--- and you're winning (unit.winning). For spending past a reserve while it's safe.
+--- ```lua
+--- if unit.unthreatened(enemy) then -- spend the mana kept back for a heal
+--- ```
+---@param thisUnit? string The unit fought, defaults to "target"
+---@return boolean
+function C59.unthreatened(thisUnit) end
 
 --- Check if a unit is valid for targeting
 ---@param thisUnit? string The unit to check
@@ -12121,6 +12139,3 @@ function C65.timer(timerName, interval) end
 
 
 ---@class BR.Retail.Druid.Feral.cast.safe : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.safe.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.time : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.time.Spell>

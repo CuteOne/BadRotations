@@ -1057,6 +1057,31 @@ function unit:isWinning(thisUnit)
 	return mine >= 999 or 2 * unit:getFightLength(thisUnit) <= mine
 end
 
+-- Enemies within 8 yd of you in this fight (a profile's #enemies.yards8: the same cached list)
+local function enemiesOnYou()
+	return #br.engines.enemiesEngineFunctions:getEnemies("player", 8, false, false)
+end
+
+--- True when nothing in the fight against thisUnit threatens you: 60%+ health, one enemy at most within 8 yd, and
+--- you're winning (isWinning). For spending past a reserve (mana kept back for a heal, say) while it's safe.
+-- if br.functions.unit:isUnthreatened("target") then
+function unit:isUnthreatened(thisUnit)
+	return thisUnit ~= nil and unit:getHP("player") >= 60 and enemiesOnYou() <= 1 and unit:isWinning(thisUnit)
+end
+
+--- Why the fight against thisUnit is going badly: "2 enemies on you" (within 8 yd), "health 45%" (under half), or
+--- "losing: you 8.0s, it 12.5s" (isLosing); nil when it isn't. For a debug line's reason as well as the test.
+-- local why = br.functions.unit:getFightPressure("target")
+function unit:getFightPressure(thisUnit)
+	local near = enemiesOnYou()
+	if near >= 2 then return near .. " enemies on you" end
+	local hp = unit:getHP("player")
+	if hp < 50 then return ("health %d%%"):format(math.floor(hp)) end
+	if thisUnit ~= nil and unit:isLosing(thisUnit) then
+		return ("losing: you %.1fs, it %.1fs"):format(br.engines.ttdTable:getTTD("player"), unit:getFightLength(thisUnit))
+	end
+end
+
 -- The game moves a running auto attack to the new target, so the one BR started is no longer on its unit:
 -- the next start at that unit goes out again (2026-11-11 11:05:34, Forever: you targeted a mob 61 yd off
 -- mid-fight, the swing went with it, and BR, sure it still swung at the Scout it fought, sent nothing for 6 s)

@@ -304,28 +304,17 @@ local function healCost()
     return cast.cost.healingTouch()
 end
 
--- Nothing in this fight threatens you: 60%+ health, one enemy at most on you, and you're winning
-local function unthreatened(thisUnit)
-    return thisUnit ~= nil and unit.hp() >= 60 and #enemies.yards8 <= 1 and unit.winning(thisUnit)
-end
-
--- The fight is going badly; says why (for the debug line), nil when it isn't
-local function pressed(thisUnit)
-    if #enemies.yards8 >= 2 then return #enemies.yards8 .. " enemies on you" end
-    if unit.hp() < 50 then return ("health %d%%"):format(unit.hp()) end
-    if thisUnit ~= nil and unit.losing(thisUnit) then return "losing" end
-end
-
--- Mana may go on this damage spell, by Mana Use. Returns why ("mana 64%", "2 enemies on you", "free", "safe"), shown
+-- Mana may go on this damage spell, by Mana Use (unit.unthreatened: nothing in the fight threatens you; unit.pressure:
+-- why it's going badly). Returns why ("mana 64%", "2 enemies on you", "free", "safe"), shown
 -- in the cast's debug line, or nil to hold it
 local function spendOnDamage(spellKey, thisUnit)
     if freeDPS then return "free" end
     local percent = power.mana.percent()
     local manaWhy = ("mana %d%%"):format(percent)
-    if ui.value("Mana Use") == MANA_BURN and unthreatened(thisUnit) then return "safe" end
+    if ui.value("Mana Use") == MANA_BURN and thisUnit ~= nil and unit.unthreatened(thisUnit) then return "safe" end
     if not power.mana.affordable(cast.cost[spellKey](), healCost()) then return nil end
     if ui.value("Mana Use") == MANA_CONSERVE and thisUnit ~= nil and unit.distance(thisUnit) < 5 then
-        local why = pressed(thisUnit)
+        local why = unit.pressure(thisUnit)
         if why then return why end
         if percent >= ui.value("Conserve Above") then return manaWhy end
         return nil

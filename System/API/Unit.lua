@@ -801,6 +801,16 @@ br.api.build.unit = function(api)
         return br.functions.unit:GetObjectPosition(thisUnit or "player")
     end
 
+    --- Why the fight against thisUnit is going badly, for a debug line: "2 enemies on you" (within 8 yd),
+    -- "health 45%" (under half) or "losing: you 8.0s, it 12.5s" (unit.losing); nil when it isn't.
+    -- @function unit.pressure
+    -- @param thisUnit The unit fought, defaults to "target"
+    -- @return string|nil
+    -- @usage local why = unit.pressure(enemy); if why then ui.debug("Casting Earth Shock [" .. why .. "]") end
+    unit.pressure = function(thisUnit)
+        return br.functions.unit:getFightPressure(thisUnit or "target")
+    end
+
     --- True when a profile may open a fight on thisUnit: valid, attackable, and never a player (attacking
     -- one flags you for PvP)
     -- @function unit.pullable
@@ -1034,6 +1044,16 @@ br.api.build.unit = function(api)
     -- @return boolean True if the unit is Undead
     unit.undead = function(thisUnit)
         return br.functions.unit:isUndead(thisUnit)
+    end
+
+    --- True when nothing in the fight against thisUnit threatens you: 60%+ health, one enemy at most within 8 yd,
+    -- and you're winning (unit.winning). For spending past a reserve while it's safe.
+    -- @function unit.unthreatened
+    -- @param thisUnit The unit fought, defaults to "target"
+    -- @return boolean
+    -- @usage if unit.unthreatened(enemy) then -- spend the mana kept back for a heal
+    unit.unthreatened = function(thisUnit)
+        return br.functions.unit:isUnthreatened(thisUnit or "target")
     end
 
     --- Check if a unit is valid for targeting
