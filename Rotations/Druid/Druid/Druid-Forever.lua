@@ -912,9 +912,17 @@ local function stealthWait(spellName)
     return not w.over
 end
 
+-- The opener's pick can't go out yet. Short of its Energy: wait for it (var.openerHold: Combat sends nothing else from
+-- Cat Form, Faerie Fire included, so a cheaper hit doesn't spend the Energy first). Refused for another reason (range,
+-- the game said not behind): no wait, the rotation goes on. Returns false.
+local function openerWaits(key)
+    if energy < cast.cost[key]() then var.openerHold = true end
+    return false
+end
+
 -- Action List - Cat Opener (Stealth + Non-Stealth)
 actionList.CatOpener = function()
-    var.stealthHold = false
+    var.openerHold = false
     if not buff.catForm.exists() then return false end
     if not unit.valid("target") or unit.deadOrGhost("target") or unit.distance("target") >= 5 then
         var.stealthWait = nil -- the time to get behind starts again on reaching melee range
@@ -943,12 +951,12 @@ actionList.CatOpener = function()
             if spell[key].known() and not (OPENS_BEHIND[key] and passed) and not (key == "rake" and noBleeds("target")) then
                 if OPENS_BEHIND[key] and not behind then
                     if stealthWait(name) then
-                        var.stealthHold = true
+                        var.openerHold = true
                         return false
                     end
                     passed = name
                 else
-                    if not cast.able[key]("target") then return false end
+                    if not cast.able[key]("target") then return openerWaits(key) end
                     if cast[key]("target") then
                         ui.debug(("Casting %s [Stealth Opener%s]"):format(name, passed and (", not behind for " .. passed) or ""))
                         return true
@@ -970,7 +978,7 @@ actionList.CatOpener = function()
             ui.debug("Casting Shred [Opener]")
             return true
         end
-        return false -- waiting for the Energy
+        return openerWaits("shred")
     end
     -- Rake (from the front)
     if spell.rake.known() and not noBleeds("target") and unit.ttd("target") > 6 then
@@ -978,7 +986,7 @@ actionList.CatOpener = function()
             ui.debug("Casting Rake [Opener]")
             return true
         end
-        return false
+        return openerWaits("rake")
     end
     -- Claw (fallback)
     if cast.able.claw("target") then
@@ -986,8 +994,9 @@ actionList.CatOpener = function()
             ui.debug("Casting Claw [Opener]")
             return true
         end
+        return false
     end
-    return false
+    return openerWaits("claw")
 end -- End Action List - Cat Opener
 
 -- Action List - Cat Form
@@ -1322,7 +1331,8 @@ end -- End Action List - PreCombat
 local function openerPending()
     local guid = unit.guid("target")
     if guid == nil then return false end
-    if var.openedGUID ~= guid and (comboPoints > 0 or debuff.rake.exists("target") or debuff.rip.exists("target")) then
+    -- your target's combo points, not BR's melee pick's (comboPoints): the pick may be another mob
+    if var.openedGUID ~= guid and (power.comboPoints("target") > 0 or debuff.rake.exists("target") or debuff.rip.exists("target")) then
         var.openedGUID = guid
     end
     return var.openedGUID ~= guid
@@ -1388,6 +1398,7 @@ actionList.Combat = function()
             var.openedGUID = unit.guid("target")
             return true
         end
+        if var.openerHold then return true end
     end
     -- Faerie Fire: castable in every form on Forever, and it doesn't stack, so anyone's counts. Target
     -- only: the armor loss helps the damage you deal to that unit, and each cast costs a GCD and mana.
@@ -1419,8 +1430,8 @@ actionList.Combat = function()
     if activeForm == "cat" and buff.catForm.exists() and inMelee then
         if buff.prowl.exists() then
             if actionList.CatOpener() then return true end
-            -- still in the time to get behind for the opener: no Claw from Cat Form out of Prowl
-            if var.stealthHold then return true end
+            -- still in the time to get behind for the opener, or short of its Energy: no Claw from Cat Form
+            if var.openerHold then return true end
         end
         if actionList.CatForm() then return true end
     end
