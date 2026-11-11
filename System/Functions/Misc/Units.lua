@@ -95,8 +95,14 @@ local lastHelpfulGUID, lastHelpfulAt = nil, -math.huge -- the latest helpful spe
 local memberHealth = {} -- GUID -> { cur, max } at the last health event
 
 -- the group's unit tokens and "player"; other tokens (target, nameplates) repeat the same units
+local BYTE_P, BYTE_R = ("p"):byte(), ("r"):byte()
 local function isGroupToken(token)
-	return token == "player" or (type(token) == "string" and (token:match("^party%d+$") or token:match("^raid%d+$")) ~= nil)
+	if token == "player" then return true end
+	if type(token) ~= "string" then return false end
+	-- most UNIT_HEALTH events in a fight are nameplates and target/focus: one byte tells them apart
+	local first = token:byte(1)
+	if first ~= BYTE_P and first ~= BYTE_R then return false end
+	return (token:match("^party%d+$") or token:match("^raid%d+$")) ~= nil
 end
 
 local healerFrame = br.game.CreateFrame("Frame")
