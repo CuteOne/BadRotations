@@ -84,6 +84,77 @@ function misc.engagedPlayerEvent(event, unit, _, _, spellID)
 end
 engagedFrame:SetScript("OnEvent", function(_, event, ...) misc.engagedPlayerEvent(event, ...) end)
 
+-- Healers in the group: whether someone else heals the player, so a profile can keep its self-heals for a group
+-- without one. A member with the Healer role counts. Most groups have no roles (only the group finder sets them),
+-- so a member also counts once seen healing someone HEAL_SIGHTINGS times: another member's (or your) health rose
+-- by HEAL_RISE of its maximum, the maximum unchanged (not a stamina buff), within HEAL_WINDOW sec of a helpful
+-- spell they cast. No combat log needed (there's none under Veil). Kept by GUID for the session.
+local HEAL_RISE, HEAL_WINDOW, HEAL_SIGHTINGS, HEALER_RANGE = 0.04, 0.6, 2, 40
+local healSightings = {} -- caster GUID -> heals seen
+local lastHelpfulGUID, lastHelpfulAt = nil, -math.huge -- the latest helpful spell cast in the group (you included)
+local memberHealth = {} -- GUID -> { cur, max } at the last health event
+
+-- the group's unit tokens and "player"; other tokens (target, nameplates) repeat the same units
+local function isGroupToken(token)
+	return token == "player" or (type(token) == "string" and (token:match("^party%d+$") or token:match("^raid%d+$")) ~= nil)
+end
+
+local healerFrame = br.game.CreateFrame("Frame")
+for _, event in ipairs({ "UNIT_SPELLCAST_SUCCEEDED", "UNIT_HEALTH" }) do healerFrame:RegisterEvent(event) end
+--- Feeds the healer sightings (the frame above; the tests call it directly).
+function misc.groupHealerEvent(event, token, _, spellID)
+	if not misc:canUseValue(token) or not isGroupToken(token) then return end
+	local guid = br.game.UnitGUID(token)
+	if guid == nil or not misc:canUseValue(guid) then return end
+	local now = br.game.GetTime()
+	if event == "UNIT_SPELLCAST_SUCCEEDED" then
+		if spellID == nil or not misc:canUseValue(spellID) then return end
+		local C = br.game.C_Spell
+		if C.IsSpellHelpful(spellID) and not C.IsSpellHarmful(spellID) then lastHelpfulGUID, lastHelpfulAt = guid, now end
+		return
+	end
+	local cur, max = br.game.UnitHealth(token), br.game.UnitHealthMax(token)
+	if not (misc:canUseValue(cur) and misc:canUseValue(max)) or type(cur) ~= "number" or type(max) ~= "number" then return end
+	local before = memberHealth[guid]
+	if before == nil then memberHealth[guid] = { cur = cur, max = max } return end
+	local rose = max > 0 and max == before.max and cur - before.cur >= HEAL_RISE * max
+	before.cur, before.max = cur, max
+	-- the healer is someone other than the healed unit (bandages, potions and drains heal the caster) and not you
+	if rose and lastHelpfulGUID ~= nil and lastHelpfulGUID ~= guid and now - lastHelpfulAt <= HEAL_WINDOW
+		and lastHelpfulGUID ~= br.game.UnitGUID("player")
+	then
+		healSightings[lastHelpfulGUID] = (healSightings[lastHelpfulGUID] or 0) + 1
+	end
+end
+healerFrame:SetScript("OnEvent", function(_, event, ...) misc.groupHealerEvent(event, ...) end)
+
+--- The group member who heals: alive, online, within 40 yd, and either in the Healer role or seen healing
+--- others (above). nil when solo, when there's none, or while yours is dead or away. Members whose role is set
+--- to tank or damage don't count.
+-- local healer = br.functions.misc:groupHealer()
+function misc:groupHealer()
+	if not br.game.IsInGroup() then return nil end
+	local prefix, last = "party", 4
+	if br.game.IsInRaid() then prefix, last = "raid", 40 end
+	local unitFunctions = br.functions.unit
+	for i = 1, last do
+		local member = prefix .. i
+		if br.game.UnitExists(member) and not br.game.UnitIsUnit(member, "player") and br.game.UnitIsConnected(member)
+			and not unitFunctions:GetUnitIsDeadOrGhost(member) and (br.functions.range:getDistance(member) or 99) < HEALER_RANGE
+		then
+			local role = br.game.UnitGroupRolesAssigned and br.game.UnitGroupRolesAssigned(member)
+			if role == "HEALER" then return member end
+			local guid = br.game.UnitGUID(member)
+			if (role == nil or role == "NONE" or role == "") and guid ~= nil and misc:canUseValue(guid)
+				and (healSightings[guid] or 0) >= HEAL_SIGHTINGS
+			then
+				return member
+			end
+		end
+	end
+	return nil
+end
+
 -- Whether BR may fight the enemy player Unit, with the reason when it may not. Players of the group (attackable
 -- only while mind-controlled) and the unitRules debuff cases aren't asked here.
 local function enemyPlayerValidity(Unit)

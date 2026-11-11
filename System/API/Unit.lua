@@ -549,6 +549,15 @@ br.api.build.unit = function(api)
         return br.functions.unit:isInGroup()
     end
 
+    --- The group member who heals you, or nil (solo, no healer, or yours is dead or beyond 40 yd): the Healer
+    --- role, else a member seen healing others twice this session
+    -- @function unit.groupHealer
+    -- @return string|nil The healer's unit token ("party2")
+    -- @usage local selfHeal = unit.solo() or not unit.groupHealer()
+    unit.groupHealer = function()
+        return br.functions.misc:groupHealer()
+    end
+
     --- True while the player is in a raid group
     -- @function unit.inRaid
     -- @return boolean

@@ -351,6 +351,14 @@ function C59.inCombat(thisUnit) end
 ---@return boolean # True if player is in a group
 function C59.inGroup() end
 
+--- The group member who heals you, or nil (solo, no healer, or yours is dead or beyond 40 yd): the Healer
+--- role, else a member seen healing others twice this session
+--- ```lua
+--- local selfHeal = unit.solo() or not unit.groupHealer()
+--- ```
+---@return string|nil # The healer's unit token ("party2")
+function C59.groupHealer() end
+
 --- True while the player is in a raid group
 ---@return boolean
 function C59.inRaid() end
@@ -12115,28 +12123,3 @@ function C65.timer(timerName, interval) end
 
 
 ---@class BR.Retail.Druid.Feral.cast.time : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.time.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.timeSinceLast : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.timeSinceLast.Spell>
-
----@class BR.Retail.Druid.Feral.cast : BR.cast.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.Spell>
----@field able BR.Retail.Druid.Feral.cast.able
----@field active BR.Retail.Druid.Feral.cast.active
----@field auto BR.Retail.Druid.Feral.cast.auto
----@field cancel BR.Retail.Druid.Feral.cast.cancel
----@field cost BR.Retail.Druid.Feral.cast.cost
----@field current BR.Retail.Druid.Feral.cast.current
----@field dispel BR.Retail.Druid.Feral.cast.dispel
----@field empowered BR.Retail.Druid.Feral.cast.empowered
----@field inFlight BR.Retail.Druid.Feral.cast.inFlight
----@field inFlightRemain BR.Retail.Druid.Feral.cast.inFlightRemain
----@field last BR.Retail.Druid.Feral.cast.last
----@field maxRank BR.Retail.Druid.Feral.cast.maxRank
----@field noControl BR.Retail.Druid.Feral.cast.noControl
----@field opener BR.Retail.Druid.Feral.cast.opener
----@field pool BR.Retail.Druid.Feral.cast.pool
----@field range BR.Retail.Druid.Feral.cast.range
----@field regen BR.Retail.Druid.Feral.cast.regen
----@field safe BR.Retail.Druid.Feral.cast.safe
----@field time BR.Retail.Druid.Feral.cast.time
----@field timeSinceLast BR.Retail.Druid.Feral.cast.timeSinceLast
