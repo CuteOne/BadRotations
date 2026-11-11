@@ -176,7 +176,7 @@ end
 -- the same as a send would). Returns true when a cancel was sent now.
 function unit:cancelShapeshiftForm()
 	if (br.game.GetShapeshiftForm() or 0) == 0 or unit:isFormCancelPending() then return false end
-	if not br.functions.cast.allowWhileCasting and br.functions.misc:ownCastHold() ~= nil then return false end
+	if not br.engines.cast.allowWhileCasting and br.functions.misc:ownCastHold() ~= nil then return false end
 	br.game.CancelShapeshiftForm()
 	formCancelSentAt = br.game.GetTime()
 	return true
@@ -327,7 +327,7 @@ end
 function unit:getHealthAfterHeals(Unit)
 	local health, maxHealth = self:getHealth(Unit), self:getHealthMax(Unit)
 	if type(health) ~= "number" or type(maxHealth) ~= "number" then return health end
-	return math.min(maxHealth, health + br.functions.cast:getHealsOnTheirWay(Unit))
+	return math.min(maxHealth, health + br.engines.cast:getHealsOnTheirWay(Unit))
 end
 
 --- unit:getHealthAfterHeals as a percent of the unit's maximum health (0 when it has none)
@@ -1320,11 +1320,11 @@ function unit:startAttack(thisUnit)
 	if guid ~= nil and guid == attackSentGUID and (autoAttacking or unit:isAttackPending(thisUnit)) then return false end
 	if autoAttacking and (thisUnit == nil or thisUnit == "target" or unit:GetUnitIsUnit(thisUnit, "target")) then return false end
 	local now = br.game.GetTime()
-	if br.functions.cast:getCastTimeRemain("player") > 0 then return false end
+	if br.engines.cast:getCastTimeRemain("player") > 0 then return false end
 	if br.botCastTime and now - br.botCastTime < br.functions.misc:getRoundTripHold() then return false end
 	attackSentAt, attackSentGUID = now, guid
 	lastStartAt, lastStartGUID = now, guid
-	br.functions.cast.internal.noteBotAction()
+	br.engines.cast.internal.noteBotAction()
 	br.game.StartAttack(thisUnit)
 	if br.debug.melee and br.debug.melee.noteAttackSent then br.debug.melee:noteAttackSent(thisUnit or "target") end
 	return true

@@ -1,5 +1,5 @@
 local _, br = ...
-local cast = br.functions.cast
+local cast = br.engines.cast
 local E = cast.internal
 
 -- Entry point: createCastFunction (cast.<spell> and cast.able.<spell>) and the cast queue.
@@ -238,7 +238,7 @@ local function runCastFunction(self, thisUnit, castType, minUnits, effectRng, sp
 
 	if thisUnit == "groundLocation" then
 		if debug then return true end
-		return br.functions.cast:castGroundLocation(castType, minUnits, ctx.baseSpellID, ctx.maxRange, ctx.minRange, effectRng)
+		return br.engines.cast:castGroundLocation(castType, minUnits, ctx.baseSpellID, ctx.maxRange, ctx.minRange, effectRng)
 	end
 
 	-- ── Step 13: Unit validity check ──────────────────────────────────────────
@@ -248,7 +248,7 @@ local function runCastFunction(self, thisUnit, castType, minUnits, effectRng, sp
 
 	-- The player just cancelled this spell on this unit (cast:noteInterrupted): their "no" holds until
 	-- they change target, combat starts, or 3 s pass
-	if castType ~= "pet" and br.functions.cast:isRejected("cancelled", spellID, thisUnit) then
+	if castType ~= "pet" and br.engines.cast:isRejected("cancelled", spellID, thisUnit) then
 		E.recordRefusal(spellID, "PLAYER_CANCELLED", "you cancelled it on this unit")
 		return false
 	end
@@ -260,7 +260,7 @@ local function runCastFunction(self, thisUnit, castType, minUnits, effectRng, sp
 	end
 
 	-- The game refused this spell while the player moved: not sent again until they stop
-	if br.functions.cast:isRejected("moving", spellID, "player") then
+	if br.engines.cast:isRejected("moving", spellID, "player") then
 		E.recordRefusal(spellID, "MOVING", "the game refused it while you move; waits until you stop")
 		return false
 	end
@@ -336,7 +336,7 @@ function cast:castQueue()
 				local entry = cast.queue[j]
 				-- Entries hold id, name, target and queuedAt (Readers/combatlog.lua); castType and the
 				-- AoE settings are optional and default like a plain cast.<spell>(target).
-				if br.functions.cast:createCastFunction(entry.target, entry.castType, entry.minUnits, entry.effectRng,
+				if br.engines.cast:createCastFunction(entry.target, entry.castType, entry.minUnits, entry.effectRng,
 					entry.id, entry.name) then return end
 			end
 		end

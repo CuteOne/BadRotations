@@ -340,7 +340,7 @@ function enemiesEngineFunctions:isBurnTarget(unit)
 		local record = br.engines.enemiesEngine.units[unit]
 		local unitTime = record ~= nil and record.seenAt or br.game.GetTime() - 1
 		-- (it also required burnUnit.isValidUnit, a field no entry has, so no unit was ever burned)
-		if burnUnit and (burnUnit.cast == nil or not br.functions.cast:isCasting(burnUnit.cast, unitID)) and (br.game.GetTime() - unitTime) > 0.25 then
+		if burnUnit and (burnUnit.cast == nil or not br.engines.cast:isCasting(burnUnit.cast, unitID)) and (br.game.GetTime() - unitTime) > 0.25 then
 			if burnUnit.buff and br.functions.aura:UnitBuffID(unit, burnUnit.buff) then
 				coef = burnUnit.coef
 			end
@@ -376,7 +376,7 @@ function enemiesEngineFunctions:isCrowdControlCandidates(Unit)
 		for i = 1, #crowdControlUnit do
 			local thisUnit = crowdControlUnit[i]
 			-- is in the list of candidates
-			if thisUnit.spell == nil or br.functions.cast:isCasting(thisUnit.spell, Unit) or br.functions.aura:UnitBuffID(Unit, thisUnit.buff) then -- doesnt have more requirements or requirements are met
+			if thisUnit.spell == nil or br.engines.cast:isCasting(thisUnit.spell, Unit) or br.functions.aura:UnitBuffID(Unit, thisUnit.buff) then -- doesnt have more requirements or requirements are met
 				return true
 			end
 		end
@@ -465,7 +465,7 @@ local function readTargetFacts()
 	targetFacts.at = now
 	local unitFns, misc = br.functions.unit, br.functions.misc
 	local ok = unitFns:GetObjectExists("target") and not unitFns:GetUnitIsDeadOrGhost("target")
-		and br.functions.cast:isUnitVisible("target") and misc:isValidUnit("target") and not unitFns:isEvading("target")
+		and br.engines.cast:isUnitVisible("target") and misc:isValidUnit("target") and not unitFns:isEvading("target")
 		and not (misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack("target"))
 	targetFacts.attackable = ok and true or false
 	targetFacts.distance = ok and br.functions.range:getDistance("target") or nil

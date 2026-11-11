@@ -361,7 +361,7 @@ function combatLog:common(...)
         local critical = param == "SPELL_HEAL" and select(18, ...) or select(21, ...)
         if not critical and br.functions.misc:canUseValue(amount) then br.functions.spell:noteRankAmount(spell, amount, param == "SPELL_HEAL") end
         -- a heal BR sent landed: health shows it now, so it's no longer on its way
-        if param == "SPELL_HEAL" then br.functions.cast:noteHealLanded(spell, destination) end
+        if param == "SPELL_HEAL" then br.engines.cast:noteHealLanded(spell, destination) end
     end
 
     -- Ranged: Auto Shot fires as SPELL_CAST_SUCCESS (UnitRangedDamage: lo, hi, speed)
@@ -416,21 +416,21 @@ function combatLog:common(...)
                     else
                         br.queueDest = destination
                     end
-                    if #br.functions.cast.queue == 0 and notOnCD then
-                        br.game.tinsert(br.functions.cast.queue, { id = spell, name = spellName, target = br.queueDest, queuedAt = br.game.GetTime() })
+                    if #br.engines.cast.queue == 0 and notOnCD then
+                        br.game.tinsert(br.engines.cast.queue, { id = spell, name = spellName, target = br.queueDest, queuedAt = br.game.GetTime() })
                         if not br.functions.misc:isChecked("Mute Queue") then
                             br.log:say("Queue", "Added " .. br.log.highlight(spellName))
                         end
-                    elseif #br.functions.cast.queue ~= 0 then
-                        for i = 1, #br.functions.cast.queue do
-                            if spell == br.functions.cast.queue[i].id then
-                                br.game.tremove(br.functions.cast.queue, i)
+                    elseif #br.engines.cast.queue ~= 0 then
+                        for i = 1, #br.engines.cast.queue do
+                            if spell == br.engines.cast.queue[i].id then
+                                br.game.tremove(br.engines.cast.queue, i)
                                 if not br.functions.misc:isChecked("Mute Queue") then
                                     br.log:say("Queue", "Removed " .. br.log.highlight(spellName))
                                 end
                                 break
                             elseif notOnCD then
-                                br.game.tinsert(br.functions.cast.queue, { id = spell, name = spellName, target = br.queueDest, queuedAt = br.game.GetTime() })
+                                br.game.tinsert(br.engines.cast.queue, { id = spell, name = spellName, target = br.queueDest, queuedAt = br.game.GetTime() })
                                 if not br.functions.misc:isChecked("Mute Queue") then
                                     br.log:say("Queue", "Added " .. br.log.highlight(spellName))
                                 end
@@ -456,10 +456,10 @@ function combatLog:common(...)
                     if br.botCast == true then
                         br.botCast = false
                     end
-                    if #br.functions.cast.queue ~= 0 then
-                        for i = 1, #br.functions.cast.queue do
-                            if spell == br.functions.cast.queue[i].id then
-                                br.game.tremove(br.functions.cast.queue, i)
+                    if #br.engines.cast.queue ~= 0 then
+                        for i = 1, #br.engines.cast.queue do
+                            if spell == br.engines.cast.queue[i].id then
+                                br.game.tremove(br.engines.cast.queue, i)
                                 if not br.functions.misc:isChecked("Mute Queue") then
                                     br.log:say("Queue", "Cast " .. br.log.highlight(spellName) .. ", removed from the queue")
                                 end

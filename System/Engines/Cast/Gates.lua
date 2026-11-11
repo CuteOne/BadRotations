@@ -1,5 +1,5 @@
 local _, br = ...
-local cast = br.functions.cast
+local cast = br.engines.cast
 local E = cast.internal
 
 -- Spell context and gates: refusal records ("/br why"), per-frame values and spell facts,
@@ -326,7 +326,7 @@ local function gateDiesSoon(ctx, thisUnit, castType, allTalents, allSpells) -- l
 	local castSeconds = ctx.rawCastTime / 1000
 	if castSeconds <= ctx.gcdMax then return true end
 	-- Pre-cast behind the player's current cast, it starts when that one ends
-	local wait = math.max(0, br.functions.cast:getCastTimeRemain("player"))
+	local wait = math.max(0, br.engines.cast:getCastTimeRemain("player"))
 	local ttd = br.engines.ttdTable:getSoonestTTD(thisUnit)
 	if wait + castSeconds < ttd then return true end
 	return false, "DIES_SOON", string.format("castTime=%.2fs wait=%.2fs TTD=%.2fs", plain(castSeconds), plain(wait), plain(ttd))
@@ -388,7 +388,7 @@ local function gcdEndsWithQueuedCast(gcd)
 	local castName, _, _, _, endTime = br.game.UnitCastingInfo("player")
 	if castName == nil or endTime == nil then return false end
 	local castRemain = endTime / 1000 - br.game.GetTime()
-	return castRemain > 0 and castRemain <= br.functions.cast:getQueueWindow() and gcd <= castRemain + GCD_WITH_CAST_SLACK
+	return castRemain > 0 and castRemain <= br.engines.cast:getQueueWindow() and gcd <= castRemain + GCD_WITH_CAST_SLACK
 end
 
 local function gateCooldownTimer(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
@@ -470,7 +470,7 @@ local function gateGCD(ctx, thisUnit, castType, allTalents, allSpells) -- luache
 	if ctx.spellCD <= 0 then return true end
 	if ctx.baseCooldown <= 0 then return true end
 	if ctx.rawCastTime > 0 then
-		local castTimeRemain = br.functions.cast:getCastTimeRemain("player")
+		local castTimeRemain = br.engines.cast:getCastTimeRemain("player")
 		if castTimeRemain <= ctx.updateRate then return true end
 	end
 	-- Only the GCD holds it, and that ends with a cast inside the queue window: instants queue too

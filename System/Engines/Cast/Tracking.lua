@@ -1,7 +1,7 @@
 local _, br = ...
-br.functions.cast = br.functions.cast or {}
-local cast = br.functions.cast
--- State and helpers shared by the files in System/Functions/Cast (internal, not for profiles)
+br.engines.cast = br.engines.cast or {}
+local cast = br.engines.cast
+-- State and helpers shared by the files in System/Engines/Cast (internal, not for profiles)
 cast.internal = cast.internal or {}
 local E = cast.internal
 
@@ -155,7 +155,7 @@ local UPGRADE_FORGET = 5
 local upgrades = {} -- "<guid or unit>:<aura spell ID>:<wanted rank ID>" -> { askedAt, seenAt, stuck }
 
 --- Buff.lua's refresh: whether upgrading auraID on the unit to rankID (a rank of the list ranks) is worth asking for.
--- local ask = br.functions.cast:rankUpgradeWanted("player", 1126, 5232, { 1126, 5232, 6756 })
+-- local ask = br.engines.cast:rankUpgradeWanted("player", 1126, 5232, { 1126, 5232, 6756 })
 function cast:rankUpgradeWanted(thisUnit, auraID, rankID, ranks)
 	local guid = br.game.UnitGUID(thisUnit)
 	if guid == nil then return true end
@@ -240,7 +240,7 @@ function E.recordBotCast(spellID, thisUnit)
 	b.timedSend, b.timedSendAt = E.lastTimedSend, E.lastTimedSendAt
 	b.cast, b.spell, b.unit, b.guid, b.castTime = br.botCast, br.botSpell, br.botUnit, br.botGUID, br.botCastTime
 	E.noteBotAction(spellID)
-	if br.functions.cast:getCastTime(spellID) > 0 then
+	if br.engines.cast:getCastTime(spellID) > 0 then
 		E.lastTimedSend, E.lastTimedSendAt = spellID, br.game.GetTime()
 	end
 	br.botCast     = true
@@ -602,7 +602,7 @@ function E.affordableAfterPromised(spellID)
 	-- only when it ends (2026-10-26: a Lightning Bolt queued behind a Lightning Bolt on 21 mana came back
 	-- "Not enough mana")
 	local anyPromised = #E.promised > 0
-	local exclude = anyPromised and not br.functions.cast:isCastingSpell(spellID, "player") and spellID or nil
+	local exclude = anyPromised and not br.engines.cast:isCastingSpell(spellID, "player") and spellID or nil
 	for i = 1, #costs do
 		local cost = costs[i]
 		local promised = anyPromised and promisedPower(cost.type, exclude) or 0
@@ -622,7 +622,7 @@ end
 
 --- Power of a type (Enum.PowerType) promised to casts BR has sent that the game hasn't charged yet: a
 --- cast-time spell until it ends, an instant for a round trip, an on-next-swing attack until its swing.
--- local promisedMana = br.functions.cast:getPromisedPower(0)
+-- local promisedMana = br.engines.cast:getPromisedPower(0)
 function cast:getPromisedPower(powerType)
 	if #E.promised == 0 then return 0 end
 	prunePromised(br.game.GetTime())
@@ -669,7 +669,7 @@ end
 --- A healing item used on a unit (the Healthstone/Potion module): its heal is on its way for a round trip,
 --- or until the combat log shows it (its use spell's SPELL_HEAL). The amount is what that spell was seen to
 --- heal for, else its tooltip's "<low> to <high>"; nothing when neither is known.
--- br.functions.cast:noteHealingItemUsed(healPot, "player")
+-- br.engines.cast:noteHealingItemUsed(healPot, "player")
 function cast:noteHealingItemUsed(itemID, thisUnit)
 	if br.debug.cast then br.debug.cast:noteHealItem(itemID, thisUnit or "player") end
 	local _, spellID = br.game.C_Item.GetItemSpell(itemID)
@@ -708,7 +708,7 @@ function cast:noteCastFailed(spellID, quiet)
 end
 
 --- Health BR's heals on their way to the unit will add (0 when none): sent, not landed yet.
--- local coming = br.functions.cast:getHealsOnTheirWay("player")
+-- local coming = br.engines.cast:getHealsOnTheirWay("player")
 function cast:getHealsOnTheirWay(thisUnit)
 	if #E.promisedHeals == 0 then return 0 end
 	pruneHeals(br.game.GetTime())

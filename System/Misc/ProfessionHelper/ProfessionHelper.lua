@@ -39,8 +39,8 @@ end
 
 -- Casts a spell that takes a bag item (Milling, Disenchant, Pick Lock, ...) on that slot's item
 local function castOnItem(spellID, entry)
-	br.functions.cast:runMacro("/cast " .. br.functions.spell:getName(spellID))
-	br.functions.cast:runMacro("/use " .. entry.bag .. " " .. entry.slot)
+	br.engines.cast:runMacro("/cast " .. br.functions.spell:getName(spellID))
+	br.engines.cast:runMacro("/use " .. entry.bag .. " " .. entry.slot)
 end
 
 -- Mill Herbs / Prospect Ores: the first stack of five the tooltip marks with the game's text
@@ -87,7 +87,7 @@ local function lockboxes(slots)
 			if br.functions.item:bagTooltipHas(entry.bag, entry.slot, lockedText) then
 				castOnItem(spellID, entry)
 			else
-				br.functions.cast:runMacro("/use " .. entry.bag .. " " .. entry.slot)
+				br.engines.cast:runMacro("/use " .. entry.bag .. " " .. entry.slot)
 			end
 			return true
 		end

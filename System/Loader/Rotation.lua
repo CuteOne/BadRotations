@@ -127,8 +127,8 @@ end
 
 -- Out of combat update
 function Rotation:updateOOC()
-	if #br.functions.cast.queue ~= 0 and br.functions.misc:getOptionCheck("Queue Casting") then
-		br.game.wipe(br.functions.cast.queue) -- Reset Queue Casting Table out of combat
+	if #br.engines.cast.queue ~= 0 and br.functions.misc:getOptionCheck("Queue Casting") then
+		br.game.wipe(br.engines.cast.queue) -- Reset Queue Casting Table out of combat
 		br.game.print("Out of Combat - Queue List Cleared")
 	end
 end
@@ -175,11 +175,11 @@ function Rotation:startRotation()
 	state.pauseReason = reason
 
 	if reason == nil then
-		br.functions.cast.allowWhileCasting = false
-		br.functions.cast:openerBeginPass()
+		br.engines.cast.allowWhileCasting = false
+		br.engines.cast:openerBeginPass()
 		self:runModules()
 		self.selected.run()
-		br.functions.cast:openerEndPass()
+		br.engines.cast:openerEndPass()
 	end
 	br.log.rotation:endTick()
 	br.debug.melee:watch()

@@ -170,7 +170,7 @@ function common:commonReaders()
 	local function UiErrorMessages(_, _, errorType, message)
 		-- Remember casts the game refused (stronger aura, line of sight, facing, range)
 		-- so they aren't retried endlessly against the same unit.
-		br.functions.cast:handleCastError(message)
+		br.engines.cast:handleCastError(message)
 		local param = br.game.GetGameMessageInfo(errorType)
 		local lastError = common.lastError
 		lastError.key, lastError.message, lastError.at = param, message, br.game.GetTime()
@@ -376,13 +376,13 @@ function common:commonReaders()
 		-- so it never ran.)
 		-- The player's cast interrupted: out of combat that's the player cancelling BR's cast
 		if event == "UNIT_SPELLCAST_INTERRUPTED" and select(1, ...) == "player" then
-			br.functions.cast:noteInterrupted(select(3, ...))
+			br.engines.cast:noteInterrupted(select(3, ...))
 		end
 		-- A cast of BR's that failed: its heal isn't on its way and its cost won't be charged
 		if (event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_FAILED_QUIET" or event == "UNIT_SPELLCAST_INTERRUPTED")
 			and select(1, ...) == "player"
 		then
-			br.functions.cast:noteCastFailed(select(3, ...), event == "UNIT_SPELLCAST_FAILED_QUIET")
+			br.engines.cast:noteCastFailed(select(3, ...), event == "UNIT_SPELLCAST_FAILED_QUIET")
 		end
 		if event == "UNIT_SPELLCAST_SUCCEEDED" then
 			local SourceUnit = select(1, ...)
@@ -393,16 +393,16 @@ function common:commonReaders()
 				br.botCast = false
 			end
 			-- Queue Casting: the queued spell went off, drop it from the queue
-			if SourceUnit == "player" and #br.functions.cast.queue ~= 0 then
-				for i = 1, #br.functions.cast.queue do
-					local queuedID = br.functions.cast.queue[i].id
+			if SourceUnit == "player" and #br.engines.cast.queue ~= 0 then
+				for i = 1, #br.engines.cast.queue do
+					local queuedID = br.engines.cast.queue[i].id
 					if type(queuedID) == "table" and br.functions and br.functions.spell and br.functions.spell.getHighestKnownRank then
 						queuedID = br.functions.spell:getHighestKnownRank(queuedID) or queuedID[1]
 					elseif type(queuedID) == "table" then
 						queuedID = queuedID[1]
 					end
 					if br.functions.spell:getName(SpellID) == br.functions.spell:getName(queuedID) then
-						br.game.tremove(br.functions.cast.queue, i)
+						br.game.tremove(br.engines.cast.queue, i)
 						if br.game.IsAoEPending() then
 							br.game.SpellStopTargeting()
 						end
@@ -448,7 +448,7 @@ function common:commonReaders()
 		if event == "SPELLS_CHANGED" or event == "PLAYER_TALENT_UPDATE" or event == "TRAIT_CONFIG_UPDATED"
 			or event == "PLAYER_LEVEL_UP" or event == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED"
 		then
-			br.functions.cast:clearSpellFacts()
+			br.engines.cast:clearSpellFacts()
 			br.functions.spell:clearRankCache()
 			br.functions.lastCast:clearAbilityIDs()
 			if event == "SPELLS_CHANGED" and br.runner then br.runner:noteSpellsChanged() end

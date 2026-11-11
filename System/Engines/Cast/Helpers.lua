@@ -1,5 +1,5 @@
 local _, br = ...
-local cast = br.functions.cast
+local cast = br.engines.cast
 local E = cast.internal
 
 -- Public cast helpers: ground casts, openers, cast-time and casting queries, the public
@@ -167,7 +167,7 @@ end
 
 -- The spell's cast time in seconds, for what it currently is (spells that turn into another, like
 -- New Moon's cycle, report the spell they've become); 0 for an instant or unknown spell.
--- if br.functions.cast:getCastTime(br.runner.spells.healingTouch) < 3 then
+-- if br.engines.cast:getCastTime(br.runner.spells.healingTouch) < 3 then
 function cast:getCastTime(spellID)
 	spellID = br.game.C_Spell.GetOverrideSpell(spellID) or spellID
 	local info = br.game.C_Spell.GetSpellInfo(spellID)
@@ -184,7 +184,7 @@ function cast:getCastTimeRemain(unit)
 	end
 end
 
--- if br.functions.cast:isCastingSpell(12345) == true then
+-- if br.engines.cast:isCastingSpell(12345) == true then
 function cast:isCastingSpell(spellID, unit)
 	if unit == nil then unit = "player" end
 	-- Check regular cast (UnitCastingInfo returns spellID as 9th value)
@@ -211,7 +211,7 @@ function cast:isCasting(SpellID, Unit)
 	end
 end
 
--- if br.functions.cast:isCastingSpell(12345) == true then
+-- if br.engines.cast:isCastingSpell(12345) == true then
 function cast:isUnitCasting(unit)
 	if unit == nil then unit = "player" end
 	local spellCasting = br.game.UnitCastingInfo(unit)
@@ -230,7 +230,7 @@ end
 -- SECTION: Public throttle infrastructure (AUDIT.md L33 P0)
 --
 -- These two methods expose the cast-gate's throttle primitives as first-class
--- public API on br.functions.cast. They are NOT internal scaffolding for the
+-- public API on br.engines.cast. They are NOT internal scaffolding for the
 -- L33 cast.macro extension — they are intentional public API surface available
 -- to any future framework caller that needs to participate in the cast gate's
 -- protection (e.g., a future cast.itemMacro, alternative cancelaura paths, or

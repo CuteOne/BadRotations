@@ -133,7 +133,7 @@ br.api.build.buffs = function(buff, k, v)
             if v == 0 then return false end
         end
         -- A stronger aura already holds this slot, so the game refuses a recast.
-        if br.functions.cast:isAuraBounced(v, thisUnit) then return false end
+        if br.engines.cast:isAuraBounced(v, thisUnit) then return false end
 
         -- Classic: when sourceUnit is omitted, treat refresh checks as "any source".
         -- A higher rank already on the unit (same name, later in the rank list) is left alone; a lower rank,
@@ -151,7 +151,7 @@ br.api.build.buffs = function(buff, k, v)
                 return false
             end
             if onRank and onRank < wantRank
-                and br.functions.cast:rankUpgradeWanted(thisUnit, auraID, v, ref)
+                and br.engines.cast:rankUpgradeWanted(thisUnit, auraID, v, ref)
             then
                 return true
             end

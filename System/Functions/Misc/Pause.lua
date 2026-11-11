@@ -198,7 +198,7 @@ function misc.ownSendEvent(event, unit, arg2, arg3, arg4)
 	if event == "UNIT_SPELLCAST_SENT" then
 		local castGUID, spellID = arg3, arg4
 		if spellID ~= nil and not misc:canUseValue(spellID) then spellID = nil end
-		if br.functions.cast.internal.isBotSend(spellID) then return end
+		if br.engines.cast.internal.isBotSend(spellID) then return end
 		ownSendAt = br.game.GetTime()
 		ownSendGUID = castGUID ~= nil and misc:canUseValue(castGUID) and castGUID or nil
 	elseif ownSendAt ~= nil then
@@ -249,15 +249,15 @@ function misc:ownCastHold()
 			local hasted = (1 - br.game.UnitSpellHaste("player") / 100)
 			-- Focused Azerite Beam
 			if lastCast == sa.focusedAzeriteBeam and br.functions.spell:getSpellCD(sa.focusedAzeriteBeam) == 0 then
-				misc.pauseCast = now + br.functions.cast:getCastTime(sa.focusedAzeriteBeam) + (br.functions.cast:getCastTime(sa.focusedAzeriteBeamChannel) * hasted)
+				misc.pauseCast = now + br.engines.cast:getCastTime(sa.focusedAzeriteBeam) + (br.engines.cast:getCastTime(sa.focusedAzeriteBeamChannel) * hasted)
 			end
 			-- Cyclotronic Blast
 			if lastCast == sa.cyclotronicBlast and br.game.C_Container.GetItemCooldown(items.pocketSizedComputationDevice) == 0 then
-				misc.pauseCast = now + br.functions.cast:getCastTime(sa.cyclotronicBlast) + (2.5 * hasted) + br.functions.spell:getGlobalCD(true)
+				misc.pauseCast = now + br.engines.cast:getCastTime(sa.cyclotronicBlast) + (2.5 * hasted) + br.functions.spell:getGlobalCD(true)
 			end
 			-- Azshara's Font of Power - Latent Arcana
 			if lastCast == sb.latentArcana and br.game.C_Container.GetItemCooldown(items.azsharasFontOfPower) == 0 then
-				misc.pauseCast = now + br.functions.cast:getCastTime(sb.latentArcana) + (2.5 * hasted)
+				misc.pauseCast = now + br.engines.cast:getCastTime(sb.latentArcana) + (2.5 * hasted)
 			end
 		end
 		if now < misc.pauseCast then
@@ -287,13 +287,13 @@ function misc:ownCastHold()
 	-- interrupted the Skinning)
 	local castName, _, _, _, endTime, _, castID, _, castSpellID = br.game.UnitCastingInfo("player")
 	if castName ~= nil then
-		local window = br.game.UnitAffectingCombat("player") and br.functions.cast:getQueueWindow() or 0
+		local window = br.game.UnitAffectingCombat("player") and br.engines.cast:getQueueWindow() or 0
 		if window > 0 and castSpellID ~= nil and misc:canUseValue(castSpellID)
 			and not br.functions.lastCast:isAbility(castSpellID)
 		then
 			window = 0
 		end
-		if (endTime / 1000 - now) > window or br.functions.cast:isQueuedBehind(castID, endTime) then
+		if (endTime / 1000 - now) > window or br.engines.cast:isQueuedBehind(castID, endTime) then
 			return "casting"
 		end
 		-- Inside the queue window and nothing pre-cast yet: one send may pre-cast.

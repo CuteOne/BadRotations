@@ -59,7 +59,7 @@ local callerMeta = {
             local ranks = rawget(api, RANKS)
             fn = function(amount) return api.rank(br.functions.spell:getRankIndexForAmount(ranks, amount)) end
         elseif key == "whileCasting" then
-            local call, callAtRank, casts = rawget(api, CALL), rawget(api, RANK_CALL), br.functions.cast
+            local call, callAtRank, casts = rawget(api, CALL), rawget(api, RANK_CALL), br.engines.cast
             fn = makeCaller(function(...) return casts:callWhileCasting(call, ...) end,
                 callAtRank and function(...) return casts:callWhileCasting(callAtRank, ...) end, rawget(api, RANKS))
         else
@@ -123,7 +123,7 @@ br.api.build.cast = function(api, spell, id)
     -- @treturn boolean
     if cast.able.id == nil then
         cast.able.id = function(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, tostring(spellID), predict,
+            return br.engines.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, tostring(spellID), predict,
                 predictPad, enemies, true)
         end
     end
@@ -143,7 +143,7 @@ br.api.build.cast = function(api, spell, id)
     if cast.able.name == nil then
         cast.able.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
             local spellID = br.functions.spell:getSpellID(spellName)
-            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spellName, predict,
+            return br.engines.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spellName, predict,
                 predictPad, enemies, true)
         end
     end
@@ -163,11 +163,11 @@ br.api.build.cast = function(api, spell, id)
     -- Also cast.able.spell.aoe(range, minUnits, unit), .rank(n) and the other forms (see the top of this file).
     cast.able[spell] = makeCaller(
         function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad,
+            return br.engines.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad,
                 enemies, true)
         end,
         function(rank, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng,
+            return br.engines.cast:createCastFunction(thisUnit, castType, minUnits, effectRng,
                 br.functions.spell:getSpellRank(id, rank), spell, predict, predictPad, enemies, true)
         end, id)
 
@@ -177,7 +177,7 @@ br.api.build.cast = function(api, spell, id)
     -- @treturn boolean
     cast.active[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return br.functions.cast:isCastingSpell(currentRank(), thisUnit)
+        return br.engines.cast:isCastingSpell(currentRank(), thisUnit)
     end
 
     --- Checks if the spell is set to auto-repeat or if it's the current spell being cast.
@@ -198,11 +198,11 @@ br.api.build.cast = function(api, spell, id)
     cast.cancel[spell] = function()
         -- An auto-repeating spell (Auto Shot, Shoot) stops when cast again; stopping a cast doesn't stop it
         if spell ~= "autoAttack" and br.functions.spell:isAutoRepeating(currentRank()) then
-            br.functions.cast:stopAutoRepeat(currentRank())
+            br.engines.cast:stopAutoRepeat(currentRank())
             return true
         end
         if api.cast.current[spell]() then
-            br.functions.cast:stopCasting()
+            br.engines.cast:stopCasting()
             return true
         end
         return false
@@ -236,7 +236,7 @@ br.api.build.cast = function(api, spell, id)
     -- @treturn boolean
     cast.current[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return br.functions.cast:isCastingSpell(currentRank(), thisUnit)
+        return br.engines.cast:isCastingSpell(currentRank(), thisUnit)
     end
 
     --- Checks if the spell is capable of dispelling the target.
@@ -261,7 +261,7 @@ br.api.build.cast = function(api, spell, id)
     if cast.form == nil then
         cast.form = function(formIndex)
             if formIndex == nil then formIndex = 0 end
-            return br.functions.cast:shapeshift(formIndex)
+            return br.engines.cast:shapeshift(formIndex)
         end
     end
 
@@ -280,7 +280,7 @@ br.api.build.cast = function(api, spell, id)
     if cast.id == nil then
         cast.id = function(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
             if type(spellID) == "table" then spellID = (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(spellID)) or spellID[1] end
-            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, tostring(spellID), predict,
+            return br.engines.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, tostring(spellID), predict,
                 predictPad, enemies)
         end
     end
@@ -333,11 +333,11 @@ br.api.build.cast = function(api, spell, id)
     -- @treturn boolean Always true.
     if cast.macro == nil then
         cast.macro = function(macroText, associatedSpellID, lockDuration)
-            br.functions.cast:runMacro(macroText)
+            br.engines.cast:runMacro(macroText)
             if associatedSpellID then
                 local duration = lockDuration or 0.5
-                br.functions.cast:setCastTimer(associatedSpellID, duration)
-                br.functions.cast:setCastIntentLock(associatedSpellID, duration)
+                br.engines.cast:setCastTimer(associatedSpellID, duration)
+                br.engines.cast:setCastIntentLock(associatedSpellID, duration)
             end
             return true
         end
@@ -371,7 +371,7 @@ br.api.build.cast = function(api, spell, id)
     if cast.name == nil then
         cast.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
             local spellID = br.functions.spell:getSpellID(spellName)
-            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spellName, predict,
+            return br.engines.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spellName, predict,
                 predictPad, enemies)
         end
     end
@@ -402,19 +402,19 @@ br.api.build.cast = function(api, spell, id)
         --- True once the opener has run all its steps (until it resets).
         -- @function cast.opener.done
         -- @treturn boolean
-        cast.opener.done = function() return br.functions.cast:isOpenerDone() end
+        cast.opener.done = function() return br.engines.cast:isOpenerDone() end
         --- True while an opener is under way: started and not finished.
         -- @function cast.opener.active
         -- @treturn boolean
-        cast.opener.active = function() return br.functions.cast:isOpenerActive() end
+        cast.opener.active = function() return br.engines.cast:isOpenerActive() end
     end
     cast.opener[spell] = makeCaller(
         function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-            return br.functions.cast:openerStep(spell, id, cast[spell], thisUnit, castType, minUnits, effectRng, predict,
+            return br.engines.cast:openerStep(spell, id, cast[spell], thisUnit, castType, minUnits, effectRng, predict,
                 predictPad, enemies)
         end,
         function(rank, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-            return br.functions.cast:openerStep(spell, id, cast[spell].rank(rank), thisUnit, castType, minUnits, effectRng,
+            return br.engines.cast:openerStep(spell, id, cast[spell].rank(rank), thisUnit, castType, minUnits, effectRng,
                 predict, predictPad, enemies)
         end, id)
 
@@ -483,11 +483,11 @@ br.api.build.cast = function(api, spell, id)
     -- cast.consecration.rank(1).aoe(8, 3)           -- the forms work at a rank, and on cast.able / cast.opener
     cast[spell] = makeCaller(
         function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad,
+            return br.engines.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad,
                 enemies)
         end,
         function(rank, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng,
+            return br.engines.cast:createCastFunction(thisUnit, castType, minUnits, effectRng,
                 br.functions.spell:getSpellRank(id, rank), spell, predict, predictPad, enemies)
         end, id)
 
@@ -495,7 +495,7 @@ br.api.build.cast = function(api, spell, id)
     -- @function cast.time.<spell>
     -- @treturn number
     cast.time[spell] = function()
-        local castTime = br.functions.cast:getCastTime(currentRank())
+        local castTime = br.engines.cast:getCastTime(currentRank())
         return castTime > 0 and castTime or br.functions.spell:getGlobalCD(true)
     end
 
@@ -506,7 +506,7 @@ br.api.build.cast = function(api, spell, id)
     if cast.timeRemain == nil then
         cast.timeRemain = function(thisUnit)
             if thisUnit == nil then thisUnit = "player" end
-            return br.functions.cast:getCastTimeRemain(thisUnit)
+            return br.engines.cast:getCastTimeRemain(thisUnit)
         end
     end
 
@@ -538,7 +538,7 @@ br.api.build.cast = function(api, spell, id)
     -- @treturn boolean What castFn returned
     if cast.withAnimationCancel == nil then
         cast.withAnimationCancel = function(castFn)
-            return br.functions.cast:withMoveAnimationCancel(castFn)
+            return br.engines.cast:withMoveAnimationCancel(castFn)
         end
     end
 end

@@ -254,10 +254,10 @@ local function handler(message, editbox)
 		if br.runner == nil then
 			br.game.print("The queue is available once a rotation is loaded.")
 		elseif msg2 == "clear" then
-			if #br.functions.cast.queue == 0 then
+			if #br.engines.cast.queue == 0 then
 				br.game.print("Queue Already Cleared")
 			else
-				br.game.wipe(br.functions.cast.queue)
+				br.game.wipe(br.engines.cast.queue)
 				br.game.print("Cleared Queue")
 			end
 		elseif msg2 == "add" then
@@ -297,9 +297,9 @@ local function handler(message, editbox)
 				elseif not notOnCD then
 					br.log:say("Queue", br.log.highlight(spellName) .. " not added, cooldown greater than gcd")
 				else
-					if #br.functions.cast.queue == 0 and notOnCD then
+					if #br.engines.cast.queue == 0 and notOnCD then
 						br.game.tinsert(
-							br.functions.cast.queue,
+							br.engines.cast.queue,
 							{
 								id = spellId,
 								name = spellName,
@@ -310,14 +310,14 @@ local function handler(message, editbox)
 							}
 						)
 						br.log:say("Queue", "Added " .. br.log.highlight(spellName))
-					elseif #br.functions.cast.queue ~= 0 then
-						for i = 1, #br.functions.cast.queue do
-							if spellId == br.functions.cast.queue[i].id then
+					elseif #br.engines.cast.queue ~= 0 then
+						for i = 1, #br.engines.cast.queue do
+							if spellId == br.engines.cast.queue[i].id then
 								br.log:say("Queue", br.log.highlight(spellName) .. " is already queued")
 								break
 							elseif notOnCD then
 								br.game.tinsert(
-									br.functions.cast.queue,
+									br.engines.cast.queue,
 									{
 										id = spellId,
 										name = spellName,
@@ -340,10 +340,10 @@ local function handler(message, editbox)
 			else
 				local spellName, spellId = br.functions.spell:getName(msg3), br.functions.spell:getSpellID(msg3)
 				local removedSpell = false
-				if #br.functions.cast.queue ~= 0 then
-					for i = 1, #br.functions.cast.queue do
-						if spellId == br.functions.cast.queue[i].id then
-							br.game.tremove(br.functions.cast.queue, i)
+				if #br.engines.cast.queue ~= 0 then
+					for i = 1, #br.engines.cast.queue do
+						if spellId == br.engines.cast.queue[i].id then
+							br.game.tremove(br.engines.cast.queue, i)
 							br.log:say("Queue", "Removed " .. br.log.highlight(spellName))
 							removedSpell = true
 							break
@@ -409,7 +409,7 @@ local function handler(message, editbox)
 	elseif msg == "disengage" then
 		-- Forward Disengage
 		if br.game.IsLeftShiftKeyDown() then
-			br.functions.cast:castByName(br.functions.spell:getName(781))
+			br.engines.cast:castByName(br.functions.spell:getName(781))
 		else
 			forewardDisengage()
 		end
@@ -469,7 +469,7 @@ local function handler(message, editbox)
 		-- such as movement speed (which distance reads); timer callbacks run protected,
 		-- so report from one on the next frame.
 		br.game.C_Timer.After(0, function()
-			local entry = br.functions.cast:getRefusal(spellText)
+			local entry = br.engines.cast:getRefusal(spellText)
 			if entry == nil then
 				br.log:say("Why", "No cast checks recorded for " .. br.log.highlight(spellText) ..
 					" yet. The profile hasn't asked about it, or the name doesn't match.")
@@ -504,7 +504,7 @@ local function handler(message, editbox)
 				return string.format("%s dist %.2f facing %s visible %s", tostring(br.game.UnitName(thisUnit)),
 					br.functions.range:getDistance(thisUnit) or -1,
 					tostring(br.functions.unit:getFacing("player", thisUnit)),
-					tostring(br.functions.cast:isUnitVisible(thisUnit)))
+					tostring(br.engines.cast:isUnitVisible(thisUnit)))
 			end
 			br.log:more("  target: " .. describe("target"))
 			-- The pieces of misc:isValidUnit, which dynamicTarget needs before it will

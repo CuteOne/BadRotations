@@ -119,7 +119,7 @@ br.api.build.unit = function(api)
         if not unit.cancelForm() then return false end
         local spellRef = br.functions.spell:getSpellIdFromRef(outOfFormSpell)
         -- Until a form is up again, other casts leave the mana to shift back (see cast:getReshiftOwed)
-        br.functions.cast:setReshiftOwed(formSpellID, spellRef)
+        br.engines.cast:setReshiftOwed(formSpellID, spellRef)
         if br.debug.form then br.debug.form:noteLeftFormFor(spellRef) end
         br.log:debug("Cancel Form [" .. tostring(spellRef and br.functions.spell:getName(spellRef) or spellRef) .. "]")
         return true
@@ -139,7 +139,7 @@ br.api.build.unit = function(api)
     -- @return boolean True if the unit is casting, or casting the specific spell if spellID provided
     unit.casting = function(thisUnit, spellID)
         if thisUnit == nil then thisUnit = "player" end
-        local spellCasting = br.functions.cast:getCastName(thisUnit)
+        local spellCasting = br.engines.cast:getCastName(thisUnit)
         if spellID == nil then return spellCasting ~= nil end
         local spellName = br.functions.spell:getName(spellID)
         return tostring(spellCasting) == tostring(spellName)
@@ -603,7 +603,7 @@ br.api.build.unit = function(api)
         if thisUnit == nil then thisUnit = "target" end
         if otherUnit == nil then otherUnit = "player" end
         if br.functions.unit:GetUnitIsUnit(otherUnit, "player")
-            and br.functions.cast:isRejected("behind", nil, thisUnit) then
+            and br.engines.cast:isRejected("behind", nil, thisUnit) then
             return false
         end
 
@@ -627,7 +627,7 @@ br.api.build.unit = function(api)
     -- @return boolean True if the unit is casting or channelling
     unit.isCasting = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return br.functions.cast:isUnitCasting(thisUnit)
+        return br.engines.cast:isUnitCasting(thisUnit)
     end
 
     --- Check if a unit is a training dummy

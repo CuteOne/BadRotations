@@ -13,13 +13,13 @@ local _, br = ...
 -- channel doesn't hold it (misc:ownCastHold; .whileCasting lifts that)
 local function useWhenAble(itemOrSlot, thisUnit)
     if itemOrSlot == nil or not br.functions.item:canUseItem(itemOrSlot) then return false end
-    if not br.functions.cast.allowWhileCasting and br.functions.misc:ownCastHold() ~= nil then return false end
+    if not br.engines.cast.allowWhileCasting and br.functions.misc:ownCastHold() ~= nil then return false end
     return br.functions.item:useItem(itemOrSlot, thisUnit or "target")
 end
 
 -- A use function that is also callable as .whileCasting(...)
 local function withWhileCasting(use)
-    return setmetatable({ whileCasting = function(...) return br.functions.cast:callWhileCasting(use, ...) end },
+    return setmetatable({ whileCasting = function(...) return br.engines.cast:callWhileCasting(use, ...) end },
         { __call = function(_, ...) return use(...) end })
 end
 

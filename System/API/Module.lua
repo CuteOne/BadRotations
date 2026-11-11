@@ -76,7 +76,7 @@ br.api.build.module = function(api)
                     if use.item(healPot) then
                         -- its heal counts as on its way, so the racial and the profile's heals see it (2026-11-01:
                         -- a potion and Gift of the Naaru in the same tick)
-                        br.functions.cast:noteHealingItemUsed(healPot, "player")
+                        br.engines.cast:noteHealingItemUsed(healPot, "player")
                         ui.debug("Using Healing Potion")
                         return true
                     end

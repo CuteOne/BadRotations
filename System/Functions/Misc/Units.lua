@@ -71,7 +71,7 @@ function misc.engagedPlayerEvent(event, unit, _, _, spellID)
 	local now = br.game.GetTime()
 	if event == "UNIT_SPELLCAST_SENT" then
 		if unit ~= "player" or spellID == nil or not misc:canUseValue(spellID) then return end
-		local E = br.functions.cast and br.functions.cast.internal
+		local E = br.engines.cast and br.engines.cast.internal
 		if E and E.isBotSend and E.isBotSend(spellID) then return end -- BR's
 		if not br.game.C_Spell.IsSpellHarmful(spellID) then return end
 		misc.notePlayerEngaged(enemyPlayerTarget(), "you attacked")

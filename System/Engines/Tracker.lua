@@ -64,7 +64,7 @@ local function settlePending(now)
         pending = nil
         return
     end
-    if br.functions.cast:isUnitCasting("player") then pending.at = now return end
+    if br.engines.cast:isUnitCasting("player") then pending.at = now return end
     if now - pending.at < ANSWER_WAIT then return end
     e.noWindow = (e.noWindow or 0) + 1
     local text = "opened no loot window" .. (pending.error and (", game said \"" .. pending.error .. "\"") or "")
@@ -80,7 +80,7 @@ end
 local function tryInteract(e, now)
     if not opts.autoInteract or not e.interact or e.unit or e.dist > INTERACT_RANGE then return end
     if pending or br.engines.lootEngine:isWindowBusy(now) then return end
-    if br.functions.cast:isUnitCasting("player") or br.functions.misc:isMoving("player") then return end
+    if br.engines.cast:isUnitCasting("player") or br.functions.misc:isMoving("player") then return end
     -- Human-like delay: 0.5 to 1.0 seconds between interactions
     if now < lastInteractTime + nextInteractDelay then return end
     br.game.ObjectInteract(e.obj)

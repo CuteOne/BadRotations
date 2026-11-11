@@ -23,7 +23,7 @@ end
 function power:isAffordable(powerType, cost, keep)
 	local current = power:getPower("player", powerType)
 	if type(current) ~= "number" or not br.functions.misc:canUseValue(current) then return false end
-	return current - br.functions.cast:getPromisedPower(powerType) - (cost or 0) >= (keep or 0)
+	return current - br.engines.cast:getPromisedPower(powerType) - (cost or 0) >= (keep or 0)
 end
 
 function power:getMaxRuneCDPercent()

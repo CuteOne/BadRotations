@@ -1,5 +1,5 @@
 local _, br = ...
-local cast = br.functions.cast
+local cast = br.engines.cast
 local E = cast.internal
 
 -- Opener: cast.opener.<spell>(...) casts like cast.<spell>(...), and returns true when the cast is

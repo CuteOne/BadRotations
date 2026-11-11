@@ -94,7 +94,7 @@ local PROFILE_TARGETS = {
     { "isValidUnit",                   function() return br.functions.misc end,                 "isValidUnit" },
     { "enemyListCheck",                function() return br.functions.misc end,                 "enemyListCheck" },
     { "Healing engine",                function() return br.engines.healingEngine.friend end,   "Update" },
-    { "Casts (cast.x / cast.able.x)",  function() return br.functions.cast end,                 "createCastFunction" },
+    { "Casts (cast.x / cast.able.x)",  function() return br.engines.cast end,                 "createCastFunction" },
     { "Profile pulse (rotation:update)", function() return br.runner end,                       "update" },
 }
 local profiling = false
@@ -435,7 +435,7 @@ local TARGET_REPORT_UNITS = 6
 -- (Targeting.lua attackable, over getEnemies) and isValidUnit make that it fails. 2026-11-08 21:08 on
 -- Forever a fleeing target dropped off the list with nothing in the logs to say why.
 local function targetLeftOut()
-    local unitFns, misc, cast = br.functions.unit, br.functions.misc, br.functions.cast
+    local unitFns, misc, cast = br.functions.unit, br.functions.misc, br.engines.cast
     local why = {}
     if unitFns:GetUnitIsDeadOrGhost("target") then why[#why + 1] = "dead" end
     local valid, invalidWhy = misc:isValidUnit("target")
@@ -856,7 +856,7 @@ function br.debug.melee:watch()
         episode.lastSeen = now
         if now - episode.lastSnap >= 1 then
             local decisions = {}
-            br.functions.cast:eachDecisionSince(episode.lastSnap, function(name, reason)
+            br.engines.cast:eachDecisionSince(episode.lastSnap, function(name, reason)
                 if #decisions < 8 then decisions[#decisions + 1] = printable(name) .. (reason and (" refused " .. reason) or " passed") end
             end)
             episode.lastSnap = now
@@ -943,7 +943,7 @@ function br.debug.idle:watch(paused)
         .. " | auto attack " .. (br.functions.unit:isAutoAttacking() and "on" or "off")
         .. " | paused toggle " .. tostring(spec and spec.toggles and spec.toggles["Pause"]))
     local decisions = {}
-    if br.functions.cast.eachDecisionSince then br.functions.cast:eachDecisionSince(lastActionAt, function(name, reason, detail)
+    if br.engines.cast.eachDecisionSince then br.engines.cast:eachDecisionSince(lastActionAt, function(name, reason, detail)
         if #decisions < 15 then
             decisions[#decisions + 1] = printable(name) .. (reason and (" refused " .. reason .. (detail and (" (" .. printable(tostring(detail)):sub(1, 40) .. ")") or "")) or " passed")
         end
@@ -1097,7 +1097,7 @@ function br.debug.cast:noteSend(spellID, thisUnit)
     local behind, remain = currentCast(now)
     previousSend = lastSend
     lastSend = { spellID = spellID, name = printable(br.functions.spell:getName(spellID)), at = now, behind = behind,
-        remain = remain, window = br.functions.cast:getQueueWindow(), gcd = br.functions.spell:getGlobalCD() or 0,
+        remain = remain, window = br.engines.cast:getQueueWindow(), gcd = br.functions.spell:getGlobalCD() or 0,
         cd = br.functions.spell:getSpellCD(spellID) or 0, pushbacks = pushbacks }
     if behind then
         castWrite(("pre-cast %s behind %s: %.2fs left, window %.2fs, GCD %.2fs, pushbacks %d, latency %dms | previous send %s"):format(
@@ -1115,7 +1115,7 @@ local healLines = 0
 local function healthState(unit)
     local unitFns = br.functions.unit
     return ("health %.0f%%, after heals %.0f%% (%d on their way)"):format(plainNumber(unitFns:getHP(unit) or -1),
-        plainNumber(unitFns:getHPAfterHeals(unit) or -1), plainNumber(br.functions.cast:getHealsOnTheirWay(unit) or 0))
+        plainNumber(unitFns:getHPAfterHeals(unit) or -1), plainNumber(br.engines.cast:getHealsOnTheirWay(unit) or 0))
 end
 
 -- A bleed BR sent and what showed after it (unit:isBleedImmune's learning, Functions/Unit.lua)
@@ -1174,7 +1174,7 @@ function br.debug.cast:noteSendError(name, unit, err)
 end
 
 -- A send by ID (or by name with rank, after a silent one) the game never answered
--- (cast:castByID, System/Functions/Cast/Helpers.lua): what BR saw of the spell, so the cause can be
+-- (cast:castByID, System/Engines/Cast/Helpers.lua): what BR saw of the spell, so the cause can be
 -- read. nextText: how that rank is sent from now on.
 function br.debug.cast:noteNoAnswer(entry, nextText)
     local id, C = entry.spellID, br.game.C_Spell
@@ -1243,7 +1243,7 @@ end
 -- 0.06 s after the client's GCD from Strength of Earth Totem ended; 2026-10-12, Forever: Faerie Fire
 -- twice in one fight). The GCD and the spell's own cooldown BR saw at the send and now, the send
 -- before it and the latency: a GCD only just over at the send points at the server's GCD ending later.
--- A buff's rank upgrade that didn't take (Functions/Cast/Tracking.lua cast:rankUpgradeWanted): what BR sent, what
+-- A buff's rank upgrade that didn't take (Engines/Cast/Tracking.lua cast:rankUpgradeWanted): what BR sent, what
 -- the game calls the spell by name, what each "known" check says per rank, and the aura there
 function br.debug.cast:noteUpgradeStuck(thisUnit, auraID, rankID, sentID, ago, ranks)
     local G, spellFns = br.game, br.functions.spell
@@ -1262,7 +1262,7 @@ function br.debug.cast:noteUpgradeStuck(thisUnit, auraID, rankID, sentID, ago, r
         byName == sentID and "by name" or "by ID", rankID, tostring(byName), table.concat(parts, ", ")))
 end
 
--- yours: the player's own key press, not a spell BR sent (Functions/Cast/Tracking.lua)
+-- yours: the player's own key press, not a spell BR sent (Engines/Cast/Tracking.lua)
 function br.debug.cast:noteNotReady(spellID, yours)
     local now = br.game.GetTime()
     local spellFns = br.functions.spell
@@ -1364,7 +1364,7 @@ function br.debug.form:watch()
     if after < LEFT_FORM_WAIT then return end
     left.waitNoted = true
     local name = br.functions.spell:getName(left.spellID)
-    local record = name and br.functions.cast:getRefusal(name)
+    local record = name and br.engines.cast:getRefusal(name)
     local fate
     if record and record.refusedAt and record.refusedAt >= left.at then
         fate = ("refused %s %s, %.1fs ago"):format(tostring(record.reason), printable(record.detail or ""),
@@ -1393,7 +1393,7 @@ function br.debug.form:noteSendAfterLeaving(spellID)
     local usable, noPower = br.game.C_Spell.IsSpellUsable(left.spellID)
     local cd = br.game.C_Spell.GetSpellCooldown and br.game.C_Spell.GetSpellCooldown(left.spellID)
     if type(cd) ~= "table" then cd = nil end
-    local refusal = br.functions.cast:getRefusal(name)
+    local refusal = br.engines.cast:getRefusal(name)
     formWrite(("left %s for %s, then BR sent %s %.2fs later instead | %s then: usable %s%s, cooldown %s, GCD %.2fs, mana %d, form %s, last refusal %s"):format(
         left.form, printable(name), printable(spellFns:getName(spellID)), after, printable(name),
         tostring(usable and true or false), noPower and " (power)" or "",

@@ -329,7 +329,7 @@ function spell:getCastingRegen(spellID)
 	local generates = desc:gsub("%D+", "")
 	local tooltip = tonumber(generates:sub(-2)) or 0
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
-	local castTime = br.functions.cast:getCastTime(spellID) or 0
+	local castTime = br.engines.cast:getCastTime(spellID) or 0
 	local gcd = br.runner.state.gcdMax
 	local castSeconds = (castTime > gcd) and castTime or gcd
 	power = power + regenRate * castSeconds + tooltip

@@ -1,5 +1,5 @@
 local _, br = ...
-local cast = br.functions.cast
+local cast = br.engines.cast
 local E = cast.internal
 
 -- Dispatch: failure reports, the cast itself (castingSpell), unit and range checks and

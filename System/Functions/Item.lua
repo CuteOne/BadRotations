@@ -457,9 +457,9 @@ end
 local function useAsBR(itemID, thisUnit)
 	local _, spellID = br.game.C_Item.GetItemSpell(itemID)
 	if spellID ~= nil and not br.functions.misc:canUseValue(spellID) then spellID = nil end
-	br.functions.cast.internal.noteBotAction(spellID)
+	br.engines.cast.internal.noteBotAction(spellID)
 	br.game.UseItemByName(select(1, br.game.C_Item.GetItemInfo(itemID)), thisUnit)
-	br.functions.cast.actions = br.functions.cast.actions + 1
+	br.engines.cast.actions = br.engines.cast.actions + 1
 end
 
 -- br.functions.item:useItem(12345)

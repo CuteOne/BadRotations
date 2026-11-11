@@ -315,7 +315,7 @@ end
 function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, helpful)
     local x, y, z = custom:findGroundLocation(spellID, radius, minUnits, maxRange, minRange, helpful)
     if x == nil then return false end
-    return br.functions.cast:castAtPosition(x, y, z, spellID)
+    return br.engines.cast:castAtPosition(x, y, z, spellID)
 end
 
 function custom:castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellType, unit)
@@ -350,10 +350,10 @@ function custom:castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, 
     local visibleEnemiesInRadius = #br.engines.enemiesEngineFunctions:getEnemies(unit, radius, true)
 
     if br.functions.custom:getUnits(unit, allUnitsInRange, radius - 3) >= minUnits and enemiesInRadius >= visibleEnemiesInRadius
-        and br.functions.cast:isUnitVisible(unit)
+        and br.engines.cast:isUnitVisible(unit)
     then
         local X1, Y1, Z1 = br.functions.unit:GetObjectPosition(unit)
-        return br.functions.cast:castAtPosition(X1, Y1, Z1, spellID)
+        return br.engines.cast:castAtPosition(X1, Y1, Z1, spellID)
     end
 end
 

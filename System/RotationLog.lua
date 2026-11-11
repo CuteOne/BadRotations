@@ -147,7 +147,7 @@ local function combatTime()
 	return combat and combat.getCombatTime and combat:getCombatTime() or 0
 end
 
---- A spell BR just sent (System/Functions/Cast/Helpers.lua; Dispatch.lua for pet abilities).
+--- A spell BR just sent (System/Engines/Cast/Helpers.lua; Dispatch.lua for pet abilities).
 -- spellID is nil for a send by name. how: the way it was sent when that isn't the usual one
 -- ("by ID", "by name with rank"), shown on its row.
 function rotation:sent(spellID, spellName, unit, how)

@@ -64,7 +64,7 @@ end
 local function attackable(unit, dontBreakCC, safeCheck)
 	local unitFns = br.functions.unit
 	if unitFns:isHeldBack(unit) or unitFns:isDummy(unit) or unitFns:isEvading(unit) then return false end
-	if not br.functions.cast:isUnitVisible(unit) then return false end
+	if not br.engines.cast:isUnitVisible(unit) then return false end
 	if dontBreakCC and br.functions.misc:isCCProtected(unit) then return false end
 	if safeCheck and not br.engines.enemiesEngineFunctions:isSafeToAttack(unit) then return false end
 	return true
