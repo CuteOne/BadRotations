@@ -275,6 +275,14 @@ local function faerieFireFiller(thisUnit)
         and not debuff.faerieFire.exists(thisUnit, "any") and cast.able.faerieFire(thisUnit)
 end
 
+-- Rend and Tear counts any caster's bleed on the target, not only yours (wowsims/forever 3c804ec94: Swipe took the
+-- bonus on 861 of 874 hits with only other players' bleeds up). Covers the druid bleeds; other classes' bleeds and
+-- weapon procs aren't in the lists, so those still read as not bleeding.
+local function bleeding(thisUnit)
+    return debuff.lacerate.exists(thisUnit, "any") or debuff.rake.exists(thisUnit, "any")
+        or debuff.rip.exists(thisUnit, "any") or debuff.pounceBleed.exists(thisUnit, "any")
+end
+
 local function hibernateTarget(thisUnit)
     return (unit.beast(thisUnit) or unit.dragonkin(thisUnit)) and not unit.isUnit(thisUnit, "target")
         and unit.isTanking(thisUnit) and cast.able.hibernate(thisUnit)
@@ -843,8 +851,9 @@ actionList.BearForm = function()
             return true
         end
     end
-    -- Swipe (hits 3): from 2 enemies once the target bleeds (Rend and Tear raises Swipe), else 3 (the sim's rule)
-    if cast.able.swipe() and ui.useAOE(8, debuff.lacerate.exists(units.dyn5) and 2 or 3) then
+    -- Swipe (hits 3): from 2 enemies once the target bleeds, anyone's bleed (Rend and Tear raises Swipe), else 3
+    -- (the sim's rule)
+    if cast.able.swipe() and ui.useAOE(8, bleeding(units.dyn5) and 2 or 3) then
         if cast.swipe() then
             ui.debug("Casting Swipe")
             return true
