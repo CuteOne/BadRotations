@@ -226,7 +226,7 @@ br.api.build.cast = function(api, spell, id)
     -- @treturn number
     if cast.current.id == nil then
         cast.current.id = function()
-            return br.botSpell
+            return (br.engines.cast:getLastSend())
         end
     end
 

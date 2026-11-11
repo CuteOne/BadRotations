@@ -306,7 +306,8 @@ if not lootEngine.metaTable then
 		-- ...nor a cast BR has just sent: its cast bar only shows once the game answers, a round trip on
 		-- (2026-10-26: the after-fight Healing Wave went out the frame the corpse was clicked, and the
 		-- click interrupted it)
-		if br.botCastTime and br.game.GetTime() - br.botCastTime < br.functions.misc:getRoundTripHold() then return end
+		local _, _, sentAt = br.engines.cast:getLastSend()
+		if sentAt and br.game.GetTime() - sentAt < br.functions.misc:getRoundTripHold() then return end
 		if IsMounted("player") then return end                                                  -- don't loot while mounted
 		if GetUnitSpeed("player") > 0 then return end                                            -- don't loot while moving
 		if UnitIsDeadOrGhost("player") then return end                                           -- don't loot while dead

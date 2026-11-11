@@ -401,8 +401,8 @@ function combatLog:common(...)
                 if
                     br.functions.misc:isInCombat("player") and br.functions.unit:GetUnitIsUnit(sourceName, "player") and
                     not br.game.C_Spell.IsSpellPassive(spell) and
-                    spell ~= br.botSpell and
-                    not br.botCast and
+                    spell ~= (br.engines.cast:getLastSend()) and
+                    not br.engines.cast:isSendGoing() and
                     spell ~= 48018 and
                     spell ~= 48020
                 then
@@ -453,9 +453,7 @@ function combatLog:common(...)
                     (param == "SPELL_CAST_SUCCESS" and castTime == 0) or (param == "SPELL_CAST_START" and castTime > 0) or
                     spell == br.lastCast
                 then
-                    if br.botCast == true then
-                        br.botCast = false
-                    end
+                    br.engines.cast:noteSucceeded()
                     if #br.engines.cast.queue ~= 0 then
                         for i = 1, #br.engines.cast.queue do
                             if spell == br.engines.cast.queue[i].id then

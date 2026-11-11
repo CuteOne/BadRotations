@@ -5,6 +5,22 @@ local cast = br.engines.cast
 cast.internal = cast.internal or {}
 local E = cast.internal
 
+-- BR's latest send: the spell, the unit as asked and its GUID, when, and whether it's still going (true from the
+-- send until the next spell cast success the game reports: cast:noteSucceeded). Game errors are pinned on it, and
+-- the bleed watcher, auto attack and auto-loot wait a round trip after it. Read with cast:getLastSend().
+local lastSend = { spellID = nil, unit = nil, guid = nil, at = nil, going = false }
+
+--- BR's latest spell send: spellID, its unit's GUID, when (GetTime), the unit as given; nil when none yet.
+-- local spellID, guid, sentAt = br.engines.cast:getLastSend()
+function cast:getLastSend() return lastSend.spellID, lastSend.guid, lastSend.at, lastSend.unit end
+
+--- True from BR's latest send until the game reports a spell cast success (what the Queue Casting option waits on)
+function cast:isSendGoing() return lastSend.going end
+
+--- A spell cast success (Readers): BR's latest send is no longer going
+function cast:noteSucceeded() lastSend.going = false end
+
+
 -- Shared state and tracking: cast rejection memory, unit visibility, the queue window,
 -- intent locks and checking that a cast started.
 
@@ -133,11 +149,11 @@ end
 -- pass (2026-10-26: a pull bolt cancelled twice in a row, BR re-sent it 0.7 s after the first).
 function cast:noteInterrupted(spellID)
 	if br.game.UnitAffectingCombat("player") then return end
-	if not (br.botSpell and br.botGUID and br.botCastTime) or br.game.GetTime() - br.botCastTime > 10 then return end
+	if not (lastSend.spellID and lastSend.guid and lastSend.at) or br.game.GetTime() - lastSend.at > 10 then return end
 	local name = br.functions.spell:getName(spellID)
-	if name == nil or name ~= br.functions.spell:getName(br.botSpell) then return end
-	cast:setRejected("cancelled", spellID, br.botGUID)
-	local key = rejectionKey("cancelled", spellID, br.botGUID)
+	if name == nil or name ~= br.functions.spell:getName(lastSend.spellID) then return end
+	cast:setRejected("cancelled", spellID, lastSend.guid)
+	local key = rejectionKey("cancelled", spellID, lastSend.guid)
 	if key then targetAtCancel[key] = br.game.UnitGUID("target") end
 end
 
@@ -201,7 +217,14 @@ local OWN_SEND_WINDOW = 0.5 -- seconds: a SENT this soon after BR sent the same 
 -- spell name -> when BR last sent it: a pre-cast's SENT comes at the queue's handover, maybe as another rank's ID
 local sentNameAt = {}
 
---- Marks a BR send or use about to go out; spellID (optional) is the spell it casts.
+--- Marks a BR send or use about to go out (a spell, an item, auto attack); spellID (optional) is the spell it casts.
+-- Call it just before the game call, so the game's UNIT_SPELLCAST_SENT during the call is known as BR's.
+-- br.engines.cast:noteAction(spellID); br.game.UseItemByName(name, unit); br.engines.cast:noteActionSent()
+function cast:noteAction(spellID) return E.noteBotAction(spellID) end
+
+--- After a BR action that changes the player's cast state went out (an item use): the own-cast hold is asked again
+function cast:noteActionSent() cast.actions = (cast.actions or 0) + 1 end
+
 function E.noteBotAction(spellID)
 	local now = br.game.GetTime()
 	E.lastBotActionAt = now
@@ -215,6 +238,8 @@ end
 --- True when a UNIT_SPELLCAST_SENT for spellID is BR's own: BR sent that spell (any rank) in the last half second,
 -- or BR acted in this very frame (the game fires SENT inside the call; a key press is handled apart from BR's
 -- tick). Otherwise it's the player's key press.
+function cast:isBotSend(spellID) return E.isBotSend(spellID) end
+
 function E.isBotSend(spellID)
 	local now = br.game.GetTime()
 	if E.lastBotActionAt == now then return true end
@@ -238,17 +263,14 @@ function E.recordBotCast(spellID, thisUnit)
 	local b = beforeSend
 	b.spellID, b.sentAt, b.sentTo, b.sentToUnit = spellID, E.sentAt[spellID], E.sentTo[spellID], E.sentToUnit[spellID]
 	b.timedSend, b.timedSendAt = E.lastTimedSend, E.lastTimedSendAt
-	b.cast, b.spell, b.unit, b.guid, b.castTime = br.botCast, br.botSpell, br.botUnit, br.botGUID, br.botCastTime
+	b.going, b.spell, b.unit, b.guid, b.at = lastSend.going, lastSend.spellID, lastSend.unit, lastSend.guid, lastSend.at
 	E.noteBotAction(spellID)
 	if br.engines.cast:getCastTime(spellID) > 0 then
 		E.lastTimedSend, E.lastTimedSendAt = spellID, br.game.GetTime()
 	end
-	br.botCast     = true
-	br.botSpell    = spellID
-	br.botUnit     = thisUnit
-	br.botGUID     = br.game.UnitGUID(thisUnit)
-	br.botCastTime = br.game.GetTime()
-	E.sentTo[spellID] = br.botGUID
+	lastSend.going, lastSend.spellID, lastSend.unit = true, spellID, thisUnit
+	lastSend.guid, lastSend.at = br.game.UnitGUID(thisUnit), br.game.GetTime()
+	E.sentTo[spellID] = lastSend.guid
 	E.sentToUnit[spellID] = tostring(thisUnit)
 	-- a weapon imbue: the hands' enchants now, to see where it lands (Functions/Item.lua)
 	br.functions.item:noteImbueSent(spellID)
@@ -262,7 +284,7 @@ function E.undoBotCast(spellID)
 	if b.spellID ~= spellID then return end
 	E.sentAt[spellID], E.sentTo[spellID], E.sentToUnit[spellID] = b.sentAt, b.sentTo, b.sentToUnit
 	E.lastTimedSend, E.lastTimedSendAt = b.timedSend, b.timedSendAt
-	br.botCast, br.botSpell, br.botUnit, br.botGUID, br.botCastTime = b.cast, b.spell, b.unit, b.guid, b.castTime
+	lastSend.going, lastSend.spellID, lastSend.unit, lastSend.guid, lastSend.at = b.going, b.spell, b.unit, b.guid, b.at
 	b.spellID = nil
 end
 
@@ -332,7 +354,7 @@ end
 -- another unit straight away.
 function cast:handleCastError(message)
 	if type(message) ~= "string" or isSwingError(message) then return end
-	if not (br.botSpell and br.botGUID and br.botCastTime) then return end
+	if not (lastSend.spellID and lastSend.guid and lastSend.at) then return end
 	-- At Debug Level problems and up, show the game error behind a refused cast, so a cast that was sent but refused
 	-- by the server (shapeshifted, no mana, ...) shows why instead of only "Casting". The error doesn't
 	-- say which spell it's about; a spell-failed event naming one within a frame or two does (an
@@ -340,12 +362,12 @@ function cast:handleCastError(message)
 	-- frame for it. Without one the error isn't about a cast at all (auto-loot's "There is no loot.",
 	-- a profession, ...) and isn't reported.
 	local errorAt = br.game.GetTime()
-	local nearSend = (errorAt - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW
+	local nearSend = (errorAt - lastSend.at) <= REJECT_ATTRIBUTION_WINDOW
 	local notReady = message == errorText("SPELL_FAILED_NOT_READY", "Spell is not ready yet.")
 		or message == errorText("ERR_SPELL_COOLDOWN", "Spell is not ready yet.")
 	local report = nearSend and E.showRefusal("problem")
 	if report or (nearSend and notReady and br.debug.cast) then
-		local lastCastGUID = br.botGUID
+		local lastCastGUID = lastSend.guid
 		br.game.C_Timer.After(0, function()
 			local failed = br.functions.lastCast and br.functions.lastCast.lastCastTable
 			if not (failed and failed.lastFailedSpellID and failed.lastFailedAt and math.abs(failed.lastFailedAt - errorAt) <= 0.1) then
@@ -361,7 +383,7 @@ function cast:handleCastError(message)
 			local spellName = tostring(br.functions.spell:getName(spellID))
 			if not mine then
 				return br.log:systemDebug("[YOUR CAST] " .. spellName .. " — game said: " .. message
-					.. " (BR had just sent " .. tostring(br.functions.spell:getName(br.botSpell)) .. ")")
+					.. " (BR had just sent " .. tostring(br.functions.spell:getName(lastSend.spellID)) .. ")")
 			end
 			local expected, mismatch = E.expectedRefusal(message, lastCastGUID)
 			local kind = expected == nil and "problem" or mismatch and "mismatch" or "expected"
@@ -384,29 +406,29 @@ function cast:handleCastError(message)
 	local kind = rejectionKindForError(message)
 	if not kind then return end
 	-- A cast on yourself can't be out of sight or facing the wrong way: never mark the player
-	if UNIT_WIDE_REJECT[kind] and br.botGUID == br.game.UnitGUID("player") then return end
-	if kind ~= "aura" and (br.game.GetTime() - br.botCastTime) > REJECT_ATTRIBUTION_WINDOW then return end
+	if UNIT_WIDE_REJECT[kind] and lastSend.guid == br.game.UnitGUID("player") then return end
+	if kind ~= "aura" and (br.game.GetTime() - lastSend.at) > REJECT_ATTRIBUTION_WINDOW then return end
 	local duration
 	if kind == "aura" then
-		local remaining = strongerAuraRemaining(br.botSpell, br.botGUID)
+		local remaining = strongerAuraRemaining(lastSend.spellID, lastSend.guid)
 		duration = remaining and math.max(REJECT_DURATION.aura, remaining) or nil
 	end
-	if kind == "range" and br.debug.cast then br.debug.cast:noteOutOfRange(br.botSpell, br.botGUID) end
+	if kind == "range" and br.debug.cast then br.debug.cast:noteOutOfRange(lastSend.spellID, lastSend.guid) end
 	if kind == "behind" then
-		br.debug.cast:noteNotBehind(br.botSpell, br.botGUID)
-		local refusedUnit = br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(br.botGUID)
-		behindAtRefusal[br.botGUID] = refusedUnit and behindState(refusedUnit) or nil
+		br.debug.cast:noteNotBehind(lastSend.spellID, lastSend.guid)
+		local refusedUnit = br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(lastSend.guid)
+		behindAtRefusal[lastSend.guid] = refusedUnit and behindState(refusedUnit) or nil
 	end
 	-- Moving is about the player, not the unit: that spell waits on every unit. It's about BR's last send with a
 	-- cast time (an instant can go out on the move), when there was one just now.
-	local refused = br.botSpell
+	local refused = lastSend.spellID
 	if kind == "moving" then
 		if E.lastTimedSend ~= nil and (br.game.GetTime() - E.lastTimedSendAt) <= REJECT_ATTRIBUTION_WINDOW then
 			refused = E.lastTimedSend
 		end
 		cast:setRejected(kind, refused, br.game.UnitGUID("player"), duration)
 	else
-		cast:setRejected(kind, refused, br.botGUID, duration)
+		cast:setRejected(kind, refused, lastSend.guid, duration)
 	end
 	if E.castTimers then E.castTimers[refused] = nil end
 	castIntentLocks[refused] = nil

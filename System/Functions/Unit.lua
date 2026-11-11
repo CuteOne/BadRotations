@@ -935,18 +935,19 @@ end
 -- BR's own bleed confirmed by the game: look for its debuff shortly
 local function noteBleedSucceeded(spellID)
 	local misc = br.functions.misc
-	if not misc:canUseValue(spellID) or br.botSpell == nil or br.botGUID == nil then return end
+	local sentID, sentGUID, sentAt = br.engines.cast:getLastSend()
+	if not misc:canUseValue(spellID) or sentID == nil or sentGUID == nil then return end
 	local spellName = br.functions.spell:getName(spellID)
 	local debuffName = spellName and currentBleedNames()[spellName]
 	if debuffName == nil then return end
 	local now = br.game.GetTime()
-	if now - (br.botCastTime or -math.huge) > BLEED_SEND_WINDOW or br.functions.spell:getName(br.botSpell) ~= spellName then return end
-	if not misc:canUseValue(br.botGUID) then return end
-	local obj = unit:getObjectFromGUID(br.botGUID)
+	if now - (sentAt or -math.huge) > BLEED_SEND_WINDOW or br.functions.spell:getName(sentID) ~= spellName then return end
+	if not misc:canUseValue(sentGUID) then return end
+	local obj = unit:getObjectFromGUID(sentGUID)
 	local npcID = obj and unit:GetObjectID(obj)
 	if not npcID or npcID == 0 then return end
 	local energy, combo = bleedPower()
-	bleedPending[#bleedPending + 1] = { debuffName = debuffName, spellName = spellName, guid = br.botGUID,
+	bleedPending[#bleedPending + 1] = { debuffName = debuffName, spellName = spellName, guid = sentGUID,
 		npcID = npcID, name = br.game.UnitName(obj), at = now + BLEED_CHECK_AFTER, energy = energy, combo = combo }
 	-- looked at on time, not when next asked: a bleed that landed may have run out by then
 	br.game.C_Timer.After(BLEED_CHECK_AFTER, function() settleBleeds(br.game.GetTime()) end)
@@ -1321,10 +1322,11 @@ function unit:startAttack(thisUnit)
 	if autoAttacking and (thisUnit == nil or thisUnit == "target" or unit:GetUnitIsUnit(thisUnit, "target")) then return false end
 	local now = br.game.GetTime()
 	if br.engines.cast:getCastTimeRemain("player") > 0 then return false end
-	if br.botCastTime and now - br.botCastTime < br.functions.misc:getRoundTripHold() then return false end
+	local _, _, sentAt = br.engines.cast:getLastSend()
+	if sentAt and now - sentAt < br.functions.misc:getRoundTripHold() then return false end
 	attackSentAt, attackSentGUID = now, guid
 	lastStartAt, lastStartGUID = now, guid
-	br.engines.cast.internal.noteBotAction()
+	br.engines.cast:noteAction()
 	br.game.StartAttack(thisUnit)
 	if br.debug.melee and br.debug.melee.noteAttackSent then br.debug.melee:noteAttackSent(thisUnit or "target") end
 	return true

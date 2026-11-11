@@ -349,9 +349,10 @@ function common:commonReaders()
 					end
 				end
 				local lastCast = ""
-				if br.botSpell and br.botCastTime then
-					local ago = plainPart("time since the cast", br.game.GetTime() - br.botCastTime)
-					lastCast = ", BR's last cast " .. tostring(plainPart("spell name", br.functions.spell:getName(br.botSpell)))
+				local sentID, _, sentAt = br.engines.cast:getLastSend()
+				if sentID and sentAt then
+					local ago = plainPart("time since the cast", br.game.GetTime() - sentAt)
+					lastCast = ", BR's last cast " .. tostring(plainPart("spell name", br.functions.spell:getName(sentID)))
 						.. (type(ago) == "number" and string.format(" %.1fs ago", ago) or " ? ago")
 				end
 				local controlled = br.functions.combat.hasHardControl and br.functions.combat:hasHardControl() and ", you're crowd controlled" or ""
@@ -389,9 +390,7 @@ function common:commonReaders()
 			local SpellID = select(3, ...)
 			-- a weapon imbue BR sent went off: watch where it lands
 			if SourceUnit == "player" then br.functions.item:noteImbueSucceeded(SpellID) end
-			if br.botCast == true then
-				br.botCast = false
-			end
+			br.engines.cast:noteSucceeded()
 			-- Queue Casting: the queued spell went off, drop it from the queue
 			if SourceUnit == "player" and #br.engines.cast.queue ~= 0 then
 				for i = 1, #br.engines.cast.queue do

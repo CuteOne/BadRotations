@@ -191,8 +191,6 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 			E.castTimers[ctx.spellID] = br.game.GetTime() + math.max(petCDSec, 1)
 			E.setCastIntentLock(ctx.spellID, 0.5)
 			br.ui.toggles.mainButton:SetNormalTexture(ctx.icon)
-			br.lastSpellCast   = ctx.spellID
-			br.lastSpellTarget = br.game.UnitGUID(thisUnit)
 			return true
 		end
 		return E.printReport(ctx, false, "PET_SLOT_NOT_FOUND", castName)
@@ -278,8 +276,6 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 			E.setCastIntentLock(ctx.spellID, settleLock)
 		end
 		br.ui.toggles.mainButton:SetNormalTexture(ctx.icon)
-		br.lastSpellCast   = ctx.spellID
-		br.lastSpellTarget = br.game.UnitGUID(thisUnit)
 		return true
 	end
 

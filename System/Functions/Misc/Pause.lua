@@ -198,7 +198,7 @@ function misc.ownSendEvent(event, unit, arg2, arg3, arg4)
 	if event == "UNIT_SPELLCAST_SENT" then
 		local castGUID, spellID = arg3, arg4
 		if spellID ~= nil and not misc:canUseValue(spellID) then spellID = nil end
-		if br.engines.cast.internal.isBotSend(spellID) then return end
+		if br.engines.cast:isBotSend(spellID) then return end
 		ownSendAt = br.game.GetTime()
 		ownSendGUID = castGUID ~= nil and misc:canUseValue(castGUID) and castGUID or nil
 	elseif ownSendAt ~= nil then
