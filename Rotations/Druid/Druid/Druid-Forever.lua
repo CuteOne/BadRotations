@@ -1304,6 +1304,29 @@ actionList.PreCombat = function()
     end
 end -- End Action List - PreCombat
 
+-- Seconds after Feral Charge (Cat), yours or BR's, in which one Shred goes out ahead of everything else
+local CHARGE_SHRED_WINDOW = 3
+-- Shred after Feral Charge (Cat): the leap lands you behind the target, Shred is the hardest hit from there (the
+-- user's call, 2026-11-11). BR's behind check had the mob facing you again by the end of the charge's GCD (17 of 17
+-- charges 2026-11-09/11 went Faerie Fire or Rake, then Claw), so it isn't asked: one try per charge, and when the game
+-- says "You must be behind your target" unit.isBehind reads false and the builders go on with Claw.
+local function chargeShred()
+    if activeForm ~= "cat" or not buff.catForm.exists() or buff.prowl.exists() then return false end
+    if not (spell.feralChargeCat.known() and spell.shred.known()) then return false end
+    local since = cast.timeSinceLast.feralChargeCat()
+    if since > CHARGE_SHRED_WINDOW then return false end
+    local chargeAt = util.time() - since
+    if var.chargeShredAt ~= nil and math.abs(var.chargeShredAt - chargeAt) < 0.05 then return false end
+    local thisUnit = units.dyn5
+    if not unit.exists(thisUnit) or unit.distance(thisUnit) >= 5 or not cast.able.shred(thisUnit) then return false end
+    if cast.shred(thisUnit) then
+        var.chargeShredAt = chargeAt
+        ui.debug("Casting Shred [Feral Charge]")
+        return true
+    end
+    return false
+end
+
 -- Action List - Combat
 actionList.Combat = function()
     -- Your target, or BR's pick when your target isn't an enemy it can hit (Targeting Mode Assist leaves a friendly
@@ -1358,6 +1381,8 @@ actionList.Combat = function()
             return true
         end
     end
+    -- Shred right after Feral Charge (Cat), ahead of Faerie Fire and Rake
+    if chargeShred() then return true end
     -- Faerie Fire: castable in every form on Forever, and it doesn't stack, so anyone's counts. Target
     -- only: the armor loss helps the damage you deal to that unit, and each cast costs a GCD and mana.
     -- In Cat/Bear the mana is what heals and shifting back need, so it keeps a reserve. Never from Prowl, nor on a
