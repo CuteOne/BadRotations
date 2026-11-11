@@ -187,7 +187,6 @@ function Rotation:startRotation()
 	br.debug.form:watch()
 	-- Waiting on your own cast isn't idle
 	br.debug.idle:watch(reason ~= nil or br.functions.misc:ownCastHold() ~= nil)
-	br.debug.melee:readComboPoints()
 	br.log.spells:watch()
 	br.debug.cpu:updateDebug(startTime, "rotation")
 end

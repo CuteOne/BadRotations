@@ -3,12 +3,6 @@ local _, br = ...
 br.functions.power = br.functions.power or {}
 local power = br.functions.power
 
--- if getCombo() >= 1 then
-function power:getCombo(thisUnit)
-	if thisUnit == nil then thisUnit = "target" end
-	return br.game.GetComboPoints("player", thisUnit) --GetComboPoints("player") - Legion Change
-end
-
 -- Mana cost of a spell reference (id, name, or BR spell table); 0 if free, not mana, or treatAsFree.
 -- local cost = br.functions.power:getManaCostFromRef(br.runner.spells.regrowth)
 function power:getManaCostFromRef(spellRef, treatAsFree)
@@ -41,8 +35,9 @@ function power:getMaxRuneCDPercent()
 	return maxPct
 end
 
--- if br.functions.power:getPower("target") <= 15 then
--- The unit's power of that type (index 4: the player's combo points on the unit), as the game reports it.
+-- if br.functions.power:getPower("target", 4) > 0 then
+-- The unit's power of that type (index 4: the player's combo points on the unit, the one combo point read), as the
+-- game reports it.
 -- Clearcasting and similar free casts are the cast engine's concern, not a different power value.
 function power:getPower(Unit, index)
 	if index == 4 then return br.game.GetComboPoints("player", Unit) end

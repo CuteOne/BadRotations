@@ -301,7 +301,7 @@ end
 function spell:finisherKills(spellID, thisUnit)
 	if thisUnit == nil then thisUnit = "target" end
 	if spellID == nil or spellID == 0 or br.functions.unit:isDummy(thisUnit) then return false end
-	local comboPoints = br.functions.power:getCombo(thisUnit) or 0
+	local comboPoints = br.functions.power:getPower(thisUnit, 4) or 0
 	if comboPoints <= 0 then return false end
 	local damage = spell:getFinisherDamage(spellID)
 	if not damage or not damage[comboPoints] then return false end
