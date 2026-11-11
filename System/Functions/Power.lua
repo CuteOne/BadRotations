@@ -208,8 +208,16 @@ end
 -- that apply only under an aura the player doesn't have: one spell can cost Rage in Bear Form and
 -- Energy in Cat Form (Forever's Feral Charge, 2026-11-08: refused in Cat Form on "power 0, cost 5",
 -- the Bear Form Rage, with 100 Energy).
+-- Kept for the frame (costs change with form and buffs, not within a frame): the cast gate asks for every spell the
+-- profile tries, every tick (57b931f08). The list is shared: read it, don't change it.
+local costsFrame, costsOf = nil, {}
 function power:getSpellCosts(spellID)
-	local costs = {}
+	local now = br.game.GetTime()
+	if now ~= costsFrame then costsFrame, costsOf = now, {} end
+	local costs = spellID ~= nil and costsOf[spellID]
+	if costs then return costs end
+	costs = {}
+	if spellID ~= nil then costsOf[spellID] = costs end
 	local list = br.game.C_Spell.GetSpellPowerCost(spellID)
 	if type(list) ~= "table" then return costs end
 	for _, entry in ipairs(list) do
