@@ -960,17 +960,28 @@ actionList.CatOpener = function()
         return false
     end
 
-    -- Non-Stealth Opener
-    local behindTarget = unit.isBehind("target", "player")
+    -- Non-Stealth Opener: the hardest first hit from where you stand. Behind: Shred. In front: Rake (its bleed and a
+    -- combo point; the Cat list's first builder too), not on a bleed-immune mob, a totem or one dying within 6 sec
+    -- (the Cat list's Rake rule); else Claw.
+    local behindTarget = unit.isBehind("target", "player") and not unit.facing("target", "player")
     -- Shred (from behind)
-    if behindTarget and cast.able.shred("target") and not unit.facing("target", "player") then
-        if cast.shred("target") then
+    if behindTarget and spell.shred.known() then
+        if cast.able.shred("target") and cast.shred("target") then
             ui.debug("Casting Shred [Opener]")
             return true
         end
+        return false -- waiting for the Energy
+    end
+    -- Rake (from the front)
+    if spell.rake.known() and not noBleeds("target") and unit.ttd("target") > 6 then
+        if cast.able.rake("target") and cast.rake("target") then
+            ui.debug("Casting Rake [Opener]")
+            return true
+        end
+        return false
     end
     -- Claw (fallback)
-    if cast.able.claw("target") and (not spell.shred.known() or not behindTarget) then
+    if cast.able.claw("target") then
         if cast.claw("target") then
             ui.debug("Casting Claw [Opener]")
             return true
@@ -1304,27 +1315,17 @@ actionList.PreCombat = function()
     end
 end -- End Action List - PreCombat
 
--- Seconds after Feral Charge (Cat), yours or BR's, in which one Shred goes out ahead of everything else
-local CHARGE_SHRED_WINDOW = 3
--- Shred after Feral Charge (Cat): the leap lands you behind the target, Shred is the hardest hit from there (the
--- user's call, 2026-11-11). BR's behind check had the mob facing you again by the end of the charge's GCD (17 of 17
--- charges 2026-11-09/11 went Faerie Fire or Rake, then Claw), so it isn't asked: one try per charge, and when the game
--- says "You must be behind your target" unit.isBehind reads false and the builders go on with Claw.
-local function chargeShred()
-    if activeForm ~= "cat" or not buff.catForm.exists() or buff.prowl.exists() then return false end
-    if not (spell.feralChargeCat.known() and spell.shred.known()) then return false end
-    local since = cast.timeSinceLast.feralChargeCat()
-    if since > CHARGE_SHRED_WINDOW then return false end
-    local chargeAt = util.time() - since
-    if var.chargeShredAt ~= nil and math.abs(var.chargeShredAt - chargeAt) < 0.05 then return false end
-    local thisUnit = units.dyn5
-    if not unit.exists(thisUnit) or unit.distance(thisUnit) >= 5 or not cast.able.shred(thisUnit) then return false end
-    if cast.shred(thisUnit) then
-        var.chargeShredAt = chargeAt
-        ui.debug("Casting Shred [Feral Charge]")
-        return true
+-- The opening hit on your target is still to come: nothing of yours has landed on it yet (no combo points, no Rake
+-- or Rip of yours) and no opener went out at it. However the fight started (from Prowl, a Feral Charge, a mob running
+-- at you), the first hit is the Cat Opener's pick for where you stand, ahead of Faerie Fire (the user's call,
+-- 2026-11-11: 17 of 17 charged pulls opened with Faerie Fire or Rake, then Claw).
+local function openerPending()
+    local guid = unit.guid("target")
+    if guid == nil then return false end
+    if var.openedGUID ~= guid and (comboPoints > 0 or debuff.rake.exists("target") or debuff.rip.exists("target")) then
+        var.openedGUID = guid
     end
-    return false
+    return var.openedGUID ~= guid
 end
 
 -- Action List - Combat
@@ -1381,8 +1382,13 @@ actionList.Combat = function()
             return true
         end
     end
-    -- Shred right after Feral Charge (Cat), ahead of Faerie Fire and Rake
-    if chargeShred() then return true end
+    -- Cat Opener out of Prowl: the first hit on a new target, ahead of Faerie Fire (see openerPending)
+    if activeForm == "cat" and buff.catForm.exists() and inMelee and not buff.prowl.exists() and openerPending() then
+        if actionList.CatOpener() then
+            var.openedGUID = unit.guid("target")
+            return true
+        end
+    end
     -- Faerie Fire: castable in every form on Forever, and it doesn't stack, so anyone's counts. Target
     -- only: the armor loss helps the damage you deal to that unit, and each cast costs a GCD and mana.
     -- In Cat/Bear the mana is what heals and shifting back need, so it keeps a reserve. Never from Prowl, nor on a
