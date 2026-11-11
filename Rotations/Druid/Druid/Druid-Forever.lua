@@ -140,7 +140,7 @@ local function options()
     ui.spinner(section, "Bash", { value = 35, tip = "Health Percent to stun your target at (Bear Form)" })
     ui.checkbox(section, "Cure Poison", { checked = true, tip = "Cure poisons on yourself (uses Abolish Poison once learned). In combat only while already out of Cat or Bear Form (for a heal, say)" })
     ui.checkbox(section, "Remove Curse", { checked = true, tip = "Remove curses on yourself out of combat" })
-    ui.checkbox(section, "Entangling Roots", { tip = "Entangling Roots on fleeing enemies, only when already out of Cat or Bear Form (a fleeing target Cat or Bear can't catch is finished from range)" })
+    ui.checkbox(section, "Entangling Roots", { tip = "Entangling Roots on fleeing enemies, only when already out of Cat or Bear Form (a fleeing target Cat or Bear can't catch is finished from range). A target running in fear: only with the Forms toggle on Auto." })
     ui.spinner(section, "Nature's Grasp", { value = 40,
         tip = "Escape tool: cast at or below this Health Percent while running from an enemy chasing you within 10 yards. The root breaks on damage, so it's meant for fleeing, not fighting." })
     ui.spinner(section, "Dash", { value = 40, tip = "Escape tool: Dash in Cat Form at or below this Health Percent while running from an enemy chasing you" })
@@ -538,8 +538,12 @@ actionList.Defensive = function()
         -- Entangling Roots (fleeing enemies)
         -- Only on a target that outlives the root and a Wrath after it, with a heal's mana kept (2026-11-05: 3 of 3
         -- Roots on fleeing centaurs failed, two on targets the Wrath already in flight killed; 50 mana each).
-        -- Only when already out of form: Cat and Bear (Auto) leave for a fleeing mob themselves (fleeChase)
-        if ui.checked("Entangling Roots") and not inForm and cast.able.entanglingRoots("target") and unit.isFleeing("target")
+        -- Only when already out of form: Cat and Bear (Auto) leave for a fleeing mob themselves (fleeChase). A mob
+        -- running in fear (someone's fear, not the low-health flee) only with the Forms toggle on Auto (the user's
+        -- call, 2026-11-11)
+        local loose = unit.isFleeing("target")
+        if ui.checked("Entangling Roots") and not inForm and cast.able.entanglingRoots("target")
+            and (loose == "flee" or (loose == "fear" and ui.mode.forms == 1))
             and unit.valid("target") and unit.hp("target") < 100 and not debuff.entanglingRoots.exists("target")
             and unit.distance("target") > 8 and not unit.moving()
             and unit.livesFor("target", cast.time.entanglingRoots() + cast.time.wrath())
