@@ -626,7 +626,9 @@ actionList.Defensive = function()
             if casterCast("healingTouch", other, "Healing Touch [Out of combat]" .. otherName, freeHeal, false, true) then return true end
         end
     end
-    -- Rejuvenation: too slow to justify two shapeshifts in combat. It's recast only once it's gone: a recast with
+    -- Rejuvenation: too slow to justify two shapeshifts in combat, out of Cat, Bear or Moonkin Form alike (Moonkin
+    -- prevents healing spells on Forever, and shifting back costs 35% of base mana; the user's call, 2026-11-11). It's
+    -- recast only once it's gone: a recast with
     -- ~3 s left threw away its last tick (2026-11-05: recast every 8.4-8.8 s of its 12 s, ticks every 3 s), and the
     -- Bloom talent heals only when it runs out. Out of combat too (2026-11-06: several Rejuvenations after a fight).
     -- Out of combat it's for healing on the move: standing still, the Healing Touch above heals more for the mana, and
@@ -636,7 +638,9 @@ actionList.Defensive = function()
         return not buff.rejuvenation.exists(thisUnit)
     end
     local rejuvenationNow = unit.inCombat() or unit.moving() or not ui.checked("Healing Touch")
-    if ui.checked("Rejuvenation") and rejuvenationNow and (not unit.inCombat() or not inForm) then
+    if ui.checked("Rejuvenation") and rejuvenationNow
+        and (not unit.inCombat() or not (inForm or buff.moonkinForm.exists()))
+    then
         if unit.hpAfterHeals() <= ui.value("Rejuvenation") and rejuvenationDue("player") and not buff.clearcasting.exists()
             and inGroupOk and cast.able.rejuvenation("player")
         then
