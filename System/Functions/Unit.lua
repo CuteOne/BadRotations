@@ -1247,12 +1247,13 @@ function unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency)
 	if formSpellID == nil then return false, "not in a form" end
 	local power = br.functions.power
 	local mana = br.game.UnitPower("player", 0) or 0
+	-- Mana BR may not read (secret) isn't held against leaving: the cast gate and the game refuse a spell it can't pay
+	local manaKnown = type(mana) == "number" and br.functions.misc:canUseValue(mana)
 	local spellCost = power:getManaCostFromRef(outOfFormSpell, treatOutSpellAsFree)
 	-- An emergency leaves without the mana to shift back, but not without the mana for the spell itself: a
 	-- Healing Touch on 35 mana left Cat Form at 1% health, failed, and Cat Form failed after it (2026-11-08 10:36)
 	if emergency then
-		local known = type(mana) == "number" and br.functions.misc:canUseValue(mana)
-		if known and spellCost > 0 and mana < spellCost then return false, "not enough mana for the spell" end
+		if manaKnown and spellCost > 0 and mana < spellCost then return false, "not enough mana for the spell" end
 		return true
 	end
 	if br.game.IsStealthed and br.game.IsStealthed() then return false, "stealthed" end
@@ -1264,7 +1265,7 @@ function unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency)
 		return false, "tanking for the group"
 	end
 	local needed = spellCost + power:getManaCostFromRef(formSpellID, false)
-	if needed > 0 and mana < needed then return false, "not enough mana to shift back" end
+	if manaKnown and needed > 0 and mana < needed then return false, "not enough mana to shift back" end
 	return true
 end
 
