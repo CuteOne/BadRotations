@@ -157,7 +157,6 @@ local function options()
     ui.spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 
     section = ui.section("Druid Debug")
-    ui.checkbox(section, "Behind Debug", { tip = "Debug behind/facing checks for Shred/Ravage." })
 end
 
 --------------
@@ -171,7 +170,6 @@ local rage
 local var = {}
 -- General Locals - Common Non-BR API Locals used in profiles
 local haltProfile
-local profileStop
 -- Profile Specific Locals - Any custom to profile locals
 local actionList = {}
 local activeForm
@@ -183,26 +181,20 @@ local noShapeshiftPower
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
-local function debugBehind(label, thisUnit)
-    if ui == nil or ui.checked == nil or not ui.checked("Behind Debug") then return end
-    if thisUnit == nil or not unit.exists(thisUnit) then return end
-    local targetName = unit.exists("target") and unit.name("target") or "none"
-    local thisName = unit.name(thisUnit) or tostring(thisUnit)
-    local isTarget = unit.exists("target") and unit.isUnit(thisUnit, "target")
-    local dist = unit.distance(thisUnit) or -1
+-- Feral Charge reaches from CHARGE_MIN to CHARGE_MAX yards
+local CHARGE_MIN, CHARGE_MAX = 8, 25
 
-    -- Engine-facing results
-    local facingPlayer = unit.facing(thisUnit, "player")
-    local behindPlayer = unit.isBehind(thisUnit, "player")
+-- The Bear Form charge this character has: Forever's Feral Charge (Bear) once learned, else Feral Charge
+local function bearChargeKey()
+    return spell.feralChargeBear.known() and "feralChargeBear" or "feralCharge"
+end
 
-    -- The whole front half (180 degree cone)
-    local facing180 = unit.facing(thisUnit, "player", 180)
-
-    ui.debug(string.format(
-        "%s | unit=%s (isTarget=%s, dist=%.1f) | target=%s | facingPlayer=%s | behindPlayer=%s | facing180=%s",
-        tostring(label), tostring(thisName), tostring(isTarget), tonumber(dist) or -1, tostring(targetName),
-        tostring(facingPlayer), tostring(behindPlayer), tostring(facing180)
-    ))
+-- Feral Charge (Cat) can go at thisUnit now: the option on, in Cat Form out of Prowl, in its reach, castable. One rule
+-- for the Combat charge and the flee chase's hand-over to it, so the two can't drift apart.
+local function catChargeReady(thisUnit)
+    local dist = unit.distance(thisUnit)
+    return ui.checked("Feral Charge (Cat)") and buff.catForm.exists() and not buff.prowl.exists()
+        and dist >= CHARGE_MIN and dist < CHARGE_MAX and cast.able.feralChargeCat(thisUnit)
 end
 
 -- Caster Form, or Moonkin Form once it's learned (option)
@@ -268,7 +260,6 @@ local function healOthersUnit()
     return nil
 end
 
--- A Beast or Dragonkin fighting the player that isn't the target (Hibernate)
 -- Bear filler: another enemy in Swipe's reach without Faerie Fire that will live long enough to matter
 local function faerieFireFiller(thisUnit)
     return not unit.isUnit(thisUnit, "target") and not unit.totem(thisUnit) and unit.ttd(thisUnit) > 10
@@ -289,6 +280,7 @@ local function noBleeds(thisUnit)
     return unit.bleedImmune(thisUnit) or unit.totem(thisUnit)
 end
 
+-- A Beast or Dragonkin fighting the player that isn't the target (Hibernate)
 local function hibernateTarget(thisUnit)
     return (unit.beast(thisUnit) or unit.dragonkin(thisUnit)) and not unit.isUnit(thisUnit, "target")
         and unit.isTanking(thisUnit) and cast.able.hibernate(thisUnit)
@@ -409,20 +401,20 @@ actionList.Buffs = function()
     if unit.inCombat() or unit.resting() then return false end
     -- Mark of the Wild
     if ui.checked("Mark of the Wild") then
-        var.markUnit = units.buffUnit("Mark of the Wild", needsMarkOfTheWild, 30)
-        if cast.able.markOfTheWild(var.markUnit) and needsMarkOfTheWild(var.markUnit)
-            and unit.distance(var.markUnit) < 30 and (var.markUnit == "player" or unit.player(var.markUnit))
+        local markUnit = units.buffUnit("Mark of the Wild", needsMarkOfTheWild, 30)
+        if cast.able.markOfTheWild(markUnit) and needsMarkOfTheWild(markUnit)
+            and unit.distance(markUnit) < 30 and (markUnit == "player" or unit.player(markUnit))
         then
-            if casterCast("markOfTheWild", var.markUnit, "Mark of the Wild") then return true end
+            if casterCast("markOfTheWild", markUnit, "Mark of the Wild") then return true end
         end
     end
     -- Thorns
     if ui.checked("Thorns") then
-        var.thornUnit = units.buffUnit("Thorns", buff.thorns.refresh, 30)
-        if cast.able.thorns(var.thornUnit) and buff.thorns.refresh(var.thornUnit)
-            and unit.distance(var.thornUnit) < 30 and (var.thornUnit == "player" or unit.player(var.thornUnit))
+        local thornUnit = units.buffUnit("Thorns", buff.thorns.refresh, 30)
+        if cast.able.thorns(thornUnit) and buff.thorns.refresh(thornUnit)
+            and unit.distance(thornUnit) < 30 and (thornUnit == "player" or unit.player(thornUnit))
         then
-            if casterCast("thorns", var.thornUnit, "Thorns") then return true end
+            if casterCast("thorns", thornUnit, "Thorns") then return true end
         end
     end
 end -- End Action List - Buffs
@@ -739,11 +731,11 @@ actionList.Interrupts = function()
     local interruptAt = ui.value("Interrupt At")
     -- Feral Charge (Bear) - 8 to 25 yards
     if ui.checked("Feral Charge - Int") and inBear then
-        local chargeKey = spell.feralChargeBear.known() and "feralChargeBear" or "feralCharge"
+        local chargeKey = bearChargeKey()
         if cast.able[chargeKey]() then
-            enemies.get(25)
+            enemies.get(CHARGE_MAX)
             thisUnit = enemies.first(enemies.yards25, function(thisUnit)
-                return unit.distance(thisUnit) >= 8 and unit.interruptable(thisUnit, interruptAt)
+                return unit.distance(thisUnit) >= CHARGE_MIN and unit.interruptable(thisUnit, interruptAt)
                     and cast.able[chargeKey](thisUnit)
             end)
             if thisUnit and cast[chargeKey](thisUnit) then
@@ -999,7 +991,6 @@ actionList.CatForm = function()
     local thisUnit = units.dyn5
     local ttd = unit.ttd(thisUnit)
     local behind = unit.isBehind(thisUnit, "player") and not unit.facing(thisUnit, "player")
-    if behind then debugBehind("Builders behind=true", thisUnit) end
     local finish = spell.ferociousBite.kills(thisUnit)
 
     -- Ferocious Bite - Finish Him!
@@ -1136,8 +1127,8 @@ actionList.CasterForm = function()
     -- that wasn't fighting you, pulled while finishing a fleeing Peasant (2026-11-08 15:43:47)
     local thisUnit = var.rangeTarget and "target" or units.dyn30AOE
     local ttd = unit.ttd(thisUnit)
-    -- Hurricane: no cooldown on Forever; channel it into a pack
-    -- Hurricane: not while finishing your target from range (it lands where the most enemies are, fighting or not)
+    -- Hurricane: no cooldown on Forever; channel it into a pack. Not while finishing your target from range (it lands
+    -- where the most enemies are, fighting or not)
     local why = ui.checked("Hurricane") and not var.rangeTarget and not unit.moving() and spendOnDamage("hurricane", thisUnit)
     if why and cast.able.hurricane.ground(8, ui.value("Hurricane")) then
         if cast.hurricane.ground(8, ui.value("Hurricane")) then
@@ -1274,8 +1265,10 @@ actionList.PreCombat = function()
         end
     end
     -- Feral Charge (Bear) to engage
-    if ui.checked("Feral Charge - Engage") and buff.bearForm.exists() and thisDistance >= 8 and thisDistance < 25 then
-        local chargeKey = spell.feralChargeBear.known() and "feralChargeBear" or "feralCharge"
+    if ui.checked("Feral Charge - Engage") and buff.bearForm.exists() and thisDistance >= CHARGE_MIN
+        and thisDistance < CHARGE_MAX
+    then
+        local chargeKey = bearChargeKey()
         if cast.able[chargeKey]("target") and cast[chargeKey]("target") then
             ui.debug("Casting Feral Charge [Precombat]")
             return true
@@ -1369,9 +1362,7 @@ actionList.Combat = function()
     if actionList.Cooldowns() then return true end
     -- Feral Charge (Cat): leap behind the target to get into melee (and behind it). Its own spell, Feral Charge (Cat):
     -- the talent's ID is the Bear Form charge, which the game refuses in Cat Form (2026-11-08: never sent in Cat)
-    if ui.checked("Feral Charge (Cat)") and buff.catForm.exists() and not buff.prowl.exists()
-        and unit.distance("target") >= 8 and unit.distance("target") < 25 and cast.able.feralChargeCat("target")
-    then
+    if catChargeReady("target") then
         if cast.feralChargeCat("target") then
             ui.debug("Casting Feral Charge (Cat)")
             return true
@@ -1379,9 +1370,9 @@ actionList.Combat = function()
     end
     -- Feral Charge (Bear) to engage
     if ui.checked("Feral Charge - Engage") and buff.bearForm.exists()
-        and unit.distance("target") >= 8 and unit.distance("target") < 25
+        and unit.distance("target") >= CHARGE_MIN and unit.distance("target") < CHARGE_MAX
     then
-        local chargeKey = spell.feralChargeBear.known() and "feralChargeBear" or "feralCharge"
+        local chargeKey = bearChargeKey()
         if cast.able[chargeKey]("target") and cast[chargeKey]("target") then
             ui.debug("Casting Feral Charge")
             return true
@@ -1448,20 +1439,18 @@ local function runRotation()
     mana        = power.mana.percent()
     rage        = power.rage()
     -- General Locals
-    profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or ui.pause() or ui.mode.rotation == 4 or unit.id("target") == 156716
+    haltProfile = ui.pause() or ui.mode.rotation == 4
     -- Units
     units.get(5)        -- Makes a variable called, units.dyn5
     units.get(30, true) -- Makes a variable called, units.dyn30AOE (Forever caster range)
     -- Combo points sit on the unit they were built on (Forever): the melee pick's, your target or not
     comboPoints = power.comboPoints(units.dyn5 or "target")
     -- Enemies
-    enemies.get(5)      -- Makes a varaible called, enemies.yards5
+    enemies.get(5)      -- Makes a variable called, enemies.yards5
     enemies.get(5, "player", false, true)  -- makes enemies.yards5f
-    enemies.get(8)      -- Makes a varaible called, enemies.yards8
-    enemies.get(10)     -- Makes a varaible called, enemies.yards10
-    enemies.get(20)     -- Makes a varaible called, enemies.yards20
-    enemies.get(30)     -- Makes a varaible called, enemies.yards30
+    enemies.get(8)      -- Makes a variable called, enemies.yards8
+    enemies.get(10)     -- Makes a variable called, enemies.yards10
+    enemies.get(30)     -- Makes a variable called, enemies.yards30
 
     -- The form the Forms toggle picks, and whether a form that blocks caster spells is up
     activeForm = resolveForm()
@@ -1518,10 +1507,7 @@ local function runRotation()
         local chase, waiting = fleeChase("target")
         -- Feral Charge (Cat) can reach it: the charge (Combat) goes first, staying in Cat, and the wait starts over (a
         -- finished wait otherwise holds for that target, and would shift out right after the charge landed)
-        local dist = unit.distance("target") or 99
-        if chase and activeForm == "cat" and buff.catForm.exists() and ui.checked("Feral Charge (Cat)") and dist >= 8
-            and dist < 25 and cast.able.feralChargeCat("target")
-        then
+        if chase and activeForm == "cat" and catChargeReady("target") then
             chase, waiting, var.flee = false, false, nil
         end
         local mana = (chase or waiting) and (spendOnDamage("moonfire", "target") or spendOnDamage("wrath", "target"))
@@ -1550,10 +1536,8 @@ local function runRotation()
     ---------------------
     --- Begin Profile ---
     ---------------------
-    -- Profile Stop | Pause
-    if not unit.inCombat() and not unit.exists("target") and profileStop then
-        profileStop = false
-    elseif haltProfile then
+    -- Pause
+    if haltProfile then
         return true
     else
         -- Buffs, heals and group utility come before the form logic, so the shift into a form waits
