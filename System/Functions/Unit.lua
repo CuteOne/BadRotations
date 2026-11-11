@@ -1141,7 +1141,11 @@ function unit:isInAggroRange(thisUnit, offset, hostileOnly)
 	-- Forever mobs aggroed with nothing of yours at 5.6, 6.2 and 7.5 yd of height (Aggro.log 2026-11-09)
 	local distance, _, dz = br.functions.range:getCenterDistance("player", thisUnit)
 	if distance == nil or math.abs(dz or 0) > AGGRO_HEIGHT then return false end
-	return distance < unit:getAggroRange(thisUnit) + (offset or 0)
+	if distance >= unit:getAggroRange(thisUnit) + (offset or 0) then return false end
+	-- and it has to see you (vmangos BasicAI MoveInLineOfSight: IsWithinLOSInMap): a mob inside a building you walk
+	-- past on its doorless side doesn't notice you (2026-11-11, the user: Prowl went up for one). Asked last, as the
+	-- line trace costs the most; canSee keeps its answer for a quarter second.
+	return br.functions.misc:canSee(thisUnit)
 end
 
 function unit:isInstanceBoss(thisUnit)
