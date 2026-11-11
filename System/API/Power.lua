@@ -106,14 +106,17 @@ br.api.build.power = function(power,powerType,powerIndex)
 
     -- power.<powerType>() is the current amount
     local powerMetaTable = {
-        --- Gets the current amount of the specified power.
+        --- Gets the current amount of the specified power. Combo points: yours on thisUnit (default "target");
+        -- where they're stored on the unit (Classic-era clients), BR's pick is read on itself, not your target
         -- @function power.<powerType>
+        -- @param[opt="target"] thisUnit Combo points only: the unit they were built on (units.dyn5)
         -- @return number
-        __call = function()
+        -- @usage local comboPoints = power.comboPoints(units.dyn5)
+        __call = function(_, thisUnit)
             if isDKRunes then
                 return br.functions.power:getTotalReadyRunes()
             else
-                local unit = powerIndex == 4 and "target" or "player"
+                local unit = powerIndex == 4 and (thisUnit or "target") or "player"
                 return br.functions.power:getPower(unit,powerIndex)
             end
         end,

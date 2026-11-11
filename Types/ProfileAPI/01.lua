@@ -7562,9 +7562,13 @@ function C48.stopAttack() end
 
 
 
---- Gets the current amount of the specified power.
+--- Gets the current amount of the specified power. Combo points: yours on thisUnit (default "target");
+--- where they're stored on the unit (Classic-era clients), BR's pick is read on itself, not your target
+--- ```lua
+--- local comboPoints = power.comboPoints(units.dyn5)
+--- ```
 ---@class BR.power.PowerType
----@overload fun(): number
+---@overload fun(thisUnit?: string): number
 local C49 = {}
 
 --- True when the player can pay cost and still have keep left, counting what earlier casts are
@@ -7606,7 +7610,7 @@ function C49.ttm(amount) end
 
 
 ---@class BR.power.runes : BR.power.PowerType
----@overload fun(): number
+---@overload fun(thisUnit?: string): number
 local C50 = {}
 
 --- Death Knight: ready Blood runes
