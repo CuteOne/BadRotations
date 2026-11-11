@@ -488,38 +488,17 @@ local function targetHoldsComboPoints()
 		and (tonumber(br.game.GetComboPoints and br.game.GetComboPoints("player", "target")) or 0) > 0 or false
 end
 
--- Facing requests up to this range (yards) are melee: auto attack follows the WoW target, so BR switches
--- it to its pick in the cases dynamicTarget describes
-local MELEE_RETARGET = 8
--- A melee switch while the target is still within MELEE_RETARGET yards (at the edge of melee) waits until it has
--- been out of melee MELEE_EDGE_WAIT seconds, and not within SWITCH_GAP of BR's last melee switch (2026-11-05,
--- Forever: BR switched between two mobs at the melee edge 4 times in 2 s, their distances reading 0 and 5 yd in
--- turn, and on that client each switch stops auto attack). A target further off (fled), gone, evading or a
--- priority pick is still switched from at once.
--- A target out of sight (a cast's line-of-sight refusal, Tracking.lua) is left at once too, unless BR
--- switched the target within SWITCH_GAP: 2026-11-08 21:04, Forever, mobs on a ledge 20-30 yd away,
--- each Faerie Fire refused for sight sent BR to the next mob, which the next Faerie Fire found out of
--- sight in turn (the refusal lasts 1 s): 9 switches in 15 s, each stopping auto attack.
-local MELEE_EDGE_WAIT, SWITCH_GAP = 1.0, 2.0
-local meleeOut = { guid = nil, since = nil } -- the target, and since when it couldn't take melee
-local lastMeleeSwitchAt = -math.huge
-local lastSwitchAt = -math.huge -- BR's last target switch, for any reason
-
--- Notes whether the target can take a melee request now; returns how long it hasn't (0 when it can)
-local function noteMeleeOut(usable, now)
-	if usable then meleeOut.since = nil; return 0 end
-	local guid = br.game.UnitGUID("target")
-	if not br.functions.misc:canUseValue(guid) then guid = nil end
-	if meleeOut.since == nil or meleeOut.guid ~= guid then meleeOut.guid, meleeOut.since = guid, now end
-	return now - meleeOut.since
-end
 
 --- The unit a request of this range (yards) and facing should attack: the selected target when it can
 --- take it, otherwise BR's pick (br.engines.targeting), or nil.
 --- Options (Targeting page): Targeting Mode Off (or Targeting Only In Combat, out of combat) keeps to
---- the selected target; Assist uses BR's pick when the target can't take the request; Full lets BR's
---- pick replace a usable target and sets the WoW target to it. In combat with no usable target, the
---- WoW target is set to the pick.
+--- the selected target; Assist uses BR's pick when the target can't take the request, and leaves the WoW
+--- target alone unless there is none (in combat it's then set to the pick); Full lets BR's pick replace a
+--- usable target and sets the WoW target to it.
+--- Assist never moves a target you picked (2026-11-11, the user: a friendly targeted to invite them, or a
+--- mob at range, was switched back to the mob attacking you, as the old "Target Dynamic Target" unticked
+--- never did). Melee doesn't need the switch: profiles start auto attack on the pick
+--- (unit.startAttack(units.dyn5)), and next-swing spells ride on that swing.
 local function pickDynamicTarget(range, facing)
 	if range == nil or range > 100 then return nil end
 	local startTime = br.game.debugprofilestop()
@@ -531,9 +510,6 @@ local function pickDynamicTarget(range, facing)
 	if mode == 0 then mode = 2 end
 	local autoTargetDynamic = mode == 3
 	local usable = targetUsable(range, facing)
-	local meleeRequest = facing and range <= MELEE_RETARGET
-	local now = br.game.GetTime()
-	local meleeOutFor = meleeRequest and noteMeleeOut(usable, now) or 0
 	local result
 
 	local dynamicOn = mode ~= 1 and (inCombat or not misc:isChecked("Targeting Only In Combat"))
@@ -549,38 +525,21 @@ local function pickDynamicTarget(range, facing)
 	else
 		result = br.engines.targeting:pick(range, facing)
 	end
-	-- In combat, set the WoW target to the pick when wanted (never to a dummy, nor an explosive when
-	-- facing is required). Melee (a facing request up to MELEE_RETARGET yards) also follows the pick
-	-- when it's attacking the player while the target can't take melee, or when it's a priority unit:
-	-- auto attack and next-swing spells (Maul) only ever hit the WoW target, so without the switch
-	-- they swing at nothing (2026-10-12 play: no hits, no rage, nothing usable).
+	-- In combat, set the WoW target to the pick: always in Full; in Assist only when there is no target, a dead
+	-- one (the loot engine targets corpses mid-fight) or an evading one (another enemy BR may attack takes over,
+	-- 2026-10-31 the user's call). Never to a dummy, nor an explosive when facing is required.
 	if dynamicOn and inCombat and result ~= nil and result ~= "target" then
-		do
-			local unitFns = br.functions.unit
-			local targetExists = unitFns:GetObjectExists("target")
-			-- the target still at the edge of melee: the switch waits (MELEE_EDGE_WAIT, SWITCH_GAP)
-			local facts = readTargetFacts()
-			local atEdge = facts.attackable and (facts.distance or 99) <= MELEE_RETARGET
-			local edgeReady = not atEdge or (meleeOutFor >= MELEE_EDGE_WAIT and now - lastMeleeSwitchAt >= SWITCH_GAP)
-			-- (an evading target: another enemy BR may attack takes over, 2026-10-31 the user's call)
-			local outOfSight = targetExists and not br.functions.cast:isUnitVisible("target")
-			local wantRetarget = autoTargetDynamic or not targetExists
-				or (outOfSight and now - lastSwitchAt >= SWITCH_GAP)
-				or unitFns:isEvading("target")
-				or (misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack("target"))
-				or (meleeRequest and (br.engines.targeting:isPriority(result)
-					or (not usable and edgeReady and misc:isTargeting(result))))
-			if wantRetarget and not unitFns:GetUnitIsUnit(result, "target") and not unitFns:isDummy(result)
-				and not (facing and unitFns:isExplosive(result))
-			then
-				-- for the targeting logs; set first, as the game may say the target changed inside TargetUnit
-				enemiesEngineFunctions.lastRetargetAt = now
-				lastSwitchAt = now
-				if meleeRequest then lastMeleeSwitchAt = now end
-				br.game.TargetUnit(result)
-				targetFacts.at = nil -- the target changed: read it afresh
-				br.functions.range:clearDistanceMemo()
-			end
+		local unitFns = br.functions.unit
+		if (autoTargetDynamic or not unitFns:GetObjectExists("target") or unitFns:GetUnitIsDeadOrGhost("target")
+			or unitFns:isEvading("target"))
+			and not unitFns:GetUnitIsUnit(result, "target") and not unitFns:isDummy(result)
+			and not (facing and unitFns:isExplosive(result))
+		then
+			-- for the targeting logs; set first, as the game may say the target changed inside TargetUnit
+			enemiesEngineFunctions.lastRetargetAt = br.game.GetTime()
+			br.game.TargetUnit(result)
+			targetFacts.at = nil -- the target changed: read it afresh
+			br.functions.range:clearDistanceMemo()
 		end
 	end
 	br.debug.cpu:updateDebug(startTime, "enemiesEngine.dynamicTarget")
