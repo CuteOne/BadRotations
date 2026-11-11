@@ -881,8 +881,13 @@ function br.debug.idle:watch(paused)
         lastActionAt = now
         return
     end
+    -- nothing within 8 yd yet: the clock starts when an enemy gets there (2026-11-09: 3 of 10 snapshots were a
+    -- mob pulled from 25-30 yd, logged as 4 s idle the moment it ran up to you)
+    if #br.engines.enemiesEngineFunctions:getEnemies("player", 8) == 0 then
+        lastActionAt = now
+        return
+    end
     if idleLogged or now - lastActionAt < IDLE_AFTER then return end
-    if #br.engines.enemiesEngineFunctions:getEnemies("player", 8) == 0 then return end
     local targetDist = br.game.UnitExists("target") and br.functions.range:getDistance("target") or 99
     idleLogged = true
     local dyn5 = br.engines.enemiesEngineFunctions.dynamicPicks.dyn5
