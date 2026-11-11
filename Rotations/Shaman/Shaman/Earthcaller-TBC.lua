@@ -476,10 +476,9 @@ actionList.Melee = function()
     local distance = unit.distance(enemy)
     -- Auto attack: on once the target is close; the game swings as soon as it's in reach (BR's
     -- distance can read a few yards out for a mob that hovers or has a large reach). At BR's pick, your target or
-    -- not: Targeting Mode Assist leaves a target you picked (a friendly, a mob at range) selected (2026-11-11)
-    if distance < 8 and not (cast.auto.autoAttack() and unit.isUnit(enemy, "target")) then
-        if unit.startAttack(enemy) then ui.debug("Casting Auto Attack") end
-    end
+    -- not: Targeting Mode Assist leaves a target you picked (a friendly, a mob at range) selected (2026-11-11).
+    -- unit.startAttack sends nothing while it's already swinging there
+    if distance < 8 and unit.startAttack(enemy) then ui.debug("Casting Auto Attack") end
     -- Stormstrike
     if units.dyn5 and cast.stormstrike(units.dyn5) then ui.debug("Casting Stormstrike") return true end
     -- Shocks
@@ -509,9 +508,7 @@ end
 
 -- Action List - Caster style
 actionList.Caster = function()
-    if unit.distance(enemy) < 5 and not (cast.auto.autoAttack() and unit.isUnit(enemy, "target")) then
-        if unit.startAttack(enemy) then ui.debug("Casting Auto Attack") end
-    end
+    if unit.distance(enemy) < 5 and unit.startAttack(enemy) then ui.debug("Casting Auto Attack") end
     if unit.moving() then
         -- Instants while moving
         return actionList.Shocks(true)

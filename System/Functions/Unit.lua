@@ -1269,13 +1269,15 @@ function unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency)
 end
 
 -- Starts auto attack on thisUnit (default: the target). Not sent again while it's already on, or on
--- its way, for that same unit; another unit is a switch and always goes out. Not sent during the
+-- its way, for that same unit; another unit is a switch and always goes out. Auto attack swings at your target, so
+-- while it's on (whoever started it: BR, or you) a start at your target has nothing to do. Not sent during the
 -- player's cast or channel, nor within a round trip of BR's last spell send: the game took none of the 6
 -- starts sent so (TBC, 2026-10-31, Melee.log: answered only after a resend 0.3-1.1 s later, or not in 2 s)
 -- and all 11 sent with no spell in flight (0.15-0.21 s), so it goes out on a later tick. True when it was sent.
 function unit:startAttack(thisUnit)
 	local guid = br.game.UnitGUID(thisUnit or "target")
 	if guid ~= nil and guid == attackSentGUID and (autoAttacking or unit:isAttackPending(thisUnit)) then return false end
+	if autoAttacking and (thisUnit == nil or thisUnit == "target" or unit:GetUnitIsUnit(thisUnit, "target")) then return false end
 	local now = br.game.GetTime()
 	if br.functions.cast:getCastTimeRemain("player") > 0 then return false end
 	if br.botCastTime and now - br.botCastTime < br.functions.misc:getRoundTripHold() then return false end

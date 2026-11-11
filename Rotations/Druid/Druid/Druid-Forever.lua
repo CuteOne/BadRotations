@@ -1354,9 +1354,9 @@ actionList.Combat = function()
     end
     local inMelee = unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5
     -- Start Attack (do not break Prowl) on the melee pick, your target or not; when unit.startAttack() sends nothing
-    -- yet, the rotation goes on (see PreCombat). Already swinging at your target as the pick: nothing to send
+    -- yet (already swinging at it, or just after a send), the rotation goes on (see PreCombat)
     if not buff.prowl.exists() and unit.exists(units.dyn5) and not unit.deadOrGhost(units.dyn5)
-        and not (cast.auto.autoAttack() and unit.isUnit(units.dyn5, "target")) and unit.startAttack(units.dyn5)
+        and unit.startAttack(units.dyn5)
     then
         ui.debug("Casting Auto Attack")
         return true

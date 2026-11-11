@@ -576,7 +576,8 @@ function C59.spellHaste() end
 function C59.standingTime() end
 
 --- Start auto-attack. Not sent again while auto attack on that unit is already on or on its way
---- (the game confirms a round trip later); a different unit always goes out.
+--- (the game confirms a round trip later), nor at your target while auto attack is on (you or BR started
+--- it); a different unit always goes out. So a profile calls it plainly, with no cast.auto.autoAttack() check.
 ---@param thisUnit? string The unit to attack
 ---@return boolean # True when it was sent
 function C59.startAttack(thisUnit) end
