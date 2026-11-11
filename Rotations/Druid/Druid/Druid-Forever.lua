@@ -271,7 +271,7 @@ end
 -- A Beast or Dragonkin fighting the player that isn't the target (Hibernate)
 -- Bear filler: another enemy in Swipe's reach without Faerie Fire that will live long enough to matter
 local function faerieFireFiller(thisUnit)
-    return not unit.isUnit(thisUnit, "target") and unit.ttd(thisUnit) > 10
+    return not unit.isUnit(thisUnit, "target") and not unit.totem(thisUnit) and unit.ttd(thisUnit) > 10
         and not debuff.faerieFire.exists(thisUnit, "any") and cast.able.faerieFire(thisUnit)
 end
 
@@ -281,6 +281,12 @@ end
 local function bleeding(thisUnit)
     return debuff.lacerate.exists(thisUnit, "any") or debuff.rake.exists(thisUnit, "any")
         or debuff.rip.exists(thisUnit, "any") or debuff.pounceBleed.exists(thisUnit, "any")
+end
+
+-- No bleeds on it: a mob shown immune to them (unit.bleedImmune), or a totem, which dies to a hit or two and
+-- nothing damages it, so its ttd reads 999 (2026-11-09 fight 105: Rake on a Strength of Earth Totem)
+local function noBleeds(thisUnit)
+    return unit.bleedImmune(thisUnit) or unit.totem(thisUnit)
 end
 
 local function hibernateTarget(thisUnit)
@@ -862,7 +868,7 @@ actionList.BearForm = function()
     -- Lacerate: a bleed (Rend and Tear) with high threat, and the filler for every global cooldown, 5 stacks or not
     -- (the sim's); stacking up starts only on a target that lives 6+ sec
     if cast.able.lacerate(units.dyn5) and (lacerateStacks > 0 or unit.ttd(units.dyn5) > 6)
-        and not unit.bleedImmune(units.dyn5)
+        and not noBleeds(units.dyn5)
     then
         if cast.lacerate(units.dyn5) then
             ui.debug("Casting Lacerate")
@@ -933,7 +939,7 @@ actionList.CatOpener = function()
             local key = STEALTH_OPENERS[i]
             local name = STEALTH_OPENER_NAMES[key]
             -- Rake misses in full on a bleed-immune mob; Pounce stays (its stun and combo point land, wowsims/forever)
-            if spell[key].known() and not (OPENS_BEHIND[key] and passed) and not (key == "rake" and unit.bleedImmune("target")) then
+            if spell[key].known() and not (OPENS_BEHIND[key] and passed) and not (key == "rake" and noBleeds("target")) then
                 if OPENS_BEHIND[key] and not behind then
                     if stealthWait(name) then
                         var.stealthHold = true
@@ -1008,9 +1014,9 @@ actionList.CatForm = function()
 
     -- Finishers, in the order of wowsims/forever's Cat rotation (2026-11-08, master 125e53455)
     local ripUp = debuff.rip.exists(thisUnit)
-    -- A mob that has shown immune to your bleeds (unit.bleedImmune: three in a row never showed): no Rake or Rip,
-    -- and Ferocious Bite is the finisher, as when a Rip wouldn't pay off
-    local bleedImmune = unit.bleedImmune(thisUnit)
+    -- A mob that has shown immune to your bleeds (unit.bleedImmune: five in a row never showed), or a totem
+    -- (noBleeds): no Rake or Rip, and Ferocious Bite is the finisher, as when a Rip wouldn't pay off
+    local bleedImmune = noBleeds(thisUnit)
     -- Fight left for a new Rip to pay off: 8 sec (the sim's), 6 before Ferocious Bite is learned (Forever's own 1328618 was in the spellbook at 24), while Rip is the only
     -- finisher (2026-11-07, level 20: fights of 11-19 sec ended on 5 unspent combo points)
     local ripTime = spell.ferociousBite.known() and 8 or 6
@@ -1228,7 +1234,7 @@ actionList.PreCombat = function()
     local thisDistance = unit.distance("target") or 99
     -- Faerie Fire Pull: brings the target to you with the debuff already up (Bear or Caster Form)
     if ui.checked("Faerie Fire Pull") and (buff.bearForm.exists() or not inForm) and not buff.prowl.exists()
-        and thisDistance < 30 and unit.enemy("target") and unit.readyToFight()
+        and thisDistance < 30 and unit.enemy("target") and unit.readyToFight() and not unit.totem("target")
         and not debuff.faerieFire.exists("target", "any") and cast.able.faerieFire("target")
     then
         if cast.faerieFire("target") then
@@ -1345,9 +1351,10 @@ actionList.Combat = function()
     end
     -- Faerie Fire: castable in every form on Forever, and it doesn't stack, so anyone's counts. Target
     -- only: the armor loss helps the damage you deal to that unit, and each cast costs a GCD and mana.
-    -- In Cat/Bear the mana is what heals and shifting back need, so it keeps a reserve. Never from Prowl.
+    -- In Cat/Bear the mana is what heals and shifting back need, so it keeps a reserve. Never from Prowl, nor on a
+    -- totem: nothing damages it, so its ttd reads 999 (2026-11-09 fight 105: 5 casts on a Strength of Earth Totem).
     if ui.checked("Faerie Fire") and (not inForm or mana >= ui.value("Faerie Fire")) and not buff.prowl.exists()
-        and unit.ttd("target") > 10 and not debuff.faerieFire.exists("target", "any") and cast.able.faerieFire("target")
+        and not unit.totem("target") and unit.ttd("target") > 10 and not debuff.faerieFire.exists("target", "any") and cast.able.faerieFire("target")
     then
         if cast.faerieFire("target") then
             ui.debug("Casting Faerie Fire")
