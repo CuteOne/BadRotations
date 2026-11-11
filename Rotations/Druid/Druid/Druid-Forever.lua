@@ -347,6 +347,9 @@ local function tag(why) return type(why) == "string" and (" [" .. why .. "]") or
 -- murlocs at 10-11 yd cost two shifts each for a Rejuvenation and one Moonfire; 19:36: a hyena at 62 yd). Returns the
 -- distance and the height gap when out of reach, else nil.
 local REACH_WAIT, REACH_BACK, REACH_MAX, REACH_UP = 3, 8, 30, 4
+-- runRotation asks only while nothing is in melee with you: a wait not asked about for this long was cut off (a mob
+-- came into melee), so it starts over instead of counting the gap as time spent trying to reach the target
+local WAIT_GAP = 1
 local function outOfReach(thisUnit)
     local guid = unit.inCombat() and unit.exists(thisUnit) and unit.guid(thisUnit) or nil
     local dist = guid and unit.distance(thisUnit)
@@ -360,6 +363,7 @@ local function outOfReach(thisUnit)
         return nil
     end
     if not r.out then
+        if now - r.last > WAIT_GAP then r.best, r.tried, r.last = dist, 0, now end
         local _, _, pz = unit.position("player")
         local _, _, tz = unit.position(thisUnit)
         local rise = pz and tz and math.abs(tz - pz) or 0
@@ -398,10 +402,12 @@ local function fleeChase(thisUnit)
         return false, false
     end
     local now = util.time()
-    if f == nil or f.guid ~= guid then
-        var.flee = { guid = guid, since = now }
+    -- a new target, or a wait not asked about for WAIT_GAP (runRotation skips it while the target is out of reach)
+    if f == nil or f.guid ~= guid or now - f.last > WAIT_GAP then
+        var.flee = { guid = guid, since = now, last = now }
         return false, true
     end
+    f.last = now
     f.out = now - f.since >= FLEE_WAIT
     return f.out, not f.out
 end
