@@ -1058,7 +1058,13 @@ function unit:isWinning(thisUnit)
 	return mine >= 999 or 2 * unit:getFightLength(thisUnit) <= mine
 end
 
-function unit:noteTargetChanged() targetChangedAt = br.game.GetTime() end
+-- The game moves a running auto attack to the new target, so the one BR started is no longer on its unit:
+-- the next start at that unit goes out again (2026-11-11 11:05:34, Forever: you targeted a mob 61 yd off
+-- mid-fight, the swing went with it, and BR, sure it still swung at the Scout it fought, sent nothing for 6 s)
+function unit:noteTargetChanged()
+	targetChangedAt = br.game.GetTime()
+	attackSentGUID = nil
+end
 
 --- The combat log reader: an attack of yours on guid came back "EVADE"
 function unit:noteEvade(guid, name)
