@@ -267,8 +267,8 @@ br.api.build.unit = function(api)
         return br.functions.unit:isEnemyNear(range)
     end
 
-    --- Whether the unit's kind of mob (NPC ID) has shown immune to your bleeds this session: three of
-    -- them in a row went out and the bleed never showed on it (unit:isBleedImmune).
+    --- Whether the unit's kind of mob (NPC ID) has shown immune to your bleeds: five of them in a row went
+    -- out and the bleed never showed on it (unit:isBleedImmune; learned, and kept across sessions).
     -- @function unit.bleedImmune
     -- @param thisUnit The unit to check, defaults to "target" if nil
     -- @return boolean True when it is counted bleed-immune
@@ -529,7 +529,7 @@ br.api.build.unit = function(api)
     -- @param offset Optional extra yards added to the aggro radius
     -- @param hostileOnly Optional: leave out a neutral target
     -- @return boolean True if hostile (or neutral and targeted) and within its aggro radius (centre to centre,
-    -- within 3 yards of your height)
+    -- within 8 yards of your height), not tagged by someone else, and able to see you
     unit.inAggroRange = function(thisUnit, offset, hostileOnly)
         return br.functions.unit:isInAggroRange(thisUnit, offset, hostileOnly)
     end

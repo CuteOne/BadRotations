@@ -177,7 +177,6 @@ end
 -- base (18 for most by 1.12, 20 earlier); Logs/Aggro.log records the distances Forever's mobs really aggro at.
 -- if br.functions.unit:getAggroRange("target") > 15 then
 local AGGRO_BASE, AGGRO_LEVEL_CAP, AGGRO_MIN, AGGRO_HEIGHT = 18, 25, 5, 8
-unit.AGGRO_HEIGHT = AGGRO_HEIGHT
 function unit:getAggroRange(thisUnit)
 	if thisUnit == nil then thisUnit = "target" end
 	local thisLevel = br.game.UnitLevel(thisUnit) or 0

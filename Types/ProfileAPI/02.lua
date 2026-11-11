@@ -192,8 +192,8 @@ function C59.enemy(thisUnit, playerUnit) end
 ---@return boolean # True when an enemy is already fighting within range, or an idle one's aggro range reaches you
 function C59.enemyNear(range) end
 
---- Whether the unit's kind of mob (NPC ID) has shown immune to your bleeds this session: three of
---- them in a row went out and the bleed never showed on it (unit:isBleedImmune).
+--- Whether the unit's kind of mob (NPC ID) has shown immune to your bleeds: five of them in a row went
+--- out and the bleed never showed on it (unit:isBleedImmune; learned, and kept across sessions).
 ---@param thisUnit? string The unit to check, defaults to "target" if nil
 ---@return boolean # True when it is counted bleed-immune
 function C59.bleedImmune(thisUnit) end

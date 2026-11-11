@@ -1118,12 +1118,12 @@ local function healthState(unit)
         plainNumber(unitFns:getHPAfterHeals(unit) or -1), plainNumber(br.functions.cast:getHealsOnTheirWay(unit) or 0))
 end
 
--- A spell sent (cast dispatcher): written when BR counts it as a heal, or its description speaks of healing
 -- A bleed BR sent and what showed after it (unit:isBleedImmune's learning, Functions/Unit.lua)
 function br.debug.cast:noteBleed(unitName, npcID, spellName, what)
     castWrite(("BLEED %s → %s (NPC %s): %s"):format(printable(spellName), printable(unitName or "?"), tostring(npcID), what))
 end
 
+-- A spell sent (cast dispatcher): written when BR counts it as a heal, or its description speaks of healing
 function br.debug.cast:noteHealSent(spellID, thisUnit, castShowing)
     if healLines >= HEAL_LINES then return end
     local spellFns, C = br.functions.spell, br.game.C_Spell
