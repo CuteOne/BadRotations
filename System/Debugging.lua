@@ -692,8 +692,53 @@ local function attackStartLine(answeredAt)
         #resends > 0 and (table.concat(resends, ", ") .. " after the first") or "never"))
 end
 
+-- Auto attack at a unit that isn't your target (2026-11-11): Assist leaves your target alone (a friendly you
+-- targeted to invite, a mob at range), and profiles start auto attack on BR's pick (StartAttack(unit)). Whether
+-- the game swings at it, and where combo points then show, is unconfirmed on Forever; each such start (10 a
+-- session) writes, 3 s on: did auto attack come on, did the unit's health fall, combo points read on it vs your
+-- target vs as power.
+local NOT_TARGET_LINES, NOT_TARGET_WAIT = 10, 3
+local notTargetLines, notTargetGUID = 0, nil
+
+local function readHealth(thisUnit)
+    local hp = br.game.UnitHealth(thisUnit)
+    return (br.functions.misc:canUseValue(hp) and type(hp) == "number") and hp or nil
+end
+
+local function comboOn(thisUnit)
+    local n = br.game.GetComboPoints and br.game.GetComboPoints("player", thisUnit)
+    return (br.functions.misc:canUseValue(n) and n ~= nil) and tostring(plainNumber(n)) or "?"
+end
+
+local function noteNotTarget(thisUnit)
+    if notTargetLines >= NOT_TARGET_LINES or thisUnit == nil or thisUnit == "target" then return end
+    local unitFns = br.functions.unit
+    if not br.game.UnitExists(thisUnit) or unitFns:GetUnitIsUnit(thisUnit, "target") then return end
+    local guid = br.game.UnitGUID(thisUnit)
+    if not br.functions.misc:canUseValue(guid) or guid == notTargetGUID then return end
+    notTargetGUID = guid
+    notTargetLines = notTargetLines + 1
+    local name = unitName(thisUnit)
+    local yourTarget = br.game.UnitExists("target")
+        and (unitName("target") .. (br.game.UnitCanAttack("player", "target") and "" or ", not attackable")) or "none"
+    local hpBefore, sentAt = readHealth(thisUnit), br.game.GetTime()
+    local onBefore = unitFns:isAutoAttacking()
+    br.game.C_Timer.After(NOT_TARGET_WAIT, function()
+        local alive = br.game.UnitExists(thisUnit) and not unitFns:GetUnitIsDeadOrGhost(thisUnit)
+        local hpAfter = alive and readHealth(thisUnit) or nil
+        local health = (hpBefore and hpAfter) and ("%d -> %d"):format(plainNumber(hpBefore), plainNumber(hpAfter))
+            or (alive and "?" or "died")
+        local power = br.game.UnitPower("player", 4)
+        meleeLine(("NOT YOUR TARGET: auto attack sent at %s (your target: %s) | auto attack %s at the send, %s %.1fs on | its health %s | combo points on it %s, on your target %s, as power %s"):format(
+            name, yourTarget, onBefore and "on" or "off", unitFns:isAutoAttacking() and "on" or "off",
+            br.game.GetTime() - sentAt, health, alive and comboOn(thisUnit) or "-", comboOn("target"),
+            br.functions.misc:canUseValue(power) and tostring(plainNumber(power)) or "?"))
+    end)
+end
+
 -- unit:startAttack sent StartAttack at thisUnit
 function br.debug.melee:noteAttackSent(thisUnit)
+    noteNotTarget(thisUnit)
     if attackStartLines >= ATTACK_START_LINES then return end
     local now = br.game.GetTime()
     if attackStart then
