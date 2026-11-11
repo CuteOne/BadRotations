@@ -146,13 +146,29 @@ end
 
 -- True if any enemy (in combat or not) within radius yards would aggro on the player. accept(unit), when
 -- given, picks which enemies count; it is asked about every enemy in radius, before the aggro check.
+-- Without accept, the answer is kept for the frame (Druid-Forever asks up to 4 times a tick out of combat: Travel,
+-- Aquatic and Cat Form rules; each walks every enemy in 40 yd, with a line-of-sight trace).
 -- if br.functions.unit:anyInAggroRange(5) then
+local aggroFrame, aggroAnswers = nil, {}
 function unit:anyInAggroRange(offset, radius, hostileOnly, accept)
+	local key
+	if accept == nil then
+		local now = br.game.GetTime()
+		if now ~= aggroFrame then aggroFrame, aggroAnswers = now, {} end
+		key = tostring(offset or 0) .. ":" .. tostring(radius or 40) .. ":" .. tostring(hostileOnly == true)
+		local known = aggroAnswers[key]
+		if known ~= nil then return known end
+	end
+	local found = false
 	local nearby = br.engines.enemiesEngineFunctions:getEnemies("player", radius or 40, true)
 	for i = 1, #nearby do
-		if (accept == nil or accept(nearby[i])) and unit:isInAggroRange(nearby[i], offset, hostileOnly) then return true end
+		if (accept == nil or accept(nearby[i])) and unit:isInAggroRange(nearby[i], offset, hostileOnly) then
+			found = true
+			break
+		end
 	end
-	return false
+	if key then aggroAnswers[key] = found end
+	return found
 end
 
 --- Cancels the player's shapeshift form, unless the player isn't in one or a cancel is already on
