@@ -59,10 +59,10 @@ local function enemyPlayerTarget()
 end
 
 local engagedFrame = br.game.CreateFrame("Frame")
-for _, event in ipairs({ "UNIT_SPELLCAST_SENT", "PLAYER_ENTER_COMBAT", "PLAYER_REGEN_ENABLED" }) do
+for _, event in ipairs({ "PLAYER_ENTER_COMBAT", "PLAYER_REGEN_ENABLED" }) do
 	engagedFrame:RegisterEvent(event)
 end
---- Feeds the engaged-player events (the frame above; the tests call it directly).
+--- Feeds the engaged-player events (the frame above and the cast engine's SENT, below; the tests call it directly).
 function misc.engagedPlayerEvent(event, unit, _, _, spellID)
 	if event == "PLAYER_REGEN_ENABLED" then
 		br.game.wipe(engagedPlayers)
@@ -82,6 +82,7 @@ function misc.engagedPlayerEvent(event, unit, _, _, spellID)
 	end
 end
 engagedFrame:SetScript("OnEvent", function(_, event, ...) misc.engagedPlayerEvent(event, ...) end)
+br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_SENT" }, misc.engagedPlayerEvent)
 
 -- Healers in the group: whether someone else heals the player, so a profile can keep its self-heals for a group
 -- without one. A member with the Healer role counts. Most groups have no roles (only the group finder sets them),

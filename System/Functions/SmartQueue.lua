@@ -124,8 +124,7 @@ function SmartQueue:smartQueue()
 		smartQueueFrame:Show()
 		smartQueueFrame:SetPropagateKeyboardInput(true)
 		smartQueueFrame:SetScript("OnKeyDown", checkKeys)
-		smartQueueFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-		smartQueueFrame:SetScript("OnEvent", spellSuccess)
+		br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_SUCCEEDED" }, function(event, ...) spellSuccess(nil, event, ...) end)
 	end
 	GetKeyBindings()
 

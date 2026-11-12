@@ -553,11 +553,9 @@ end
 -- Game messages during an episode (spell failures, red error text)
 local meleeEvents = br.game.CreateFrame("Frame")
 meleeEvents:RegisterEvent("UI_ERROR_MESSAGE")
-meleeEvents:RegisterEvent("UNIT_SPELLCAST_FAILED")
-meleeEvents:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 meleeEvents:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
 -- UI_ERROR_MESSAGE: errorType, message; UNIT_SPELLCAST_*: unit, castGUID, spellID
-meleeEvents:SetScript("OnEvent", function(_, event, a, b, c, ...)
+local function onMeleeEvent(event, a, b, c, ...)
     -- Monster emotes in combat, episode or not: the flee emote's wording in this client's language
     -- (br.lists.fleeEmotes) and whether BR can read it
     if event == "CHAT_MSG_MONSTER_EMOTE" then
@@ -580,7 +578,9 @@ meleeEvents:SetScript("OnEvent", function(_, event, a, b, c, ...)
         text = (event == "UNIT_SPELLCAST_FAILED" and "failed: " or "cast: ") .. printable(name or c)
     end
     if text and #episode.events < 20 then episode.events[#episode.events + 1] = text end
-end)
+end
+meleeEvents:SetScript("OnEvent", function(_, ...) onMeleeEvent(...) end)
+br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_SUCCEEDED" }, onMeleeEvent)
 
 local function meleeState()
     local dyn5 = br.engines.enemiesEngineFunctions.dynamicPicks.dyn5
@@ -609,11 +609,7 @@ local meleeEnvironmentLogged = false
 -- swing reader (unit.swing) and weave timing in profiles follow from the answer.
 local SWING_CAST_LINES, SWING_MATCH = 15, 0.25
 local swingCast, swingCastLines = nil, 0 -- { name, start, finished, due, speed, lastAtStart }
-local swingCastEvents = br.game.CreateFrame("Frame")
-swingCastEvents:RegisterEvent("UNIT_SPELLCAST_START")
-swingCastEvents:RegisterEvent("UNIT_SPELLCAST_STOP")
-swingCastEvents:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
-swingCastEvents:SetScript("OnEvent", function(_, event, unitToken, _, spellID)
+local function onSwingCastEvent(event, unitToken, _, spellID)
     if unitToken ~= "player" or swingCastLines >= SWING_CAST_LINES then return end
     local mh = br.readers.combatLog.swing.mh
     local now = br.game.GetTime()
@@ -625,7 +621,8 @@ swingCastEvents:SetScript("OnEvent", function(_, event, unitToken, _, spellID)
         swingCast.finished = now
         swingCast.interrupted = event == "UNIT_SPELLCAST_INTERRUPTED"
     end
-end)
+end
+br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_START", "UNIT_SPELLCAST_STOP", "UNIT_SPELLCAST_INTERRUPTED" }, onSwingCastEvent)
 
 local function watchSwingAroundCast()
     local c = swingCast
@@ -893,18 +890,17 @@ local idleRuns = 0 -- ticks the rotation ran (not paused) since the last action
 local idleErrors = {}
 
 local idleEvents = br.game.CreateFrame("Frame")
-idleEvents:RegisterEvent("UNIT_SPELLCAST_START")
-idleEvents:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-idleEvents:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 idleEvents:RegisterEvent("UI_ERROR_MESSAGE")
-idleEvents:SetScript("OnEvent", function(_, event, a, b)
+local function onIdleEvent(event, a, b)
     if event == "UI_ERROR_MESSAGE" then
         if #idleErrors < 10 then idleErrors[#idleErrors + 1] = printable(b) end
     elseif a == "player" then
         lastActionAt, idleLogged, idleRuns = br.game.GetTime(), false, 0
         br.game.wipe(idleErrors)
     end
-end)
+end
+idleEvents:SetScript("OnEvent", function(_, ...) onIdleEvent(...) end)
+br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_START", "UNIT_SPELLCAST_SUCCEEDED", "UNIT_SPELLCAST_CHANNEL_START" }, onIdleEvent)
 
 function br.debug.idle:watch(paused)
     local now = br.game.GetTime()
@@ -1277,11 +1273,8 @@ end
 
 local inProgressText = br.game.SPELL_FAILED_SPELL_IN_PROGRESS or "Another action is in progress"
 local castEvents = br.game.CreateFrame("Frame")
-castEvents:RegisterEvent("UNIT_SPELLCAST_START")
-castEvents:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
-castEvents:RegisterEvent("UNIT_SPELLCAST_DELAYED")
 castEvents:RegisterEvent("UI_ERROR_MESSAGE")
-castEvents:SetScript("OnEvent", function(_, event, a, b)
+local function onCastEvent(event, a, b)
     if event == "UI_ERROR_MESSAGE" then
         if printable(b) ~= inProgressText then return end
         local now = br.game.GetTime()
@@ -1293,7 +1286,9 @@ castEvents:SetScript("OnEvent", function(_, event, a, b)
     elseif a == "player" then
         if event == "UNIT_SPELLCAST_DELAYED" then pushbacks = pushbacks + 1 else pushbacks = 0 end
     end
-end)
+end
+castEvents:SetScript("OnEvent", function(_, ...) onCastEvent(...) end)
+br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_START", "UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_DELAYED" }, onCastEvent)
 
 ----------------------------------------------------------------------------------------------------
 -- Form recorder (diagnostic, 2026-10-15): before cast.<spell>() leaves a shapeshift form by itself,
@@ -1488,17 +1483,12 @@ local AGGRO_SCAN, AGGRO_ANSWER = 45, 0.5
 local lastOwnAction, lastOwnWhat = 0, "nothing"
 local aggroEvents = br.game.CreateFrame("Frame")
 aggroEvents:RegisterEvent("PLAYER_REGEN_DISABLED")
-aggroEvents:RegisterEvent("UNIT_SPELLCAST_SENT")
 aggroEvents:RegisterEvent("PLAYER_ENTER_COMBAT")
-aggroEvents:SetScript("OnEvent", function(_, event, a, _, _, d)
+local function onAggroEvent(event, _, _, _, spellID)
     local now = br.game.GetTime()
     if event == "UNIT_SPELLCAST_SENT" then
-        -- the payload can be secret on Forever: a secret compare throws, so pcall, and count it as a cast anyway
-        local okSent, isPlayer = pcall(function() return a == "player" end)
-        if not okSent or isPlayer then
-            local spellID = okSent and plainNumber(d) or nil
-            lastOwnAction, lastOwnWhat = now, printable(spellID and br.functions.spell:getName(spellID) or "a cast")
-        end
+        -- the player's (the cast engine's events); a spell ID BR may not read comes as nil: a cast all the same
+        lastOwnAction, lastOwnWhat = now, printable(spellID and br.functions.spell:getName(spellID) or "a cast")
         return
     end
     if event == "PLAYER_ENTER_COMBAT" then
@@ -1543,4 +1533,6 @@ aggroEvents:SetScript("OnEvent", function(_, event, a, _, _, d)
         end)
     end)
     if not ok then aggroLine("aggro snapshot failed: " .. printable(err)) end
-end)
+end
+aggroEvents:SetScript("OnEvent", function(_, ...) onAggroEvent(...) end)
+br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_SENT" }, onAggroEvent)

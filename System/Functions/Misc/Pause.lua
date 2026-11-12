@@ -191,7 +191,7 @@ end
 local OWN_SEND_HOLD = 0.5
 local ownSendAt, ownSendGUID
 
---- Feeds the player's cast events (the frame below; the tests call it directly). SENT is (unit, target, castGUID,
+--- Feeds the player's cast events (the cast engine's, below; the tests call it directly). SENT is (unit, target, castGUID,
 -- spellID); the others are (unit, castGUID, spellID).
 function misc.ownSendEvent(event, unit, arg2, arg3, arg4)
 	if unit ~= "player" then return end
@@ -210,14 +210,9 @@ function misc.ownSendEvent(event, unit, arg2, arg3, arg4)
 	end
 end
 
-local ownSendFrame = br.game.CreateFrame("Frame")
-for _, event in ipairs({ "UNIT_SPELLCAST_SENT", "UNIT_SPELLCAST_START", "UNIT_SPELLCAST_CHANNEL_START",
+br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_SENT", "UNIT_SPELLCAST_START", "UNIT_SPELLCAST_CHANNEL_START",
 	"UNIT_SPELLCAST_SUCCEEDED", "UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_FAILED_QUIET", "UNIT_SPELLCAST_INTERRUPTED",
-	"UNIT_SPELLCAST_STOP" })
-do
-	ownSendFrame:RegisterEvent(event)
-end
-ownSendFrame:SetScript("OnEvent", function(_, event, ...) misc.ownSendEvent(event, ...) end)
+	"UNIT_SPELLCAST_STOP" }, misc.ownSendEvent)
 
 --- Why the player's own cast or channel holds new casts and item uses now, or nil: "item channel",
 -- "channelling", "casting" or "your cast starting" (a key press of the player's the game hasn't answered yet).

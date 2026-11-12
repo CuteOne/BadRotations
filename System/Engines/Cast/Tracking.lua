@@ -6,7 +6,7 @@ cast.internal = cast.internal or {}
 local E = cast.internal
 
 -- BR's latest send: the spell, the unit as asked and its GUID, when, and whether it's still going (true from the
--- send until the next spell cast success the game reports: cast:noteSucceeded). Game errors are pinned on it, and
+-- send until the player's next cast success, or that spell failing: cast:noteSucceeded, from Events.lua). Game errors are pinned on it, and
 -- the bleed watcher, auto attack and auto-loot wait a round trip after it. Read with cast:getLastSend().
 local lastSend = { spellID = nil, unit = nil, guid = nil, at = nil, going = false }
 
@@ -14,10 +14,10 @@ local lastSend = { spellID = nil, unit = nil, guid = nil, at = nil, going = fals
 -- local spellID, guid, sentAt = br.engines.cast:getLastSend()
 function cast:getLastSend() return lastSend.spellID, lastSend.guid, lastSend.at, lastSend.unit end
 
---- True from BR's latest send until the game reports a spell cast success (what the Queue Casting option waits on)
+--- True from BR's latest send until the player's next cast success or its failing (what Queue Casting waits on)
 function cast:isSendGoing() return lastSend.going end
 
---- A spell cast success (Readers): BR's latest send is no longer going
+--- The player's cast went off, or BR's sent spell failed (Events.lua): BR's latest send is no longer going
 function cast:noteSucceeded() lastSend.going = false end
 
 

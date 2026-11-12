@@ -406,21 +406,8 @@ local function isAutomatic(spellID)
 	return name ~= nil and br.game.C_Spell.IsAutoRepeatSpell and br.game.C_Spell.IsAutoRepeatSpell(name) or false
 end
 
-local events = br.game.CreateFrame("Frame")
-events:RegisterEvent("UNIT_SPELLCAST_START")
-events:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
-events:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-events:RegisterEvent("UNIT_SPELLCAST_FAILED")
--- A send the game turned away while another cast was still on (2026-11-01, TBC: a Lightning Shield
--- pre-cast refused "Another action is in progress" after a pushback) fails quietly. Without it the
--- send stayed waiting and took the next cast of the spell as its answer; that one then said "no answer".
-events:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
-events:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
-events:RegisterEvent("UI_ERROR_MESSAGE")
-events:RegisterEvent("PLAYER_REGEN_DISABLED")
-events:RegisterEvent("PLAYER_REGEN_ENABLED")
--- UNIT_SPELLCAST_*: unit, castGUID, spellID; UI_ERROR_MESSAGE: errorType, message
-events:SetScript("OnEvent", function(_, event, a, b, c)
+-- UNIT_SPELLCAST_* (the cast engine's, below): unit, castGUID, spellID; UI_ERROR_MESSAGE: errorType, message
+local function onEvent(event, a, b, c)
 	if event == "PLAYER_REGEN_DISABLED" then return startFight() end
 	if event == "PLAYER_REGEN_ENABLED" then return endFight() end
 	if event == "UI_ERROR_MESSAGE" then
@@ -456,7 +443,17 @@ events:SetScript("OnEvent", function(_, event, a, b, c)
 			addRow(entry, "failed" .. reason, "error", "failed", why)
 		end
 	end
-end)
+end
+local events = br.game.CreateFrame("Frame")
+events:RegisterEvent("UI_ERROR_MESSAGE")
+events:RegisterEvent("PLAYER_REGEN_DISABLED")
+events:RegisterEvent("PLAYER_REGEN_ENABLED")
+events:SetScript("OnEvent", function(_, event, a, b, c) onEvent(event, a, b, c) end)
+-- A send the game turned away while another cast was still on (2026-11-01, TBC: a Lightning Shield pre-cast refused
+-- "Another action is in progress" after a pushback) fails quietly. Without FAILED_QUIET the send stayed waiting and
+-- took the next cast of the spell as its answer; that one then said "no answer".
+br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_START", "UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_SUCCEEDED",
+	"UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_FAILED_QUIET", "UNIT_SPELLCAST_INTERRUPTED" }, onEvent)
 
 ---------------------------------------------------------------------------------------------------
 -- The window

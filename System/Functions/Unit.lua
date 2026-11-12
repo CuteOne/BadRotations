@@ -936,7 +936,7 @@ end
 local function noteBleedSucceeded(spellID)
 	local misc = br.functions.misc
 	local sentID, sentGUID, sentAt = br.engines.cast:getLastSend()
-	if not misc:canUseValue(spellID) or sentID == nil or sentGUID == nil then return end
+	if spellID == nil or sentID == nil or sentGUID == nil then return end
 	local spellName = br.functions.spell:getName(spellID)
 	local debuffName = spellName and currentBleedNames()[spellName]
 	if debuffName == nil then return end
@@ -953,13 +953,7 @@ local function noteBleedSucceeded(spellID)
 	br.game.C_Timer.After(BLEED_CHECK_AFTER, function() settleBleeds(br.game.GetTime()) end)
 end
 
-local bleedWatch = br.game.CreateFrame and br.game.CreateFrame("Frame")
-if bleedWatch then
-	bleedWatch:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-	bleedWatch:SetScript("OnEvent", function(_, _, unitID, _, spellID)
-		if unitID == "player" then noteBleedSucceeded(spellID) end
-	end)
-end
+br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_SUCCEEDED" }, function(_, _, _, spellID) noteBleedSucceeded(spellID) end)
 
 --- True when thisUnit's kind of mob (NPC ID) took BLEED_IMMUNE_AFTER of your bleeds in a row without the
 --- bleed showing (learned, and kept across sessions): the profile skips bleeds on it.

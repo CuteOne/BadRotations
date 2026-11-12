@@ -20,8 +20,6 @@ local failedTime = lastCast.lastCastTable.failedTime
 
 local waitForSuccess
 
-local lastCastFrame = br.game.CreateFrame("Frame")
-
 -- Spells (spell list keys) whose casts aren't tracked at all
 local IGNORED = { "counterspell", "iceBarrier", "shimmer" }
 
@@ -82,7 +80,7 @@ end
 local function eventTracker(_, event, ...)
     local sourceUnit = select(1, ...)
     local spellID = event == "UNIT_SPELLCAST_SENT" and select(4, ...) or select(3, ...)
-    if sourceUnit == "player" and br.runner and not isIgnored(spellID) then
+    if sourceUnit == "player" and spellID ~= nil and br.runner and not isIgnored(spellID) then
         if event == "UNIT_SPELLCAST_SENT" or event == "UNIT_SPELLCAST_START"
             or event == "UNIT_SPELLCAST_CHANNEL_START" --or event == "UNIT_SPELLCAST_EMPOWER_START"
         then
@@ -133,30 +131,11 @@ local function eventTracker(_, event, ...)
     end
 end
 
--- Begin Cast Events
-lastCastFrame:RegisterEvent("UNIT_SPELLCAST_SENT")          -- Fired when a unit attempts to cast a spell regardless of the success of the cast.
-
-lastCastFrame:RegisterEvent("UNIT_SPELLCAST_START")         -- Fired when a unit begins casting a non-instant cast spell.
-
-lastCastFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START") -- Fired when a unit begins channeling in the course of casting a spell.
-
--- lastCastFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_START")
--- Stop Cast Events
-lastCastFrame:RegisterEvent("UNIT_SPELLCAST_STOP")         -- Fired when a unit stops casting.
-
-lastCastFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP") -- Fired when a unit stops channeling.
-
--- lastCastFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_STOP")
-lastCastFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")       -- Fired when a unit's spellcast fails.
-
-lastCastFrame:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
-
-lastCastFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")  -- Fired when a unit's spellcast is interrupted
-
--- Complete Cast Events
-lastCastFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")    -- Fired when a spell is cast successfully.
-
-lastCastFrame:SetScript("OnEvent", eventTracker)
+-- The player's cast events, from the cast engine: SENT (any attempt), START and CHANNEL_START (a cast or channel
+-- begins), STOP, CHANNEL_STOP, FAILED, FAILED_QUIET and INTERRUPTED (it ended without going off), SUCCEEDED
+br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_SENT", "UNIT_SPELLCAST_START", "UNIT_SPELLCAST_CHANNEL_START",
+    "UNIT_SPELLCAST_STOP", "UNIT_SPELLCAST_CHANNEL_STOP", "UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_FAILED_QUIET",
+    "UNIT_SPELLCAST_INTERRUPTED", "UNIT_SPELLCAST_SUCCEEDED" }, function(event, ...) eventTracker(nil, event, ...) end)
 
 --- True when spellID is one of the rotation's abilities (any rank of a rank list)
 -- if br.functions.lastCast:isAbility(spellID) then

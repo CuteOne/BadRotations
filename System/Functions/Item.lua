@@ -385,10 +385,11 @@ function item:noteImbueSent(spellID)
 		mainItem = br.game.GetInventoryItemID("player", MAIN_HAND), at = br.game.GetTime() }
 end
 
--- The player's spell succeeded (Readers/common.lua): an imbue BR sent is watched up to IMBUE_WATCH s.
+-- The player's spell succeeded (the cast engine's events, below): an imbue BR sent is watched up to IMBUE_WATCH s.
 -- An enchant appearing or refreshed (more time left) on a hand teaches its ID and which hand it took;
 -- nothing at all means the main-hand weapon (where an imbue lands first) doesn't hold it.
 function item:noteImbueSucceeded(spellID)
+	if spellID == nil then return end
 	local before = imbueSentWith[spellID]
 	imbueSentWith[spellID] = nil
 	-- the send's snapshot only within a few seconds (a send that never went off leaves one behind)
@@ -429,6 +430,7 @@ function item:noteImbueSucceeded(spellID)
 	end
 	br.game.C_Timer.After(IMBUE_POLL, check)
 end
+br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_SUCCEEDED" }, function(_, _, _, spellID) item:noteImbueSucceeded(spellID) end)
 
 -- if TierScan("T17")>=2 then
 function item:TierScan(thisTier)

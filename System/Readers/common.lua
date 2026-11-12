@@ -26,16 +26,7 @@ _superFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 _superFrame:RegisterEvent("PLAYER_LEAVE_COMBAT")
 _superFrame:RegisterEvent("PLAYER_TOTEM_UPDATE")
 _superFrame:RegisterEvent("UNIT_AURA")
-_superFrame:RegisterEvent("UNIT_SPELLCAST_START")
-_superFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
-_superFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-_superFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")
-_superFrame:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
-_superFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
-_superFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
-_superFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
-_superFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
-_superFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+-- (The player's cast events are the cast engine's: System/Engines/Cast/Events.lua)
 _superFrame:RegisterEvent("UNIT_POWER_UPDATE")
 _superFrame:RegisterEvent("ENCOUNTER_START")
 _superFrame:RegisterEvent("ENCOUNTER_END")
@@ -368,49 +359,6 @@ function common:commonReaders()
 		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" --[[or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED"]] or event == "TRAIT_CONFIG_UPDATED" then
 			if br.runner then
 				br.runner:requestRebuild()
-			end
-		end
-		-----------------------------
-		--[[ SpellCast Succeeded --]]
-		-- (The sent / start / stop / interrupted / failed / channel handlers here were removed: they
-		-- set values nothing reads, and their Hunter branch compared the class name with a number,
-		-- so it never ran.)
-		-- The player's cast interrupted: out of combat that's the player cancelling BR's cast
-		if event == "UNIT_SPELLCAST_INTERRUPTED" and select(1, ...) == "player" then
-			br.engines.cast:noteInterrupted(select(3, ...))
-		end
-		-- A cast of BR's that failed: its heal isn't on its way and its cost won't be charged
-		if (event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_FAILED_QUIET" or event == "UNIT_SPELLCAST_INTERRUPTED")
-			and select(1, ...) == "player"
-		then
-			br.engines.cast:noteCastFailed(select(3, ...), event == "UNIT_SPELLCAST_FAILED_QUIET")
-		end
-		if event == "UNIT_SPELLCAST_SUCCEEDED" then
-			local SourceUnit = select(1, ...)
-			local SpellID = select(3, ...)
-			-- a weapon imbue BR sent went off: watch where it lands
-			if SourceUnit == "player" then br.functions.item:noteImbueSucceeded(SpellID) end
-			br.engines.cast:noteSucceeded()
-			-- Queue Casting: the queued spell went off, drop it from the queue
-			if SourceUnit == "player" and #br.engines.cast.queue ~= 0 then
-				for i = 1, #br.engines.cast.queue do
-					local queuedID = br.engines.cast.queue[i].id
-					if type(queuedID) == "table" and br.functions and br.functions.spell and br.functions.spell.getHighestKnownRank then
-						queuedID = br.functions.spell:getHighestKnownRank(queuedID) or queuedID[1]
-					elseif type(queuedID) == "table" then
-						queuedID = queuedID[1]
-					end
-					if br.functions.spell:getName(SpellID) == br.functions.spell:getName(queuedID) then
-						br.game.tremove(br.engines.cast.queue, i)
-						if br.game.IsAoEPending() then
-							br.game.SpellStopTargeting()
-						end
-						if not br.functions.misc:isChecked("Mute Queue") then
-							br.log:say("Queue", "Cast " .. br.log.highlight(br.functions.spell:getName(queuedID)) .. ", removed from the queue")
-						end
-						break
-					end
-				end
 			end
 		end
 		if event == "UI_ERROR_MESSAGE" then

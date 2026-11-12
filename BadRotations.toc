@@ -61,6 +61,7 @@ Expansions\TBC\Functions.lua
 System\Version.lua
 System\Secrets.lua
 System\Logging.lua
+System\Engines\Cast\Events.lua
 System\RotationLog.lua
 System\FightLog.lua
 System\SpellsLog.lua
