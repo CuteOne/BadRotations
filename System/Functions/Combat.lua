@@ -279,10 +279,14 @@ function combat:hasThreat(unit, playerUnit)
 		return true
 	end
 
-	-- FIXED: Early exit for already validated enemies to avoid expensive checks
-	-- Safety check: Still verify unit is attackable to handle evade/reset/faction change scenarios
+	-- Early exit for already validated enemies to avoid expensive checks
+	-- Safety check: Still verify unit is attackable to handle evade/reset/faction change scenarios.
+	-- Only while the unit is in combat itself: otherwise a mob once counted (the pack rule below) stayed
+	-- valid for the player's whole fight, after walking off and after the mob it stood near had died
+	-- (2026-11-11, Assist set the target to an unaggroed Cave Yeti at 24 yd and Faerie Fire went on it)
 	local unitPointer = br.game.ObjectPointer(unit)
 	if br.game.UnitAffectingCombat("player") and br.engines.enemiesEngine.enemy[unitPointer] ~= nil
+		and br.game.UnitAffectingCombat(unit)
 		and br.game.UnitCanAttack("player", unit) and not br.functions.unit:GetUnitIsDeadOrGhost(unit)
 	then
 		if br.functions.misc:isChecked("Threat Debug") then
@@ -365,8 +369,9 @@ function combat:hasThreat(unit, playerUnit)
 			return true
 		end
 	end
-	-- Open World Mob Pack Validation
-	if instance == "none" and playerInCombat and not br.functions.unit:isCritter(unit) then
+	-- Open World Mob Pack Validation: a pack mate is in combat too (social aggro); one that isn't never
+	-- aggroed, and attacking it pulls it
+	if instance == "none" and playerInCombat and unitInCombat and not br.functions.unit:isCritter(unit) then
 		local unitPointer = br.game.ObjectPointer(unit)
 		local targetPointer = br.game.ObjectPointer("target")
 
