@@ -45,7 +45,7 @@ local castIntentLocks = {} -- Tracks cast intent to prevent multiple cast.able()
 --            nothing that decides it has changed (see behindChanged), at most 3 sec.
 --   range  - "Out of range": this spell, this unit.
 --   cancelled - the player cancelled BR's cast (cast:noteInterrupted): this spell, this unit, until the
---            player changes target, combat starts, or 3 sec.
+--            player changes target (not for a cast on the player), combat starts, or 3 sec.
 --   moving - "Can't do that while moving": this spell on any unit, until the player stops moving (at
 --            most 10 sec). Learned from the game rather than refusing cast-time spells on the move,
 --            since some clients and buffs allow those (2026-10-28: the racial module's Gift of the Naaru
@@ -123,10 +123,15 @@ local function behindChanged(guid, thisUnit)
 		or now.victim ~= was.victim or now.flags ~= was.flags
 end
 
--- A cancel holds only while the player stays out of combat on the target they had when they cancelled
-local targetAtCancel = {} -- rejection key -> the player's target GUID then
+-- A cancel holds only while the player stays out of combat on the target they had when they cancelled. A cast on
+-- the player (a heal on yourself) isn't about the target: only combat ends it early (2026-11-11 20:17: looting a
+-- corpse targets it, so each loot released the after-fight Healing Touch the loot had just interrupted, and it went
+-- out three times for one heal).
+local targetAtCancel = {} -- rejection key -> the player's target GUID then, or false for a cast on the player
 local function cancelReleased(key)
-	return br.game.UnitAffectingCombat("player") or br.game.UnitGUID("target") ~= targetAtCancel[key]
+	if br.game.UnitAffectingCombat("player") then return true end
+	local was = targetAtCancel[key]
+	return was ~= false and br.game.UnitGUID("target") ~= was
 end
 
 -- True while a recent cast of spellID on thisUnit was refused for this reason.
@@ -159,7 +164,7 @@ function cast:noteInterrupted(spellID)
 	if name == nil or name ~= br.functions.spell:getName(lastSend.spellID) then return end
 	cast:setRejected("cancelled", spellID, lastSend.guid)
 	local key = rejectionKey("cancelled", spellID, lastSend.guid)
-	if key then targetAtCancel[key] = br.game.UnitGUID("target") end
+	if key then targetAtCancel[key] = lastSend.unit ~= "player" and br.game.UnitGUID("target") end
 end
 
 -- True while a stronger aura on the unit refused this spell (Buff.lua's refresh checks it).
