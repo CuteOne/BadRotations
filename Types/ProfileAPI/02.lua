@@ -716,12 +716,27 @@ function C59.winning(thisUnit) end
 ---@field dyn40AOE string? The best unit within 40 yards (units.get(40, true))
 local C60 = {}
 
---- Gets the unit to buff from a "Player/Target/Mouseover/Focus/Group" dropdown option.
+--- Gets the unit to buff from a "cast on" dropdown option (choices = "CastOn": You, You + Target,
+--- You + Mouseover, You + Focus, You + Group). Older form of units.castOn: range by distance, no cast check.
 ---@param thisOption? string - Name of the dropdown option.
----@param needsBuff? any - function(unit) returning true if that group member needs the buff (Group mode).
----@param range? number - Maximum range for group members.
----@return string # - Unit token; falls back to "player" when the chosen unit doesn't exist.
+---@param needsBuff? any - function(unit) returning true if that unit needs the buff.
+---@param range? number - Maximum range for others.
+---@return string # - Unit token: you, else the first friendly player the option allows that needs it, else "player".
 function C60.buffUnit(thisOption, needsBuff, range) end
+
+--- The unit a "cast on" dropdown option (choices = "CastOn") puts a helpful spell on now, or nil: you first,
+--- then the option's target, mouseover or focus, or for You + Group each member (lowest health first). Each one
+--- must be a friendly player you can help (alive, online, not charmed), want it (needs) and be castable (able,
+--- usually cast.able.<spell>, which judges range and sight); one that fails is passed over for the next.
+--- ```lua
+--- local thisUnit = units.castOn("Thorns", buff.thorns.refresh, cast.able.thorns, { roles = { "TANK" } })
+--- ```
+---@param thisOption? string - Name of the dropdown option.
+---@param needs? any - function(unit) returning true if that unit wants the spell (nil: anyone).
+---@param able? any - function(unit) returning true if the spell can go on that unit now (nil: no check).
+---@param opts? any - { self = false: leave yourself out; others = false: only yourself (a key not held); roles = { "TANK", ... }: group members in these roles first }.
+---@return string|nil # - Unit token, or nil when nobody qualifies.
+function C60.castOn(thisOption, needs, able, opts) end
 
 --- Gets the "best" unit within a specified range in front or around the player.
 --- Call once per profile rotation and use the variable it creates in units
@@ -12104,38 +12119,3 @@ function C65.timer(timerName, interval) end
 
 
 ---@class BR.Retail.Druid.Feral.cast.empowered : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.empowered.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.inFlight : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.inFlight.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.inFlightRemain : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.inFlightRemain.Spell>
-
-
-
-
----@class BR.Retail.Druid.Feral.cast.last.time : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.last.time.Spell>
-
----@class BR.Retail.Druid.Feral.cast.last : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.last.Spell>
----@field time BR.Retail.Druid.Feral.cast.last.time
-
-
----@class BR.Retail.Druid.Feral.cast.maxRank : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.maxRank.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.noControl : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.noControl.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.opener : BR.cast.opener.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.opener.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.pool : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.pool.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.range : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.range.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.regen : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.regen.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.safe : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.safe.Spell>

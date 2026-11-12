@@ -208,26 +208,72 @@ function unit:getAttackPower(Unit)
 	return base + posBuff + negBuff
 end
 
--- Picks the unit to buff from a "Player/Target/Mouseover/Focus/Group" option value.
--- needsBuff(unit) decides which group member to pick; missing units fall back to the player.
+-- Picks the unit to buff from a "cast on" option value (see getCastOnUnit): you first, then the choice's
+-- unit or group members, each one you can help (canHelp), within range yards and in sight, that
+-- needsBuff(unit) wants. Falls back to the player when none does, so callers still check the buff on it.
 -- local thisUnit = br.functions.unit:getBuffUnit(2, function(u) return true end, 30)
 function unit:getBuffUnit(choice, needsBuff, range)
 	range = range or 40
-	if choice == 2 and unit:GetUnitExists("target") then return "target" end
-	if choice == 3 and unit:GetUnitExists("mouseover") then return "mouseover" end
-	if choice == 4 and unit:GetUnitExists("focus") then return "focus" end
-	if choice == 5 and needsBuff ~= nil then
-		local friends = br.engines.healingEngine.friend
-		if friends ~= nil and #friends > 1 then
-			for i = 1, #friends do
-				local nextUnit = friends[i].unit
-				if needsBuff(nextUnit) and (br.functions.range:getDistance("player", nextUnit) or 99) < range then
-					return nextUnit
-				end
+	local function reaches(thisUnit)
+		return unit:GetUnitIsUnit(thisUnit, "player")
+			or ((br.functions.range:getDistance("player", thisUnit) or 99) < range and br.functions.misc:canSee(thisUnit))
+	end
+	return unit:getCastOnUnit(choice, needsBuff, reaches) or "player"
+end
+
+-- The unit a "cast on" choice adds after you (br.ui.dropOptions.CastOn: 1 You, 2 You + Target, 3 You + Mouseover,
+-- 4 You + Focus, 5 You + Group). The order is the old Player/Target/Mouseover/Focus/Group one, so saved settings keep
+-- their meaning.
+local castOnTokens = { [2] = "target", [3] = "mouseover", [4] = "focus" }
+local CAST_ON_GROUP = 5
+
+-- The first unit a "cast on" choice allows for a helpful spell: you first, then the choice's unit, or for the group
+-- its members in the healing engine's order (lowest health first; members whose role is in opts.roles before the
+-- rest, in that order). Each must pass canHelp, needs(unit) (does it want the spell) and able(unit) (can it take
+-- the spell now: cast.able.<spell>, which judges range and sight). A unit that fails is passed over for the next,
+-- so one dead or out-of-sight member doesn't hold up the rest. nil when none qualifies.
+-- opts (optional): self = false leaves you out, others = false keeps it to you (say, a key option not held),
+-- roles = { "TANK", ... }.
+-- local thisUnit = br.functions.unit:getCastOnUnit(5, needsThorns, canThorns, { roles = { "TANK" } })
+function unit:getCastOnUnit(choice, needs, able, opts)
+	local function fits(thisUnit)
+		return unit:canHelp(thisUnit) and (needs == nil or needs(thisUnit)) and (able == nil or able(thisUnit))
+	end
+	if (opts == nil or opts.self ~= false) and fits("player") then return "player" end
+	if opts ~= nil and opts.others == false then return nil end
+	local token = castOnTokens[choice]
+	if token ~= nil then
+		if not unit:GetUnitIsUnit(token, "player") and fits(token) then return token end
+		return nil
+	end
+	if choice ~= CAST_ON_GROUP then return nil end
+	local friends = br.engines.healingEngine and br.engines.healingEngine.friend or {}
+	local roles = opts ~= nil and opts.roles or {}
+	-- each role's pass in order, then a last pass (pass #roles + 1, role nil) for members with none of them
+	local rank = {}
+	for r = 1, #roles do rank[roles[r]] = rank[roles[r]] or r end
+	for pass = 1, #roles + 1 do
+		for i = 1, #friends do
+			local thisUnit = friends[i].unit
+			if thisUnit ~= nil and not unit:GetUnitIsUnit(thisUnit, "player")
+				and (rank[unit:getRole(thisUnit)] or #roles + 1) == pass and fits(thisUnit)
+			then
+				return thisUnit
 			end
 		end
 	end
-	return "player"
+	return nil
+end
+
+-- A unit BR may put a helpful spell on: you while alive, or a friendly player there, alive, online, one you can
+-- assist (never an enemy player) and not under another's control. NPCs and pets don't count. Range and line of
+-- sight are the spell's to judge (cast.able).
+-- if br.functions.unit:canHelp("target") then
+function unit:canHelp(thisUnit)
+	if thisUnit == nil or not unit:GetUnitExists(thisUnit) or unit:GetUnitIsDeadOrGhost(thisUnit) then return false end
+	if unit:GetUnitIsUnit(thisUnit, "player") then return true end
+	return unit:isPlayer(thisUnit) and br.game.UnitCanAssist("player", thisUnit) and br.game.UnitIsConnected(thisUnit)
+		and not br.game.UnitIsCharmed(thisUnit) and true or false
 end
 
 -- The unit's class token ("DRUID", "DEATHKNIGHT", ...)

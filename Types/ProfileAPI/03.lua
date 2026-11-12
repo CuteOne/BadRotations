@@ -6,6 +6,41 @@
 -- profiles use. The game never loads these files.
 
 
+---@class BR.Retail.Druid.Feral.cast.inFlight : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.inFlight.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.inFlightRemain : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.inFlightRemain.Spell>
+
+
+
+
+---@class BR.Retail.Druid.Feral.cast.last.time : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.last.time.Spell>
+
+---@class BR.Retail.Druid.Feral.cast.last : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.last.Spell>
+---@field time BR.Retail.Druid.Feral.cast.last.time
+
+
+---@class BR.Retail.Druid.Feral.cast.maxRank : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.maxRank.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.noControl : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.noControl.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.opener : BR.cast.opener.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.opener.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.pool : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.pool.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.range : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.range.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.regen : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.regen.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.safe : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.safe.Spell>
+
+
 ---@class BR.Retail.Druid.Feral.cast.time : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.time.Spell>
 
 

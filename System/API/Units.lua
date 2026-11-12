@@ -13,14 +13,31 @@ br.api.build.units = function(api)
     -- The profile's own target weight is cleared whenever the profile is built
     br.engines.targeting.customWeight = nil
 
-    --- Gets the unit to buff from a "Player/Target/Mouseover/Focus/Group" dropdown option.
+    --- Gets the unit to buff from a "cast on" dropdown option (choices = "CastOn": You, You + Target,
+    -- You + Mouseover, You + Focus, You + Group). Older form of units.castOn: range by distance, no cast check.
     -- @function units.buffUnit
     -- @string thisOption - Name of the dropdown option.
-    -- @param needsBuff - function(unit) returning true if that group member needs the buff (Group mode).
-    -- @number[opt=40] range - Maximum range for group members.
-    -- @return string - Unit token; falls back to "player" when the chosen unit doesn't exist.
+    -- @param needsBuff - function(unit) returning true if that unit needs the buff.
+    -- @number[opt=40] range - Maximum range for others.
+    -- @return string - Unit token: you, else the first friendly player the option allows that needs it, else "player".
     units.buffUnit = function(thisOption, needsBuff, range)
         return br.functions.unit:getBuffUnit(br.functions.misc:getValue(thisOption), needsBuff, range)
+    end
+
+    --- The unit a "cast on" dropdown option (choices = "CastOn") puts a helpful spell on now, or nil: you first,
+    -- then the option's target, mouseover or focus, or for You + Group each member (lowest health first). Each one
+    -- must be a friendly player you can help (alive, online, not charmed), want it (needs) and be castable (able,
+    -- usually cast.able.<spell>, which judges range and sight); one that fails is passed over for the next.
+    -- @function units.castOn
+    -- @string thisOption - Name of the dropdown option.
+    -- @param needs - function(unit) returning true if that unit wants the spell (nil: anyone).
+    -- @param able - function(unit) returning true if the spell can go on that unit now (nil: no check).
+    -- @param[opt] opts - { self = false: leave yourself out; others = false: only yourself (a key not held);
+    --   roles = { "TANK", ... }: group members in these roles first }.
+    -- @return string|nil - Unit token, or nil when nobody qualifies.
+    -- @usage local thisUnit = units.castOn("Thorns", buff.thorns.refresh, cast.able.thorns, { roles = { "TANK" } })
+    units.castOn = function(thisOption, needs, able, opts)
+        return br.functions.unit:getCastOnUnit(br.functions.misc:getValue(thisOption), needs, able, opts)
     end
 
     --- Gets the "best" unit within a specified range in front or around the player.
