@@ -450,8 +450,7 @@ function combatLog:common(...)
                 local info = br.game.C_Spell.GetSpellInfo(spell)
                 local castTime = info and info.castTime or 0
                 if
-                    (param == "SPELL_CAST_SUCCESS" and castTime == 0) or (param == "SPELL_CAST_START" and castTime > 0) or
-                    spell == br.lastCast
+                    (param == "SPELL_CAST_SUCCESS" and castTime == 0) or (param == "SPELL_CAST_START" and castTime > 0)
                 then
                     br.engines.cast:noteSucceeded()
                     if #br.engines.cast.queue ~= 0 then
@@ -478,12 +477,7 @@ function combatLog:common(...)
     -- servers pet ability failures can fire with the player's GUID as source, so the name
     -- check is the reliable discriminator between player and pet cast failures.
     if param == "SPELL_CAST_FAILED" and sourceName == br.game.UnitName("player") then
-        if br.functions.lastCast and br.functions.lastCast.lastCastTable then
-            if not br.functions.lastCast.lastCastTable.lastFailedReason then
-                br.functions.lastCast.lastCastTable.lastFailedReason = {}
-            end
-            br.functions.lastCast.lastCastTable.lastFailedReason[spell] = spellType
-        end
+        br.engines.cast:noteFailedReason(spell, spellType)
     end
     ---------------------
     --[[Debuff Tracking]]

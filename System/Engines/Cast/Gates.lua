@@ -244,7 +244,7 @@ end)
 -- When this spell last went off (UNIT_SPELLCAST events), 0 if it hasn't. Read only: writing a
 -- placeholder here made cast.timeSinceLast report a spell that was never cast as just cast.
 defineGroup({ "lastCastTime" }, function(ctx)
-	rawset(ctx, "lastCastTime", br.functions.lastCast.lastCastTable.castTime[ctx.spellID] or 0)
+	rawset(ctx, "lastCastTime", cast:getLastCastTime(ctx.spellID))
 end)
 
 local contextMeta = {

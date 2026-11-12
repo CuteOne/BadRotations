@@ -60,10 +60,8 @@ local function stepIDs(id)
 end
 
 local function castSince(ids, since)
-	local castTime = br.functions.lastCast.lastCastTable.castTime
 	for i = 1, #ids do
-		local at = castTime[ids[i]]
-		if at ~= nil and at > since then return true end
+		if cast:getLastCastTime(ids[i]) > since then return true end
 	end
 	return false
 end

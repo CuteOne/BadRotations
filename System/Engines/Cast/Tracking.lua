@@ -369,11 +369,8 @@ function cast:handleCastError(message)
 	if report or (nearSend and notReady and br.debug.cast) then
 		local lastCastGUID = lastSend.guid
 		br.game.C_Timer.After(0, function()
-			local failed = br.functions.lastCast and br.functions.lastCast.lastCastTable
-			if not (failed and failed.lastFailedSpellID and failed.lastFailedAt and math.abs(failed.lastFailedAt - errorAt) <= 0.1) then
-				return
-			end
-			local spellID = failed.lastFailedSpellID
+			local spellID, failedAt = cast:getLastFailure()
+			if not (spellID and failedAt and math.abs(failedAt - errorAt) <= 0.1) then return end
 			-- BR's, or the player's own key press (2026-11-05: the player's Entangling Roots refused "not ready" as
 			-- BR's Wrath took the GCD 0.03 s before; both the chat line and Cast.log blamed BR)
 			local sentAt = E.sentAt[spellID]
@@ -873,7 +870,7 @@ function E.takeCastStartSnapshot(spellID)
 		gcdBefore = br.functions.spell:getGlobalCD(),
 		castingBefore = br.game.UnitCastingInfo("player") ~= nil,
 		channelingBefore = br.game.UnitChannelInfo("player") ~= nil,
-		prevLastCastTime = (br.functions.lastCast and br.functions.lastCast.lastCastTable and br.functions.lastCast.lastCastTable.castTime and br.functions.lastCast.lastCastTable.castTime[spellID]) or 0,
+		prevLastCastTime = cast:getLastCastTime(spellID),
 		spellCdBefore = spellCdBefore,
 		currentSpellBefore = currentSpellBefore,
 		buffBefore = buffBefore,
@@ -888,7 +885,7 @@ end
 -- Any of these signals confirms success without waiting for events.
 --
 -- Stage 2 (deferred event fallback): If no synchronous signal is observed but
--- lastCastTable.castTime[spellID] was updated (populated by UNIT_SPELLCAST_* events),
+-- the spell's last cast time (History.lua, from UNIT_SPELLCAST_SUCCEEDED) moved,
 -- that event-driven confirmation is accepted as success on the next check.
 --
 -- 'inconclusive' is returned when no signal has arrived in either stage yet.
@@ -903,7 +900,7 @@ function E.verifyCastStarted(spellID, snapshot, expectedSpellName)
 	local spellCdAfter = (br.functions.spell and br.functions.spell.getSpellCD) and (br.functions.spell:getSpellCD(spellID) or 0) or 0
 	local currentSpellAfter = br.game.C_Spell.IsCurrentSpell(spellID) == true
 	local buffAfter = (br.functions.aura and br.functions.aura.UnitBuffID) and (br.functions.aura:UnitBuffID("player", spellID) ~= nil) or false
-	local failedAt = (br.functions.lastCast and br.functions.lastCast.lastCastTable and br.functions.lastCast.lastCastTable.failedTime and br.functions.lastCast.lastCastTable.failedTime[spellID]) or 0
+	local failedAt = cast:getLastFailedTime(spellID) or 0
 	local recentlyFailed = failedAt ~= 0 and (br.game.GetTime() - failedAt) < 0.20
 
 	local startedNewCast = castingAfter and not snapshot.castingBefore
@@ -935,7 +932,7 @@ function E.verifyCastStarted(spellID, snapshot, expectedSpellName)
 		castSucceeded = false
 	end
 
-	local newLastCastTime = (br.functions.lastCast and br.functions.lastCast.lastCastTable and br.functions.lastCast.lastCastTable.castTime and br.functions.lastCast.lastCastTable.castTime[spellID])
+	local newLastCastTime = cast:getLastCastTime(spellID)
 	if not castSucceeded and newLastCastTime and newLastCastTime ~= 0 and newLastCastTime ~= snapshot.prevLastCastTime and (br.game.GetTime() - newLastCastTime) < 1 then
 		castSucceeded = true
 	end

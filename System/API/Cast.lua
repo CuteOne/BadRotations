@@ -307,16 +307,15 @@ br.api.build.cast = function(api, spell, id)
     -- @number index Number of last cast spell up to 10 previous spells, default value is 1 if not provided.
     -- @treturn boolean
     cast.last[spell] = function(index)
-        local tracker = br.functions.lastCast.lastCastTable.tracker
-        index = index or 1
-        return tracker[index] and tracker[index] == currentRank()
+        local recent = br.engines.cast:getRecentCast(index or 1)
+        return recent ~= nil and recent == currentRank()
     end
 
     --- Gets the GetTime() value the last cast of this spell occurred, or 0 if it hasn't been cast.
     -- @function cast.last.time.<spell>
     -- @treturn number
     cast.last.time[spell] = function()
-        return br.functions.lastCast.lastCastTable.castTime[currentRank()] or 0
+        return br.engines.cast:getLastCastTime(currentRank())
     end
 
     --- Runs the macro text passed to it. Optionally integrates with the cast gate's
@@ -514,7 +513,7 @@ br.api.build.cast = function(api, spell, id)
     -- @function cast.timeSinceLast.<spell>
     -- @treturn number
     cast.timeSinceLast[spell] = function()
-        return br.functions.misc:getTime() - (br.functions.lastCast.lastCastTable.castTime[currentRank()] or 0)
+        return br.functions.misc:getTime() - br.engines.cast:getLastCastTime(currentRank())
     end
 
     --- Checks if the provided condition is true else it waits for 0.1sec.

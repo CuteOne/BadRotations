@@ -239,7 +239,7 @@ function misc:ownCastHold()
 	if br.client.rules.hasBFAItemChannels then
 		local sb    = br.lists.spells.Shared.Shared.buffs
 		local items = br.lists.items
-		local lastCast = br.functions.lastCast.lastCastTable.tracker[1]
+		local lastCast = br.engines.cast:getRecentCast(1)
 		if misc.pauseCast - now <= 0 then
 			local hasted = (1 - br.game.UnitSpellHaste("player") / 100)
 			-- Focused Azerite Beam
@@ -284,7 +284,7 @@ function misc:ownCastHold()
 	if castName ~= nil then
 		local window = br.game.UnitAffectingCombat("player") and br.engines.cast:getQueueWindow() or 0
 		if window > 0 and castSpellID ~= nil and misc:canUseValue(castSpellID)
-			and not br.functions.lastCast:isAbility(castSpellID)
+			and not br.engines.cast:isAbility(castSpellID)
 		then
 			window = 0
 		end

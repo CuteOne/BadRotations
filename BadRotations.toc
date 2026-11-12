@@ -95,7 +95,7 @@ System\Functions\Combat.lua
 System\Functions\Custom.lua
 System\Functions\InFlight.lua
 System\Functions\Item.lua
-System\Functions\LastCast.lua
+System\Engines\Cast\History.lua
 System\Functions\Misc\Values.lua
 System\Functions\Misc\Player.lua
 System\Functions\Misc\Sight.lua

@@ -105,10 +105,7 @@ function E.printReport(ctx, debugOnly, debugReason, thisCount)
 		elseif debugReason == "No Control" then
 			reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — player is crowd controlled.")
 		elseif debugReason == "Cast Failed" then
-			local wowReason = br.functions.lastCast
-				and br.functions.lastCast.lastCastTable
-				and br.functions.lastCast.lastCastTable.lastFailedReason
-				and br.functions.lastCast.lastCastTable.lastFailedReason[ctx.spellID]
+			local wowReason = cast:getFailedReason(ctx.spellID)
 			if wowReason and wowReason ~= "" then
 				reportLine(expected, spellID, reasonCode, false, prefix .. ctx.spellName .. " — WoW rejected: " .. wowReason)
 			else

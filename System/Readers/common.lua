@@ -150,7 +150,6 @@ function common:commonReaders()
 			br.Rake_sDamage = {}
 			br.Thrash_sDamage = {}
 			br.petAttacking = false
-			br.functions.lastCast.lastCastTable.line_cd = {}
 			br.game.wipe(br.readers.combatLog.debuffTracker)
 		end
 	end
@@ -397,7 +396,7 @@ function common:commonReaders()
 		then
 			br.engines.cast:clearSpellFacts()
 			br.functions.spell:clearRankCache()
-			br.functions.lastCast:clearAbilityIDs()
+			br.engines.cast:clearAbilityIDs()
 			if event == "SPELLS_CHANGED" and br.runner then br.runner:noteSpellsChanged() end
 			br.functions.range:invalidateMeleeSpellCache()
 		end

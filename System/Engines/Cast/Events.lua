@@ -3,7 +3,7 @@ br.engines.cast = br.engines.cast or {}
 local cast = br.engines.cast
 -- The player's cast events, read once: one frame for the game's UNIT_SPELLCAST_* on "player", handing each event to
 -- the parts of BR that follow the player's casts. Loaded ahead of the files that subscribe (RotationLog, the
--- Readers, Debugging, the Functions), so it sits early in the toc; what it calls on an event exists by then.
+-- Readers, Debugging, the Functions, History), so it sits early in the toc; what it calls on an event exists by then.
 --
 -- Subscribers, in the order they're called (the order they subscribe, which is the toc's):
 --   1. the cast engine itself (below): BR's send answered (cast:noteSucceeded), failed or interrupted, the Queue
@@ -11,7 +11,7 @@ local cast = br.engines.cast
 --   2. RotationLog: the Rotation window's rows
 --   3. Debugging recorders: Melee.log, the swing-around-a-cast probe, Idle.log, Cast.log, Aggro.log
 --   4. Item: weapon imbues landing
---   5. LastCast: the cast history (cast.last, timeSinceLast)
+--   5. History: the cast history (cast.last, timeSinceLast)
 --   6. Misc/Units: enemy players you engaged
 --   7. Misc/Pause: your own key press holding BR's sends
 --   8. Unit: the bleed-immune learning
