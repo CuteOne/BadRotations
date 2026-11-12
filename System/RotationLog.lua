@@ -416,8 +416,9 @@ local function onEvent(event, a, b, c)
 	end
 	local unit, spellID = a, c
 	if unit ~= "player" or spellID == nil or not br.functions or not br.functions.spell then return end
-	if event == "UNIT_SPELLCAST_START" then
-		-- a cast with a cast time answers when it ends: wait from then
+	if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_DELAYED" then
+		-- a cast with a cast time answers when it ends: wait from then, and from its new end when pushed back
+		-- (2026-11-11: a Healing Touch pushed back 6 times said "no answer", then came back as the player's own)
 		local i = findAwaiting(spellID)
 		local endMS = i and select(5, br.game.UnitCastingInfo("player"))
 		if endMS then awaiting[i].at = math.max(awaiting[i].at, br.functions.misc:plainNumber(endMS) / 1000) end
@@ -452,7 +453,7 @@ events:SetScript("OnEvent", function(_, event, a, b, c) onEvent(event, a, b, c) 
 -- A send the game turned away while another cast was still on (2026-11-01, TBC: a Lightning Shield pre-cast refused
 -- "Another action is in progress" after a pushback) fails quietly. Without FAILED_QUIET the send stayed waiting and
 -- took the next cast of the spell as its answer; that one then said "no answer".
-br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_START", "UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_SUCCEEDED",
+br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_START", "UNIT_SPELLCAST_DELAYED", "UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_SUCCEEDED",
 	"UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_FAILED_QUIET", "UNIT_SPELLCAST_INTERRUPTED" }, onEvent)
 
 ---------------------------------------------------------------------------------------------------
