@@ -742,9 +742,17 @@ function spell:getRankAmount(spellID)
 	if guess == nil then
 		local desc = br.game.C_Spell.GetSpellDescription(spellID)
 		if type(desc) ~= "string" or desc == "" then return nil end -- not loaded yet: asked again later
-		local low, high = desc:match("(%d[%d,]*)%s*%S+%s*(%d[%d,]*)")
-		low, high = tonumber(low and (low:gsub(",", ""))), tonumber(high and (high:gsub(",", "")))
-		guess = (low and high and low <= high) and (low + high) / 2 or false
+		-- The first "<low> <word> <high>" that is a range: a word between them (no digits, so one number
+		-- isn't split in two: Mark of the Wild's "142" was a heal of 1 to 2), and high no more than double
+		-- low (a rank's spread; "by 5 for 30 min" isn't one)
+		guess = false
+		for a, b in desc:gmatch("(%d[%d,]*)%s*[^%d%s]+%s*(%d[%d,]*)") do
+			local low, high = tonumber((a:gsub(",", ""))), tonumber((b:gsub(",", "")))
+			if low and high and low > 0 and low <= high and high <= 2 * low then
+				guess = (low + high) / 2
+				break
+			end
+		end
 		tooltipAmounts[spellID] = guess
 	end
 	return guess or nil
