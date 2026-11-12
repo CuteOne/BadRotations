@@ -24,7 +24,7 @@ The codebase follows strict **layers** — each calls only the one below it (`.t
 |------|------|------|
 | Profiles | `Rotations/` | Run with the profile API as their environment and reach nothing else: no `br`, no game API |
 | Profile API | `br.api.profile` | The tables profiles use (`cast`, `buff`, `cd`, `unit`, `enemies`, `ui`, …), built by the `br.api.build.*` builders in `System/API/`; they call `br.functions` (and the engines and readers) |
-| Functions | `br.functions.*` | Range checks, aura scans, unit queries, casting (`System/Functions/`), with the engines and readers; they call `br.game` |
+| Functions | `br.functions.*` | Range checks, aura scans, unit queries (`System/Functions/`), with the engines (casting is `br.engines.cast`) and readers; they call `br.game` |
 | Game | `br.game` | The game's API as BR sees it: BR's own versions, polyfills, the unlocker, the client (`Expansions/Layers.lua`); write against the modern API. Polyfills (`br.client.polyfills`, `Expansions/Polyfills.lua`) give the modern API where a client lacks it; code calls `br.game`, not them |
 
 The runner, `br.runner` (`System/Loader/Rotation.lua`), sits beside the profile API: it builds it, keeps the spec's compiled spell lists (`br.runner.spells`) and per-tick state (`br.runner.state`), and runs the selected rotation each tick.
@@ -38,7 +38,7 @@ The runner, `br.runner` (`System/Loader/Rotation.lua`), sits beside the profile 
 | `System/Bootstrap.lua` | The startup stages, from entering the world to running: unlocker → spell lists → rotations → profile → settings → build → UI → running |
 | `System/Core.lua` | The rotating body: one frame loop running the frame and tick steps (`br.core`) |
 | `System/API/` | 20 API modules (Buff, Cast, CD, Unit, Spell, Enemies, Power, Talent, …) |
-| `System/Engines/` | Game systems: EnemiesEngine, HealingEngine, Tracker, LootEngine |
+| `System/Engines/` | Game systems: EnemiesEngine, HealingEngine, Tracker, LootEngine, and the cast engine `Cast/` (`br.engines.cast`): `Events.lua` reads the player's cast events once and hands them to subscribers (`cast:onPlayerCast`), `Tracking.lua` keeps BR's send record and what's promised (power, heals, the mana to shift back), `Gates.lua` / `Dispatch.lua` / `CastFunction.lua` / `Helpers.lua` check and send a cast, `History.lua` keeps what the player cast, `Opener.lua` runs opener sequences |
 | `System/Readers/` | Event readers: the combat log and other game events |
 | `System/Loader/` | `ProfileLoader` (finds/runs rotation files in the profile API, `registerRotation`, `loadSupport`), `SpellCompiler` (spell lists, talents, ranks), `ProfileAPI` (`br.api.profile`: the profile environment and its build), `ProfileUI` (options window pages, toggle bar), `Rotation` (`br.runner`: the runner and its per-tick update) |
 | `System/UI/` | Windows, option elements (`Elements/`: `br.ui:section`, `br.ui:checkbox`, `br.ui:spinner`, `br.ui:dropdown`, …), toggles (`Toggles/`: `br.ui:toggle`), settings storage (`SettingsManagement`) |

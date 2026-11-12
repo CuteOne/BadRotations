@@ -1,6 +1,11 @@
 local _, br = ...
 br.engines.cast = br.engines.cast or {}
 local cast = br.engines.cast
+-- The cast engine (br.engines.cast), one file per part, in toc order: Events.lua (the player's cast events, read once,
+-- handed to subscribers), this file (BR's send record, rejections, what's promised: power, heals, the mana to shift
+-- back), Helpers.lua, Gates.lua (the checks), Dispatch.lua (the send), CastFunction.lua (what cast.<spell>() runs),
+-- Opener.lua (opener sequences), History.lua (what the player cast). Outside the engine, only its cast:... methods;
+-- cast.internal (E) is shared by these files and nothing else.
 -- State and helpers shared by the files in System/Engines/Cast (internal, not for profiles)
 cast.internal = cast.internal or {}
 local E = cast.internal
