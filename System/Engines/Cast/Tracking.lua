@@ -205,7 +205,6 @@ end
 -- Remember which spell BR last sent and at whom, so UI errors can be pinned on it.
 -- spell ID -> when BR last sent it: a refused spell BR didn't send lately is the player's own key press
 E.sentAt = {}
-local BR_SEND_WINDOW = 6 -- seconds: a pre-cast refused at its handover, an on-next-swing attack failing at the swing
 
 E.sentTo = {} -- spell ID -> the GUID BR last sent it at
 E.sentToUnit = {} -- spell ID -> the unit BR last sent it at, as asked (for a GUID BR may not use)
@@ -213,9 +212,13 @@ E.sentToUnit = {} -- spell ID -> the unit BR last sent it at, as asked (for a GU
 -- When BR last sent or used anything (a spell, a form, an item, a macro, auto attack). Every BR send marks it
 -- just before the game call, so a UNIT_SPELLCAST_SENT the game fires during the call is known as BR's.
 E.lastBotActionAt = nil
-local OWN_SEND_WINDOW = 0.5 -- seconds: a SENT this soon after BR sent the same spell is BR's
 -- spell name -> when BR last sent it: a pre-cast's SENT comes at the queue's handover, maybe as another rank's ID
 local sentNameAt = {}
+
+-- How long after BR sent a spell what the game says about it is still about BR's send (cast:isBotSend), by what
+-- the game says: its UNIT_SPELLCAST_SENT (fired during the call, or at a pre-cast's handover), or a refusal (a
+-- pre-cast refused at its handover, an on-next-swing attack failing at its swing). Later, it's the player's key press.
+E.BOT_WINDOWS = { sent = 0.5, refused = 6 }
 
 --- Marks a BR send or use about to go out (a spell, an item, auto attack); spellID (optional) is the spell it casts.
 -- Call it just before the game call, so the game's UNIT_SPELLCAST_SENT during the call is known as BR's.
@@ -235,20 +238,24 @@ function E.noteBotAction(spellID)
 	end
 end
 
---- True when a UNIT_SPELLCAST_SENT for spellID is BR's own: BR sent that spell (any rank) in the last half second,
--- or BR acted in this very frame (the game fires SENT inside the call; a key press is handled apart from BR's
--- tick). Otherwise it's the player's key press.
-function cast:isBotSend(spellID) return E.isBotSend(spellID) end
+--- True when what the game says about spellID now is about BR's own send, not the player's key press: BR sent that
+--- spell (any rank) within the window named (E.BOT_WINDOWS: "sent", the default, for its UNIT_SPELLCAST_SENT;
+--- "refused" for a refusal naming it). A SENT also counts as BR's when BR acted in this very frame (the game fires
+--- SENT inside the call; a key press is handled apart from BR's tick).
+-- if not br.engines.cast:isBotSend(spellID) then -- the player's own key press
+function cast:isBotSend(spellID, window) return E.isBotSend(spellID, window) end
 
-function E.isBotSend(spellID)
+function E.isBotSend(spellID, window)
 	local now = br.game.GetTime()
-	if E.lastBotActionAt == now then return true end
+	window = window or "sent"
+	if window == "sent" and E.lastBotActionAt == now then return true end
 	if spellID == nil then return false end
+	local span = assert(E.BOT_WINDOWS[window], "no such window")
 	local sentAt = E.sentAt[spellID]
-	if sentAt ~= nil and now - sentAt <= OWN_SEND_WINDOW then return true end
+	if sentAt ~= nil and now - sentAt <= span then return true end
 	local name = br.functions.spell:getName(spellID)
 	sentAt = name ~= nil and sentNameAt[name] or nil
-	return sentAt ~= nil and now - sentAt <= OWN_SEND_WINDOW
+	return sentAt ~= nil and now - sentAt <= span
 end
 
 -- BR's last send with a cast time, and when: "Can't do that while moving" is about that one, not the
@@ -373,8 +380,7 @@ function cast:handleCastError(message)
 			if not (spellID and failedAt and math.abs(failedAt - errorAt) <= 0.1) then return end
 			-- BR's, or the player's own key press (2026-11-05: the player's Entangling Roots refused "not ready" as
 			-- BR's Wrath took the GCD 0.03 s before; both the chat line and Cast.log blamed BR)
-			local sentAt = E.sentAt[spellID]
-			local mine = sentAt ~= nil and errorAt - sentAt <= BR_SEND_WINDOW
+			local mine = E.isBotSend(spellID, "refused")
 			if notReady and br.debug.cast then br.debug.cast:noteNotReady(spellID, not mine) end
 			if not report then return end
 			local spellName = tostring(br.functions.spell:getName(spellID))
