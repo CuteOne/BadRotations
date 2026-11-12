@@ -80,7 +80,7 @@ local function options()
     -- Primal Wrath Usage
     ui.dropdown(section, "Primal Wrath Usage", { choices = { "|cffFFFF00Always", "|cff00FF00Refresh Only" }, checkbox = false })
     -- Mark of the Wild
-    ui.dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+    ui.dropdown(section, "Mark of the Wild", { choices = "CastOn", value = "You",
         tip = "Set how to use Mark of the Wild" })
     -----------------------------
     --- SimC Specific Options ---
@@ -222,37 +222,6 @@ local function usePrimalWrath()
     end
     return false
 end
--- Get Mark Unit Option
-local getMarkUnitOption = function(option)
-    local thisTar = ui.value(option)
-    local thisUnit
-    if thisTar == 1 then
-        thisUnit = "player"
-    end
-    if thisTar == 2 then
-        thisUnit = "target"
-    end
-    if thisTar == 3 then
-        thisUnit = "mouseover"
-    end
-    if thisTar == 4 then
-        thisUnit = "focus"
-    end
-    if thisTar == 5 then
-        thisUnit = "player"
-        if #units.friends > 1 then
-            for i = 1, #units.friends do
-                local nextUnit = units.friends[i].unit
-                if buff.markOfTheWild.refresh(nextUnit) and unit.distance(var.markUnit) < 40 then
-                    thisUnit = nextUnit
-                    break
-                end
-            end
-        end
-    end
-    return thisUnit
-end
-
 --------------------
 --- Action Lists ---
 --------------------
@@ -380,10 +349,8 @@ actionList.Extras = function()
     end     -- End Death Cat Mode
     -- Mark of the Wild
     if ui.checked("Mark of the Wild") then
-        var.markUnit = getMarkUnitOption("Mark of the Wild")
-        if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
-            and not (buff.prowl.exists() or buff.shadowmeld.exists()) and not unit.resting() and unit.distance(var.markUnit) < 40
-        then
+        var.markUnit = units.castOn("Mark of the Wild", buff.markOfTheWild.refresh, cast.able.markOfTheWild)
+        if var.markUnit and not (buff.prowl.exists() or buff.shadowmeld.exists()) and not unit.resting() then
             if cast.markOfTheWild(var.markUnit) then
                 ui.debug("Casting Mark of the Wild")
                 return true

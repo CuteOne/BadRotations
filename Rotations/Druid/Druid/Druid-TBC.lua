@@ -93,7 +93,7 @@ local function options()
     -- Self-Innervate
     ui.checkbox(section, "Self-Innervate", { tip = "Enable/Disable Using Innervate on Self" })
     -- Mark of the Wild
-    ui.dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+    ui.dropdown(section, "Mark of the Wild", { choices = "CastOn", value = "You",
         tip = "Set how to use Mark of the Wild" })
     -- Gift of the Wild
     ui.checkbox(section, "Gift of the Wild", { checked = true,
@@ -102,7 +102,7 @@ local function options()
     ui.dropdown(section, "Omen of Clarity", { choices = { "Any", "Focus DPS", "Focus Healing", "None" }, value = "Any",
         tip = "Select how to use Omen of Clarity procs" })
     -- Thorns
-    ui.dropdown(section, "Thorns", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+    ui.dropdown(section, "Thorns", { choices = "CastOn", value = "You",
         tip = "Set how to use Thorns" })
     -- Tiger's Fury
     ui.checkbox(section, "Tiger's Fury", { tip = "Enable/Disable Using Tiger's Fury" })
