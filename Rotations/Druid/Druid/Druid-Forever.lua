@@ -558,9 +558,10 @@ actionList.Defensive = function()
                 return true
             end
         end
-        -- Cower: in a group, when the target turns on you in Cat Form
+        -- Cower: in a group, when the mob you fight turns on you in Cat Form (that mob's threat: another one
+        -- on you isn't helped by cowering this one)
         if ui.checked("Cower") and unit.inGroup() and buff.catForm.exists() and cast.able.cower(units.dyn5)
-            and unit.threatStatus() >= 2 and unit.role("player") ~= "TANK" and unit.isTankInRange()
+            and unit.threatStatus(units.dyn5) >= 2 and unit.role("player") ~= "TANK" and unit.isTankInRange()
         then
             if cast.cower(units.dyn5) then
                 ui.debug("Casting Cower")
