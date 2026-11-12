@@ -120,17 +120,17 @@ local function options()
     ui.spinner(section, "Innervate", { value = 30, min = 5, checked = true, tip = "Self-Innervate at or below this Mana Percent" })
 
     section = ui.section("Buffs")
-    ui.dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, checked = true,
-        tip = "Set how to use Mark of the Wild" })
-    ui.dropdown(section, "Thorns", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, checked = true,
-        tip = "Set how to use Thorns" })
+    ui.dropdown(section, "Mark of the Wild", { choices = "CastOn", checked = true,
+        tip = "Who gets Mark of the Wild out of combat: you, then your target, mouseover, focus or group members (friendly players only)" })
+    ui.dropdown(section, "Thorns", { choices = "CastOn", checked = true,
+        tip = "Who gets Thorns out of combat: you, then your target, mouseover, focus or group members (tanks first; friendly players only)" })
 
     section = ui.section("Defensive")
     ui.checkbox(section, "Self Heal In Group", { checked = true, tip = "Heal yourself in a group even when it has a healer. Off: only while the group has none (no member in the Healer role or seen healing others), or yours is dead or beyond 40 yards" })
-    ui.dropdown(section, "Heal Others", { choices = { "Player", "Target", "Mouseover", "Focus" }, checkbox = false,
-        tip = "Besides yourself, also heal this friendly player with the heals below (Player: only yourself)" })
+    ui.dropdown(section, "Heal Others", { choices = "CastOn", checkbox = false,
+        tip = "Who the heals below go on besides you: your target, mouseover, focus, or the group member lowest on health (You: only yourself; friendly players only, at the same thresholds)" })
     ui.dropdown(section, "Heal Others Key", { choices = "Toggle", value = "None", checkbox = false,
-        tip = "Only heal the Heal Others unit while this key is held (None: no key needed)" })
+        tip = "Only heal others while this key is held (None: no key needed)" })
     ui.spinner(section, "Healing Touch", { value = 35, checked = true, tip = "Health Percent to Cast At" })
     ui.checkbox(section, "Nature's Swiftness", { checked = true, tip = "Make an emergency Healing Touch instant with Nature's Swiftness (talent)" })
     ui.spinner(section, "Regrowth", { value = 55, checked = true, tip = "Health Percent to Cast At (Swiftmend first when a heal over time is on you)" })
@@ -138,8 +138,10 @@ local function options()
     ui.spinner(section, "Barkskin", { value = 65, checked = true, tip = "Health Percent to Cast At" })
     ui.spinner(section, "Frenzied Regeneration", { value = 45, checked = true, tip = "Health Percent to Cast At (Bear Form)" })
     ui.spinner(section, "Bash", { value = 35, tip = "Health Percent to stun your target at (Bear Form)" })
-    ui.checkbox(section, "Cure Poison", { checked = true, tip = "Cure poisons on yourself (uses Abolish Poison once learned). In combat only while already out of Cat or Bear Form (for a heal, say)" })
-    ui.checkbox(section, "Remove Curse", { checked = true, tip = "Remove curses on yourself out of combat" })
+    ui.dropdown(section, "Cure Poison", { choices = "CastOn", checked = true,
+        tip = "Cure poisons on you, then your target, mouseover, focus or group members (uses Abolish Poison once learned). In combat only while already out of Cat or Bear Form (for a heal, say)" })
+    ui.dropdown(section, "Remove Curse", { choices = "CastOn", checked = true,
+        tip = "Remove curses out of combat from you, then your target, mouseover, focus or group members" })
     ui.checkbox(section, "Entangling Roots", { tip = "Entangling Roots on fleeing enemies, only when already out of Cat or Bear Form (a fleeing target Cat or Bear can't catch is finished from range). A target running in fear: only with the Forms toggle on Auto." })
     ui.spinner(section, "Nature's Grasp", { value = 40,
         tip = "Escape tool: cast at or below this Health Percent while running from an enemy chasing you within 10 yards. The root breaks on damage, so it's meant for fleeing, not fighting." })
@@ -245,19 +247,18 @@ local function casterCast(spellKey, thisUnit, label, free, emergency, isHeal)
     return false
 end
 
--- The friendly player to heal besides yourself: the Heal Others unit (target, mouseover or focus),
--- when there is one in range, alive and not you, and its key (if set) is held; nil otherwise
-local healOthersUnits = { [2] = "target", [3] = "mouseover", [4] = "focus" }
-local function healOthersUnit()
-    local thisUnit = healOthersUnits[ui.value("Heal Others")]
-    if thisUnit == nil then return nil end
-    if ui.dropOptions.Toggle[ui.value("Heal Others Key")] ~= "None" and not ui.toggleKey("Heal Others Key") then return nil end
-    if unit.exists(thisUnit) and unit.friend(thisUnit) and unit.player(thisUnit) and not unit.deadOrGhost(thisUnit)
-        and not unit.isUnit(thisUnit, "player") and unit.distance(thisUnit) < 40
-    then
-        return thisUnit
-    end
-    return nil
+-- The friendly player besides you for spellKey's heal, by the Heal Others option (target, mouseover, focus, or the
+-- group member lowest on health): at or below threshold health after the heals on their way, wanted (extra, if
+-- given) and castable now (spellKey nil: any, castable or not); nil when there's none or the Heal Others Key isn't held
+local function healOther(spellKey, threshold, extra)
+    return units.castOn("Heal Others", function(thisUnit)
+        return unit.hpAfterHeals(thisUnit) <= threshold and (extra == nil or extra(thisUnit))
+    end, spellKey and cast.able[spellKey] or nil, { self = false, others = var.healOthersKey })
+end
+
+-- " on <name>" for a cast on someone else, for the debug label
+local function onName(thisUnit)
+    return thisUnit == "player" and "" or (" on " .. unit.name(thisUnit))
 end
 
 -- Bear filler: another enemy in Swipe's reach without Faerie Fire that will live long enough to matter
@@ -401,21 +402,13 @@ actionList.Buffs = function()
     if unit.inCombat() or unit.resting() then return false end
     -- Mark of the Wild
     if ui.checked("Mark of the Wild") then
-        local markUnit = units.buffUnit("Mark of the Wild", needsMarkOfTheWild, 30)
-        if cast.able.markOfTheWild(markUnit) and needsMarkOfTheWild(markUnit)
-            and unit.distance(markUnit) < 30 and (markUnit == "player" or unit.player(markUnit))
-        then
-            if casterCast("markOfTheWild", markUnit, "Mark of the Wild") then return true end
-        end
+        local markUnit = units.castOn("Mark of the Wild", needsMarkOfTheWild, cast.able.markOfTheWild)
+        if markUnit and casterCast("markOfTheWild", markUnit, "Mark of the Wild" .. onName(markUnit)) then return true end
     end
-    -- Thorns
+    -- Thorns: tanks first, where it does the most
     if ui.checked("Thorns") then
-        local thornUnit = units.buffUnit("Thorns", buff.thorns.refresh, 30)
-        if cast.able.thorns(thornUnit) and buff.thorns.refresh(thornUnit)
-            and unit.distance(thornUnit) < 30 and (thornUnit == "player" or unit.player(thornUnit))
-        then
-            if casterCast("thorns", thornUnit, "Thorns") then return true end
-        end
+        local thornUnit = units.castOn("Thorns", buff.thorns.refresh, cast.able.thorns, { roles = { "TANK" } })
+        if thornUnit and casterCast("thorns", thornUnit, "Thorns" .. onName(thornUnit)) then return true end
     end
 end -- End Action List - Buffs
 
@@ -497,8 +490,9 @@ actionList.Defensive = function()
     -- Grouped: your own heals with Self Heal In Group, or while no one else heals (no healer, or yours is dead or away)
     local inGroupOk = not unit.inGroup() or ui.checked("Self Heal In Group") or not unit.groupHealer()
     -- Remove Curse
-    if ui.checked("Remove Curse") and not unit.inCombat() and cast.able.removeCurse("player") and cast.dispel.removeCurse("player") then
-        if casterCast("removeCurse", "player", "Remove Curse") then return true end
+    if ui.checked("Remove Curse") and not unit.inCombat() then
+        local cursed = units.castOn("Remove Curse", cast.dispel.removeCurse, cast.able.removeCurse)
+        if cursed and casterCast("removeCurse", cursed, "Remove Curse" .. onName(cursed)) then return true end
     end
     if unit.inCombat() then
         -- Barkskin
@@ -569,10 +563,8 @@ actionList.Defensive = function()
             end
         end
     end
-    -- Heals: you first, then the Heal Others unit (if any) at the same thresholds, by health after the
+    -- Heals: you first, then the Heal Others pick (healOther) at the same thresholds, by health after the
     -- heals already on their way (unit.hpAfterHeals): a heal about to land covers its gap
-    local other = var.healOther
-    local otherName = other and (" on " .. unit.name(other)) or ""
     -- War Stomp (Tauren) right before a cast-time heal on yourself while something hits you: the heal then
     -- lands inside the 2 s stun, without pushback (module.RacialStun: needs an enemy within 8 yd attacking you)
     local function stunFirst() return unit.inCombat() and module.RacialStun() end
@@ -580,7 +572,7 @@ actionList.Defensive = function()
     -- (off the GCD) makes it instant.
     if ui.checked("Healing Touch") and not cast.current.healingTouch() then
         local selfLow = inGroupOk and unit.hpAfterHeals() <= ui.value("Healing Touch")
-        local otherLow = other ~= nil and unit.hpAfterHeals(other) <= ui.value("Healing Touch")
+        local otherLow = healOther(nil, ui.value("Healing Touch")) ~= nil
         if (selfLow or otherLow) and ui.checked("Nature's Swiftness") and unit.inCombat() and not inForm
             and not buff.moonkinForm.exists() and cast.able.naturesSwiftness() and not buff.naturesSwiftness.exists()
         then
@@ -594,26 +586,29 @@ actionList.Defensive = function()
                 if not buff.naturesSwiftness.exists() and stunFirst() then return true end
                 if casterCast("healingTouch", "player", "Healing Touch", freeHeal, true, true) then return true end
             end
-            if otherLow and cast.able.healingTouch(other) then
-                if casterCast("healingTouch", other, "Healing Touch" .. otherName, freeHeal, true, true) then return true end
-            end
+            local other = otherLow and healOther("healingTouch", ui.value("Healing Touch"))
+            if other and casterCast("healingTouch", other, "Healing Touch" .. onName(other), freeHeal, true, true) then return true end
         end
     end
     -- Swiftmend / Regrowth: leaves Cat or Bear Form only when Energy/Rage is low or the heal is free
     if ui.checked("Regrowth") and (freeHeal or noShapeshiftPower) then
-        for i = 1, 2 do -- you, then the Heal Others unit
-            local thisUnit = i == 1 and "player" or other
-            if thisUnit ~= nil and (i == 2 or inGroupOk) and unit.hpAfterHeals(thisUnit) <= ui.value("Regrowth") then
-                local label = i == 1 and "" or otherName
-                if cast.able.swiftmend(thisUnit) and (buff.rejuvenation.exists(thisUnit) or buff.regrowth.exists(thisUnit)) then
-                    if casterCast("swiftmend", thisUnit, "Swiftmend" .. label, freeHeal, false, true) then return true end
-                end
-                if cast.able.regrowth(thisUnit) and not cast.current.regrowth() and not unit.moving() and not buff.regrowth.exists(thisUnit) then
-                    if i == 1 and stunFirst() then return true end
-                    if casterCast("regrowth", thisUnit, "Regrowth" .. label, freeHeal, false, true) then return true end
-                end
+        local threshold = ui.value("Regrowth")
+        local function hasHot(thisUnit) return buff.rejuvenation.exists(thisUnit) or buff.regrowth.exists(thisUnit) end
+        local function noRegrowth(thisUnit) return not buff.regrowth.exists(thisUnit) end
+        local regrowthNow = not cast.current.regrowth() and not unit.moving()
+        if inGroupOk and unit.hpAfterHeals() <= threshold then -- you
+            if cast.able.swiftmend("player") and hasHot("player") then
+                if casterCast("swiftmend", "player", "Swiftmend", freeHeal, false, true) then return true end
+            end
+            if regrowthNow and cast.able.regrowth("player") and noRegrowth("player") then
+                if stunFirst() then return true end
+                if casterCast("regrowth", "player", "Regrowth", freeHeal, false, true) then return true end
             end
         end
+        local other = healOther("swiftmend", threshold, hasHot) -- then the Heal Others pick
+        if other and casterCast("swiftmend", other, "Swiftmend" .. onName(other), freeHeal, false, true) then return true end
+        other = regrowthNow and healOther("regrowth", threshold, noRegrowth)
+        if other and casterCast("regrowth", other, "Regrowth" .. onName(other), freeHeal, false, true) then return true end
     end
     -- Out of combat and standing still, one Healing Touch at the Rejuvenation threshold instead of Rejuvenations:
     -- more health for the mana, and you're not in a hurry (the user's call, 2026-11-06). While moving, Rejuvenation.
@@ -623,9 +618,8 @@ actionList.Defensive = function()
         if inGroupOk and unit.hpAfterHeals() <= ui.value("Rejuvenation") and cast.able.healingTouch("player") then
             if casterCast("healingTouch", "player", "Healing Touch [Out of combat]", freeHeal, false, true) then return true end
         end
-        if other ~= nil and unit.hpAfterHeals(other) <= ui.value("Rejuvenation") and cast.able.healingTouch(other) then
-            if casterCast("healingTouch", other, "Healing Touch [Out of combat]" .. otherName, freeHeal, false, true) then return true end
-        end
+        local other = healOther("healingTouch", ui.value("Rejuvenation"))
+        if other and casterCast("healingTouch", other, "Healing Touch [Out of combat]" .. onName(other), freeHeal, false, true) then return true end
     end
     -- Rejuvenation: too slow to justify two shapeshifts in combat, out of Cat, Bear or Moonkin Form alike (Moonkin
     -- prevents healing spells on Forever, and shifting back costs 35% of base mana; the user's call, 2026-11-11). It's
@@ -647,23 +641,23 @@ actionList.Defensive = function()
         then
             if casterCast("rejuvenation", "player", "Rejuvenation", freeHeal, false, true) then return true end
         end
-        if other ~= nil and unit.hpAfterHeals(other) <= ui.value("Rejuvenation") and rejuvenationDue(other)
-            and cast.able.rejuvenation(other)
-        then
-            if casterCast("rejuvenation", other, "Rejuvenation" .. otherName, freeHeal, false, true) then return true end
-        end
+        local other = healOther("rejuvenation", ui.value("Rejuvenation"), rejuvenationDue)
+        if other and casterCast("rejuvenation", other, "Rejuvenation" .. onName(other), freeHeal, false, true) then return true end
     end
     -- Cure Poison (Abolish Poison once learned): after the heals, so a form left for a heal casts the heal first
     -- (2026-11-08 10:35:58: Cure Poison went out ahead of the Regrowth BR left Cat for). In combat only while already
     -- out of Cat or Bear Form, so it rides along with a heal. Gating it on low Energy wasn't enough: Claw keeps Energy low, and Bristleback Hunters
-    -- re-poisoned three times in one fight, two shifts each (Rotation.log 2026-11-08 09:58, 834 mana)
+    -- re-poisoned three times in one fight, two shifts each (Rotation.log 2026-11-08 09:58, 834 mana). You first, then
+    -- the option's target, mouseover, focus or group members.
     if ui.checked("Cure Poison") and (not unit.inCombat() or not inForm) then
         if spell.abolishPoison.known() then
-            if cast.able.abolishPoison("player") and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player") then
-                if casterCast("abolishPoison", "player", "Abolish Poison") then return true end
-            end
-        elseif cast.able.curePoison("player") and cast.dispel.curePoison("player") then
-            if casterCast("curePoison", "player", "Cure Poison") then return true end
+            local poisoned = units.castOn("Cure Poison", function(thisUnit)
+                return not buff.abolishPoison.exists(thisUnit) and cast.dispel.abolishPoison(thisUnit)
+            end, cast.able.abolishPoison)
+            if poisoned and casterCast("abolishPoison", poisoned, "Abolish Poison" .. onName(poisoned)) then return true end
+        else
+            local poisoned = units.castOn("Cure Poison", cast.dispel.curePoison, cast.able.curePoison)
+            if poisoned and casterCast("curePoison", poisoned, "Cure Poison" .. onName(poisoned)) then return true end
         end
     end
 end -- End Action List - Defensive
@@ -1465,8 +1459,8 @@ local function runRotation()
     activeForm = resolveForm()
     inForm = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
 
-    -- The friendly player to heal besides yourself (Heal Others option and key), or nil
-    var.healOther = healOthersUnit()
+    -- Heals on others (healOther) only while the Heal Others Key is held, when one is set
+    var.healOthersKey = ui.dropOptions.Toggle[ui.value("Heal Others Key")] == "None" or ui.toggleKey("Heal Others Key")
 
     -- Clearcasting Use: 1 Any, 2 DPS Only, 3 Healing Only, 4 None
     local omenSetting = ui.value("Clearcasting Use")
