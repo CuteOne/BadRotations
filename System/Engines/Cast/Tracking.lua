@@ -532,10 +532,16 @@ end
 -- pushback moves it. entry: { spellID, untilTime, castKey (the cast it waits on), after (seconds more: a pre-cast's
 -- own cast time), hold (the round trip after) }. A pre-cast waits on the cast it was sent behind; once that one is
 -- over and its own cast is on, it follows its own (2026-11-05: Wrath pre-cast behind Wrath, pushed back, went
--- uncounted before its end and the Moonfire queued behind it came back "Not enough mana").
+-- uncounted before its end and the Moonfire queued behind it came back "Not enough mana"). A spell sent before its
+-- cast showed (on Forever the cast bar comes a round trip after the send) takes up that cast once it shows: its
+-- promises otherwise ran out after the round trip, mid-cast (2026-11-11, a Healing Touch pushed back 6 times: a
+-- Regrowth pre-cast behind it on its mana, and no mana left for Cat Form).
 function E.followCast(entry, key, liveEnd, spellID)
-	if key == nil or entry.castKey == nil then return end
-	if entry.castKey ~= key and entry.after > 0 and spellID == entry.spellID then
+	if key == nil then return end
+	if entry.castKey == nil then
+		if entry.swing or entry.after > 0 or spellID ~= entry.spellID then return end
+		entry.castKey = key
+	elseif entry.castKey ~= key and entry.after > 0 and spellID == entry.spellID then
 		entry.castKey, entry.after = key, 0
 	end
 	if entry.castKey == key then
