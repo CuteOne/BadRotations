@@ -20,6 +20,8 @@ jobs:
     steps:
     - name: Checkout source code
       uses: actions/checkout@v6.0.2
+      with:
+        fetch-depth: 0 # the whole push, not only its last commit
 
     # Optional step to run on only changed files
     - name: Get changed files
@@ -27,6 +29,9 @@ jobs:
       uses: tj-actions/changed-files@v47.0.6
       with:
         separator: "\n"
+        # The list reaches luacheck through an env variable, never as shell text, so it needs no escaping
+        # (escaped, every name but the last ends in a backslash and luacheck can't find the file).
+        safe_output: false
         files: |
           **.lua
 
