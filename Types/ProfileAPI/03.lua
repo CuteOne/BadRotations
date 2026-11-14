@@ -6,6 +6,21 @@
 -- profiles use. The game never loads these files.
 
 
+---@class BR.Retail.Druid.Feral.cast.auto : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.auto.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.cancel : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.cancel.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.cost : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.cost.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.current : BR.cast.current.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.current.Spell>
+
+
+---@class BR.Retail.Druid.Feral.cast.dispel : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.dispel.Spell>
+
+
 ---@class BR.Retail.Druid.Feral.cast.empowered : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.empowered.Spell>
 
 

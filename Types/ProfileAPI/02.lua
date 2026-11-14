@@ -100,8 +100,15 @@ function C59.cancelForm() end
 --- to shift back into the form left.
 ---@param outOfFormSpell? any Spell to cast once out of form (id/name/spell table).
 ---@param treatOutSpellAsFree? any If true, that spell costs nothing this time (e.g. Clearcasting).
----@param emergency? any If true, the mana to shift back isn't needed.
+---@param emergency? any If true, leave form regardless (e.g. an emergency heal). (keep waiting rather than acting as if still in form).
 ---@return boolean # True while the form is being left: cancelled now, or a cancel still on its way
+function C59.cancelFormFor(outOfFormSpell, treatOutSpellAsFree, emergency) end
+
+--- Whether unit.cancelFormFor would leave the current form for this spell now (same rules), without leaving it:
+--- for steps that come before the spell, such as a stun ahead of a heal. True when not in a form.
+---@param outOfFormSpell? any Spell to cast once out of form (id/name/spell table).
+---@param treatOutSpellAsFree? any If true, that spell costs nothing this time (e.g. Clearcasting).
+---@param emergency? any If true, the mana to shift back isn't needed.
 ---@return boolean
 ---@return string # why not, when false
 function C59.canLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency) end
@@ -12103,18 +12110,3 @@ function C65.timer(timerName, interval) end
 
 
 ---@class BR.Retail.Druid.Feral.cast.active : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.active.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.auto : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.auto.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.cancel : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.cancel.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.cost : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.cost.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.current : BR.cast.current.Base, BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.current.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.dispel : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.dispel.Spell>
