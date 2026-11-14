@@ -20,6 +20,25 @@ jobs:
   Discord_notification:
     runs-on: ubuntu-latest
     steps:
+      # A push whose newest commit message starts with "[announce]" also posts that message as an announcement,
+      # before the usual commit list. First line: "[announce] <title>"; the lines after it are the text.
+      - name: Post announcement
+        if: startsWith(github.event.head_commit.message, '[announce]')
+        continue-on-error: true
+        env:
+          MESSAGE: ${{ github.event.head_commit.message }}
+          COMPARE_URL: ${{ github.event.compare }}
+          WEBHOOK_ID: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          WEBHOOK_TOKEN: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+        run: |
+          title=$(printf '%s\n' "$MESSAGE" | head -n 1 | sed -E 's/^\[announce\][[:space:]]*//')
+          body=$(printf '%s\n' "$MESSAGE" | tail -n +2)
+          jq -n --arg title "$title" --arg body "$body" --arg url "$COMPARE_URL" \
+            '{embeds: [{title: ($title | .[0:256]), description: ($body | ltrimstr("\n") | .[0:4096]),
+                        url: $url, color: 47906}]}' |
+            curl -fsS --retry 3 -H "Content-Type: application/json" -d @- \
+              "https://discord.com/api/webhooks/${WEBHOOK_ID}/${WEBHOOK_TOKEN}"
+
       - name: Run Discord Webhook
         uses: mrrobotdotapp/classic-discord-webhook@fa1d534b6622185421d94da8faeced03ae7d99eb # main
         with:
