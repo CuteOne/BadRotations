@@ -151,9 +151,10 @@ local function options()
     ui.spinner(section, "Dash", { value = 40, tip = "Escape tool: Dash in Cat Form at or below this Health Percent while running from an enemy chasing you" })
 
     section = ui.section("Group")
-    ui.checkbox(section, "Revive", { checked = true, tip = "Revive dead party members out of combat" })
-    ui.dropdown(section, "Rebirth", { choices = { "Tank", "Healer", "Tank or Healer", "Anyone" }, value = "Tank or Healer",
-        tip = "Who to Rebirth in combat" })
+    ui.dropdown(section, "Revive", { choices = "CastOn", value = "You + Group", checked = true,
+        tip = "Who to Revive out of combat: a dead friendly player as your target, mouseover, focus or in your group (You: nobody, you can't revive yourself)" })
+    ui.dropdown(section, "Rebirth", { choices = "CastOn", value = "You + Group",
+        tip = "Who to Rebirth in combat: a dead friendly player as your target, mouseover, focus or in your group, tanks then healers first (You: nobody)" })
 
     section = ui.section("Interrupts")
     ui.checkbox(section, "Bash - Int", { checked = true, tip = "Interrupt with Bash while in Bear Form" })
@@ -719,10 +720,11 @@ end -- End Action List - Defensive
 
 -- Action List - Utility: bringing group members back, taunts and crowd control
 actionList.Utility = function()
-    -- Revive (out of combat, 10 sec cast)
-    if ui.checked("Revive") and not unit.inCombat() and unit.inGroup() and not unit.moving() then
-        local thisUnit = unit.deadGroupMember(30)
-        if thisUnit and cast.able.revive.dead(thisUnit) then
+    -- Revive (out of combat, 10 sec cast): the dead player the Revive option picks (cast-on choices, as the buffs;
+    -- the user's call, 2026-11-14)
+    if ui.checked("Revive") and not unit.inCombat() and not unit.moving() then
+        local thisUnit = units.castOn("Revive", nil, cast.able.revive.dead, { self = false, dead = true })
+        if thisUnit then
             if inForm or buff.moonkinForm.exists() then
                 if unit.cancelFormFor(spell.revive) then return true end
             elseif cast.revive.dead(thisUnit) then
@@ -733,15 +735,10 @@ actionList.Utility = function()
     end
     if not unit.inCombat() then return false end
     -- Rebirth (in combat)
-    if ui.checked("Rebirth") and unit.inGroup() and not unit.moving() then
-        -- Rebirth: 1 Tank, 2 Healer, 3 Tank or Healer, 4 Anyone
-        local choice = ui.value("Rebirth")
-        local thisUnit
-        if choice == 1 then thisUnit = unit.deadGroupMember(30, "TANK")
-        elseif choice == 2 then thisUnit = unit.deadGroupMember(30, "HEALER")
-        elseif choice == 3 then thisUnit = unit.deadGroupMember(30, "TANK", "HEALER")
-        else thisUnit = unit.deadGroupMember(30) end
-        if thisUnit and cast.able.rebirth.dead(thisUnit) then
+    -- (the Rebirth option's pick, tanks then healers first in the group)
+    if ui.checked("Rebirth") and not unit.moving() then
+        local thisUnit = units.castOn("Rebirth", nil, cast.able.rebirth.dead, { self = false, dead = true, roles = { "TANK", "HEALER" } })
+        if thisUnit then
             if inForm or buff.moonkinForm.exists() then
                 if unit.cancelFormFor(spell.rebirth) then return true end
             elseif cast.rebirth.dead(thisUnit) then
