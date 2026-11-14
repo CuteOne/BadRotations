@@ -110,6 +110,19 @@ br.api.build.unit = function(api)
     -- @param emergency If true, leave form regardless (e.g. an emergency heal).
     -- @treturn boolean True while the form is being left: cancelled now, or a cancel still on its way
     --   (keep waiting rather than acting as if still in form).
+    --- Whether unit.cancelFormFor would leave the current form for this spell now (same rules), without leaving it:
+    -- for steps that come before the spell, such as a stun ahead of a heal. True when not in a form.
+    -- @function unit.canLeaveFormFor
+    -- @param outOfFormSpell Spell to cast once out of form (id/name/spell table).
+    -- @param treatOutSpellAsFree If true, that spell costs nothing this time (e.g. Clearcasting).
+    -- @param emergency If true, the mana to shift back isn't needed.
+    -- @treturn boolean
+    -- @treturn string why not, when false
+    unit.canLeaveFormFor = function(outOfFormSpell, treatOutSpellAsFree, emergency)
+        if br.functions.unit:getFormSpellID() == nil then return true end
+        return br.functions.unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency)
+    end
+
     unit.cancelFormFor = function(outOfFormSpell, treatOutSpellAsFree, emergency)
         if br.functions.unit:isFormCancelPending() then return true end
         if not br.functions.unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency) then

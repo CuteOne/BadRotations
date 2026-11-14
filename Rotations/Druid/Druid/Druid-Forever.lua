@@ -132,6 +132,9 @@ local function options()
     ui.dropdown(section, "Heal Others Key", { choices = "Toggle", value = "None", checkbox = false,
         tip = "Only heal others while this key is held (None: no key needed)" })
     ui.spinner(section, "Healing Touch", { value = 35, checked = true, tip = "Health Percent to Cast At" })
+    ui.spinner(section, "Emergency Below", { value = 20, min = 1, max = 100, step = 1, checkbox = false,
+        tip = "Healing Touch leaves Cat or Bear Form without the mana to shift back only at or below this health percent. "
+            .. "Above it, it waits until you can pay for the heal and the shift back, so you aren't left out of form" })
     ui.checkbox(section, "Nature's Swiftness", { checked = true, tip = "Make an emergency Healing Touch instant with Nature's Swiftness (talent)" })
     ui.spinner(section, "Regrowth", { value = 55, checked = true, tip = "Health Percent to Cast At (Swiftmend first when a heal over time is on you)" })
     ui.spinner(section, "Rejuvenation", { value = 70, checked = true, tip = "Health Percent to Cast At" })
@@ -568,8 +571,15 @@ actionList.Defensive = function()
     -- War Stomp (Tauren) right before a cast-time heal on yourself while something hits you: the heal then
     -- lands inside the 2 s stun, without pushback (module.RacialStun: needs an enemy within 8 yd attacking you)
     local function stunFirst() return unit.inCombat() and module.RacialStun() end
-    -- Healing Touch: the emergency heal, leaves any form regardless of Energy/Rage. Nature's Swiftness
-    -- (off the GCD) makes it instant.
+    -- Healing Touch: the big heal, leaves any form regardless of Energy/Rage. Without the mana to shift back too, only at
+    -- or below Emergency Below: above it you stay in form and fight on (2026-11-13 fight 8: Healing Touch at 33% left
+    -- Cat Form on 4 mana, 9 s in caster form; the user's call). Nature's Swiftness (off the GCD) makes it instant.
+    local function healingTouchLeaves(thisUnit)
+        local emergency = unit.hpAfterHeals(thisUnit) <= ui.value("Emergency Below")
+        local leaves = not (inForm or buff.moonkinForm.exists())
+            or unit.canLeaveFormFor(spell.healingTouch, freeHeal, emergency)
+        return leaves, emergency
+    end
     if ui.checked("Healing Touch") and not cast.current.healingTouch() then
         local selfLow = inGroupOk and unit.hpAfterHeals() <= ui.value("Healing Touch")
         local otherLow = healOther(nil, ui.value("Healing Touch")) ~= nil
@@ -582,12 +592,18 @@ actionList.Defensive = function()
             end
         end
         if not unit.moving() or buff.naturesSwiftness.exists() then
-            if selfLow and cast.able.healingTouch("player") then
+            local leaves, emergency = healingTouchLeaves("player")
+            if selfLow and leaves and cast.able.healingTouch("player") then
                 if not buff.naturesSwiftness.exists() and stunFirst() then return true end
-                if casterCast("healingTouch", "player", "Healing Touch", freeHeal, true, true) then return true end
+                if casterCast("healingTouch", "player", "Healing Touch", freeHeal, emergency, true) then return true end
             end
             local other = otherLow and healOther("healingTouch", ui.value("Healing Touch"))
-            if other and casterCast("healingTouch", other, "Healing Touch" .. onName(other), freeHeal, true, true) then return true end
+            if other then
+                leaves, emergency = healingTouchLeaves(other)
+                if leaves and casterCast("healingTouch", other, "Healing Touch" .. onName(other), freeHeal, emergency, true) then
+                    return true
+                end
+            end
         end
     end
     -- Swiftmend / Regrowth: leaves Cat or Bear Form only when Energy/Rage is low or the heal is free
