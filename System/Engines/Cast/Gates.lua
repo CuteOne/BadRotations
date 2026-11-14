@@ -128,7 +128,7 @@ end
 -- cast:clearSpellFacts(), which the spell/talent/level events call (Readers/common.lua).
 -- Whether a spell is known isn't kept: some spells only exist while a form or buff is up, and
 -- the spellbook event isn't guaranteed then.
-local spellFacts = {}       -- spellID -> { spellType, baseCooldown }
+local spellFacts = {}       -- spellID -> { spellType, baseCooldown (the GCD it triggers, ms), ownCooldown (ms) }
 local talentKeyBySpell = {} -- spellID -> talent key, built from talentKeySource
 local talentKeySource = nil
 
@@ -143,6 +143,8 @@ local function getSpellFacts(spellID, baseSpellName)
 		facts = {
 			spellType    = br.functions.spell:getSpellType(baseSpellName),
 			baseCooldown = select(2, br.game.GetSpellBaseCooldown(spellID)) or 0,
+			-- the spell's own cooldown (War Stomp's 2 min), apart from the GCD
+			ownCooldown  = plain(br.game.GetSpellBaseCooldown(spellID)) or 0,
 		}
 		-- "Unknown" / "Invalid" can mean the spell isn't available right now; ask again next time
 		if facts.spellType ~= "Unknown" and facts.spellType ~= "Invalid" then spellFacts[spellID] = facts end
@@ -211,10 +213,11 @@ defineGroup({ "baseSpellName" }, function(ctx)
 	rawset(ctx, "baseSpellName", baseSpellID == ctx.spellID and ctx.spellName or br.functions.spell:getName(baseSpellID))
 end)
 
-defineGroup({ "spellType", "baseCooldown" }, function(ctx)
+defineGroup({ "spellType", "baseCooldown", "ownCooldown" }, function(ctx)
 	local facts = getSpellFacts(ctx.spellID, ctx.baseSpellName)
 	rawset(ctx, "spellType", facts.spellType)
 	rawset(ctx, "baseCooldown", facts.baseCooldown)
+	rawset(ctx, "ownCooldown", facts.ownCooldown)
 end)
 
 defineGroup({ "spellCD" }, function(ctx)
@@ -298,6 +301,17 @@ local function gateSpellID(ctx, thisUnit, castType, allTalents, allSpells) -- lu
 		"base=" .. tostring(ctx.baseSpellID) ..
 		" override=" .. tostring(ctx.overrideSpellID) ..
 		" spellID=" .. tostring(ctx.spellID)
+end
+
+local function gateOwnCooldownBehindItself(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
+	-- Inside the queue window a spell may be pre-cast behind its own cast (Wrath -> Wrath). One with a cooldown of
+	-- its own can't follow itself: the cooldown starts when this cast ends, so the game refuses the second one
+	-- (2026-11-13 fight 8: War Stomp pre-cast behind War Stomp, "Ability is not ready yet")
+	if ctx.ownCooldown <= 0 then return true end
+	local remain = E.getSameSpellCastRemain(ctx.spellID)
+	if remain <= 0 then return true end
+	return false, "ALREADY_CASTING",
+		string.format("casting it (%.2fs left), its %.0fs cooldown starts when it ends", plain(remain), ctx.ownCooldown / 1000)
 end
 
 local function gateDoubleCast(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
@@ -592,6 +606,7 @@ local GATE_FUNCTIONS = {
 	gateSpellID,
 	gateKnownTalent,
 	gateCooldownTimer,
+	gateOwnCooldownBehindItself,
 	gateUsable,
 	gateGCD,
 	gateDoubleCast,
