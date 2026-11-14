@@ -1218,6 +1218,15 @@ end
 -- and within its aggro radius plus offset yards. A mob tagged by someone else (tap denied) doesn't: it's
 -- busy with them, and doesn't notice you walking up (the user's call, 2026-11-09).
 -- if br.functions.unit:isInAggroRange("target", 5) then
+-- True while you and thisUnit are both PvP flagged, or both free-for-all PvP (a duel aside: either of you can attack
+-- the other without flagging). False when the client doesn't say.
+-- if br.functions.unit:pvpBothFlagged("target") then
+function unit:pvpBothFlagged(thisUnit)
+	local isPvP, ffa = br.game.UnitIsPVP, br.game.UnitIsPVPFreeForAll
+	if isPvP and isPvP("player") and isPvP(thisUnit) then return true end
+	return (ffa and ffa("player") and ffa(thisUnit)) and true or false
+end
+
 function unit:isInAggroRange(thisUnit, offset, hostileOnly)
 	if thisUnit == nil then thisUnit = "target" end
 	if not unit:GetObjectExists(thisUnit) or unit:GetUnitIsDeadOrGhost(thisUnit)
@@ -1229,6 +1238,10 @@ function unit:isInAggroRange(thisUnit, offset, hostileOnly)
 	if not (reaction < 4 or (not hostileOnly and reaction == 4 and unit:GetUnitIsUnit("target", thisUnit))) then
 		return false
 	end
+	-- A player has no aggro radius: an enemy one counts only while you could both fight without either flagging
+	-- (unit:pvpBothFlagged); one you could attack only by flagging yourself isn't a threat to sneak past or shift for
+	-- (the user's call, 2026-11-14: auto Prowl went up for enemy players)
+	if unit:isPlayer(thisUnit) and not unit:pvpBothFlagged(thisUnit) then return false end
 	-- centre to centre, as the server measures it (BR's usual distance is edge to edge, 3+ yards less); a mob
 	-- more than AGGRO_HEIGHT yards above or below you doesn't proximity-aggro. vmangos BasicAI has 3 yd, but on
 	-- Forever mobs aggroed with nothing of yours at 5.6, 6.2 and 7.5 yd of height (Aggro.log 2026-11-09)
