@@ -35,9 +35,21 @@ jobs:
           body=$(printf '%s\n' "$MESSAGE" | tail -n +2)
           jq -n --arg title "$title" --arg body "$body" --arg url "$COMPARE_URL" \
             '{embeds: [{title: ($title | .[0:256]), description: ($body | ltrimstr("\n") | .[0:4096]),
-                        url: $url, color: 47906}]}' |
-            curl -fsS --retry 3 -H "Content-Type: application/json" -d @- \
-              "https://discord.com/api/webhooks/${WEBHOOK_ID}/${WEBHOOK_TOKEN}"
+                        url: $url, color: 47906}]}' > payload.json
+          # Retry only when Discord didn't take the message (no connection, 429, 500, 502, 503). A 504 (or any
+          # other answer) may still have posted it, so it isn't retried: a retry could post it twice.
+          for attempt in 1 2 3; do
+            status=$(curl -sS -o response.txt -w '%{http_code}' -H "Content-Type: application/json" \
+              -d @payload.json "https://discord.com/api/webhooks/${WEBHOOK_ID}/${WEBHOOK_TOKEN}") || status=000
+            case "$status" in
+              2??) echo "Announcement posted."; exit 0 ;;
+              000|429|500|502|503) echo "Discord answered $status (attempt $attempt), retrying."; sleep $((attempt * 5)) ;;
+              4??) echo "::warning::Discord refused the announcement ($status)."; cat response.txt; exit 1 ;;
+              *) echo "::warning::Discord answered $status: the announcement may or may not have posted. Check Discord."
+                 cat response.txt; exit 1 ;;
+            esac
+          done
+          echo "::warning::The announcement wasn't posted after 3 attempts."; exit 1
 
       - name: Run Discord Webhook
         uses: mrrobotdotapp/classic-discord-webhook@fa1d534b6622185421d94da8faeced03ae7d99eb # main
