@@ -50,8 +50,11 @@ local castIntentLocks = {} -- Tracks cast intent to prevent multiple cast.able()
 --            most 10 sec). Learned from the game rather than refusing cast-time spells on the move,
 --            since some clients and buffs allow those (2026-10-28: the racial module's Gift of the Naaru
 --            sent every 0.2 s while the player ran, 6 refusals in a second).
+--   lowlevel - "Target is too low level": this spell (your rank of it) on this unit, until the unit's level changes
+--            (at most 10 min). Forever drops a spell's old ranks once the next is learned, so there's no lower rank to
+--            cast instead (2026-11-14: Mark of the Wild sent 3 times in 3 s at a low-level Warlock, each refused).
 -- ─────────────────────────────────────────────────────────────────────────────
-local REJECT_DURATION = { aura = 30, los = 1.0, facing = 0.5, behind = 3.0, range = 0.5, cancelled = 3.0, moving = 10 }
+local REJECT_DURATION = { aura = 30, los = 1.0, facing = 0.5, behind = 3.0, range = 0.5, cancelled = 3.0, moving = 10, lowlevel = 600 }
 local UNIT_WIDE_REJECT = { los = true, facing = true, behind = true }
 -- Only attribute an error to BR's last cast if that cast was this recent; older
 -- errors most likely came from the player's own button presses.
@@ -128,6 +131,7 @@ end
 -- corpse targets it, so each loot released the after-fight Healing Touch the loot had just interrupted, and it went
 -- out three times for one heal).
 local targetAtCancel = {} -- rejection key -> the player's target GUID then, or false for a cast on the player
+local levelAtRefusal = {} -- "lowlevel" rejection key -> the unit's level at the refusal
 local function cancelReleased(key)
 	if br.game.UnitAffectingCombat("player") then return true end
 	local was = targetAtCancel[key]
@@ -144,12 +148,14 @@ function cast:isRejected(kind, spellID, thisUnit)
 	if expires and br.game.GetTime() < expires and not (kind == "behind" and behindChanged(guid, thisUnit))
 		and not (kind == "cancelled" and cancelReleased(key))
 		and not (kind == "moving" and not br.functions.misc:isMoving("player"))
+		and not (kind == "lowlevel" and br.game.UnitLevel(thisUnit) ~= levelAtRefusal[key])
 	then
 		return true
 	end
 	rejections[key] = nil
 	if kind == "behind" then behindAtRefusal[guid] = nil end
 	if kind == "cancelled" then targetAtCancel[key] = nil end
+	if kind == "lowlevel" then levelAtRefusal[key] = nil end
 	return false
 end
 
@@ -327,6 +333,7 @@ local function rejectionKindForError(message)
 	end
 	if message == errorText("SPELL_FAILED_NOT_BEHIND", "You must be behind your target.") then return "behind" end
 	if message == errorText("SPELL_FAILED_MOVING", "Can't do that while moving") then return "moving" end
+	if message == errorText("SPELL_FAILED_LOWLEVEL", "Target is too low level") then return "lowlevel" end
 	if message == errorText("SPELL_FAILED_OUT_OF_RANGE", "Out of range.")
 		or message == errorText("ERR_OUT_OF_RANGE", "Out of range.")
 	then
@@ -443,6 +450,12 @@ function cast:handleCastError(message)
 		cast:setRejected(kind, refused, br.game.UnitGUID("player"), duration)
 	else
 		cast:setRejected(kind, refused, lastSend.guid, duration)
+	end
+	if kind == "lowlevel" then
+		local refusedUnit = br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(lastSend.guid)
+		local key = rejectionKey(kind, refused, lastSend.guid)
+		if key then levelAtRefusal[key] = refusedUnit and br.game.UnitLevel(refusedUnit) or nil end
+		if br.debug.cast then br.debug.cast:noteTooLowLevel(refused, refusedUnit) end
 	end
 	if E.castTimers then E.castTimers[refused] = nil end
 	castIntentLocks[refused] = nil

@@ -1199,6 +1199,17 @@ function br.debug.cast:noteOutOfRange(spellID, guid)
         rangeState(unit)))
 end
 
+-- The game refused a BR cast with "Target is too low level" (2026-11-14: Mark of the Wild on a low-level Warlock):
+-- the unit's level and the level the rank is learned at, to learn the gap the game allows (Classic servers: the
+-- target's level + 10 must reach the spell's level), so BR can skip such a unit before its first try
+function br.debug.cast:noteTooLowLevel(spellID, unit)
+    local level = unit and plainNumber(br.game.UnitLevel(unit))
+    local learned = plainNumber(br.game.C_Spell.GetSpellLevelLearned(spellID))
+    castWrite(("TOO LOW LEVEL %s (%s, learned at %s) → %s level %s, you level %s: left on that unit until its level changes"):format(
+        printable(br.functions.spell:getName(spellID)), tostring(spellID), tostring(learned), unit and unitName(unit) or "?",
+        tostring(level), tostring(plainNumber(br.game.UnitLevel("player")))))
+end
+
 -- The game refused a BR cast with "You must be behind your target" (2026-10-19, TBC Anniversary: Shred
 -- refused 6 times with the mob at 0.0 yd, both facing each other, while BR's check said behind).
 -- What BR's behind check saw at that moment: how far the player stands off the unit's facing,

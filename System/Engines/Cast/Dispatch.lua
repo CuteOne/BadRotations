@@ -142,6 +142,12 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 		return false
 	end
 
+	-- The game said this unit is too low level for your rank of the spell (no lower rank to fall back on, see Tracking.lua)
+	if cast:isRejected("lowlevel", ctx.spellID, thisUnit) then
+		E.recordRefusal(ctx.spellID, "TOO_LOW_LEVEL", "unit too low level for this rank")
+		return false
+	end
+
 	E.recordPass(ctx.spellID)
 
 	-- cast.able path: no side effects.
