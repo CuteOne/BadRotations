@@ -418,8 +418,9 @@ function cast:handleCastError(message)
 	end
 	local kind = rejectionKindForError(message)
 	if not kind then return end
-	-- A cast on yourself can't be out of sight or facing the wrong way: never mark the player
-	if UNIT_WIDE_REJECT[kind] and lastSend.guid == br.game.UnitGUID("player") then return end
+	-- A cast on yourself can't be out of sight, facing the wrong way or out of range: never mark the player (the
+	-- error is your own key press: 2026-11-11, your Feral Charge's "Out of range" marked BR's Prowl on you)
+	if (UNIT_WIDE_REJECT[kind] or kind == "range") and lastSend.guid == br.game.UnitGUID("player") then return end
 	if kind ~= "aura" and (br.game.GetTime() - lastSend.at) > REJECT_ATTRIBUTION_WINDOW then return end
 	local duration
 	if kind == "aura" then
