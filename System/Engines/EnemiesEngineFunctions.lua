@@ -492,13 +492,13 @@ end
 --- The unit a request of this range (yards) and facing should attack: the selected target when it can
 --- take it, otherwise BR's pick (br.engines.targeting), or nil.
 --- Options (Targeting page): Targeting Mode Off (or Targeting Only In Combat, out of combat) keeps to
---- the selected target; Assist uses BR's pick when the target can't take the request, and leaves the WoW
---- target alone unless there is none (in combat it's then set to the pick); Full lets BR's pick replace a
---- usable target and sets the WoW target to it.
---- Assist never moves a target you picked (2026-11-11, the user: a friendly targeted to invite them, or a
---- mob at range, was switched back to the mob attacking you, as the old "Target Dynamic Target" unticked
---- never did). Melee doesn't need the switch: profiles start auto attack on the pick
---- (unit.startAttack(units.dyn5)), and next-swing spells ride on that swing.
+--- the selected target; Assist uses BR's pick when the target can't take the request and never selects a
+--- target; Full lets BR's pick replace a usable target and sets the WoW target to it.
+--- Assist never touches your target (2026-11-11, the user: a friendly targeted to invite them, or a mob at
+--- range, was switched back to the mob attacking you; 2026-11-14, the user: no "forced physical targeting",
+--- BR casts at units you haven't selected, so it doesn't select one after a kill or when you clear it either).
+--- Melee doesn't need the selection: profiles start auto attack on the pick (unit.startAttack(units.dyn5)),
+--- and next-swing spells ride on that swing.
 local function pickDynamicTarget(range, facing)
 	if range == nil or range > 100 then return nil end
 	local startTime = br.game.debugprofilestop()
@@ -525,14 +525,10 @@ local function pickDynamicTarget(range, facing)
 	else
 		result = br.engines.targeting:pick(range, facing)
 	end
-	-- In combat, set the WoW target to the pick: always in Full; in Assist only when there is no target, a dead
-	-- one (the loot engine targets corpses mid-fight) or an evading one (another enemy BR may attack takes over,
-	-- 2026-10-31 the user's call). Never to a dummy, nor an explosive when facing is required.
-	if dynamicOn and inCombat and result ~= nil and result ~= "target" then
+	-- Full sets the WoW target to the pick, in combat. Never to a dummy, nor an explosive when facing is required.
+	if autoTargetDynamic and dynamicOn and inCombat and result ~= nil and result ~= "target" then
 		local unitFns = br.functions.unit
-		if (autoTargetDynamic or not unitFns:GetObjectExists("target") or unitFns:GetUnitIsDeadOrGhost("target")
-			or unitFns:isEvading("target"))
-			and not unitFns:GetUnitIsUnit(result, "target") and not unitFns:isDummy(result)
+		if not unitFns:GetUnitIsUnit(result, "target") and not unitFns:isDummy(result)
 			and not (facing and unitFns:isExplosive(result))
 		then
 			-- for the targeting logs; set first, as the game may say the target changed inside TargetUnit

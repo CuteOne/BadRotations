@@ -87,7 +87,7 @@ function br.ui:createConfigWindow()
         migrateTargetingOptions()
         section = br.ui:section("Targeting", { window = br.ui.window.config })
         br.ui:dropdown(section, "Targeting Mode", { choices = { "Off", "Assist", "Full" }, value = "Assist", checkbox = false,
-            tip = "Off: spells only use your target. Assist: BR picks the best enemy for each spell when your target can't take it (in combat without a target, it targets that enemy). Full: BR also switches your target to its pick." })
+            tip = "Off: spells only use your target. Assist: BR picks the best enemy for each spell when your target can't take it, and casts at it without selecting it. Full: BR also switches your target to its pick." })
         br.ui:checkbox(section, "Targeting Only In Combat", { tip = "BR picks enemies only while you're in combat; out of combat, spells only use your target." })
         br.ui:dropdown(section, "Target Preference", { choices = { "None", "Highest %", "Lowest %", "Highest health", "Lowest health", "Nearest", "Furthest" },
             value = "None", checkbox = false, tip = "Which enemy BR leans towards when others are equal." })
