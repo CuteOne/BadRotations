@@ -100,9 +100,11 @@ function C59.cancelForm() end
 --- to shift back into the form left.
 ---@param outOfFormSpell? any Spell to cast once out of form (id/name/spell table).
 ---@param treatOutSpellAsFree? any If true, that spell costs nothing this time (e.g. Clearcasting).
----@param emergency? any If true, leave form regardless (e.g. an emergency heal). (keep waiting rather than acting as if still in form).
+---@param emergency? any If true, the mana to shift back isn't needed.
 ---@return boolean # True while the form is being left: cancelled now, or a cancel still on its way
-function C59.cancelFormFor(outOfFormSpell, treatOutSpellAsFree, emergency) end
+---@return boolean
+---@return string # why not, when false
+function C59.canLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency) end
 
 --- Check if player can fly
 ---@return boolean # True if the player can fly in the current area

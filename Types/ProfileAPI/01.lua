@@ -5637,8 +5637,9 @@ function C1.react(thisUnit, sourceUnit) end
 --- Check if a buff should be refreshed.
 ---@param thisUnit? string The unit to check.
 ---@param sourceUnit? string "player": your own (on the player, a copy anyone cast on you counts, so a buff isn't recast over someone else's); "any": from anyone
+---@param share? number Due once this share of its duration or less is left (a wider share renews early)
 ---@return boolean
-function C1.refresh(thisUnit, sourceUnit) end
+function C1.refresh(thisUnit, sourceUnit, share) end
 
 --- Get the remaining time of a buff.
 ---@param thisUnit? string The unit to check.

@@ -124,8 +124,9 @@ br.api.build.buffs = function(buff, k, v)
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit "player": your own (on the player, a copy anyone cast on
     --   you counts, so a buff isn't recast over someone else's); "any": from anyone
+    -- @number[opt=0.3] share Due once this share of its duration or less is left (a wider share renews early)
     -- @treturn boolean
-    buff.refresh = function(thisUnit, sourceUnit)
+    buff.refresh = function(thisUnit, sourceUnit, share)
         v = currentRank()
         if thisUnit == nil then thisUnit = 'player' end
         if k == "bloodLust" then
@@ -157,10 +158,10 @@ br.api.build.buffs = function(buff, k, v)
             end
             local remain = math.abs(br.functions.aura:getBuffRemain(thisUnit, v))
             local duration = br.functions.aura:getBuffDuration(thisUnit, v)
-            return remain <= duration * 0.3
+            return remain <= duration * (share or 0.3)
         end
 
-        return buff.remain(thisUnit, sourceUnit) <= buff.duration(thisUnit, sourceUnit) * 0.3
+        return buff.remain(thisUnit, sourceUnit) <= buff.duration(thisUnit, sourceUnit) * (share or 0.3)
     end
 
     --- Get the remaining time of a buff.
