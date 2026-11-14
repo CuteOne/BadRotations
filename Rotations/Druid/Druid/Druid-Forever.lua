@@ -1398,8 +1398,12 @@ actionList.Combat = function()
             return true
         end
     end
+    -- A totem dies to a white hit or two: the auto attack above takes it, no Energy or Rage on it (a combo point on it
+    -- goes with it). 2026-11-13 fight 31: Shred [Opener] on a 5-health Magma Totem.
+    local targetTotem = unit.totem("target")
+    local meleeTotem = inMelee and unit.totem(units.dyn5)
     -- Cat Opener out of Prowl: the first hit on a new target, ahead of Faerie Fire (see openerPending)
-    if activeForm == "cat" and buff.catForm.exists() and inMelee and not buff.prowl.exists() and openerPending() then
+    if activeForm == "cat" and buff.catForm.exists() and inMelee and not targetTotem and not buff.prowl.exists() and openerPending() then
         if actionList.CatOpener() then
             var.openedGUID = unit.guid("target")
             return true
@@ -1419,7 +1423,7 @@ actionList.Combat = function()
         end
     end
     -- Call Action List - Bear Form
-    if activeForm == "bear" and buff.bearForm.exists() and inMelee then
+    if activeForm == "bear" and buff.bearForm.exists() and inMelee and not meleeTotem then
         if ui.checked("Bear Opener") and actionList.BearOpener() then return true end
         if actionList.BearForm() then return true end
         -- Faerie Fire filler: when the Bear list had nothing to do, the other enemies Swipe hits (lower
@@ -1433,8 +1437,8 @@ actionList.Combat = function()
         end
     end
     -- Call Action List - Cat Form
-    if activeForm == "cat" and buff.catForm.exists() and inMelee then
-        if buff.prowl.exists() then
+    if activeForm == "cat" and buff.catForm.exists() and inMelee and not meleeTotem then
+        if buff.prowl.exists() and not targetTotem then
             if actionList.CatOpener() then return true end
             -- still in the time to get behind for the opener, or short of its Energy: no Claw from Cat Form
             if var.openerHold then return true end
