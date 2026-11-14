@@ -260,6 +260,7 @@
 ---@field bloodiedBlade T
 ---@field bloodletting T
 ---@field bloodlust T
+---@field bloodrage T
 ---@field bloodseeker T
 ---@field bloodshed T
 ---@field bloodshot T
@@ -267,6 +268,7 @@
 ---@field bloodsurge T
 ---@field bloodtalons T
 ---@field bloodthirst T
+---@field bloodthrill T
 ---@field bloodworms T
 ---@field bloodyFortitude T
 ---@field bloodyScreech T
@@ -365,6 +367,7 @@
 ---@field chainsOfAnger T
 ---@field chainsOfIce T
 ---@field challengingRoar T
+---@field challengingShout T
 ---@field championOfTheGlaive T
 ---@field championsMight T
 ---@field championsSpear T
@@ -439,6 +442,7 @@
 ---@field commanderOfTheDead T
 ---@field commandingShout T
 ---@field concentrationAura T
+---@field concussionBlow T
 ---@field concussiveBlows T
 ---@field concussiveShot T
 ---@field conductiveEnergy T
@@ -570,6 +574,7 @@
 ---@field deathsReach T
 ---@field deepBreath T
 ---@field deepFreeze T
+---@field deepWounds T
 ---@field deepeningShadows T
 ---@field deeperDaggers T
 ---@field deeperStratagem T
@@ -1004,6 +1009,7 @@
 ---@field gnaw T
 ---@field goldenPath T
 ---@field gore T
+---@field goreDrinker T
 ---@field gorefiendsGrasp T
 ---@field goremawsBite T
 ---@field goryFur T
@@ -1205,11 +1211,13 @@
 ---@field improvedShadowTechniques T
 ---@field improvedShurikenStorm T
 ---@field improvedSigilOfMisery T
+---@field improvedSlam T
 ---@field improvedSprint T
 ---@field improvedStampedingRoar T
 ---@field improvedSteadyShot T
 ---@field improvedSurvivalInstincts T
 ---@field improvedSweepingStrikes T
+---@field improvedTacticalMastery T
 ---@field improvedTouchOfDeath T
 ---@field improvedTraps T
 ---@field improvedVampiricBlood T
@@ -1463,6 +1471,7 @@
 ---@field misery T
 ---@field mistWrap T
 ---@field mockingBanner T
+---@field mockingBlow T
 ---@field mograinesMight T
 ---@field moltenArmor T
 ---@field moltenAssault T
@@ -1725,6 +1734,7 @@
 ---@field recall T
 ---@field recallCloudburstTotem T
 ---@field recklessAbandon T
+---@field recklessSwings T
 ---@field recklessness T
 ---@field reckoning T
 ---@field recompense T
@@ -1959,6 +1969,7 @@
 ---@field shearFury T
 ---@field sheilunsGift T
 ---@field shellShield T
+---@field shieldBash T
 ---@field shieldBlock T
 ---@field shieldDiscipline T
 ---@field shieldOfTheRighteous T
@@ -1971,6 +1982,9 @@
 ---@field shiv T
 ---@field shockingGrasp T
 ---@field shockwave T
+---@field shootBow T
+---@field shootCrossbow T
+---@field shootGun T
 ---@field shootingStars T
 ---@field shotInTheDark T
 ---@field showNoMercy T
@@ -2054,6 +2068,7 @@
 ---@field sourceOfMagic T
 ---@field sowTheSeeds T
 ---@field spearHandStrike T
+---@field spearingStrike T
 ---@field specialDelivery T
 ---@field specializedArsenal T
 ---@field spectralSight T
@@ -2197,6 +2212,7 @@
 ---@field symbolOfHope T
 ---@field symbolsOfDeath T
 ---@field symphonicArsenal T
+---@field tacticalMastery T
 ---@field tacticalReload T
 ---@field tacticalRetreat T
 ---@field tactician T
@@ -2618,6 +2634,7 @@
 ---@field bloodShield T
 ---@field bloodbath T
 ---@field bloodlust T
+---@field bloodrage T
 ---@field bloodtalons T
 ---@field blunderbuss T
 ---@field blurOfTalons T
@@ -2715,6 +2732,7 @@
 ---@field deathsDue T
 ---@field deeperDaggers T
 ---@field defensiveStance T
+---@field defensiveState T
 ---@field defiledAugmentation T
 ---@field demonSpikes T
 ---@field demonicCalling T
@@ -2854,6 +2872,7 @@
 ---@field giftOfTheWild T
 ---@field glide T
 ---@field gore T
+---@field goreDrinker T
 ---@field goryFur T
 ---@field grandMelee T
 ---@field greaterFlaskOfEndlessFathoms T
@@ -3056,6 +3075,7 @@
 ---@field ravenousFrenzy T
 ---@field razorCoral T
 ---@field razorFragments T
+---@field recklessSwings T
 ---@field recklessness T
 ---@field recuperate T
 ---@field refreshingJadeWind T
@@ -3067,6 +3087,7 @@
 ---@field renewingMist T
 ---@field resonanceTotem T
 ---@field resonatingArrow T
+---@field retaliation T
 ---@field retributionAura T
 ---@field revenge T
 ---@field reversion T
@@ -3325,10 +3346,12 @@
 ---@field cauterized T
 ---@field chainsOfIce T
 ---@field championsMight T
+---@field chargeStun T
 ---@field cheapShot T
 ---@field chilled T
 ---@field colossusSmash T
 ---@field concentratedFlame T
+---@field concussionBlow T
 ---@field concussiveShot T
 ---@field conductiveInk T
 ---@field conflagrate T
@@ -3413,9 +3436,12 @@
 ---@field ignite T
 ---@field immolate T
 ---@field impendingCatastrophe T
+---@field improvedHamstring T
 ---@field insectSwarm T
 ---@field instantPoison T
+---@field interceptStun T
 ---@field internalBleeding T
+---@field intimidatingShout T
 ---@field intimidation T
 ---@field jadefireBrand T
 ---@field judgement T
@@ -3427,6 +3453,7 @@
 ---@field lashingFlames T
 ---@field latentPoison T
 ---@field lightningRod T
+---@field longDaze T
 ---@field lycarasBargin T
 ---@field mangleBear T
 ---@field mangleCat T
@@ -3440,10 +3467,12 @@
 ---@field mindFlay T
 ---@field mindNumbingPoison T
 ---@field mirrorsOfTorment T
+---@field mockingBlow T
 ---@field moderateStagger T
 ---@field moonfire T
 ---@field moonfireCat T
 ---@field moonfireGuardian T
+---@field mortalStrike T
 ---@field mortalWounds T
 ---@field mysticTouch T
 ---@field necroticWound T
@@ -3454,6 +3483,7 @@
 ---@field paralyticPoison T
 ---@field phantomSingularity T
 ---@field pheromoneBomb T
+---@field piercingHowl T
 ---@field pounce T
 ---@field pounceBleed T
 ---@field preyOnTheWeak T
@@ -3490,6 +3520,7 @@
 ---@field shadowflame T
 ---@field shadowsGrasp T
 ---@field shatteringStar T
+---@field shieldBashSilence T
 ---@field shiv T
 ---@field shiverVenom T
 ---@field shrapnelBomb T
@@ -3505,6 +3536,7 @@
 ---@field stellarFlare T
 ---@field stormEarthAndFireFixate T
 ---@field stormstrike T
+---@field sunderArmor T
 ---@field sunfire T
 ---@field surgeOfToxins T
 ---@field tarTrap T
