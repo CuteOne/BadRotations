@@ -437,7 +437,9 @@ end
 --------------------
 -- Action List - Buffs
 actionList.Buffs = function()
-    if unit.inCombat() or unit.resting() then return false end
+    -- Out of combat, in a city or inn too (the user's call, 2026-11-14: nothing went out in Undercity with You + Target
+    -- on a friendly player); the option still picks who, so a stranger in town gets a buff only when you target them
+    if unit.inCombat() then return false end
     -- Mark of the Wild
     if ui.checked("Mark of the Wild") then
         local markUnit = units.castOn("Mark of the Wild", needsMarkOfTheWild, cast.able.markOfTheWild)
