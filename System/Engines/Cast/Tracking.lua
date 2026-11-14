@@ -13,7 +13,7 @@ local E = cast.internal
 -- BR's latest send: the spell, the unit as asked and its GUID, when, and whether it's still going (true from the
 -- send until the player's next cast success, or that spell failing: cast:noteSucceeded, from Events.lua). Game errors are pinned on it, and
 -- the bleed watcher, auto attack and auto-loot wait a round trip after it. Read with cast:getLastSend().
-local lastSend = { spellID = nil, unit = nil, guid = nil, at = nil, going = false }
+local lastSend = { spellID = nil, unit = nil, guid = nil, at = nil, going = false, rankID = nil }
 
 --- BR's latest spell send: spellID, its unit's GUID, when (GetTime), the unit as given; nil when none yet.
 -- local spellID, guid, sentAt = br.engines.cast:getLastSend()
@@ -282,7 +282,8 @@ E.lastTimedSend, E.lastTimedSendAt = nil, nil
 -- The record before the latest recordBotCast, so a send the game threw on can be taken back (E.undoBotCast)
 local beforeSend = {}
 
-function E.recordBotCast(spellID, thisUnit)
+-- rankID: the rank actually sent, when lower than spellID (a target too low level for your best rank)
+function E.recordBotCast(spellID, thisUnit, rankID)
 	local b = beforeSend
 	b.spellID, b.sentAt, b.sentTo, b.sentToUnit = spellID, E.sentAt[spellID], E.sentTo[spellID], E.sentToUnit[spellID]
 	b.timedSend, b.timedSendAt = E.lastTimedSend, E.lastTimedSendAt
@@ -293,6 +294,7 @@ function E.recordBotCast(spellID, thisUnit)
 	end
 	lastSend.going, lastSend.spellID, lastSend.unit = true, spellID, thisUnit
 	lastSend.guid, lastSend.at = br.game.UnitGUID(thisUnit), br.game.GetTime()
+	lastSend.rankID = rankID or spellID
 	E.sentTo[spellID] = lastSend.guid
 	E.sentToUnit[spellID] = tostring(thisUnit)
 	-- a weapon imbue: the hands' enchants now, to see where it lands (Functions/Item.lua)
@@ -448,14 +450,19 @@ function cast:handleCastError(message)
 			refused = E.lastTimedSend
 		end
 		cast:setRejected(kind, refused, br.game.UnitGUID("player"), duration)
+	elseif kind == "lowlevel" then
+		-- A lower rank is tried next (spell:rankForUnit); only with none left is the spell left on that unit
+		local refusedUnit = br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(lastSend.guid)
+		local level = refusedUnit and br.game.UnitLevel(refusedUnit) or nil
+		local sentRank = lastSend.rankID or refused
+		if br.debug.cast then br.debug.cast:noteTooLowLevel(sentRank, refusedUnit) end
+		if not br.functions.spell:noteTooLowLevel(sentRank, lastSend.guid, level) then
+			cast:setRejected(kind, refused, lastSend.guid, duration)
+			local key = rejectionKey(kind, refused, lastSend.guid)
+			if key then levelAtRefusal[key] = level end
+		end
 	else
 		cast:setRejected(kind, refused, lastSend.guid, duration)
-	end
-	if kind == "lowlevel" then
-		local refusedUnit = br.game.GetObjectWithGUID and br.game.GetObjectWithGUID(lastSend.guid)
-		local key = rejectionKey(kind, refused, lastSend.guid)
-		if key then levelAtRefusal[key] = refusedUnit and br.game.UnitLevel(refusedUnit) or nil end
-		if br.debug.cast then br.debug.cast:noteTooLowLevel(refused, refusedUnit) end
 	end
 	if E.castTimers then E.castTimers[refused] = nil end
 	castIntentLocks[refused] = nil

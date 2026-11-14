@@ -145,9 +145,15 @@ br.api.build.buffs = function(buff, k, v)
         if (br.client.rules.hasSpellRanks and sourceUnit == nil) then
             local auraInfo = br.functions.aura:UnitBuffID(thisUnit, v)
             local auraID = auraInfo and auraInfo.spellId
+            -- The rank wanted on another unit is the one its level takes (a lower one when the game said it's too low
+            -- level for yours, spell:rankForUnit), so that rank on it isn't "upgraded" again and again
+            local want = v
+            if thisUnit ~= "player" and not br.functions.unit:GetUnitIsUnit(thisUnit, "player") then
+                want = br.functions.spell:rankForUnit(v, thisUnit) or v
+            end
             -- (an aura rank the list doesn't have goes by ID, as before)
-            local onRank, wantRank = rankIndex(ref, auraID), rankIndex(ref, v)
-            if not (onRank and wantRank) then onRank, wantRank = auraID, auraID and v end
+            local onRank, wantRank = rankIndex(ref, auraID), rankIndex(ref, want)
+            if not (onRank and wantRank) then onRank, wantRank = auraID, auraID and want end
             if onRank and onRank > wantRank then
                 return false
             end

@@ -142,9 +142,16 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 		return false
 	end
 
-	-- The game said this unit is too low level for your rank of the spell (no lower rank to fall back on, see Tracking.lua)
-	if cast:isRejected("lowlevel", ctx.spellID, thisUnit) then
-		E.recordRefusal(ctx.spellID, "TOO_LOW_LEVEL", "unit too low level for this rank")
+	-- Too low level: the game refused this spell on this unit and no lower rank is left to try (see Tracking.lua), or
+	-- none of its ranks fits the unit's level (spell:rankForUnit). sendRankID: the rank this unit takes, sent by name
+	-- and rank text below when it's lower than your best; the gates above judged your best rank (a lower one costs
+	-- less and reaches as far)
+	local sendRankID = ctx.spellID
+	if thisUnit ~= nil and castType ~= "pet" and not br.functions.unit:GetUnitIsUnit(thisUnit, "player") then
+		sendRankID = br.functions.spell:rankForUnit(ctx.spellID, thisUnit)
+	end
+	if sendRankID == nil or cast:isRejected("lowlevel", ctx.spellID, thisUnit) then
+		E.recordRefusal(ctx.spellID, "TOO_LOW_LEVEL", "unit too low level for every rank left")
 		return false
 	end
 
@@ -164,7 +171,7 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 	E.setCastIntentLock(ctx.spellID, 0.20)
 	local snapshot = E.takeCastStartSnapshot(ctx.spellID)
 
-	E.recordBotCast(ctx.spellID, thisUnit)
+	E.recordBotCast(ctx.spellID, thisUnit, sendRankID)
 
 	-- Condemn patch (Blizzard spell-swap quirk).
 	local castName = ctx.spellName
@@ -208,7 +215,10 @@ function E.castingSpell(ctx, thisUnit, castType, debug)
 	-- clients casting by name sends the highest known rank.
 	local bestRankID = br.client.rules.hasSpellRanks and castName == ctx.spellName and br.functions.spell:getSpellID(castName)
 	local sent
-	if bestRankID and bestRankID ~= ctx.spellID then
+	local lowerName = sendRankID ~= ctx.spellID and br.functions.spell:rankedCastName(sendRankID, ctx.spellID)
+	if lowerName then
+		sent = cast:castByRankName(lowerName, thisUnit, sendRankID)
+	elseif bestRankID and bestRankID ~= ctx.spellID then
 		sent = cast:castByID(ctx.spellID, thisUnit)
 	else
 		sent = cast:castByName(castName, thisUnit)

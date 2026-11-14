@@ -91,6 +91,13 @@ function cast:castByID(spellID, unit)
 	return ok
 end
 
+-- A rank below your best, for a target too low level for it, by its name and rank text ("Mark of the Wild(Rank 2)"):
+-- Forever casts a rank that has left the spellbook that way (2026-11-14, the user's macro)
+function cast:castByRankName(text, unit, rankID)
+	local ok = send(br.game.CastSpellByName, text, unit, rankID, "lower rank for the unit's level")
+	return ok
+end
+
 --cast spell on position x,y,z
 function cast:castAtPosition(X, Y, Z, SpellID)
 	local mouselookActive = false

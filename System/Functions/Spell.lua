@@ -797,6 +797,99 @@ function spell:getSpellRank(spellIDOrTable, rank)
     return spellIDOrTable[asked]
 end
 
+-- Lower ranks for a target too low level for your best one. Forever drops a spell's old ranks from the spellbook
+-- once the next is learned, but still casts them by name and rank text ("Mark of the Wild(Rank 2)": the user's
+-- macro, 2026-11-14). The game refuses a rank whose level is more than LOW_LEVEL_GAP above the target's ("Target is
+-- too low level"; the Classic rule, unverified on Forever: each refusal also caps that unit one rank lower).
+-- Only for spells the game has refused that way this session, so heals and the rest keep your best rank.
+local LOW_LEVEL_GAP = 10
+local lowLevelSpells = {} -- spell name -> true once refused "Target is too low level"
+local rankCaps = {}       -- spell name .. ":" .. unit GUID -> { below = rank index refused, level = unit level then }
+local rankLists, rankListsOf = nil, nil -- spell ID -> { list, index }, built from br.lists.spells
+
+-- The rank list spellID is in (from the spell lists) and its place in it; nil for a spell without ranks
+function spell:rankListOf(spellID)
+	local lists = br.lists and br.lists.spells
+	if lists == nil or spellID == nil then return nil end
+	if rankListsOf ~= lists then
+		rankLists, rankListsOf = {}, lists
+		local seen = {}
+		local function walk(t)
+			if seen[t] then return end
+			seen[t] = true
+			if #t > 1 and type(t[1]) == "number" then
+				for i = 1, #t do if type(t[i]) == "number" then rankLists[t[i]] = { t, i } end end
+				return
+			end
+			for _, v in pairs(t) do if type(v) == "table" then walk(v) end end
+		end
+		walk(lists)
+	end
+	local entry = rankLists[spellID]
+	if entry == nil then return nil end
+	return entry[1], entry[2]
+end
+
+-- The rank of spellID (your best known one) to cast on thisUnit: spellID itself, unless the game has refused the
+-- spell "Target is too low level" this session; then the highest rank at or below it that thisUnit's level takes
+-- and that wasn't refused on it at this level. nil when no rank fits.
+function spell:rankForUnit(spellID, thisUnit)
+	if not br.client.rules.hasSpellRanks or thisUnit == nil then return spellID end
+	local name = spell:getName(spellID)
+	if name == nil or not lowLevelSpells[name] then return spellID end
+	local list, best = spell:rankListOf(spellID)
+	if list == nil then return spellID end
+	local level = br.game.UnitLevel(thisUnit)
+	if type(level) ~= "number" or not br.functions.misc:canUseValue(level) or level <= 0 then return spellID end
+	local top = best
+	local guid = br.game.UnitGUID(thisUnit)
+	local key = guid and (name .. ":" .. guid)
+	local cap = key and rankCaps[key]
+	if cap ~= nil then
+		if cap.level == level then top = math.min(top, cap.below - 1) else rankCaps[key] = nil end
+	end
+	for i = top, 1, -1 do
+		local learned = br.game.C_Spell.GetSpellLevelLearned(list[i])
+		if type(learned) ~= "number" or not br.functions.misc:canUseValue(learned) or learned <= level + LOW_LEVEL_GAP then
+			return list[i]
+		end
+	end
+	return nil
+end
+
+-- The game refused sentID on the unit with this GUID (level then) as too low level: lower ranks are worked out for
+-- that spell from now on (rankForUnit), and this unit gets ranks below sentID until its level changes. False when
+-- there's no lower rank to try (unranked, or rank 1 refused): the caller leaves the spell on that unit.
+function spell:noteTooLowLevel(sentID, guid, level)
+	local name = spell:getName(sentID)
+	if name == nil then return false end
+	lowLevelSpells[name] = true
+	local list, index = spell:rankListOf(sentID)
+	if list == nil or index == nil or index <= 1 or guid == nil then return false end
+	rankCaps[name .. ":" .. guid] = { below = index, level = level }
+	return true
+end
+
+-- "Mark of the Wild(Rank 2)": the name and rank text the game casts a rank by, for a rank no longer in the spellbook.
+-- The rank text is the game's own for that ID when it has one, else your best rank's with its number swapped.
+function spell:rankedCastName(rankID, bestID)
+	local name = spell:getName(rankID) or spell:getName(bestID)
+	if name == nil then return nil end
+	local C = br.game.C_Spell
+	local function subtext(id)
+		local t = (C and C.GetSpellSubtext and C.GetSpellSubtext(id)) or (br.game.GetSpellSubtext and br.game.GetSpellSubtext(id))
+		return type(t) == "string" and t ~= "" and t or nil
+	end
+	local text = subtext(rankID)
+	if text == nil then
+		local _, index = spell:rankListOf(rankID)
+		if index == nil then return nil end
+		local bestText = subtext(bestID)
+		text = bestText and bestText:find("%d") and bestText:gsub("%d+", tostring(index), 1) or ("Rank " .. index)
+	end
+	return name .. "(" .. text .. ")"
+end
+
 function spell:getSpellType(spellName)
 	if spellName == nil then return "Invalid" end
 	local helpful = br.game.C_Spell.IsSpellHelpful(spellName) or false
