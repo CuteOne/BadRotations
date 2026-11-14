@@ -182,6 +182,7 @@ local freeDPS
 local freeHeal
 local inForm
 local noShapeshiftPower
+local travelling
 
 -----------------
 --- Functions --- -- List all profile specific custom functions here
@@ -224,22 +225,55 @@ local function resolveForm()
     return form
 end
 
+-- Out of form for one buff, the others go out early too, with up to half their duration left: each buff alone costs a
+-- form break and a shift back (2026-11-14: Travel Form left for Thorns at 10:03:45, then again for Mark of the Wild at
+-- 10:07:04 with ~12 of its 30 min left then; the user's call). Only when BR would shift back afterwards (the toggle's
+-- Cat or Bear, or back to Travel Form): a Caster player pays no shift, so its buffs keep the usual refresh.
+local BUFF_EARLY_SHARE = 0.5
+local function buffShare()
+    if inForm or buff.moonkinForm.exists() then return nil end
+    if activeForm == "cat" or activeForm == "bear" or var.travelBack then return BUFF_EARLY_SHARE end
+    return nil
+end
+
 -- Gift of the Wild is a differently named aura, so buff.markOfTheWild misses it and a recast
 -- fails with "A more powerful spell is already active". Treat it as satisfying Mark of the Wild.
+-- (Gift of the Wild keeps its usual refresh: an early Mark over it would only be refused.)
 local function needsMarkOfTheWild(thisUnit)
     if buff.giftOfTheWild.exists(thisUnit) and not buff.giftOfTheWild.refresh(thisUnit) then return false end
-    return buff.markOfTheWild.refresh(thisUnit)
+    return buff.markOfTheWild.refresh(thisUnit, nil, buffShare())
+end
+
+local function needsThorns(thisUnit)
+    return buff.thorns.refresh(thisUnit, nil, buffShare())
+end
+
+-- Your health is at or below a self-heal's threshold (Rejuvenation, Regrowth or Healing Touch, the ones on), after the
+-- heals on their way, and you heal yourself here (Self Heal In Group)
+local function healWanted()
+    if unit.inGroup() and not ui.checked("Self Heal In Group") and unit.groupHealer() then return false end
+    local hp = unit.hpAfterHeals()
+    return (ui.checked("Rejuvenation") and hp <= ui.value("Rejuvenation"))
+        or (ui.checked("Regrowth") and hp <= ui.value("Regrowth"))
+        or (ui.checked("Healing Touch") and hp <= ui.value("Healing Touch"))
 end
 
 -- Casts a Caster Form spell, leaving the current form first when it blocks the spell: Cat, Bear,
 -- Travel and Aquatic Form block every caster spell, Moonkin Form blocks heals. free: Clearcasting
 -- makes the spell free; emergency: leave the form even when shifting back isn't affordable.
 -- A form left for a heal is held off (see Forms) until the heal goes out or HEAL_SHIFT_HOLD passes.
+-- Out of combat and moving in Travel or Aquatic Form (travelling), only a heal at or below the Healing Touch
+-- threshold leaves it; buffs, cures and smaller heals wait until you stop (2026-11-14 10:03:45 and 10:07:04: the
+-- user's Travel Form left for Thorns, then Mark of the Wild, on the move). A Travel Form left out of combat is
+-- shifted back into once you move on (var.travelBack, see Forms) rather than the toggle's form.
 local HEAL_SHIFT_HOLD = 1.5
 local function casterCast(spellKey, thisUnit, label, free, emergency, isHeal)
     if inForm or (isHeal and buff.moonkinForm.exists()) then
+        if travelling and not (isHeal and unit.hpAfterHeals(thisUnit) <= ui.value("Healing Touch")) then return false end
+        local fromTravel = buff.travelForm.exists() and not unit.inCombat()
         local left = unit.cancelFormFor(spell[spellKey], free, emergency)
         if left and isHeal then var.leftFormForHealAt = util.time() end
+        if left and fromTravel then var.travelBack = true end
         return left
     end
     if cast[spellKey](thisUnit) then
@@ -410,7 +444,7 @@ actionList.Buffs = function()
     end
     -- Thorns: tanks first, where it does the most
     if ui.checked("Thorns") then
-        local thornUnit = units.castOn("Thorns", buff.thorns.refresh, cast.able.thorns, { roles = { "TANK" } })
+        local thornUnit = units.castOn("Thorns", needsThorns, cast.able.thorns, { roles = { "TANK" } })
         if thornUnit and casterCast("thorns", thornUnit, "Thorns" .. onName(thornUnit)) then return true end
     end
 end -- End Action List - Buffs
@@ -432,8 +466,8 @@ actionList.Forms = function()
             return true
         end
     end
-    -- Travel Form
-    if ui.checked("Travel Form") and not unit.inCombat() and not unit.mounted()
+    -- Travel Form (the option, or back into the Travel Form BR left for a cast: var.travelBack)
+    if (ui.checked("Travel Form") or var.travelBack) and not unit.inCombat() and not unit.mounted()
         and not unit.swimming() and not unit.falling() and cast.able.travelForm()
         and not buff.travelForm.exists() and not buff.prowl.exists()
         and unit.moving() and unit.movingTime() > 2 and not unit.anyInAggroRange()
@@ -442,7 +476,8 @@ actionList.Forms = function()
             if unit.cancelFormFor(spell.travelForm) then return true end
         end
         if cast.travelForm() then
-            ui.debug("Casting Travel Form")
+            ui.debug("Casting Travel Form" .. (var.travelBack and " [back after a cast]" or ""))
+            var.travelBack = nil
             return true
         end
     end
@@ -457,6 +492,10 @@ actionList.Forms = function()
     if not ((unit.moving() and unit.movingTime() > ui.value("Shift Wait Time")) or unit.inCombat() or unit.anyInAggroRange(5)) then
         return false
     end
+    -- Out of combat with no enemy in aggro range, stay out of form while you still want a heal: shifting in between
+    -- heals pays a shift each time (2026-11-14 10:02:55-10:03:12: Cat, out for Rejuvenation, Cat, out for the
+    -- out-of-combat Healing Touch once you stopped, Cat: three shifts in 17 s; the user's call)
+    if not unit.inCombat() and not unit.anyInAggroRange() and healWanted() then return false end
     -- Bear Form
     if activeForm == "bear" and cast.able.bearForm() and not buff.bearForm.exists() then
         if cast.bearForm() then
@@ -1479,6 +1518,15 @@ local function runRotation()
     -- The form the Forms toggle picks, and whether a form that blocks caster spells is up
     activeForm = resolveForm()
     inForm = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
+    -- Out of combat on the move in Travel or Aquatic Form (casterCast waits for you to stop). The Travel Form BR left
+    -- (var.travelBack) is forgotten in combat, mounted, once you're in another form (yours or the toggle's), or when
+    -- Forms shifts back into Travel (not on Travel Form showing: it still shows for a round trip after the cancel)
+    travelling = not unit.inCombat() and unit.moving() and (buff.travelForm.exists() or buff.aquaticForm.exists())
+    if unit.inCombat() or unit.mounted() or buff.catForm.exists() or buff.bearForm.exists()
+        or buff.moonkinForm.exists() or buff.aquaticForm.exists()
+    then
+        var.travelBack = nil
+    end
 
     -- Heals on others (healOther) only while the Heal Others Key is held, when one is set
     var.healOthersKey = ui.dropOptions.Toggle[ui.value("Heal Others Key")] == "None" or ui.toggleKey("Heal Others Key")
