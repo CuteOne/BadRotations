@@ -98,67 +98,68 @@ the levels before you pick a specialization.
 
 <table>
 <tr><th>Class</th><th>Spec</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
-<tr><th rowspan="2">Death Knight</th><td>Blood</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="3">Demon Hunter</th><td>Havoc</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><td>Vengeance</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Druid</th><td>Feral</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><td>Starter</td><td>Initial Druid</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Evoker</th><td>Devastation</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Hunter</th><td>Marksmanship</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Paladin</th><td>Retribution</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th>Priest</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th>Rogue</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th>Warlock</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th>Warrior</th><td>Fury</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th rowspan="2">Death Knight</th><td>Blood</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><th rowspan="3">Demon Hunter</th><td>Havoc</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><td>Vengeance</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-31</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><th rowspan="2">Druid</th><td>Feral</td><td>CuteOne</td><td>CuteOne</td><td>2026-11-12</td></tr>
+<tr><td>Starter</td><td>Initial Druid</td><td>CuteOne</td><td>2026-11-12</td></tr>
+<tr><th rowspan="2">Evoker</th><td>Devastation</td><td>CuteOne</td><td>CuteOne</td><td>2026-11-01</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-11-01</td></tr>
+<tr><th rowspan="2">Hunter</th><td>Marksmanship</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><th rowspan="2">Paladin</th><td>Retribution</td><td>CuteOne</td><td>CuteOne</td><td>2026-11-01</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-11-01</td></tr>
+<tr><th>Priest</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-11-01</td></tr>
+<tr><th>Rogue</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><th>Warlock</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><th>Warrior</th><td>Fury</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-29</td></tr>
 </table>
 
 ### Mists of Pandaria Classic
 
 <table>
 <tr><th>Class</th><th>Spec</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
-<tr><th>Death Knight</th><td>Frost</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Druid</th><td>Feral</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><td>Starter</td><td>Initial Druid</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th>Mage</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Monk</th><td>WindWalker</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Paladin</th><td>Retribution</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th>Rogue</th><td>Subtlety</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Shaman</th><td>Enhancement</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Warrior</th><td>Arms</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th>Death Knight</th><td>Frost</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><th rowspan="2">Druid</th><td>Feral</td><td>CuteOne</td><td>CuteOne</td><td>2026-11-01</td></tr>
+<tr><td>Starter</td><td>Initial Druid</td><td>CuteOne</td><td>2026-11-01</td></tr>
+<tr><th>Mage</th><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><th rowspan="2">Monk</th><td>WindWalker</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><th rowspan="2">Paladin</th><td>Retribution</td><td>CuteOne</td><td>CuteOne</td><td>2026-11-01</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><th>Rogue</th><td>Subtlety</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-31</td></tr>
+<tr><th rowspan="2">Shaman</th><td>Enhancement</td><td>CuteOne</td><td>CuteOne</td><td>2026-11-01</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-11-01</td></tr>
+<tr><th rowspan="2">Warrior</th><td>Arms</td><td>CuteOne</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><td>Starter</td><td>Initial</td><td>CuteOne</td><td>2026-10-29</td></tr>
 </table>
 
 ### Burning Crusade Classic
 
 <table>
 <tr><th>Class</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
-<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th>Hunter</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th rowspan="2">Shaman</th><td>Earthcaller</td><td>Earthcaller</td><td>2026-10-28</td></tr>
-<tr><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th rowspan="2">Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-11-12</td></tr>
+<tr><td>Claude</td><td>Claude</td><td>2026-11-01</td></tr>
+<tr><th>Hunter</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-29</td></tr>
+<tr><th rowspan="2">Shaman</th><td>Earthcaller</td><td>Earthcaller</td><td>2026-11-11</td></tr>
+<tr><td>CuteOne</td><td>CuteOne</td><td>2026-11-01</td></tr>
 </table>
 
 ### Classic Era
 
 <table>
 <tr><th>Class</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
-<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
-<tr><th>Hunter</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-11-12</td></tr>
+<tr><th>Hunter</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-29</td></tr>
 </table>
 
 ### World of Warcraft Forever
 
 <table>
 <tr><th>Class</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
-<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-10-28</td></tr>
+<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-11-14</td></tr>
 </table>
 
 <!-- /rotations -->
