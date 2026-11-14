@@ -884,13 +884,18 @@ end
 -- seconds later counts a miss for that NPC ID; a bleed that shows resets the count (and lifts a mark).
 -- BLEED_IMMUNE_AFTER misses in a row mark the NPC ID. A dodged, parried or missed bleed looks the same (no
 -- debuff): on Forever ~16% of Rakes were avoided (2026-11-09, mobs 1-2 levels up, mostly from the front), and
--- three in a row marked a harpy, so it takes five (~1 in 10000 by avoidance alone). Marks are kept across
+-- three in a row marked a harpy, so it takes five (~1 in 10000 by avoidance alone). An Energy bleed tells the two
+-- apart by your combo points: one that hits builds or spends them (an immune Rake still hits for its damage and
+-- gives its point, an immune Rip spends them), one avoided leaves them as they were at the send, and doesn't count
+-- (2026-11-14: five avoided against Giant Plains Creepers a few levels up, all with combo points unchanged, marked
+-- a mob Rake and Rip landed on in between). Rage bleeds (Lacerate) have no such sign and count as before. Marks are kept across
 -- sessions in Settings/<Flavour>/BleedImmune.lua (a fact about the mob, not your character); delete the file
 -- to start over.
 local BLEED_CHECK_AFTER, BLEED_SEND_WINDOW, BLEED_IMMUNE_AFTER = 0.6, 1.0, 5
 local BLEED_FILE = "BleedImmune"
 local bleedNames, bleedNamesFor -- [ability name] = its debuff's name; the spell table it was built from
-local bleedPending = {}         -- { debuffName, spellName, guid, npcID, name, at, energy, combo }
+local bleedPending = {}         -- { debuffName, spellName, guid, npcID, name, at, energy, combo, comboSent, byEnergy }
+local bleedSent                 -- { spellID, at, combo }: your combo points when the game took your last spell
 local bleedMisses = {}          -- [npcID] = misses in a row
 local bleedImmune               -- [npcID] = true; read from the file on first use
 
@@ -963,7 +968,7 @@ local function settleBleeds(now)
 				local note = br.debug.cast and br.debug.cast.noteBleed
 				local energy, combo = bleedPower()
 				local power = (" | Energy %s -> %s, combo points %s -> %s"):format(tostring(entry.energy), tostring(energy),
-					tostring(entry.combo), tostring(combo))
+					tostring(entry.comboSent or entry.combo), tostring(combo))
 				if landed then
 					if marks[npcID] then
 						marks[npcID] = nil
@@ -971,6 +976,12 @@ local function settleBleeds(now)
 						if note then br.debug.cast:noteBleed(entry.name, npcID, entry.spellName, "landed: no longer counted bleed-immune" .. power) end
 					end
 					bleedMisses[npcID] = 0
+				elseif entry.byEnergy and entry.comboSent ~= nil and combo ~= nil and combo == entry.comboSent then
+					-- it didn't hit (dodged, parried or missed): says nothing about the mob, so the count stays
+					if note then
+						br.debug.cast:noteBleed(entry.name, npcID, entry.spellName, ("no %s after it, combo points unchanged since the send: avoided, not counted (%d in a row)")
+							:format(entry.debuffName, bleedMisses[npcID] or 0) .. power)
+					end
 				else
 					local misses = (bleedMisses[npcID] or 0) + 1
 					bleedMisses[npcID] = misses
@@ -1005,13 +1016,27 @@ local function noteBleedSucceeded(spellID)
 	local npcID = obj and unit:GetObjectID(obj)
 	if not npcID or npcID == 0 then return end
 	local energy, combo = bleedPower()
+	-- your combo points when the game took it (UNIT_SPELLCAST_SENT), and whether it costs Energy (combo points tell)
+	local comboSent = bleedSent and bleedSent.spellID == spellID and now - bleedSent.at <= BLEED_SEND_WINDOW and bleedSent.combo or nil
+	local byEnergy = false
+	local costs = br.game.C_Spell.GetSpellPowerCost and br.game.C_Spell.GetSpellPowerCost(spellID)
+	for _, c in ipairs(type(costs) == "table" and costs or {}) do
+		if c.type == 3 then byEnergy = true end
+	end
 	bleedPending[#bleedPending + 1] = { debuffName = debuffName, spellName = spellName, guid = sentGUID,
-		npcID = npcID, name = br.game.UnitName(obj), at = now + BLEED_CHECK_AFTER, energy = energy, combo = combo }
+		npcID = npcID, name = br.game.UnitName(obj), at = now + BLEED_CHECK_AFTER, energy = energy, combo = combo,
+		comboSent = comboSent, byEnergy = byEnergy }
 	-- looked at on time, not when next asked: a bleed that landed may have run out by then
 	br.game.C_Timer.After(BLEED_CHECK_AFTER, function() settleBleeds(br.game.GetTime()) end)
 end
 
 br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_SUCCEEDED" }, function(_, _, _, spellID) noteBleedSucceeded(spellID) end)
+-- SENT is (unit, target, castGUID, spellID): your combo points before the spell, for the bleed look
+br.engines.cast:onPlayerCast({ "UNIT_SPELLCAST_SENT" }, function(_, _, _, _, spellID)
+	if spellID == nil or not br.functions.misc:canUseValue(spellID) then return end
+	local _, combo = bleedPower()
+	bleedSent = { spellID = spellID, at = br.game.GetTime(), combo = combo }
+end)
 
 --- True when thisUnit's kind of mob (NPC ID) took BLEED_IMMUNE_AFTER of your bleeds in a row without the
 --- bleed showing (learned, and kept across sessions): the profile skips bleeds on it.
