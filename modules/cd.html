@@ -1,0 +1,471 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#cd_spell">cd.spell</a></li>
+<li><a href="#cd_item">cd.item</a></li>
+<li><a href="#cd_slot">cd.slot</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/buff.html">buff</a></li>
+  <li><strong>cd</strong></li>
+  <li><a href="../modules/cast.html">cast</a></li>
+  <li><a href="../modules/charges.html">charges</a></li>
+  <li><a href="../modules/debuff.html">debuff</a></li>
+  <li><a href="../modules/enemies.html">enemies</a></li>
+  <li><a href="../modules/equiped.html">equiped</a></li>
+  <li><a href="../modules/glyph.html">glyph</a></li>
+  <li><a href="../modules/has.html">has</a></li>
+  <li><a href="../modules/module.html">module</a></li>
+  <li><a href="../modules/pet.html">pet</a></li>
+  <li><a href="../modules/power.html">power</a></li>
+  <li><a href="../modules/spell.html">spell</a></li>
+  <li><a href="../modules/talent.html">talent</a></li>
+  <li><a href="../modules/totem.html">totem</a></li>
+  <li><a href="../modules/ui.html">ui</a></li>
+  <li><a href="../modules/Unit.html">Unit</a></li>
+  <li><a href="../modules/units.html">units</a></li>
+  <li><a href="../modules/use.html">use</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>cd</code></h1>
+<p>These functions help in retrieving information about spell and item cooldowns.</p>
+<p>
+ CD functions are the profile API table `cd` (br.api.profile.cd); profiles use it by name.
+ For spell CDs, `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in Expansions/<Flavour>/ (Global.lua, <CLASS>/Class.lua, <CLASS>/<Spec>.lua)
+ For item CDs, `item` in the function represent the name in the item list defined in System/List/Items.lua
+ For slot CDs, `slot` in the function represents equipement slots, pass the ID matching the equipement slot id you wish to check.</p>
+
+
+<h2><a href="#cd_spell">cd.spell</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#cd.">cd. ()</a></td>
+	<td class="summary">Gets the total time of the spell cooldown</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cd.">cd. ()</a></td>
+	<td class="summary">Checks if spell is on cooldown or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cd.">cd. ()</a></td>
+	<td class="summary">Gets the duration of the spells Global Cooldown.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cd.">cd. ()</a></td>
+	<td class="summary">Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cd.">cd. ()</a></td>
+	<td class="summary">Gets the time remaining on spell cooldown or 0 if not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cd.">cd. ()</a></td>
+	<td class="summary">Gets the time remaining on spell cooldown or 0 if not (alternate to cd.spell.remain() incase of typo).</td>
+	</tr>
+</table>
+<h2><a href="#cd_item">cd.item</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#cd.">cd. ()</a></td>
+	<td class="summary">Gets the total cooldown time of the item in seconds.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cd.">cd. ()</a></td>
+	<td class="summary">Checks if item is on cooldown or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cd.">cd. ()</a></td>
+	<td class="summary">Gets the time remaining on item cooldown or 0 if not.</td>
+	</tr>
+</table>
+<h2><a href="#cd_slot">cd.slot</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#cd.slot.duration">cd.slot.duration (slotID)</a></td>
+	<td class="summary">Gets the base cooldown of a given item spell from an inventory slot (in seconds).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cd.slot.exists">cd.slot.exists (slotID)</a></td>
+	<td class="summary">Checks if the item slot is on cooldown or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cd.slot.ready">cd.slot.ready (slotID)</a></td>
+	<td class="summary">Checks if the item slot is off cooldown or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cd.slot.remain">cd.slot.remain (slotID)</a></td>
+	<td class="summary">Gets the time remaining on the equipment slot item cooldown or 0 if not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cd.slot.remains">cd.slot.remains (slotID)</a></td>
+	<td class="summary">Gets the time remaining on the equipment slot item cooldown or 0 if not (alias for cd.slot.remain).</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="cd_spell"></a>cd.spell</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "cd."></a>
+    <strong>cd. ()</strong>
+    </dt>
+    <dd>
+    Gets the total time of the spell cooldown
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cd."></a>
+    <strong>cd. ()</strong>
+    </dt>
+    <dd>
+    Checks if spell is on cooldown or not.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cd."></a>
+    <strong>cd. ()</strong>
+    </dt>
+    <dd>
+    Gets the duration of the spells Global Cooldown.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cd."></a>
+    <strong>cd. ()</strong>
+    </dt>
+    <dd>
+    Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cd."></a>
+    <strong>cd. ()</strong>
+    </dt>
+    <dd>
+    Gets the time remaining on spell cooldown or 0 if not.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cd."></a>
+    <strong>cd. ()</strong>
+    </dt>
+    <dd>
+    Gets the time remaining on spell cooldown or 0 if not (alternate to cd.spell.remain() incase of typo).
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="cd_item"></a>cd.item</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "cd."></a>
+    <strong>cd. ()</strong>
+    </dt>
+    <dd>
+    Gets the total cooldown time of the item in seconds.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cd."></a>
+    <strong>cd. ()</strong>
+    </dt>
+    <dd>
+    Checks if item is on cooldown or not.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cd."></a>
+    <strong>cd. ()</strong>
+    </dt>
+    <dd>
+    Gets the time remaining on item cooldown or 0 if not.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="cd_slot"></a>cd.slot</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "cd.slot.duration"></a>
+    <strong>cd.slot.duration (slotID)</strong>
+    </dt>
+    <dd>
+    Gets the base cooldown of a given item spell from an inventory slot (in seconds).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slotID</span>
+         number The ID of the inventory slot.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number The base cooldown of the item spell divided by 1000.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cd.slot.exists"></a>
+    <strong>cd.slot.exists (slotID)</strong>
+    </dt>
+    <dd>
+    Checks if the item slot is on cooldown or not.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slotID</span>
+         number The ID of the inventory slot.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean Inventory slot is on cooldown or not.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cd.slot.ready"></a>
+    <strong>cd.slot.ready (slotID)</strong>
+    </dt>
+    <dd>
+    Checks if the item slot is off cooldown or not.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slotID</span>
+         number The ID of the equipment slot to check.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the slot is ready (not on cooldown).
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cd.slot.remain"></a>
+    <strong>cd.slot.remain (slotID)</strong>
+    </dt>
+    <dd>
+    Gets the time remaining on the equipment slot item cooldown or 0 if not.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slotID</span>
+         number The ID of the equipment slot to check.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cd.slot.remains"></a>
+    <strong>cd.slot.remains (slotID)</strong>
+    </dt>
+    <dd>
+    Gets the time remaining on the equipment slot item cooldown or 0 if not (alias for cd.slot.remain).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slotID</span>
+         number The ID of the equipment slot to check.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/cd.html#cd.slot.remain">cd.slot.remain</a>
+    </ul>
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-11-14 23:06:14 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

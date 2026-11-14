@@ -1,0 +1,368 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/buff.html">buff</a></li>
+  <li><a href="../modules/cd.html">cd</a></li>
+  <li><a href="../modules/cast.html">cast</a></li>
+  <li><a href="../modules/charges.html">charges</a></li>
+  <li><a href="../modules/debuff.html">debuff</a></li>
+  <li><a href="../modules/enemies.html">enemies</a></li>
+  <li><a href="../modules/equiped.html">equiped</a></li>
+  <li><a href="../modules/glyph.html">glyph</a></li>
+  <li><a href="../modules/has.html">has</a></li>
+  <li><a href="../modules/module.html">module</a></li>
+  <li><a href="../modules/pet.html">pet</a></li>
+  <li><a href="../modules/power.html">power</a></li>
+  <li><a href="../modules/spell.html">spell</a></li>
+  <li><a href="../modules/talent.html">talent</a></li>
+  <li><a href="../modules/totem.html">totem</a></li>
+  <li><a href="../modules/ui.html">ui</a></li>
+  <li><a href="../modules/Unit.html">Unit</a></li>
+  <li><strong>units</strong></li>
+  <li><a href="../modules/use.html">use</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>units</code></h1>
+<p>These functions find units: the "best" unit for a range and AOE/facing, the group members, the dead to loot.</p>
+<p>
+ Units functions are the profile API table `units` (br.api.profile.units); profiles use it by name.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#buffUnit">buffUnit (thisOption, needsBuff[, range=40])</a></td>
+	<td class="summary">Gets the unit to buff from a "cast on" dropdown option (choices = "CastOn": You, You + Target,
+ You + Mouseover, You + Focus, You + Group).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#castOn">castOn (thisOption, needs, able[, opts])</a></td>
+	<td class="summary">The unit a "cast on" dropdown option (choices = "CastOn") puts a helpful spell on now, or nil: you first,
+ then the option's target, mouseover or focus, or for You + Group each member (lowest health first).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get">get (range)</a></td>
+	<td class="summary">Gets the "best" unit within a specified range in front or around the player.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#groupStable">groupStable (seconds)</a></td>
+	<td class="summary">True when the group hasn't changed (members joining or leaving) for that many seconds</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#healAround">healAround (thisUnit, radius, health, count)</a></td>
+	<td class="summary">The group members within radius yards of a unit at or below health percent, lowest first, at
+ most count of them (each with .hp, .guid, .name, position)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lootable">lootable ()</a></td>
+	<td class="summary">The dead units the player can loot</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lootCount">lootCount ()</a></td>
+	<td class="summary">How many dead units are waiting to be looted</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#setTargetWeight">setTargetWeight (fn)</a></td>
+	<td class="summary">Sets the profile's own target weight for dynamic targeting: fn(unit) returns a number added to
+ the unit's score (higher = more priority), or nil to leave it.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "buffUnit"></a>
+    <strong>buffUnit (thisOption, needsBuff[, range=40])</strong>
+    </dt>
+    <dd>
+    Gets the unit to buff from a "cast on" dropdown option (choices = "CastOn": You, You + Target,
+ You + Mouseover, You + Focus, You + Group).  Older form of units.castOn: range by distance, no cast check.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisOption</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Name of the dropdown option.
+        </li>
+        <li><span class="parameter">needsBuff</span>
+         - function(unit) returning true if that unit needs the buff.
+        </li>
+        <li><span class="parameter">range</span>
+            <span class="types"><span class="type">number</span></span>
+         - Maximum range for others.
+         (<em>default</em> 40)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string - Unit token: you, else the first friendly player the option allows that needs it, else "player".
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "castOn"></a>
+    <strong>castOn (thisOption, needs, able[, opts])</strong>
+    </dt>
+    <dd>
+    The unit a "cast on" dropdown option (choices = "CastOn") puts a helpful spell on now, or nil: you first,
+ then the option's target, mouseover or focus, or for You + Group each member (lowest health first).  Each one
+ must be a friendly player you can help (alive, online, not charmed), want it (needs) and be castable (able,
+ usually cast.able.<spell>, which judges range and sight); one that fails is passed over for the next.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisOption</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Name of the dropdown option.
+        </li>
+        <li><span class="parameter">needs</span>
+         - function(unit) returning true if that unit wants the spell (nil: anyone).
+        </li>
+        <li><span class="parameter">able</span>
+         - function(unit) returning true if the spell can go on that unit now (nil: no check).
+        </li>
+        <li><span class="parameter">opts</span>
+         - { self = false: leave yourself out; others = false: only yourself (a key not held);
+   roles = { "TANK", ... }: group members in these roles first; dead = true: dead players to resurrect
+   instead of living ones }.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string|nil - Unit token, or nil when nobody qualifies.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> thisUnit = units.<span class="function-name">castOn</span>(<span class="string">"Thorns"</span>, buff.thorns.refresh, cast.able.thorns, { roles = { <span class="string">"TANK"</span> } })</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "get"></a>
+    <strong>get (range)</strong>
+    </dt>
+    <dd>
+    Gets the "best" unit within a specified range in front or around the player.
+ Call once per profile rotation and use the variable it creates in units
+ IE: units.get(5,false) makes units.dyn5, units.get(8,true) makes units.dyn8AOE
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">range</span>
+            <span class="types"><span class="type">number</span></span>
+         - Distance in yards to look for the "best" unit
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "groupStable"></a>
+    <strong>groupStable (seconds)</strong>
+    </dt>
+    <dd>
+    True when the group hasn't changed (members joining or leaving) for that many seconds
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seconds</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "healAround"></a>
+    <strong>healAround (thisUnit, radius, health, count)</strong>
+    </dt>
+    <dd>
+    The group members within radius yards of a unit at or below health percent, lowest first, at
+ most count of them (each with .hp, .guid, .name, position)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The centre
+        </li>
+        <li><span class="parameter">radius</span>
+            <span class="types"><span class="type">number</span></span>
+         Yards
+        </li>
+        <li><span class="parameter">health</span>
+            <span class="types"><span class="type">number</span></span>
+         Health percent
+        </li>
+        <li><span class="parameter">count</span>
+            <span class="types"><span class="type">number</span></span>
+         The most members to return
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lootable"></a>
+    <strong>lootable ()</strong>
+    </dt>
+    <dd>
+    The dead units the player can loot
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lootCount"></a>
+    <strong>lootCount ()</strong>
+    </dt>
+    <dd>
+    How many dead units are waiting to be looted
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "setTargetWeight"></a>
+    <strong>setTargetWeight (fn)</strong>
+    </dt>
+    <dd>
+    Sets the profile's own target weight for dynamic targeting: fn(unit) returns a number added to
+ the unit's score (higher = more priority), or nil to leave it.  Cleared whenever the profile is built.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+         function(unit) or nil
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- Example: Feral druid prioritizing Rip refresh
+</span>units.<span class="function-name">setTargetWeight</span>(<span class="keyword">function</span>(thisUnit)
+    <span class="keyword">if</span> debuff.rip.<span class="function-name">exists</span>(thisUnit) <span class="keyword">and</span> debuff.rip.<span class="function-name">remains</span>(thisUnit) &lt; <span class="number">5</span> <span class="keyword">then</span>
+        <span class="keyword">return</span> <span class="number">80</span> <span class="comment">-- High priority to refresh expiring Rip
+</span>    <span class="keyword">end</span>
+<span class="keyword">end</span>)</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-11-14 23:06:14 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

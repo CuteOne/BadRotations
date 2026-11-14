@@ -1,0 +1,462 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>buff</strong></li>
+  <li><a href="../modules/cd.html">cd</a></li>
+  <li><a href="../modules/cast.html">cast</a></li>
+  <li><a href="../modules/charges.html">charges</a></li>
+  <li><a href="../modules/debuff.html">debuff</a></li>
+  <li><a href="../modules/enemies.html">enemies</a></li>
+  <li><a href="../modules/equiped.html">equiped</a></li>
+  <li><a href="../modules/glyph.html">glyph</a></li>
+  <li><a href="../modules/has.html">has</a></li>
+  <li><a href="../modules/module.html">module</a></li>
+  <li><a href="../modules/pet.html">pet</a></li>
+  <li><a href="../modules/power.html">power</a></li>
+  <li><a href="../modules/spell.html">spell</a></li>
+  <li><a href="../modules/talent.html">talent</a></li>
+  <li><a href="../modules/totem.html">totem</a></li>
+  <li><a href="../modules/ui.html">ui</a></li>
+  <li><a href="../modules/Unit.html">Unit</a></li>
+  <li><a href="../modules/units.html">units</a></li>
+  <li><a href="../modules/use.html">use</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>buff</code></h1>
+<p>These functions help in retrieving information about buffs.</p>
+<p>
+ Buff functions are the profile API table `buff` (br.api.profile.buff); profiles use it by name.
+ `spell` in the function represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in Expansions/<Flavour>/ (Global.lua, <CLASS>/Class.lua, <CLASS>/<Spec>.lua)</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#buff.">buff. ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="summary">Cancel a buff.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buff.">buff. ()</a></td>
+	<td class="summary">Get the count of a buff.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buff.">buff. ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="summary">Get the duration of a buff.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buff.">buff. ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="summary">Check if a buff exists.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buff.">buff. ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="summary">Check if a buff can be reacted to.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buff.">buff. ([thisUnit="player"[, sourceUnit="player"[, share=0.3]]])</a></td>
+	<td class="summary">Check if a buff should be refreshed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buff.">buff. ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="summary">Get the remaining time of a buff.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buff.">buff. ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="summary">Get the remaining time of a buff.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buff.">buff. ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="summary">Get the stack count of a buff.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buff.">buff. ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="summary">Get the maximum stack count of a buff.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "buff."></a>
+    <strong>buff. ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    </dt>
+    <dd>
+    Cancel a buff.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to check.
+         (<em>default</em> "player")
+        </li>
+        <li><span class="parameter">sourceUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         "player": your own (on the player, a copy anyone cast on
+   you counts, so a buff isn't recast over someone else's); "any": from anyone
+         (<em>default</em> "player")
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buff."></a>
+    <strong>buff. ()</strong>
+    </dt>
+    <dd>
+    Get the count of a buff.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buff."></a>
+    <strong>buff. ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    </dt>
+    <dd>
+    Get the duration of a buff.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to check.
+         (<em>default</em> "player")
+        </li>
+        <li><span class="parameter">sourceUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         "player": your own (on the player, a copy anyone cast on
+   you counts, so a buff isn't recast over someone else's); "any": from anyone
+         (<em>default</em> "player")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buff."></a>
+    <strong>buff. ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    </dt>
+    <dd>
+    Check if a buff exists.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to check.
+         (<em>default</em> "player")
+        </li>
+        <li><span class="parameter">sourceUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         "player": your own (on the player, a copy anyone cast on
+   you counts, so a buff isn't recast over someone else's); "any": from anyone
+         (<em>default</em> "player")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buff."></a>
+    <strong>buff. ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    </dt>
+    <dd>
+    Check if a buff can be reacted to.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to check.
+         (<em>default</em> "player")
+        </li>
+        <li><span class="parameter">sourceUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         "player": your own (on the player, a copy anyone cast on
+   you counts, so a buff isn't recast over someone else's); "any": from anyone
+         (<em>default</em> "player")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buff."></a>
+    <strong>buff. ([thisUnit="player"[, sourceUnit="player"[, share=0.3]]])</strong>
+    </dt>
+    <dd>
+    Check if a buff should be refreshed.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to check.
+         (<em>default</em> "player")
+        </li>
+        <li><span class="parameter">sourceUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         "player": your own (on the player, a copy anyone cast on
+   you counts, so a buff isn't recast over someone else's); "any": from anyone
+         (<em>default</em> "player")
+        </li>
+        <li><span class="parameter">share</span>
+            <span class="types"><span class="type">number</span></span>
+         Due once this share of its duration or less is left (a wider share renews early)
+         (<em>default</em> 0.3)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buff."></a>
+    <strong>buff. ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    </dt>
+    <dd>
+    Get the remaining time of a buff.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to check.
+         (<em>default</em> "player")
+        </li>
+        <li><span class="parameter">sourceUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         "player": your own (on the player, a copy anyone cast on
+   you counts, so a buff isn't recast over someone else's); "any": from anyone
+         (<em>default</em> "player")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buff."></a>
+    <strong>buff. ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    </dt>
+    <dd>
+    Get the remaining time of a buff.  (Duplicate of buff.spell.remain)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to check.
+         (<em>default</em> "player")
+        </li>
+        <li><span class="parameter">sourceUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         "player": your own (on the player, a copy anyone cast on
+   you counts, so a buff isn't recast over someone else's); "any": from anyone
+         (<em>default</em> "player")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buff."></a>
+    <strong>buff. ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    </dt>
+    <dd>
+    Get the stack count of a buff.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to check.
+         (<em>default</em> "player")
+        </li>
+        <li><span class="parameter">sourceUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         "player": your own (on the player, a copy anyone cast on
+   you counts, so a buff isn't recast over someone else's); "any": from anyone
+         (<em>default</em> "player")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buff."></a>
+    <strong>buff. ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    </dt>
+    <dd>
+    Get the maximum stack count of a buff.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to check.
+         (<em>default</em> "player")
+        </li>
+        <li><span class="parameter">sourceUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         "player": your own (on the player, a copy anyone cast on
+   you counts, so a buff isn't recast over someone else's); "any": from anyone
+         (<em>default</em> "player")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-11-14 23:06:14 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

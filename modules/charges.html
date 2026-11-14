@@ -1,0 +1,314 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/buff.html">buff</a></li>
+  <li><a href="../modules/cd.html">cd</a></li>
+  <li><a href="../modules/cast.html">cast</a></li>
+  <li><strong>charges</strong></li>
+  <li><a href="../modules/debuff.html">debuff</a></li>
+  <li><a href="../modules/enemies.html">enemies</a></li>
+  <li><a href="../modules/equiped.html">equiped</a></li>
+  <li><a href="../modules/glyph.html">glyph</a></li>
+  <li><a href="../modules/has.html">has</a></li>
+  <li><a href="../modules/module.html">module</a></li>
+  <li><a href="../modules/pet.html">pet</a></li>
+  <li><a href="../modules/power.html">power</a></li>
+  <li><a href="../modules/spell.html">spell</a></li>
+  <li><a href="../modules/talent.html">talent</a></li>
+  <li><a href="../modules/totem.html">totem</a></li>
+  <li><a href="../modules/ui.html">ui</a></li>
+  <li><a href="../modules/Unit.html">Unit</a></li>
+  <li><a href="../modules/units.html">units</a></li>
+  <li><a href="../modules/use.html">use</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>charges</code></h1>
+<p>These functions help in retrieving information about spell and item charges.</p>
+<p>
+ Charge functions are the profile API table `charges` (br.api.profile.charges); profiles use it by name.
+ For spell charges, `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in Expansions/<Flavour>/ (Global.lua, <CLASS>/Class.lua, <CLASS>/<Spec>.lua)
+ For item charges, `item` in the function represent the name in the item list defined in System/List/Items.lua</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#charges.">charges. ()</a></td>
+	<td class="summary">Gets the number of charges remaining on spell.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#charges.">charges. ()</a></td>
+	<td class="summary">Checks if spell has charges or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#charges.">charges. ()</a></td>
+	<td class="summary">Gets the number of charges remaining on spell as a fraction.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#charges.">charges. ()</a></td>
+	<td class="summary">Gets the maximum number of charges the spell can have.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#charges.">charges. ([chargeMax])</a></td>
+	<td class="summary">Gets the time remaining on until next charge is available.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#charges.">charges. ()</a></td>
+	<td class="summary">The spell's cast count as the game keeps it (uses stored on spells that count them).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#charges.">charges. ()</a></td>
+	<td class="summary">Gets the total time remaining until all charges are available.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#charges.">charges. ()</a></td>
+	<td class="summary">Gets the number of charges remaining on item.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#charges.">charges. ()</a></td>
+	<td class="summary">Checks if item has charges or not.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "charges."></a>
+    <strong>charges. ()</strong>
+    </dt>
+    <dd>
+    Gets the number of charges remaining on spell.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "charges."></a>
+    <strong>charges. ()</strong>
+    </dt>
+    <dd>
+    Checks if spell has charges or not.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "charges."></a>
+    <strong>charges. ()</strong>
+    </dt>
+    <dd>
+    Gets the number of charges remaining on spell as a fraction.  (e.g. 1.5 charges remaining)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "charges."></a>
+    <strong>charges. ()</strong>
+    </dt>
+    <dd>
+    Gets the maximum number of charges the spell can have.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "charges."></a>
+    <strong>charges. ([chargeMax])</strong>
+    </dt>
+    <dd>
+    Gets the time remaining on until next charge is available.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">chargeMax</span>
+            <span class="types"><span class="type">boolean</span></span>
+         If true, returns the time remaining until all charges are available.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "charges."></a>
+    <strong>charges. ()</strong>
+    </dt>
+    <dd>
+    The spell's cast count as the game keeps it (uses stored on spells that count them).
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "charges."></a>
+    <strong>charges. ()</strong>
+    </dt>
+    <dd>
+    Gets the total time remaining until all charges are available.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "charges."></a>
+    <strong>charges. ()</strong>
+    </dt>
+    <dd>
+    Gets the number of charges remaining on item.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "charges."></a>
+    <strong>charges. ()</strong>
+    </dt>
+    <dd>
+    Checks if item has charges or not.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-11-14 23:06:14 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

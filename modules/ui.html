@@ -1,0 +1,954 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/buff.html">buff</a></li>
+  <li><a href="../modules/cd.html">cd</a></li>
+  <li><a href="../modules/cast.html">cast</a></li>
+  <li><a href="../modules/charges.html">charges</a></li>
+  <li><a href="../modules/debuff.html">debuff</a></li>
+  <li><a href="../modules/enemies.html">enemies</a></li>
+  <li><a href="../modules/equiped.html">equiped</a></li>
+  <li><a href="../modules/glyph.html">glyph</a></li>
+  <li><a href="../modules/has.html">has</a></li>
+  <li><a href="../modules/module.html">module</a></li>
+  <li><a href="../modules/pet.html">pet</a></li>
+  <li><a href="../modules/power.html">power</a></li>
+  <li><a href="../modules/spell.html">spell</a></li>
+  <li><a href="../modules/talent.html">talent</a></li>
+  <li><a href="../modules/totem.html">totem</a></li>
+  <li><strong>ui</strong></li>
+  <li><a href="../modules/Unit.html">Unit</a></li>
+  <li><a href="../modules/units.html">units</a></li>
+  <li><a href="../modules/use.html">use</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>ui</code></h1>
+<p>These functions help in retrieving information about or manipulating UI elements.</p>
+<p>
+ UI functions are the profile API table `ui` (br.api.profile.ui); profiles use it by name.
+ The profile's options page and toggle bar are built with ui.section, ui.checkbox, ui.spinner,
+ ui.doubleSpinner, ui.dropdown, ui.text and ui.toggle in its options and toggles functions
+ (Rotations/sample rotation.lua); every field each takes is listed in System/UI/Elements and
+ System/UI/Toggles/ToggleFunctions.lua.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#alwaysCdAoENever">alwaysCdAoENever (thisOption[, minUnits=3[, enemyCount]])</a></td>
+	<td class="summary">Checks if the passed option is set to "Always, AOE/CD, CD, or Never"</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#alwaysCdAoENeverRange">alwaysCdAoENeverRange (thisOption[, minUnits=3[, range=8[, useTarget="player"]]])</a></td>
+	<td class="summary">Convenience wrapper: compute enemy count from a range and delegate to ui.alwaysCdAoENever</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#alwaysCdNever">alwaysCdNever (thisOption)</a></td>
+	<td class="summary">Checks if the passed option is set to "Always, CD, or Never"</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#chatOverlay">chatOverlay (text)</a></td>
+	<td class="summary">Displays the passed text as an overlay on the chat windows</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#checkbox">checkbox ()</a></td>
+	<td class="summary">Adds a checkbox.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#checked">checked (thisOption[, optionPage])</a></td>
+	<td class="summary">Checks if the passed option is enabled</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#debug">debug (text)</a></td>
+	<td class="summary">Displays the text as a debug message in chat (if Addon Debug Messages option is enabled)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#doubleSpinner">doubleSpinner ()</a></td>
+	<td class="summary">Adds two spinners on one row.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#dropdown">dropdown ()</a></td>
+	<td class="summary">Adds a dropdown (with a checkbox unless checkbox = false).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isMouseDown">isMouseDown ([mouseButton])</a></td>
+	<td class="summary">Checks if the mouse button specified is down, or any if none are specified</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lastError">lastError ()</a></td>
+	<td class="summary">The game's last error message (the red text): its key as the game names it (ERR_NO_LOOT,
+ SPELL_FAILED_BAD_TARGETS, ...), the message shown and when (util.time()); nil before the first.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lastLoot">lastLoot ()</a></td>
+	<td class="summary">The last loot or money message in chat: its text, when (util.time()) and whether it was money;
+ nil before the first.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pause">pause ()</a></td>
+	<td class="summary">Returns true if special conditions are met to pause</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pauseKey">pauseKey ()</a></td>
+	<td class="summary">Returns true while the player holds the Pause Mode key (Base Options)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#print">print (msg)</a></td>
+	<td class="summary">Shows the specified message in chat.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#section">section (name)</a></td>
+	<td class="summary">Starts a group of options; pass it to each option after it.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#spinner">spinner ()</a></td>
+	<td class="summary">Adds a spinner (with a checkbox unless checkbox = false).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#text">text ()</a></td>
+	<td class="summary">Adds a line of text.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#toggle">toggle (name, options)</a></td>
+	<td class="summary">Adds a button to the toggle bar.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#toggleKey">toggleKey (thisOption)</a></td>
+	<td class="summary">Checks if the key chosen in a key option (a ui.dropOptions.Toggle dropdown) is held</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#useAOE">useAOE ([range=8[, minCount=3[, useTarget="player"]]])</a></td>
+	<td class="summary">Checks if the specified parameters are valid for AOE, based on Rotation toggle setting.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#useCDs">useCDs ()</a></td>
+	<td class="summary">Check if Cooldowns should be used or not based on CD toggle setting.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#useDefensive">useDefensive ()</a></td>
+	<td class="summary">Check if Defensives should be used or not based on Defensive toggle setting.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#useInterrupt">useInterrupt ()</a></td>
+	<td class="summary">Check if Interrupts should be used or not based on Interrupt toggle setting.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#useST">useST ([range=8[, minCount=3[, useTarget="player"]]])</a></td>
+	<td class="summary">Checks if the specified parameters are valid for Single Target, based on Rotation toggle setting.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#useTrinkets">useTrinkets (trinket)</a></td>
+	<td class="summary">Checks if the option to use trinkets are valid per each Trinket slot.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#value">value (thisOption[, optionPage])</a></td>
+	<td class="summary">Returns the value of the specified option.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#setToggle">setToggle (toggleName, toggleValue)</a></td>
+	<td class="summary">Sets a toggle to the specified value and updates the UI</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#dropOptions">dropOptions</a></td>
+	<td class="summary">The choices of BR's shared dropdowns (Toggle: the key names, ...).</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "alwaysCdAoENever"></a>
+    <strong>alwaysCdAoENever (thisOption[, minUnits=3[, enemyCount]])</strong>
+    </dt>
+    <dd>
+    Checks if the passed option is set to "Always, AOE/CD, CD, or Never"
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisOption</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Name of the option from the defined profile options.
+        </li>
+        <li><span class="parameter">minUnits</span>
+            <span class="types"><span class="type">number</span></span>
+         - Minimum number of units required to treat this as AOE.
+         (<em>default</em> 3)
+        </li>
+        <li><span class="parameter">enemyCount</span>
+            <span class="types"><span class="type">number</span></span>
+         - A precomputed enemy count (e.g. `#enemies.yards8`) provided by the caller.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean - Returns true based on selected option and current combat conditions
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- Preferred (profile-controlled): compute a count and pass it
+</span><span class="keyword">local</span> use = ui.<span class="function-name">alwaysCdAoENever</span>(<span class="string">"Bladestorm"</span>, <span class="number">3</span>, #enemies.yards8)
+
+<span class="comment">-- Convenience wrapper (helper computes the count for you):
+</span><span class="keyword">local</span> use2 = ui.<span class="function-name">alwaysCdAoENeverRange</span>(<span class="string">"Bladestorm"</span>, <span class="number">3</span>, <span class="number">8</span>, <span class="string">"player"</span>)
+<span class="comment">-- Both forms return true if the Bladestorm option is set to Always, or set to AOE and there are at least 3 enemies,
+</span><span class="comment">-- or set to AOE/CD and either CDs are enabled or the count meets the threshold.</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "alwaysCdAoENeverRange"></a>
+    <strong>alwaysCdAoENeverRange (thisOption[, minUnits=3[, range=8[, useTarget="player"]]])</strong>
+    </dt>
+    <dd>
+    Convenience wrapper: compute enemy count from a range and delegate to ui.alwaysCdAoENever
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisOption</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Name of the option from the defined profile options.
+        </li>
+        <li><span class="parameter">minUnits</span>
+            <span class="types"><span class="type">number</span></span>
+         - Minimum number of units required to treat this as AOE.
+         (<em>default</em> 3)
+        </li>
+        <li><span class="parameter">range</span>
+            <span class="types"><span class="type">number</span></span>
+         - Range in yards to check for enemies.
+         (<em>default</em> 8)
+        </li>
+        <li><span class="parameter">useTarget</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Reference unit used to evaluate range (defaults to `player`).
+         (<em>default</em> "player")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "alwaysCdNever"></a>
+    <strong>alwaysCdNever (thisOption)</strong>
+    </dt>
+    <dd>
+    Checks if the passed option is set to "Always, CD, or Never"
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisOption</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Name of the option from the defined profile options.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean - Returns true if the option is set to Always or if CD is selected and CDs are enabled
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "chatOverlay"></a>
+    <strong>chatOverlay (text)</strong>
+    </dt>
+    <dd>
+    Displays the passed text as an overlay on the chat windows
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">text</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The text to display.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "checkbox"></a>
+    <strong>checkbox ()</strong>
+    </dt>
+    <dd>
+    Adds a checkbox.  Read it with ui.checked("Name").
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">ui.<span class="function-name">checkbox</span>(section, <span class="string">"Use Racial"</span>, { tip = <span class="string">"..."</span> })</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "checked"></a>
+    <strong>checked (thisOption[, optionPage])</strong>
+    </dt>
+    <dd>
+    Checks if the passed option is enabled
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisOption</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Name of the option from the defined profile options.
+        </li>
+        <li><span class="parameter">optionPage</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The page where the option is located.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean - Returns true if the option is checked
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "debug"></a>
+    <strong>debug (text)</strong>
+    </dt>
+    <dd>
+    Displays the text as a debug message in chat (if Addon Debug Messages option is enabled)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">text</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The message to show in chat.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "doubleSpinner"></a>
+    <strong>doubleSpinner ()</strong>
+    </dt>
+    <dd>
+    Adds two spinners on one row.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "dropdown"></a>
+    <strong>dropdown ()</strong>
+    </dt>
+    <dd>
+    Adds a dropdown (with a checkbox unless checkbox = false).  Read it with ui.value("Name").
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">ui.<span class="function-name">dropdown</span>(section, <span class="string">"Pet Target"</span>, { choices = { <span class="string">"Dynamic"</span>, <span class="string">"Target"</span>, <span class="string">"Any"</span> } })</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "isMouseDown"></a>
+    <strong>isMouseDown ([mouseButton])</strong>
+    </dt>
+    <dd>
+    Checks if the mouse button specified is down, or any if none are specified
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mouseButton</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Name of the mouse button.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean - Returns true if the specified mouse button is down
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lastError"></a>
+    <strong>lastError ()</strong>
+    </dt>
+    <dd>
+    The game's last error message (the red text): its key as the game names it (ERR_NO_LOOT,
+ SPELL_FAILED_BAD_TARGETS, ...), the message shown and when (util.time()); nil before the first.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string, string, number
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> key, message, at = ui.<span class="function-name">lastError</span>()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "lastLoot"></a>
+    <strong>lastLoot ()</strong>
+    </dt>
+    <dd>
+    The last loot or money message in chat: its text, when (util.time()) and whether it was money;
+ nil before the first.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string, number, boolean
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> message, at, money = ui.<span class="function-name">lastLoot</span>()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "pause"></a>
+    <strong>pause ()</strong>
+    </dt>
+    <dd>
+    Returns true if special conditions are met to pause
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean - Returns true if rotation should be paused
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "pauseKey"></a>
+    <strong>pauseKey ()</strong>
+    </dt>
+    <dd>
+    Returns true while the player holds the Pause Mode key (Base Options)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "print"></a>
+    <strong>print (msg)</strong>
+    </dt>
+    <dd>
+    Shows the specified message in chat.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">msg</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The message to show in chat.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "section"></a>
+    <strong>section (name)</strong>
+    </dt>
+    <dd>
+    Starts a group of options; pass it to each option after it.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> section = ui.<span class="function-name">section</span>(<span class="string">"General"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "spinner"></a>
+    <strong>spinner ()</strong>
+    </dt>
+    <dd>
+    Adds a spinner (with a checkbox unless checkbox = false).  Read it with ui.value("Name").
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">ui.<span class="function-name">spinner</span>(section, <span class="string">"Healing Touch"</span>, { value = <span class="number">50</span>, min = <span class="number">0</span>, max = <span class="number">100</span> })</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "text"></a>
+    <strong>text ()</strong>
+    </dt>
+    <dd>
+    Adds a line of text.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "toggle"></a>
+    <strong>toggle (name, options)</strong>
+    </dt>
+    <dd>
+    Adds a button to the toggle bar.  Read it in the rotation with ui.mode.<name>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+
+        </li>
+        <li><span class="parameter">options</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         modes = { { name = ..., icon = ..., overlay = ..., tip = ... }, ... }, key = ...
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "toggleKey"></a>
+    <strong>toggleKey (thisOption)</strong>
+    </dt>
+    <dd>
+    Checks if the key chosen in a key option (a ui.dropOptions.Toggle dropdown) is held
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisOption</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Name of the key option to check.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean - Returns true while the key is held (never while typing)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "useAOE"></a>
+    <strong>useAOE ([range=8[, minCount=3[, useTarget="player"]]])</strong>
+    </dt>
+    <dd>
+    Checks if the specified parameters are valid for AOE, based on Rotation toggle setting.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">range</span>
+            <span class="types"><span class="type">number</span></span>
+         - The range of the AOE damage in yards.
+         (<em>default</em> 8)
+        </li>
+        <li><span class="parameter">minCount</span>
+            <span class="types"><span class="type">number</span></span>
+         - The minimum number of units to be in range before true
+         (<em>default</em> 3)
+        </li>
+        <li><span class="parameter">useTarget</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - the reference unit to check range and units against.
+         (<em>default</em> "player")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean - Returns true if AOE should be used
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "useCDs"></a>
+    <strong>useCDs ()</strong>
+    </dt>
+    <dd>
+    Check if Cooldowns should be used or not based on CD toggle setting.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean - Returns true if cooldowns should be used
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "useDefensive"></a>
+    <strong>useDefensive ()</strong>
+    </dt>
+    <dd>
+    Check if Defensives should be used or not based on Defensive toggle setting.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean - Returns true if defensive abilities should be used
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "useInterrupt"></a>
+    <strong>useInterrupt ()</strong>
+    </dt>
+    <dd>
+    Check if Interrupts should be used or not based on Interrupt toggle setting.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean - Returns true if interrupts should be used
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "useST"></a>
+    <strong>useST ([range=8[, minCount=3[, useTarget="player"]]])</strong>
+    </dt>
+    <dd>
+    Checks if the specified parameters are valid for Single Target, based on Rotation toggle setting.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">range</span>
+            <span class="types"><span class="type">number</span></span>
+         - The range of the AOE damage in yards.
+         (<em>default</em> 8)
+        </li>
+        <li><span class="parameter">minCount</span>
+            <span class="types"><span class="type">number</span></span>
+         - The minimum number of units to be in range before true
+         (<em>default</em> 3)
+        </li>
+        <li><span class="parameter">useTarget</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - the reference unit to check range and units against.
+         (<em>default</em> "player")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean - Returns true if single target abilities should be used
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "useTrinkets"></a>
+    <strong>useTrinkets (trinket)</strong>
+    </dt>
+    <dd>
+    Checks if the option to use trinkets are valid per each Trinket slot.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">trinket</span>
+            <span class="types"><span class="type">number</span></span>
+         - The item id of the trinket to check for.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean - Returns true if the trinket should be used
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "value"></a>
+    <strong>value (thisOption[, optionPage])</strong>
+    </dt>
+    <dd>
+    Returns the value of the specified option.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisOption</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The name of the option specified in the options section
+        </li>
+        <li><span class="parameter">optionPage</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The page where the option is located.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number - Returns the value of the specified option
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "setToggle"></a>
+    <strong>setToggle (toggleName, toggleValue)</strong>
+    </dt>
+    <dd>
+    Sets a toggle to the specified value and updates the UI
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">toggleName</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The name of the toggle to set
+        </li>
+        <li><span class="parameter">toggleValue</span>
+            <span class="types"><span class="type">number</span></span>
+         - The value to set the toggle to (1, 2, 3, etc.)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "dropOptions"></a>
+    <strong>dropOptions</strong>
+    </dt>
+    <dd>
+    The choices of BR's shared dropdowns (Toggle: the key names, ...).
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-11-14 23:06:14 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

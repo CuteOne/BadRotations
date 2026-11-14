@@ -1,0 +1,326 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/buff.html">buff</a></li>
+  <li><a href="../modules/cd.html">cd</a></li>
+  <li><a href="../modules/cast.html">cast</a></li>
+  <li><a href="../modules/charges.html">charges</a></li>
+  <li><a href="../modules/debuff.html">debuff</a></li>
+  <li><a href="../modules/enemies.html">enemies</a></li>
+  <li><a href="../modules/equiped.html">equiped</a></li>
+  <li><a href="../modules/glyph.html">glyph</a></li>
+  <li><a href="../modules/has.html">has</a></li>
+  <li><strong>module</strong></li>
+  <li><a href="../modules/pet.html">pet</a></li>
+  <li><a href="../modules/power.html">power</a></li>
+  <li><a href="../modules/spell.html">spell</a></li>
+  <li><a href="../modules/talent.html">talent</a></li>
+  <li><a href="../modules/totem.html">totem</a></li>
+  <li><a href="../modules/ui.html">ui</a></li>
+  <li><a href="../modules/Unit.html">Unit</a></li>
+  <li><a href="../modules/units.html">units</a></li>
+  <li><a href="../modules/use.html">use</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>module</code></h1>
+<p>These functions helpful functions for commonly used features in all profiles.</p>
+<p>
+ Module functions are the profile API table `module` (br.api.profile.module); profiles use it by name.
+ Additionally module functions also have custom options you can add to your Profile Options by calling the function in the Profile Options and passing the section param.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#autoKeystone">autoKeystone ([section])</a></td>
+	<td class="summary">Auto Put Keystone into Receptable during mythic+ dungeons.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#BasicHealing">BasicHealing ([section])</a></td>
+	<td class="summary">Basic Healing Module - Uses healthstones, potions, and racial healing abilities.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#BasicTrinkets">BasicTrinkets ([slotID[, section]])</a></td>
+	<td class="summary">Basic Trinkets - Uses trinkets based on options set in the Profile Options.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#CombatPotionUp">CombatPotionUp ([section])</a></td>
+	<td class="summary">CombatPotionUp Module - Attempts to use the combat potion specified in the Profile Options.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#FlaskUp">FlaskUp (buffType[, section])</a></td>
+	<td class="summary">FlaskUp Module - Attempts to use the flask specified in the Profile Options (Mists of Pandaria).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#RacialStun">RacialStun ()</a></td>
+	<td class="summary">War Stomp just before a cast-time heal on yourself, so the heal lands while what's hitting you is stunned
+ (no pushback).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Racial">Racial ([section[, thisUnit]])</a></td>
+	<td class="summary">Racial Module - Uses the player's racial abilities based on the options set in the Profile Options.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#TwoForms">TwoForms ([section])</a></td>
+	<td class="summary">Two Forms Module - Return Worgen to Human Form out of combat</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "autoKeystone"></a>
+    <strong>autoKeystone ([section])</strong>
+    </dt>
+    <dd>
+    Auto Put Keystone into Receptable during mythic+ dungeons.  | Kinky BR Module Code example
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">section</span>
+            <span class="types"><span class="type">boolean</span></span>
+         If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "BasicHealing"></a>
+    <strong>BasicHealing ([section])</strong>
+    </dt>
+    <dd>
+    Basic Healing Module - Uses healthstones, potions, and racial healing abilities.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">section</span>
+            <span class="types"><span class="type">boolean</span></span>
+         If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "BasicTrinkets"></a>
+    <strong>BasicTrinkets ([slotID[, section]])</strong>
+    </dt>
+    <dd>
+    Basic Trinkets - Uses trinkets based on options set in the Profile Options.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slotID</span>
+            <span class="types"><span class="type">number</span></span>
+         If set will use the trinket in the specified slot. Otherwise, will loop through all trinkets.
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">section</span>
+            <span class="types"><span class="type">boolean</span></span>
+         If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "CombatPotionUp"></a>
+    <strong>CombatPotionUp ([section])</strong>
+    </dt>
+    <dd>
+    CombatPotionUp Module - Attempts to use the combat potion specified in the Profile Options.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">section</span>
+            <span class="types"><span class="type">boolean</span></span>
+         If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "FlaskUp"></a>
+    <strong>FlaskUp (buffType[, section])</strong>
+    </dt>
+    <dd>
+    FlaskUp Module - Attempts to use the flask specified in the Profile Options (Mists of Pandaria).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">buffType</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The type of flask to use. (e.g. "Agility", "Intellect", "Stamina", "Strength")
+        </li>
+        <li><span class="parameter">section</span>
+            <span class="types"><span class="type">boolean</span></span>
+         If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "RacialStun"></a>
+    <strong>RacialStun ()</strong>
+    </dt>
+    <dd>
+    War Stomp just before a cast-time heal on yourself, so the heal lands while what's hitting you is stunned
+ (no pushback).  Tauren only; needs the Racial module's "Use Racial" ticked and an enemy within 8 yd attacking
+ you. A profile calls it right before casting the heal; it doesn't count as the profile handling racials.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True when War Stomp was cast
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">if</span> hpLow <span class="keyword">and</span> <span class="global">module</span>.<span class="function-name">RacialStun</span>() <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">true</span> <span class="keyword">end</span> <span class="comment">-- then the heal, next tick</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Racial"></a>
+    <strong>Racial ([section[, thisUnit]])</strong>
+    </dt>
+    <dd>
+    Racial Module - Uses the player's racial abilities based on the options set in the Profile Options.
+ Uses the race's named racial (e.g. cast.stoneform) when the expansion defines one, otherwise cast.racial.
+ On Classic-era expansions cast.racial only maps damage racials, so the named key matters there.
+ Damage racials (Orc, Troll, and Forever's Night Elf / Gnome) use the "Damage Racial" dropdown.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">section</span>
+            <span class="types"><span class="type">boolean</span></span>
+         If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         Unit to use the racial on (Quaking Palm requires it).
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "TwoForms"></a>
+    <strong>TwoForms ([section])</strong>
+    </dt>
+    <dd>
+    Two Forms Module - Return Worgen to Human Form out of combat
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">section</span>
+            <span class="types"><span class="type">boolean</span></span>
+         If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-11-14 23:06:14 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

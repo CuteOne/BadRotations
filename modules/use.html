@@ -1,0 +1,307 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/buff.html">buff</a></li>
+  <li><a href="../modules/cd.html">cd</a></li>
+  <li><a href="../modules/cast.html">cast</a></li>
+  <li><a href="../modules/charges.html">charges</a></li>
+  <li><a href="../modules/debuff.html">debuff</a></li>
+  <li><a href="../modules/enemies.html">enemies</a></li>
+  <li><a href="../modules/equiped.html">equiped</a></li>
+  <li><a href="../modules/glyph.html">glyph</a></li>
+  <li><a href="../modules/has.html">has</a></li>
+  <li><a href="../modules/module.html">module</a></li>
+  <li><a href="../modules/pet.html">pet</a></li>
+  <li><a href="../modules/power.html">power</a></li>
+  <li><a href="../modules/spell.html">spell</a></li>
+  <li><a href="../modules/talent.html">talent</a></li>
+  <li><a href="../modules/totem.html">totem</a></li>
+  <li><a href="../modules/ui.html">ui</a></li>
+  <li><a href="../modules/Unit.html">Unit</a></li>
+  <li><a href="../modules/units.html">units</a></li>
+  <li><strong>use</strong></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>use</code></h1>
+<p>These functions help in retrieving information if you can use an item or not.</p>
+<p>
+ Use functions are the profile API table `use` (br.api.profile.use); profiles use it by name.
+ For item use, `item` in the function represent the name in the items list defined in System/List/Items.lua
+ An item list entry may be a table of ranks: the best one held is used.
+ use.able.<item>() says whether the item is ready. use.<item>() also waits while the player casts or
+ channels, like cast.<spell>(); use.<item>.whileCasting() (and use.slot.whileCasting(13), ...) uses it
+ anyway, for items the game allows during a cast.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#use.able.item">use.able.item (itemID)</a></td>
+	<td class="summary">Checks if item is usable or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#use.able.slot">use.able.slot (slotID)</a></td>
+	<td class="summary">Checks if item in the specified equipment slot is usable or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#item">item (itemID[, thisUnit="target"])</a></td>
+	<td class="summary">Uses the item.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#slot">slot (slotID[, thisUnit="target"])</a></td>
+	<td class="summary">Uses the item in the specified equipment slot.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#able.">able. ([slotID])</a></td>
+	<td class="summary">Checks if item is usable or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#use.">use. ([slotID[, thisUnit="target"]])</a></td>
+	<td class="summary">Uses the item.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "use.able.item"></a>
+    <strong>use.able.item (itemID)</strong>
+    </dt>
+    <dd>
+    Checks if item is usable or not.
+ Note: `item` here is literally item, you pass the itemID to specify the item
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">itemID</span>
+            <span class="types"><span class="type">number</span></span>
+         The ID of the item check.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "use.able.slot"></a>
+    <strong>use.able.slot (slotID)</strong>
+    </dt>
+    <dd>
+    Checks if item in the specified equipment slot is usable or not.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slotID</span>
+            <span class="types"><span class="type">number</span></span>
+         The ID of the equipment slot to check.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "item"></a>
+    <strong>item (itemID[, thisUnit="target"])</strong>
+    </dt>
+    <dd>
+    Uses the item.
+ Note: `item` here is literally item, you pass the itemID to specify the item
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">itemID</span>
+            <span class="types"><span class="type">number</span></span>
+         The ID of the item to use.
+        </li>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to use the item on.
+         (<em>default</em> "target")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "slot"></a>
+    <strong>slot (slotID[, thisUnit="target"])</strong>
+    </dt>
+    <dd>
+    Uses the item in the specified equipment slot.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slotID</span>
+            <span class="types"><span class="type">number</span></span>
+         The ID of the equipment slot to use the item from.
+        </li>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to use the item on.
+         (<em>default</em> "target")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "able."></a>
+    <strong>able. ([slotID])</strong>
+    </dt>
+    <dd>
+    Checks if item is usable or not.
+ Note: `item` here refers to the name in the item list defined in System/List/Items.lua
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slotID</span>
+            <span class="types"><span class="type">number</span></span>
+         The ID of the equipment slot to check.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "use."></a>
+    <strong>use. ([slotID[, thisUnit="target"]])</strong>
+    </dt>
+    <dd>
+    Uses the item.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slotID</span>
+            <span class="types"><span class="type">number</span></span>
+         The equipment slot number to use the item from.
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to use the item on.
+         (<em>default</em> "target")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-11-14 23:06:14 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

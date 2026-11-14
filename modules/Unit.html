@@ -34,30 +34,32 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
 </ul>
 
 
 <h2>Modules</h2>
 <ul class="nowrap">
-  <li><a href="../modules/br.player.buff.html">br.player.buff</a></li>
-  <li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
-  <li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
-  <li><a href="../modules/br.player.charges.html">br.player.charges</a></li>
-  <li><a href="../modules/br.player.debuff.html">br.player.debuff</a></li>
-  <li><a href="../modules/br.player.enemies.html">br.player.enemies</a></li>
-  <li><a href="../modules/br.player.equiped.html">br.player.equiped</a></li>
-  <li><a href="../modules/br.player.glyph.html">br.player.glyph</a></li>
-  <li><a href="../modules/br.player.has.html">br.player.has</a></li>
-  <li><a href="../modules/br.player.module.html">br.player.module</a></li>
-  <li><a href="../modules/br.player.pets.html">br.player.pets</a></li>
-  <li><a href="../modules/br.player.power.html">br.player.power</a></li>
-  <li><a href="../modules/br.player.spell.html">br.player.spell</a></li>
-  <li><a href="../modules/br.player.talent.html">br.player.talent</a></li>
-  <li><a href="../modules/br.player.totem.html">br.player.totem</a></li>
-  <li><a href="../modules/br.player.ui.html">br.player.ui</a></li>
+  <li><a href="../modules/buff.html">buff</a></li>
+  <li><a href="../modules/cd.html">cd</a></li>
+  <li><a href="../modules/cast.html">cast</a></li>
+  <li><a href="../modules/charges.html">charges</a></li>
+  <li><a href="../modules/debuff.html">debuff</a></li>
+  <li><a href="../modules/enemies.html">enemies</a></li>
+  <li><a href="../modules/equiped.html">equiped</a></li>
+  <li><a href="../modules/glyph.html">glyph</a></li>
+  <li><a href="../modules/has.html">has</a></li>
+  <li><a href="../modules/module.html">module</a></li>
+  <li><a href="../modules/pet.html">pet</a></li>
+  <li><a href="../modules/power.html">power</a></li>
+  <li><a href="../modules/spell.html">spell</a></li>
+  <li><a href="../modules/talent.html">talent</a></li>
+  <li><a href="../modules/totem.html">totem</a></li>
+  <li><a href="../modules/ui.html">ui</a></li>
   <li><strong>Unit</strong></li>
-  <li><a href="../modules/br.player.units.html">br.player.units</a></li>
-  <li><a href="../modules/br.player.use.html">br.player.use</a></li>
+  <li><a href="../modules/units.html">units</a></li>
+  <li><a href="../modules/use.html">use</a></li>
+  <li><a href="../modules/util.html">util</a></li>
 </ul>
 
 </div>
@@ -67,11 +69,6 @@
 <h1>Module <code>Unit</code></h1>
 <p>Unit API for BadRotations</p>
 <p></p>
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">local unit = br.player.unit
-</pre>
-    </ul>
 
 
 <h2><a href="#Functions">Functions</a></h2>
@@ -79,6 +76,22 @@
 	<tr>
 	<td class="name" nowrap><a href="#unit.aberration">unit.aberration (thisUnit)</a></td>
 	<td class="summary">Check if a unit is an Aberration</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.aggroRange">unit.aggroRange (thisUnit)</a></td>
+	<td class="summary">Get a unit's aggro radius against the player</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.anyInAggroRange">unit.anyInAggroRange (offset, radius, hostileOnly, accept)</a></td>
+	<td class="summary">Check if any nearby enemy would aggro on the player</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.attackingOthers">unit.attackingOthers (thisUnit)</a></td>
+	<td class="summary">Check if an enemy is attacking someone other than you</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.attackPower">unit.attackPower (thisUnit)</a></td>
+	<td class="summary">Get player's attack power</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.beast">unit.beast (thisUnit)</a></td>
@@ -89,44 +102,54 @@
 	<td class="summary">Check if a unit can be attacked</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.cancelForm">unit.cancelForm ()</a></td>
+	<td class="summary">Cancel current shapeshift form.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.cancelFormFor">unit.cancelFormFor (outOfFormSpell, treatOutSpellAsFree, emergency)</a></td>
+	<td class="summary">Leave the current shapeshift form to cast a spell, when a player would: not while stealthed,
+ not while tanking in a bear form, and only with the mana to cast it and shift back.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.canLeaveFormFor">unit.canLeaveFormFor (outOfFormSpell, treatOutSpellAsFree, emergency)</a></td>
+	<td class="summary">Whether unit.cancelFormFor would leave the current form for this spell now (same rules), without leaving it:
+ for steps that come before the spell, such as a stun ahead of a heal.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.canFly">unit.canFly ()</a></td>
 	<td class="summary">Check if player can fly</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#unit.cancelForm">unit.cancelForm ()</a></td>
-	<td class="summary">Cancel current shapeshift form</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#unit.formBreakManaRequired">unit.formBreakManaRequired (outOfFormSpell, returnFormSpell, treatOutSpellAsFree)</a></td>
-	<td class="summary">Calculate mana required to safely break form for a spell and shift back.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#unit.canCancelFormFor">unit.canCancelFormFor (outOfFormSpell, returnFormSpell, treatOutSpellAsFree)</a></td>
-	<td class="summary">Check if it's safe to cancel form (enough mana to cast the spell and shift back).</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#unit.cancelFormFor">unit.cancelFormFor (outOfFormSpell, returnFormSpell, treatOutSpellAsFree)</a></td>
-	<td class="summary">Cancel form only if safe to do so.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.casting">unit.casting (thisUnit, spellID)</a></td>
 	<td class="summary">Check if a unit is casting or channeling a spell</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.combatTime">unit.combatTime ()</a></td>
-	<td class="summary">Get combat time</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#unit.ooCombatTime">unit.ooCombatTime ()</a></td>
-	<td class="summary">Get time out of combat</td>
+	<td class="name" nowrap><a href="#unit.castingTankBuster">unit.castingTankBuster (thisUnit)</a></td>
+	<td class="summary">True while the unit casts a spell from the tank buster list (System/Lists/TankBusters.lua)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.charmed">unit.charmed (thisUnit)</a></td>
 	<td class="summary">Check if a unit is charmed</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.chased">unit.chased ([range=10])</a></td>
+	<td class="summary">Check if you're running away from an enemy that is chasing you</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.clearTarget">unit.clearTarget ()</a></td>
 	<td class="summary">Clear current target</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.combatTime">unit.combatTime ()</a></td>
+	<td class="summary">Get combat time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.critChance">unit.critChance ()</a></td>
+	<td class="summary">Get the player's melee critical strike chance</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.deadGroupMember">unit.deadGroupMember (range, ...)</a></td>
+	<td class="summary">Get a dead player in your group, to resurrect</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.deadOrGhost">unit.deadOrGhost (thisUnit)</a></td>
@@ -141,16 +164,30 @@
 	<td class="summary">Get distance between units</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.dragonkin">unit.dragonkin (thisUnit)</a></td>
+	<td class="summary">Check if a unit is Dragonkin</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.dualWielding">unit.dualWielding ()</a></td>
 	<td class="summary">Check if player is dual wielding weapons</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.rangedAttackSpeed">unit.rangedAttackSpeed ()</a></td>
-	<td class="summary">Get the player's current ranged attack speed in seconds.</td>
-	</tr>
-	<tr>
 	<td class="name" nowrap><a href="#unit.enemy">unit.enemy (thisUnit, playerUnit)</a></td>
 	<td class="summary">Check if a unit is an enemy</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.enemyNear">unit.enemyNear (range)</a></td>
+	<td class="summary">Check if an enemy is close enough to start a fight</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.bleedImmune">unit.bleedImmune (thisUnit)</a></td>
+	<td class="summary">Whether the unit's kind of mob (NPC ID) has shown immune to your bleeds: five of them in a row went
+ out and the bleed never showed on it (unit:isBleedImmune; learned, and kept across sessions).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.evading">unit.evading (thisUnit)</a></td>
+	<td class="summary">Whether the unit evades your attacks (an evade bug, or leashing home): an attack of yours came back
+ "EVADE" and none has landed since (10 s at most, or until you move 2 yd).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.exists">unit.exists (thisUnit)</a></td>
@@ -161,8 +198,17 @@
 	<td class="summary">Check if a unit is facing another unit</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.isBehind">unit.isBehind (thisUnit, otherUnit, degrees)</a></td>
-	<td class="summary">Check if a unit is behind another unit</td>
+	<td class="name" nowrap><a href="#unit.facingAngle">unit.facingAngle (thisUnit)</a></td>
+	<td class="summary">The direction the unit faces, in radians</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.facingDistance">unit.facingDistance ()</a></td>
+	<td class="summary">How far to the side of the player's facing line the target stands (negative behind the player,
+ 1000 when either can't be seen)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.fallDist">unit.fallDist ()</a></td>
+	<td class="summary">How far the player has fallen</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.falling">unit.falling ()</a></td>
@@ -173,8 +219,21 @@
 	<td class="summary">Get time the player has been falling</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.fallDist">unit.fallDist ()</a></td>
-	<td class="summary">Get the distance the player has fallen</td>
+	<td class="name" nowrap><a href="#unit.fightStyle.dungeonRoute">unit.fightStyle.dungeonRoute ()</a></td>
+	<td class="summary">Returns true when inside an active Mythic+ key run.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.fightStyle.dungeonSlice">unit.fightStyle.dungeonSlice ()</a></td>
+	<td class="summary">Returns true when inside a regular (non-Mythic+) 5-man dungeon.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.fightStyle.patchwerk">unit.fightStyle.patchwerk ()</a></td>
+	<td class="summary">Returns true when not in a 5-man party instance (raid, outdoor, etc.).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.fightLength">unit.fightLength (thisUnit)</a></td>
+	<td class="summary">Seconds the fight against thisUnit should last: its time to die once BR has measured it, else a
+ guess (a mob 4+ levels below you: 0, any other: 999).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.flying">unit.flying ()</a></td>
@@ -185,6 +244,10 @@
 	<td class="summary">Get current shapeshift form</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.formActive">unit.formActive (spellID)</a></td>
+	<td class="summary">Check if a specific form is active or if any form is active</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.formCount">unit.formCount ()</a></td>
 	<td class="summary">Get number of available shapeshift forms</td>
 	</tr>
@@ -193,16 +256,21 @@
 	<td class="summary">Get information about a specific shapeshift form</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.formActive">unit.formActive (spellID)</a></td>
-	<td class="summary">Check if a specific form is active or if any form is active</td>
-	</tr>
-	<tr>
 	<td class="name" nowrap><a href="#unit.friend">unit.friend (thisUnit, playerUnit)</a></td>
 	<td class="summary">Check if a unit is friendly to another unit</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.gcd">unit.gcd (max)</a></td>
 	<td class="summary">Get global cooldown duration</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.getCurrentFormSpellID">unit.getCurrentFormSpellID ()</a></td>
+	<td class="summary">Get the spell ID of the current shapeshift form (the spell that shifts back into it), or nil
+ when no form is active.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.groupCount">unit.groupCount ()</a></td>
+	<td class="summary">Get number of members in the current group (including player; 0 if solo)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.guid">unit.guid (thisUnit)</a></td>
@@ -217,6 +285,14 @@
 	<td class="summary">Get unit's maximum health</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.healthAfterHeals">unit.healthAfterHeals (thisUnit)</a></td>
+	<td class="summary">Get unit's health once your heals on their way to it land (sent, not landed yet), at most its maximum.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.hpAfterHeals">unit.hpAfterHeals (thisUnit)</a></td>
+	<td class="summary">Get unit's health percentage once your heals on their way to it land</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.hp">unit.hp (thisUnit)</a></td>
 	<td class="summary">Get unit's health percentage</td>
 	</tr>
@@ -229,8 +305,25 @@
 	<td class="summary">Get unit's ID</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.inAggroRange">unit.inAggroRange (thisUnit, offset, hostileOnly)</a></td>
+	<td class="summary">Check if a unit would aggro on the player</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.inCombat">unit.inCombat (thisUnit)</a></td>
 	<td class="summary">Check if a unit is in combat</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.inGroup">unit.inGroup ()</a></td>
+	<td class="summary">Check if player is in a group (party or raid)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.groupHealer">unit.groupHealer ()</a></td>
+	<td class="summary">The group member who heals you, or nil (solo, no healer, or yours is dead or beyond 40 yd): the Healer
+ role, else a member seen healing others twice this session</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.inRaid">unit.inRaid ()</a></td>
+	<td class="summary">True while the player is in a raid group</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.instance">unit.instance (thisInstance)</a></td>
@@ -239,6 +332,14 @@
 	<tr>
 	<td class="name" nowrap><a href="#unit.interruptable">unit.interruptable (thisUnit, castPercent)</a></td>
 	<td class="summary">Check if a unit's cast can be interrupted</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.inVehicle">unit.inVehicle ()</a></td>
+	<td class="summary">True while the player rides a vehicle</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.isBehind">unit.isBehind (thisUnit, otherUnit, degrees)</a></td>
+	<td class="summary">Check if a unit is behind another unit</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.isBoss">unit.isBoss (thisUnit)</a></td>
@@ -265,6 +366,10 @@
 	<td class="summary">Check if a unit is fleeing</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.isFleeingFrom">unit.isFleeingFrom (thisUnit, fromUnit)</a></td>
+	<td class="summary">Check if a unit is moving away from another unit that is facing it (being chased)</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.isTanking">unit.isTanking (thisUnit)</a></td>
 	<td class="summary">Check if a unit is tanking</td>
 	</tr>
@@ -279,6 +384,16 @@
 	<tr>
 	<td class="name" nowrap><a href="#unit.level">unit.level (thisUnit)</a></td>
 	<td class="summary">Get unit's level</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.livesFor">unit.livesFor (thisUnit, seconds)</a></td>
+	<td class="summary">True when BR has measured thisUnit's time to die and it lives at least seconds more; false while
+ it's unknown (unit.ttd's 999).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.losing">unit.losing (thisUnit)</a></td>
+	<td class="summary">True when you'd die before thisUnit does: both times to die are measured and yours is shorter
+ (false while its time is unknown).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.lowest">unit.lowest (range)</a></td>
@@ -301,20 +416,50 @@
 	<td class="summary">Get unit's name</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.player">unit.player (thisUnit)</a></td>
-	<td class="summary">Check if a unit is a player</td>
+	<td class="name" nowrap><a href="#unit.ooCombatTime">unit.ooCombatTime ()</a></td>
+	<td class="summary">Get time out of combat</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.outdoors">unit.outdoors ()</a></td>
 	<td class="summary">Check if player is outdoors</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.player">unit.player (thisUnit)</a></td>
+	<td class="summary">Check if a unit is a player</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.position">unit.position (thisUnit)</a></td>
+	<td class="summary">Where the unit stands</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.pressure">unit.pressure (thisUnit)</a></td>
+	<td class="summary">Why the fight against thisUnit is going badly, for a debug line: "2 enemies on you" (within 8 yd),
+ "health 45%" (under half) or "losing: you 8.0s, it 12.5s" (unit.losing); nil when it isn't.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.pullable">unit.pullable (thisUnit)</a></td>
+	<td class="summary">True when a profile may open a fight on thisUnit: valid, attackable, and never a player (attacking
+ one flags you for PvP)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.pullTimer">unit.pullTimer ()</a></td>
+	<td class="summary">Returns the time remaining on the pull timer (DBM/BigWigs)</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.race">unit.race (thisUnit)</a></td>
 	<td class="summary">Get unit's race</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.rangedAttackSpeed">unit.rangedAttackSpeed ()</a></td>
+	<td class="summary">Get the player's current ranged attack speed in seconds.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.reaction">unit.reaction (thisUnit, playerUnit)</a></td>
 	<td class="summary">Get unit's reaction level towards another unit</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.readyToFight">unit.readyToFight ()</a></td>
+	<td class="summary">Check if it's a good moment to start a fight</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.resting">unit.resting ()</a></td>
@@ -325,16 +470,17 @@
 	<td class="summary">Get unit's assigned role in group</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.sinceSwing">unit.sinceSwing ([hand="mh"])</a></td>
+	<td class="summary">Seconds since the player's last swing landed (or since auto attack started its timer); nil
+ before either.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.solo">unit.solo ()</a></td>
 	<td class="summary">Check if player is solo (no group)</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.inGroup">unit.inGroup ()</a></td>
-	<td class="summary">Check if player is in a group (party or raid)</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#unit.groupCount">unit.groupCount ()</a></td>
-	<td class="summary">Get number of members in the current group (including player; 0 if solo)</td>
+	<td class="name" nowrap><a href="#unit.spec">unit.spec ()</a></td>
+	<td class="summary">The name of the player's spec as BR loads it ("Initial" before a spec is chosen)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.spellHaste">unit.spellHaste ()</a></td>
@@ -345,8 +491,8 @@
 	<td class="summary">Get time a unit has been standing still</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.startAttack">unit.startAttack ()</a></td>
-	<td class="summary">Start auto-attack</td>
+	<td class="name" nowrap><a href="#unit.startAttack">unit.startAttack ([thisUnit="target"])</a></td>
+	<td class="summary">Start auto-attack.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.stopAttack">unit.stopAttack ()</a></td>
@@ -357,24 +503,43 @@
 	<td class="summary">Check if player is swimming</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.taxi">unit.taxi (thisUnit)</a></td>
-	<td class="summary">Check if a unit is on a taxi</td>
+	<td class="name" nowrap><a href="#unit.swing">unit.swing ([hand="mh"])</a></td>
+	<td class="summary">The player's swing timer: seconds until the next swing (nil before the first swing), the
+ weapon speed and when the last swing landed (util.time())</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.target">unit.target (thisUnit)</a></td>
 	<td class="summary">Get the current target of a unit</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.tapDenied">unit.tapDenied (thisUnit)</a></td>
+	<td class="summary">Whether the unit is tagged by someone else (tap denied): its kill isn't yours, and it doesn't
+ proximity-aggro you (unit.inAggroRange leaves it out)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.taxi">unit.taxi (thisUnit)</a></td>
+	<td class="summary">Check if a unit is on a taxi</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.threat">unit.threat (thisUnit)</a></td>
 	<td class="summary">Check if a unit has threat</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.threatStatus">unit.threatStatus ()</a></td>
-	<td class="summary">Get the player's current threat status</td>
+	<td class="name" nowrap><a href="#unit.threatStatus">unit.threatStatus ([thisUnit])</a></td>
+	<td class="summary">Get the player's current threat status, on one enemy or on any</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.timeSinceDismount">unit.timeSinceDismount ()</a></td>
+	<td class="summary">Seconds since the player last landed from a mount</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.totem">unit.totem (thisUnit)</a></td>
+	<td class="summary">True for a totem</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.ttd">unit.ttd (thisUnit, percent)</a></td>
-	<td class="summary">Estimate time until unit dies</td>
+	<td class="summary">Estimate time until unit dies: an enemy, or the player ("player", from their own health), 999 when
+ it isn't known to be dying</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.ttdGroup">unit.ttdGroup (range, percent)</a></td>
@@ -385,40 +550,50 @@
 	<td class="summary">Check if a unit is Undead</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.unthreatened">unit.unthreatened (thisUnit)</a></td>
+	<td class="summary">True when nothing in the fight against thisUnit threatens you: 60%+ health, one enemy at most within 8 yd,
+ and you're winning (unit.winning).</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.valid">unit.valid (thisUnit)</a></td>
 	<td class="summary">Check if a unit is valid for targeting</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.weaponImbue.exists">unit.weaponImbue.exists (imbueId, offHand)</a></td>
-	<td class="summary">Check if a weapon imbue exists</td>
+	<td class="name" nowrap><a href="#unit.weaponDamage">unit.weaponDamage (thisUnit)</a></td>
+	<td class="summary">Get player's average weapon damage</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.weaponImbue.needed">unit.weaponImbue.needed (imbueId, offHand)</a></td>
-	<td class="summary">Check if a weapon imbue is missing (needs to be applied)</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#unit.weaponImbue.spellName">unit.weaponImbue.spellName (spellKey)</a></td>
-	<td class="summary">Get the display name of a weapon imbue spell</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#unit.weaponImbue.remain">unit.weaponImbue.remain (imbueId, offHand)</a></td>
-	<td class="summary">Get weapon imbue remaining time</td>
+	<td class="name" nowrap><a href="#unit.winning">unit.winning (thisUnit)</a></td>
+	<td class="summary">True when the fight against thisUnit is going your way: nothing is taking your health down, or it
+ dies in half the time you would or less (both times to die; unit.fightLength for it).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.weaponImbue.charges">unit.weaponImbue.charges (imbueId, offHand)</a></td>
 	<td class="summary">Get weapon imbue charges</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.attackPower">unit.attackPower (thisUnit)</a></td>
-	<td class="summary">Get player's attack power</td>
+	<td class="name" nowrap><a href="#unit.weaponImbue.exists">unit.weaponImbue.exists (imbueId, offHand)</a></td>
+	<td class="summary">Check if a weapon imbue exists</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.critChance">unit.critChance (thisUnit)</a></td>
-	<td class="summary">Get player's critical strike chance</td>
+	<td class="name" nowrap><a href="#unit.weaponImbue.needed">unit.weaponImbue.needed (imbueId, offHand[, refreshUnder])</a></td>
+	<td class="summary">Check if a weapon imbue is missing (needs to be applied).</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unit.weaponDamage">unit.weaponDamage (thisUnit)</a></td>
-	<td class="summary">Get player's average weapon damage</td>
+	<td class="name" nowrap><a href="#unit.weaponImbue.remain">unit.weaponImbue.remain (imbueId, offHand)</a></td>
+	<td class="summary">Get weapon imbue remaining time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.weaponImbue.spellName">unit.weaponImbue.spellName (spellKey)</a></td>
+	<td class="summary">Get the display name of a weapon imbue spell</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#unit.fightStyle">unit.fightStyle</a></td>
+	<td class="summary">The kind of fight, as SimC names them: fightStyle.dungeonRoute() in a Mythic+ key run,
+ fightStyle.dungeonSlice() in another 5-man dungeon, fightStyle.patchwerk() anywhere else</td>
 	</tr>
 </table>
 
@@ -448,6 +623,119 @@
     <ol>
 
         boolean True if the unit is an Aberration
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.aggroRange"></a>
+    <strong>unit.aggroRange (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get a unit's aggro radius against the player
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target"
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Aggro radius in yards, centre to centre (18 +/- level difference, growth capped at 25 levels, minimum 5)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.anyInAggroRange"></a>
+    <strong>unit.anyInAggroRange (offset, radius, hostileOnly, accept)</strong>
+    </dt>
+    <dd>
+    Check if any nearby enemy would aggro on the player
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">offset</span>
+         Optional extra yards added to each aggro radius
+        </li>
+        <li><span class="parameter">radius</span>
+         Optional search radius in yards, defaults to 40
+        </li>
+        <li><span class="parameter">hostileOnly</span>
+         Optional: leave out a neutral target (it doesn't notice you coming), as for stealthing
+        </li>
+        <li><span class="parameter">accept</span>
+         Optional function(unit): only enemies it returns true for count
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if any enemy (in combat or not) is within its aggro radius
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.attackingOthers"></a>
+    <strong>unit.attackingOthers (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if an enemy is attacking someone other than you
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The enemy to check
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True when it's in combat, not attacking you, and its target is friendly
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> thisUnit = enemies.<span class="function-name">first</span>(enemies.yards5, unit.attackingOthers) <span class="comment">-- a mob to taunt</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "unit.attackPower"></a>
+    <strong>unit.attackPower (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get player's attack power
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Total attack power (base + positive buffs + negative buffs)
     </ol>
 
 
@@ -508,6 +796,100 @@
 
 </dd>
     <dt>
+    <a name = "unit.cancelForm"></a>
+    <strong>unit.cancelForm ()</strong>
+    </dt>
+    <dd>
+    Cancel current shapeshift form.  Does nothing if the player isn't in a form, or if a cancel was
+ just sent and the server hasn't replied yet (the form still shows for a round trip).
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        True when a cancel was sent now.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.cancelFormFor"></a>
+    <strong>unit.cancelFormFor (outOfFormSpell, treatOutSpellAsFree, emergency)</strong>
+    </dt>
+    <dd>
+    Leave the current shapeshift form to cast a spell, when a player would: not while stealthed,
+ not while tanking in a bear form, and only with the mana to cast it and shift back.  In an
+ emergency it leaves regardless. Shows "Cancel Form [<spell>]" in profile debug once, when the
+ cancel is sent. In combat, until a form is up again, casts other than that spell leave the mana
+ to shift back into the form left.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">outOfFormSpell</span>
+         Spell to cast once out of form (id/name/spell table).
+        </li>
+        <li><span class="parameter">treatOutSpellAsFree</span>
+         If true, that spell costs nothing this time (e.g. Clearcasting).
+        </li>
+        <li><span class="parameter">emergency</span>
+         If true, leave form regardless (e.g. an emergency heal).
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        True while the form is being left: cancelled now, or a cancel still on its way
+   (keep waiting rather than acting as if still in form).
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.canLeaveFormFor"></a>
+    <strong>unit.canLeaveFormFor (outOfFormSpell, treatOutSpellAsFree, emergency)</strong>
+    </dt>
+    <dd>
+    Whether unit.cancelFormFor would leave the current form for this spell now (same rules), without leaving it:
+ for steps that come before the spell, such as a stun ahead of a heal.  True when not in a form.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">outOfFormSpell</span>
+         Spell to cast once out of form (id/name/spell table).
+        </li>
+        <li><span class="parameter">treatOutSpellAsFree</span>
+         If true, that spell costs nothing this time (e.g. Clearcasting).
+        </li>
+        <li><span class="parameter">emergency</span>
+         If true, the mana to shift back isn't needed.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">boolean</span></span>
+        </li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        why not, when false</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.canFly"></a>
     <strong>unit.canFly ()</strong>
     </dt>
@@ -520,124 +902,6 @@
     <ol>
 
         boolean True if the player can fly in the current area
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "unit.cancelForm"></a>
-    <strong>unit.cancelForm ()</strong>
-    </dt>
-    <dd>
-    Cancel current shapeshift form
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-        nil
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "unit.formBreakManaRequired"></a>
-    <strong>unit.formBreakManaRequired (outOfFormSpell, returnFormSpell, treatOutSpellAsFree)</strong>
-    </dt>
-    <dd>
-    Calculate mana required to safely break form for a spell and shift back.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">outOfFormSpell</span>
-         Spell reference (id/name/spell table) you intend to cast after breaking form.
-        </li>
-        <li><span class="parameter">returnFormSpell</span>
-         Spell reference (id/name/spell table) to shift back into.
-        </li>
-        <li><span class="parameter">treatOutSpellAsFree</span>
-         If true, treat out-of-form spell cost as 0 (e.g., Clearcasting).
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-        <li>
-           <span class="types"><span class="type">number</span></span>
-        requiredMana Total mana needed (out spell + return form).</li>
-        <li>
-           <span class="types"><span class="type">number</span></span>
-        currentMana Current player mana.</li>
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "unit.canCancelFormFor"></a>
-    <strong>unit.canCancelFormFor (outOfFormSpell, returnFormSpell, treatOutSpellAsFree)</strong>
-    </dt>
-    <dd>
-    Check if it's safe to cancel form (enough mana to cast the spell and shift back).
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">outOfFormSpell</span>
-         Spell reference (id/name/spell table) you intend to cast after breaking form.
-        </li>
-        <li><span class="parameter">returnFormSpell</span>
-         Spell reference (id/name/spell table) to shift back into.
-        </li>
-        <li><span class="parameter">treatOutSpellAsFree</span>
-         If true, treat out-of-form spell cost as 0 (e.g., Clearcasting).
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">boolean</span></span>
-
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "unit.cancelFormFor"></a>
-    <strong>unit.cancelFormFor (outOfFormSpell, returnFormSpell, treatOutSpellAsFree)</strong>
-    </dt>
-    <dd>
-    Cancel form only if safe to do so.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">outOfFormSpell</span>
-         Spell reference (id/name/spell table) you intend to cast after breaking form.
-        </li>
-        <li><span class="parameter">returnFormSpell</span>
-         Spell reference (id/name/spell table) to shift back into.
-        </li>
-        <li><span class="parameter">treatOutSpellAsFree</span>
-         If true, treat out-of-form spell cost as 0 (e.g., Clearcasting).
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">boolean</span></span>
-        True if the form was cancelled.
     </ol>
 
 
@@ -673,37 +937,24 @@
 
 </dd>
     <dt>
-    <a name = "unit.combatTime"></a>
-    <strong>unit.combatTime ()</strong>
+    <a name = "unit.castingTankBuster"></a>
+    <strong>unit.castingTankBuster (thisUnit)</strong>
     </dt>
     <dd>
-    Get combat time
+    True while the unit casts a spell from the tank buster list (System/Lists/TankBusters.lua)
 
 
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target"
+        </li>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        number Time in combat in seconds
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "unit.ooCombatTime"></a>
-    <strong>unit.ooCombatTime ()</strong>
-    </dt>
-    <dd>
-    Get time out of combat
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-        number Time out of combat in seconds
+        boolean
     </ol>
 
 
@@ -736,6 +987,37 @@
 
 </dd>
     <dt>
+    <a name = "unit.chased"></a>
+    <strong>unit.chased ([range=10])</strong>
+    </dt>
+    <dd>
+    Check if you're running away from an enemy that is chasing you
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">range</span>
+            <span class="types"><span class="type">number</span></span>
+         How close the chasing enemy is
+         (<em>default</em> 10)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True while an enemy within range chases you as you move away from it
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">if</span> unit.<span class="function-name">chased</span>(<span class="number">10</span>) <span class="keyword">and</span> cast.able.<span class="function-name">dash</span>() <span class="keyword">then</span></pre>
+    </ul>
+
+</dd>
+    <dt>
     <a name = "unit.clearTarget"></a>
     <strong>unit.clearTarget ()</strong>
     </dt>
@@ -752,6 +1034,77 @@
 
 
 
+
+</dd>
+    <dt>
+    <a name = "unit.combatTime"></a>
+    <strong>unit.combatTime ()</strong>
+    </dt>
+    <dd>
+    Get combat time
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Time in combat in seconds
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.critChance"></a>
+    <strong>unit.critChance ()</strong>
+    </dt>
+    <dd>
+    Get the player's melee critical strike chance
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Critical strike chance percentage
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.deadGroupMember"></a>
+    <strong>unit.deadGroupMember (range, ...)</strong>
+    </dt>
+    <dd>
+    Get a dead player in your group, to resurrect
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">range</span>
+            <span class="types"><span class="type">number</span></span>
+         Yards to look within
+        </li>
+        <li><span class="parameter">...</span>
+         Optional roles to pick from ("TANK", "HEALER", "DAMAGER"); anyone when none are given
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string|nil The unit, or nil when there's none
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> thisUnit = unit.<span class="function-name">deadGroupMember</span>(<span class="number">30</span>, <span class="string">"TANK"</span>, <span class="string">"HEALER"</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -833,6 +1186,31 @@
 
 </dd>
     <dt>
+    <a name = "unit.dragonkin"></a>
+    <strong>unit.dragonkin (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is Dragonkin
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is Dragonkin
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.dualWielding"></a>
     <strong>unit.dualWielding ()</strong>
     </dt>
@@ -845,27 +1223,6 @@
     <ol>
 
         boolean True if player is dual wielding
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "unit.rangedAttackSpeed"></a>
-    <strong>unit.rangedAttackSpeed ()</strong>
-    </dt>
-    <dd>
-    Get the player's current ranged attack speed in seconds.
- Reads the live haste-modified speed from UnitRangedDamage so it reflects
- Rapid Fire, Quiver haste, and other modifiers automatically.
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-        number Ranged weapon speed in seconds, or 0 if unavailable
     </ol>
 
 
@@ -894,6 +1251,89 @@
     <ol>
 
         boolean True if thisUnit is an enemy to playerUnit
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.enemyNear"></a>
+    <strong>unit.enemyNear (range)</strong>
+    </dt>
+    <dd>
+    Check if an enemy is close enough to start a fight
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">range</span>
+            <span class="types"><span class="type">number</span></span>
+         Yards to look within
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True when an enemy is already fighting within range, or an idle one's aggro range reaches you
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">if</span> <span class="keyword">not</span> unit.<span class="function-name">inCombat</span>() <span class="keyword">and</span> unit.<span class="function-name">enemyNear</span>(<span class="number">20</span>) <span class="keyword">and</span> cast.able.<span class="function-name">prowl</span>() <span class="keyword">then</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "unit.bleedImmune"></a>
+    <strong>unit.bleedImmune (thisUnit)</strong>
+    </dt>
+    <dd>
+    Whether the unit's kind of mob (NPC ID) has shown immune to your bleeds: five of them in a row went
+ out and the bleed never showed on it (unit:isBleedImmune; learned, and kept across sessions).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True when it is counted bleed-immune
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.evading"></a>
+    <strong>unit.evading (thisUnit)</strong>
+    </dt>
+    <dd>
+    Whether the unit evades your attacks (an evade bug, or leashing home): an attack of yours came back
+ "EVADE" and none has landed since (10 s at most, or until you move 2 yd).  BR doesn't pick it and holds
+ its damage spells.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True while it evades
     </ol>
 
 
@@ -957,30 +1397,63 @@
 
 </dd>
     <dt>
-    <a name = "unit.isBehind"></a>
-    <strong>unit.isBehind (thisUnit, otherUnit, degrees)</strong>
+    <a name = "unit.facingAngle"></a>
+    <strong>unit.facingAngle (thisUnit)</strong>
     </dt>
     <dd>
-    Check if a unit is behind another unit
+    The direction the unit faces, in radians
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">thisUnit</span>
-         The unit being checked for facing (typically the target), defaults to "target" if nil
-        </li>
-        <li><span class="parameter">otherUnit</span>
-         The reference unit (typically "player"), defaults to "player" if nil
-        </li>
-        <li><span class="parameter">degrees</span>
-         Optional angle in degrees for the facing cone, defaults to normal game value
+         The unit to check, defaults to "player"
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        boolean True if thisUnit is NOT facing otherUnit within the given degrees
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.facingDistance"></a>
+    <strong>unit.facingDistance ()</strong>
+    </dt>
+    <dd>
+    How far to the side of the player's facing line the target stands (negative behind the player,
+ 1000 when either can't be seen)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Yards
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.fallDist"></a>
+    <strong>unit.fallDist ()</strong>
+    </dt>
+    <dd>
+    How far the player has fallen
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Distance in yards the player has fallen
     </ol>
 
 
@@ -1026,22 +1499,91 @@
 
 </dd>
     <dt>
-    <a name = "unit.fallDist"></a>
-    <strong>unit.fallDist ()</strong>
+    <a name = "unit.fightStyle.dungeonRoute"></a>
+    <strong>unit.fightStyle.dungeonRoute ()</strong>
     </dt>
     <dd>
-    Get the distance the player has fallen
+    Returns true when inside an active Mythic+ key run.
 
 
 
     <h3>Returns:</h3>
     <ol>
 
-        number Distance in yards the player has fallen
+        boolean
     </ol>
 
 
 
+
+</dd>
+    <dt>
+    <a name = "unit.fightStyle.dungeonSlice"></a>
+    <strong>unit.fightStyle.dungeonSlice ()</strong>
+    </dt>
+    <dd>
+    Returns true when inside a regular (non-Mythic+) 5-man dungeon.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.fightStyle.patchwerk"></a>
+    <strong>unit.fightStyle.patchwerk ()</strong>
+    </dt>
+    <dd>
+    Returns true when not in a 5-man party instance (raid, outdoor, etc.).
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.fightLength"></a>
+    <strong>unit.fightLength (thisUnit)</strong>
+    </dt>
+    <dd>
+    Seconds the fight against thisUnit should last: its time to die once BR has measured it, else a
+ guess (a mob 4+ levels below you: 0, any other: 999).  For commitments a guess is good enough for (a
+ totem); when the time matters (damage over time), unit.livesFor.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit, defaults to "target"
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">if</span> unit.<span class="function-name">fightLength</span>(enemy) &gt;= <span class="number">10</span> <span class="keyword">then</span> <span class="comment">-- drop a totem</span></pre>
+    </ul>
 
 </dd>
     <dt>
@@ -1076,6 +1618,31 @@
     <ol>
 
         number Current shapeshift form ID
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.formActive"></a>
+    <strong>unit.formActive (spellID)</strong>
+    </dt>
+    <dd>
+    Check if a specific form is active or if any form is active
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">spellID</span>
+         Optional spell ID to check for a specific form. If nil, checks if any form is active
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the specified form (or any form if no spellID provided) is active
     </ol>
 
 
@@ -1119,32 +1686,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        texture, isActive, isCastable, spellID
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "unit.formActive"></a>
-    <strong>unit.formActive (spellID)</strong>
-    </dt>
-    <dd>
-    Check if a specific form is active or if any form is active
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">spellID</span>
-         Optional spell ID to check for a specific form. If nil, checks if any form is active
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        boolean True if the specified form (or any form if no spellID provided) is active
+        number, boolean, boolean, number icon, isActive, isCastable, spellID
     </ol>
 
 
@@ -1198,6 +1740,45 @@
     <ol>
 
         number Global cooldown in seconds
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.getCurrentFormSpellID"></a>
+    <strong>unit.getCurrentFormSpellID ()</strong>
+    </dt>
+    <dd>
+    Get the spell ID of the current shapeshift form (the spell that shifts back into it), or nil
+ when no form is active.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number|nil Spell ID of the current form, or nil if no form is active.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.groupCount"></a>
+    <strong>unit.groupCount ()</strong>
+    </dt>
+    <dd>
+    Get number of members in the current group (including player; 0 if solo)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Total group member count
     </ol>
 
 
@@ -1280,6 +1861,57 @@
 
 </dd>
     <dt>
+    <a name = "unit.healthAfterHeals"></a>
+    <strong>unit.healthAfterHeals (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get unit's health once your heals on their way to it land (sent, not landed yet), at most its maximum.
+ Decide another heal or a potion on this: unit.health() still misses a heal about to land.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Health of the unit after your heals on their way
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.hpAfterHeals"></a>
+    <strong>unit.hpAfterHeals (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get unit's health percentage once your heals on their way to it land
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Health percentage of the unit after your heals on their way (0-100)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.hp"></a>
     <strong>unit.hp (thisUnit)</strong>
     </dt>
@@ -1355,6 +1987,38 @@
 
 </dd>
     <dt>
+    <a name = "unit.inAggroRange"></a>
+    <strong>unit.inAggroRange (thisUnit, offset, hostileOnly)</strong>
+    </dt>
+    <dd>
+    Check if a unit would aggro on the player
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target"
+        </li>
+        <li><span class="parameter">offset</span>
+         Optional extra yards added to the aggro radius
+        </li>
+        <li><span class="parameter">hostileOnly</span>
+         Optional: leave out a neutral target
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if hostile (or neutral and targeted) and within its aggro radius (centre to centre,
+ within 8 yards of your height), not tagged by someone else, and able to see you
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.inCombat"></a>
     <strong>unit.inCombat (thisUnit)</strong>
     </dt>
@@ -1373,6 +2037,68 @@
     <ol>
 
         boolean True if the unit is in combat or special conditions are met
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.inGroup"></a>
+    <strong>unit.inGroup ()</strong>
+    </dt>
+    <dd>
+    Check if player is in a group (party or raid)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if player is in a group
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.groupHealer"></a>
+    <strong>unit.groupHealer ()</strong>
+    </dt>
+    <dd>
+    The group member who heals you, or nil (solo, no healer, or yours is dead or beyond 40 yd): the Healer
+ role, else a member seen healing others twice this session
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string|nil The healer's unit token ("party2")
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> selfHeal = unit.<span class="function-name">solo</span>() <span class="keyword">or</span> <span class="keyword">not</span> unit.<span class="function-name">groupHealer</span>()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "unit.inRaid"></a>
+    <strong>unit.inRaid ()</strong>
+    </dt>
+    <dd>
+    True while the player is in a raid group
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
     </ol>
 
 
@@ -1433,6 +2159,57 @@
 
 </dd>
     <dt>
+    <a name = "unit.inVehicle"></a>
+    <strong>unit.inVehicle ()</strong>
+    </dt>
+    <dd>
+    True while the player rides a vehicle
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.isBehind"></a>
+    <strong>unit.isBehind (thisUnit, otherUnit, degrees)</strong>
+    </dt>
+    <dd>
+    Check if a unit is behind another unit
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit being checked for facing (typically the target), defaults to "target" if nil
+        </li>
+        <li><span class="parameter">otherUnit</span>
+         The reference unit (typically "player"), defaults to "player" if nil
+        </li>
+        <li><span class="parameter">degrees</span>
+         Optional angle in degrees for the facing cone, defaults to normal game value
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if thisUnit is NOT facing otherUnit within the given degrees; false while the
+ game has just refused a cast on thisUnit with "You must be behind your target"
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.isBoss"></a>
     <strong>unit.isBoss (thisUnit)</strong>
     </dt>
@@ -1475,7 +2252,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        boolean True if the unit is casting
+        boolean True if the unit is casting or channelling
     </ol>
 
 
@@ -1583,6 +2360,34 @@
 
 </dd>
     <dt>
+    <a name = "unit.isFleeingFrom"></a>
+    <strong>unit.isFleeingFrom (thisUnit, fromUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is moving away from another unit that is facing it (being chased)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit that may be fleeing, defaults to "player"
+        </li>
+        <li><span class="parameter">fromUnit</span>
+         The unit it may be fleeing from, defaults to "target"
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if thisUnit is running from fromUnit
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.isTanking"></a>
     <strong>unit.isTanking (thisUnit)</strong>
     </dt>
@@ -1618,8 +2423,11 @@
 
     <h3>Returns:</h3>
     <ol>
-
-        boolean True if a tank is in range
+        <li>
+        boolean True if a tank is in range</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        The tank</li>
     </ol>
 
 
@@ -1677,6 +2485,70 @@
 
 
 
+
+</dd>
+    <dt>
+    <a name = "unit.livesFor"></a>
+    <strong>unit.livesFor (thisUnit, seconds)</strong>
+    </dt>
+    <dd>
+    True when BR has measured thisUnit's time to die and it lives at least seconds more; false while
+ it's unknown (unit.ttd's 999).  Use it rather than "unit.ttd(x) > N", which reads unknown as long.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit, defaults to "target"
+        </li>
+        <li><span class="parameter">seconds</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">if</span> unit.<span class="function-name">livesFor</span>(enemy, <span class="number">12</span>) <span class="keyword">then</span> <span class="comment">-- Flame Shock's 12 s of damage over time can tick</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "unit.losing"></a>
+    <strong>unit.losing (thisUnit)</strong>
+    </dt>
+    <dd>
+    True when you'd die before thisUnit does: both times to die are measured and yours is shorter
+ (false while its time is unknown).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit, defaults to "target"
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">if</span> unit.<span class="function-name">losing</span>(enemy) <span class="keyword">then</span> <span class="comment">-- spend the cooldowns, heal</span></pre>
+    </ul>
 
 </dd>
     <dt>
@@ -1793,6 +2665,44 @@
 
 </dd>
     <dt>
+    <a name = "unit.ooCombatTime"></a>
+    <strong>unit.ooCombatTime ()</strong>
+    </dt>
+    <dd>
+    Get time out of combat
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Time out of combat in seconds
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.outdoors"></a>
+    <strong>unit.outdoors ()</strong>
+    </dt>
+    <dd>
+    Check if player is outdoors
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if player is outdoors
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.player"></a>
     <strong>unit.player (thisUnit)</strong>
     </dt>
@@ -1818,18 +2728,103 @@
 
 </dd>
     <dt>
-    <a name = "unit.outdoors"></a>
-    <strong>unit.outdoors ()</strong>
+    <a name = "unit.position"></a>
+    <strong>unit.position (thisUnit)</strong>
     </dt>
     <dd>
-    Check if player is outdoors
+    Where the unit stands
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player"
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number, number, number x, y, z
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.pressure"></a>
+    <strong>unit.pressure (thisUnit)</strong>
+    </dt>
+    <dd>
+    Why the fight against thisUnit is going badly, for a debug line: "2 enemies on you" (within 8 yd),
+ "health 45%" (under half) or "losing: you 8.0s, it 12.5s" (unit.losing); nil when it isn't.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit fought, defaults to "target"
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string|nil
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> why = unit.<span class="function-name">pressure</span>(enemy); <span class="keyword">if</span> why <span class="keyword">then</span> ui.<span class="global">debug</span>(<span class="string">"Casting Earth Shock ["</span> .. why .. <span class="string">"]"</span>) <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "unit.pullable"></a>
+    <strong>unit.pullable (thisUnit)</strong>
+    </dt>
+    <dd>
+    True when a profile may open a fight on thisUnit: valid, attackable, and never a player (attacking
+ one flags you for PvP)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit, defaults to "target"
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">if</span> unit.<span class="function-name">pullable</span>(<span class="string">"target"</span>) <span class="keyword">and</span> cast.<span class="function-name">lightningBolt</span>(<span class="string">"target"</span>) <span class="keyword">then</span> <span class="comment">-- the pull</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "unit.pullTimer"></a>
+    <strong>unit.pullTimer ()</strong>
+    </dt>
+    <dd>
+    Returns the time remaining on the pull timer (DBM/BigWigs)
 
 
 
     <h3>Returns:</h3>
     <ol>
 
-        boolean True if player is outdoors
+        number - Returns seconds remaining on pull timer
     </ol>
 
 
@@ -1862,6 +2857,27 @@
 
 </dd>
     <dt>
+    <a name = "unit.rangedAttackSpeed"></a>
+    <strong>unit.rangedAttackSpeed ()</strong>
+    </dt>
+    <dd>
+    Get the player's current ranged attack speed in seconds.
+ Reads the live haste-modified speed from UnitRangedDamage so it reflects
+ Rapid Fire, Quiver haste, and other modifiers automatically.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Ranged weapon speed in seconds, or 0 if unavailable
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.reaction"></a>
     <strong>unit.reaction (thisUnit, playerUnit)</strong>
     </dt>
@@ -1887,6 +2903,29 @@
 
 
 
+
+</dd>
+    <dt>
+    <a name = "unit.readyToFight"></a>
+    <strong>unit.readyToFight ()</strong>
+    </dt>
+    <dd>
+    Check if it's a good moment to start a fight
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True when you aren't low on health or mana or eating or drinking, and in a group the tanks aren't low (Ready To Fight options, Targeting page)
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">if</span> <span class="keyword">not</span> unit.<span class="function-name">inCombat</span>() <span class="keyword">and</span> unit.<span class="function-name">readyToFight</span>() <span class="keyword">and</span> cast.able.<span class="function-name">faerieFire</span>(<span class="string">"target"</span>) <span class="keyword">then</span></pre>
+    </ul>
 
 </dd>
     <dt>
@@ -1934,6 +2973,38 @@
 
 </dd>
     <dt>
+    <a name = "unit.sinceSwing"></a>
+    <strong>unit.sinceSwing ([hand="mh"])</strong>
+    </dt>
+    <dd>
+    Seconds since the player's last swing landed (or since auto attack started its timer); nil
+ before either.  A cast right after a swing costs the least swing time where a cast resets it.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">hand</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         "mh" for melee (the main hand), "oh" for the off hand, "ranged" for Auto Shot
+         (<em>default</em> "mh")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number|nil
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">if</span> (unit.<span class="function-name">sinceSwing</span>() <span class="keyword">or</span> <span class="number">0</span>) &lt;= <span class="number">0.4</span> <span class="keyword">then</span></pre>
+    </ul>
+
+</dd>
+    <dt>
     <a name = "unit.solo"></a>
     <strong>unit.solo ()</strong>
     </dt>
@@ -1953,37 +3024,18 @@
 
 </dd>
     <dt>
-    <a name = "unit.inGroup"></a>
-    <strong>unit.inGroup ()</strong>
+    <a name = "unit.spec"></a>
+    <strong>unit.spec ()</strong>
     </dt>
     <dd>
-    Check if player is in a group (party or raid)
+    The name of the player's spec as BR loads it ("Initial" before a spec is chosen)
 
 
 
     <h3>Returns:</h3>
     <ol>
 
-        boolean True if player is in a group
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "unit.groupCount"></a>
-    <strong>unit.groupCount ()</strong>
-    </dt>
-    <dd>
-    Get number of members in the current group (including player; 0 if solo)
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-        number Total group member count
+        string
     </ol>
 
 
@@ -2030,17 +3082,26 @@
 </dd>
     <dt>
     <a name = "unit.startAttack"></a>
-    <strong>unit.startAttack ()</strong>
+    <strong>unit.startAttack ([thisUnit="target"])</strong>
     </dt>
     <dd>
-    Start auto-attack
+    Start auto-attack.  Not sent again while auto attack on that unit is already on or on its way
+ (the game confirms a round trip later), nor at your target while auto attack is on (you or BR started
+ it); a different unit always goes out. So a profile calls it plainly, with no cast.auto.autoAttack() check.
 
 
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to attack
+         (<em>default</em> "target")
+        </li>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        nil
+        boolean True when it was sent
     </ol>
 
 
@@ -2086,28 +3147,35 @@
 
 </dd>
     <dt>
-    <a name = "unit.taxi"></a>
-    <strong>unit.taxi (thisUnit)</strong>
+    <a name = "unit.swing"></a>
+    <strong>unit.swing ([hand="mh"])</strong>
     </dt>
     <dd>
-    Check if a unit is on a taxi
+    The player's swing timer: seconds until the next swing (nil before the first swing), the
+ weapon speed and when the last swing landed (util.time())
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">thisUnit</span>
-         The unit to check, defaults to "player" if nil
+        <li><span class="parameter">hand</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         "mh" for melee (the main hand), "oh" for the off hand, "ranged" for Auto Shot
+         (<em>default</em> "mh")
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        boolean True if the unit is on a taxi
+        number, number, number
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> untilNext, speed, last = unit.<span class="function-name">swing</span>(<span class="string">"ranged"</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -2129,6 +3197,57 @@
     <ol>
 
         string|nil Unit token of thisUnit's current target, or nil if none
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.tapDenied"></a>
+    <strong>unit.tapDenied (thisUnit)</strong>
+    </dt>
+    <dd>
+    Whether the unit is tagged by someone else (tap denied): its kill isn't yours, and it doesn't
+ proximity-aggro you (unit.inAggroRange leaves it out)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True when it's tagged by someone else
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.taxi"></a>
+    <strong>unit.taxi (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is on a taxi
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is on a taxi
     </ol>
 
 
@@ -2162,12 +3281,19 @@
 </dd>
     <dt>
     <a name = "unit.threatStatus"></a>
-    <strong>unit.threatStatus ()</strong>
+    <strong>unit.threatStatus ([thisUnit])</strong>
     </dt>
     <dd>
-    Get the player's current threat status
+    Get the player's current threat status, on one enemy or on any
 
 
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The enemy; any enemy when nil
+         (<em>optional</em>)
+        </li>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -2181,11 +3307,56 @@
 
 </dd>
     <dt>
+    <a name = "unit.timeSinceDismount"></a>
+    <strong>unit.timeSinceDismount ()</strong>
+    </dt>
+    <dd>
+    Seconds since the player last landed from a mount
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number|nil Seconds since dismounting, nil while mounted or if not mounted since login
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.totem"></a>
+    <strong>unit.totem (thisUnit)</strong>
+    </dt>
+    <dd>
+    True for a totem
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.ttd"></a>
     <strong>unit.ttd (thisUnit, percent)</strong>
     </dt>
     <dd>
-    Estimate time until unit dies
+    Estimate time until unit dies: an enemy, or the player ("player", from their own health), 999 when
+ it isn't known to be dying
 
 
     <h3>Parameters:</h3>
@@ -2262,6 +3433,36 @@
 
 </dd>
     <dt>
+    <a name = "unit.unthreatened"></a>
+    <strong>unit.unthreatened (thisUnit)</strong>
+    </dt>
+    <dd>
+    True when nothing in the fight against thisUnit threatens you: 60%+ health, one enemy at most within 8 yd,
+ and you're winning (unit.winning).  For spending past a reserve while it's safe.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit fought, defaults to "target"
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">if</span> unit.<span class="function-name">unthreatened</span>(enemy) <span class="keyword">then</span> <span class="comment">-- spend the mana kept back for a heal</span></pre>
+    </ul>
+
+</dd>
+    <dt>
     <a name = "unit.valid"></a>
     <strong>unit.valid (thisUnit)</strong>
     </dt>
@@ -2280,6 +3481,89 @@
     <ol>
 
         boolean True if the unit is valid
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.weaponDamage"></a>
+    <strong>unit.weaponDamage (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get player's average weapon damage
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Average weapon damage
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.winning"></a>
+    <strong>unit.winning (thisUnit)</strong>
+    </dt>
+    <dd>
+    True when the fight against thisUnit is going your way: nothing is taking your health down, or it
+ dies in half the time you would or less (both times to die; unit.fightLength for it).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit, defaults to "target"
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">if</span> unit.<span class="function-name">winning</span>(enemy) <span class="keyword">then</span> <span class="comment">-- no need to hold mana back for a heal</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "unit.weaponImbue.charges"></a>
+    <strong>unit.weaponImbue.charges (imbueId, offHand)</strong>
+    </dt>
+    <dd>
+    Get weapon imbue charges
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">imbueId</span>
+         The ID of the imbue to check
+        </li>
+        <li><span class="parameter">offHand</span>
+         Boolean whether to check offhand (true) or main hand (false, default)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Number of charges remaining on the weapon imbue
     </ol>
 
 
@@ -2316,51 +3600,33 @@
 </dd>
     <dt>
     <a name = "unit.weaponImbue.needed"></a>
-    <strong>unit.weaponImbue.needed (imbueId, offHand)</strong>
+    <strong>unit.weaponImbue.needed (imbueId, offHand[, refreshUnder])</strong>
     </dt>
     <dd>
-    Check if a weapon imbue is missing (needs to be applied)
+    Check if a weapon imbue is missing (needs to be applied).  Not while a cast of it is still being
+ watched (the enchant shows a moment after the cast), nor on a weapon a cast of it showed nothing on
+ (it doesn't hold it, e.g. a profession tool).
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">imbueId</span>
-         The ID of the imbue to check for
+         The imbue list (imbues.<key>) or enchant ID to check for
         </li>
         <li><span class="parameter">offHand</span>
          Boolean whether to check offhand (true) or main hand (false, default)
         </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        boolean True if the imbue is NOT currently applied to the specified weapon
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "unit.weaponImbue.spellName"></a>
-    <strong>unit.weaponImbue.spellName (spellKey)</strong>
-    </dt>
-    <dd>
-    Get the display name of a weapon imbue spell
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">spellKey</span>
-         The spell key string (e.g. "rockbiterWeapon") used in br.player.spells
+        <li><span class="parameter">refreshUnder</span>
+         Seconds: also true when the imbue is on with less than this left (a top-up)
+         (<em>optional</em>)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        string The localised spell name, or the key as a fallback
+        boolean True if the imbue is NOT currently applied to the specified weapon (or is about to run
+ out), and applying it would take
     </ol>
 
 
@@ -2396,103 +3662,44 @@
 
 </dd>
     <dt>
-    <a name = "unit.weaponImbue.charges"></a>
-    <strong>unit.weaponImbue.charges (imbueId, offHand)</strong>
+    <a name = "unit.weaponImbue.spellName"></a>
+    <strong>unit.weaponImbue.spellName (spellKey)</strong>
     </dt>
     <dd>
-    Get weapon imbue charges
+    Get the display name of a weapon imbue spell
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">imbueId</span>
-         The ID of the imbue to check
-        </li>
-        <li><span class="parameter">offHand</span>
-         Boolean whether to check offhand (true) or main hand (false, default)
+        <li><span class="parameter">spellKey</span>
+         The spell key string (e.g. "rockbiterWeapon") used in br.runner.spells
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        number Number of charges remaining on the weapon imbue
+        string The localised spell name, or the key as a fallback
     </ol>
 
 
 
 
 </dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
     <dt>
-    <a name = "unit.attackPower"></a>
-    <strong>unit.attackPower (thisUnit)</strong>
+    <a name = "unit.fightStyle"></a>
+    <strong>unit.fightStyle</strong>
     </dt>
     <dd>
-    Get player's attack power
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">thisUnit</span>
-         The unit to check, defaults to "player" if nil
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        number Total attack power (base + positive buffs + negative buffs)
-    </ol>
+    The kind of fight, as SimC names them: fightStyle.dungeonRoute() in a Mythic+ key run,
+ fightStyle.dungeonSlice() in another 5-man dungeon, fightStyle.patchwerk() anywhere else
 
 
 
-
-</dd>
-    <dt>
-    <a name = "unit.critChance"></a>
-    <strong>unit.critChance (thisUnit)</strong>
-    </dt>
-    <dd>
-    Get player's critical strike chance
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">thisUnit</span>
-         The unit to check, defaults to "player" if nil
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        number Critical strike chance percentage
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "unit.weaponDamage"></a>
-    <strong>unit.weaponDamage (thisUnit)</strong>
-    </dt>
-    <dd>
-    Get player's average weapon damage
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">thisUnit</span>
-         The unit to check, defaults to "player" if nil
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        number Average weapon damage
-    </ol>
 
 
 
@@ -2505,7 +3712,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-05-26 22:12:51 </i>
+<i style="float:right;">Last updated 2026-11-14 23:06:14 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
