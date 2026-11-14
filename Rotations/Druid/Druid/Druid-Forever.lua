@@ -937,7 +937,8 @@ actionList.CatOpener = function()
         for i = ui.value("Cat Opener"), #STEALTH_OPENERS do
             local key = STEALTH_OPENERS[i]
             local name = STEALTH_OPENER_NAMES[key]
-            -- Rake misses in full on a bleed-immune mob; Pounce stays (its stun and combo point land, wowsims/forever)
+            -- Rake misses in full on a bleed-immune mob; Pounce stays (a landed Pounce always stuns and gives its combo
+            -- point, only the bleed is lost; the cast itself can miss, wowsims/forever)
             if spell[key].known() and not (OPENS_BEHIND[key] and passed) and not (key == "rake" and noBleeds("target")) then
                 if OPENS_BEHIND[key] and not behind then
                     if stealthWait(name) then
