@@ -233,11 +233,12 @@ local CAST_ON_GROUP = 5
 -- the spell now: cast.able.<spell>, which judges range and sight). A unit that fails is passed over for the next,
 -- so one dead or out-of-sight member doesn't hold up the rest. nil when none qualifies.
 -- opts (optional): self = false leaves you out, others = false keeps it to you (say, a key option not held),
--- roles = { "TANK", ... }.
+-- roles = { "TANK", ... }, dead = true picks dead players to resurrect instead of living ones (canRes).
 -- local thisUnit = br.functions.unit:getCastOnUnit(5, needsThorns, canThorns, { roles = { "TANK" } })
 function unit:getCastOnUnit(choice, needs, able, opts)
+	local canCast = (opts ~= nil and opts.dead) and unit.canRes or unit.canHelp
 	local function fits(thisUnit)
-		return unit:canHelp(thisUnit) and (needs == nil or needs(thisUnit)) and (able == nil or able(thisUnit))
+		return canCast(unit, thisUnit) and (needs == nil or needs(thisUnit)) and (able == nil or able(thisUnit))
 	end
 	if (opts == nil or opts.self ~= false) and fits("player") then return "player" end
 	if opts ~= nil and opts.others == false then return nil end
@@ -274,6 +275,17 @@ function unit:canHelp(thisUnit)
 	if unit:GetUnitIsUnit(thisUnit, "player") then return true end
 	return unit:isPlayer(thisUnit) and br.game.UnitCanAssist("player", thisUnit) and br.game.UnitIsConnected(thisUnit)
 		and not br.game.UnitIsCharmed(thisUnit) and true or false
+end
+
+-- A dead player BR may resurrect: not you, a friendly player (never an enemy one), online. Range and line of sight
+-- are the spell's to judge (cast.able). (UnitIsFriend rather than UnitCanAssist: the friendship is by faction, so
+-- death can't change it.)
+-- if br.functions.unit:canRes("party1") then
+function unit:canRes(thisUnit)
+	if thisUnit == nil or not unit:GetUnitExists(thisUnit) or not unit:GetUnitIsDeadOrGhost(thisUnit) then return false end
+	if unit:GetUnitIsUnit(thisUnit, "player") then return false end
+	return unit:isPlayer(thisUnit) and unit:GetUnitIsFriend("player", thisUnit) and br.game.UnitIsConnected(thisUnit)
+		and true or false
 end
 
 -- The unit's class token ("DRUID", "DEATHKNIGHT", ...)

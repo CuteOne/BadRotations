@@ -33,7 +33,8 @@ br.api.build.units = function(api)
     -- @param needs - function(unit) returning true if that unit wants the spell (nil: anyone).
     -- @param able - function(unit) returning true if the spell can go on that unit now (nil: no check).
     -- @param[opt] opts - { self = false: leave yourself out; others = false: only yourself (a key not held);
-    --   roles = { "TANK", ... }: group members in these roles first }.
+    --   roles = { "TANK", ... }: group members in these roles first; dead = true: dead players to resurrect
+    --   instead of living ones }.
     -- @return string|nil - Unit token, or nil when nobody qualifies.
     -- @usage local thisUnit = units.castOn("Thorns", buff.thorns.refresh, cast.able.thorns, { roles = { "TANK" } })
     units.castOn = function(thisOption, needs, able, opts)

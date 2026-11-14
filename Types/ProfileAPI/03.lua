@@ -6,6 +6,9 @@
 -- profiles use. The game never loads these files.
 
 
+---@class BR.Retail.Druid.Feral.cast.empowered : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.empowered.Spell>
+
+
 ---@class BR.Retail.Druid.Feral.cast.inFlight : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.inFlight.Spell>
 
 

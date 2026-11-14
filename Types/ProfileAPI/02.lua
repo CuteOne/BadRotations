@@ -736,7 +736,7 @@ function C60.buffUnit(thisOption, needsBuff, range) end
 ---@param thisOption? string - Name of the dropdown option.
 ---@param needs? any - function(unit) returning true if that unit wants the spell (nil: anyone).
 ---@param able? any - function(unit) returning true if the spell can go on that unit now (nil: no check).
----@param opts? any - { self = false: leave yourself out; others = false: only yourself (a key not held); roles = { "TANK", ... }: group members in these roles first }.
+---@param opts? any - { self = false: leave yourself out; others = false: only yourself (a key not held); roles = { "TANK", ... }: group members in these roles first; dead = true: dead players to resurrect instead of living ones }.
 ---@return string|nil # - Unit token, or nil when nobody qualifies.
 function C60.castOn(thisOption, needs, able, opts) end
 
@@ -12118,6 +12118,3 @@ function C65.timer(timerName, interval) end
 
 
 ---@class BR.Retail.Druid.Feral.cast.dispel : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.dispel.Spell>
-
-
----@class BR.Retail.Druid.Feral.cast.empowered : BR.Keys.Retail.Druid.Feral.Abilities<BR.cast.empowered.Spell>
