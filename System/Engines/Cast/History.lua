@@ -11,6 +11,7 @@ local castAt = {} -- spell ID -> when it last went off (UNIT_SPELLCAST_SUCCEEDED
 local failedAt = {} -- spell ID -> when it last failed or was interrupted
 local failedReason = {} -- spell ID -> the combat log's reason for its last failure
 local lastFailure = { spellID = nil, at = nil, event = nil }
+local sentAt = {} -- spell ID -> when the game last fired UNIT_SPELLCAST_SENT for it (BR's send or a key press)
 local waitForSuccess -- the spell sent or started, until it goes off or stops
 
 -- Spells the history leaves out (procs and reactions that aren't rotation choices)
@@ -66,7 +67,10 @@ local function onCastEvent(event, _, a, b, c)
 	if event == "UNIT_SPELLCAST_SENT" or event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_CHANNEL_START" then
 		waitForSuccess = spellID
 		-- into the history once, at the send (a cast-time spell also starts)
-		if event == "UNIT_SPELLCAST_SENT" then addRecent(spellID) end
+		if event == "UNIT_SPELLCAST_SENT" then
+			sentAt[spellID] = br.game.GetTime()
+			addRecent(spellID)
+		end
 	elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
 		noteCastAt(spellID)
 		if waitForSuccess == spellID then
@@ -105,6 +109,11 @@ function cast:getLastFailedTime(spellID) return failedAt[spellID] end
 --- The player's latest failed or interrupted cast: spellID, when, and the event (UNIT_SPELLCAST_FAILED, ..._QUIET or
 --- ..._INTERRUPTED); nil when none yet.
 function cast:getLastFailure() return lastFailure.spellID, lastFailure.at, lastFailure.event end
+
+--- When (GetTime) the game last fired UNIT_SPELLCAST_SENT for spellID (any spell, BR's or the player's), or nil.
+-- A failure with no send before it may be one the game cast by itself (2026-11-14: Track Humanoids refused "not
+-- ready" 0.2 s after each Cat Form, once the player had used it)
+function cast:getLastSentTime(spellID) return sentAt[spellID] end
 
 --- The combat log's reason for spellID's last failure ("Out of range", "Not enough mana"), or nil.
 function cast:getFailedReason(spellID) return failedReason[spellID] end

@@ -404,8 +404,17 @@ function cast:handleCastError(message)
 			if not report then return end
 			local spellName = tostring(br.functions.spell:getName(spellID))
 			if not mine then
+				-- No send for it: not a key press, the game cast it by itself (2026-11-14: Track Humanoids after
+				-- every Cat Form). Still shown until the logs confirm a refused key press always has a send.
+				local sentAt = cast:getLastSentTime(spellID)
+				local pressed = sentAt ~= nil and errorAt - sentAt <= 1
+				local brSpell = tostring(br.functions.spell:getName(lastSend.spellID))
+				if not pressed then
+					return br.log:systemDebug("[GAME CAST?] " .. spellName .. " — game said: " .. message
+						.. " (no send for it, so not BR's and likely not your key press; BR had just sent " .. brSpell .. ")")
+				end
 				return br.log:systemDebug("[YOUR CAST] " .. spellName .. " — game said: " .. message
-					.. " (BR had just sent " .. tostring(br.functions.spell:getName(lastSend.spellID)) .. ")")
+					.. " (BR had just sent " .. brSpell .. ")")
 			end
 			local expected, mismatch = E.expectedRefusal(message, lastCastGUID)
 			local kind = expected == nil and "problem" or mismatch and "mismatch" or "expected"
