@@ -1185,6 +1185,7 @@
 ---@field improvedArdentDefender T
 ---@field improvedBackstab T
 ---@field improvedBarkskin T
+---@field improvedBerserkerRage T
 ---@field improvedBladeOfJustice T
 ---@field improvedBlessingOfProtection T
 ---@field improvedBloodthirst T
@@ -2404,6 +2405,8 @@
 ---@field vampiricSpeed T
 ---@field vampiricStrike T
 ---@field vampiricTouch T
+---@field vanguard T
+---@field vanguardCharge T
 ---@field vanguardOfJustice T
 ---@field vanguardsMomentum T
 ---@field vanish T
@@ -3345,6 +3348,7 @@
 ---@field cascadingTerror T
 ---@field cauterized T
 ---@field chainsOfIce T
+---@field challengingShout T
 ---@field championsMight T
 ---@field chargeStun T
 ---@field cheapShot T
@@ -3540,6 +3544,7 @@
 ---@field sunfire T
 ---@field surgeOfToxins T
 ---@field tarTrap T
+---@field taunt T
 ---@field temptation T
 ---@field thirstForBlood T
 ---@field thrash T

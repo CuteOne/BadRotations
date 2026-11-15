@@ -9,6 +9,7 @@ br.lists.spells.WARRIOR.Shared = {
             abilities     = {
                 -- Battle Stance
                 charge              = {100, 6178, 11578}, -- Ranks 1-3 (out of combat)
+                vanguardCharge      = {1240287, 1240288, 1240289}, -- Ranks 1-3: Charge in Battle or Defensive Stance, 15 sec cooldown (with the Vanguard talent)
                 mockingBlow         = {694, 7400, 7402, 20559, 20560}, -- Ranks 1-5
                 overpower           = {7384, 7887, 11584, 11585}, -- Ranks 1-4 (after a dodge, or a Bloodthrill proc)
                 retaliation         = 20230,
@@ -56,10 +57,13 @@ br.lists.spells.WARRIOR.Shared = {
                 bloodthrill         = 1289682, -- Talent: main-hand hits on your Rend's target can allow Overpower
                 deepWounds          = 12834, -- Talent
                 enrage              = 12317, -- Talent (the buff is 12880)
+                focusedRage         = 29787, -- Talent: offensive abilities cost 3 less Rage
+                improvedBerserkerRage = 20500, -- Talent: Berserker Rage gives 10 Rage and removes movement impairing effects
                 flurry              = 12319, -- Talent
                 goreDrinker         = 1323967, -- Talent: rage abilities make the next 3 hits heal
                 improvedSlam        = 12862, -- Talent
                 improvedTacticalMastery = 12295, -- Talent: more Rage kept on a stance change
+                vanguard            = 1310317, -- Talent: Charge usable in Defensive Stance (as vanguardCharge)
                 tacticalMastery     = 1310185, -- Level 14: Rage kept on a stance change
                 -- Ranged
                 shootBow            = 2480,
@@ -95,6 +99,7 @@ br.lists.spells.WARRIOR.Shared = {
                 defensiveStance     = 71,
             },
             debuffs       = {
+                challengingShout    = 1161,
                 chargeStun          = 7922,
                 concussionBlow      = 12809,
                 deepWounds          = {412609, 12162}, -- 412609 is the bleed wowsims models; 12162 the talent's trigger
@@ -111,6 +116,7 @@ br.lists.spells.WARRIOR.Shared = {
                 rend                = {772, 6546, 6547, 6548, 11572, 11573, 11574},
                 shieldBashSilence   = 18498, -- Improved Shield Bash's silence
                 sunderArmor         = {7386, 7405, 8380, 11596, 11597},
+                taunt               = 355,
                 thunderClap         = {6343, 8198, 8204, 8205, 11580, 11581},
             },
             glyphs        = {
