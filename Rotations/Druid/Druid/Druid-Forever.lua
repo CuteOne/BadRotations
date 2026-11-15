@@ -1481,6 +1481,14 @@ actionList.PreCombat = function()
             return true
         end
     end
+    -- The opener waits for that Prowl to show (up to PROWL_RETRY): the buff shows a moment after the send, and the
+    -- tick in between opened unstealthed (2026-11-15 12:22:15: Prowl [Before Attack], Shred [Opener] 0.1 s later)
+    local sent = var.prowlBeforeAttack
+    if sent and not (buff.prowl.exists() or buff.shadowmeld.exists()) and ui.mode.prowl == 1 and buff.catForm.exists()
+        and sent.guid == unit.guid("target") and util.time() - sent.at <= PROWL_RETRY
+    then
+        return true
+    end
     -- Prowl: only just before a mob would notice you, PROWL_LEAD yards (about a rotation tick at a run) outside
     -- its aggro radius, since Prowl slows you; only a hostile mob the gap to is shrinking (closingOn). The radius
     -- is the server's (centre to centre, 18 yd +/- level, see unit:getAggroRange); BR used edge distance, 20 yd and
