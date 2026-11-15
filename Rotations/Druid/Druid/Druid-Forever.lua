@@ -949,7 +949,8 @@ local function stealthWait(spellName)
         w = { guid = guid, since = now }
         var.stealthWait = w
         if unit.standingTime() <= STEALTH_STILL then
-            ui.debug(("Stealth Opener: up to %d s to get behind %s for %s"):format(STEALTH_WAIT, unit.name("target") or "target", spellName))
+            ui.debug(("%s: up to %d s to get behind %s for %s"):format(buff.prowl.exists() and "Stealth Opener" or "Opener",
+                STEALTH_WAIT, unit.name("target") or "target", spellName))
         end
     end
     if not w.over then w.over = now - w.since > STEALTH_WAIT or unit.standingTime() > STEALTH_STILL end
@@ -1017,6 +1018,15 @@ actionList.CatOpener = function()
     -- combo point; the Cat list's first builder too), not on a bleed-immune mob, a totem or one dying within 6 sec
     -- (the Cat list's Rake rule); else Claw.
     local behindTarget = unit.isBehind("target", "player") and not unit.facing("target", "player")
+    -- In front, with a behind opener picked (any Cat Opener but Rake): the same time to step behind it as from Prowl
+    -- (stealthWait: not while it attacks you, over once you stand still). 2026-11-14 RFK: the game refused your Prowl
+    -- in combat and Rake went out from the front at once, before you could get behind for Shred.
+    if not behindTarget and spell.shred.known() and ui.value("Cat Opener") < #STEALTH_OPENERS - 1
+        and stealthWait("Shred")
+    then
+        var.openerHold = true
+        return false
+    end
     -- Shred (from behind)
     if behindTarget and spell.shred.known() then
         if cast.able.shred("target") and cast.shred("target") then
