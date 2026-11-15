@@ -6,11 +6,12 @@ local lootEngine = br.engines.lootEngine
 if not lootEngine.metaTable then
 	-- Localizing commonly used functions
 	local tinsert, tremove, GetTime = br.game.tinsert, br.game.tremove, br.game.GetTime
-	local UnitCastingInfo, UnitChannelInfo = br.game.UnitCastingInfo, br.game.UnitChannelInfo
-	local IsMounted, GetUnitSpeed = br.game.IsMounted, br.game.GetUnitSpeed
-	local UnitIsDeadOrGhost, CanLootUnit = br.game.UnitIsDeadOrGhost, br.game.CanLootUnit
 	local ClearTarget = br.game.ClearTarget
-	-- Note: InteractUnit is accessed via br.game dynamically to support late-loading unlockers
+	-- The functions an unlocker adapter may install (CanLootUnit, InteractUnit, the Unit* reads) are looked up in
+	-- br.game when called, never kept from load: Veil's adapter installs its own on BR's first pulse, after this file
+	-- loads. A CanLootUnit kept from load was the client's, which doesn't take Veil's GUIDs and answered no, so
+	-- lootCount dropped every corpse as looted and BR never looted one (2026-11-15: Loot.log re-listed a Burning Blade
+	-- Augur as lootable every 0.5 s, no interact; broken since 2026-11-11, when the Veil loader's stand-ins left _G).
 
 	local MAX_LOOT_OPENS = 3    -- Times we may OPEN a corpse's loot window while loot still
 	                           -- remains (with bag space) before treating the leftover as a
@@ -108,7 +109,7 @@ if not lootEngine.metaTable then
 				local thisGUID = v.guid
 				-- Verify the unit still exists and has loot
 				if br.functions.unit:GetObjectExists(thisUnit) then
-					local hasLoot = CanLootUnit(thisGUID)
+					local hasLoot = br.game.CanLootUnit(thisGUID)
 					if hasLoot then
 						-- Ignore (but keep) GUIDs we've skip-listed this session so a blocked
 						-- unique item never starves looting of other nearby corpses.
@@ -203,7 +204,7 @@ if not lootEngine.metaTable then
 		end
 
 		-- Verify unit still has loot; if it's been fully looted, clear its tracking.
-		if not CanLootUnit(unitGUID) then
+		if not br.game.CanLootUnit(unitGUID) then
 			self:debug("Unit no longer has loot available")
 			if br.engines.enemiesEngine.lootable[lootUnit] then
 				br.engines.enemiesEngine.lootable[lootUnit] = nil
@@ -302,15 +303,15 @@ if not lootEngine.metaTable then
 		end
 
 		-- Player-state gates (cheapest first).
-		if UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil then return end -- don't interrupt casting
+		if br.game.UnitCastingInfo("player") ~= nil or br.game.UnitChannelInfo("player") ~= nil then return end -- don't interrupt casting
 		-- ...nor a cast BR has just sent: its cast bar only shows once the game answers, a round trip on
 		-- (2026-10-26: the after-fight Healing Wave went out the frame the corpse was clicked, and the
 		-- click interrupted it)
 		local _, _, sentAt = br.engines.cast:getLastSend()
 		if sentAt and br.game.GetTime() - sentAt < br.functions.misc:getRoundTripHold() then return end
-		if IsMounted("player") then return end                                                  -- don't loot while mounted
-		if GetUnitSpeed("player") > 0 then return end                                            -- don't loot while moving
-		if UnitIsDeadOrGhost("player") then return end                                           -- don't loot while dead
+		if br.game.IsMounted("player") then return end                                                  -- don't loot while mounted
+		if br.game.GetUnitSpeed("player") > 0 then return end                                            -- don't loot while moving
+		if br.game.UnitIsDeadOrGhost("player") then return end                                           -- don't loot while dead
 
 		-- Looting interacts with the corpse, which breaks Stealth/Prowl. Don't auto-loot
 		-- while stealthed at all — respect the player's intent to stay hidden (whether for
@@ -489,7 +490,7 @@ if not lootEngine.metaTable then
 				-- If the corpse we just looted is now empty, clear its open-count so the
 				-- tracking starts fresh next time. If loot remains (a blocked unique item),
 				-- keep the count so getLoot can skip it after MAX_LOOT_OPENS.
-				local lootLeft = lootEngine.lootGUID and CanLootUnit(lootEngine.lootGUID)
+				local lootLeft = lootEngine.lootGUID and br.game.CanLootUnit(lootEngine.lootGUID)
 				if lootEngine.lootGUID and not lootLeft then
 					lootEngine.lootOpenCount[lootEngine.lootGUID] = nil
 				end
