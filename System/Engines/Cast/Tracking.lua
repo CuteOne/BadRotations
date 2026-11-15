@@ -53,6 +53,10 @@ local castIntentLocks = {} -- Tracks cast intent to prevent multiple cast.able()
 --   lowlevel - "Target is too low level": this spell (your rank of it) on this unit, until the unit's level changes
 --            (at most 10 min). Forever drops a spell's old ranks once the next is learned, so there's no lower rank to
 --            cast instead (2026-11-14: Mark of the Wild sent 3 times in 3 s at a low-level Warlock, each refused).
+--   power  - "Not enough mana" (rage, energy, ...): this spell, until that power is above what the player had at
+--            the refusal (at most 30 sec; 2 sec when the power can't be read). Kept apart (powerRefusals below), by
+--            power not time. The game knows the cost when BR's read of it is wrong (2026-11-15 17:26, Forever: Cat
+--            Form sent 132 times in 50 s on 21-64 mana, 129 refused "Not enough mana").
 -- ─────────────────────────────────────────────────────────────────────────────
 local REJECT_DURATION = { aura = 30, los = 1.0, facing = 0.5, behind = 3.0, range = 0.5, cancelled = 3.0, moving = 10, lowlevel = 600 }
 local UNIT_WIDE_REJECT = { los = true, facing = true, behind = true }
@@ -344,6 +348,71 @@ local function rejectionKindForError(message)
 	return nil
 end
 
+-- "Not enough <power>" errors and the power type each is about (Enum.PowerType)
+local POWER_ERRORS = {
+	{ "ERR_OUT_OF_MANA", "Not enough mana", 0 },
+	{ "ERR_OUT_OF_RAGE", "Not enough rage", 1 },
+	{ "ERR_OUT_OF_FOCUS", "Not enough focus", 2 },
+	{ "ERR_OUT_OF_ENERGY", "Not enough energy", 3 },
+	{ "ERR_OUT_OF_RUNIC_POWER", "Not enough runic power", 6 },
+}
+local function powerTypeForError(message)
+	for i = 1, #POWER_ERRORS do
+		local entry = POWER_ERRORS[i]
+		if message == errorText(entry[1], entry[2]) then return entry[3] end
+	end
+	return nil
+end
+
+-- The "power" refusals: spell name -> { type = power type, power = the player's power at the refusal (nil when it
+-- couldn't be read), at = when }. By name, so every rank of the spell waits.
+local POWER_HOLD_MAX, POWER_HOLD_UNREAD = 30, 2
+E.powerRefusals = {}
+
+local function readablePower(powerType)
+	local power = br.game.UnitPower("player", powerType)
+	if type(power) == "number" and br.functions.misc:canUseValue(power) then return power end
+	return nil
+end
+
+-- The game turned BR's send of a spell away for power (the error arrives a frame before the spell-failed
+-- event that names the spell, so this runs a frame later, like the refusal report)
+local function notePowerRefusal(powerType, errorAt)
+	local spellID, failedAt = cast:getLastFailure()
+	if not (spellID and failedAt and math.abs(failedAt - errorAt) <= 0.1) then return end
+	if not E.isBotSend(spellID, "refused") then return end -- the player's own key press
+	local name = br.functions.spell:getName(spellID)
+	if not name then return end
+	local power = readablePower(powerType)
+	E.powerRefusals[name] = { type = powerType, power = power, at = br.game.GetTime() }
+	if br.debug.cast then br.debug.cast:notePowerRefusal(spellID, powerType, power) end
+end
+
+-- Why spellID waits on an earlier "Not enough <power>" from the game, or nil once that power has risen above
+-- the level it was refused at
+function E.powerRefusedDetail(spellID)
+	if next(E.powerRefusals) == nil then return nil end
+	local name = br.functions.spell:getName(spellID)
+	local was = name and E.powerRefusals[name]
+	if not was then return nil end
+	local age = br.game.GetTime() - was.at
+	local power = readablePower(was.type)
+	local held
+	if was.power == nil or power == nil then
+		held = age < POWER_HOLD_UNREAD
+	else
+		held = age < POWER_HOLD_MAX and power <= was.power
+	end
+	if not held then
+		E.powerRefusals[name] = nil
+		return nil
+	end
+	if was.power == nil or power == nil then
+		return string.format("the game said not enough power %.1fs ago (power unreadable)", age)
+	end
+	return string.format("the game said not enough power at %d, %.1fs ago: power %d", was.power, age, power)
+end
+
 E.castTimers = nil -- per-spell cast throttle; created on first createCastFunction call
 
 -- Game refusals that contradict a check BR made before sending (range, sight, facing, behind): BR
@@ -433,6 +502,11 @@ function cast:handleCastError(message)
 			end
 			br.log:systemDebug(text)
 		end)
+	end
+	local powerType = powerTypeForError(message)
+	if powerType ~= nil then
+		if nearSend then br.game.C_Timer.After(0, function() notePowerRefusal(powerType, errorAt) end) end
+		return
 	end
 	local kind = rejectionKindForError(message)
 	if not kind then return end
@@ -665,6 +739,9 @@ end
 -- Healing Touch was usable, no power flag, on 35 mana, and BR sent 10 spells the server turned away
 -- "Not enough mana" in 2 s (2026-11-08 10:36, Druid-Forever on Veil)
 function E.affordableAfterPromised(spellID)
+	-- The game's own answer comes first: a cost BR reads wrong can't send it again on the same power
+	local refused = E.powerRefusedDetail(spellID)
+	if refused then return false, refused end
 	if #E.promised > 0 then prunePromised(br.game.GetTime()) end
 	local costs = br.functions.power:getSpellCosts(spellID)
 	if #costs == 0 then return true end

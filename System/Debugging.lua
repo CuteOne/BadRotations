@@ -1211,6 +1211,31 @@ function br.debug.cast:noteTooLowLevel(spellID, unit)
         tostring(level), tostring(plainNumber(br.game.UnitLevel("player")))))
 end
 
+-- The game refused a BR cast with "Not enough <power>" (2026-11-15, Forever: Cat Form refused 129 times on 21-64
+-- mana while BR's gate let it through). What the cost API gave for it, raw, and what BR made of it, to find which
+-- field holds the cost the gate missed.
+function br.debug.cast:notePowerRefusal(spellID, powerType, power)
+    local raw = {}
+    local list = br.game.C_Spell.GetSpellPowerCost(spellID)
+    if type(list) == "table" then
+        for _, entry in ipairs(list) do
+            raw[#raw + 1] = ("type %s cost %s minCost %s costPercent %s costPerSec %s aura %s/%s"):format(
+                tostring(plainNumber(entry.type)), tostring(plainNumber(entry.cost)), tostring(plainNumber(entry.minCost)),
+                tostring(plainNumber(entry.costPercent)), tostring(plainNumber(entry.costPerSec)),
+                tostring(plainNumber(entry.requiredAuraID)), tostring(entry.hasRequiredAura))
+        end
+    end
+    local read = {}
+    for _, cost in ipairs(br.functions.power:getSpellCosts(spellID)) do
+        read[#read + 1] = ("%s of type %s"):format(tostring(plainNumber(cost.amount)), tostring(plainNumber(cost.type)))
+    end
+    castWrite(("NOT ENOUGH POWER %s (%s): power %s of type %s (max %s) | API: %s | BR read: %s | waits until the power is higher"):format(
+        printable(br.functions.spell:getName(spellID)), tostring(spellID), tostring(power), tostring(powerType),
+        tostring(plainNumber(br.game.UnitPowerMax("player", powerType))),
+        type(list) ~= "table" and ("not a table: " .. tostring(list)) or (#raw == 0 and "no costs" or table.concat(raw, "; ")),
+        #read == 0 and "free" or table.concat(read, ", ")))
+end
+
 -- The game refused a BR cast with "You must be behind your target" (2026-10-19, TBC Anniversary: Shred
 -- refused 6 times with the mob at 0.0 yd, both facing each other, while BR's check said behind).
 -- What BR's behind check saw at that moment: how far the player stands off the unit's facing,

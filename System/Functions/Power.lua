@@ -221,7 +221,11 @@ function power:getSpellCosts(spellID)
 	local list = br.game.C_Spell.GetSpellPowerCost(spellID)
 	if type(list) ~= "table" then return costs end
 	for _, entry in ipairs(list) do
-		local amount = entry.minCost or entry.cost or 0
+		-- minCost is always there and can be 0 with the cost in cost; read 0, the spell looked free and the gate
+		-- let Cat Form through on 21 mana 132 times (2026-11-15, Forever; which field Forever fills is unconfirmed,
+		-- Cast.log's NOT ENOUGH POWER lines show both)
+		local minCost = entry.minCost
+		local amount = (type(minCost) == "number" and minCost > 0) and minCost or entry.cost or 0
 		local otherAura = (entry.requiredAuraID or 0) ~= 0 and entry.hasRequiredAura == false
 		if entry.type ~= nil and amount > 0 and not otherAura then
 			costs[#costs + 1] = { type = entry.type, amount = amount }
