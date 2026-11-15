@@ -128,6 +128,7 @@ br.lists.spells.DRUID.Shared = {
             -- Spells.log on the live build (2026-11-14)
             talents       = {
                 bloodFrenzy         = 16958, -- 2 ranks: a crit with a Cat attack gives combo points more often
+                feralInstinct       = 16947, -- 3 ranks: more threat in Bear Form, Prowl harder to see
                 shreddingAttacks    = 16966, -- 3 ranks: cheaper Shred
             },
             talentsHeroic = {

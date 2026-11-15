@@ -927,9 +927,15 @@ actionList.BearForm = function()
             return true
         end
     end
-    -- Maul: on the next swing, with Rage left over for Primal Bite when it's nearly ready
+    -- Maul: on the next swing, with Rage left over for Primal Bite when it's nearly ready. With 3+ enemies around
+    -- also for the Swipe after it, Maul's and Swipe's cost (was 40 Rage). On two Feral Instinct or Blood Frenzy
+    -- points from 10 Rage with 2+ enemies around (else 15). wowsims/forever's Bear cleave (d22130484).
     local reserve = (spell.primalBite.known() and cd.primalBite.remain() < 2) and 20 or 0
-    if cast.able.maul(dyn5) and rage >= 15 + reserve and (ui.useST(8, 3) or not spell.swipe.known() or rage >= 40) then
+    local floor = (ui.useAOE(8, 2) and (talent.rank.feralInstinct >= 2 or talent.rank.bloodFrenzy >= 2)) and 10 or 15
+    local swipeAfter = spell.swipe.known() and ui.useAOE(8, 3)
+    if cast.able.maul(dyn5) and rage >= floor + reserve
+        and (not swipeAfter or rage >= cast.cost.maul() + cast.cost.swipe())
+    then
         if cast.maul(dyn5) then
             ui.debug("Casting Maul")
             return true
