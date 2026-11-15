@@ -1063,6 +1063,35 @@ actionList.CatOpener = function()
     return openerWaits("claw")
 end -- End Action List - Cat Opener
 
+-- Cat numbers from wowsims/forever's Cat rotation (d22130484, 2026-11-15), by Blood Frenzy's rank and whether Claw
+-- is the paid builder (no Shredding Attacks). The sim's level 60 idol tunings (Ferocity, the Dream) are left out.
+
+-- Energy for a Predatory Discipline Ferocious Bite mid-fight: on 4 combo points / on 5 (Clearcasting in brackets):
+-- no Blood Frenzy with Claw 90 (90) / 70 (35), with Shred 100 (55) / 60 (40); two points with Claw 65 (45) / 60 (40);
+-- else 75 (45) / 70 (40). On 5 the lower of the two goes, always the 5-point one.
+local function biteEnergy(cp, clearcasting, bloodFrenzy, clawBuilds)
+    local four, five
+    if bloodFrenzy == 0 and clawBuilds then four, five = 90, clearcasting and 35 or 70
+    elseif bloodFrenzy == 0 then four, five = clearcasting and 55 or 100, clearcasting and 40 or 60
+    elseif bloodFrenzy >= 2 and clawBuilds then four, five = clearcasting and 45 or 65, clearcasting and 40 or 60
+    else four, five = clearcasting and 45 or 75, clearcasting and 40 or 70 end
+    return cp >= 5 and five or four
+end
+
+-- Seconds of Rip left for that Bite: 3; without Blood Frenzy 4 with Shred, and with Claw 2 in a fight of up to 60 sec
+-- (time in combat and the target's time to die), else 4
+local function biteRipLeft(bloodFrenzy, clawBuilds, ttd)
+    if bloodFrenzy > 0 then return 3 end
+    if clawBuilds and unit.combatTime() + ttd <= 60 then return 2 end
+    return 4
+end
+
+-- The paid builder goes now, rather than pooling Energy: on one Blood Frenzy point always; else at 60 Energy, or
+-- below 4 combo points (no Blood Frenzy) / below 3 (two points)
+local function paidBuilderFits(cp, bloodFrenzy)
+    return bloodFrenzy == 1 or energy >= 60 or (bloodFrenzy == 0 and cp < 4) or (bloodFrenzy >= 2 and cp < 3)
+end
+
 -- Action List - Cat Form
 actionList.CatForm = function()
     local thisUnit = dyn5
@@ -1084,10 +1113,16 @@ actionList.CatForm = function()
             return true
         end
     end
-    -- Shifting Power (talent): 40 Energy for Mana, at 57 Energy or less (wowsims/forever's ceiling; the game refuses
-    -- it at full Energy). It costs 55% of base mana on an 8 sec cooldown (live build, was 16 sec in the beta), so it
-    -- keeps back a heal and the shift back into Cat Form.
-    if ui.checked("Shifting Power") and cast.able.shiftingPower() and energy <= 57 and not buff.clearcasting.exists()
+    -- The talents wowsims/forever's Cat rotation picks its numbers by (d22130484, 2026-11-15): Blood Frenzy's rank,
+    -- and Shredding Attacks. Untalented, Shred costs 60 Energy to Claw's 45, so Claw is the builder you pay for, even
+    -- from behind (a Clearcasting Shred is free either way); so too before Shred is learned.
+    local bloodFrenzy = talent.rank.bloodFrenzy
+    local clawBuilds = talent.rank.shreddingAttacks == 0 or not spell.shred.known()
+    -- Shifting Power (talent): 40 Energy for Mana, at or below the sim's ceiling for your Blood Frenzy rank (53
+    -- without, 55 on one point, 50 on two; the game refuses it at full Energy). It costs 55% of base mana on an 8 sec
+    -- cooldown (live build, was 16 sec in the beta), so it keeps back a heal and the shift back into Cat Form.
+    local shiftingCeiling = bloodFrenzy == 0 and 53 or bloodFrenzy == 1 and 55 or 50
+    if ui.checked("Shifting Power") and cast.able.shiftingPower() and energy <= shiftingCeiling and not buff.clearcasting.exists()
         and power.mana.affordable(cast.cost.shiftingPower(), healCost() + cast.cost.catForm())
     then
         if cast.shiftingPower() then
@@ -1116,12 +1151,13 @@ actionList.CatForm = function()
             return true
         end
     end
-    -- With Predatory Discipline, Bite mid-fight while Rip has 2+ sec left: on 4 combo points at 85 Energy (60 with
-    -- Clearcasting), on 5 at 70 (50). Builders pool for it meanwhile (the sim's numbers).
+    -- With Predatory Discipline, Bite mid-fight while Rip has time left, at the sim's Energy for your talents and
+    -- combo points (biteEnergy). Builders pool for it meanwhile.
     local poolForBite = false
-    if keepsBiteEnergy and comboPoints >= 4 and ((ripUp and debuff.rip.remain(thisUnit) >= 2) or bleedImmune) then
-        local clearcasting = buff.clearcasting.exists()
-        local need = comboPoints >= 5 and (clearcasting and 50 or 70) or (clearcasting and 60 or 85)
+    if keepsBiteEnergy and comboPoints >= 4
+        and ((ripUp and debuff.rip.remain(thisUnit) >= biteRipLeft(bloodFrenzy, clawBuilds, ttd)) or bleedImmune)
+    then
+        local need = biteEnergy(comboPoints, buff.clearcasting.exists(), bloodFrenzy, clawBuilds)
         if energy >= need and cast.able.ferociousBite(thisUnit) then
             if cast.ferociousBite(thisUnit) then
                 ui.debug("Casting Ferocious Bite [Predatory Discipline]")
@@ -1138,13 +1174,15 @@ actionList.CatForm = function()
         end
     end
     -- Rip (Rend and Tear) once it's gone, at 4 combo points: on Forever its attack power part counts 4 at most, so a
-    -- 5th adds only a little base damage. A 5th is built only when one more builder and Rip right after it fit in the
-    -- Energy there plus a tick's 10 (the sim's rule without Blood Frenzy). Recast only once gone: no Pandemic on
-    -- Forever, a recast throws the ticks left away (Druid-TBC's rule; the same measured for Rejuvenation, 2026-11-05).
+    -- 5th adds only a little base damage. Without Blood Frenzy, or on two points with Shifting Power, a 5th is built
+    -- first when one more paid builder and Rip right after it fit in the Energy there plus a tick's 10 (the sim's
+    -- rule; Shred from the front can't land, so then Rip goes at 4). Recast only once gone: no Pandemic on Forever, a
+    -- recast throws the ticks left away (Druid-TBC's rule; the same measured for Rejuvenation, 2026-11-05).
     if not ripUp and not bleedImmune and ttd > ripTime and comboPoints >= 4 and cast.able.rip(thisUnit) then
-        local builder = (behind and spell.shred.known()) and "shred" or "claw"
-        local oneMore = comboPoints < 5 and ttd >= ripTime + 1 and cast.able[builder](thisUnit)
-            and energy + 10 >= cast.cost[builder]() + cast.cost.rip()
+        local buildsFifth = bloodFrenzy == 0 or (bloodFrenzy >= 2 and spell.shiftingPower.known())
+        local builder = clawBuilds and "claw" or (behind and "shred") or nil
+        local oneMore = buildsFifth and builder ~= nil and comboPoints < 5 and ttd >= ripTime + 1
+            and cast.able[builder](thisUnit) and energy + 10 >= cast.cost[builder]() + cast.cost.rip()
         if not oneMore and cast.rip(thisUnit) then
             ui.debug(("Casting Rip [%d combo points]"):format(comboPoints))
             return true
@@ -1181,17 +1219,26 @@ actionList.CatForm = function()
             return true
         end
     end
-    -- Shred (from behind)
-    if behind and cast.able.shred(thisUnit) then
-        if cast.shred(thisUnit) then
-            ui.debug("Casting Shred")
-            return true
+    -- The paid builder: Claw without Shredding Attacks (clawBuilds), else Shred from behind; held to pool Energy once
+    -- the combo points are nearly there (paidBuilderFits)
+    if paidBuilderFits(comboPoints, bloodFrenzy) then
+        if clawBuilds and cast.able.claw(thisUnit) then
+            if cast.claw(thisUnit) then
+                ui.debug("Casting Claw")
+                return true
+            end
+        end
+        if not clawBuilds and behind and cast.able.shred(thisUnit) then
+            if cast.shred(thisUnit) then
+                ui.debug("Casting Shred")
+                return true
+            end
         end
     end
-    -- Claw (not behind, or Shred not learned)
-    if (not behind or not spell.shred.known()) and cast.able.claw(thisUnit) then
+    -- Claw where Shred can't land (in front of the target), once there's the Energy Shred would cost (the sim's)
+    if not clawBuilds and not behind and energy >= cast.cost.shred() and cast.able.claw(thisUnit) then
         if cast.claw(thisUnit) then
-            ui.debug("Casting Claw")
+            ui.debug("Casting Claw [In Front]")
             return true
         end
     end
