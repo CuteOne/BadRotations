@@ -1452,8 +1452,35 @@ local function prowlForQuietTarget()
     return (unit.distance("target") or 99) < PROWL_NEUTRAL and closingOn("target")
 end
 
+-- Your target in melee range, out of combat, about to be attacked (the Cat Opener goes next): Prowl first whenever it
+-- can go up, the gap closing or not, resting or not (the user's rule, 2026-11-15: "it should always prowl before
+-- attacking if possible"). The rules below prowl only while a gap shrinks, so standing next to your target got none
+-- (2026-11-14 17:43:54: Shred [Opener] on a Saltstone Gazer at 2.3 yd after 76 s out of combat). Not on a player (the
+-- Cat Opener doesn't open on one). A Prowl sent for it that isn't up PROWL_RETRY seconds later (the game refused it)
+-- isn't sent again for that target, so the opener isn't held off for good.
+local PROWL_RETRY = 1.5
+local function prowlBeforeAttack()
+    if not unit.valid("target") or unit.deadOrGhost("target") or unit.player("target") then return false end
+    if (unit.distance("target") or 99) >= 5 then return false end
+    local sent = var.prowlBeforeAttack
+    return not (sent and sent.guid == unit.guid("target") and util.time() - sent.at > PROWL_RETRY)
+end
+
 actionList.PreCombat = function()
     if unit.inCombat() or unit.flying() or unit.mounted() then return false end
+    if buff.prowl.exists() then var.prowlBeforeAttack = nil end -- it went up: a later one is a new try
+    if not (buff.prowl.exists() or buff.shadowmeld.exists()) and ui.mode.prowl == 1 and buff.catForm.exists()
+        and cast.able.prowl("player") and prowlBeforeAttack()
+    then
+        local sent = var.prowlBeforeAttack
+        if not (sent and sent.guid == unit.guid("target")) then
+            var.prowlBeforeAttack = { guid = unit.guid("target"), at = util.time() }
+        end
+        if cast.prowl("player") then
+            ui.debug("Casting Prowl [Before Attack]")
+            return true
+        end
+    end
     -- Prowl: only just before a mob would notice you, PROWL_LEAD yards (about a rotation tick at a run) outside
     -- its aggro radius, since Prowl slows you; only a hostile mob the gap to is shrinking (closingOn). The radius
     -- is the server's (centre to centre, 18 yd +/- level, see unit:getAggroRange); BR used edge distance, 20 yd and
