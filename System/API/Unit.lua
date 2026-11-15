@@ -955,6 +955,13 @@ br.api.build.unit = function(api)
         return br.functions.misc:isSwimming()
     end
 
+    --- Check if the player's breath bar is up (under water without water breathing)
+    -- @function unit.breathBar
+    -- @return boolean True while the game's breath timer runs
+    unit.breathBar = function()
+        return br.functions.misc:breathBarShown()
+    end
+
     --- The player's swing timer: seconds until the next swing (nil before the first swing), the
     -- weapon speed and when the last swing landed (util.time())
     -- @function unit.swing

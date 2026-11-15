@@ -213,3 +213,17 @@ end
 function misc:isSwimming()
 	return br.game.IsSwimming()
 end
+
+-- The breath bar is up: the game's "BREATH" mirror timer runs while you're under water without water breathing (it
+-- shows refilling for a moment after you surface). The client has up to 3 mirror timers (breath, fatigue, feign
+-- death); a free slot's name is "UNKNOWN". A secret name counts as no bar.
+local MIRROR_TIMERS = 3
+function misc:breathBarShown()
+	local getInfo = br.game.GetMirrorTimerInfo
+	if getInfo == nil then return false end
+	for i = 1, MIRROR_TIMERS do
+		local name = getInfo(i)
+		if name ~= nil and misc:canUseValue(name) and name == "BREATH" then return true end
+	end
+	return false
+end

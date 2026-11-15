@@ -107,7 +107,7 @@ local function options()
         tip = "Mana Use Conserve: mana percent above which damage spells still go out with an enemy in melee." })
 
     section = ui.section("Form Management")
-    ui.checkbox(section, "Aquatic Form", { checked = true, tip = "Shift to Aquatic Form while swimming" })
+    ui.checkbox(section, "Aquatic Form", { checked = true, tip = "Shift to Aquatic Form while swimming with the breath bar up (under water); kept while you swim on" })
     ui.checkbox(section, "Travel Form", { tip = "Shift to Travel Form while moving out of combat" })
     ui.spinner(section, "Break Form for Heals Below Energy", { value = 30, min = 1, step = 1, checkbox = false,
         tip = "Only leave Cat Form to heal when Energy is below this" })
@@ -460,9 +460,10 @@ end -- End Action List - Buffs
 -- Runs after Buffs, Defensive and Utility, so a buff or heal that needs Caster Form goes first; the
 -- toggle's form waits out the GCD and any cast so it doesn't shift in just before one of those leaves again.
 actionList.Forms = function()
-    -- Aquatic Form
+    -- Aquatic Form: only once the breath bar is up (the user's call, 2026-11-15), not for a swim at the surface;
+    -- once in it, keepAquatic below holds it while you swim on
     if ui.checked("Aquatic Form") and not unit.inCombat() and cast.able.aquaticForm()
-        and unit.swimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
+        and unit.swimming() and unit.breathBar() and not buff.aquaticForm.exists() and not buff.prowl.exists()
         and unit.moving() and unit.movingTime() > 2 and not unit.anyInAggroRange()
     then
         if buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.moonkinForm.exists() then
