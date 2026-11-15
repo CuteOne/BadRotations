@@ -57,6 +57,7 @@ Expansions\Retail\Pulse.lua
 Expansions\Retail\Professions.lua
 Expansions\MOP\Functions.lua
 Expansions\TBC\Functions.lua
+Expansions\Forever\Functions.lua
 
 System\Version.lua
 System\Secrets.lua

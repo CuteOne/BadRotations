@@ -124,7 +124,11 @@ br.lists.spells.DRUID.Shared = {
             },
             glyphs        = {
             },
+            -- Passive talents the rotation reads by rank (talent.rank.<key>, Expansions/Forever/Functions.lua); IDs from
+            -- Spells.log on the live build (2026-11-14)
             talents       = {
+                bloodFrenzy         = 16958, -- 2 ranks: a crit with a Cat attack gives combo points more often
+                shreddingAttacks    = 16966, -- 3 ranks: cheaper Shred
             },
             talentsHeroic = {
             },
