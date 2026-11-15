@@ -488,6 +488,45 @@ local function targetHoldsComboPoints()
 		and (tonumber(br.functions.power:getPower("target", 4)) or 0) > 0 or false
 end
 
+-- Requests up to this range (yards) are melee
+local MELEE_REQUEST = 8
+-- A target still within MELEE_REQUEST yards that drops out of melee (or out of your front) keeps melee requests
+-- for MELEE_EDGE_WAIT seconds: they wait (nil) instead of going to another mob. While the mob or you move, melee
+-- is the melee rule's, not the client's (range:getDistance, 2026-10-19), and a mob the tank turns or shuffles
+-- reads out of melee for a tick: 2026-11-14 RFK, 15 one-tick episodes, each a Rake or Shred on the mob next to it
+-- (Stone Rumbler, Tamed Battleboar, a Death's Head Acolyte on Jargba). A dead, gone, evading, out-of-sight or
+-- fleeing target, one further off, or a priority pick (burn, totem, skull: by option) don't wait.
+-- (The 2026-11-05 melee-edge wait guarded Assist's target switch; it went with that switch on 2026-11-11, but
+-- the spells still followed the pick.)
+local MELEE_EDGE_WAIT = 1.0
+local meleeOut = { guid = nil, since = nil } -- your target, and since when it couldn't take melee
+
+-- Seconds your target has been out of melee (0 while it takes melee), noted once per frame
+local function targetOutOfMeleeFor(now)
+	local facts = readTargetFacts()
+	if meleeOut.at ~= now then
+		meleeOut.at = now
+		if facts.attackable and (facts.distance or 99) < 5 and facts.inFront then
+			meleeOut.since = nil
+		else
+			local guid = br.game.UnitGUID("target")
+			if not br.functions.misc:canUseValue(guid) then guid = nil end
+			if meleeOut.since == nil or meleeOut.guid ~= guid then meleeOut.guid, meleeOut.since = guid, now end
+		end
+	end
+	return meleeOut.since and now - meleeOut.since or 0
+end
+
+-- Whether a melee request waits for your target at the edge of melee rather than going to another mob
+local function waitsAtMeleeEdge(range)
+	if range > MELEE_REQUEST then return false end
+	local facts = readTargetFacts()
+	if not facts.attackable or (facts.distance or 99) > MELEE_REQUEST then return false end
+	local now = br.game.GetTime()
+	if targetOutOfMeleeFor(now) >= MELEE_EDGE_WAIT then return false end
+	return not br.functions.unit:isFleeing("target")
+end
+
 
 --- The unit a request of this range (yards) and facing should attack: the selected target when it can
 --- take it, otherwise BR's pick (br.engines.targeting), or nil.
@@ -522,6 +561,9 @@ local function pickDynamicTarget(range, facing)
 	elseif usable and not autoTargetDynamic then
 		-- a priority unit (burn, totem, skull: by option) takes the spell even over a usable target
 		result = br.engines.targeting:pickPriority(range, facing) or "target"
+	elseif not usable and not autoTargetDynamic and waitsAtMeleeEdge(range) then
+		-- your target at the edge of melee: wait for it (a priority unit still takes the spell)
+		result = br.engines.targeting:pickPriority(range, facing)
 	else
 		result = br.engines.targeting:pick(range, facing)
 	end
