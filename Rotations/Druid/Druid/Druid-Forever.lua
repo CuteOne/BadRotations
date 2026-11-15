@@ -1154,6 +1154,9 @@ end
 local function cleaveSwitch(thisUnit, cl, ttd)
     local rakeUp, ripUp = debuff.rake.exists(thisUnit), debuff.rip.exists(thisUnit)
     if not (rakeUp or ripUp) then return nil end
+    -- A Rake this one still needs goes on it first: with your Rip on one and your Rake on the other, each sent the
+    -- pick to the other every tick and nothing was cast (2026-11-15 12:38:47, two Warug's Bodyguards, 22 switches)
+    if not rakeUp and ttd > cl.rakeLife and not noBleeds(thisUnit) then return nil end
     local longest = 0
     for i = 1, #cleave do longest = math.max(longest, unit.ttd(cleave[i])) end
     local spread = cl.spreadTalents and unit.combatTime() + longest <= 20
