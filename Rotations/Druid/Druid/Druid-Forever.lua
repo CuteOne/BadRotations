@@ -456,15 +456,35 @@ actionList.Buffs = function()
     end
 end -- End Action List - Buffs
 
+-- Aquatic Form's swim, for the shift into it (lead AQUATIC_LEAD) and for staying in it (lead 0): swimming with the
+-- option on, no mob that would notice you (its aggro radius, lead yards more), and no live hostile target within
+-- AQUATIC_TARGET (+ lead) yards: the toggle's form is next for that one. The lead on the way in keeps the two apart, and
+-- a dead target (the corpse you just looted) doesn't count: with it, keeping dropped Aquatic for Cat while the shift
+-- went straight back in (2026-11-15 14:23:25-31, Aquatic, Cat, Aquatic, Cat in 6 s).
+local AQUATIC_TARGET, AQUATIC_LEAD = 30, 5
+local function aquaticSwim(lead)
+    if not (ui.checked("Aquatic Form") and unit.swimming()) or unit.anyInAggroRange(lead) then return false end
+    return not (unit.valid("target") and not unit.deadOrGhost("target") and not unit.friend("target")
+        and (unit.distance("target") or 99) < AQUATIC_TARGET + lead)
+end
+
+-- The mana to shift back into the toggle's Cat or Bear Form after Aquatic or Travel Form: with less, a mob that
+-- pulled you left you in Aquatic Form (2026-11-15 14:36:33: 353 mana, Cat Form "Not enough mana" for 1.7 s)
+local function shiftBackCost()
+    if activeForm == "cat" then return cast.cost.catForm() end
+    if activeForm == "bear" then return cast.cost.bearForm() end
+    return 0
+end
+
 -- Action List - Forms: Aquatic and Travel Form out of combat, then the form the Forms toggle picks.
 -- Runs after Buffs, Defensive and Utility, so a buff or heal that needs Caster Form goes first; the
 -- toggle's form waits out the GCD and any cast so it doesn't shift in just before one of those leaves again.
 actionList.Forms = function()
     -- Aquatic Form: only once the breath bar is up (the user's call, 2026-11-15), not for a swim at the surface;
     -- once in it, keepAquatic below holds it while you swim on
-    if ui.checked("Aquatic Form") and not unit.inCombat() and cast.able.aquaticForm()
-        and unit.swimming() and unit.breathBar() and not buff.aquaticForm.exists() and not buff.prowl.exists()
-        and unit.moving() and unit.movingTime() > 2 and not unit.anyInAggroRange()
+    if not unit.inCombat() and aquaticSwim(AQUATIC_LEAD) and unit.breathBar() and cast.able.aquaticForm()
+        and not buff.aquaticForm.exists() and not buff.prowl.exists() and unit.moving() and unit.movingTime() > 2
+        and power.mana.affordable(cast.cost.aquaticForm(), shiftBackCost())
     then
         if buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.moonkinForm.exists() then
             if unit.cancelFormFor(spell.aquaticForm) then return true end
@@ -490,8 +510,7 @@ actionList.Forms = function()
         end
     end
     -- Form from the Forms toggle
-    local keepAquatic = ui.checked("Aquatic Form") and unit.swimming() and buff.aquaticForm.exists()
-        and not unit.anyInAggroRange() and (not unit.exists("target") or unit.friend("target"))
+    local keepAquatic = buff.aquaticForm.exists() and aquaticSwim(0)
     if keepAquatic or buff.travelForm.exists() or unit.gcd() > 0 or unit.isCasting("player") then return false end
     -- Just left a form for a heal that hasn't gone out yet (held by BR's cast timer, say): wait for it rather than
     -- shift straight back (Form.log 2026-11-05 22:19 and 2026-11-06 19:30: Rejuvenation not cast, Bear Form 0.27 s
