@@ -185,6 +185,8 @@ local inForm
 local noShapeshiftPower
 local targetOnly
 local dyn5, dyn30 -- BR's melee and 30 yd picks this tick, or your target only (targetOnly)
+local cleave -- Cat Form: the 2 or 3 enemies fighting you in melee (cleavePack), the sim's cleave; else nil
+local switching = false -- the Cat list is running again on the enemy it just moved to (cleaveSwitch)
 local travelling
 
 -----------------
@@ -1063,6 +1065,18 @@ actionList.CatOpener = function()
     return openerWaits("claw")
 end -- End Action List - Cat Opener
 
+-- The enemies in melee fighting you or your group (no totems): a Cat cleave at 2 or 3 of them
+local function cleavePack()
+    local pack = {}
+    for i = 1, #enemies.yards5 do
+        local thisUnit = enemies.yards5[i]
+        if not unit.totem(thisUnit) and not unit.deadOrGhost(thisUnit) and unit.inCombat(thisUnit) and unit.threat(thisUnit) then
+            pack[#pack + 1] = thisUnit
+        end
+    end
+    return pack
+end
+
 -- Cat numbers from wowsims/forever's Cat rotation (d22130484, 2026-11-15), by Blood Frenzy's rank and whether Claw
 -- is the paid builder (no Shredding Attacks). The sim's level 60 idol tunings (Ferocity, the Dream) are left out.
 
@@ -1087,9 +1101,72 @@ local function biteRipLeft(bloodFrenzy, clawBuilds, ttd)
 end
 
 -- The paid builder goes now, rather than pooling Energy: on one Blood Frenzy point always; else at 60 Energy, or
--- below 4 combo points (no Blood Frenzy) / below 3 (two points)
-local function paidBuilderFits(cp, bloodFrenzy)
-    return bloodFrenzy == 1 or energy >= 60 or (bloodFrenzy == 0 and cp < 4) or (bloodFrenzy >= 2 and cp < 3)
+-- below 4 combo points (no Blood Frenzy) / below 3 (two points). In a cleave (cl, cleaveRules): below 5, or at its
+-- Energy.
+local function paidBuilderFits(cp, bloodFrenzy, cl)
+    if bloodFrenzy == 1 then return true end
+    if cl then return cp < 5 or energy >= cl.builderEnergy end
+    return energy >= 60 or (bloodFrenzy == 0 and cp < 4) or (bloodFrenzy >= 2 and cp < 3)
+end
+
+-- The sim's cleave numbers (2 or 3 enemies, n), by talents: its Shred tuning (Shredding Attacks and two Blood Frenzy
+-- points), Hybrid with two points (Claw), or Hybrid. ripCP: Rip on these combo points (2 enemies 4 / 3 / 2, 3
+-- enemies 3); rakeLife: Rake on an enemy living longer (2 enemies 6, 4 on Hybrid with two points; 3 enemies 4, 6 on
+-- Hybrid with two points); biteCP: the fight-end Bite (5; 3 enemies 3, 5 on Hybrid with two points); bite: a
+-- mid-fight Bite { Energy, with Clearcasting, Rip seconds left } (Shred tuning 50/25/3, Hybrid at 3 enemies
+-- 50/30/2, else none); builderEnergy: the paid builder at 5 combo points (60; Hybrid at 3 enemies 45).
+-- switchCP: at most these combo points for a switch to Rake or Rip another (Hybrid with two points at 2 enemies 2,
+-- else 0, after a finisher); spreadTalents: the talents the sim spreads Rake on in short pulls.
+local function cleaveRules(n, bloodFrenzy, clawBuilds)
+    local shred = not clawBuilds and bloodFrenzy >= 2
+    local hybridBF = not shred and bloodFrenzy >= 2
+    local zeroClaw = bloodFrenzy == 0 and clawBuilds
+    local r = { n = n, shred = shred, biteCP = 5, builderEnergy = 60, switchCP = 0 }
+    if n == 2 then
+        r.ripCP = shred and 4 or hybridBF and 3 or 2
+        r.rakeLife = hybridBF and 4 or 6
+        r.bite = shred and { 50, 25, 3 } or nil
+        if hybridBF then r.switchCP = 2 end
+        r.spreadTalents = zeroClaw or shred
+    else
+        r.ripCP = 3
+        r.rakeLife = hybridBF and 6 or 4
+        r.biteCP = hybridBF and 5 or 3
+        r.bite = shred and { 50, 25, 3 } or (not hybridBF and { 50, 30, 2 }) or nil
+        r.builderEnergy = hybridBF and 60 or 45
+        r.spreadTalents = zeroClaw or bloodFrenzy >= 2
+    end
+    return r
+end
+
+-- Another enemy of the cleave pack (cleave) to move to, or nil (the sim's switch rules). Spreading Rake: in a pull of
+-- up to 20 sec (time in combat and the longest time to die in the pack), on the talents it spreads on, with 2 enemies
+-- only while your Rake can run out before this one dies: one without your Rake, when this one has it, that lives past
+-- cl.rakeLife. Otherwise, at cl.switchCP combo points or fewer (the ones here go with the switch): that, or one
+-- without your Rip when this one has it, that lives 8+ sec; on the Shred tuning only while this one has Rip, onto one
+-- living 12+ sec.
+local function cleaveSwitch(thisUnit, cl, ttd)
+    local rakeUp, ripUp = debuff.rake.exists(thisUnit), debuff.rip.exists(thisUnit)
+    if not (rakeUp or ripUp) then return nil end
+    local longest = 0
+    for i = 1, #cleave do longest = math.max(longest, unit.ttd(cleave[i])) end
+    local spread = cl.spreadTalents and unit.combatTime() + longest <= 20
+        and (cl.n == 3 or ttd >= debuff.rake.remain(thisUnit))
+    if not spread and comboPoints > cl.switchCP then return nil end
+    for i = 1, #cleave do
+        local other = cleave[i]
+        if not unit.isUnit(other, thisUnit) and not noBleeds(other) then
+            local life = unit.ttd(other)
+            local needsRake = rakeUp and not debuff.rake.exists(other) and life > cl.rakeLife
+            if spread then
+                if needsRake then return other end
+            else
+                local needsRip = ripUp and not debuff.rip.exists(other) and life >= 8
+                if (needsRake or needsRip) and (not cl.shred or (ripUp and life >= 12)) then return other end
+            end
+        end
+    end
+    return nil
 end
 
 -- Action List - Cat Form
@@ -1142,22 +1219,46 @@ actionList.CatForm = function()
     -- Ferocious Bite spends all your Energy unless Predatory Discipline (talent) keeps it, so without the talent it goes
     -- out only at the end of the fight: in the last second on 2+ combo points, or once a Rip wouldn't pay off, on 5
     -- and at most 55 Energy (more goes on a builder first)
+    -- and at most 55 Energy (more goes on a builder first). In a cleave the sim's combo points for it (cleaveRules).
     local keepsBiteEnergy = spell.predatoryDiscipline.known()
+    local cl = cleave and cleaveRules(#cleave, bloodFrenzy, clawBuilds) or nil
     if cast.able.ferociousBite(thisUnit) and ((ttd <= 1 and comboPoints >= 2)
-        or ((ttd < ripTime or bleedImmune) and comboPoints >= 5 and (keepsBiteEnergy or energy <= 55)))
+        or ((ttd < ripTime or bleedImmune) and comboPoints >= (cl and cl.biteCP or 5) and (keepsBiteEnergy or energy <= 55)))
     then
         if cast.ferociousBite(thisUnit) then
             ui.debug("Casting Ferocious Bite [Fight End]")
             return true
         end
     end
+    -- Cleave: move to another enemy in the pack for its Rake (or Rip) when the sim would (cleaveSwitch); the switch
+    -- holds next ticks (var.cleavePick) and the list runs again on it now
+    if cl and not switching then
+        local other = cleaveSwitch(thisUnit, cl, ttd)
+        if other then
+            ui.debug("Cleave: switching to " .. unit.name(other))
+            var.cleavePick, dyn5 = other, other
+            comboPoints = power.comboPoints(other)
+            switching = true
+            local acted = actionList.CatForm()
+            switching = false
+            return acted
+        end
+    end
     -- With Predatory Discipline, Bite mid-fight while Rip has time left, at the sim's Energy for your talents and
-    -- combo points (biteEnergy). Builders pool for it meanwhile.
+    -- combo points (biteEnergy). Builders pool for it meanwhile. In a cleave, only on the talents the sim Bites
+    -- with there (cleaveRules: Shred with two Blood Frenzy points, or three enemies without two points).
     local poolForBite = false
-    if keepsBiteEnergy and comboPoints >= 4
-        and ((ripUp and debuff.rip.remain(thisUnit) >= biteRipLeft(bloodFrenzy, clawBuilds, ttd)) or bleedImmune)
+    local biteNeed, biteRip
+    if not cl then
+        biteNeed = biteEnergy(comboPoints, buff.clearcasting.exists(), bloodFrenzy, clawBuilds)
+        biteRip = biteRipLeft(bloodFrenzy, clawBuilds, ttd)
+    elseif cl.bite then
+        biteNeed, biteRip = buff.clearcasting.exists() and cl.bite[2] or cl.bite[1], cl.bite[3]
+    end
+    if keepsBiteEnergy and biteNeed and comboPoints >= 4
+        and ((ripUp and debuff.rip.remain(thisUnit) >= biteRip) or bleedImmune)
     then
-        local need = biteEnergy(comboPoints, buff.clearcasting.exists(), bloodFrenzy, clawBuilds)
+        local need = biteNeed
         if energy >= need and cast.able.ferociousBite(thisUnit) then
             if cast.ferociousBite(thisUnit) then
                 ui.debug("Casting Ferocious Bite [Predatory Discipline]")
@@ -1178,8 +1279,9 @@ actionList.CatForm = function()
     -- first when one more paid builder and Rip right after it fit in the Energy there plus a tick's 10 (the sim's
     -- rule; Shred from the front can't land, so then Rip goes at 4). Recast only once gone: no Pandemic on Forever, a
     -- recast throws the ticks left away (Druid-TBC's rule; the same measured for Rejuvenation, 2026-11-05).
-    if not ripUp and not bleedImmune and ttd > ripTime and comboPoints >= 4 and cast.able.rip(thisUnit) then
-        local buildsFifth = bloodFrenzy == 0 or (bloodFrenzy >= 2 and spell.shiftingPower.known())
+    -- In a cleave on the sim's fewer combo points (cleaveRules: 2-4), with no 5th.
+    if not ripUp and not bleedImmune and ttd > ripTime and comboPoints >= (cl and cl.ripCP or 4) and cast.able.rip(thisUnit) then
+        local buildsFifth = not cl and (bloodFrenzy == 0 or (bloodFrenzy >= 2 and spell.shiftingPower.known()))
         local builder = clawBuilds and "claw" or (behind and "shred") or nil
         local oneMore = buildsFifth and builder ~= nil and comboPoints < 5 and ttd >= ripTime + 1
             and cast.able[builder](thisUnit) and energy + 10 >= cast.cost[builder]() + cast.cost.rip()
@@ -1204,8 +1306,9 @@ actionList.CatForm = function()
             return true
         end
     end
-    -- Rake: keep a bleed up on anything that lives long enough (Rend and Tear); recast once it's gone (see Rip)
-    if cast.able.rake(thisUnit) and not debuff.rake.exists(thisUnit) and ttd > 6 and not bleedImmune then
+    -- Rake: keep a bleed up on anything that lives long enough (Rend and Tear: 6 sec, in a cleave cleaveRules' 4-6);
+    -- recast once it's gone (see Rip)
+    if cast.able.rake(thisUnit) and not debuff.rake.exists(thisUnit) and ttd > (cl and cl.rakeLife or 6) and not bleedImmune then
         if cast.rake(thisUnit) then
             ui.debug("Casting Rake")
             return true
@@ -1220,8 +1323,8 @@ actionList.CatForm = function()
         end
     end
     -- The paid builder: Claw without Shredding Attacks (clawBuilds), else Shred from behind; held to pool Energy once
-    -- the combo points are nearly there (paidBuilderFits)
-    if paidBuilderFits(comboPoints, bloodFrenzy) then
+    -- the combo points are nearly there (paidBuilderFits; in a cleave only at 5, below cleaveRules' Energy)
+    if paidBuilderFits(comboPoints, bloodFrenzy, cl) then
         if clawBuilds and cast.able.claw(thisUnit) then
             if cast.claw(thisUnit) then
                 ui.debug("Casting Claw")
@@ -1584,14 +1687,30 @@ local function runRotation()
         dyn5 = valid and targetDistance < 5 and "target" or nil
         dyn30 = valid and targetDistance < 30 and "target" or nil
     end
-    -- Combo points sit on the unit they were built on (Forever): the melee pick's, your target or not
-    comboPoints = power.comboPoints(dyn5 or "target")
     -- Enemies
     enemies.get(5)      -- Makes a variable called, enemies.yards5
     enemies.get(5, "player", false, true)  -- makes enemies.yards5f
     enemies.get(8)      -- Makes a variable called, enemies.yards8
     enemies.get(10)     -- Makes a variable called, enemies.yards10
     enemies.get(30)     -- Makes a variable called, enemies.yards30
+    -- Cat cleave (wowsims/forever d22130484): 2 or 3 enemies fighting you in melee, in Cat Form, in combat out of
+    -- Prowl, while BR may pick enemies other than your target (Targeting Mode). The Cat list's move to one of them
+    -- (var.cleavePick, cleaveSwitch) is the melee pick while it stays one of them.
+    cleave = nil
+    if not targetOnly and buff.catForm.exists() and units.picking() then
+        local pack = cleavePack()
+        if #pack == 2 or #pack == 3 then cleave = pack end
+    end
+    local pick = var.cleavePick
+    var.cleavePick = nil
+    for i = 1, cleave and #cleave or 0 do
+        if pick ~= nil and unit.isUnit(cleave[i], pick) then
+            var.cleavePick, dyn5 = cleave[i], cleave[i]
+            break
+        end
+    end
+    -- Combo points sit on the unit they were built on (Forever): the melee pick's, your target or not
+    comboPoints = power.comboPoints(dyn5 or "target")
 
     -- The form the Forms toggle picks, and whether a form that blocks caster spells is up
     activeForm = resolveForm()
