@@ -183,6 +183,8 @@ local freeDPS
 local freeHeal
 local inForm
 local noShapeshiftPower
+local targetOnly
+local dyn5, dyn30 -- BR's melee and 30 yd picks this tick, or your target only (targetOnly)
 local travelling
 
 -----------------
@@ -591,18 +593,18 @@ actionList.Defensive = function()
             if casterCast("entanglingRoots", "target", "Entangling Roots", freeDPS) then return true end
         end
         -- Bash (low health stun)
-        if ui.checked("Bash") and unit.hp() <= ui.value("Bash") and buff.bearForm.exists() and cast.able.bash(units.dyn5) then
-            if cast.bash(units.dyn5) then
+        if ui.checked("Bash") and unit.hp() <= ui.value("Bash") and buff.bearForm.exists() and cast.able.bash(dyn5) then
+            if cast.bash(dyn5) then
                 ui.debug("Casting Bash [Defensive]")
                 return true
             end
         end
         -- Cower: in a group, when the mob you fight turns on you in Cat Form (that mob's threat: another one
         -- on you isn't helped by cowering this one)
-        if ui.checked("Cower") and unit.inGroup() and buff.catForm.exists() and cast.able.cower(units.dyn5)
-            and unit.threatStatus(units.dyn5) >= 2 and unit.role("player") ~= "TANK" and unit.isTankInRange()
+        if ui.checked("Cower") and unit.inGroup() and buff.catForm.exists() and cast.able.cower(dyn5)
+            and unit.threatStatus(dyn5) >= 2 and unit.role("player") ~= "TANK" and unit.isTankInRange()
         then
-            if cast.cower(units.dyn5) then
+            if cast.cower(dyn5) then
                 ui.debug("Casting Cower")
                 return true
             end
@@ -750,7 +752,8 @@ actionList.Utility = function()
         end
     end
     -- Growl: an enemy in melee range attacking someone else
-    if ui.checked("Growl") and unit.inGroup() and buff.bearForm.exists() and cast.able.growl() then
+    -- Growl, Challenging Roar and Hibernate go to mobs that aren't your target: not out of combat (targetOnly)
+    if ui.checked("Growl") and not targetOnly and unit.inGroup() and buff.bearForm.exists() and cast.able.growl() then
         local thisUnit = enemies.first(enemies.yards5, unit.attackingOthers)
         if thisUnit and cast.growl(thisUnit) then
             ui.debug("Casting Growl on " .. unit.name(thisUnit))
@@ -758,7 +761,7 @@ actionList.Utility = function()
         end
     end
     -- Challenging Roar: several enemies around you attacking others
-    if ui.checked("Challenging Roar") and unit.inGroup() and buff.bearForm.exists() and cast.able.challengingRoar()
+    if ui.checked("Challenging Roar") and not targetOnly and unit.inGroup() and buff.bearForm.exists() and cast.able.challengingRoar()
         and enemies.count(enemies.yards10, unit.attackingOthers) >= ui.value("Challenging Roar")
     then
         if cast.challengingRoar() then
@@ -769,7 +772,7 @@ actionList.Utility = function()
     -- Hibernate: a Beast or Dragonkin add while you fight your target (Caster/Moonkin Form only)
     -- not while a Hibernate is still casting: its debuff isn't there yet, so a second one went out
     -- behind it (BRCast.log 2026-10-12)
-    if ui.checked("Hibernate") and not inForm and not unit.moving() and debuff.hibernate.count() == 0
+    if ui.checked("Hibernate") and not targetOnly and not inForm and not unit.moving() and debuff.hibernate.count() == 0
         and not cast.current.hibernate() and #enemies.yards30 > 1
     then
         local thisUnit = enemies.first(enemies.yards30, hibernateTarget)
@@ -792,7 +795,8 @@ actionList.Interrupts = function()
         if cast.able[chargeKey]() then
             enemies.get(CHARGE_MAX)
             thisUnit = enemies.first(enemies.yards25, function(thisUnit)
-                return unit.distance(thisUnit) >= CHARGE_MIN and unit.interruptable(thisUnit, interruptAt)
+                return (not targetOnly or unit.isUnit(thisUnit, "target"))
+                    and unit.distance(thisUnit) >= CHARGE_MIN and unit.interruptable(thisUnit, interruptAt)
                     and cast.able[chargeKey](thisUnit)
             end)
             if thisUnit and cast[chargeKey](thisUnit) then
@@ -804,7 +808,8 @@ actionList.Interrupts = function()
     -- Bash
     if ui.checked("Bash - Int") and (inBear or ui.checked("Bash - Shift to Bear")) and cd.bash.remain() == 0 then
         thisUnit = enemies.first(enemies.yards5f, function(thisUnit)
-            return unit.interruptable(thisUnit, interruptAt) and (not inBear or cast.able.bash(thisUnit))
+            return (not targetOnly or unit.isUnit(thisUnit, "target"))
+                and unit.interruptable(thisUnit, interruptAt) and (not inBear or cast.able.bash(thisUnit))
         end)
         if thisUnit then
             -- Bash requires Bear Form; only shift when the player allowed it.
@@ -833,8 +838,8 @@ actionList.Cooldowns = function()
     -- Berserk (talent): in Cat or Bear Form, on a target worth it; in Bear Form also for 3+ enemies
     -- (Primal Bite hits 3 targets with no cooldown)
     if cast.able.berserk() and (buff.catForm.exists() or buff.bearForm.exists())
-        and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5
-        and (ui.alwaysCdNever("Berserk") and unit.ttd(units.dyn5) > 15
+        and unit.exists(dyn5) and unit.distance(dyn5) < 5
+        and (ui.alwaysCdNever("Berserk") and unit.ttd(dyn5) > 15
             or (buff.bearForm.exists() and ui.value("Berserk") ~= 3 and #enemies.yards8 >= 3))
     then
         if cast.berserk() then
@@ -879,17 +884,17 @@ actionList.BearForm = function()
             return true
         end
     end
-    local lacerateStacks = debuff.lacerate.stack(units.dyn5)
+    local lacerateStacks = debuff.lacerate.stack(dyn5)
     -- Lacerate at 5 stacks about to fall off (it starts again at 1): first, as wowsims/forever's Bear rotation
-    if cast.able.lacerate(units.dyn5) and lacerateStacks >= 5 and debuff.lacerate.remain(units.dyn5) <= 3 then
-        if cast.lacerate(units.dyn5) then
+    if cast.able.lacerate(dyn5) and lacerateStacks >= 5 and debuff.lacerate.remain(dyn5) <= 3 then
+        if cast.lacerate(dyn5) then
             ui.debug("Casting Lacerate [Keep Stack]")
             return true
         end
     end
     -- Primal Bite (talent): high threat on a 6 sec cooldown; Berserk makes it hit 3 targets with no cooldown
-    if cast.able.primalBite(units.dyn5) then
-        if cast.primalBite(units.dyn5) then
+    if cast.able.primalBite(dyn5) then
+        if cast.primalBite(dyn5) then
             ui.debug("Casting Primal Bite")
             return true
         end
@@ -904,7 +909,7 @@ actionList.BearForm = function()
     end
     -- Swipe (hits 3): from 2 enemies once the target bleeds, anyone's bleed (Rend and Tear raises Swipe), else 3
     -- (the sim's rule)
-    if cast.able.swipe() and ui.useAOE(8, bleeding(units.dyn5) and 2 or 3) then
+    if cast.able.swipe() and ui.useAOE(8, bleeding(dyn5) and 2 or 3) then
         if cast.swipe() then
             ui.debug("Casting Swipe")
             return true
@@ -912,18 +917,18 @@ actionList.BearForm = function()
     end
     -- Lacerate: a bleed (Rend and Tear) with high threat, and the filler for every global cooldown, 5 stacks or not
     -- (the sim's); stacking up starts only on a target that lives 6+ sec
-    if cast.able.lacerate(units.dyn5) and (lacerateStacks > 0 or unit.ttd(units.dyn5) > 6)
-        and not noBleeds(units.dyn5)
+    if cast.able.lacerate(dyn5) and (lacerateStacks > 0 or unit.ttd(dyn5) > 6)
+        and not noBleeds(dyn5)
     then
-        if cast.lacerate(units.dyn5) then
+        if cast.lacerate(dyn5) then
             ui.debug("Casting Lacerate")
             return true
         end
     end
     -- Maul: on the next swing, with Rage left over for Primal Bite when it's nearly ready
     local reserve = (spell.primalBite.known() and cd.primalBite.remain() < 2) and 20 or 0
-    if cast.able.maul(units.dyn5) and rage >= 15 + reserve and (ui.useST(8, 3) or not spell.swipe.known() or rage >= 40) then
-        if cast.maul(units.dyn5) then
+    if cast.able.maul(dyn5) and rage >= 15 + reserve and (ui.useST(8, 3) or not spell.swipe.known() or rage >= 40) then
+        if cast.maul(dyn5) then
             ui.debug("Casting Maul")
             return true
         end
@@ -935,10 +940,10 @@ end -- End Action List - Bear Form
 local STEALTH_OPENERS = { "pounce", "ravage", "shred", "rake", "claw" }
 local STEALTH_OPENER_NAMES = { pounce = "Pounce", ravage = "Ravage", shred = "Shred", rake = "Rake", claw = "Claw" }
 local OPENS_BEHIND = { ravage = true, shred = true }
--- From Prowl in front of the target, time to step behind it for Ravage or Shred (Druid-TBC's Ravage wait): up to
--- STEALTH_WAIT seconds from reaching melee range, then the next opener that works from the front. Not while it
--- attacks you (it turns to face you), and over once you've stood still for STEALTH_STILL seconds (opening from
--- where you stand). Before, a Ravage player in front of it got nothing at all (every fallback needed Ravage or
+-- From Prowl in front of the target, time to step behind it for Ravage or Shred (Druid-TBC's Ravage wait): as long
+-- as you keep moving in Prowl (out of Prowl: up to STEALTH_WAIT seconds from reaching melee range), then the next
+-- opener that works from the front. Not while it attacks you (it turns to face you), and over once you've stood still
+-- for STEALTH_STILL seconds (opening from where you stand). Before, a Ravage player in front of it got nothing at all (every fallback needed Ravage or
 -- Shred unlearned), and a Shred player a Claw straight away (the user's call, 2026-11-08).
 local STEALTH_WAIT, STEALTH_STILL = 4, 1.5
 local function stealthWait(spellName)
@@ -949,11 +954,15 @@ local function stealthWait(spellName)
         w = { guid = guid, since = now }
         var.stealthWait = w
         if unit.standingTime() <= STEALTH_STILL then
-            ui.debug(("%s: up to %d s to get behind %s for %s"):format(buff.prowl.exists() and "Stealth Opener" or "Opener",
-                STEALTH_WAIT, unit.name("target") or "target", spellName))
+            ui.debug((buff.prowl.exists() and "Stealth Opener: while you move, time to get behind %s for %s"
+                or ("Opener: up to " .. STEALTH_WAIT .. " s to get behind %s for %s")):format(unit.name("target") or "target", spellName))
         end
     end
-    if not w.over then w.over = now - w.since > STEALTH_WAIT or unit.standingTime() > STEALTH_STILL end
+    -- In Prowl no time limit while you move: getting behind can mean walking around or through the pack (the user,
+    -- 2026-11-14: Ravage is the top hit, maximise the chance)
+    if not w.over then
+        w.over = (not buff.prowl.exists() and now - w.since > STEALTH_WAIT) or unit.standingTime() > STEALTH_STILL
+    end
     return not w.over
 end
 
@@ -1056,7 +1065,7 @@ end -- End Action List - Cat Opener
 
 -- Action List - Cat Form
 actionList.CatForm = function()
-    local thisUnit = units.dyn5
+    local thisUnit = dyn5
     local ttd = unit.ttd(thisUnit)
     local behind = unit.isBehind(thisUnit, "player") and not unit.facing(thisUnit, "player")
     local finish = spell.ferociousBite.kills(thisUnit)
@@ -1193,7 +1202,7 @@ actionList.CasterForm = function()
     -- Left Bear or Cat for your target (out of reach, fleeing, or the flee wait): that one, never BR's own pick, and
     -- every spell at it. Starfire and Wrath went out with no unit, so BR picked one: a Hillsbrad Farmer 22.7 yd off
     -- that wasn't fighting you, pulled while finishing a fleeing Peasant (2026-11-08 15:43:47)
-    local thisUnit = var.rangeTarget and "target" or units.dyn30AOE
+    local thisUnit = var.rangeTarget and "target" or dyn30
     local ttd = unit.ttd(thisUnit)
     -- Hurricane: no cooldown on Forever; channel it into a pack. Not while finishing your target from range (it lands
     -- where the most enemies are, fighting or not)
@@ -1364,8 +1373,8 @@ actionList.PreCombat = function()
                 end
             end
             -- Maul
-            if cast.able.maul(units.dyn5) and (ui.useST(8, 3) or not spell.swipe.known()) then
-                if cast.maul(units.dyn5) then
+            if cast.able.maul("target") and (ui.useST(8, 3) or not spell.swipe.known()) then
+                if cast.maul("target") then
                     ui.debug("Casting Maul [Precombat]")
                     return true
                 end
@@ -1399,14 +1408,14 @@ actionList.Combat = function()
     -- Your target, or BR's pick when your target isn't an enemy it can hit (Targeting Mode Assist leaves a friendly
     -- you targeted to invite, or a mob at range, selected: 2026-11-11, the user). The Cat, Bear and Caster lists
     -- already fight BR's picks (units.dyn5, units.dyn30AOE); spells written for "target" stay with your target.
-    if not (unit.inCombat() and (unit.valid("target") or unit.exists(units.dyn5) or unit.exists(units.dyn30AOE))) then
+    if not (unit.inCombat() and (unit.valid("target") or unit.exists(dyn5) or unit.exists(dyn30))) then
         return false
     end
-    local inMelee = unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5
+    local inMelee = unit.exists(dyn5) and unit.distance(dyn5) < 5
     -- Start Attack (do not break Prowl) on the melee pick, your target or not; when unit.startAttack() sends nothing
     -- yet (already swinging at it, or just after a send), the rotation goes on (see PreCombat)
-    if not buff.prowl.exists() and unit.exists(units.dyn5) and not unit.deadOrGhost(units.dyn5)
-        and unit.startAttack(units.dyn5)
+    if not buff.prowl.exists() and unit.exists(dyn5) and not unit.deadOrGhost(dyn5)
+        and unit.startAttack(dyn5)
     then
         ui.debug("Casting Auto Attack")
         return true
@@ -1415,7 +1424,7 @@ actionList.Combat = function()
     -- back. The auto attack above waits for a melee pick (2026-11-08 13:27: your own Healing Touch left 29 mana, 5 s
     -- idle with a Dalaran Wizard at 5.6 yd and no auto attack)
     local formKey = (activeForm == "cat" and "catForm") or (activeForm == "bear" and "bearForm") or nil
-    local swingAt = unit.exists(units.dyn5) and units.dyn5
+    local swingAt = unit.exists(dyn5) and dyn5
         or (unit.valid("target") and (unit.distance("target") or 99) < 8 and "target") or nil
     if formKey and swingAt and not inForm and not buff.moonkinForm.exists() and not buff.prowl.exists()
         and spell[formKey].known() and not power.mana.affordable(cast.cost[formKey]()) and not cast.auto.autoAttack()
@@ -1449,7 +1458,7 @@ actionList.Combat = function()
     -- A totem dies to a white hit or two: the auto attack above takes it, no Energy or Rage on it (a combo point on it
     -- goes with it). 2026-11-13 fight 31: Shred [Opener] on a 5-health Magma Totem.
     local targetTotem = unit.totem("target")
-    local meleeTotem = inMelee and unit.totem(units.dyn5)
+    local meleeTotem = inMelee and unit.totem(dyn5)
     -- Cat Opener out of Prowl: the first hit on a new target, ahead of Faerie Fire (see openerPending)
     if activeForm == "cat" and buff.catForm.exists() and inMelee and not targetTotem and not buff.prowl.exists() and openerPending() then
         if actionList.CatOpener() then
@@ -1486,10 +1495,11 @@ actionList.Combat = function()
     end
     -- Call Action List - Cat Form
     if activeForm == "cat" and buff.catForm.exists() and inMelee and not meleeTotem then
-        if buff.prowl.exists() and not targetTotem then
-            if actionList.CatOpener() then return true end
-            -- still in the time to get behind for the opener, or short of its Energy: no Claw from Cat Form
-            if var.openerHold then return true end
+        -- While prowled only the Cat Opener runs, on your target; the Cat list never does (as Druid-TBC): it yields and
+        -- tries again next tick, so you keep Prowl until the opener's hit
+        if buff.prowl.exists() then
+            if not targetTotem and actionList.CatOpener() then return true end
+            return true
         end
         if actionList.CatForm() then return true end
     end
@@ -1515,8 +1525,20 @@ local function runRotation()
     -- Units
     units.get(5)        -- Makes a variable called, units.dyn5
     units.get(30, true) -- Makes a variable called, units.dyn30AOE (Forever caster range)
+    -- Out of combat or in Prowl, attacks go only to your target; BR's picks of other mobs wait until you're in combat
+    -- and out of Prowl (the user's rule, 2026-11-14, as Druid-TBC: PreCombat and the Prowl opener act on "target"
+    -- only). 2026-11-14 RFK: walking through a pack in Prowl, the Cat list Ravaged a Razorfen Defender you passed
+    -- while your target stood 18 yd away.
+    targetOnly = not unit.inCombat() or buff.prowl.exists()
+    dyn5, dyn30 = units.dyn5, units.dyn30AOE
+    if targetOnly then
+        local valid = unit.valid("target") and not unit.deadOrGhost("target")
+        local targetDistance = valid and unit.distance("target") or 99
+        dyn5 = valid and targetDistance < 5 and "target" or nil
+        dyn30 = valid and targetDistance < 30 and "target" or nil
+    end
     -- Combo points sit on the unit they were built on (Forever): the melee pick's, your target or not
-    comboPoints = power.comboPoints(units.dyn5 or "target")
+    comboPoints = power.comboPoints(dyn5 or "target")
     -- Enemies
     enemies.get(5)      -- Makes a variable called, enemies.yards5
     enemies.get(5, "player", false, true)  -- makes enemies.yards5f
