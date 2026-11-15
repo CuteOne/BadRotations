@@ -1510,8 +1510,13 @@ actionList.PreCombat = function()
     end
     if not unit.valid("target") then return false end
     local thisDistance = unit.distance("target") or 99
+    -- Out of form while the Forms toggle's Cat Form will Prowl (Prowl toggle on): no pull from Caster Form, the shift
+    -- to Cat and Prowl go first (the user's rule, 2026-11-15: "it should always prowl before attacking if possible").
+    -- After an out-of-combat heal next to the next mob, Auto Attack [Precombat] went out in Caster Form and its swing
+    -- broke the Prowl that followed (12:40:00, 12:45:49); Wrath [Precombat] pulled twice (12:42:29, 12:44:14).
+    local prowlFirst = not inForm and activeForm == "cat" and ui.mode.prowl == 1 and spell.prowl.known()
     -- Faerie Fire Pull: brings the target to you with the debuff already up (Bear or Caster Form)
-    if ui.checked("Faerie Fire Pull") and (buff.bearForm.exists() or not inForm) and not buff.prowl.exists()
+    if ui.checked("Faerie Fire Pull") and (buff.bearForm.exists() or not (inForm or prowlFirst)) and not buff.prowl.exists()
         and thisDistance < 30 and unit.enemy("target") and unit.readyToFight() and not unit.totem("target")
         and not debuff.faerieFire.exists("target", "any") and cast.able.faerieFire("target")
     then
@@ -1521,7 +1526,7 @@ actionList.PreCombat = function()
         end
     end
     -- Pull from range before shifting: Starfire for a Caster/Moonkin player once learned, else Wrath
-    if not unit.moving() and not inForm and thisDistance < 30 then
+    if not unit.moving() and not inForm and not prowlFirst and thisDistance < 30 then
         if (activeForm == "caster" or activeForm == "moonkin") and cast.able.starfire("target") and not cast.current.starfire() then
             if cast.starfire("target") then
                 ui.debug("Casting Starfire [Precombat]")
@@ -1576,7 +1581,9 @@ actionList.PreCombat = function()
         end
         -- Auto Attack (do not break Prowl). unit.startAttack() sends nothing while casting or just after a send, and
         -- then the rotation goes on (2026-11-05: three "Casting Auto Attack" ticks held back the next Wrath).
-        if not buff.prowl.exists() and not cast.auto.autoAttack() and not unit.deadOrGhost("target") and unit.startAttack() then
+        if not buff.prowl.exists() and not prowlFirst and not cast.auto.autoAttack() and not unit.deadOrGhost("target")
+            and unit.startAttack()
+        then
             ui.debug("Casting Auto Attack [Precombat]")
             return true
         end
