@@ -59,6 +59,14 @@ br.api.build.units = function(api)
         return thisUnit -- Backwards compatability for old way
     end
 
+    --- True when BR may pick enemies other than your target right now (Targeting Mode isn't Off, and you're in
+    -- combat or "Targeting Only In Combat" is off): what units.get's picks follow
+    -- @function units.picking
+    -- @return boolean
+    units.picking = function()
+        return br.engines.enemiesEngineFunctions:picksOthers()
+    end
+
     --- True when the group hasn't changed (members joining or leaving) for that many seconds
     -- @function units.groupStable
     -- @number seconds

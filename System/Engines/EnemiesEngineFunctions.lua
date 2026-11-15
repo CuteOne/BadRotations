@@ -528,6 +528,19 @@ local function waitsAtMeleeEdge(range)
 end
 
 
+-- Targeting Mode: 1 Off, 2 Assist (the default), 3 Full
+local function targetingMode()
+	local mode = br.functions.misc:getValue("Targeting Mode")
+	return (mode == nil or mode == 0) and 2 or mode
+end
+
+--- True when BR may pick enemies other than your target right now: Targeting Mode isn't Off, and you're in combat
+--- or "Targeting Only In Combat" is off (units.picking). inCombat: the player's combat state when already read.
+function enemiesEngineFunctions:picksOthers(inCombat)
+	if inCombat == nil then inCombat = br.game.UnitAffectingCombat("player") end
+	return targetingMode() ~= 1 and (inCombat or not br.functions.misc:isChecked("Targeting Only In Combat"))
+end
+
 --- The unit a request of this range (yards) and facing should attack: the selected target when it can
 --- take it, otherwise BR's pick (br.engines.targeting), or nil.
 --- Options (Targeting page): Targeting Mode Off (or Targeting Only In Combat, out of combat) keeps to
@@ -544,14 +557,11 @@ local function pickDynamicTarget(range, facing)
 	local misc = br.functions.misc
 	facing = facing or false
 	local inCombat = br.game.UnitAffectingCombat("player")
-	-- Targeting Mode: 1 Off, 2 Assist (the default), 3 Full
-	local mode = misc:getValue("Targeting Mode")
-	if mode == 0 then mode = 2 end
-	local autoTargetDynamic = mode == 3
+	local autoTargetDynamic = targetingMode() == 3
 	local usable = targetUsable(range, facing)
 	local result
 
-	local dynamicOn = mode ~= 1 and (inCombat or not misc:isChecked("Targeting Only In Combat"))
+	local dynamicOn = enemiesEngineFunctions:picksOthers(inCombat)
 	if not dynamicOn then
 		result = usable and "target" or nil
 	elseif usable and targetHoldsComboPoints() then
