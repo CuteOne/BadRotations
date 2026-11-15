@@ -54,11 +54,23 @@ end
 
 function combat:canRegainControl(spellID, controlEvent)
 	local class = select(3, br.game.UnitClass("player"))
-	-- Warrior
+	-- Warrior. What each spell breaks is what it gives immunity to (the server lets a spell through a
+	-- control effect its own immunity covers): Berserker Rage Fear and Incapacitate (Sap, Gouge), Death
+	-- Wish and Recklessness Fear; none of them a stun (Forever's SpellEffect, 2026-11-14: mechanic
+	-- immunity 5 and 14 on Berserker Rage, 5 on the other two). Improved Berserker Rage adds removing
+	-- movement impairing effects.
 	if class == 1 then
-		if spellID == (br.functions.spell:getHighestSpellID("berserkerRage")) and -- Fear, Sap and Incapacitate
-			(controlEvent == "FEAR" or controlEvent == "FEAR_MECHANIC" or controlEvent == "ROOT"
-				or controlEvent == "SNARE" or controlEvent == "STUN" or controlEvent == "STUN_MECHANIC")
+		local fear = controlEvent == "FEAR" or controlEvent == "FEAR_MECHANIC"
+		if spellID == (br.functions.spell:getHighestSpellID("berserkerRage")) then
+			if fear or controlEvent == "INCAPACITATE" or controlEvent == "INCAPACITATE_MECHANIC" then return true end
+			if (controlEvent == "ROOT" or controlEvent == "SNARE")
+				and br.functions.spell:isKnown(br.functions.spell:getHighestSpellID("improvedBerserkerRage"))
+			then
+				return true
+			end
+		end
+		if fear and (spellID == (br.functions.spell:getHighestSpellID("deathWish"))
+				or spellID == (br.functions.spell:getHighestSpellID("recklessness")))
 		then
 			return true
 		end
@@ -246,22 +258,27 @@ function combat:hasHardControl()
 	return false, nil
 end
 
+-- Whether this spell frees you now: it breaks one of your loss-of-control effects and none of the
+-- others stops it being cast (feared and stunned, Berserker Rage frees nothing). It used to judge only
+-- the first effect.
 -- if hasNoControl(12345) == true then
 function combat:hasNoControl(spellID)
 	if not br.game.C_LossOfControl then return false end
-	local event
+	local frees = false
 	local eventIndex = br.game.C_LossOfControl.GetActiveLossOfControlDataCount()
 	if eventIndex > 0 then
-		for i = 0, eventIndex do
-			event = br.game.C_LossOfControl.GetActiveLossOfControlData(i)
-			if event then
-				local regain = combat:canRegainControl(spellID, event.locType)
-				if not regain and br.functions.misc:useTimer("regainTimer", 0.25) then regain = combat:canRegainControl(spellID, event.locType) end
-				return regain
+		for i = 0, eventIndex do -- 0 as well, as hasHardControl reads
+			local event = br.game.C_LossOfControl.GetActiveLossOfControlData(i)
+			if event and event.locType then
+				if combat:canRegainControl(spellID, event.locType) then
+					frees = true
+				elseif combat:controlBlocks(event.locType, spellID) then
+					return false
+				end
 			end
 		end
 	end
-	return false
+	return frees
 end
 
 -- if br.functions.combat:hasThreat("target") then
