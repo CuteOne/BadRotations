@@ -159,7 +159,7 @@ the levels before you pick a specialization.
 
 <table>
 <tr><th>Class</th><th>Rotation</th><th>Author</th><th>Last updated</th></tr>
-<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-11-14</td></tr>
+<tr><th>Druid</th><td>CuteOne</td><td>CuteOne</td><td>2026-11-15</td></tr>
 </table>
 
 <!-- /rotations -->
